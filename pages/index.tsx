@@ -2,12 +2,14 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import HomeMenu from '@/components/homeMenu/HomeMenu';
 import { GetStaticProps } from 'next';
 export default function Home() {
   const { t } = useTranslation('common');
 
   return (
     <div>
+      <HomeMenu />
       <LanguageSwitcher />
       <div>{t('title')}</div>
     </div>
