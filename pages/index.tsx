@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import Home_experience from '@/components/home/experience.tsx'
 import { GetStaticProps } from 'next';
 export default function Home() {
   const { t } = useTranslation('common');
@@ -10,6 +11,7 @@ export default function Home() {
     <div>
       <LanguageSwitcher />
       <div>{t('title')}</div>
+      <Home_experience />
     </div>
   );
 }

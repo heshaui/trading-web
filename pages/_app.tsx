@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/public.css";
 import type { AppProps } from "next/app";
 import { useState } from 'react';
 import { appWithTranslation } from 'next-i18next';

@@ -1,0 +1,101 @@
+.experiencePage {
+    background-color: var(--homeground);
+    color: #fff;
+    height: 100vh;
+}
+
+.experience-main {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-between;
+    padding-top: 8%;
+}
+
+.main-box {
+    width: 620px;
+    font-family: DIN;
+    font-size: 62px;
+    font-weight: 700;
+    line-height: 75px;
+    /* background-color: pink; */
+    margin-left: 12%;
+    margin-top: 6%;
+    text-align: left;
+
+}
+
+.main-email {
+    margin-top: 147px;
+}
+
+/* 输入框组件覆盖 */
+.ant-input-outlined:focus,
+.ant-input-outlined:focus-within {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px #fff;
+}
+/* 鼠标聚焦且移出样式 */
+.ant-input:focus:not(:hover){
+    background-color: var(--homeground);
+    color: #fff;
+}
+/* 鼠标滑过 */
+.ant-input:hover{
+    border-color: #fff;
+}
+.ant-input {
+    width: 361px;
+    height: 49px;
+    border-radius: 45px;
+    margin-right: 20px;
+    background-color: var(--homeground);
+    color: #fff;
+    text-indent: 1em;
+}
+.ant-input-outlined:hover{
+    background-color: var(--homeground);
+}
+.ant-input::placeholder{
+    color:var(--btncolor1);
+}
+/* 按钮组件覆盖 */
+.main-btn {
+    width: 145px;
+    height: 49px;
+    border-radius: 42px;
+    background-color: var(--btnbgcolor);
+    color: var(--btncolor);
+    border: none;
+}
+
+.ant-btn:hover div{
+    background-color: var(--btnbgcolor1);
+    color: var(--btncolor);
+}
+.ant-btn:hover span{
+    color: var(--btnbgcolor);
+}
+
+.experience-main>img {
+    /* position: absolute;
+    right: 0; */
+    height: 80%;
+    width: 40%;
+    max-width: 620px;
+    max-height: 627px;
+}
+
+@media (min-width:2560px) {
+    .experiencePage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .experience-main {
+        width: 60%;
+    }
+}

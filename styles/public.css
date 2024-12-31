@@ -1,0 +1,84 @@
+.pointer{
+	cursor: pointer;
+}
+.flex {
+  display: flex;
+
+}
+/* 主轴横向 */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+
+}
+/* 主轴纵向 */
+.flex-column {
+  display: flex;
+  flex-direction: column;
+
+}
+.flex-wrap {
+  flex-wrap: wrap;
+
+}
+/* 交叉轴居中 */
+.flex-ai-center {
+  align-items: center;
+}
+/* 交叉轴主轴方向开始 */
+.flex-ai-start {
+  align-items:flex-start;
+}
+/* 交叉轴主轴方向末尾 */
+.flex-ai-end {
+  align-items:flex-end;
+}
+/* 交叉轴基线对齐 */
+.flex-ai-base {
+  align-items: baseline;
+}
+/* 内容分布居中 */
+.flex-jc-center {
+  justify-content: center;
+
+}
+/* 内容分布around */
+.flex-jc-around {
+  justify-content: space-around;
+
+}
+/* 内容分布between */
+.flex-jc-between {
+  justify-content: space-between;
+
+}
+/* 内容分布基线对齐 */
+.flex-jc-end {
+  justify-content: flex-end;
+
+}
+.flex-jc-start {
+  justify-content: flex-start;
+
+}
+.flex-jc-base {
+  justify-content:baseline;
+
+}
+
+
+/* 相对定位 */
+.position-relative {
+	position: relative;
+}
+
+/* 元素绝对居中 */
+.absolute-center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%);
+}
+.inline-block{
+	display: inline-block;
+}
