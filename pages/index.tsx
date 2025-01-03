@@ -2,7 +2,12 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import Home_experience from '@/components/home/experience.tsx'
+import Experience from '@/components/home/page1_experience/experience';
+import Deal from '@/components/home/page2_deal/deal';
+import Try from '@/components/home/page3_try/try'; 
+import Assistant from '@/components/home/page4_assistant/assistant'; 
+import Questions from '@/components/home/page5_questions/questions'; 
+
 import { GetStaticProps } from 'next';
 export default function Home() {
   const { t } = useTranslation('common');
@@ -11,7 +16,11 @@ export default function Home() {
     <div>
       <LanguageSwitcher />
       <div>{t('title')}</div>
-      <Home_experience />
+      <Experience />
+      <Deal />
+      <Try/>
+      <Assistant/>
+      <Questions/>
     </div>
   );
 }

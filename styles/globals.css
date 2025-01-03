@@ -8,8 +8,11 @@
   --homeground: #171717;
   --btnbgcolor: #FF5F1F;
   --btnbgcolor1: #FFAF8F;
+  --btnbgcolor2: #1a1a1a;
   --btncolor: #ffffff;
   --btncolor1: #979897;
+  --hometext: #ffffff;
+  --hometext2: #979897;
 
 }
 
@@ -20,9 +23,11 @@
     --homeground: #171717;
     --btnbgcolor: #FF5F1F;
     --btnbgcolor1: #FFAF8F;
+    --btnbgcolor2: #1a1a1a;
     --btncolor: #ffffff;
     --btncolor1: #979897;
-
+    --hometext: #ffffff;
+    --hometext2: #979897;
   }
 }
 

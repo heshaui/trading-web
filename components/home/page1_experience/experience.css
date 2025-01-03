@@ -11,10 +11,10 @@
     display: flex;
     /* align-items: center; */
     justify-content: space-between;
-    padding-top: 8%;
+    padding: 8% 0;
 }
 
-.main-box {
+.experience_main-box {
     width: 620px;
     font-family: DIN;
     font-size: 62px;
@@ -27,7 +27,7 @@
 
 }
 
-.main-email {
+.experience_main-email {
     margin-top: 147px;
 }
 
@@ -62,7 +62,7 @@
     color:var(--btncolor1);
 }
 /* 按钮组件覆盖 */
-.main-btn {
+.experience_main-btn {
     width: 145px;
     height: 49px;
     border-radius: 42px;
@@ -79,10 +79,10 @@
     color: var(--btnbgcolor);
 }
 
-.experience-main>img {
+.experience_experience-main>img {
     /* position: absolute;
     right: 0; */
-    height: 80%;
+    height: 60%;
     width: 40%;
     max-width: 620px;
     max-height: 627px;
