@@ -34,19 +34,63 @@
     cursor: pointer;
     /* inset: 80px auto auto 150px; */
 }
-
+.menuListA {
+    justify-content: space-between;
+    min-width: 226px;
+    min-height: 56px;
+}
+.menuListAOther, .otherBox {
+    flex-direction: column;
+    justify-content: center;
+}
+.hovered {
+    width: 100px;
+    height: 100px;
+    background-color: #979897;
+}
+.menuListItem, .menuListA, .menuListAOther, .otherBox {
+    display: flex;
+    align-items: center;
+}
+.otherBox {
+    padding: 20px 0;
+}
+.otherBox .imgBox {
+    margin-top: 6px;
+}
+.menuListItemIcon {
+    margin-right: 10px;
+    width: 24px;
+    height: 24px;
+}
+.menuListItemIcon img {
+    width: 100%;
+    height: 100%;
+}
+.menuListItemContent span {
+    font-size: 12px;
+    color: #979897;
+}
+.changeAccountButton {
+    width: 208px;
+    height: 36px;
+    border: 1px solid #DCDCDC;
+    border-radius: 26px;
+}
+/* .ant-dropdown-menu-submenu-popup ul {
+    width: 338px;
+} */
 .rightListContainer {
     margin-right: 16px;
     display: flex;
     align-items: center;
 }
-/* input.ant-input:focus {
-    color: #979897;
+/* :global .ant-input-outlined::placeholder {
+    color: #FFFFFF;
 } */
-/* .css-dev-only-do-not-override-161f05s.ant-input-outlined:focus-within {
-    border-color: #979897 !important;
-    background-color: #1C1E1C !important;
-} */
+a:hover {
+    color: #FFFFFF;
+}
 .login, .register{
     margin-left: 12px;
     font-size: 12px;

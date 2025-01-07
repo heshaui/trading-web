@@ -5,5 +5,5 @@ module.exports = {
       localeDetection: true, // 启用语言自动检测
       
     },
-    ns: ['common'],
+    ns: ['common', 'home_menu'],
   };

@@ -5,11 +5,11 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import { GetStaticProps } from 'next';
 export default function Home() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'home_menu']);
 
   return (
     <div>
-      <HomeMenu />
+      <HomeMenu t={t} />
       <LanguageSwitcher />
       <div>{t('title')}</div>
     </div>
@@ -21,7 +21,7 @@ export default function Home() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? 'en', ['common'])),
+      ...(await serverSideTranslations(locale ?? 'en', ['common', 'home_menu'])),
     },
   };
 };

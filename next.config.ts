@@ -5,7 +5,11 @@ import { i18n } from './next-i18next.config.js';
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  i18n, // 集成 i18n 配置
+  // i18n, // 集成 i18n 配置
+  i18n: {
+    locales: ['en', 'zh', 'ko'],
+    defaultLocale: 'en',
+  },
   async redirects() {
     // 如果环境变量是共享首页，不执行跳转
     if (moduleName === 'spot') {
