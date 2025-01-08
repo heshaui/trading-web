@@ -38,6 +38,7 @@
     justify-content: space-between;
     min-width: 226px;
     min-height: 56px;
+    color: #0C0D0C;
 }
 .menuListAOther, .otherBox {
     flex-direction: column;
@@ -48,9 +49,40 @@
     height: 100px;
     background-color: #979897;
 }
-.menuListItem, .menuListA, .menuListAOther, .otherBox {
+.menuListItem, .menuListA, .menuListAOther, .otherBox, .childrenItemBox, .leftItem {
     display: flex;
     align-items: center;
+}
+.menuListItemSItem {
+    margin: 22px 0 0 34px;
+}
+.menuListItemSItem .menuListUl {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+.menuListItemSItem li {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 145px;
+    height: 40px;
+    padding: 10px;
+    border-radius: 8px;
+    color: #0C0D0C;
+    margin-bottom: 10px;
+}
+.menuListItemSItem li:hover {
+    background-color: #F3F3F3;
+}
+.menuListItemSItem li span {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    background-color: #0C0D0C;
+    rotate: 45deg;
+    margin-right: 4px;
 }
 .otherBox {
     padding: 20px 0;
@@ -71,11 +103,75 @@
     font-size: 12px;
     color: #979897;
 }
+.menuListItemContent .newBox {
+    display: flex;
+    align-items: center;
+}
+.menuListItemContent .newBox span {
+    display: flex;
+    box-sizing: border-box;
+    padding: 2px 6px;
+    justify-content: center;
+    align-items: center;
+    background-color: #FF5F1F;
+    color: #FFFFFF;
+    font-size: 10px;
+    border-radius: 24px;
+    margin-left: 4px;
+}
 .changeAccountButton {
     width: 208px;
     height: 36px;
     border: 1px solid #DCDCDC;
     border-radius: 26px;
+}
+
+.childrenItemBox {
+    justify-content: space-between;
+    box-sizing: border-box;
+    border-radius: 8px;
+    width: 318px;
+    height: 55px;
+    padding: 10px;
+    cursor: pointer;
+}
+.childrenItemBox:hover {
+    background-color: #F4F4F4;
+}
+.childrenItemBox .leftItem img:first-child {
+    margin-right: 10px;
+}
+.childrenItemBox .leftItem span {
+    color: #000317;
+    font-size: 14px;
+}
+.childrenItemBox .leftItem span.orangeSpan, .childrenItemBox .leftItem span.blueSpan {
+    display: inline-block;
+    width: 24px;
+    text-align: center;
+    margin-left: 4px;
+    font-size: 12px;
+}
+.childrenItemBox .leftItem span.blueSpan {
+    background-color: #ECF0FF;
+    color: #627EEA;
+}
+.childrenItemBox .leftItem span.orangeSpan {
+    background-color: #FFF2ED;
+    color: #FF5F1F;
+}
+.childrenItemBox .rightItem {
+    display: flex;
+    align-items: end;
+    flex-direction: column;
+}
+.childrenItemBox .rightItem span:first-child {
+    color: #000317;
+    font-size: 14px;
+}
+.childrenItemBox .rightItem span:last-child {
+    color: #00C788;
+    font-size: 12px;
 }
 /* .ant-dropdown-menu-submenu-popup ul {
     width: 338px;
@@ -88,9 +184,9 @@
 /* :global .ant-input-outlined::placeholder {
     color: #FFFFFF;
 } */
-a:hover {
+/* a:hover {
     color: #FFFFFF;
-}
+} */
 .login, .register{
     margin-left: 12px;
     font-size: 12px;

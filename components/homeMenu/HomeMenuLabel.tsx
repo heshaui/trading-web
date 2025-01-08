@@ -1,19 +1,20 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/utils/types';
-import { RightOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src,
     h5Text,
     spanText,
-    haveChildren = false,
     isOtherItem = false,
     isMore = false,
     isUser = false,
     isUserList = false,
-    items = []
+    items = [],
+    isNew = false,
+    ulItems = [],
+    haveItemChildren = false,
 }) => {
     return (
         <>
@@ -44,27 +45,52 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                     <Menu
                                         mode="inline"
                                         items={items}
-                                        style={{width: '226px', marginLeft: '-10px'}}
+                                        style={{ width: '226px', marginLeft: '-10px' }}
                                     />
                                 ) : (
-                                    <div className={styles.menuListItem}>
-                                        {
-                                            src ? (<div className={styles.menuListItemIcon}>
-                                                <img src={src} alt="icon" />
-                                            </div>) : (<></>)
-                                        }
-                                        <div className={styles.menuListItemContent}>
-                                            <h5 style={{ color: isMore ? '#FF5F1F' : 'inherit' }}>{h5Text}</h5>
+                                    <div>
+                                        <div className={styles.menuListItem}>
                                             {
-                                                spanText ? (<span>{spanText}</span>) : (<></>)
+                                                src ? (<div className={styles.menuListItemIcon}>
+                                                    <img src={src} alt="icon" />
+                                                </div>) : (<></>)
                                             }
+                                            <div className={styles.menuListItemContent}>
+                                                {
+                                                    isNew ? (
+                                                        <div className={styles.newBox}>
+                                                            <h5 style={{ color: isMore ? '#FF5F1F' : 'inherit' }}>{h5Text}</h5>
+                                                            <span>NEW</span>
+                                                        </div>
+                                                    ) : (
+                                                        <h5 style={{ color: isMore ? '#FF5F1F' : 'inherit' }}>{h5Text}</h5>
+                                                    )
+                                                }
+                                                {
+                                                    spanText ? (<span>{spanText}</span>) : (<></>)
+                                                }
+                                            </div>
                                         </div>
+                                        {
+                                            haveItemChildren ? (
+                                                <div className={styles.menuListItemSItem}>
+                                                    <ul className={styles.menuListUl}>
+                                                        {ulItems.map((item, index) => (
+                                                            <li key={index}>
+                                                                <span className={styles.pointStyle}></span>
+                                                                {item.liContent}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ) : (<></>)
+                                        }
+
                                     </div>
                                 )
 
                             )
                         }
-                        {haveChildren && <RightOutlined style={{ color: "#979897" }} />}
                     </a>
                 )
             }

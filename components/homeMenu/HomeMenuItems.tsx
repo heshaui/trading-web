@@ -47,15 +47,11 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow,  }) => {
                     menu={{
                         items: menuList.items,
                         triggerSubMenuAction: 'click',
-                        // style: {boxShadow: 'none', borderRadius: '8px 0 0 8px'},
-                        // onClick: (e) => {
-                        //     haveSubMenu(true);
-                        // },
                     }}
                     trigger={['click']}
                     key={menuList.key}
                     className={styles.menuList}
-                    overlayStyle={{ top: '80px', maxWidth: '338px', minWidth: '300px' }}
+                    overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}
                 >
                     <a onClick={(e) => e.preventDefault()}>
                         <Space style={{ columnGap: '3px' }}>

@@ -3,7 +3,8 @@ import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, Do
 import { Dropdown, Space, Input, Button, Menu, Avatar } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
-import { MenuListItem, HomeMenuProps, IconName } from '@/utils/types';
+import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
+import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/utils/types';
 import React, { useState } from 'react';
 
 // t - 多语言
@@ -187,14 +188,14 @@ export default function HomeMenu({ t }: HomeMenuProps) {
     const userItemsAll = [
         {
             key: '1',
-            type: 'item',
+            type: 'group',
             label: (
                 <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' />
             ),
         },
         {
             key: '2',
-            type: 'item',
+            type: 'group',
             label: (
                 <MenuItemLabel h5Text="切换账户" isUser />
             ),
@@ -242,7 +243,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             items: [
                 {
                     key: '1',
-                    type: 'item',
+                    type: 'group',
                     label: (
                         <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
                     ),
@@ -291,7 +292,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                 },
                 {
                     key: '6',
-                    type: 'item',
+                    type: 'group',
                     label: (
                         <MenuItemLabel h5Text="查看更多" isMore />
                     ),
@@ -351,6 +352,138 @@ export default function HomeMenu({ t }: HomeMenuProps) {
     const iconItems = iconMenus.map(iconMenu =>
         <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
     );
+
+    // TabsItem组件的数据
+    const tabsItemsData1: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: "BTC/USDT",
+            spanText: "10X",
+            incNum: '63,719.9',
+            normalNum: '+0.35%',
+            colorSpan: 'orange'
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: "ETH/USDT",
+            spanText: "10X",
+            incNum: '2,617.00',
+            normalNum: '+0.62%',
+            colorSpan: 'orange'
+        },
+    ];
+    const tabsItemsData2: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: "BTC/USDT",
+            spanText: "永续",
+            incNum: '63,719.9',
+            normalNum: '+0.35%',
+            colorSpan: 'blue'
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: "ETH/USDT",
+            spanText: "永续",
+            incNum: '2,617.00',
+            normalNum: '+0.62%',
+            colorSpan: 'blue'
+        },
+    ];
+    const tabsItemsData3: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: "BTCUSD",
+            spanText: "T型报价",
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: "ETHUSD",
+            spanText: "T型报价",
+        },
+    ];
+    const tabsItemsData4: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: "BTCUSD",
+            incNum: '63,719.9',
+            normalNum: '+0.35%',
+            spanText: "交割",
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: "ETHUSD",
+            incNum: '2,617.00',
+            normalNum: '+0.62%',
+            spanText: "交割",
+        },
+    ];
+
+    // 子项标签页
+    const tabsItems1 = [
+        {
+            key: '1',
+            label: 'USDT',
+            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={tabsItemsData1} />,
+        },
+        {
+            key: '2',
+            label: 'USDC',
+            children: 'Content of Tab Pane 2',
+        },
+        {
+            key: '3',
+            label: '稳定币',
+            children: 'Content of Tab Pane 3',
+        },
+        {
+            key: '4',
+            label: 'Crypto',
+            children: 'Content of Tab Pane 4',
+        },
+    ];
+    const tabsItems2 = [
+        {
+            key: '1',
+            label: 'USDT本位',
+            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={tabsItemsData2} />,
+        },
+        {
+            key: '2',
+            label: 'USDC本位',
+            children: 'Content of Tab Pane 2',
+        },
+        {
+            key: '3',
+            label: '币本位',
+            children: 'Content of Tab Pane 3',
+        },
+    ];
+    const tabsItems3 = [
+        {
+            key: '1',
+            label: 'T型报价',
+            children: <MenuItemChildrenLabel tabsItemsData={tabsItemsData3} />,
+        },
+        {
+            key: '2',
+            label: '期权简选',
+            children: 'Content of Tab Pane 2',
+        },
+    ];
+
+    // 菜单中的子项
+    const ulItems = [
+        {
+            liContent: '简单赚币'
+        },
+        {
+            liContent: '结构化产品'
+        },
+        {
+            liContent: '链上赚币'
+        },
+    ]
 
     // 左侧菜单
     const menus: MenuListItem[] = [
@@ -421,15 +554,10 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                     children: [
                         {
                             key: '2-1',
-                            type: 'item',
+                            type: 'group',
                             label: (
-                                <MenuItemLabel src="/images/home_menu/icon_exchange_baht_line.png" h5Text="现货" spanText="轻松买卖数字货币" />
+                                <MenuItemChildrenLabel isTabs tabsItems={tabsItems1} />
                             ),
-                        },
-                        {
-                            key: '2-2',
-                            type: 'item',
-                            label: '4th menu item',
                         },
                     ],
                 },
@@ -439,6 +567,15 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                     label: (
                         <MenuItemLabel src="/images/home_menu/icon_pact.png" h5Text="合约" spanText="交易永续和交割合约，灵活使用杠杆" />
                     ),
+                    children: [
+                        {
+                            key: '3-1',
+                            type: 'group',
+                            label: (
+                                <MenuItemChildrenLabel isTabs tabsItems={tabsItems2} />
+                            ),
+                        },
+                    ],
                 },
                 {
                     key: '4',
@@ -446,13 +583,31 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                     label: (
                         <MenuItemLabel src="/images/home_menu/icon_option.png" h5Text="期权" spanText="利用市场波动，赚取收益，降低交易风险" />
                     ),
+                    children: [
+                        {
+                            key: '4-1',
+                            type: 'group',
+                            label: (
+                                <MenuItemChildrenLabel isTabs tabsItems={tabsItems3} />
+                            ),
+                        },
+                    ],
                 },
                 {
                     key: '5',
                     type: 'item',
                     label: (
-                        <MenuItemLabel src="/images/home_menu/Group.png" h5Text="盘前交易" spanText="在币种未上线阶段，提前交易其交割合约" />
+                        <MenuItemLabel isNew src="/images/home_menu/Group.png" h5Text="盘前交易" spanText="在币种未上线阶段，提前交易其交割合约" />
                     ),
+                    children: [
+                        {
+                            key: '5-1',
+                            type: 'group',
+                            label: (
+                                <MenuItemChildrenLabel isSearch needNumber isMargin tabsItemsData={tabsItemsData4} />
+                            ),
+                        },
+                    ],
                 },
                 {
                     key: '6',
@@ -498,7 +653,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                             key: '9-1',
                             type: 'item',
                             label: (
-                                <MenuItemLabel src="/images/home_menu/icon_award.png" h5Text="精选策略" spanText="" />
+                                <MenuItemLabel isNew src="/images/home_menu/icon_award.png" h5Text="精选策略" spanText="" />
                             ),
                         },
                         {
@@ -562,9 +717,21 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             items: [
                 {
                     key: '1',
-                    type: 'item',
+                    type: 'group',
+                    // children: [
+                    //     {
+                    //         key: '1-1',
+                    //         type: 'item',
+                    //         label: '1st menu item',
+                    //     },
+                    //     {
+                    //         key: '1-2',
+                    //         type: 'item',
+                    //         label: '2nd menu item',
+                    //     },
+                    // ],
                     label: (
-                        <MenuItemLabel src="/images/home_menu/icon_currency.png" h5Text="赚币" spanText="持币生币，赚取收益" />
+                        <MenuItemLabel ulItems={ulItems} haveItemChildren src="/images/home_menu/icon_currency.png" h5Text="赚币" spanText="持币生币，赚取收益" />
                     ),
                 },
                 {
@@ -838,10 +1005,6 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                             )
                         }
                         <div style={{ height: '20px', border: '1px solid #676867', marginLeft: '12px' }}></div>
-                        {/* <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />
-                        <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />
-                        <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />
-                        <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} /> */}
                         {iconItems}
                     </div>
                 </div>
