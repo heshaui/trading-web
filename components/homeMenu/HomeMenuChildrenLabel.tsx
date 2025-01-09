@@ -46,6 +46,7 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                                     normalNum={item.normalNum}
                                     colorSpan={item.colorSpan}
                                     needNumber={needNumber}
+                                    isPositive={item.isPositive}
                                 />
                             ))}
                         </div>

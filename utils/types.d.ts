@@ -1,3 +1,4 @@
+// HomeMenu
 export interface HomeMenuProps {
     t: (key: string) => string;
 }
@@ -9,10 +10,12 @@ export type MenuListItem = {
     items: Array<{
         key: React.Key;
         label: React.ReactNode;
-        type: 'group' | 'item' | 'divider'; // 使 type 可选，并允许更多类型
+        type: menuType; // 使 type 可选，并允许更多类型
         children?: MenuListItem['items'];
     }>;
 }
+export type menuType = 'group' | 'item' | 'divider';
+export interface MenuItems extends MenuListItem['items'] {};
 export type Props = {
     menuList: MenuListItem;
     haveSubMenu?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,6 +42,7 @@ export type LabelComponentProps = {
     ulItems?: Array<{
         liContent: string;
     }>;
+    isPositive?: boolean;
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {
@@ -48,6 +52,7 @@ export interface TabsItemData extends LabelComponentProps {
     incNum?: string;
     normalNum?: string;
     colorSpan?: string;
+    isPositive?: boolean;
 }
 export interface HomeMenuChildrenLabelProps extends LabelComponentProps {
     needNumber?: boolean;
@@ -59,10 +64,20 @@ export interface HomeMenuChildrenLabelProps extends LabelComponentProps {
         incNum?: string;
         normalNum?: string;
         colorSpan?: string;
+        isPositive?: boolean;
     }>;
 }
 export interface TabsItemProps extends TabsItemData {
-    colorSpan?: string;
     needNumber?: boolean;
+    isFire?: boolean;
+    index?: number;
+    haveNumber?: boolean;
+    isHover?: boolean;
 }
 export type IconName = 'download' | 'bell' | 'question' | 'global';
+
+// Footer
+export type FooterListProps = {
+    title: string;
+    items: string[];
+};

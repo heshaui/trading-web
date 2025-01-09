@@ -3,6 +3,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
+import Footer from '@/components/footer/Footer';
 import { GetStaticProps } from 'next';
 export default function Home() {
   const { t } = useTranslation(['common', 'home_menu']);
@@ -12,6 +13,7 @@ export default function Home() {
       <HomeMenu t={t} />
       <LanguageSwitcher />
       <div>{t('title')}</div>
+      <Footer />
     </div>
   );
 }

@@ -59,11 +59,11 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                 {
                                                     isNew ? (
                                                         <div className={styles.newBox}>
-                                                            <h5 style={{ color: isMore ? '#FF5F1F' : 'inherit' }}>{h5Text}</h5>
+                                                            <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
                                                             <span>NEW</span>
                                                         </div>
                                                     ) : (
-                                                        <h5 style={{ color: isMore ? '#FF5F1F' : 'inherit' }}>{h5Text}</h5>
+                                                        <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
                                                     )
                                                 }
                                                 {

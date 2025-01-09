@@ -124,19 +124,33 @@
     height: 36px;
     border: 1px solid #DCDCDC;
     border-radius: 26px;
+    color: #0c0d0c;
+}
+.changeAccountButton:hover {
+    color: #0c0d0c;
 }
 
+.childrenItemContainer {
+    display: flex;
+    align-items: center;
+}
+.childrenItemContainer h5 {
+    color: #FF5F1F;
+    font-weight: 600;
+    font-size: 14px;
+}
 .childrenItemBox {
     justify-content: space-between;
     box-sizing: border-box;
-    border-radius: 8px;
+    /* border-radius: 8px; */
     width: 318px;
     height: 55px;
     padding: 10px;
     cursor: pointer;
 }
-.childrenItemBox:hover {
+.childrenItemContainerHover:hover {
     background-color: #F4F4F4;
+    border-radius: 8px;
 }
 .childrenItemBox .leftItem img:first-child {
     margin-right: 10px;

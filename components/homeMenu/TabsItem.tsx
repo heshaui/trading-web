@@ -10,37 +10,51 @@ const TabsItem: React.FC<TabsItemProps> = ({
     normalNum,
     colorSpan,
     needNumber = false,
+    isFire = false,
+    index,
+    haveNumber = false,
+    isHover = true,
+    isPositive = false,
 }) => {
     return (
-        <div className={styles.childrenItemBox}>
-            <div className={styles.leftItem}>
-                <img src={src} />
-                <span>{h5Text}</span>
-                {/* {
-                    (colorSpan && colorSpan === 'blue') ? (<span className={styles.blueSpan}>{spanText}</span>) : (<span className={styles.orangeSpan}>{spanText}</span>)
-                } */}
+        <div className={`${styles.childrenItemContainer} ${isHover ? styles.childrenItemContainerHover : ''}`}>
+            {
+                haveNumber ? (
+                    <h5 style={{ color: (index && index <= 3 )? '#FF5F1F': '#979897'  }}>{ index }</h5>
+                ) : (<></>)
+            }
+            <div className={styles.childrenItemBox} id={ isHover? 'childrenItemBox': '' }>
+                <div className={styles.leftItem}>
+                    <img src={src} />
+                    <span>{h5Text}</span>
+                    {
+                        isFire ? (
+                            <img style={{ marginLeft: '4px', width: '18px', height: '18px' }} src={spanText} />
+                        ) : (
+                            colorSpan === 'blue' ? (
+                                <span className={styles.blueSpan}>{spanText}</span>
+                            ) : colorSpan === 'orange' ? (
+                                <span className={styles.orangeSpan}>{spanText}</span>
+                            ) : (
+                                <span style={{ marginLeft: '8px' }}>{spanText}</span> // 如果colorSpan不是上述任何一个值，则使用默认样式
+                            )
+                        )
+
+                    }
+
+                </div>
                 {
-                    colorSpan === 'blue' ? (
-                        <span className={styles.blueSpan}>{spanText}</span>
-                    ) : colorSpan === 'orange' ? (
-                        <span className={styles.orangeSpan}>{spanText}</span>
+                    needNumber ? (
+                        <div className={styles.rightItem}>
+                            <span>{incNum}</span>
+                            <span style={{ color: isPositive ? '#00C788' : '#F73711' }}>{normalNum}</span>
+                        </div>
                     ) : (
-                        <span style={{marginLeft: '8px'}}>{spanText}</span> // 如果colorSpan不是上述任何一个值，则使用默认样式
+                        <></>
                     )
                 }
 
             </div>
-            {
-                needNumber ? (
-                    <div className={styles.rightItem}>
-                        <span>{incNum}</span>
-                        <span>{normalNum}</span>
-                    </div>
-                ) : (
-                    <></>
-                )
-            }
-
         </div>
     );
 };

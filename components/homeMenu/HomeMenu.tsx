@@ -4,6 +4,7 @@ import { Dropdown, Space, Input, Button, Menu, Avatar } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
+import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/utils/types';
 import React, { useState } from 'react';
 
@@ -107,7 +108,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             ),
         },
     ];
-    const UserIcon = () => <UserOutlined style={{ marginLeft: '12px', fontSize: '16px', cursor: 'pointer' }} />;
+    const UserIcon = () => <UserOutlined style={{ marginLeft: '12px', fontSize: '16px', cursor: 'pointer', color: '#ffffff' }} />;
     const userItems = [
         {
             key: '1',
@@ -213,20 +214,79 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             ),
         },
     ];
-    // const dropdownRender = (originNode: React.ReactNode) => {
-    //     return <div>{originNode}</div>;
-    // };
+    // 搜索数据
+    let coinPairs: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: 'BTC/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '63,719.9',
+            normalNum: '+0.62%',
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: 'ETH/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '23,719.9',
+            normalNum: '-0.22%',
+        },
+        {
+            src: '/images/home_menu/BCH.png',
+            h5Text: 'LTC/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '13,719.9',
+            normalNum: '-1.12%',
+        },
+        {
+            src: '/images/home_menu/BCH.png',
+            h5Text: 'LTC/USDT',
+            spanText: '',
+            incNum: '13,719.9',
+            normalNum: '-1.12%',
+        },
+    ];
+    // 添加判断正负的通用函数
+    function mapArray<T extends { normalNum?: string }, U extends { isPositive: boolean }>(
+        array: T[],
+        mapper: (item: T) => U
+    ): (T & U)[] {
+        return array.map(mapper) as (T & U)[];
+    }
+    // 处理包含normalNum属性的数组
+    function addIsPositiveProperty<T extends { normalNum?: string }>(item: T): T & { isPositive: boolean } {
+        return {
+            ...item,
+            isPositive: item.normalNum?.includes('+') || false,
+        };
+    }
+    coinPairs = mapArray( coinPairs, addIsPositiveProperty );
+    const inputItems = [
+        {
+            key: '1',
+            type: 'group',
+            label: (
+                <h5 style={{ color: '#0C0D0C', fontSize: '16px', fontWeight: '500' }}>热门搜索</h5>
+            ),
+            children: coinPairs.map((coinPair, index) => ({
+                key: `1-${index + 1}`, // 使用inputItems中的key和map的index生成key
+                type: 'item',
+                label: (
+                    <TabsItem needNumber haveNumber isHover={false} index={index + 1} isFire={index < 3} src={coinPair.src} h5Text={coinPair.h5Text} spanText={coinPair.spanText} incNum={coinPair.incNum} normalNum={coinPair.normalNum} isPositive={coinPair.isPositive} />
+                )
+            }))
+        }
+    ];
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
             case 'download':
-                return <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />;
+                return <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             case 'bell':
-                return <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />;
+                return <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             case 'question':
-                return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />;
+                return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             case 'global':
-                return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer' }} />;
+                return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             default:
                 return null;
         }
@@ -354,7 +414,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
     );
 
     // TabsItem组件的数据
-    const tabsItemsData1: TabsItemData[] = [
+    let tabsItemsData1: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
             h5Text: "BTC/USDT",
@@ -371,8 +431,17 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             normalNum: '+0.62%',
             colorSpan: 'orange'
         },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: "ETH/USDT",
+            spanText: "10X",
+            incNum: '2,617.00',
+            normalNum: '-0.62%',
+            colorSpan: 'orange'
+        },
     ];
-    const tabsItemsData2: TabsItemData[] = [
+    tabsItemsData1 = mapArray( tabsItemsData1, addIsPositiveProperty );
+    let tabsItemsData2: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
             h5Text: "BTC/USDT",
@@ -390,7 +459,8 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             colorSpan: 'blue'
         },
     ];
-    const tabsItemsData3: TabsItemData[] = [
+    tabsItemsData2 = mapArray( tabsItemsData2, addIsPositiveProperty );
+    let tabsItemsData3: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
             h5Text: "BTCUSD",
@@ -402,7 +472,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             spanText: "T型报价",
         },
     ];
-    const tabsItemsData4: TabsItemData[] = [
+    let tabsItemsData4: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
             h5Text: "BTCUSD",
@@ -418,6 +488,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             spanText: "交割",
         },
     ];
+    tabsItemsData4 = mapArray( tabsItemsData4, addIsPositiveProperty );
 
     // 子项标签页
     const tabsItems1 = [
@@ -921,17 +992,11 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             ],
         },
     ];
-    const [haveSubMenu, setHaveSubMenu] = useState(false);
-    const subMenuDiv = haveSubMenu ? (
-        <div style={{ width: '338px', height: '100px', backgroundColor: '#FFFFFF', position: 'absolute', top: '80px', left: '606px', borderLeft: '1px solid #DCDCDC', boxSizing: 'border-box', borderRadius: '0 8px 8px 0' }}></div>
-    ) : null;
     const listItems = menus.map(menuList =>
-        <MenuItem key={menuList.key} menuList={menuList} haveSubMenu={setHaveSubMenu} haveArrow={false} />
+        <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} />
     );
     return (
         <div style={{ position: 'relative' }}>
-            {subMenuDiv}
-            {/* <div style={{ width: '338px', height: '100px', backgroundColor: '#FFFFFF', position: 'absolute', top: '80px', left: '606px', borderLeft: '1px solid #DCDCDC', boxSizing: 'border-box', borderRadius: '0 8px 8px 0' }}></div> */}
             <div className={styles.container}>
                 <div className={styles.logo}>
                     <img src="/home_menu_logo.png" alt="logo" />
@@ -956,7 +1021,19 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                         </Dropdown>
                     </div>
                     <div className={styles.rightListContainer}>
-                        <Input style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }} placeholder="搜索币对和其他产品" prefix={<SearchOutlined />} />
+                        <Dropdown
+                            menu={{
+                                items: inputItems,
+                            }}
+                            trigger={['click']}
+                            overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
+                        >
+                            <a onClick={(e) => e.preventDefault()}>
+                                <Space>
+                                    <Input style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }} placeholder="搜索币对和其他产品" prefix={<SearchOutlined />} />
+                                </Space>
+                            </a>
+                        </Dropdown>
 
                         {/* <Input placeholder="搜索币对和其他产品" prefix={<SearchOutlined />} /> */}
                         {/* <button className={styles.login}>登录</button>
