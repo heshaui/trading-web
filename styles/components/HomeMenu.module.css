@@ -207,6 +207,7 @@
     cursor: pointer;
 }
 .register {
+    display: inline-block;
     width: 52px;
     height: 36px;
     text-align: center;

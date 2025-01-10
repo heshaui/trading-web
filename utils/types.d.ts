@@ -53,6 +53,7 @@ export interface TabsItemData extends LabelComponentProps {
     normalNum?: string;
     colorSpan?: string;
     isPositive?: boolean;
+    isFire?: boolean;
 }
 export interface HomeMenuChildrenLabelProps extends LabelComponentProps {
     needNumber?: boolean;
@@ -66,6 +67,7 @@ export interface HomeMenuChildrenLabelProps extends LabelComponentProps {
         colorSpan?: string;
         isPositive?: boolean;
     }>;
+    onInputChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 export interface TabsItemProps extends TabsItemData {
     needNumber?: boolean;

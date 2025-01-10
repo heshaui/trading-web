@@ -10,10 +10,10 @@ export default function Home() {
 
   return (
     <div>
-      <HomeMenu t={t} />
+      {/* <HomeMenu t={t} /> */}
       <LanguageSwitcher />
       <div>{t('title')}</div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

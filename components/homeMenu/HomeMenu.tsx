@@ -7,13 +7,14 @@ import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/utils/types';
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 // t - 多语言
 export default function HomeMenu({ t }: HomeMenuProps) {
     // t - 多语言
     console.log('t', t('home_menu_title_1'));
     // 是否登录
-    let isLogin = true;
+    let isLogin = false;
     const items = [
         {
             key: '1',
@@ -214,37 +215,6 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             ),
         },
     ];
-    // 搜索数据
-    let coinPairs: TabsItemData[] = [
-        {
-            src: '/images/home_menu/BTC.png',
-            h5Text: 'BTC/USDT',
-            spanText: '/images/home_menu/fire_fill 1.png',
-            incNum: '63,719.9',
-            normalNum: '+0.62%',
-        },
-        {
-            src: '/images/home_menu/ETC.png',
-            h5Text: 'ETH/USDT',
-            spanText: '/images/home_menu/fire_fill 1.png',
-            incNum: '23,719.9',
-            normalNum: '-0.22%',
-        },
-        {
-            src: '/images/home_menu/BCH.png',
-            h5Text: 'LTC/USDT',
-            spanText: '/images/home_menu/fire_fill 1.png',
-            incNum: '13,719.9',
-            normalNum: '-1.12%',
-        },
-        {
-            src: '/images/home_menu/BCH.png',
-            h5Text: 'LTC/USDT',
-            spanText: '',
-            incNum: '13,719.9',
-            normalNum: '-1.12%',
-        },
-    ];
     // 添加判断正负的通用函数
     function mapArray<T extends { normalNum?: string }, U extends { isPositive: boolean }>(
         array: T[],
@@ -259,23 +229,80 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             isPositive: item.normalNum?.includes('+') || false,
         };
     }
-    coinPairs = mapArray( coinPairs, addIsPositiveProperty );
+    // 定义过滤函数
+    const filterData = (data: TabsItemData[], searchValue: string) => {
+        const lowerSearchValue = searchValue.toLowerCase();
+        return data.filter(item =>
+            item.h5Text.toLowerCase().includes(lowerSearchValue)
+        );
+    };
+
+    // 搜索数据
+    let coinPairs: TabsItemData[] = [
+        {
+            src: '/images/home_menu/BTC.png',
+            h5Text: 'BTC/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '63,719.9',
+            normalNum: '+0.62%',
+            isFire: true,
+        },
+        {
+            src: '/images/home_menu/ETC.png',
+            h5Text: 'ETH/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '23,719.9',
+            normalNum: '-0.22%',
+            isFire: true,
+        },
+        {
+            src: '/images/home_menu/BCH.png',
+            h5Text: 'LTC/USDT',
+            spanText: '/images/home_menu/fire_fill 1.png',
+            incNum: '13,719.9',
+            normalNum: '-1.12%',
+            isFire: true,
+        },
+        {
+            src: '/images/home_menu/BCH.png',
+            h5Text: 'LTC/USDT',
+            spanText: '',
+            incNum: '13,719.9',
+            normalNum: '-1.12%',
+        },
+    ];
+    coinPairs = mapArray(coinPairs, addIsPositiveProperty);
+    // 添加用于存储搜索框输入值的状态
+    const [searchValue, setSearchValue] = useState('');
+    // 根据搜索框的值过滤coinPairs数据
+    const filteredCoinPairs = React.useMemo(() => filterData(coinPairs, searchValue), [coinPairs, searchValue]);
     const inputItems = [
         {
             key: '1',
             type: 'group',
             label: (
-                <h5 style={{ color: '#0C0D0C', fontSize: '16px', fontWeight: '500' }}>热门搜索</h5>
+                <h5 style={{ color: filteredCoinPairs.length > 0 ? '#0C0D0C' : 'inherit', fontSize: '16px', fontWeight: '500' }}>{filteredCoinPairs.length > 0 ? '热门搜索' : '暂无数据'}</h5>
             ),
-            children: coinPairs.map((coinPair, index) => ({
+            children: filteredCoinPairs.map((coinPair, index) => ({
                 key: `1-${index + 1}`, // 使用inputItems中的key和map的index生成key
                 type: 'item',
                 label: (
-                    <TabsItem needNumber haveNumber isHover={false} index={index + 1} isFire={index < 3} src={coinPair.src} h5Text={coinPair.h5Text} spanText={coinPair.spanText} incNum={coinPair.incNum} normalNum={coinPair.normalNum} isPositive={coinPair.isPositive} />
+                    <TabsItem
+                        needNumber
+                        haveNumber
+                        isHover={false}
+                        index={index + 1}
+                        isFire={coinPair.isFire}
+                        src={coinPair.src}
+                        h5Text={coinPair.h5Text}
+                        spanText={coinPair.spanText}
+                        incNum={coinPair.incNum}
+                        normalNum={coinPair.normalNum} isPositive={coinPair.isPositive} />
                 )
             }))
         }
     ];
+
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
@@ -440,7 +467,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             colorSpan: 'orange'
         },
     ];
-    tabsItemsData1 = mapArray( tabsItemsData1, addIsPositiveProperty );
+    tabsItemsData1 = mapArray(tabsItemsData1, addIsPositiveProperty);
     let tabsItemsData2: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
@@ -459,7 +486,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             colorSpan: 'blue'
         },
     ];
-    tabsItemsData2 = mapArray( tabsItemsData2, addIsPositiveProperty );
+    tabsItemsData2 = mapArray(tabsItemsData2, addIsPositiveProperty);
     let tabsItemsData3: TabsItemData[] = [
         {
             src: '/images/home_menu/BTC.png',
@@ -488,14 +515,35 @@ export default function HomeMenu({ t }: HomeMenuProps) {
             spanText: "交割",
         },
     ];
-    tabsItemsData4 = mapArray( tabsItemsData4, addIsPositiveProperty );
+    tabsItemsData4 = mapArray(tabsItemsData4, addIsPositiveProperty);
+    // TabsItem组件过滤后的数据
+    const [searchValue1, setSearchValue1] = useState('');
+    const handleInputChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue1(event.target.value);
+    };
+    const [searchValue2, setSearchValue2] = useState('');
+    const handleInputChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue2(event.target.value);
+    };
+    // const [searchValue3, setSearchValue3] = useState('');
+    // const handleInputChange3 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     setSearchValue3(event.target.value);
+    // };
+    const [searchValue4, setSearchValue4] = useState('');
+    const handleInputChange4 = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue4(event.target.value);
+    };
+    const filteredData1 = React.useMemo(() => filterData(tabsItemsData1, searchValue1), [tabsItemsData1, searchValue1]);
+    const filteredData2 = React.useMemo(() => filterData(tabsItemsData2, searchValue2), [tabsItemsData2, searchValue2]);
+    // const filteredData3 = React.useMemo(() => filterData(tabsItemsData3, searchValue3), [tabsItemsData3, searchValue3]);
+    const filteredData4 = React.useMemo(() => filterData(tabsItemsData4, searchValue4), [tabsItemsData4, searchValue4]);
 
     // 子项标签页
     const tabsItems1 = [
         {
             key: '1',
             label: 'USDT',
-            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={tabsItemsData1} />,
+            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData1} onInputChange={handleInputChange1} />,
         },
         {
             key: '2',
@@ -517,7 +565,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
         {
             key: '1',
             label: 'USDT本位',
-            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={tabsItemsData2} />,
+            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData2} onInputChange={handleInputChange2} />,
         },
         {
             key: '2',
@@ -675,7 +723,7 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                             key: '5-1',
                             type: 'group',
                             label: (
-                                <MenuItemChildrenLabel isSearch needNumber isMargin tabsItemsData={tabsItemsData4} />
+                                <MenuItemChildrenLabel isSearch needNumber isMargin tabsItemsData={filteredData4} onInputChange={handleInputChange4} />
                             ),
                         },
                     ],
@@ -1030,14 +1078,16 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                         >
                             <a onClick={(e) => e.preventDefault()}>
                                 <Space>
-                                    <Input style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }} placeholder="搜索币对和其他产品" prefix={<SearchOutlined />} />
+                                    <Input
+                                        style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
+                                        placeholder="搜索币对和其他产品"
+                                        prefix={<SearchOutlined />}
+                                        value={searchValue}
+                                        onChange={(e) => setSearchValue(e.target.value)}
+                                    />
                                 </Space>
                             </a>
                         </Dropdown>
-
-                        {/* <Input placeholder="搜索币对和其他产品" prefix={<SearchOutlined />} /> */}
-                        {/* <button className={styles.login}>登录</button>
-                    <button className={styles.register}>注册</button> */}
                         {
                             isLogin ? (
                                 <div className={styles.loginContent}>
@@ -1076,8 +1126,8 @@ export default function HomeMenu({ t }: HomeMenuProps) {
                                 </div>
                             ) : (
                                 <div>
-                                    <button className={styles.login}>登录</button>
-                                    <button className={styles.register}>注册</button>
+                                    <Link href='/login' className={styles.login}>登录</Link>
+                                    <Link href='/register' className={styles.register}>注册</Link>
                                 </div>
                             )
                         }

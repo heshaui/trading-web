@@ -20,7 +20,7 @@ const TabsItem: React.FC<TabsItemProps> = ({
         <div className={`${styles.childrenItemContainer} ${isHover ? styles.childrenItemContainerHover : ''}`}>
             {
                 haveNumber ? (
-                    <h5 style={{ color: (index && index <= 3 )? '#FF5F1F': '#979897'  }}>{ index }</h5>
+                    <h5 style={{ color: isFire ? '#FF5F1F': '#979897'  }}>{ index }</h5>
                 ) : (<></>)
             }
             <div className={styles.childrenItemBox} id={ isHover? 'childrenItemBox': '' }>

@@ -12,6 +12,7 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
     tabsItems,
     needNumber,
     isMargin = false,
+    onInputChange,
 }) => {
     return (
         <>
@@ -24,7 +25,14 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                     ) : (
                         <div>
                             {
-                                isSearch ? (<Input style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }} placeholder="搜索" prefix={<SearchOutlined />} />) : (<></>)
+                                isSearch ? (
+                                    <Input
+                                        style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }}
+                                        placeholder="搜索"
+                                        prefix={<SearchOutlined />}
+                                        onChange={onInputChange}
+                                    />
+                                ) : (<></>)
                             }
                             {/* <Menu
                                 // onClick={onClick}
