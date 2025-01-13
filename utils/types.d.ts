@@ -1,6 +1,7 @@
 // HomeMenu
 export interface HomeMenuProps {
     t: (key: string) => string;
+    test: string;
 }
 export type MenuListItem = {
     key: string;

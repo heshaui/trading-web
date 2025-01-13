@@ -10,9 +10,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 // t - 多语言
-export default function HomeMenu({ t }: HomeMenuProps) {
+export default function HomeMenu({ t, test }: HomeMenuProps) {
     // t - 多语言
     console.log('t', t('home_menu_title_1'));
+    console.log('test', test);
     // 是否登录
     let isLogin = false;
     const items = [
