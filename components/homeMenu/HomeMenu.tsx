@@ -15,7 +15,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     console.log('t', t('home_menu_title_1'));
     console.log('test', test);
     // 是否登录
-    let isLogin = false;
+    let isLogin = true;
     const items = [
         {
             key: '1',
@@ -1053,7 +1053,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                 <div className={styles.menuContainer}>
                     <div className={styles.menuListContainer}>
                         {listItems}
-                        <a style={{ marginRight: '20px', cursor: 'pointer' }} onClick={(e) => e.preventDefault()}>新手学院</a>
+                        <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>新手学院</Link>
                         <Dropdown
                             menu={{
                                 items: moreItems,

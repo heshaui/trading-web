@@ -16,7 +16,7 @@ export type MenuListItem = {
     }>;
 }
 export type menuType = 'group' | 'item' | 'divider';
-export interface MenuItems extends MenuListItem['items'] {};
+export interface MenuItems extends MenuListItem['items'] { };
 export type Props = {
     menuList: MenuListItem;
     haveSubMenu?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -84,3 +84,12 @@ export type FooterListProps = {
     title: string;
     items: string[];
 };
+
+// CurrencyTrading
+export interface CurrencyTradingProps {
+    title: string;
+}
+export interface TrendDataItem {
+    date: string;
+    value: number;
+}
