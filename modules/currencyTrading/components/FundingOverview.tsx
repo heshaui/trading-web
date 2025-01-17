@@ -2,8 +2,9 @@ import { CurrencyTradingProps } from '@/utils/types';
 import styles from '../styles/currencyTrading.module.css';
 import AreaChart from '../components/charts/AreaChart';
 import PieChart from '../components/charts/PieChart';
+import FundingTable from './table/FundingTable';
 
-import { Card, Col, Row, ConfigProvider, Select } from 'antd';
+import { Card, Col, Row, ConfigProvider, Select, Tabs, Checkbox } from 'antd';
 import {
     InfoCircleOutlined,
     CheckCircleFilled,
@@ -72,6 +73,30 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
         { name: 'ETH', value: 300, fill: '#1F40FF' },
         { name: 'BTC', value: 300, fill: '#E4E7F1' },
         { name: '其他', value: 200, fill: '#FFC507' },
+    ];
+
+    // 表格tabs数据
+    const items = [
+        {
+            key: '1',
+            label: '币种分布',
+            children: <FundingTable />,
+        },
+        {
+            key: '2',
+            label: '账户分布',
+            children: 'Content of Tab Pane 2',
+        },
+        {
+            key: '3',
+            label: '分析',
+            children: 'Content of Tab Pane 3',
+        },
+        {
+            key: '4',
+            label: '流水',
+            children: 'Content of Tab Pane 4',
+        },
     ];
     return (
         <div className={styles.CTContainerContent}>
@@ -216,8 +241,43 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
             <div className={styles.bottomContent}>
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Card title="Card title" bordered={false}>
-                            Card content
+                        <Card style={{ backgroundColor: '#1A1F39' }} bordered={false}>
+                            <div className={styles.bottomContent_tabs}>
+                                <ConfigProvider
+                                    theme={{
+                                        components: {
+                                            Tabs: {
+                                                inkBarColor: '#1F40FF',
+                                                itemColor: '#A4A5AC',
+                                                itemActiveColor: '#FFFFFF',
+                                                itemHoverColor: '#FFFFFF',
+                                                itemSelectedColor: '#FFFFFF',
+                                                horizontalItemPadding: '0 0 20px 0',
+                                                titleFontSize: 16
+                                            },
+                                        },
+                                        token: {
+                                            colorBorderSecondary: '#373949',
+                                            colorText: '#FFFFFF',
+                                        },
+                                    }}
+                                >
+                                    <Tabs defaultActiveKey="1" items={items} />
+                                </ConfigProvider>
+                                <div className={styles.tabs_right}>
+                                    <ConfigProvider
+                                        theme={{
+                                            token: {
+                                                colorBgContainer: 'linear-gradient(180deg, rgba(31, 64, 255, 0.35) 0%, rgba(31, 64, 255, 0) 100%)',
+                                                colorPrimaryBorder: '#FFFFFF'
+                                            },
+                                        }}
+                                    >
+                                        <Checkbox defaultChecked />
+                                    </ConfigProvider>
+                                    <span className={styles.right_words}>隐藏小额资产</span>
+                                </div>
+                            </div>
                         </Card>
                     </Col>
                 </Row>

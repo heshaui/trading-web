@@ -194,3 +194,17 @@
 .CTContainerContent .bottomContent {
     margin-top: 24px;
 }
+.CTContainerContent .bottomContent .bottomContent_tabs {
+    position: relative;
+}
+.CTContainerContent .bottomContent .bottomContent_tabs .tabs_right {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.CTContainerContent .bottomContent .bottomContent_tabs .tabs_right .right_words {
+    margin-left: 8px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 400;
+}

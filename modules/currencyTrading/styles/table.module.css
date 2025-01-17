@@ -1,0 +1,37 @@
+.controlsBox {
+    display: flex;
+    font-size: 14px;
+}
+
+.controlsBox .controls {
+    display: 'flex';
+    align-items: 'center';
+    justify-content: 'center';
+    border-radius: '36px';
+    background-color: '#1F40FF';
+    color: '#FFFFFF';
+    width: '80px';
+    height: '32px';
+    font-size: '14px';
+}
+
+.controlsBox .controls:first-child {
+    margin-right: '11px';
+}
+
+.tableItemContainer {
+    display: flex;
+    align-items: center;
+}
+
+.tableItemContainer img {
+    width: 28px;
+    height: 28px;
+}
+
+.tableItemContainer span {
+    font-size: 14px;
+    color: #FFFFFF;
+    font-weight: 500;
+    margin-left: 6px;
+}

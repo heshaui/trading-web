@@ -1,6 +1,6 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar } from 'antd';
+import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
@@ -1079,13 +1079,27 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                         >
                             <a onClick={(e) => e.preventDefault()}>
                                 <Space>
-                                    <Input
-                                        style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
-                                        placeholder="搜索币对和其他产品"
-                                        prefix={<SearchOutlined />}
-                                        value={searchValue}
-                                        onChange={(e) => setSearchValue(e.target.value)}
-                                    />
+                                    <ConfigProvider
+                                        theme={{
+                                            components: {
+                                                Input: {
+                                                    /* 这里是你的组件 token */
+                                                },
+                                            },
+                                            token: {
+                                                colorTextPlaceholder: '#979897',
+                                                fontSize: 12
+                                            }
+                                        }}
+                                    >
+                                        <Input
+                                            style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
+                                            placeholder="搜索币对和其他产品"
+                                            prefix={<SearchOutlined />}
+                                            value={searchValue}
+                                            onChange={(e) => setSearchValue(e.target.value)}
+                                        />
+                                    </ConfigProvider>
                                 </Space>
                             </a>
                         </Dropdown>
