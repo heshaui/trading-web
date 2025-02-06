@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { widget } from "../public/charting_library";
-import "@/styles/";
+import "@/styles/components/Tradingview.module.css";
 const TVChartContainer: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
