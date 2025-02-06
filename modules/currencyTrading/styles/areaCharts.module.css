@@ -1,0 +1,19 @@
+.areaTooltip {
+    width: 90px;
+    box-sizing: border-box;
+    padding: 4;
+    background-color: #000317;
+    border-radius: 4px;
+}
+.areaTooltip span {
+    font-size: 12px;
+    color: #fff;
+    font-weight: 500;
+}
+.areaTooltip .date,
+.areaTooltip .funding {
+    display: flex;
+}
+.areaTooltip .funding .fundingContent {
+    color: #FFC507;
+}

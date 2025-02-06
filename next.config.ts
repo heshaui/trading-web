@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
 const moduleName = process.env.NEXT_PUBLIC_MODULE || 'shared'; // 默认值改为 'shared'
-import { i18n } from './next-i18next.config.js';
+// import { i18n } from './next-i18next.config.js';
+
+const { i18n } = require('./next-i18next.config');
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
   i18n, // 集成 i18n 配置
+  // i18n: {
+  //   locales: ['en', 'zh', 'ko'],
+  //   defaultLocale: 'en',
+  // },
   async redirects() {
     // 如果环境变量是共享首页，不执行跳转
     if (moduleName === 'spot') {
