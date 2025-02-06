@@ -11,6 +11,12 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
+import Experience from '@/components/home/page1_experience/experience';
+import Deal from '@/components/home/page2_deal/deal';
+import Try from '@/components/home/page3_try/try'; 
+import Assistant from '@/components/home/page4_assistant/assistant'; 
+import Questions from '@/components/home/page5_questions/questions';
+
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import Footer from '@/components/footer/Footer';
 // import { GetStaticProps } from 'next';
@@ -25,9 +31,13 @@ export default function Home() {
   return (
     <div>
       {/* <HomeMenu t={t} /> */}
-      <LanguageSwitcher />
-      <div>{t('title')}</div>
-      <div>{t('home_menu_title_1')}</div>
+      {/* <LanguageSwitcher />
+      <div>{t('title')}</div> */}
+      <Experience />
+      <Deal />
+      <Try/>
+      <Assistant/>
+      <Questions/>
       {/* <Footer /> */}
     </div>
   );
