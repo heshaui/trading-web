@@ -1,10 +1,10 @@
-import Link from 'next/link';
+// import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { GetStaticProps } from 'next';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+// import { GetStaticProps } from 'next';
 
 import React, { useState } from 'react';
-import './experience.css'
+import '@/styles/components/home/experience.css'
 import { Input,Button } from "antd";
 
 export default function Experience() {

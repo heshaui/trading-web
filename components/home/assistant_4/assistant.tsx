@@ -4,7 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
 
 import React, { useState } from 'react';
-import './assistant.css'
+import '@/styles/components/home/assistant.css'
 import { Input, Button } from "antd";
 
 export default function Experience() {
@@ -23,9 +23,10 @@ export default function Experience() {
                         {/* <img className='' src="/images/home/rectangle1.png" alt="" />
                         <img className='' src="/images/home/rectangle2.png" alt="" />
                         <img className='' src="/images/home/rectangle3" alt="" /> */}
-                        <div className='pic'>图切不出来/播放器功能</div>
-                        <div className='pic'>图切不出来/播放器功能</div>
-                        <div className='pic'>图切不出来/播放器功能</div>
+                        
+                        <div className='pic'>图切不出来or播放器功能</div>
+                        <div className='pic'>图切不出来or播放器功能</div>
+                        <div className='pic'>图切不出来or播放器功能</div>
                     </div>
                 </div>
         </div>

@@ -1,0 +1,18 @@
+{
+    "login": "登录",
+    "register": "注册",
+    "email": "邮箱",
+    "phone": "手机",
+    "else": "QRcode",
+    "phoneNumber": "手机号",
+    "phoneTip": "请输入手机号",
+    "phoneNull": "手机号不能为空！",
+    "password": "密码",
+    "passwordTip": "请输入密码",
+    "passwordNull": "密码不能为空！",
+    "forgetPassword": "忘记密码",
+    "or": "或者",
+    "google": "使用Google继续",
+    "noAcount": "没有账号？"
+
+}

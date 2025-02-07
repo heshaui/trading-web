@@ -4,7 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
 
 import React, { useState } from 'react';
-import './questions.css'
+import '@/styles/components/home/questions.css'
 import { Input, Button } from "antd";
 
 export default function Questions() {

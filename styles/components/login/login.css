@@ -1,0 +1,21 @@
+.login-button {
+    border: none;
+}
+
+.login-button:hover {
+    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+}
+
+.forgetPassword-button {
+    border: none;
+    color: #1F40FF !important;
+    background-color: transparent;
+}
+
+.title-box {
+    width: 89px;
+    height: 36px;
+    font-size: 32px;
+    font-weight: 500;
+
+}

@@ -4,7 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
 
 import React, { useState } from 'react';
-import './try.css'
+import '@/styles/components/home/deal.css'
 import { Input, Button } from "antd";
 
 export default function Experience() {
@@ -15,18 +15,15 @@ export default function Experience() {
         setEmail(e.target.value)
     };
     return (
-        <div className='tryPage'>
-            {/* <div className='try-main'> */}
-            <div className='try-main flex flex-ai-center flex-jc-around'>
-                <div className='try_main-pic'>
-                    <img className='' src="/images/home/app.png" alt="" />
+        <div className='dealPage'>
+            {/* <div className='deal-main'> */}
+                <div className='deal_main flex-column flex-ai-center'>
+                    <div className='deal_main-title1'>数字货币交易，我们是专业的</div>
+                    <div className='deal_main-title2'>最低的手续费，最快捷的交易，强劲的API以及更多</div>
+                    <div className='deal_main-pic'>
+                        <img className='' src="/images/home/ipad.png" alt="" />
+                    </div>
                 </div>
-                <div>
-                    <div className='try_main-title1'>IMBIT App，创造无限可能</div>
-                    <div className='try_main-title2'>初次交易？$5 即可小试牛刀，IMBIT和您一起步步登高</div>
-                </div>
-
-            </div>
             {/* </div> */}
         </div>
     );
