@@ -1,14 +1,9 @@
 import { Layout } from "antd";
-// import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router";
-// import userStore from "@/store/userStore";
-// import LocalePicker from "@/components/locale-picker";
 import type { CSSProperties } from "react";
 import appStore from '@/store';
-// import SettingButton from "@/layouts/_common/setting-button";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-// import ResetForm from "./ResetForm";
 import { LoginStateProvider } from "./providers/LoginStateProvider";
 
 
@@ -42,21 +37,10 @@ function Login() {
 				<div style={{ width: "368px" }}>
 					<LoginStateProvider>
 						<LoginForm />
-						{/* <MobileForm />
-						<QrCodeFrom /> */}
 						<RegisterForm />
-						{/* <ResetForm /> */}
 					</LoginStateProvider>
 				</div>
-				{/* <div className="absolute " style={{ right: "45%", bottom: "14px" }}>
-					©2025 IMBIT.
-				</div> */}
 			</div>
-
-			{/* <div className="absolute right-2 top-0 flex flex-row">
-				<LocalePicker />
-				<SettingButton />
-			</div> */}
 		</Layout>
 	);
 }

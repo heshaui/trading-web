@@ -1,3 +1,4 @@
+import { log } from "console";
 import {
 	type PropsWithChildren,
 	createContext,
@@ -13,20 +14,61 @@ export enum LoginStateEnum {
 	MOBILE = 3,
 	QR_CODE = 4,
 }
+export enum LoginTypeEnum {
+	EMAIL = 0,
+	PHONE = 1,
+	QRcode = 2,
+}
+export enum RegisterTypeEnum {
+	EMAIL = 0,
+	PHONE = 1,
+	QRcode = 2,
+}
+
 
 interface LoginStateContextType {
 	loginState: LoginStateEnum;
 	setLoginState: (loginState: LoginStateEnum) => void;
 	backToLogin: () => void;
 }
+interface LoginTypeContextType {
+	loginType: LoginTypeEnum;
+	setLoginType: (loginType: LoginTypeEnum) => void;
+	backToLoginType: () => void;
+}
+interface RegisterTypeContextType {
+	registerType: RegisterTypeEnum;
+	setRegisterType: (RegisterType: RegisterTypeEnum) => void;
+	backToRegisterType: () => void;
+}
+
+
 const LoginStateContext = createContext<LoginStateContextType>({
 	loginState: LoginStateEnum.LOGIN,
 	setLoginState: () => {},
 	backToLogin: () => {},
 });
+const LoginTypeContext = createContext<LoginTypeContextType>({
+	loginType: LoginTypeEnum.EMAIL,
+	setLoginType: () => {},
+	backToLoginType: () => {},
+});
+const RegisterTypeContext = createContext<RegisterTypeContextType>({
+	registerType: RegisterTypeEnum.EMAIL,
+	setRegisterType: () => {},
+	backToRegisterType: () => {},
+});
 
 export function useLoginStateContext() {
 	const context = useContext(LoginStateContext);
+	return context;
+}
+export function useLoginTypeContext() {
+	const context = useContext(LoginTypeContext);
+	return context;
+}
+export function useRegisterTypeContext() {
+	const context = useContext(RegisterTypeContext);
 	return context;
 }
 
@@ -35,6 +77,7 @@ export function LoginStateProvider({ children }: PropsWithChildren) {
 
 	function backToLogin() {
 		setLoginState(LoginStateEnum.LOGIN);
+
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -47,5 +90,43 @@ export function LoginStateProvider({ children }: PropsWithChildren) {
 		<LoginStateContext.Provider value={value}>
 			{children}
 		</LoginStateContext.Provider>
+	);
+}
+export function LoginTypeProvider({ children }: PropsWithChildren) {
+	const [loginType, setLoginType] = useState(LoginTypeEnum.EMAIL);
+	console.log(loginType,121);
+	function backToLoginType() {
+		setLoginType(LoginTypeEnum.PHONE);
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const value: LoginTypeContextType = useMemo(
+		() => ({ loginType, setLoginType, backToLoginType }),
+		[loginType],
+	);
+
+	return (
+		<LoginTypeContext.Provider value={value}>
+			{children}
+		</LoginTypeContext.Provider>
+	);
+}
+export function RegisterTypeProvider({ children }: PropsWithChildren) {
+	const [registerType, setRegisterType] = useState(RegisterTypeEnum.EMAIL);
+
+	function backToRegisterType() {
+		setRegisterType(RegisterTypeEnum.EMAIL);
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const value: RegisterTypeContextType = useMemo(
+		() => ({ registerType, setRegisterType, backToRegisterType }),
+		[registerType],
+	);
+
+	return (
+		<RegisterTypeContext.Provider value={value}>
+			{children}
+		</RegisterTypeContext.Provider>
 	);
 }

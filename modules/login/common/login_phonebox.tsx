@@ -1,9 +1,9 @@
-import { Button, Form, Input} from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
-import { LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
@@ -11,6 +11,9 @@ import { LoginStateEnum, useLoginStateContext } from "../providers/LoginStatePro
 import { toast } from "sonner";
 import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
+import { Iconify } from "@/components/icon/index";
+import { areaCodeOptionList } from "@/utils/enum";
+import { log } from "console";
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -29,10 +32,12 @@ function LoginForm() {
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 	const { loginState, setLoginState } = useLoginStateContext();
+	const { loginType, setLoginType } = useLoginTypeContext();
 	// const signIn = useSignIn();
-
-	// 当登录状态不为 LOGIN 时不渲染组件
-	if (loginState !== LoginStateEnum.LOGIN) return null;
+	const [form] = Form.useForm();
+	// 当登录类型不为 PHONE 时不渲染组件
+	// if (loginState !== LoginStateEnum.LOGIN) return null;
+	// if (loginType !== LoginTypeEnum.PHONE) return null;
 
 	// 获取浏览器指纹
 	// const getFingerprint = async () => {
@@ -51,91 +56,56 @@ function LoginForm() {
 		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 	};
 
-	const handleFinish = async (values: any) => {
-		setLoading(true);
-		// try {
-		// 	const fingerprintCode = await getFingerprint(); // 获取浏览器指纹
-		// 	const param = {
-		// 		username: values.username,
-		// 		passward: values.password,
-		// 		code: values.code || "",
-		// 		deviceId: fingerprintCode,
-		// 		deviceType: "",
-		// 		deviceName: "",
-		// 	};
-		// 	// console.log(param);
+	const onFinish = async (values: any) => {
+		console.log(values, 111);
+		// form.resetFields();
+		// setLoading(true);
 
-		// 	const data = encryptWithPublicKey(JSON.stringify(param));
-		// 	if (typeof data !== "string") {
-		// 		throw new Error("加密失败");
-		// 	}
-		// 	if (!preCheck) {
-		// 		await getPreCheck(values.username, fingerprintCode, data);
-		// 	} else {
-		// 		await signIn(data);
-		// 	}
-		// } catch (error) {
-		// 	console.error(t("sys.api.apiRequestFailed"));
-		// } finally {
-		// 	setLoading(false);
-		// }
 	};
 
-	// const getPreCheck = async (username: string, deviceId: string, dataInfo: any) => {
-	// 	try {
-	// 		const param = {
-	// 			username,
-	// 			deviceId,
-	// 		};
-	// 		const data = encryptWithPublicKey(JSON.stringify(param));
-	// 		const res = await loginApi.preCheck({ data });
-	// 		if (res.code === 0) {
-
-	// 			if (!res.data.type) {
-	// 				setCodeModelOpen(false);
-	// 				await signIn(dataInfo);
-	// 			} else {
-	// 				setpreCheck(true);
-	// 				if (res.data.type === 0) {
-	// 					setCheckType("phone");
-	// 				} else if (res.data.type === 1) {
-	// 					setCheckType("email");
-	// 				}
-	// 			}
-	// 		} else {
-	// 			toast.error(res.message);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error(t("sys.api.apiRequestFailed"));
-	// 	}
-	// };
-
 	const usernameChange = (changedValues: any) => {
-		Object.keys(changedValues).forEach((key) => {
-			if (key === "username" && preCheck) {
-				setpreCheck(false);
-			}
-		});
+		// Object.keys(changedValues).forEach((key) => {
+		// 	if (key === "username" && preCheck) {
+		// 		setpreCheck(false);
+		// 	}
+		// });
 
 	}
 
 	return (
-		<div className="flex-y-cc" style={fromStyle}>
+		<div className="flex-y-cc mt-7" style={fromStyle}>
 			<Form
 				style={fromStyle}
 				name="login"
 				size="large"
-				initialValues={{
-					remember: true,
-				}}
-				onFinish={handleFinish}
-				onValuesChange={usernameChange}
+				form={form}
+				onFinish={onFinish}
+				initialValues={{areaCode:"1"}}
+			// onValuesChange={usernameChange}
 			>
-				<Form.Item name="username" rules={[{ required: true, message: "手机号不能为空！" }]}>
-					<Input placeholder="请输入手机号" allowClear={true} />
+				<div className="mb-5 font-16 font-w-500">手机号</div>
+				<Form.Item name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+					<div className="flex">
+						<Form.Item name="areaCode" noStyle>
+							<Select
+								defaultValue="1"
+								style={{ width: 115 }}
+								options={areaCodeOptionList}
+								prefix={
+									<Iconify icon="zondicons:network" className="icon-color" />
+								}
+							/>
+						</Form.Item>
+						<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
+					</div>
 				</Form.Item>
+				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} />
+					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
+						prefix={
+							<Iconify icon="solar:lock-password-linear" className="icon-color" />
+						}
+					/>
 				</Form.Item>
 				{/* {preCheck && (
 					<Form.Item name="code" rules={[{ required: true, message: t("sys.codeErr") }]} style={{ marginBottom: 33 }}>
@@ -166,7 +136,6 @@ function LoginForm() {
 					</Button>
 				</Form.Item>
 			</Form>
-			{/* <CodeModel open={codeModelOpen} onCancel={handCancel} onOk={handOk} type={checkType} /> */}
 			<div className="flex-cc mt-4">
 				<p>
 					{"没有账号？"}

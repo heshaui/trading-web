@@ -19,3 +19,23 @@
     font-weight: 500;
 
 }
+
+.tabs-label {
+    width: 89px;
+    height: 36px;
+    padding: 4px;
+    border-radius: 36px;
+    /* color: #fff; */
+    font-size: 16px;
+    font-weight: 500;
+
+}
+.custom-segmented .ant-segmented-item-selected,
+.custom-segmented .ant-segmented-thumb {
+    border-radius: 36px;
+    color: #fff;
+    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+}
+.icon-color{
+    color: rgba(0,0,0,.25)
+}
