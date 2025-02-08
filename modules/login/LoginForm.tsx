@@ -35,9 +35,9 @@ function LoginForm() {
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 
 	const [tabsProps, setTabsProps] = useState('email');
-	const { loginState ,setLoginState} = useLoginStateContext();
+	const { loginState, setLoginState } = useLoginStateContext();
 	// const signIn = useSignIn();
-	const { loginType, setLoginType ,backToLoginType} = useLoginTypeContext();
+	const { loginType, setLoginType, backToLoginType } = useLoginTypeContext();
 	// 当登录状态不为 LOGIN 时不渲染组件
 	if (loginState !== LoginStateEnum.LOGIN) return null;
 
@@ -84,7 +84,7 @@ function LoginForm() {
 
 	};
 	return (
-		<div className="" style={fromStyle}>
+		<div className="flex-col" style={{ height: "70vh" }}>
 			<div className="w-full mb-6"><p className="title-box">登录</p> </div>
 			<Segmented
 				className="custom-segmented"
@@ -124,9 +124,9 @@ function LoginForm() {
 				<Mailbox />
 				<Phonebox />
 			</LoginTypeProvider> */}
-			{tabsProps==="email"&&( <Mailbox /> )}
-				{tabsProps==="phone"&&( <Phonebox /> )}
-				{tabsProps==="QRcode"&&( <QRCodebox /> )}
+			{tabsProps === "email" && (<Mailbox />)}
+			{tabsProps === "phone" && (<Phonebox />)}
+			{tabsProps === "QRcode" && (<QRCodebox />)}
 		</div>
 	);
 }

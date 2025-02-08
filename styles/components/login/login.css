@@ -1,5 +1,14 @@
 .login-button {
     border: none;
+    height: 38px;
+}
+.google-btn{
+    border-radius: 36px;
+    height: 38px;
+    color: var(--btncolor2);
+}
+.custom-segmented,.page-box{
+    background-color: var(--background);
 }
 
 .login-button:hover {
@@ -30,12 +39,44 @@
     font-weight: 500;
 
 }
+/* segmented 选中标签样式及动画标签 */
 .custom-segmented .ant-segmented-item-selected,
 .custom-segmented .ant-segmented-thumb {
     border-radius: 36px;
     color: #fff;
     background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
 }
+/* Checkbox 选中样式 */
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+    border: none;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+}
+
+
 .icon-color{
     color: rgba(0,0,0,.25)
 }
+.tip-color1{
+    color: var(--tip-color1)
+}
+.tip-color2{
+    color:  var(--tip-color2);
+
+}
+.text-color{
+    color: var( --text-color);
+}
+
+/* 自定义表单错误提示样式 */
+.ant-form-item-explain {
+    width: 100%;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 12px;
+}
+
+/* 调整输入框父元素的位置，确保有足够空间显示错误提示 */
+/* .ant-form-item {
+    position: relative;
+} */

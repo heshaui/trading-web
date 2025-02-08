@@ -13,6 +13,13 @@
     "forgetPassword": "忘记密码",
     "or": "或者",
     "google": "使用Google继续",
-    "noAcount": "没有账号？"
-
+    "noAcount": "没有账号？",
+    "protocol": "用户协议",
+    "policy": "隐私政策",
+    "agree": "我已阅读并同意",
+    "agree2": "我已阅读并同意{protocol}和{policy}",
+    "and": "和",
+    "passwordErr": "长度为8~30位",
+    "passwordErr2": "必须包含字母和数字!",
+    "emailErr": "邮箱格式不正确!"
 }

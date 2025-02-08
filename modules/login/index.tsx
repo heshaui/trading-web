@@ -25,7 +25,7 @@ function Login() {
 	}
 
 	return (
-		<Layout className="relative flex h-overmax w-full flex-row">
+		<Layout className="relative flex h-overmax w-full flex-row page-box" >
 			<div
 				className="hidden flex-1"
 				style={loginBgcStyle}

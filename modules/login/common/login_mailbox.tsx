@@ -33,7 +33,7 @@ function LoginForm() {
     const { loginState, setLoginState } = useLoginStateContext();
     const { loginType, setLoginType } = useLoginTypeContext();
     // const signIn = useSignIn();
-
+    const [form] = Form.useForm();
     // 当登录状态不为 LOGIN 时不渲染组件
     // if (loginState !== LoginStateEnum.LOGIN) return null;
     // if (loginType !== LoginTypeEnum.EMAIL) return null;
@@ -55,11 +55,21 @@ function LoginForm() {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
 
-    const handleFinish = async (values: any) => {
-        setLoading(true);
-        console.log(values);
-        
-        }
+    const handleFinish = async () => {
+        form
+            .validateFields()
+            .then(async (values) => {
+                // form.resetFields(); // 重置表单
+                console.log(values);
+                
+            })
+            .catch((info) => {
+                console.log("Validate Failed:", info);
+            });
+        // form.resetFields(); //重置表单
+        // setLoading(true);
+
+    }
 
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
@@ -71,20 +81,21 @@ function LoginForm() {
     }
 
     return (
-        <div className="flex-y-cc mt-7" style={fromStyle}>
+        <div className="flex-y-cc mt-7" >
             <Form
                 style={fromStyle}
                 name="login"
                 size="large"
+                form={form}
                 initialValues={{
                     remember: true,
                 }}
-                onFinish={handleFinish}
+                // onFinish={handleFinish}
                 onValuesChange={usernameChange}
             >
                 <div className="mb-5 font-16 font-w-500">邮箱</div>
 
-                <Form.Item name="username" rules={[{ required: true, message: "邮箱号不能为空！" }]}>
+                <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" },{type:"email",message:"邮箱格式不正确！"}]}>
                     <Input placeholder="请输入邮箱号" allowClear={true} size="large"
                         prefix={<Iconify icon="clarity:email-line" className="icon-color" />}
                     />
@@ -115,24 +126,31 @@ function LoginForm() {
 						</div>
 					</Form.Item>
 				)} */}
-                <Form.Item >
+                <Form.Item noStyle>
                     <button type="button" className="forgetPassword-button" >
                         {"忘记密码"}
                     </button>
                 </Form.Item>
-                <Form.Item>
+                {/* <Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
                         {"登录"}
                     </Button>
-                </Form.Item>
+                </Form.Item> */}
             </Form>
-            {/* <CodeModel open={codeModelOpen} onCancel={handCancel} onOk={handOk} type={checkType} /> */}
+            <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+                onClick={handleFinish}>
+                {"登录"}
+            </Button>
+            <p className="tip-color2 mt-5">或者</p>
+            <Button className="w-full google-btn mt-5" loading={loading}>
+                使用Google继续
+            </Button>
             <div className="flex-cc mt-4">
                 <p>
                     {"没有账号？"}
                     <button
                         type="button"
-                        style={{ color: "#1F40FF" }}
+                        className="text-color"
                         onClick={() => setLoginState(LoginStateEnum.REGISTER)}
                     >
                         {"注册"}

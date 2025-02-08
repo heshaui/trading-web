@@ -168,6 +168,16 @@
 .mt-7 {
   margin-top: 28px;
 }
+.mt-8 {
+  margin-top: 32px;
+}
+.mt-9 {
+  margin-top: 36px;
+}
+.mt-10 {
+  margin-top: 40px;
+}
+
 
 .mb-1 {
   margin-bottom: 4px;
@@ -253,6 +263,8 @@
   margin-right: 28px;
 }
 
+
+
 .font-14 {
   font-size: 14px;
 }
@@ -266,6 +278,15 @@
 }
 .font-w-500{
   font-weight: 500;
+}
+.text-center{
+  text-align: center;
+}
+.text-left{
+  text-align: left;
+}
+.text-right{
+  text-align: right;
 }
 
 

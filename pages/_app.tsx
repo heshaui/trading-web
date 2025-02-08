@@ -6,6 +6,8 @@ import { appWithTranslation, useTranslation } from 'next-i18next';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import Footer from '@/components/footer/Footer';
 import { useRouter } from 'next/router';
+// import {  Toaster} from "sonner";
+import Toaster from "@/components/toast";
 
 function App({ Component, pageProps }: AppProps) {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -21,6 +23,7 @@ function App({ Component, pageProps }: AppProps) {
         <div className={isDarkMode ? 'dark' : ''}>
             {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />}
             <Component {...pageProps} />
+            <Toaster/> 
             {shouldShowMenuAndFooter && <Footer />}
         </div>
     );

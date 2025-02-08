@@ -56,9 +56,18 @@ function LoginForm() {
 		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 	};
 
-	const onFinish = async (values: any) => {
-		console.log(values, 111);
-		// form.resetFields();
+	const onFinish = async () => {
+		form
+			.validateFields()
+			.then(async (values) => {
+				// form.resetFields(); // 重置表单
+				console.log(values, 111);
+
+			})
+			.catch((info) => {
+				console.log("Validate Failed:", info);
+			});
+		// form.resetFields(); //重置表单
 		// setLoading(true);
 
 	};
@@ -73,14 +82,14 @@ function LoginForm() {
 	}
 
 	return (
-		<div className="flex-y-cc mt-7" style={fromStyle}>
+		<div className="flex-y-cc mt-7" >
 			<Form
 				style={fromStyle}
 				name="login"
 				size="large"
 				form={form}
-				onFinish={onFinish}
-				initialValues={{areaCode:"1"}}
+				// onFinish={onFinish}
+				initialValues={{ areaCode: "1" }}
 			// onValuesChange={usernameChange}
 			>
 				<div className="mb-5 font-16 font-w-500">手机号</div>
@@ -125,23 +134,31 @@ function LoginForm() {
 						</div>
 					</Form.Item>
 				)} */}
-				<Form.Item >
+				<Form.Item noStyle>
 					<button type="button" className="forgetPassword-button" >
 						{"忘记密码"}
 					</button>
 				</Form.Item>
-				<Form.Item>
+				{/* <Form.Item>
 					<Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
 						{"登录"}
 					</Button>
-				</Form.Item>
+				</Form.Item> */}
 			</Form>
+			<Button  type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+				onClick={onFinish}>
+				{"登录"}
+			</Button>
+			<p className="tip-color2 mt-5">或者</p>
+			<Button className="w-full google-btn mt-5" loading={loading}>
+				使用Google继续
+			</Button>
 			<div className="flex-cc mt-4">
 				<p>
 					{"没有账号？"}
 					<button
 						type="button"
-						style={{ color: "#1F40FF" }}
+						className="text-color"
 						onClick={() => setLoginState(LoginStateEnum.REGISTER)}
 					>
 						{"注册"}
