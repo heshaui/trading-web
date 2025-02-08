@@ -17,10 +17,11 @@
   --hometext2: #979897;
   --btncolor: #FFFFFF;
   --btncolor2: #000317;
+  --btncolor3: #E1E1E4;
   --tip-color1: #6D6F7A;
   --tip-color2: #A4A5AC;
   --text-color: #1F40FF;
-  --text-color2: #373949;
+  --text-color2: #373949; 
 
 }
 
@@ -40,6 +41,7 @@
     --hometext2: #979897;
     --btncolor: #373949;
     --btncolor2: #ffffff;
+    --btncolor3: #1B1E30;
     --tip-color1: #FFFFFFB2;
     --tip-color2: #979897;
     --text-color: #1F40FF;

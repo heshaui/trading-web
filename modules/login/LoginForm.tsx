@@ -10,11 +10,10 @@ import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProv
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
 import { toast } from "sonner";
-import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
-import Mailbox from "./common/login_mailbox"
-import Phonebox from "./common/login_phonebox"
-import QRCodebox from "./common/login_QRcode"
+import Mailbox from "./components/login_mailbox"
+import Phonebox from "./components/login_phonebox"
+import QRCodebox from "./components/login_QRcode"
 import { LoginTypeProvider, LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
 import { log } from "console";
 const fromStyle: CSSProperties = {

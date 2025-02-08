@@ -5,7 +5,7 @@ import appStore from '@/store';
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { LoginStateProvider } from "./providers/LoginStateProvider";
-
+import "./styles/login.css"
 
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 const HOMEPAGE = '/';

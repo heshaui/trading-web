@@ -2,6 +2,13 @@
     border: none;
     height: 38px;
 }
+.login-loading {
+    border: none;
+    height: 38px;
+    border-radius: 36px;
+    background: var(--btncolor3);
+    color: var(--tip-color2);
+}
 .google-btn{
     border-radius: 36px;
     height: 38px;
@@ -11,9 +18,9 @@
     background-color: var(--background);
 }
 
-.login-button:hover {
+/* .login-button:hover ,.ant-btn:hover,.ant-btn-color-primary:hover{
     background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
-}
+} */
 
 .forgetPassword-button {
     border: none;

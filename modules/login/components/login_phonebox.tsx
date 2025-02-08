@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Checkbox } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
@@ -9,7 +9,7 @@ import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContex
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
 import { toast } from "sonner";
-import "@/styles/components/login/login.css"
+// import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";
@@ -57,19 +57,18 @@ function LoginForm() {
 	};
 
 	const onFinish = async () => {
-
 		form
 			.validateFields()
 			.then(async (values) => {
 				// form.resetFields(); // 重置表单
 				console.log(values, 111);
-				if(!values.agree) return toast.error("请先同意用户协议和隐私政策")
+
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
 			});
 		// form.resetFields(); //重置表单
-		// setLoading(true);
+		setLoading(true);
 
 	};
 
@@ -81,23 +80,7 @@ function LoginForm() {
 		// });
 
 	}
-// 自定义密码验证规则
-const validatePassword = (_:any, value:any) => {
-	if (!value) {
-		return Promise.reject(new Error("密码不能为空！"));
-	}
-	// 检查长度是否在 8 - 30 位之间
-	if (value.length < 8 || value.length > 30) {
-		return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
-	}
-	// 检查是否包含字母和数字
-	const hasLetter = /[a-zA-Z]/.test(value);
-	const hasNumber = /\d/.test(value);
-	if (!hasLetter || !hasNumber) {
-		return Promise.reject(new Error("密码必须包含字母和数字！"));
-	}
-	return Promise.resolve();
-};
+
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
@@ -126,9 +109,7 @@ const validatePassword = (_:any, value:any) => {
 					</div>
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
-				<Form.Item name="password" 
-				rules={[{ validator: validatePassword }]}
-				>
+				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
 					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
 						prefix={
 							<Iconify icon="solar:lock-password-linear" className="icon-color" />
@@ -153,35 +134,39 @@ const validatePassword = (_:any, value:any) => {
 						</div>
 					</Form.Item>
 				)} */}
-				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
-				<Form.Item name="referee" rules={[{ required: false,}]}>
-					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large"
-						prefix={
-							<Iconify icon="solar:lock-password-linear" className="icon-color" />
-						}
-					/>
+				<Form.Item noStyle>
+					<button type="button" className="forgetPassword-button" >
+						{"忘记密码"}
+					</button>
 				</Form.Item>
-				<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-					<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
-				</Form.Item>
+				{/* <Form.Item>
+					<Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
+						{"登录"}
+					</Button>
+				</Form.Item> */}
 			</Form>
-			<Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
-				onClick={onFinish}>
-				{"注册"}
-			</Button>
+			{!loading?( <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" 
+			// loading={loading}
+                onClick={onFinish}>
+                {"登录"}
+            </Button>):(<button type="button"  className="w-full  mt-8 login-loading" >
+                {"登录"}
+            </button>
+            )}
 			<p className="tip-color2 mt-5">或者</p>
-			<Button className="w-full google-btn mt-5" loading={loading}>
+			<Button className="w-full google-btn mt-5" onClick={()=>setLoading(false)}
+				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}>
 				使用Google继续
 			</Button>
 			<div className="flex-cc mt-4">
 				<p>
-					{"已有账号？"}
+					{"没有账号？"}
 					<button
 						type="button"
 						className="text-color"
-						onClick={() => setLoginState(LoginStateEnum.LOGIN)}
+						onClick={() => setLoginState(LoginStateEnum.REGISTER)}
 					>
-						{"登录"}
+						{"注册"}
 					</button>
 				</p>
 			</div>

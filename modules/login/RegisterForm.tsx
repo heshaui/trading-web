@@ -7,8 +7,8 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 // import { ReturnButton } from "./components/ReturnButton";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "./providers/LoginStateProvider";
-import Mailbox from "./common/register_mailbox"
-import Phonebox from "./common/register_phonebox"
+import Mailbox from "./components/register_mailbox"
+import Phonebox from "./components/register_phonebox"
 function RegisterForm() {
 	const { t } = useTranslation();
 	const { loginState, backToLogin } = useLoginStateContext();
