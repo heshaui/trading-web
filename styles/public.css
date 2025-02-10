@@ -1,6 +1,7 @@
-.button-color {
+.button-color,.btn-color {
   background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
   border-radius: 36px;
+  color: #ffffff;
 }
 
 .pointer {

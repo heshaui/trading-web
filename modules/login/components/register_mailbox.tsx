@@ -63,7 +63,7 @@ function RegisterForm() {
     }
 const goAuthCode=()=>{
     store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.EMAIL);
-    setLoginState(LoginStateEnum.Authcode)
+    setLoginState(LoginStateEnum.Googlecode)
 }
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {

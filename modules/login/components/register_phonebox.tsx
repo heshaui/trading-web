@@ -81,7 +81,7 @@ function RegisterForm() {
 	}
 	const goAuthCode=()=>{
 		store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE);
-		setLoginState(LoginStateEnum.Authcode)
+		setLoginState(LoginStateEnum.Googlecode)
 	}
 // 自定义密码验证规则
 const validatePassword = (_:any, value:any) => {

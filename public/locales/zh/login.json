@@ -23,5 +23,6 @@
     "passwordErr2": "必须包含字母和数字!",
     "emailErr": "邮箱格式不正确!",
     "authCode": "邮箱/手机号验证",
-    "authCodeGoogle": "Google验证"
+    "authCodeGoogle": "Google验证",
+    "GoogleCode": "Google验证码"
 }

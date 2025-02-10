@@ -72,7 +72,7 @@ function LoginForm() {
     }
     const goAuthCode=()=>{
         store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
-        setLoginState(LoginStateEnum.Authcode)
+        setLoginState(LoginStateEnum.Googlecode)
     }
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {

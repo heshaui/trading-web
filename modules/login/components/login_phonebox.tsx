@@ -82,7 +82,7 @@ function LoginForm() {
 	}
     const goAuthCode=()=>{
         store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
-        setLoginState(LoginStateEnum.Authcode)
+        setLoginState(LoginStateEnum.Googlecode)
     }
 	return (
 		<div className="flex-y-cc mt-7" >

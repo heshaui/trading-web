@@ -2,6 +2,7 @@
     border: none;
     height: 38px;
 }
+
 .login-loading {
     border: none;
     height: 38px;
@@ -9,12 +10,15 @@
     background: var(--btncolor3);
     color: var(--tip-color2);
 }
-.google-btn{
+
+.google-btn {
     border-radius: 36px;
     height: 38px;
     color: var(--btncolor2);
 }
-.custom-segmented,.page-box{
+
+.custom-segmented,
+.page-box {
     background-color: var(--background);
 }
 
@@ -46,6 +50,7 @@
     font-weight: 500;
 
 }
+
 /* segmented 选中标签样式及动画标签 */
 .custom-segmented .ant-segmented-item-selected,
 .custom-segmented .ant-segmented-thumb {
@@ -53,6 +58,7 @@
     color: #fff;
     background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
 }
+
 /* Checkbox 选中样式 */
 .custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
     border: none;
@@ -61,18 +67,21 @@
 }
 
 
-.icon-color{
-    color: rgba(0,0,0,.25)
+.icon-color {
+    color: rgba(0, 0, 0, .25)
 }
-.tip-color1{
+
+.tip-color1 {
     color: var(--tip-color1)
 }
-.tip-color2{
-    color:  var(--tip-color2);
+
+.tip-color2 {
+    color: var(--tip-color2);
 
 }
-.text-color{
-    color: var( --text-color);
+
+.text-color {
+    color: var(--text-color);
 }
 
 /* 自定义表单错误提示样式 */
@@ -87,3 +96,24 @@
 /* .ant-form-item {
     position: relative;
 } */
+ .authcode-header{
+    font-size: 36px;
+ }
+.authcode-input {
+    width: 400px;
+    height: 50px;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    width: 275px;
+    height: 50px;
+    border-radius: 36px;
+    margin-left: 10px;
+}
+
+.goback-btn {
+    border-radius: 36px;
+    width: 115px;
+    height: 50px;
+}

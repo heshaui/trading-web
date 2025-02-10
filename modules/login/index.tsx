@@ -7,6 +7,7 @@ import RegisterForm from "./RegisterForm";
 import { LoginStateProvider, LoginTypeProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
 import "./styles/login.css"
 import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
+import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
@@ -46,6 +47,7 @@ function Login() {
 
 						</RegisterTypeProvider>
 						<PhoneEmailAuthcode />
+						<GoogleAuthcode/>
 					</LoginStateProvider>
 				</div>
 			</div>
