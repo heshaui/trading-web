@@ -5,7 +5,7 @@ import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
-import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/utils/types';
+import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/type/types';
 import React, { useState } from 'react';
 import Link from 'next/link';
 

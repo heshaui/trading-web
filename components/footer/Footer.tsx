@@ -1,7 +1,7 @@
 import styles from '@/styles/components/Footer.module.css';
 import { Button, Dropdown, Space } from 'antd';
 import { DownOutlined, GlobalOutlined, DownloadOutlined } from '@ant-design/icons';
-import { FooterListProps } from "@/utils/types"
+import { FooterListProps } from "@/type/types"
 
 export default function Footer() {
     const itemsLan = [

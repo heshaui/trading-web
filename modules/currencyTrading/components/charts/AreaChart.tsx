@@ -26,10 +26,10 @@ export default class FundingAreaChart extends PureComponent<FundingAreaChartProp
         // console.log('this', this);
         const { data } = this.props; // 从 props 中获取数据
         // 计算 Y 轴的刻度
-        const ticks = [];
-        for (let i = 0; i <= 3000; i += 500) {
-            ticks.push(i);
-        }
+        // const ticks = [];
+        // for (let i = 0; i <= 3000; i += 500) {
+        //     ticks.push(i);
+        // }
         return (
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -49,7 +49,8 @@ export default class FundingAreaChart extends PureComponent<FundingAreaChartProp
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray="1" stroke='#373949' />
                     <XAxis dataKey="date" axisLine={false} interval={0} tickLine={false} padding={{ left: 21 }} tick={{ fontSize: 12, fill: '#6D6F7A' }} />
-                    <YAxis dataKey="value" axisLine={false} interval={0} tickLine={false} tick={{ fontSize: 12, fill: '#6D6F7A' }} ticks={ticks} />
+                    <YAxis dataKey="value" axisLine={false} interval={0} tickLine={false} tick={{ fontSize: 12, fill: '#6D6F7A' }} />
+                    {/* <YAxis dataKey="value" axisLine={false} interval={0} tickLine={false} tick={{ fontSize: 12, fill: '#6D6F7A' }} ticks={ticks} /> */}
                     <Tooltip content={<CustomTooltip />} />
                     <Area type="monotone" dataKey="value" stroke="#1F40FF" fill="url(#gradient)" />
                 </AreaChart>

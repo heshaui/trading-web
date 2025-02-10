@@ -1,8 +1,8 @@
 import { Dropdown, Space } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import styles from '@/styles/components/HomeMenu.module.css';
-// import { MenuListItem } from '@/utils/types';
-import { Props, MenuListItem, IconName } from '@/utils/types';
+// import { MenuListItem } from '@/type/types';
+import { Props, MenuListItem, IconName } from '@/type/types';
 
 const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow,  }) => {
     // 定义一个函数来根据图标名称返回不同的 overlayStyle

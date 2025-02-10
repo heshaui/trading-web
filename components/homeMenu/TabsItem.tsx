@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
-import { TabsItemProps } from '@/utils/types';
+import { TabsItemProps } from '@/type/types';
 
 const TabsItem: React.FC<TabsItemProps> = ({
     src,
