@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "./providers/LoginStateProvider";
 import Mailbox from "./components/register_mailbox"
 import Phonebox from "./components/register_phonebox"
+// import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
+
 function RegisterForm() {
 	const { t } = useTranslation();
 	const { loginState, backToLogin } = useLoginStateContext();
@@ -31,9 +33,7 @@ function RegisterForm() {
 			setRegisterType(RegisterTypeEnum.EMAIL)
 		} else if (value === "phone") {
 			setRegisterType(RegisterTypeEnum.PHONE)
-		} else if (value === "QRcode") {
-			setRegisterType(RegisterTypeEnum.QRcode)
-		}
+		} 
 
 	};
 	// 验证码获取
@@ -65,17 +65,6 @@ function RegisterForm() {
 		// backToLogin();
 	};
 
-	// const handleCaptchaSuccess = () => {
-	// 	console.log("验证码通过");
-	// };
-
-	// const handleCaptchaFailure = () => {
-	// 	console.log("验证码未通过");
-	// };
-	// const showVerify = () => {
-	// 	captchaRef.current?.verify()
-
-	// }
 
 	return (
 		<>
@@ -108,12 +97,9 @@ function RegisterForm() {
 					onChange={tabsChange}
 					value={tabsProps}
 				/>
-				{/* <LoginTypeProvider>
 				<Mailbox />
 				<Phonebox />
-			</LoginTypeProvider> */}
-				{tabsProps === "email" && (<Mailbox />)}
-				{tabsProps === "phone" && (<Phonebox />)}
+				
 			</div>
 		</>
 	);

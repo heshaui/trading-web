@@ -3,7 +3,7 @@ import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
-import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
@@ -12,9 +12,8 @@ import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
-import { areaCodeOptionList } from "@/utils/enum";
-import { log } from "console";
-
+import { areaCodeOptionList } from "@/utils/enum";;
+import store from "@/store";
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -25,19 +24,18 @@ const fromStyle: CSSProperties = {
 };
 
 
-function LoginForm() {
+function RegisterForm() {
 	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 	const { loginState, setLoginState } = useLoginStateContext();
-	const { loginType, setLoginType } = useLoginTypeContext();
+	const { registerType, setRegisterType } = useRegisterTypeContext();
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
-	// 当登录类型不为 PHONE 时不渲染组件
-	// if (loginState !== LoginStateEnum.LOGIN) return null;
-	// if (loginType !== LoginTypeEnum.PHONE) return null;
+	// 当注册类型不为 PHONE 时不渲染组件
+	if (registerType !== RegisterTypeEnum.PHONE) return null;
 
 	// 获取浏览器指纹
 	// const getFingerprint = async () => {
@@ -80,6 +78,10 @@ function LoginForm() {
 		// 	}
 		// });
 
+	}
+	const goAuthCode=()=>{
+		store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE);
+		setLoginState(LoginStateEnum.Authcode)
 	}
 // 自定义密码验证规则
 const validatePassword = (_:any, value:any) => {
@@ -171,7 +173,9 @@ const validatePassword = (_:any, value:any) => {
 			</Button>
 			<p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
-			icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}>
+			icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
+			onClick={()=>goAuthCode()}
+				>
 				使用Google继续
 			</Button>
 			<div className="flex-cc mt-4">
@@ -190,4 +194,4 @@ const validatePassword = (_:any, value:any) => {
 	);
 }
 
-export default LoginForm;
+export default RegisterForm;

@@ -18,8 +18,8 @@ export default function Experience() {
         <div className='dealPage'>
             {/* <div className='deal-main'> */}
                 <div className='deal_main flex-column flex-ai-center'>
-                    <div className='deal_main-title1'>数字货币交易，我们是专业的</div>
-                    <div className='deal_main-title2'>最低的手续费，最快捷的交易，强劲的API以及更多</div>
+                    <h2 className='deal_main-title1'>数字货币交易，我们是专业的</h2>
+                    <h3 className='deal_main-title2'>最低的手续费，最快捷的交易，强劲的API以及更多</h3>
                     <div className='deal_main-pic'>
                         <img className='' src="/images/home/ipad.png" alt="" />
                     </div>

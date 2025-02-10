@@ -22,8 +22,8 @@ export default function Experience() {
                     <img className='' src="/images/home/app.png" alt="" />
                 </div>
                 <div>
-                    <div className='try_main-title1'>IMBIT App，创造无限可能</div>
-                    <div className='try_main-title2'>初次交易？$5 即可小试牛刀，IMBIT和您一起步步登高</div>
+                    <h2 className='try_main-title1'>IMBIT App，创造无限可能</h2>
+                    <h3 className='try_main-title2'>初次交易？$5 即可小试牛刀，IMBIT和您一起步步登高</h3>
                 </div>
 
             </div>

@@ -4,9 +4,9 @@ import type { CSSProperties } from "react";
 import appStore from '@/store';
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import { LoginStateProvider } from "./providers/LoginStateProvider";
+import { LoginStateProvider, LoginTypeProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
 import "./styles/login.css"
-
+import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
@@ -36,8 +36,16 @@ function Login() {
 			<div className="m-auto flex flex-ai-center w-full flex-col justify-center flex-1 position-relative">
 				<div style={{ width: "368px" }}>
 					<LoginStateProvider>
-						<LoginForm />
-						<RegisterForm />
+						{/* 登录注册切换 */}
+						<LoginTypeProvider>
+							<LoginForm />
+							{/* <PhoneEmailAuthcode /> */}
+						</LoginTypeProvider>
+						<RegisterTypeProvider>
+							<RegisterForm />
+
+						</RegisterTypeProvider>
+						<PhoneEmailAuthcode />
 					</LoginStateProvider>
 				</div>
 			</div>

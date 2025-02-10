@@ -15,7 +15,8 @@ import Experience from '@/components/home/experience_1/experience';
 import Deal from '@/components/home/deal_2/deal';
 import Try from '@/components/home/try_3/try'; 
 import Assistant from '@/components/home/assistant_4/assistant'; 
-import Questions from '@/components/home/questions_5/questions';
+import ComeUp from '@/components/home/comeUp_5/comeUp'; 
+import Questions from '@/components/home/questions_6/questions';
 
 // import HomeMenu from '@/components/homeMenu/HomeMenu';
 // import Footer from '@/components/footer/Footer';
@@ -37,6 +38,7 @@ export default function Home() {
       <Deal />
       <Try/>
       <Assistant/>
+      <ComeUp/>
       <Questions/>
       {/* <Footer /> */}
     </div>

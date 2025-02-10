@@ -16,7 +16,7 @@
     width: 100%;
     margin-top: 8vh;
 }
-.main-questions-list{
+/* .main-questions-list{
     width: 100%;
     height: 80px;
     background-color: var( --btnbgcolor2);
@@ -26,6 +26,27 @@
 }
 .main-questions-list:hover{
     border: 1px solid #FFFFFF33;
+    border-radius: 8px;
+} */
+/* 列表文本样式 */
+.main-questions .ant-collapse-header{
+    color: var(--hometext) !important;
+    font-size: 20px;
+}
+/* 列表背景颜色 */
+.main-questions .ant-collapse-content-box{
+    color: var(--hometext) !important;
+}
+/* 列表边框 */
+.ant-collapse-item{
+    border: 1px solid #FFFFFF1A;
+}
+.main-questions .ant-collapse-item:hover{
+    border: 1px solid #FFFFFF33;
+}
+/* 去掉 ant-collapse-item 底部白线 */
+.main-questions .ant-collapse>.ant-collapse-item,.main-questions .ant-collapse-borderless >.ant-collapse-item{
+    border: none !important;
 }
 
 

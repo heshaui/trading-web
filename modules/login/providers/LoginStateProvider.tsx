@@ -13,16 +13,22 @@ export enum LoginStateEnum {
 	RESET_PASSWORD = 2,
 	MOBILE = 3,
 	QR_CODE = 4,
+	Authcode= 5,
+	Googlecode=6,
 }
 export enum LoginTypeEnum {
 	EMAIL = 0,
 	PHONE = 1,
 	QRcode = 2,
+	Authcode= 3,
+	Googlecode=4,
 }
 export enum RegisterTypeEnum {
 	EMAIL = 0,
 	PHONE = 1,
 	QRcode = 2,
+	Authcode= 3,
+	Googlecode=4,
 }
 
 
@@ -93,9 +99,7 @@ export function LoginStateProvider({ children }: PropsWithChildren) {
 	);
 }
 export function LoginTypeProvider({ children }: PropsWithChildren) {
-	const [loginType, setLoginType] = useState(LoginTypeEnum.EMAIL);
-	console.log(loginType,121);
-	function backToLoginType() {
+	const [loginType, setLoginType] = useState(LoginTypeEnum.EMAIL);	function backToLoginType() {
 		setLoginType(LoginTypeEnum.PHONE);
 	}
 

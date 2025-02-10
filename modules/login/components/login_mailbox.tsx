@@ -12,7 +12,7 @@ import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
-import { log } from "console";
+import store from "@/store";
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -36,7 +36,7 @@ function LoginForm() {
     const [form] = Form.useForm();
     // 当登录状态不为 LOGIN 时不渲染组件
     // if (loginState !== LoginStateEnum.LOGIN) return null;
-    // if (loginType !== LoginTypeEnum.EMAIL) return null;
+    if (loginType !== LoginTypeEnum.EMAIL) return null;
 
     // 获取浏览器指纹
     // const getFingerprint = async () => {
@@ -70,7 +70,10 @@ function LoginForm() {
         setLoading(true);
 
     }
-
+    const goAuthCode=()=>{
+        store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
+        setLoginState(LoginStateEnum.Authcode)
+    }
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -140,7 +143,7 @@ function LoginForm() {
            {!loading?( <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
                 onClick={handleFinish}>
                 {"登录"}
-            </Button>):(<button type="button"  className="w-full  mt-8 login-loading" >
+            </Button>):(<button type="button"  className="w-full  mt-8 login-loading" onClick={()=>setLoading(false)}>
                 {"登录"}
             </button>
             )}
@@ -148,7 +151,7 @@ function LoginForm() {
             <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5" 
             icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
-              onClick={()=>setLoading(false)}>
+            onClick={()=>goAuthCode()}>
                 使用Google继续
             </Button>
             <div className="flex-cc mt-4">

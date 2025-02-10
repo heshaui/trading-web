@@ -3,7 +3,7 @@ import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
-import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
@@ -12,8 +12,8 @@ import { toast ,Toaster} from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
-import { log } from "console";
-
+import store from "@/store";
+ 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -24,19 +24,18 @@ const fromStyle: CSSProperties = {
 };
 
 
-function LoginForm() {
+function RegisterForm() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
-    const { loginState, setLoginState } = useLoginStateContext();
-    const { loginType, setLoginType } = useLoginTypeContext();
+    const { setLoginState } = useLoginStateContext();
+    const { registerType,setRegisterType } = useRegisterTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
-    // 当登录状态不为 LOGIN 时不渲染组件
-    // if (loginState !== LoginStateEnum.LOGIN) return null;
-    // if (loginType !== LoginTypeEnum.EMAIL) return null;
+    // 当注册状态不为 EMAIL 时不渲染组件
+    if (registerType !== RegisterTypeEnum.EMAIL) return null;
 
     // 获取浏览器指纹
     // const getFingerprint = async () => {
@@ -45,15 +44,6 @@ function LoginForm() {
     // 	console.log(visitorId.components.vendor);
     // 	return visitorId.visitorId;
     // };
-
-    const handCancel = () => {
-        setCodeModelOpen(false);
-    };
-
-    const handOk = async (type: string) => {
-        console.log(type);
-        // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-    };
 
     const handleFinish = async () => {
         form
@@ -71,7 +61,10 @@ function LoginForm() {
         // setLoading(true);
 
     }
-
+const goAuthCode=()=>{
+    store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.EMAIL);
+    setLoginState(LoginStateEnum.Authcode)
+}
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -167,7 +160,8 @@ function LoginForm() {
             </Button>
             <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5" 
-            onClick={()=>toast.error("请先同意用户协议和隐私政策")}
+            // onClick={()=>setRegisterType(RegisterTypeEnum.Authcode)}
+            onClick={()=>goAuthCode()}
             icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
              >
                 使用Google继续
@@ -190,4 +184,4 @@ function LoginForm() {
     );
 }
 
-export default LoginForm;
+export default RegisterForm;

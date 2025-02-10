@@ -23,7 +23,7 @@
 }
 
 /* 主轴纵向 */
-.flex-col {
+.flex-col,.flex-column {
   display: flex;
   flex-direction: column;
 
@@ -272,10 +272,19 @@
 .font-16 {
   font-size: 16px;
 }
-
 .font-18 {
   font-size: 18px;
 }
+.font-20 {
+  font-size: 20px;
+}
+.font-22 {
+  font-size: 22px;
+}
+.font-w-400{
+  font-weight: 400;
+}
+
 .font-w-500{
   font-weight: 500;
 }
@@ -288,6 +297,7 @@
 .text-right{
   text-align: right;
 }
+
 
 
 @media (max-width: 680px) {

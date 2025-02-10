@@ -18,7 +18,7 @@ export default function Experience() {
         <div className='experiencePage'>
             <div className='experience-main'>
                 <div className='experience_main-box'>
-                    <div>IMBIT数字货币交易所更快、更好、更强</div>
+                    <h2>IMBIT数字货币交易所更快、更好、更强</h2>
                     <div className='flex flex-ai-center experience_main-email'>
                         <Input type="text" placeholder="邮箱" onChange={onChange} />
                         <Button className='experience_main-btn'>立即体验</Button>

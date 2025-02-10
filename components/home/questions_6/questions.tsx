@@ -1,0 +1,103 @@
+import Link from 'next/link';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { GetStaticProps } from 'next';
+
+import React, { useState } from 'react';
+import '@/styles/components/home/questions.css'
+import { Collapse,theme} from "antd";
+import type { CollapseProps } from 'antd';
+import type { CSSProperties } from 'react';
+export default function Questions() {
+    const { t } = useTranslation('common');
+    const [email, setEmail] = useState('');
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        console.log('Change:', e.target.value);
+        setEmail(e.target.value)
+    };
+
+    const { token } = theme.useToken();
+    const text = `
+  A dog is a type of domesticated animal.
+  Known for its loyalty and faithfulness,
+  it can be found as a welcome guest in many households across the world.
+`;
+    const getItems: (panelStyle: CSSProperties) => CollapseProps['items'] = (panelStyle) => [
+        {
+            key: '1',
+            label: 'IMBIT都提供哪些产品',
+            children: <p>{text}</p>,
+            style: panelStyle,
+            showArrow:false, //隐藏组件的箭头图标
+            extra:<img src="/images/home/icon-add.png" alt="" />
+        },
+        {
+            key: '2',
+            label: '如何通过IMBIT平台购买比特币？',
+            children: <p>{text}</p>,
+            style: panelStyle,
+            showArrow:false ,
+            extra:<img src="/images/home/icon-add.png" alt="" />
+        },
+        {
+            key: '3',
+            label: '美国公民可以使用IMBIT吗？',
+            children: <p>{text}</p>,
+            style: panelStyle,
+            showArrow:false ,
+            extra:<img src="/images/home/icon-add.png" alt="" />
+
+        },
+        {
+            key: '4',
+            label: '什么是数字货币？',
+            children: <p>{text}</p>,
+            style: panelStyle,
+            showArrow:false ,
+            extra:<img src="/images/home/icon-add.png" alt="" />
+
+        },
+    ];
+    const panelStyle: React.CSSProperties = {
+        marginBottom: 12,
+        background: "var( --btnbgcolor2)",
+        borderRadius: "8px",
+    };
+
+    return (
+        <div className='questionsPage'>
+            <div className='questions-main flex-column flex-ai-center flex-jc-center'>
+                <h2 className='questions_main-title1'>常见问题</h2>
+                <div className='main-questions-box'>
+                    <Collapse
+                    className='main-questions'
+                        bordered={false}
+                        // defaultActiveKey={['1']}
+                        // expandIcon={({ isActive }) => <span>  </span>}/
+                        style={{ background: "var( --background4)",color: "var(--hometext)" }}
+                        // style={{ background: token.colorBgContainer }}
+                        items={getItems(panelStyle)}
+                        size="large"
+                    />
+
+                    {/* <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                        <h3>IMBIT都提供哪些产品</h3>
+                        <img src="/images/home/icon-add.png" alt="" />
+                    </div>
+                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                        <h3>如何通过IMBIT平台购买比特币？</h3>
+                        <img src="/images/home/icon-add.png" alt="" />
+                    </div>
+                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                        <h3>美国公民可以使用IMBIT吗？</h3>
+                        <img src="/images/home/icon-add.png" alt="" />
+                    </div>
+                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                        <h3>什么是数字货币？</h3>
+                        <img src="/images/home/icon-add.png" alt="" />
+                    </div> */}
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -1,7 +1,6 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented } from "antd";
 import { type CSSProperties, useState } from "react";
-import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProvider";
@@ -14,7 +13,7 @@ import type { TabsProps } from 'antd';
 import Mailbox from "./components/login_mailbox"
 import Phonebox from "./components/login_phonebox"
 import QRCodebox from "./components/login_QRcode"
-import { LoginTypeProvider, LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
+import {  LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
 import { log } from "console";
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -27,7 +26,6 @@ const fromStyle: CSSProperties = {
 
 
 function LoginForm() {
-	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -36,7 +34,7 @@ function LoginForm() {
 	const [tabsProps, setTabsProps] = useState('email');
 	const { loginState, setLoginState } = useLoginStateContext();
 	// const signIn = useSignIn();
-	const { loginType, setLoginType, backToLoginType } = useLoginTypeContext();
+	const { loginType, setLoginType } = useLoginTypeContext();
 	// 当登录状态不为 LOGIN 时不渲染组件
 	if (loginState !== LoginStateEnum.LOGIN) return null;
 
@@ -77,7 +75,6 @@ function LoginForm() {
 		} else if (value === "phone") {
 			setLoginType(LoginTypeEnum.PHONE)
 		} else if (value === "QRcode") {
-			backToLoginType()
 			setLoginType(LoginTypeEnum.QRcode)
 		}
 
@@ -119,13 +116,9 @@ function LoginForm() {
 				onChange={tabsChange}
 				value={tabsProps}
 			/>
-			{/* <LoginTypeProvider>
 				<Mailbox />
 				<Phonebox />
-			</LoginTypeProvider> */}
-			{tabsProps === "email" && (<Mailbox />)}
-			{tabsProps === "phone" && (<Phonebox />)}
-			{tabsProps === "QRcode" && (<QRCodebox />)}
+				<QRCodebox/>
 		</div>
 	);
 }
