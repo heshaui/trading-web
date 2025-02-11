@@ -1,19 +1,16 @@
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Input, Select, Space } from "antd";
+
 import { type CSSProperties, useState } from "react";
-import { useTranslation } from "react-i18next";
-// import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
-// import FingerprintJS from "@fingerprintjs/fingerprintjs";
-// import loginApi from "@/api/login/login";
-// import { getEmailCode, getSmsCode } from "@/api/login/register";
-// import CodeModel from "./components/codebutton";
+
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";
+import { areaCodeSelectList } from "@/utils/country"; //地区代码
 import store from "@/store";
+import PhoneCodeSelector from "./PhoneCodeSelector"
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -26,7 +23,6 @@ const fromStyle: CSSProperties = {
 
 
 function LoginForm() {
-	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -47,13 +43,8 @@ function LoginForm() {
 	// 	return visitorId.visitorId;
 	// };
 
-	const handCancel = () => {
+	const handOk = () => {
 		setCodeModelOpen(false);
-	};
-
-	const handOk = async (type: string) => {
-		console.log(type);
-		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 	};
 
 	const onFinish = async () => {
@@ -80,10 +71,10 @@ function LoginForm() {
 		// });
 
 	}
-    const goAuthCode=()=>{
-        store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
-        setLoginState(LoginStateEnum.Googlecode)
-    }
+	const goAuthCode = () => {
+		store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
+		setLoginState(LoginStateEnum.Googlecode)
+	}
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
@@ -92,31 +83,50 @@ function LoginForm() {
 				size="large"
 				form={form}
 				// onFinish={onFinish}
-				initialValues={{ areaCode: "1" }}
+				initialValues={{ areaCode: "+1" }}
 			// onValuesChange={usernameChange}
 			>
 				<div className="mb-5 font-16 font-w-500">手机号</div>
-				<Form.Item name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+				<Form.Item >
 					<div className="flex">
-						<Form.Item name="areaCode" noStyle>
-							<Select
+						{/* <Form.Item name="areaCode" noStyle> */}
+							{/* <Select
 								defaultValue="1"
 								style={{ width: 115 }}
-								options={areaCodeOptionList}
+								options={areaCodeSelectList}
 								prefix={
 									<Iconify icon="zondicons:network" className="icon-color" />
 								}
-							/>
+								// optionRender={(option) => (
+								// 	<Space style={{ width: "360px" }}>
+								// 		<span aria-label={option.data.value}>
+								// 			{option.data.cnName}
+								// 		</span>
+								// 		{option.data.showName}
+								// 	</Space>
+								// )}
+								// showSearch
+								// filterOption={(inputValue, option) => {
+                                //     return (
+                                //         (option?.showName ?? '').toLowerCase().includes(inputValue.toLowerCase())
+                                //     );
+                                // }}
+							/> */}
+
+							<PhoneCodeSelector/>
+						{/* </Form.Item> */}
+						<Form.Item name="phoneNumber" noStyle rules={[{ required: true, message: "手机号不能为空！" }]}>
+							<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
+
 						</Form.Item>
-						<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
 					</div>
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
 					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
-						prefix={
-							<Iconify icon="solar:lock-password-linear" className="icon-color" />
-						}
+					// prefix={
+					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
+					// }
 					/>
 				</Form.Item>
 				{/* {preCheck && (
@@ -148,20 +158,21 @@ function LoginForm() {
 					</Button>
 				</Form.Item> */}
 			</Form>
-			{!loading?( <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" 
-			// loading={loading}
-                onClick={onFinish}>
-                {"登录"}
-            </Button>):(<button type="button"  className="w-full  mt-8 login-loading" onClick={()=>setLoading(false)} >
-                {"登录"}
-            </button>
-            )}
+			{!loading ? (<Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8"
+				// loading={loading}
+				onClick={onFinish}>
+				{"登录"}
+			</Button>) : (<button type="button" className="w-full  mt-8 login-loading"
+				onClick={() => setLoading(false)} >
+				{"登录"}
+			</button>
+			)}
 			<p className="tip-color2 mt-5">或者</p>
-			<Button className="w-full google-btn mt-5" 
-			// onClick={()=>setLoginState(LoginStateEnum.Authcode)}
+			<Button className="w-full google-btn mt-5"
+				// onClick={()=>setLoginState(LoginStateEnum.Authcode)}
 				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
-				onClick={()=>goAuthCode()}
-				>
+				onClick={() => goAuthCode()}
+			>
 				使用Google继续
 			</Button>
 			<div className="flex-cc mt-4">

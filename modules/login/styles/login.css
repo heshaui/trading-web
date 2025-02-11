@@ -2,6 +2,9 @@
     border: none;
     height: 38px;
 }
+.autoComplete-input .ant-select-selection-search-input{
+    height: 100% !important;
+}
 
 .login-loading {
     border: none;
@@ -116,4 +119,8 @@
     border-radius: 36px;
     width: 115px;
     height: 50px;
+}
+.icon-rotate {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
 }

@@ -14,6 +14,7 @@ import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";;
 import store from "@/store";
+import PhoneCodeSelector from "./PhoneCodeSelector"
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -61,7 +62,7 @@ function RegisterForm() {
 			.then(async (values) => {
 				// form.resetFields(); // 重置表单
 				console.log(values, 111);
-				if(!values.agree) return toast.error("请先同意用户协议和隐私政策")
+				if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
@@ -79,27 +80,27 @@ function RegisterForm() {
 		// });
 
 	}
-	const goAuthCode=()=>{
+	const goAuthCode = () => {
 		store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE);
 		setLoginState(LoginStateEnum.Googlecode)
 	}
-// 自定义密码验证规则
-const validatePassword = (_:any, value:any) => {
-	if (!value) {
-		return Promise.reject(new Error("密码不能为空！"));
-	}
-	// 检查长度是否在 8 - 30 位之间
-	if (value.length < 8 || value.length > 30) {
-		return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
-	}
-	// 检查是否包含字母和数字
-	const hasLetter = /[a-zA-Z]/.test(value);
-	const hasNumber = /\d/.test(value);
-	if (!hasLetter || !hasNumber) {
-		return Promise.reject(new Error("密码必须包含字母和数字！"));
-	}
-	return Promise.resolve();
-};
+	// 自定义密码验证规则
+	const validatePassword = (_: any, value: any) => {
+		if (!value) {
+			return Promise.reject(new Error("密码不能为空！"));
+		}
+		// 检查长度是否在 8 - 30 位之间
+		if (value.length < 8 || value.length > 30) {
+			return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
+		}
+		// 检查是否包含字母和数字
+		const hasLetter = /[a-zA-Z]/.test(value);
+		const hasNumber = /\d/.test(value);
+		if (!hasLetter || !hasNumber) {
+			return Promise.reject(new Error("密码必须包含字母和数字！"));
+		}
+		return Promise.resolve();
+	};
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
@@ -108,13 +109,13 @@ const validatePassword = (_:any, value:any) => {
 				size="large"
 				form={form}
 				// onFinish={onFinish}
-				initialValues={{ areaCode: "1" }}
+				initialValues={{ areaCode: "+1" }}
 			// onValuesChange={usernameChange}
 			>
 				<div className="mb-5 font-16 font-w-500">手机号</div>
-				<Form.Item name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+				<Form.Item >
 					<div className="flex">
-						<Form.Item name="areaCode" noStyle>
+						{/* <Form.Item name="areaCode" noStyle>
 							<Select
 								defaultValue="1"
 								style={{ width: 115 }}
@@ -123,18 +124,21 @@ const validatePassword = (_:any, value:any) => {
 									<Iconify icon="zondicons:network" className="icon-color" />
 								}
 							/>
+						</Form.Item> */}
+						<PhoneCodeSelector/>
+						<Form.Item  noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+							<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
 						</Form.Item>
-						<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
 					</div>
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
-				<Form.Item name="password" 
-				rules={[{ validator: validatePassword }]}
+				<Form.Item name="password"
+					rules={[{ validator: validatePassword }]}
 				>
 					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
-						prefix={
-							<Iconify icon="solar:lock-password-linear" className="icon-color" />
-						}
+					// prefix={
+					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
+					// }
 					/>
 				</Form.Item>
 				{/* {preCheck && (
@@ -156,11 +160,11 @@ const validatePassword = (_:any, value:any) => {
 					</Form.Item>
 				)} */}
 				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
-				<Form.Item name="referee" rules={[{ required: false,}]}>
+				<Form.Item name="referee" rules={[{ required: false, }]}>
 					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large"
-						prefix={
-							<Iconify icon="solar:lock-password-linear" className="icon-color" />
-						}
+					// prefix={
+					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
+					// }
 					/>
 				</Form.Item>
 				<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
@@ -173,9 +177,9 @@ const validatePassword = (_:any, value:any) => {
 			</Button>
 			<p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
-			icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
-			onClick={()=>goAuthCode()}
-				>
+				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
+				onClick={() => goAuthCode()}
+			>
 				使用Google继续
 			</Button>
 			<div className="flex-cc mt-4">

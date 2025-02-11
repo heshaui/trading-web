@@ -1,5 +1,5 @@
-import { Button, Form, Input, Checkbox, message } from "antd";
-import { type CSSProperties, useState } from "react";
+import { Button, Form, Input, Checkbox, AutoComplete } from "antd";
+import { type CSSProperties, useState,  } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
@@ -8,12 +8,12 @@ import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterType
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
-import { toast ,Toaster} from "sonner";
+import { toast, Toaster } from "sonner";
 // import "@/styles/components/login/login.css"
-import type { TabsProps } from 'antd';
+import type { TabsProps, AutoCompleteProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import store from "@/store";
- 
+import { emailSuffixes } from "@/utils/enum";
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -31,9 +31,11 @@ function RegisterForm() {
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
     const { setLoginState } = useLoginStateContext();
-    const { registerType,setRegisterType } = useRegisterTypeContext();
+    const { registerType, setRegisterType } = useRegisterTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
+    const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+
     // 当注册状态不为 EMAIL 时不渲染组件
     if (registerType !== RegisterTypeEnum.EMAIL) return null;
 
@@ -50,9 +52,9 @@ function RegisterForm() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
-                if(!values.agree) return toast.error("请先同意用户协议和隐私政策") 
-                
- 
+                if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
+
+
             })
             .catch((info) => {
                 console.log("Validate Failed:", info);
@@ -61,10 +63,11 @@ function RegisterForm() {
         // setLoading(true);
 
     }
-const goAuthCode=()=>{
-    store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.EMAIL);
-    setLoginState(LoginStateEnum.Googlecode)
-}
+    // 跳转规则
+    const goAuthCode = () => {
+        store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.EMAIL); //存储跳转前状态
+        setLoginState(LoginStateEnum.Googlecode) //设置跳转状态
+    }
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -73,6 +76,17 @@ const goAuthCode=()=>{
         });
 
     }
+    const handleSearch = (value: string) => {
+        setOptions(() => {
+            if (!value || value.includes('@')) {
+                return [];
+            }
+            return emailSuffixes.map((domain) => ({
+                label: `${value}@${domain}`,
+                value: `${value}@${domain}`,
+            }));
+        });
+    };
     // 自定义密码验证规则
     const validatePassword = (_: any, value: any) => {
         if (!value) {
@@ -105,26 +119,34 @@ const goAuthCode=()=>{
             >
                 <div className="mb-5 font-16 font-w-500">邮箱</div>
 
-                <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" },{type:"email",message:"邮箱格式不正确！"}]}>
-                    <Input placeholder="请输入邮箱号" allowClear={true} size="large"
-                        prefix={<Iconify icon="clarity:email-line" className="icon-color" />}
+                <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
+                    {/* <Input placeholder="请输入邮箱号" allowClear={true} size="large"
+                    prefix={<Iconify icon="clarity:email-line" className="icon-color" />}
+                    /> */}
+                     <AutoComplete
+                        // style={{ width: 200 }}
+                        onSearch={handleSearch}
+                        placeholder="请输入邮箱号"
+                        options={options}
+                        allowClear={true}
+                        backfill={true}
+                        className="autoComplete-input"
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ validator: validatePassword }]}>
                     <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
-                        prefix={
-                            <Iconify icon="solar:lock-password-linear" className="icon-color" />
-                        }
+                    // prefix={
+                    //     <Iconify icon="solar:lock-password-linear" className="icon-color" />
+                    // }
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
                 <Form.Item name="referee" rules={[{ required: false }]}>
                     <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large"
-                        prefix={
-                            // <Iconify icon="solar:lock-password-linear" className="icon-color" />
-                            <img src="/images/login/icon-inviter.png" alt="" style={{ width: "14px", height: "14px" }} />
-                        }
+                    // prefix={
+                    //     <img src="/images/login/icon-inviter.png" alt="" style={{ width: "14px", height: "14px" }} />
+                    // }
                     />
                 </Form.Item>
                 {/* {preCheck && (
@@ -146,8 +168,8 @@ const goAuthCode=()=>{
 					</Form.Item>
 				)} */}
                 <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-					<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
-				</Form.Item>
+                    <Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+                </Form.Item>
                 {/* <Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
                         {"登录"}
@@ -159,11 +181,11 @@ const goAuthCode=()=>{
                 {"注册"}
             </Button>
             <p className="tip-color2 mt-5">或者</p>
-            <Button className="w-full google-btn mt-5" 
-            // onClick={()=>setRegisterType(RegisterTypeEnum.Authcode)}
-            onClick={()=>goAuthCode()}
-            icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
-             >
+            <Button className="w-full google-btn mt-5"
+                // onClick={()=>setRegisterType(RegisterTypeEnum.Authcode)}
+                onClick={() => goAuthCode()}
+                icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
+            >
                 使用Google继续
             </Button>
             <div className="flex-cc mt-4">
@@ -178,9 +200,9 @@ const goAuthCode=()=>{
                     </button>
                 </p>
             </div>
-           
+
         </div>
-        
+
     );
 }
 

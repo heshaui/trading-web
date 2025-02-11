@@ -1,6 +1,6 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Input, Button } from 'antd';
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useState, useRef } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
@@ -21,11 +21,29 @@ function AuthCode() {
     const { loginType, setLoginType } = useLoginTypeContext();
     const { registerType, setRegisterType } = useRegisterTypeContext();
     const { loginState, backToLogin, setLoginState } = useLoginStateContext();
+    const [authCode, setAuthCode] = useState('');
+    const inputRef = useRef<HTMLInputElement|null>(null);
     // 当状态不为 Authcode 时不渲染组件
     // if (loginType !== LoginTypeEnum.Authcode || registerType !== RegisterTypeEnum.Authcode) return null;
     if (loginState !== LoginStateEnum.Googlecode) return null;
 
-
+    // 定义粘贴功能的处理函数
+    const handlePaste = async () => {
+        try {
+            // 使用 Clipboard API 读取剪贴板内容
+            const clipboardData = await navigator.clipboard.readText();
+            // 如果输入框引用存在，将剪贴板内容赋值给输入框的值
+            // if (inputRef.current) {
+            //     inputRef.current.input.value = clipboardData;
+            // }
+            if(clipboardData){
+                setAuthCode(clipboardData)
+            }
+        } catch (error) {
+            // 捕获并打印可能出现的错误
+            console.error('Err:', error);
+        }
+    };
 
     const goBackPage = () => {
         const authcodeState = store.authcodeState
@@ -51,11 +69,13 @@ function AuthCode() {
                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                     suffix={
                         <button className='text-color'>发送</button>
-                    } 
+                    }
                     className='authcode-input'
-                    style={{borderRadius: "8px"}}
-                    />
-                    <button className='text-color mt-1'>粘贴</button>
+                    style={{ borderRadius: "8px" }}
+                    // value={authCode}
+                    allowClear
+                />
+                <button className='text-color mt-1' onClick={handlePaste}>粘贴</button>
                 <div className='flex mt-10'>
                     <Button
                         className='goback-btn'
