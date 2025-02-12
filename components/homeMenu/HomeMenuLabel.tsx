@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
-import { LabelComponentProps } from '@/utils/types';
+import { LabelComponentProps } from '@/type/types';
 import { Menu } from 'antd';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({

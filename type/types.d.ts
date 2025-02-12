@@ -77,7 +77,8 @@ export interface TabsItemProps extends TabsItemData {
     haveNumber?: boolean;
     isHover?: boolean;
 }
-export type IconName = 'download' | 'bell' | 'question' | 'global';
+// export type IconName = 'download' | 'bell' | 'question' | 'global';
+export type IconName = string;
 
 // Footer
 export type FooterListProps = {
@@ -92,4 +93,29 @@ export interface CurrencyTradingProps {
 export interface TrendDataItem {
     date: string;
     value: number;
+}
+
+// FundingTable
+// 定义通用的表格数据接口
+export interface BaseTableData {
+    key: React.Key; // 每行数据的唯一标识
+}
+// 表格1的数据接口
+export interface Table1Data extends BaseTableData {
+    currency: React.ReactNode; // 币种
+    quantityHeld: number; // 持有数量
+    convertedToUSDT: number; // 折合USDT
+    todayPLUSDT: string[]; // 今日盈亏USDT
+    availableOrFrozen: string[]; // 可用/冻结
+    lockPosition: number; // 锁仓
+    dailyVariation: string; // 日变化
+    currencyPriceTrend: React.ReactNode; // 持币价格走势
+}
+// 表格2的数据接口
+export interface Table2Data extends BaseTableData {
+    accountName: string; // 账户名称
+    convertedToUSDT: string; // 折合USDT
+    todayPLUSDT: string; // 今日盈亏USDT
+    assetProportion: string; // 资产占比
+    assetProportionNode: string; // 资产占比
 }

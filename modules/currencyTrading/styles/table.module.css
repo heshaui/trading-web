@@ -35,3 +35,64 @@
     font-weight: 500;
     margin-left: 6px;
 }
+
+/* 饼图 */
+.pieChart {
+    display: flex;
+    justify-content: space-between;
+}
+.pieDiv {
+    /* position: relative; */
+    flex: 1;
+    margin-left: 60px;
+}
+
+.pieChart .pieDiv .ulPie {
+    /* position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 0%); */
+    margin-left: 17px;
+    /* width: 207px; */
+}
+.pieChart .pieDiv .pieChart {
+    width: 240px;
+    height: 240px;
+}
+
+.pieChart li,
+.pieChart li .contentBox {
+    display: flex;
+    align-items: center;
+}
+
+.pieChart li {
+    margin-bottom: 12px;
+}
+
+.pieChart li:last-child {
+    margin-bottom: 0;
+}
+
+.colorBox {
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    background-color: aliceblue;
+}
+
+.pieChart li .contentBox {
+    width: 189px;
+    justify-content: space-between;
+}
+
+.pieChart li span {
+    color: #A4A5AC;
+    font-size: 14px;
+}
+
+.pieChart li p {
+    color: #FFFFFF;
+    font-weight: 400;
+    font-size: 14px;
+}

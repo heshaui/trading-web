@@ -1,11 +1,11 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider } from 'antd';
+import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
-import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/utils/types';
+import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/type/types';
 import React, { useState } from 'react';
 import Link from 'next/link';
 
@@ -63,6 +63,33 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '8',
             label: (
                 <MenuItemLabel src="/images/home_menu/icon_Certificate.png" h5Text="储备金证明报告" spanText="" />
+            ),
+        }
+    ];
+    // 资产 - 2版
+    const itemsFunding = [
+        {
+            key: '1',
+            label: (
+                <MenuItemLabel src="/images/home_menu/icon_coin_line.png" h5Text="我的资产" spanText="" />
+            ),
+        },
+        {
+            key: '2',
+            label: (
+                <MenuItemLabel src="/images/home_menu/icon_deposit.png" h5Text="充币" spanText="" />
+            ),
+        },
+        {
+            key: '3',
+            label: (
+                <MenuItemLabel src="/images/home_menu/icon_cash.png" h5Text="提币" spanText="" />
+            ),
+        },
+        {
+            key: '4',
+            label: (
+                <MenuItemLabel src="/images/home_menu/icon_bill_line.png" h5Text="账单明细" spanText="" />
             ),
         }
     ];
@@ -315,6 +342,14 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                 return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             case 'global':
                 return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
+            case 'img_upload':
+                return <Col><img src="/images/home_menu/icon_upload_line.png" className={styles.iconCursor} /></Col>;
+            case 'img_download':
+                return <Col><img src="/images/home_menu/icon_download_line.png" className={styles.iconCursor} /></Col>;
+            case 'img_change':
+                return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
+            case 'img_global':
+                return <Col><img src="/images/home_menu/icon_earth_line.png" className={styles.iconCursor} /></Col>;
             default:
                 return null;
         }
@@ -438,6 +473,124 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
     ];
     const iconItems = iconMenus.map(iconMenu =>
+        <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
+    );
+    // 右侧菜单登陆后
+    const iconMenusLogin: MenuListItem[] = [
+        {
+            key: '1',
+            title: <IconHtml icon="img_upload" />,
+            widthSet: 'bell',
+            items: [
+                {
+                    key: '1',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="IMBIT关于上线 Pendle (PENDLE) 现货交易的公告" spanText="2024/09/27 11:00:00" />
+                    ),
+                },
+                {
+                    key: '2',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="ETH/BTC 币对现已上线双币赢！" spanText="2024/09/27 14:30:00" />
+                    ),
+                },
+                {
+                    key: '3',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="IMBIT关于延迟上线 USDC 交易币对的公告" spanText="2024/09/27 14:30:00" />
+                    ),
+                },
+                {
+                    key: '4',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正 式上线的公告" spanText="2024/09/27 14:30:00" />
+                    ),
+                },
+                {
+                    key: '5',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投 币的公告" spanText="2024/09/27 11:00:00" />
+                    ),
+                },
+                {
+                    key: '6',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel h5Text="查看更多" isMore />
+                    ),
+                },
+            ],
+        },
+        {
+            key: '2',
+            title: <IconHtml icon="img_download" />,
+            widthSet: 'download',
+            items: [
+                {
+                    key: '1',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
+                    ),
+                },
+            ],
+        },
+        {
+            key: '3',
+            title: <IconHtml icon="img_change" />,
+            widthSet: 'question',
+            items: [
+                {
+                    key: '1',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="帮助中心" />
+                    ),
+                },
+                {
+                    key: '2',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="我的客服工单" />
+                    ),
+                },
+                {
+                    key: '3',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="加入IMBIT社群" />
+                    ),
+                },
+            ],
+        },
+        {
+            key: '4',
+            title: <IconHtml icon="img_global" />,
+            widthSet: 'global',
+            items: [
+                {
+                    key: '1',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="中文" />
+                    ),
+                },
+                {
+                    key: '2',
+                    type: 'item',
+                    label: (
+                        <MenuItemLabel h5Text="English" />
+                    ),
+                },
+            ],
+        },
+    ];
+    const iconItemsLogin = iconMenusLogin.map(iconMenu =>
         <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
     );
 
@@ -607,10 +760,16 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
 
     // 左侧菜单
     const menus: MenuListItem[] = [
+        // {
+        //     key: '0',
+        //     title: <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px' }} />,
+        //     items: []
+        // },
         {
             key: '1',
             // title: t('home_menu_title_1'),
-            title: '买币',
+            // title: '买币',
+            title: '行情',
             // title: <IconHtml icon="bell" />,
             items: [
                 {
@@ -624,7 +783,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
         {
             key: '2',
-            title: '发现',
+            // title: '发现',
+            title: '交易',
             items: [
                 {
                     key: '1',
@@ -651,7 +811,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
         {
             key: '3',
-            title: '交易',
+            // title: '交易',
+            title: '合约',
             items: [
                 {
                     key: '0',
@@ -833,7 +994,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
         {
             key: '4',
-            title: '金融',
+            // title: '金融',
+            title: '跟单',
             items: [
                 {
                     key: '1',
@@ -872,7 +1034,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
         {
             key: '5',
-            title: '公链',
+            // title: '公链',
+            title: '策略',
             items: [
                 {
                     key: '0',
@@ -980,7 +1143,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         },
         {
             key: '6',
-            title: '机构客户',
+            // title: '机构客户',
+            title: '理财',
             items: [
                 {
                     key: '1',
@@ -1052,22 +1216,31 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                 </div>
                 <div className={styles.menuContainer}>
                     <div className={styles.menuListContainer}>
-                        {listItems}
-                        <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>新手学院</Link>
-                        <Dropdown
-                            menu={{
-                                items: moreItems,
-                            }}
-                            trigger={['click']}
-                            overlayStyle={{ top: '80px' }}
-                        >
-                            <a style={{ cursor: 'pointer' }} onClick={(e) => e.preventDefault()}>
-                                <Space style={{ columnGap: '3px' }}>
-                                    更多
-                                    <DownOutlined />
-                                </Space>
-                            </a>
-                        </Dropdown>
+                        <Row align='middle'>
+                            <Col><img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} /></Col>
+                            <Col>{listItems}</Col>
+                            <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                <Row gutter={4} align='middle'>
+                                    <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
+                                    <Col><span>Web3</span></Col>
+                                </Row>
+                            </Link>
+                            <Dropdown
+                                menu={{
+                                    items: moreItems,
+                                }}
+                                trigger={['click']}
+                                overlayStyle={{ top: '80px' }}
+                            >
+                                <a style={{ cursor: 'pointer', position: 'relative' }} onClick={(e) => e.preventDefault()}>
+                                    <Space style={{ columnGap: '3px' }}>
+                                        打新专区
+                                        <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
+                                        {/* <DownOutlined /> */}
+                                    </Space>
+                                </a>
+                            </Dropdown>
+                        </Row>
                     </div>
                     <div className={styles.rightListContainer}>
                         <Dropdown
@@ -1091,13 +1264,13 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                             }
                                         }}
                                     >
-                                        <Input
+                                        {/* <Input
                                             style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
                                             placeholder="搜索币对和其他产品"
                                             prefix={<SearchOutlined />}
                                             value={searchValue}
                                             onChange={(e) => setSearchValue(e.target.value)}
-                                        />
+                                        /> */}
                                     </ConfigProvider>
                                 </Space>
                             </a>
@@ -1105,38 +1278,79 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                         {
                             isLogin ? (
                                 <div className={styles.loginContent}>
-                                    <Dropdown
-                                        menu={{
-                                            items,
-                                        }}
-                                        trigger={['click']}
-                                        className={styles.dropDownList}
-                                        overlayStyle={{ top: '80px' }}
-                                    >
-                                        <a onClick={(e) => e.preventDefault()}>
-                                            <Space style={{ columnGap: '3px' }}>
-                                                资产管理
-                                                <DownOutlined />
-                                            </Space>
-                                        </a>
-                                    </Dropdown>
-                                    <Space direction="vertical">
-                                        <Space wrap>
+                                    <Row gutter={16} align='middle'>
+                                        <Col>
                                             <Dropdown
                                                 menu={{
-                                                    items: userItemsAll,
-                                                    triggerSubMenuAction: 'click',
+                                                    items: inputItems,
                                                 }}
-                                                placement="bottomLeft"
                                                 trigger={['click']}
-                                                overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
                                             >
-                                                <a onClick={(e) => e.preventDefault()}>
-                                                    <UserIcon />
-                                                </a>
+                                                {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                <Space>
+                                                    <ConfigProvider
+                                                        theme={{
+                                                            components: {
+                                                                Input: {
+                                                                    /* 这里是你的组件 token */
+                                                                },
+                                                            },
+                                                            token: {
+                                                                colorTextPlaceholder: '#979897',
+                                                                fontSize: 12
+                                                            }
+                                                        }}
+                                                    >
+                                                        <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
+                                                    </ConfigProvider>
+                                                </Space>
+                                                {/* </a> */}
                                             </Dropdown>
-                                        </Space>
-                                    </Space>
+
+                                        </Col>
+                                        <Col>
+                                            <Dropdown
+                                                menu={{
+                                                    // items,
+                                                    items: itemsFunding
+                                                }}
+                                                trigger={['click']}
+                                                className={styles.dropDownList}
+                                                overlayStyle={{ top: '80px', width: '180px' }}
+                                            >
+                                                {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
+                                                    <Space style={{ columnGap: '3px' }}>
+                                                        <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                    </Space>
+                                                </a> */}
+                                                <Space style={{ columnGap: '3px' }}>
+                                                    <img onClick={(e) => e.preventDefault()}  src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                </Space>
+                                            </Dropdown>
+                                        </Col>
+                                        {iconItemsLogin}
+                                        <Col>
+                                            <Space direction="vertical">
+                                                <Space wrap>
+                                                    <Dropdown
+                                                        menu={{
+                                                            items: userItemsAll,
+                                                            triggerSubMenuAction: 'click',
+                                                        }}
+                                                        placement="bottomLeft"
+                                                        trigger={['click']}
+                                                        overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                    >
+                                                        <a onClick={(e) => e.preventDefault()}>
+                                                            {/* <UserIcon /> */}
+                                                            <Avatar src={<img src='/images/home_menu/Avatar (1).png' className={styles.userCursor} alt="avatar" />} />
+                                                        </a>
+                                                    </Dropdown>
+                                                </Space>
+                                            </Space>
+                                        </Col>
+                                    </Row>
                                 </div>
                             ) : (
                                 <div>
