@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Checkbox } from "antd";
+import { Button, Form, Input, Select, Checkbox,ConfigProvider } from "antd";
 import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
@@ -167,21 +167,33 @@ function RegisterForm() {
 					// }
 					/>
 				</Form.Item>
+				<ConfigProvider
+                    theme={{
+                        token: {
+                            colorPrimary: "#FF5F1F"
+                        },
+                    }}
+                >
 				<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
 					<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
 				</Form.Item>
+				</ConfigProvider>
 			</Form>
-			<Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+			{/* <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
 				onClick={onFinish}>
 				{"注册"}
-			</Button>
-			<p className="tip-color2 mt-5">或者</p>
+			</Button> */}
+			<button type="submit"  className="w-full button-color login-button mt-8" 
+                onClick={onFinish}>
+                {"注册"}
+            </button>
+			{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
 				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
 				onClick={() => goAuthCode()}
 			>
 				使用Google继续
-			</Button>
+			</Button> */}
 			<div className="flex-cc mt-4">
 				<p>
 					{"已有账号？"}

@@ -117,7 +117,6 @@ function LoginForm() {
 						{/* </Form.Item> */}
 						<Form.Item name="phoneNumber" noStyle rules={[{ required: true, message: "手机号不能为空！" }]}>
 							<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
-
 						</Form.Item>
 					</div>
 				</Form.Item>
@@ -158,23 +157,22 @@ function LoginForm() {
 					</Button>
 				</Form.Item> */}
 			</Form>
-			{!loading ? (<Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8"
-				// loading={loading}
-				onClick={onFinish}>
-				{"登录"}
-			</Button>) : (<button type="button" className="w-full  mt-8 login-loading"
+			{!loading ? (<button type="submit"  className="w-full button-color login-button mt-8"
+                onClick={onFinish}>
+                {"登录"}
+            </button>) : (<button type="button" className="w-full  mt-8 login-loading"
 				onClick={() => setLoading(false)} >
 				{"登录"}
 			</button>
 			)}
-			<p className="tip-color2 mt-5">或者</p>
+			{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5"
 				// onClick={()=>setLoginState(LoginStateEnum.Authcode)}
 				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
 				onClick={() => goAuthCode()}
 			>
 				使用Google继续
-			</Button>
+			</Button> */}
 			<div className="flex-cc mt-4">
 				<p>
 					{"没有账号？"}

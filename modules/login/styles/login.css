@@ -31,7 +31,7 @@
 
 .forgetPassword-button {
     border: none;
-    color: #1F40FF !important;
+    color: var(--text-color3) !important;
     background-color: transparent;
 }
 
@@ -59,15 +59,29 @@
 .custom-segmented .ant-segmented-thumb {
     border-radius: 36px;
     color: #fff;
-    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
+    background: var(--btncolor5)
 }
 
 /* Checkbox 选中样式 */
+.custom-checkbox:hover{
+    border-color: var(--text-color3)
+}
 .custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
     border: none;
     border-radius: 3px;
-    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
+    background: var(--btncolor5);
 }
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover{
+    border-color: var(--text-color3);
+    background: var(--btncolor5);
+}
+/* .ant-segmented-item-label */
+/* .custom-checkbox .ant-segmented-item:hover{
+    border-radius: 36px !important;
+    background-color: pink !important;
+} */
 
 
 .icon-color {
@@ -84,7 +98,7 @@
 }
 
 .text-color {
-    color: var(--text-color);
+    color: var(--text-color3);
 }
 
 /* 自定义表单错误提示样式 */

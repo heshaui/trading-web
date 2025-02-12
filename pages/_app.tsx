@@ -15,7 +15,7 @@ function App({ Component, pageProps }: AppProps) {
     const router = useRouter();
 
     // 定义不需要显示 HomeMenu 和 Footer 的页面路径
-    const excludePaths = ['/login', '/register'];
+    const excludePaths = ['/login', '/register','/resetPassword'];
 
     const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 

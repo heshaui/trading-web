@@ -13,6 +13,9 @@ import type { TabsProps, AutoCompleteProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -24,6 +27,8 @@ const fromStyle: CSSProperties = {
 
 
 function LoginForm() {
+    const router = useRouter();
+
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -120,6 +125,9 @@ function LoginForm() {
             }))
         });
     }
+    const goResetPassword=()=>{
+        router.push('/resetPassword');
+    }
 
     return (
         <div className="flex-y-cc mt-7" >
@@ -185,7 +193,8 @@ function LoginForm() {
 					</Form.Item>
 				)} */}
                 <Form.Item noStyle>
-                    <button type="button" className="forgetPassword-button" >
+                {/* <Link href='/resetPassword' className="forgetPassword-button">忘记密码</Link> */}
+                    <button type="button" className="forgetPassword-button" onClick={()=>goResetPassword()} >
                         {"忘记密码"}
                     </button>
                 </Form.Item>
@@ -195,20 +204,20 @@ function LoginForm() {
                     </Button>
                 </Form.Item> */}
             </Form>
-            {!loading ? (<Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+            {!loading ? (<button type="submit"  className="w-full button-color login-button mt-8"
                 onClick={handleFinish}>
                 {"登录"}
-            </Button>) : (<button type="button" className="w-full  mt-8 login-loading" onClick={() => setLoading(false)}>
+            </button>) : (<button type="button" className="w-full  mt-8 login-loading" onClick={() => setLoading(false)}>
                 {"登录"}
             </button>
             )}
 
-            <p className="tip-color2 mt-5">或者</p>
+            {/* <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5"
                 icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
                 onClick={() => goAuthCode()}>
                 使用Google继续
-            </Button>
+            </Button> */}
             <div className="flex-cc mt-4">
                 <p>
                     {"没有账号？"}

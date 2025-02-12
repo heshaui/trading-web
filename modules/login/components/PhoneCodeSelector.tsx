@@ -34,6 +34,7 @@ interface OptionGroup {
     label: React.ReactNode;
     options: OptionItem[];
 }
+
 // const options = [
 //     {
 //         label: <Title title="A" />,
@@ -48,7 +49,7 @@ interface OptionGroup {
 //         options: [renderItem('AntDesign design language', 100000)],
 //     },
 // ];
-const optionsList = () => {
+const getoptionsList = () => {
     const sortedAreaCodeList = [...areaCodeList].sort((a, b) => a.enName.localeCompare(b.enName));
     const groupedData: { [key: string]: OptionItem[] } = {};
 
@@ -70,17 +71,20 @@ const optionsList = () => {
             });
         }
     });
-
+    // setOptionsListBefore(options);
     return options;
 };
 
 const App: React.FC = () => {
     const [isFocused, setIsFocused] = useState(false);
+    // const [optionsListBefore, setOptionsListBefore]=useState<OptionGroup[]>([])
+    // const [optionsList, setOptionsList]=useState<OptionGroup[]>([])
+
+
 
     const handleFocus = () => {
         setIsFocused(true);
     };
-
     const handleBlur = () => {
         setIsFocused(false);
     };
@@ -91,7 +95,7 @@ const App: React.FC = () => {
                 popupClassName="certain-category-search-dropdown"
                 popupMatchSelectWidth={380}
                 style={{ width: 150 }}
-                options={optionsList()}
+                options={getoptionsList()}
                 size="large"
                 className="autoComplete-input"
                 onFocus={handleFocus}

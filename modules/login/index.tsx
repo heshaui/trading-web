@@ -11,7 +11,7 @@ import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
-	backgroundImage: `url("/images/login/loginPic.png")`,
+	backgroundImage: `url("/images/login/banner.png")`,
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
 	// height: "100%", width: "100%"

@@ -1,5 +1,5 @@
-import { Button, Form, Input, Checkbox, AutoComplete } from "antd";
-import { type CSSProperties, useState,  } from "react";
+import { Button, Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
+import { type CSSProperties, useState, } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
@@ -52,6 +52,8 @@ function RegisterForm() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
+                console.log(values, 111);
+
                 if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
 
 
@@ -123,7 +125,7 @@ function RegisterForm() {
                     {/* <Input placeholder="请输入邮箱号" allowClear={true} size="large"
                     prefix={<Iconify icon="clarity:email-line" className="icon-color" />}
                     /> */}
-                     <AutoComplete
+                    <AutoComplete
                         // style={{ width: 200 }}
                         onSearch={handleSearch}
                         placeholder="请输入邮箱号"
@@ -134,7 +136,7 @@ function RegisterForm() {
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
-                <Form.Item name="password" rules={[{ validator: validatePassword }]}>
+                <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
                     <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
                     // prefix={
                     //     <Iconify icon="solar:lock-password-linear" className="icon-color" />
@@ -167,27 +169,35 @@ function RegisterForm() {
 						</div>
 					</Form.Item>
 				)} */}
-                <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-                    <Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
-                </Form.Item>
+                <ConfigProvider
+                    theme={{
+                        token: {
+                            colorPrimary: "#FF5F1F"
+                        },
+                    }}
+                >
+                    <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
+                        <Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+                    </Form.Item>
+
+                </ConfigProvider>
                 {/* <Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
                         {"登录"}
                     </Button>
                 </Form.Item> */}
             </Form>
-            <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+            <button type="submit" className="w-full button-color login-button mt-8"
                 onClick={handleFinish}>
                 {"注册"}
-            </Button>
-            <p className="tip-color2 mt-5">或者</p>
+            </button>
+            {/* <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5"
-                // onClick={()=>setRegisterType(RegisterTypeEnum.Authcode)}
                 onClick={() => goAuthCode()}
                 icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
             >
                 使用Google继续
-            </Button>
+            </Button> */}
             <div className="flex-cc mt-4">
                 <p>
                     {"已有账号？"}

@@ -15,7 +15,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     console.log('t', t('home_menu_title_1'));
     console.log('test', test);
     // 是否登录
-    let isLogin = true;
+    let isLogin = false;
     const items = [
         {
             key: '1',
@@ -1083,7 +1083,6 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                         theme={{
                                             components: {
                                                 Input: {
-                                                    /* 这里是你的组件 token */
                                                 },
                                             },
                                             token: {
@@ -1142,7 +1141,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                             ) : (
                                 <div>
                                     <Link href='/login' className={styles.login}>登录</Link>
-                                    <Link href='/register' className={styles.register}>注册</Link>
+                                    <Link href='/login' className={styles.register}>注册</Link>
                                 </div>
                             )
                         }

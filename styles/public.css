@@ -1,7 +1,15 @@
 .button-color,.btn-color {
-  background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+  background: var(--btncolor5);
   border-radius: 36px;
   color: #ffffff;
+}
+.page-box{
+  background-color: var(--background);
+}
+.goback-btn{
+  border-radius: 36px;
+  width: 115px;
+  height: 50px;
 }
 
 .pointer {
@@ -207,6 +215,18 @@
 .mb-7 {
   margin-bottom: 28px;
 }
+.mb-8 {
+  margin-bottom: 32px;
+}
+.mb-9 {
+  margin-bottom: 36px;
+}
+.mb-10 {
+  margin-bottom: 40px;
+}
+.mb-11 {
+  margin-bottom: 44px;
+}
 
 .ml-1 {
   margin-left: 4px;
@@ -264,6 +284,10 @@
   margin-right: 28px;
 }
 
+.pl-1{
+  padding-left: 4px;
+}
+
 
 
 .font-14 {
@@ -282,6 +306,10 @@
 .font-22 {
   font-size: 22px;
 }
+.font-36 {
+  font-size: 36px;
+}
+
 .font-w-400{
   font-weight: 400;
 }

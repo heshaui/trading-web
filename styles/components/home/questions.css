@@ -41,13 +41,14 @@
 .ant-collapse-item{
     border: 1px solid #FFFFFF1A;
 }
+.main-questions .ant-collapse-item{
+    border: none ;
+}
 .main-questions .ant-collapse-item:hover{
     border: 1px solid #FFFFFF33;
 }
 /* 去掉 ant-collapse-item 底部白线 */
-.main-questions .ant-collapse>.ant-collapse-item,.main-questions .ant-collapse-borderless >.ant-collapse-item{
-    border: none !important;
-}
+
 
 
 @media (min-width:2560px) {
