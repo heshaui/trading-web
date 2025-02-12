@@ -206,14 +206,16 @@
     font-size: 12px;
     cursor: pointer;
 }
-.register {
+.login {
+    background-color: #FF5F1F;
     display: inline-block;
-    width: 52px;
+    width: 80px;
     height: 36px;
     text-align: center;
     line-height: 36px;
-    border: 1px solid #FFFFFF;
-    border-radius: 18px;
+    /* border: 1px solid #FFFFFF; */
+    border-radius: 36px;
+
 }
 .loginContent {
     font-size: 12px;
@@ -221,5 +223,17 @@
 
 }
 .loginContent .dropDownList {
+    cursor: pointer;
+}
+
+/* 图标\头像大小、点击cursor */
+.iconCursor {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.userCursor {
+    width: 28px;
+    height: 28px;
     cursor: pointer;
 }

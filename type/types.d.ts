@@ -77,7 +77,8 @@ export interface TabsItemProps extends TabsItemData {
     haveNumber?: boolean;
     isHover?: boolean;
 }
-export type IconName = 'download' | 'bell' | 'question' | 'global';
+// export type IconName = 'download' | 'bell' | 'question' | 'global';
+export type IconName = string;
 
 // Footer
 export type FooterListProps = {
