@@ -44,6 +44,8 @@ export type LabelComponentProps = {
         liContent: string;
     }>;
     isPositive?: boolean;
+    isInput?: boolean;
+    isLanguage?: boolean;
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {

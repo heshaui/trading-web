@@ -1,7 +1,8 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/type/types';
-import { Menu } from 'antd';
+import { Col, ConfigProvider, Input, Menu, Row } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src,
@@ -15,13 +16,14 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     isNew = false,
     ulItems = [],
     haveItemChildren = false,
+    isInput = false,
+    isLanguage = false,
 }) => {
     return (
         <>
             {
                 isOtherItem ? (
                     <a
-                        rel="noopener noreferrer"
                         className={styles.menuListAOther}
                         style={{ cursor: 'default' }}
                     >
@@ -34,7 +36,6 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                     </a>
                 ) : (
                     <a
-                        rel="noopener noreferrer"
                         className={styles.menuListA}
                     >
                         {
@@ -48,47 +49,62 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                         style={{ width: '226px', marginLeft: '-10px' }}
                                     />
                                 ) : (
-                                    <div>
-                                        <div className={styles.menuListItem}>
-                                            {
-                                                src ? (<div className={styles.menuListItemIcon}>
-                                                    <img src={src} alt="icon" />
-                                                </div>) : (<></>)
-                                            }
-                                            <div className={styles.menuListItemContent}>
+                                    isInput ? (
+                                        <>
+                                            <ConfigProvider
+                                                theme={{
+                                                    components: {
+                                                        Input: {
+                                                            activeBorderColor: '#FF5F1F',
+                                                            hoverBorderColor: '#FF5F1F'
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                <Input placeholder={h5Text} prefix={<SearchOutlined />} />
+                                            </ConfigProvider>
+                                        </>
+                                    ) : (
+                                        <div>
+                                            <div className={styles.menuListItem}>
                                                 {
-                                                    isNew ? (
-                                                        <div className={styles.newBox}>
+                                                    src ? (<div className={styles.menuListItemIcon}>
+                                                        <img src={src} alt="icon" />
+                                                    </div>) : (<></>)
+                                                }
+                                                <div className={styles.menuListItemContent}>
+                                                    {
+                                                        isNew ? (
+                                                            <div className={styles.newBox}>
+                                                                <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
+                                                                <span>NEW</span>
+                                                            </div>
+                                                        ) : (
                                                             <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
-                                                            <span>NEW</span>
-                                                        </div>
-                                                    ) : (
-                                                        <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
-                                                    )
-                                                }
-                                                {
-                                                    spanText ? (<span>{spanText}</span>) : (<></>)
-                                                }
-                                            </div>
-                                        </div>
-                                        {
-                                            haveItemChildren ? (
-                                                <div className={styles.menuListItemSItem}>
-                                                    <ul className={styles.menuListUl}>
-                                                        {ulItems.map((item, index) => (
-                                                            <li key={index}>
-                                                                <span className={styles.pointStyle}></span>
-                                                                {item.liContent}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
+                                                        )
+                                                    }
+                                                    {
+                                                        spanText ? (<span>{spanText}</span>) : (<></>)
+                                                    }
                                                 </div>
-                                            ) : (<></>)
-                                        }
-
-                                    </div>
+                                            </div>
+                                            {
+                                                haveItemChildren ? (
+                                                    <div className={styles.menuListItemSItem}>
+                                                        <ul className={styles.menuListUl}>
+                                                            {ulItems.map((item, index) => (
+                                                                <li key={index}>
+                                                                    <span className={styles.pointStyle}></span>
+                                                                    {item.liContent}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ) : (<></>)
+                                            }
+                                        </div>
+                                    )
                                 )
-
                             )
                         }
                     </a>

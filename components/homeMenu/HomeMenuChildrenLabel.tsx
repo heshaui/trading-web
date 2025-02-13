@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { HomeMenuChildrenLabelProps } from '@/type/types';
-import { Input, Tabs, Menu } from "antd";
+import { Input, Tabs, Menu, ConfigProvider } from "antd";
 import { SearchOutlined } from '@ant-design/icons';
 import TabsItem from './TabsItem';
 
@@ -26,37 +26,46 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                         <div>
                             {
                                 isSearch ? (
-                                    <Input
-                                        style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }}
-                                        placeholder="搜索"
-                                        prefix={<SearchOutlined />}
-                                        onChange={onInputChange}
-                                    />
+
+                                    <ConfigProvider
+                                        theme={{
+                                            components: {
+                                                Input: {
+                                                    activeBorderColor: '#FF5F1F',
+                                                    hoverBorderColor: '#FF5F1F'
+                                                },
+                                            },
+                                            token: {
+                                                // colorTextPlaceholder: '#979897',
+                                                fontSize: 12,
+                                                colorBorder: '#DCDCDC'
+                                            }
+                                        }}
+                                    >
+                                        <Input
+                                            style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }}
+                                            placeholder="搜索"
+                                            prefix={<SearchOutlined />}
+                                            onChange={onInputChange}
+                                        />
+                                    </ConfigProvider>
                                 ) : (<></>)
                             }
-                            {/* <Menu
-                                // onClick={onClick}
-                                style={{
-                                    width: 256,
-                                }}
-                                defaultSelectedKeys={['1']}
-                                defaultOpenKeys={['sub1']}
-                                mode="inline"
-                                items={items}
-                            /> */}
-                            {tabsItemsData.map((item, index) => (
-                                <TabsItem
-                                    key={index}
-                                    src={item.src}
-                                    h5Text={item.h5Text}
-                                    spanText={item.spanText}
-                                    incNum={item.incNum}
-                                    normalNum={item.normalNum}
-                                    colorSpan={item.colorSpan}
-                                    needNumber={needNumber}
-                                    isPositive={item.isPositive}
-                                />
-                            ))}
+                            {
+                                tabsItemsData.map((item, index) => (
+                                    <TabsItem
+                                        key={index}
+                                        src={item.src}
+                                        h5Text={item.h5Text}
+                                        spanText={item.spanText}
+                                        incNum={item.incNum}
+                                        normalNum={item.normalNum}
+                                        colorSpan={item.colorSpan}
+                                        needNumber={needNumber}
+                                        isPositive={item.isPositive}
+                                    />
+                                ))
+                            }
                         </div>
                     )
                     // )
