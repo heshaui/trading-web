@@ -24,44 +24,78 @@
     justify-content: space-between;
     align-items: center;
 }
+
 .menuListContainer {
     font-size: 12px;
     display: flex;
     align-items: center;
+    position: relative;
 }
+
+/* PC端自适应 */
+.menuListContainer .collapsedMenu {
+    transition: transform 0.3s ease, opacity 0.1s ease;
+    transform: translateX(0);
+    opacity: 1;
+    display: flex;
+    /* visibility: visible; */
+}
+
+@media (max-width: 900px) {
+    .menuListContainer .collapsedMenu {
+        transform: translateX(-80%);
+        opacity: 0;
+        /* visibility: hidden; */
+        display: none;
+    }
+}
+
 .menuList {
     margin-right: 20px;
     cursor: pointer;
     /* inset: 80px auto auto 150px; */
 }
+
 .menuListA {
     justify-content: space-between;
     min-width: 226px;
     min-height: 56px;
     color: #0C0D0C;
 }
-.menuListAOther, .otherBox {
+
+.menuListAOther,
+.otherBox {
     flex-direction: column;
     justify-content: center;
 }
+
 .hovered {
     width: 100px;
     height: 100px;
     background-color: #979897;
 }
-.menuListItem, .menuListA, .menuListAOther, .otherBox, .childrenItemBox, .leftItem {
+
+.menuListItem,
+.menuListA,
+.menuListAOther,
+.otherBox,
+.childrenItemBox,
+.leftItem {
     display: flex;
     align-items: center;
 }
+
 .menuListItemSItem {
     margin: 22px 0 0 34px;
 }
+
 .menuListItemSItem .menuListUl {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
 }
+
 .menuListItemSItem li {
     box-sizing: border-box;
     display: flex;
@@ -73,9 +107,11 @@
     color: #0C0D0C;
     margin-bottom: 10px;
 }
+
 .menuListItemSItem li:hover {
     background-color: #F3F3F3;
 }
+
 .menuListItemSItem li span {
     display: inline-block;
     width: 4px;
@@ -84,29 +120,36 @@
     rotate: 45deg;
     margin-right: 4px;
 }
+
 .otherBox {
     padding: 20px 0;
 }
+
 .otherBox .imgBox {
     margin-top: 6px;
 }
+
 .menuListItemIcon {
     margin-right: 10px;
     width: 24px;
     height: 24px;
 }
+
 .menuListItemIcon img {
     width: 100%;
     height: 100%;
 }
+
 .menuListItemContent span {
     font-size: 12px;
     color: #979897;
 }
+
 .menuListItemContent .newBox {
     display: flex;
     align-items: center;
 }
+
 .menuListItemContent .newBox span {
     display: flex;
     box-sizing: border-box;
@@ -119,6 +162,7 @@
     border-radius: 24px;
     margin-left: 4px;
 }
+
 .changeAccountButton {
     width: 208px;
     height: 36px;
@@ -126,6 +170,7 @@
     border-radius: 26px;
     color: #0c0d0c;
 }
+
 .changeAccountButton:hover {
     color: #0c0d0c;
 }
@@ -134,11 +179,13 @@
     display: flex;
     align-items: center;
 }
+
 .childrenItemContainer h5 {
     color: #FF5F1F;
     font-weight: 600;
     font-size: 14px;
 }
+
 .childrenItemBox {
     justify-content: space-between;
     box-sizing: border-box;
@@ -148,45 +195,56 @@
     padding: 10px;
     cursor: pointer;
 }
+
 .childrenItemContainerHover:hover {
     background-color: #F4F4F4;
     border-radius: 8px;
 }
+
 .childrenItemBox .leftItem img:first-child {
     margin-right: 10px;
 }
+
 .childrenItemBox .leftItem span {
     color: #000317;
     font-size: 14px;
 }
-.childrenItemBox .leftItem span.orangeSpan, .childrenItemBox .leftItem span.blueSpan {
+
+.childrenItemBox .leftItem span.orangeSpan,
+.childrenItemBox .leftItem span.blueSpan {
     display: inline-block;
     width: 24px;
     text-align: center;
     margin-left: 4px;
     font-size: 12px;
 }
+
 .childrenItemBox .leftItem span.blueSpan {
     background-color: #ECF0FF;
     color: #627EEA;
 }
+
 .childrenItemBox .leftItem span.orangeSpan {
     background-color: #FFF2ED;
     color: #FF5F1F;
 }
+
 .childrenItemBox .rightItem {
     display: flex;
     align-items: end;
     flex-direction: column;
 }
+
 .childrenItemBox .rightItem span:first-child {
     color: #000317;
     font-size: 14px;
 }
+
 .childrenItemBox .rightItem span:last-child {
     color: #00C788;
     font-size: 12px;
 }
+
 /* .ant-dropdown-menu-submenu-popup ul {
     width: 338px;
 } */
@@ -195,17 +253,20 @@
     display: flex;
     align-items: center;
 }
+
 /* :global .ant-input-outlined::placeholder {
     color: #FFFFFF;
 } */
 /* a:hover {
     color: #FFFFFF;
 } */
-.login, .register{
+.login,
+.register {
     margin-left: 12px;
     font-size: 12px;
     cursor: pointer;
 }
+
 .login {
     background-color: #FF5F1F;
     display: inline-block;
@@ -217,11 +278,13 @@
     border-radius: 36px;
 
 }
+
 .loginContent {
     font-size: 12px;
     margin-left: 12px;
 
 }
+
 .loginContent .dropDownList {
     cursor: pointer;
 }
@@ -232,6 +295,7 @@
     height: 20px;
     cursor: pointer;
 }
+
 .userCursor {
     width: 28px;
     height: 28px;

@@ -1,6 +1,6 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col } from 'antd';
+import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
@@ -15,7 +15,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     console.log('t', t('home_menu_title_1'));
     console.log('test', test);
     // 是否登录
-    let isLogin = false;
+    let isLogin = true;
     const items = [
         {
             key: '1',
@@ -137,7 +137,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             ),
         },
     ];
-    const UserIcon = () => <UserOutlined style={{ marginLeft: '12px', fontSize: '16px', cursor: 'pointer', color: '#ffffff' }} />;
+    // const UserIcon = () => <UserOutlined style={{ marginLeft: '12px', fontSize: '16px', cursor: 'pointer', color: '#ffffff' }} />;
     const userItems = [
         {
             key: '1',
@@ -574,10 +574,17 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             widthSet: 'global',
             items: [
                 {
+                    key: '0',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput h5Text='中文' />
+                    ),
+                },
+                {
                     key: '1',
                     type: 'item',
                     label: (
-                        <MenuItemLabel h5Text="中文" />
+                        <MenuItemLabel h5Text="简体中文" />
                     ),
                 },
                 {
@@ -1208,6 +1215,19 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     const listItems = menus.map(menuList =>
         <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} />
     );
+    // 左侧菜单展开
+    const [open, setOpen] = React.useState<boolean>(false);
+    const [loading, setLoading] = React.useState<boolean>(true);
+
+    const showMenu = () => {
+        setOpen(true);
+        setLoading(true);
+
+        // Simple loading mock. You should add cleanup logic in real world.
+        setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+    };
     return (
         <div style={{ position: 'relative' }}>
             <div className={styles.container}>
@@ -1217,29 +1237,37 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                 <div className={styles.menuContainer}>
                     <div className={styles.menuListContainer}>
                         <Row align='middle'>
-                            <Col><img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} /></Col>
-                            <Col>{listItems}</Col>
-                            <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
-                                <Row gutter={4} align='middle'>
-                                    <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
-                                    <Col><span>Web3</span></Col>
-                                </Row>
-                            </Link>
-                            <Dropdown
-                                menu={{
-                                    items: moreItems,
-                                }}
-                                trigger={['click']}
-                                overlayStyle={{ top: '80px' }}
-                            >
-                                <a style={{ cursor: 'pointer', position: 'relative' }} onClick={(e) => e.preventDefault()}>
-                                    <Space style={{ columnGap: '3px' }}>
-                                        打新专区
-                                        <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
-                                        {/* <DownOutlined /> */}
-                                    </Space>
-                                </a>
-                            </Dropdown>
+                            <Row>
+                                <Col style={{ cursor: 'pointer' }} onClick={showMenu}>
+                                    <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} />
+                                </Col>
+                            </Row>
+                            <Row align='middle' className={styles.collapsedMenu}>
+                                <Col>{listItems}</Col>
+                                <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                    <Row gutter={4} align='middle'>
+                                        <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
+                                        <Col><span>Web3</span></Col>
+                                    </Row>
+                                </Link>
+                                <Col>
+                                    <Dropdown
+                                        menu={{
+                                            items: moreItems,
+                                        }}
+                                        trigger={['click']}
+                                        overlayStyle={{ top: '80px' }}
+                                    >
+                                        <a style={{ cursor: 'pointer', position: 'relative' }} onClick={(e) => e.preventDefault()}>
+                                            <Space style={{ columnGap: '3px' }}>
+                                                打新专区
+                                                <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
+                                                {/* <DownOutlined /> */}
+                                            </Space>
+                                        </a>
+                                    </Dropdown>
+                                </Col>
+                            </Row>
                         </Row>
                     </div>
                     <div className={styles.rightListContainer}>
@@ -1256,10 +1284,12 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                         theme={{
                                             components: {
                                                 Input: {
+                                                    activeBorderColor: '#FF5F1F',
+                                                    hoverBorderColor: '#FF5F1F'
                                                 },
                                             },
                                             token: {
-                                                colorTextPlaceholder: '#979897',
+                                                // colorTextPlaceholder: '#979897',
                                                 fontSize: 12
                                             }
                                         }}
@@ -1289,21 +1319,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                             >
                                                 {/* <a onClick={(e) => e.preventDefault()}> */}
                                                 <Space>
-                                                    <ConfigProvider
-                                                        theme={{
-                                                            components: {
-                                                                Input: {
-                                                                    /* 这里是你的组件 token */
-                                                                },
-                                                            },
-                                                            token: {
-                                                                colorTextPlaceholder: '#979897',
-                                                                fontSize: 12
-                                                            }
-                                                        }}
-                                                    >
-                                                        <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
-                                                    </ConfigProvider>
+                                                    <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
                                                 </Space>
                                                 {/* </a> */}
                                             </Dropdown>
@@ -1325,7 +1341,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                                     </Space>
                                                 </a> */}
                                                 <Space style={{ columnGap: '3px' }}>
-                                                    <img onClick={(e) => e.preventDefault()}  src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                    <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
                                                 </Space>
                                             </Dropdown>
                                         </Col>
@@ -1353,17 +1369,31 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                     </Row>
                                 </div>
                             ) : (
-                                <div>
-                                    <Link href='/login' className={styles.login}>登录</Link>
-                                    <Link href='/login' className={styles.register}>注册</Link>
-                                </div>
+                                <Row align='middle'>
+                                    <Col><Link href='/login' className={styles.register}>注册</Link></Col>
+                                    <Col><Link href='/login' className={styles.login}>登录</Link></Col>
+                                    <div style={{ height: '20px', border: '1px solid #676867', marginLeft: '12px' }}></div>
+                                    {iconItems}
+                                </Row>
                             )
                         }
-                        <div style={{ height: '20px', border: '1px solid #676867', marginLeft: '12px' }}></div>
-                        {iconItems}
                     </div>
                 </div>
             </div>
+            {/* 点击展开的左侧菜单栏 */}
+            <Drawer
+                closable
+                destroyOnClose
+                title={<p>Loading Drawer</p>}
+                placement="left"
+                open={open}
+                loading={loading}
+                onClose={() => setOpen(false)}
+            >
+                <Button type="primary" style={{ marginBottom: 16 }} onClick={showMenu}>
+                    Reload
+                </Button>
+            </Drawer>
         </div>
     );
 }
