@@ -15,6 +15,8 @@ import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import  ErrModal from "@/components/myModal/errModal"
+import SafeModal from "@/components/myModal/safeModal"
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -26,13 +28,15 @@ const fromStyle: CSSProperties = {
 };
 
 
-function LoginForm() {
+function Mailbox() {
     const router = useRouter();
 
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
+    const [errModelOpen, setErrModelOpen] = useState(false); //错误提示弹窗
+    const [errMsg,setErrMsg]=useState('请检查网络!');
     const { loginState, setLoginState } = useLoginStateContext();
     const { loginType, setLoginType } = useLoginTypeContext();
     // const signIn = useSignIn();
@@ -67,13 +71,19 @@ function LoginForm() {
     // };
 
     const handCancel = () => {
-        setCodeModelOpen(false);
+        setErrModelOpen(false);
     };
 
-    const handOk = async (type: string) => {
-        console.log(type);
+    const handOk = async () => {
+        setErrModelOpen(true)
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
+    const handCodeCancel=()=>{
+        setCodeModelOpen(false)
+    }
+    const handCodeOk=(event:any)=>{
+        // setCodeModelOpen(false)
+    }
 
     const handleFinish = async () => {
         form
@@ -90,10 +100,10 @@ function LoginForm() {
         setLoading(true);
 
     }
-    const goAuthCode = () => {
-        store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
-        setLoginState(LoginStateEnum.Googlecode)
-    }
+    // const goAuthCode = () => {
+    //     store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
+    //     setLoginState(LoginStateEnum.Googlecode)
+    // }
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -128,6 +138,7 @@ function LoginForm() {
     const goResetPassword=()=>{
         router.push('/resetPassword');
     }
+
 
     return (
         <div className="flex-y-cc mt-7" >
@@ -170,28 +181,10 @@ function LoginForm() {
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
+                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
                     // prefix={<Iconify icon="solar:lock-password-linear" className="icon-color" />}
                     />
                 </Form.Item>
-                {/* {preCheck && (
-					<Form.Item name="code" rules={[{ required: true, message: t("sys.codeErr") }]} style={{ marginBottom: 33 }}>
-						<div className="flex">
-							<Input placeholder={t("sys.code")} allowClear={true} />
-							<Button
-								type="default"
-								className="w-full"
-								style={{
-									marginLeft: 18,
-									width: "75%",
-								}}
-								onClick={() => setCodeModelOpen(true)}
-							>
-								{t("sys.getcode")}
-							</Button>
-						</div>
-					</Form.Item>
-				)} */}
                 <Form.Item noStyle>
                 {/* <Link href='/resetPassword' className="forgetPassword-button">忘记密码</Link> */}
                     <button type="button" className="forgetPassword-button" onClick={()=>goResetPassword()} >
@@ -230,8 +223,11 @@ function LoginForm() {
                     </button>
                 </p>
             </div>
+            <ErrModal open={errModelOpen} errMsg={errMsg}  onCancel={handCancel}/>
+            <SafeModal open={codeModelOpen} acount={'123231313@163.com'} type={'email'} onCancel={handCodeCancel} onOk={handCodeOk}/>
+
         </div>
     );
 }
 
-export default LoginForm;
+export default Mailbox;

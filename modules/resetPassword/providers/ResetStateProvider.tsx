@@ -16,24 +16,30 @@ export enum ResetStateEnum {
 interface ResetStateContextType {
 	resetState: ResetStateEnum;
 	setResetState: (resetState: ResetStateEnum) => void;
+	acount: string ;
+    setAcount: (acount: string ) => void
 }
 
 const ResetStateContext = createContext<ResetStateContextType>({
 	resetState: ResetStateEnum.INPUT,
-	setResetState: () => {}
+	setResetState: () => {},
+	acount: '',
+    setAcount: () => {},
 });
 export function useResetStateContext() {
 	const context = useContext(ResetStateContext);
 	return context;
+
 }
 
 export function ResetStateProvider({ children }: PropsWithChildren) {
 	const [resetState, setResetState] = useState(ResetStateEnum.INPUT);
+	const [acount, setAcount] = useState<string>('');
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const value: ResetStateContextType = useMemo(
-		() => ({ resetState, setResetState }),
-		[resetState],
+		() => ({ resetState, setResetState,acount, setAcount}),
+		[resetState,acount],
 	);
 
 	return (

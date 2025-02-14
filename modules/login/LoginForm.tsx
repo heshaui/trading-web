@@ -1,6 +1,6 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented } from "antd";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProvider";
@@ -12,24 +12,16 @@ import { toast } from "sonner";
 import type { TabsProps } from 'antd';
 import Mailbox from "./components/login_mailbox"
 import Phonebox from "./components/login_phonebox"
-import QRCodebox from "./components/login_QRcode"
-import {  LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
-import { log } from "console";
-const fromStyle: CSSProperties = {
-	borderRadius: "5px",
-	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-	padding: "25px",
-	width: "25vw",
-	maxWidth: "400px",
-	minWidth: "350px",
-};
-
+// import QRCodebox from "./components/login_QRcode"
+import { LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
+import NoteModal from "@/components/myModal/noteModal"
 
 function LoginForm() {
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
+	const [noteModelOpen, setNoteModelOpen]=useState(true)
 
 	const [tabsProps, setTabsProps] = useState('email');
 	const { loginState, setLoginState } = useLoginStateContext();
@@ -45,15 +37,18 @@ function LoginForm() {
 	// 	console.log(visitorId.components.vendor);
 	// 	return visitorId.visitorId;
 	// };
+	// useEffect(() => {
+	// 	handOk()
+	// }, [])
 
 	const handCancel = () => {
-		setCodeModelOpen(false);
+		setNoteModelOpen(false);
 	};
 
-	// const handOk = async (type: string) => {
-	// 	console.log(type);
-	// 	// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-	// };
+	const handOk = () => {
+		setNoteModelOpen(true);
+		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
+	};
 
 	// const handleFinish = async (values: any) => {
 	// 	setLoading(true);
@@ -104,21 +99,22 @@ function LoginForm() {
 						),
 						value: 'phone',
 					},
-					{
-						label: (
-							<div className="tabs-label" >
-								<div>QRcode</div>
-							</div>
-						),
-						value: 'QRcode',
-					},
+					// {
+					// 	label: (
+					// 		<div className="tabs-label" >
+					// 			<div>QRcode</div>
+					// 		</div>
+					// 	),
+					// 	value: 'QRcode',
+					// },
 				]}
 				onChange={tabsChange}
 				value={tabsProps}
 			/>
-				<Mailbox />
-				<Phonebox />
-				<QRCodebox/>
+			<Mailbox />
+			<Phonebox />
+			{/* <QRCodebox/> */}
+			<NoteModal open={noteModelOpen}  onCancel={handCancel}/>
 		</div>
 	);
 }

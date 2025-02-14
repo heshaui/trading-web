@@ -1,0 +1,24 @@
+.modal_box{
+    background-color: var(--background5);
+}
+.errModal_btn {
+    font-weight: 500;
+    font-size: 14px;
+    width: 170;
+    height: 36;
+}
+
+.title {
+    color: var(--text-color5);
+    font-weight: 500;
+    font-size: 20px;
+
+}
+
+.msg_color {
+    color: #A4A5AC;
+}
+.icon_box{
+    height: 160px;
+    width: 160px;
+}

@@ -25,15 +25,22 @@
     "authCode": "邮箱/手机号验证",
     "authCodeGoogle": "Google验证",
     "GoogleCode": "Google验证码",
-    "ok":"确认",
-    "resetPassword":{
-        "title":"重置密码",
-        "Tip":"为确保您的账户安全，在您更改密码后48小时内禁出金。",
+    "common": {
+        "ok": "确认",
+        "sure": "确定",
+        "beSure": "我知道了",
+        "cancel": "取消",
+        "note": "重要提示",
+        "err": "操作失败",
+        "inputCode": "请输入"
+    },
+    "resetPassword": {
+        "title": "重置密码",
+        "Tip": "为确保您的账户安全，在您更改密码后48小时内禁出金。",
         "inputAcount": "手机号/邮箱",
         "inputAcountTip": "请输入需要重置的手机号/邮箱",
         "next": "下一步",
-        "sent": "已发送验证码至",
-        "inputCode": "请输入"
-    } 
-    
+        "sent": "已发送验证码至"
+        
+    }
 }

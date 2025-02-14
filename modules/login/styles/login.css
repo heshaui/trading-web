@@ -2,9 +2,23 @@
     border: none;
     height: 38px;
 }
+/* AutoComplete组件样式 */
 .autoComplete-input .ant-select-selection-search-input{
     height: 100% !important;
 }
+.autoComplete-input .ant-select-selector:hover
+/* .autoComplete-input:focus:not(:hover) */
+{
+    border-color: var(--text-color3) !important;
+}
+/* 聚焦时鼠标移出的样式 */
+/* .autoComplete-input.ant-select-focused:not(:hover) */
+.autoComplete-input .ant-select-selector:focus:not(:hover)
+ {
+    border-color: var(--text-color3) !important; 
+    box-shadow: 0 0 0 1px var(--text-color3) !important; 
+}
+
 
 .login-loading {
     border: none;
@@ -48,12 +62,14 @@
     height: 36px;
     padding: 4px;
     border-radius: 36px;
-    /* color: #fff; */
+    /* color: var(--textcolor); */
     font-size: 16px;
     font-weight: 500;
 
 }
-
+.custom-segmented{
+    color: var(--textcolor);
+}
 /* segmented 选中标签样式及动画标签 */
 .custom-segmented .ant-segmented-item-selected,
 .custom-segmented .ant-segmented-thumb {
@@ -137,4 +153,19 @@
 .icon-rotate {
     transform: rotate(180deg);
     transition: transform 0.3s ease;
+}
+/* 输入框组件覆盖 */
+.mail-input:focus,
+.mail-input:focus-within {
+   border-color: var(--text-color3) !important;
+   /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
+}
+/* 鼠标聚焦且移出样式 */
+.mail-input:focus:not(:hover){
+    background-color: var(--homeground);
+    color: #fff;
+}
+/* 鼠标滑过 */
+.mail-input:hover{
+    border-color: var(--text-color3);
 }

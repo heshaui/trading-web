@@ -22,7 +22,7 @@ const fromStyle: CSSProperties = {
 };
 
 
-function LoginForm() {
+function Phonebox() {
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -189,4 +189,4 @@ function LoginForm() {
 	);
 }
 
-export default LoginForm;
+export default Phonebox;

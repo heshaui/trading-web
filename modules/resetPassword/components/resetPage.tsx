@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import store from "@/store";
 import { useRouter } from 'next/router';
 import styles from "../style/reset.module.css"
+import ResetSuccessModal from "@/components/myModal/ressetSuccessModal"
 function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
@@ -16,6 +17,7 @@ function ResetPassword() {
     const [passwordVisible, setPasswordVisible] = useState(false);
 	// const [oldPasswordVisible, setOldPasswordVisible] = useState(false);
 	const [verifyPasswordVisible, setverifyPasswordVisible] = useState(false);
+	const [resetSuccess, setResetSuccess] = useState(false);
     // 当状态不为 INPUT 时不渲染组件
     if (resetState !== ResetStateEnum.RESET) return null;
 
@@ -81,9 +83,10 @@ function ResetPassword() {
                     <Button
                         className='goback-btn mr-4'
                         onClick={() => goLast()}>返回</Button>
-                    <button type='button' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>确认</button>
+                    <button type='button' className={`btn-color ${styles.next_btn} flex-1`} onClick={()=>setResetSuccess(true)}>确认</button>
                 </div>
             </div>
+            <ResetSuccessModal open={resetSuccess} onOk={() => goNext()}  onCancel={()=>setResetSuccess(false)}/>
         </div>
     );
 }

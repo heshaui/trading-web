@@ -12,6 +12,28 @@
   height: 50px;
 }
 
+/* 弹窗背景覆盖 */
+.modal_box  .ant-modal-content {
+  background-color: var(--background5);
+}
+/* 输入框组件覆盖 */
+.custom-input:focus,
+.custom-input:focus-within {
+   border-color: var(--text-color3) !important;
+   /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
+   box-shadow: none !important;
+   background-color: pink !important;
+}
+/* 鼠标聚焦且移出样式 */
+.custom-input:focus:not(:hover){
+    background-color: var(--homeground);
+    color: #fff;
+}
+/* 鼠标滑过 */
+.custom-input:hover{
+    border-color: var(--text-color3);
+}
+
 .pointer {
   cursor: pointer;
 }
