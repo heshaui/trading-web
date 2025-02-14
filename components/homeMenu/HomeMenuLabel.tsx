@@ -18,6 +18,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     haveItemChildren = false,
     isInput = false,
     isLanguage = false,
+    onInputChange,
 }) => {
     return (
         <>
@@ -61,7 +62,16 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     },
                                                 }}
                                             >
-                                                <Input placeholder={h5Text} prefix={<SearchOutlined />} />
+                                                <Input
+                                                    style={{ width: 200 }}
+                                                    placeholder={h5Text}
+                                                    prefix={<SearchOutlined />}
+                                                    onChange={(e) => {
+                                                        if (onInputChange) {
+                                                            onInputChange(e.target.value);
+                                                        }
+                                                    }}
+                                                />
                                             </ConfigProvider>
                                         </>
                                     ) : (

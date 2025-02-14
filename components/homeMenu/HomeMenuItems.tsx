@@ -15,7 +15,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
             case 'question':
                 return { top: '80px', width: '160px' };
             case 'global':
-                return { top: '80px', width: '264px' };
+                return { top: '80px', width: '234px' };
             default:
                 return { top: '80px', minWidth: '100px', maxWidth: '380px' };
         }
