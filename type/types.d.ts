@@ -46,6 +46,7 @@ export type LabelComponentProps = {
     isPositive?: boolean;
     isInput?: boolean;
     isLanguage?: boolean;
+    onInputChange?: (value: string) => void;  // 添加这一行
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {

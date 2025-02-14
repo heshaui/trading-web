@@ -475,6 +475,45 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     const iconItems = iconMenus.map(iconMenu =>
         <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
     );
+
+    // 语言菜单
+    const spanArr = [
+        {
+            span: '简体中文'
+        },
+        {
+            span: 'English'
+        },
+        {
+            span: '日本語'
+        },
+        {
+            span: 'Español'
+        },
+        {
+            span: 'Français'
+        },
+    ]
+    // 定义语言菜单项
+    const languageItems = spanArr.map((item, index) => ({
+        key: `1-${index + 1}`, // 动态生成 key
+        type: 'item',
+        label: (
+            <span>{item.span}</span> // 动态赋值
+        ),
+    }));
+    // 语言过滤(模糊搜索)
+    const filterLanguages = (languages: any[], searchValue: string) => {
+        if (!searchValue) return languages;
+
+        const regex = new RegExp(searchValue.trim(), 'i');
+
+        return languages.filter((lang) => {
+            return regex.test(lang.label.props.children); // 匹配 label 中的 <span> 内容
+        });
+    };
+    // 定义语言状态变量
+    const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
     // 右侧菜单登陆后
     const iconMenusLogin: MenuListItem[] = [
         {
@@ -577,23 +616,20 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                     key: '0',
                     type: 'group',
                     label: (
-                        <MenuItemLabel isInput h5Text='中文' />
-                    ),
+                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>语言</h6>
+                    )
                 },
                 {
                     key: '1',
-                    type: 'item',
+                    type: 'group',
                     label: (
-                        <MenuItemLabel h5Text="简体中文" />
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
                     ),
+                    children: [
+                        ...filterLanguages(languageItems, searchLanguageValue),
+                    ],
                 },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="English" />
-                    ),
-                },
+
             ],
         },
     ];
