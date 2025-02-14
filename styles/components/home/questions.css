@@ -29,6 +29,7 @@
     border-radius: 8px;
 } */
 /* 列表文本样式 */
+
 .main-questions .ant-collapse-header{
     color: var(--hometext) !important;
     font-size: 20px;
@@ -43,9 +44,11 @@
 }
 .main-questions .ant-collapse-item{
     border: none ;
+    box-sizing: border-box;
+    border: 1px solid #FFFFFF00; 
 }
 .main-questions .ant-collapse-item:hover{
-    border: 1px solid #FFFFFF33;
+    border: 1px solid #FFFFFF33; 
 }
 /* 去掉 ant-collapse-item 底部白线 */
 
