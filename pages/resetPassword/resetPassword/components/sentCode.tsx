@@ -27,7 +27,7 @@ function ResetPassword() {
     return (
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
             <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>已发送验证码至
-                <span className={`${styles.text_color} font-w-400 mt-1`}>{encryptString(acount)||'-'}</span> 
+                <span className={`${styles.text_color} font-w-400 mt-1`}>{encryptString(acount.toString())||'-'}</span> 
             </div>
             <div>
                 <Input

@@ -352,7 +352,7 @@
 
 
 @media (max-width: 680px) {
-  .hidden {
+  .isHidden {
     display: none;
   }
 }

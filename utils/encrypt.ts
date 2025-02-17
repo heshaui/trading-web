@@ -1,5 +1,7 @@
 // 加密手机号的函数
 export function encryptPhoneNumber(phoneNumber: string): string {
+    console.log(111);
+    
     const length = phoneNumber.length;
     if (length < 7) {
         return '*'.repeat(length - 4) + phoneNumber.slice(-4);
@@ -9,9 +11,11 @@ export function encryptPhoneNumber(phoneNumber: string): string {
 
 // 加密邮箱号的函数
 export function encryptEmail(email: string): string {
+    console.log(222);
+
     const [name, domain] = email.split('@');
     const nameLength = name.length;
-    if (nameLength < 4) {
+    if (nameLength <= 4) {
         return '*'.repeat(nameLength - 2) + name.slice(-2) + '@' + domain;
     }
     return name.slice(0, 2) + '*'.repeat(nameLength - 4) + name.slice(-2) + '@' + domain;

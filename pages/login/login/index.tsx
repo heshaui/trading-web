@@ -12,9 +12,12 @@ import GoogleAuthcode from "./components/authCode_google";
 const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
 	backgroundImage: `url("/images/login/banner.png")`,
+	backgroundColor: "pink",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
-	// height: "100%", width: "100%"
+	height: "100%", 
+	// backgroundColor:"pink"
+	// width: "100%"
 };
 function Login() {
 	// const { t } = useTranslation();
@@ -28,7 +31,7 @@ function Login() {
 	return (
 		<Layout className="relative flex h-overmax w-full flex-row page-box" >
 			<div
-				className="hidden flex-1"
+				className="isHidden flex-1"
 				style={loginBgcStyle}
 			>
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}

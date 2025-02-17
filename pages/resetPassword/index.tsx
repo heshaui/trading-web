@@ -1,1 +1,1 @@
-export { default } from '../../modules/resetPassword/page';
+export { default } from './resetPassword/page';
