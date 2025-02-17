@@ -347,7 +347,12 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             case 'img_download':
                 return <Col><img src="/images/home_menu/icon_download_line.png" className={styles.iconCursor} /></Col>;
             case 'img_change':
-                return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
+                // return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
+                return isDayMode ? (
+                    <Col><img src="/images/home_menu/icon_sun_fill.png" className={styles.iconCursor} /></Col>
+                ) : (
+                    <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>
+                );
             case 'img_global':
                 return <Col><img src="/images/home_menu/icon_earth_line.png" className={styles.iconCursor} /></Col>;
             default:
@@ -526,6 +531,19 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     };
     // 定义语言状态变量
     const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
+
+    // 定义状态变量
+    const [isDayMode, setIsDayMode] = useState(false);
+    // 点击切换日间/夜间模式的函数
+    const toggleDayMode = () => {
+        setIsDayMode(!isDayMode); // 切换状态
+        // if (isDayMode) {
+        //     document.body.style.backgroundColor = '#000000'; // 切换到夜间模式
+        // } else {
+        //     document.body.style.backgroundColor = '#FFFFFF'; // 切换到日间模式
+        // }
+    };
+
     // 右侧菜单登陆后
     const iconMenusLogin: MenuListItem[] = [
         {
@@ -596,6 +614,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             title: <IconHtml icon="img_change" />,
             widthSet: 'question',
             items: [],
+            onClick: toggleDayMode,
         },
         {
             key: '4',
