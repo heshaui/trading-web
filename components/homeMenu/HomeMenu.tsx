@@ -1289,7 +1289,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                             </Row>
                             <Row align='middle' className={styles.collapsedMenu}>
                                 <Col>{listItems}</Col>
-                                <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                <Link href='/currencyTradingCopy' style={{ marginRight: '20px', cursor: 'pointer' }}>
                                     <Row gutter={4} align='middle'>
                                         <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
                                         <Col><span>Web3</span></Col>
