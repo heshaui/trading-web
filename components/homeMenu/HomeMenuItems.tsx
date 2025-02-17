@@ -36,7 +36,10 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
                             overlayStyle={getOverlayStyle(menuList.widthSet)}
                             overlayClassName={styles.buttonHover}
                         >
-                            <a onClick={(e) => e.preventDefault()}>
+                            <a onClick={(e) => {
+                                e.preventDefault();
+                                menuList.onClick?.(); // 调用点击事件
+                            }}>
                                 {menuList.title}
                             </a>
                         </Dropdown>
@@ -53,7 +56,10 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
                     className={styles.menuList}
                     overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}
                 >
-                    <a onClick={(e) => e.preventDefault()}>
+                    <a onClick={(e) => {
+                        e.preventDefault();
+                        menuList.onClick?.(); // 调用点击事件
+                    }}>
                         <Space style={{ columnGap: '3px' }}>
                             {menuList.title}
                             {/* <DownOutlined /> */}
