@@ -1,9 +1,9 @@
 import { CurrencyTradingProps, Table1Data, Table2Data } from '@/type/types';
 import styles from '../styles/currencyTrading.module.css';
-import AreaChart from '../components/charts/AreaChart';
-import PieChart from '../components/charts/PieChart';
+import AreaChart from './charts/AreaChart';
+import PieChart from './charts/PieChart';
 import FundingTable from './table/FundingTable';
-import TableItem from '../components/table/TableItem';
+import TableItem from './table/TableItem';
 import FundingCalendar from './calendar/FundingCalendar';
 
 import { Card, Col, Row, ConfigProvider, Select, Tabs, Checkbox, TableColumnsType, Progress } from 'antd';

@@ -8,6 +8,7 @@ export type MenuListItem = {
     title: string | ReactNode;
     widthSet?: IconName;
     // items: Array<{ key: React.Key; label: React.ReactNode }>;
+    onClick?: () => void;
     items: Array<{
         key: React.Key;
         label: React.ReactNode;

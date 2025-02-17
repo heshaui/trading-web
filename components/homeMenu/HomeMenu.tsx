@@ -1,6 +1,6 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer } from 'antd';
+import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty } from 'antd';
 import MenuItem from './HomeMenuItems';
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
@@ -347,7 +347,12 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             case 'img_download':
                 return <Col><img src="/images/home_menu/icon_download_line.png" className={styles.iconCursor} /></Col>;
             case 'img_change':
-                return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
+                // return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
+                return isDayMode ? (
+                    <Col><img src="/images/home_menu/icon_sun_fill.png" className={styles.iconCursor} /></Col>
+                ) : (
+                    <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>
+                );
             case 'img_global':
                 return <Col><img src="/images/home_menu/icon_earth_line.png" className={styles.iconCursor} /></Col>;
             default:
@@ -504,16 +509,41 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     }));
     // 语言过滤(模糊搜索)
     const filterLanguages = (languages: any[], searchValue: string) => {
-        if (!searchValue) return languages;
+        if (!searchValue) return languages; // 如果没有搜索值，直接返回所有语言项
 
         const regex = new RegExp(searchValue.trim(), 'i');
-
-        return languages.filter((lang) => {
+        const filtered = languages.filter((lang) => {
             return regex.test(lang.label.props.children); // 匹配 label 中的 <span> 内容
         });
+
+        // 如果过滤后的结果为空，返回空状态组件
+        if (filtered.length === 0) {
+            return [
+                {
+                    key: 'empty',
+                    type: 'group',
+                    label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无匹配结果" />,
+                },
+            ];
+        }
+
+        return filtered;
     };
     // 定义语言状态变量
     const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
+
+    // 定义状态变量
+    const [isDayMode, setIsDayMode] = useState(false);
+    // 点击切换日间/夜间模式的函数
+    const toggleDayMode = () => {
+        setIsDayMode(!isDayMode); // 切换状态
+        // if (isDayMode) {
+        //     document.body.style.backgroundColor = '#000000'; // 切换到夜间模式
+        // } else {
+        //     document.body.style.backgroundColor = '#FFFFFF'; // 切换到日间模式
+        // }
+    };
+
     // 右侧菜单登陆后
     const iconMenusLogin: MenuListItem[] = [
         {
@@ -583,29 +613,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '3',
             title: <IconHtml icon="img_change" />,
             widthSet: 'question',
-            items: [
-                {
-                    key: '1',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="帮助中心" />
-                    ),
-                },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="我的客服工单" />
-                    ),
-                },
-                {
-                    key: '3',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="加入IMBIT社群" />
-                    ),
-                },
-            ],
+            items: [],
+            onClick: toggleDayMode,
         },
         {
             key: '4',
@@ -1280,7 +1289,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                             </Row>
                             <Row align='middle' className={styles.collapsedMenu}>
                                 <Col>{listItems}</Col>
-                                <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                <Link href='/currencyTradingCopy' style={{ marginRight: '20px', cursor: 'pointer' }}>
                                     <Row gutter={4} align='middle'>
                                         <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
                                         <Col><span>Web3</span></Col>
