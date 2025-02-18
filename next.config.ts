@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/ambit-user-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
-        destination: "http://ljx.imbit.work/ambit-user-web/:path*", // 代理到目标服务器
+        source: "/ambit-home-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
+        destination: "http://ljx.imbit.work/ambit-home-web/:path*", // 代理到目标服务器
       },
     ];
   },
@@ -31,18 +31,6 @@ const nextConfig: NextConfig = {
     }
     // 不跳转，显示共享首页
     return [];
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.devServer.proxy = {
-        '/api': {
-          target: 'http://ljx.imbit.work:3000', // 确保端口号正确
-          changeOrigin: true,
-          pathRewrite: { '^/api': ''}, // 重写路径以移除 '/api'
-        },
-      };
-    }
-    return config;
   },
 };
 

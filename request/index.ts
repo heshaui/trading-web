@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 /**
  * 通用请求封装
@@ -10,7 +10,8 @@ export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${BASE_URL}${endpoint}`;
+  // const url = `${BASE_URL}${endpoint}`;
+  const url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
   console.log('请求 URL:', url);
   
   const defaultHeaders = {

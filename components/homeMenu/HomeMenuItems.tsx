@@ -22,10 +22,14 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
         }
     };
     // 点击提示
-    const onClick: MenuProps['onClick'] = ({ item }) => {
-        // message.info(`Click on item ${key}`);
-        console.log('key', item)
-      };
+    const onClick: MenuProps['onClick'] = ({ key }) => {
+        // // message.info(`Click on item ${key}`);
+        // const item = menuList.find(item => item.key === key);
+        // if (item) {
+        //     console.log('Item details:', item);
+        // }
+        console.log('key', key)
+    };
     return (
         <>
             {haveArrow ? (
