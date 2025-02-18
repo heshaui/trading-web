@@ -1,5 +1,5 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE 
-// VITE_APP_BASE_API=http://ljx.imbit.work/ambit-user-web
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
+
 /**
  * 通用请求封装
  * @param endpoint 请求的 API 路径，例如 '/user'
