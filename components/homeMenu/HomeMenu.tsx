@@ -6,16 +6,47 @@ import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData } from '@/type/types';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+
+// import { request } from '@/request/index'; // 引入封装的请求方法
+import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
+// import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
 // t - 多语言
 export default function HomeMenu({ t, test }: HomeMenuProps) {
+    // test - request
+    const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
+    useEffect(() => {
+        const getMenuData = async () => {
+            try {
+                setLoading(true); // 开始加载
+
+                // 准备请求数据
+                const rawData = {
+                    lang: 'zh_CN', // 语言参数
+                };
+
+                // 调用封装好的 homeMenu 方法发送请求
+                const response = await homeMenu(rawData);
+
+                // 设置菜单数据
+                setMenuData(response);
+            } catch (error) {
+                console.error('获取菜单数据失败:', error);
+            } finally {
+                setLoading(false); // 结束加载
+            }
+        };
+
+        getMenuData(); // 调用 getMenuData 方法
+    }, []);
+
     // t - 多语言
     console.log('t', t('home_menu_title_1'));
     console.log('test', test);
     // 是否登录
-    let isLogin = false;
+    let isLogin = true;
     const items = [
         {
             key: '1',
@@ -499,9 +530,41 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             span: 'Français'
         },
     ]
+    // 汇率菜单
+    const spanRateArr = [
+        {
+            span: 'CNY - ￥'
+        },
+        {
+            span: 'USD- $'
+        },
+    ]
+    // 是否选中
+    const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    const handleLanguageClick = (language: string) => {
+        setSelectedLanguage(language);
+        // 可以在这里添加其他逻辑，例如更新语言设置
+    };
     // 定义语言菜单项
     const languageItems = spanArr.map((item, index) => ({
         key: `1-${index + 1}`, // 动态生成 key
+        type: 'item',
+        title: `${item.span}`,
+        label: (
+            <span style={{
+                fontWeight: selectedLanguage === item.span ? '500' : '400',
+                cursor: 'pointer',
+                display: 'block',
+                width: '100%',
+                height: '100%'
+            }}
+                onClick={() => handleLanguageClick(item.span)}>{item.span}
+            </span> // 动态赋值
+        ),
+    }));
+    // 定义汇率菜单项
+    const rateItems = spanRateArr.map((item, index) => ({
+        key: `3-${index + 1}`, // 动态生成 key
         type: 'item',
         label: (
             <span>{item.span}</span> // 动态赋值
@@ -529,8 +592,32 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
 
         return filtered;
     };
+    // 汇率过滤(模糊搜索)
+    const filterRates = (rates: any[], searchValue: string) => {
+        if (!searchValue) return rates; // 如果没有搜索值，直接返回所有语言项
+
+        const regex = new RegExp(searchValue.trim(), 'i');
+        const filtered = rates.filter((lang) => {
+            return regex.test(lang.label.props.children); // 匹配 label 中的 <span> 内容
+        });
+
+        // 如果过滤后的结果为空，返回空状态组件
+        if (filtered.length === 0) {
+            return [
+                {
+                    key: 'empty',
+                    type: 'group',
+                    label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无匹配结果" />,
+                },
+            ];
+        }
+
+        return filtered;
+    };
     // 定义语言状态变量
     const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
+    // 定义汇率状态变量
+    const [searchRateValue, setSearchRateValue] = useState<string>("");
 
     // 定义状态变量
     const [isDayMode, setIsDayMode] = useState(false);
@@ -636,6 +723,23 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                     ),
                     children: [
                         ...filterLanguages(languageItems, searchLanguageValue),
+                    ],
+                },
+                {
+                    key: '2',
+                    type: 'group',
+                    label: (
+                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>汇率</h6>
+                    )
+                },
+                {
+                    key: '3',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
+                    ),
+                    children: [
+                        ...filterRates(rateItems, searchRateValue),
                     ],
                 },
 
@@ -1441,4 +1545,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             </Drawer>
         </div>
     );
+}
+
+function fetchData() {
+    throw new Error('Function not implemented.');
 }

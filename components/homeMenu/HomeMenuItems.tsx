@@ -1,4 +1,5 @@
-import { ConfigProvider, Dropdown, Space } from 'antd';
+import { ConfigProvider, Dropdown, Space, message } from 'antd';
+import type { MenuProps } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import styles from '@/styles/components/HomeMenu.module.css';
 // import { MenuListItem } from '@/type/types';
@@ -20,6 +21,15 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
                 return { top: '80px', minWidth: '100px', maxWidth: '380px' };
         }
     };
+    // 点击提示
+    const onClick: MenuProps['onClick'] = ({ key }) => {
+        // // message.info(`Click on item ${key}`);
+        // const item = menuList.find(item => item.key === key);
+        // if (item) {
+        //     console.log('Item details:', item);
+        // }
+        console.log('key', key)
+    };
     return (
         <>
             {haveArrow ? (
@@ -29,6 +39,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, }) => {
                             menu={{
                                 items: menuList.items,
                                 triggerSubMenuAction: 'click',
+                                onClick
                             }}
                             placement="bottomLeft"
                             trigger={['click']}

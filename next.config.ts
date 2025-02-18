@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/ambit-auth/:path*", // 匹配所有 /ambit-user-web/xxx 请求
-        destination: "http://ljx.imbit.work/ambit-auth/:path*", // 代理到目标服务器
+        source: "/ambit-home-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
+        destination: "http://ljx.imbit.work/ambit-home-web/:path*", // 代理到目标服务器
       },
     ];
   },
