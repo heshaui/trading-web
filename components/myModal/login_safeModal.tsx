@@ -10,8 +10,8 @@ import QuestionModal from "@/components/myModal/questionModal";
 
 type Props = {
     open: boolean;
-    acount: string;
-    type: string;
+    acount: string|null;
+    type: string|null;
     onOk: (event: any) => void;
     onCancel: () => void;
 };
@@ -22,6 +22,9 @@ function SafeModal({ open, onOk, acount,type, onCancel }: Props) {
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [pointout, setPointout] = useState(false);
+    useEffect(()=>{
+        startCountdown()
+    },[])
     const handCancel = () => {
         onCancel()
     };
@@ -89,13 +92,13 @@ function SafeModal({ open, onOk, acount,type, onCancel }: Props) {
                         placeholder="请输入"
                         allowClear
                         suffix={
-                            <button type="button" onClick={startCountdown} className={`${styles.text_color} `} >
+                            <button type="button" onClick={startCountdown} className={isCounting ?`${styles.tip_color}`:`${styles.text_color}`} >
                                 {isCounting ? `${countdown}s 重发` : "重新发送"}
                                 {/* {isCounting ? t("sys.login.sendSmsText", { second: countdown }) : t("sys.getcode")} */}
                             </button>
                         }
                     />
-                    <span className={`${styles.text_color} ${styles.code_err}`}>验证码错误</span>
+                    {/* <span className={`${styles.text_color} ${styles.code_err}`}>验证码错误</span> */}
                 </Form.Item>
             </Form>
             <QuestionModal open={pointout} onOk={() => setPointout(false)} type={type} acount={acount} onCancel={() => setPointout(false)} />

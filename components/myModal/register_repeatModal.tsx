@@ -6,6 +6,7 @@ import store from "@/store"
 import { useRouter } from 'next/router';
 import styles from "./style/repeatModal.module.css";
 import { encryptEmail ,encryptPhoneNumber} from "@/utils/encrypt";
+import {registerLogic} from "@/store/registerEnum"
 
 type Props = {
     open: boolean;

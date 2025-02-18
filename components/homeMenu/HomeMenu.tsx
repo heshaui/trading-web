@@ -15,7 +15,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     console.log('t', t('home_menu_title_1'));
     console.log('test', test);
     // 是否登录
-    let isLogin = true;
+    let isLogin = false;
     const items = [
         {
             key: '1',

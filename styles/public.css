@@ -22,7 +22,7 @@
    border-color: var(--text-color3) !important;
    /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
    box-shadow: none !important;
-   background-color: pink !important;
+   /* background-color: pink !important; */
 }
 /* 鼠标聚焦且移出样式 */
 .custom-input:focus:not(:hover){

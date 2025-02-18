@@ -15,8 +15,12 @@ import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import  ErrModal from "@/components/myModal/errModal"
-import SafeModal from "@/components/myModal/safeModal"
+import ErrModal from "@/components/myModal/errModal"
+import SafeModal from "@/components/myModal/login_safeModal"
+
+// import { getLogin } from "@/services/login";
+import { loginLogic } from "@/store/loginEnum"
+import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -26,7 +30,13 @@ const fromStyle: CSSProperties = {
     maxWidth: "400px",
     minWidth: "350px",
 };
-
+interface useInfoType {
+    type: string | null;
+    email: string | null;
+    password: string | null;
+    deviceType: string | null;
+    authCodeMail: string | null;
+}
 
 function Mailbox() {
     const router = useRouter();
@@ -36,13 +46,20 @@ function Mailbox() {
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
     const [errModelOpen, setErrModelOpen] = useState(false); //错误提示弹窗
-    const [errMsg,setErrMsg]=useState('请检查网络!');
+    const [errMsg, setErrMsg] = useState('请检查网络!');
     const { loginState, setLoginState } = useLoginStateContext();
     const { loginType, setLoginType } = useLoginTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
     const [historyEmails, setHistoryEmails] = useState<string[]>([]);
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+    const [loginInfo, setLoginInfo] = useState<useInfoType>({
+        type: null,
+        email: null,
+        password: null,
+        deviceType: null,
+        authCodeMail: null,
+    });
 
     useEffect(() => {
         const storedEmails = localStorage.getItem('emailHistory');
@@ -78,10 +95,10 @@ function Mailbox() {
         setErrModelOpen(true)
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
-    const handCodeCancel=()=>{
+    const handCodeCancel = () => {
         setCodeModelOpen(false)
     }
-    const handCodeOk=(event:any)=>{
+    const handCodeOk = (event: any) => {
         // setCodeModelOpen(false)
     }
 
@@ -90,7 +107,20 @@ function Mailbox() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
+                saveEmailToHistory(values.email)
                 console.log(values);
+                const data = {
+                    type: "m",
+                    email: values.email,
+                    deviceType: "web",
+                    password: values.password,
+                    authCodeMail: "",
+                }
+                // encryptWithPublicKey
+                // loginLogic()
+                setLoginInfo(data)
+                setCodeModelOpen(true)
+                // goAuthCode(data)
 
             })
             .catch((info) => {
@@ -104,6 +134,7 @@ function Mailbox() {
     //     store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
     //     setLoginState(LoginStateEnum.Googlecode)
     // }
+
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -135,10 +166,9 @@ function Mailbox() {
             }))
         });
     }
-    const goResetPassword=()=>{
+    const goResetPassword = () => {
         router.push('/resetPassword');
     }
-
 
     return (
         <div className="flex-y-cc mt-7" >
@@ -186,8 +216,8 @@ function Mailbox() {
                     />
                 </Form.Item>
                 <Form.Item noStyle>
-                {/* <Link href='/resetPassword' className="forgetPassword-button">忘记密码</Link> */}
-                    <button type="button" className="forgetPassword-button" onClick={()=>goResetPassword()} >
+                    {/* <Link href='/resetPassword' className="forgetPassword-button">忘记密码</Link> */}
+                    <button type="button" className="forgetPassword-button" onClick={() => goResetPassword()} >
                         {"忘记密码"}
                     </button>
                 </Form.Item>
@@ -197,7 +227,7 @@ function Mailbox() {
                     </Button>
                 </Form.Item> */}
             </Form>
-            {!loading ? (<button type="submit"  className="w-full button-color login-button mt-8"
+            {!loading ? (<button type="submit" className="w-full button-color login-button mt-8"
                 onClick={handleFinish}>
                 {"登录"}
             </button>) : (<button type="button" className="w-full  mt-8 login-loading" onClick={() => setLoading(false)}>
@@ -223,8 +253,8 @@ function Mailbox() {
                     </button>
                 </p>
             </div>
-            <ErrModal open={errModelOpen} errMsg={errMsg}  onCancel={handCancel}/>
-            <SafeModal open={codeModelOpen} acount={'123231313@163.com'} type={'email'} onCancel={handCodeCancel} onOk={handCodeOk}/>
+            <ErrModal open={errModelOpen} errMsg={errMsg} onCancel={handCancel} />
+            <SafeModal open={codeModelOpen} acount={loginInfo.email} type={'email'} onCancel={handCodeCancel} onOk={handCodeOk} />
 
         </div>
     );

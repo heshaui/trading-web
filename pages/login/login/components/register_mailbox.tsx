@@ -14,7 +14,7 @@ import type { TabsProps, AutoCompleteProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
-import RepeatModal from "@/components/myModal/repeatModal";
+import RepeatModal from "@/components/myModal/register_repeatModal";
 
 
 const fromStyle: CSSProperties = {
@@ -27,7 +27,7 @@ const fromStyle: CSSProperties = {
 };
 
 
-function RegisterForm() {
+function RegisterMail() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
@@ -58,7 +58,15 @@ function RegisterForm() {
                 console.log(values, 111);
 
                 if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
+                const data = {
+                    type: "m",
+                    email: values.email,
+                    password: values.password,
+                    parentInviteCode:values.referee,
+                }
+                store.updateRegisterInfo(data)
 
+                goAuthCode();
 
             })
             .catch((info) => {
@@ -71,8 +79,9 @@ function RegisterForm() {
     // 跳转规则
     const goAuthCode = () => {
         store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.EMAIL); //存储跳转前状态
-        setLoginState(LoginStateEnum.Googlecode) //设置跳转状态
+        setLoginState(LoginStateEnum.Authcode) //设置跳转状态
     }
+
     const usernameChange = (changedValues: any) => {
         Object.keys(changedValues).forEach((key) => {
             if (key === "username" && preCheck) {
@@ -109,7 +118,7 @@ function RegisterForm() {
         }
         return Promise.resolve();
     };
-    const handCancel=()=>{
+    const handCancel = () => {
         setRepeatModalOPen(false)
     }
     return (
@@ -216,11 +225,11 @@ function RegisterForm() {
                     </button>
                 </p>
             </div>
-				<RepeatModal  open={repeatModalOPen} acount={"12332@163.com"}  onCancel={handCancel} onOk={() => setLoginState(LoginStateEnum.LOGIN)}/>
-                
+            <RepeatModal open={repeatModalOPen} acount={"12332@163.com"} onCancel={handCancel} onOk={() => setLoginState(LoginStateEnum.LOGIN)} />
+
         </div>
 
     );
 }
 
-export default RegisterForm;
+export default RegisterMail;

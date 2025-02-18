@@ -1,1 +1,1 @@
-export { default } from '../../modules/user/pages/index';
+export { default } from './user/pages/index';

@@ -20,6 +20,9 @@
 .text_color {
     color: var(--text-color3);
 }
+.disable_color {
+    color: var(--text-color4);
+}
 .title_color{
     color: var(--text-color5);
     font-size: 16px;

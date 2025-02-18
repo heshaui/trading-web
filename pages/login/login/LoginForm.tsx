@@ -21,7 +21,7 @@ function LoginForm() {
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
-	const [noteModelOpen, setNoteModelOpen]=useState(true)
+	const [noteModelOpen, setNoteModelOpen]=useState(false)
 
 	const [tabsProps, setTabsProps] = useState('email');
 	const { loginState, setLoginState } = useLoginStateContext();

@@ -15,7 +15,7 @@ const loginBgcStyle: CSSProperties = {
 	backgroundColor: "pink",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
-	height: "100%", 
+	height: "100%",
 	// backgroundColor:"pink"
 	// width: "100%"
 };
@@ -43,14 +43,12 @@ function Login() {
 						{/* 登录注册切换 */}
 						<LoginTypeProvider>
 							<LoginForm />
-							{/* <PhoneEmailAuthcode /> */}
 						</LoginTypeProvider>
 						<RegisterTypeProvider>
 							<RegisterForm />
-
 						</RegisterTypeProvider>
 						<PhoneEmailAuthcode />
-						<GoogleAuthcode/>
+						<GoogleAuthcode />
 					</LoginStateProvider>
 				</div>
 			</div>

@@ -7,11 +7,14 @@ import { toast } from "sonner";
 import store from "@/store";
 import styles from "../style/reset.module.css"
 import {encryptString} from "@/utils/encrypt"
+import QuestionModal from "@/components/myModal/questionModal";
 function ResetPassword() {
 
     const { resetState, setResetState,acount } = useResetStateContext();
     const [authCode, setAuthCode] = useState('');
+    const [pointout, setPointout] = useState(false);
      const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+     
     // 当状态不为 INPUT 时不渲染组件
     if (resetState !== ResetStateEnum.SENTCODE) return null;
 
@@ -45,6 +48,7 @@ function ResetPassword() {
                     <button type='button' className={`btn-color ${styles.next_btn} flex-1`} onClick={()=>goNext()}>下一步</button>
                 </div>
             </div>
+            <QuestionModal open={pointout} onOk={() => setPointout(false)} type={"email"} acount={acount} onCancel={() => setPointout(false)} />
         </div>
     );
 }

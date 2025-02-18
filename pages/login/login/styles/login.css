@@ -149,6 +149,8 @@
     border-radius: 36px;
     width: 115px;
     height: 50px;
+    border: 1px solid var(--text-color4);
+    color: var(--btncolor2);
 }
 .icon-rotate {
     transform: rotate(180deg);
@@ -158,12 +160,14 @@
 .mail-input:focus,
 .mail-input:focus-within {
    border-color: var(--text-color3) !important;
+   box-shadow: none;
    /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
 }
 /* 鼠标聚焦且移出样式 */
 .mail-input:focus:not(:hover){
     background-color: var(--homeground);
     color: #fff;
+    box-shadow: none;
 }
 /* 鼠标滑过 */
 .mail-input:hover{

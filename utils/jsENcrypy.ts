@@ -1,3 +1,5 @@
+"use client";
+
 import JSEncrypt from "jsencrypt";
 
 // 公钥

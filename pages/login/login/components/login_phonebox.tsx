@@ -53,7 +53,7 @@ function Phonebox() {
 			.then(async (values) => {
 				// form.resetFields(); // 重置表单
 				console.log(values, 111);
-
+				goAuthCode()
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
@@ -71,10 +71,14 @@ function Phonebox() {
 		// });
 
 	}
+	// const goAuthCode = () => {
+	// 	store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
+	// 	setLoginState(LoginStateEnum.Googlecode)
+	// }
 	const goAuthCode = () => {
-		store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
-		setLoginState(LoginStateEnum.Googlecode)
-	}
+        store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
+        setLoginState(LoginStateEnum.Authcode)
+    }
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form

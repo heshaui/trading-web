@@ -9,8 +9,8 @@ import { encryptEmail ,encryptPhoneNumber} from "@/utils/encrypt";
 
 type Props = {
     open: boolean;
-    acount: string;
-    type:string;
+    acount: string|null;
+    type:string|null;
     onOk: (event: any) => void;
     onCancel: () => void;
 };
@@ -82,8 +82,8 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
             <ul>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                   {type==="email"&&(<>确保您的邮箱为<span>{encryptEmail(acount)}</span></>)} 
-                   {type==="phone"&&(<>确保您的手机为<span>{encryptPhoneNumber(acount)}</span></>)} 
+                   {type==="email"&&(<>确保您的邮箱为<span>{acount?encryptEmail(acount):"-"}</span></>)} 
+                   {type==="phone"&&(<>确保您的手机为<span>{acount?encryptPhoneNumber(acount):"-"}</span></>)} 
                     </li>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />

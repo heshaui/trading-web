@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Checkbox,ConfigProvider } from "antd";
+import { Button, Form, Input, Select, Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
@@ -25,7 +25,7 @@ const fromStyle: CSSProperties = {
 };
 
 
-function RegisterForm() {
+function RegisterPhone() {
 	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
@@ -63,6 +63,16 @@ function RegisterForm() {
 				// form.resetFields(); // 重置表单
 				console.log(values, 111);
 				if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
+				const data = {
+					type: "p",
+					phone: values.phoneNumber,
+					password: values.password,
+					parentInviteCode: values.referee,
+					countryCode:values.areaCode
+				}
+				store.updateRegisterInfo(data)
+
+				goAuthCode()
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
@@ -71,19 +81,12 @@ function RegisterForm() {
 		// setLoading(true);
 
 	};
-
-	const usernameChange = (changedValues: any) => {
-		// Object.keys(changedValues).forEach((key) => {
-		// 	if (key === "username" && preCheck) {
-		// 		setpreCheck(false);
-		// 	}
-		// });
-
-	}
+	// 跳转规则
 	const goAuthCode = () => {
-		store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE);
-		setLoginState(LoginStateEnum.Googlecode)
-	}
+        store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE); //存储跳转前状态
+        setLoginState(LoginStateEnum.Authcode) //设置跳转状态
+    }
+
 	// 自定义密码验证规则
 	const validatePassword = (_: any, value: any) => {
 		if (!value) {
@@ -125,8 +128,8 @@ function RegisterForm() {
 								}
 							/>
 						</Form.Item> */}
-						<PhoneCodeSelector/>
-						<Form.Item  noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+						<PhoneCodeSelector />
+						<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
 							<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
 						</Form.Item>
 					</div>
@@ -168,25 +171,25 @@ function RegisterForm() {
 					/>
 				</Form.Item>
 				<ConfigProvider
-                    theme={{
-                        token: {
-                            colorPrimary: "#FF5F1F"
-                        },
-                    }}
-                >
-				<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-					<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
-				</Form.Item>
+					theme={{
+						token: {
+							colorPrimary: "#FF5F1F"
+						},
+					}}
+				>
+					<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
+						<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+					</Form.Item>
 				</ConfigProvider>
 			</Form>
 			{/* <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
 				onClick={onFinish}>
 				{"注册"}
 			</Button> */}
-			<button type="submit"  className="w-full button-color login-button mt-8" 
-                onClick={onFinish}>
-                {"注册"}
-            </button>
+			<button type="submit" className="w-full button-color login-button mt-8"
+				onClick={onFinish}>
+				{"注册"}
+			</button>
 			{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
 				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
@@ -210,4 +213,4 @@ function RegisterForm() {
 	);
 }
 
-export default RegisterForm;
+export default RegisterPhone;

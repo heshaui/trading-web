@@ -14,7 +14,7 @@ const fromStyle: CSSProperties = {
 };
 
 
-function AuthCode() {
+function AuthCodeGoogle() {
 
     // const [tabsProps, setTabsProps] = useState('email');
     // const signIn = useSignIn();
@@ -87,4 +87,4 @@ function AuthCode() {
     );
 }
 
-export default AuthCode;
+export default AuthCodeGoogle;

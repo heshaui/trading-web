@@ -1,68 +1,193 @@
-// import { Button, Form, Input,Tabs } from "antd";
-import { Input, Button } from 'antd';
-import { type CSSProperties, useState } from "react";
+"use client";
+import { Input, Button, Form } from 'antd';
+import { type CSSProperties, useEffect, useState } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
-const fromStyle: CSSProperties = {
-    borderRadius: "5px",
-    // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-    padding: "25px",
-    width: "25vw",
-    maxWidth: "400px",
-    minWidth: "350px",
-};
-
+import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
+import QuestionModal from "@/components/myModal/questionModal";
+import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
+import { registerLogic } from "@/store/registerEnum";
+import { getRegister, getRegisterMailCode, getRegisterSmsCode } from "@/services/login";
 
 function AuthCode() {
+    const [pointout, setPointout] = useState(false);
 
-    // const [tabsProps, setTabsProps] = useState('email');
-    // const signIn = useSignIn();
     const { loginType, setLoginType } = useLoginTypeContext();
     const { registerType, setRegisterType } = useRegisterTypeContext();
     const { loginState, backToLogin, setLoginState } = useLoginStateContext();
+
+
+
+    const registerInfo = store.registerInfo;
+    const [countdown, setCountdown] = useState(0);
+    const [isCounting, setIsCounting] = useState(false);
+    const [form] = Form.useForm();
+
+
     // 当状态不为 Authcode 时不渲染组件
-    // if (loginType !== LoginTypeEnum.Authcode || registerType !== RegisterTypeEnum.Authcode) return null;
-    if (loginState !== LoginStateEnum.Authcode) return null;
 
 
+  
+   
 
     const goBackPage = () => {
-        const authcodeState = store.authcodeState
+        const authcodeState = store.authcodeState;
         if (authcodeState.state === LoginStateEnum.LOGIN) {
-            setLoginState(authcodeState.state)
+            setLoginState(authcodeState.state);
             if (authcodeState.type === LoginTypeEnum.EMAIL || authcodeState.type === LoginTypeEnum.PHONE) {
-                setLoginType(authcodeState.type)
+                setLoginType(authcodeState.type);
             }
         } else if (authcodeState.state === LoginStateEnum.REGISTER) {
-            setLoginState(authcodeState.state)
+            setLoginState(authcodeState.state);
             if (authcodeState.type === RegisterTypeEnum.EMAIL || authcodeState.type === RegisterTypeEnum.PHONE) {
-                setRegisterType(authcodeState.type)
+                setRegisterType(authcodeState.type);
             }
         }
-    }
+    };
+
+    const onSubmit = () => {
+        form
+            .validateFields()
+            .then(async (values) => {
+                // form.resetFields(); // 重置表单
+                console.log(values, 111);
+                let data = {};
+                if (registerInfo.type === 'm') {
+                    data = {
+                        type: registerInfo.type,
+                        email: registerInfo.email,
+                        password: registerInfo.password,
+                        parentInviteCode: registerInfo.parentInviteCode || "",
+                        code: values.code
+                    };
+                } else if (registerInfo.type === 'p') {
+                    data = {
+                        type: registerInfo.type,
+                        phone: registerInfo.phone,
+                        password: registerInfo.password,
+                        parentInviteCode: registerInfo.parentInviteCode || "",
+                        countryCode: registerInfo.countryCode?.replace("+", ""),
+                        code: values.code
+                    };
+                }
+                console.log(data, 123);
+
+                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(data))
+                //  const res=await getRegister({data:dataEncrypt});
+                // await registerLogic(dataEncrypt)
+            })
+            .catch((info) => {
+                console.log("Validate Failed:", info);
+            });
+    };
+
+    const getRegisterCode = async () => {
+        
+        try {
+            if (registerInfo.type === 'm') {
+                const dataInfo = {
+                    number: registerInfo.email,
+                    code: registerInfo.countryCode,
+                    deviceType: "incididunt ex adipisicing exercitation"
+                };
+                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
+                const res = await getRegisterMailCode(dataInfo);
+            } else if (registerInfo.type === 'p') {
+                const dataInfo = {
+                    number: registerInfo.phone,
+                    code: registerInfo.countryCode,
+                    deviceType: "incididunt ex adipisicing exercitation"
+                };
+                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
+                const res = await getRegisterSmsCode(dataInfo);
+            }
+            // if (res.code === 200) {
+            //     toast.success("验证码发送成功")
+            //     startCountdown();
+            // } else {
+            //     toast.error(res.message)
+            // // }
+            startCountdown();
+        } catch (error) {
+            console.error('获取验证码出错:', error);
+        }
+    };
+
+    const startCountdown = () => {
+        setCountdown(60);
+        setIsCounting(true);
+        const timer = setInterval(() => {
+            setCountdown((prevCountdown) => {
+                if (prevCountdown === 1) {
+                    clearInterval(timer);
+                    setIsCounting(false);
+                    return 0;
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+    };
+    useEffect(() => {
+        console.log(1231234124);
+        
+        getRegisterCode();
+    }, []);
+
+    if (loginState !== LoginStateEnum.Authcode) return null;
 
     return (
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
-            <div className="mb-6 authcode-header font-w-500" style={{ width: "300px" }}>邮箱/手机号验证</div>
-            <div>
-                <Input
-                    placeholder="邮箱/手机号验证"
-                    // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
-                    suffix={
-                        <button className='text-color'>发送</button>
-                    } 
-                    className='authcode-input'
-                    style={{borderRadius: "8px"}}
-                    />
-                    <button className='text-color mt-1'>粘贴</button>
-                <div className='flex mt-10'>
-                    <Button
-                        className='goback-btn'
-                        onClick={() => goBackPage()}>返回</Button>
-                    <Button className='btn-color submit-btn'>提交</Button>
-                </div>
+            {/* <div className="mb-6 authcode-header font-w-500" style={{ width: "300px" }}>邮箱/手机号验证</div> */}
+            <div className='mb-2'>
+                <p className='font-16 font-w-500 mb-1'>已发送验证码至</p>
+                <p className='tip-color1'>
+                    <span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
+                    {registerInfo.type === 'm' ? encryptEmail(registerInfo.email) : encryptPhoneNumber(registerInfo.phone)}
+                </p>
             </div>
+            <Form
+                name="login"
+                size="large"
+                form={form}
+            // initialValues={{
+            //     remember: true,
+            // }}
+            >
+                <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                    <Input
+                        placeholder="邮箱/手机号验证"
+                        // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                        suffix={
+                            <button type='button' className={isCounting ? 'tip-color1' : 'text-color'} onClick={getRegisterCode}>
+                                {isCounting ? `${countdown}s 重发` : "重新发送"}
+                            </button>
+                        }
+                        className='authcode-input mail-input'
+                        style={{ borderRadius: "8px" }}
+                    />
+                    {/* <button className='text-color mt-1'>粘贴</button> */}
+                </Form.Item>
+            </Form>
+            <div className='flex mt-10'>
+                <button
+                    type='button'
+                    className='goback-btn'
+                    onClick={() => goBackPage()}
+                >返回</button>
+                <button type='submit' className='btn-color submit-btn' onClick={onSubmit}>提交</button>
+            </div>
+            <div>
+                <button
+                    type="button"
+                    className="text-color mt-5"
+                    onClick={() => setPointout(true)}
+                >
+                    收不到验证码？
+                </button>
+            </div>
+
+            <QuestionModal open={pointout} onOk={() => setPointout(false)} type={"email"} acount={"acount"} onCancel={() => setPointout(false)} />
         </div>
     );
 }

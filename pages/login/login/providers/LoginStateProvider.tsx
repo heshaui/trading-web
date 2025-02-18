@@ -99,7 +99,8 @@ export function LoginStateProvider({ children }: PropsWithChildren) {
 	);
 }
 export function LoginTypeProvider({ children }: PropsWithChildren) {
-	const [loginType, setLoginType] = useState(LoginTypeEnum.EMAIL);	function backToLoginType() {
+	const [loginType, setLoginType] = useState(LoginTypeEnum.EMAIL);	
+	function backToLoginType() {
 		setLoginType(LoginTypeEnum.PHONE);
 	}
 
