@@ -90,16 +90,16 @@ function AuthCode() {
             if (registerInfo.type === 'm') {
                 const dataInfo = {
                     number: registerInfo.email,
-                    code: registerInfo.countryCode,
-                    deviceType: "incididunt ex adipisicing exercitation"
+                    // code: "",
+                    deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterMailCode(dataInfo);
             } else if (registerInfo.type === 'p') {
                 const dataInfo = {
                     number: registerInfo.phone,
-                    code: registerInfo.countryCode,
-                    deviceType: "incididunt ex adipisicing exercitation"
+                    code: registerInfo.countryCode?.replace("+", "") ,
+                    deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterSmsCode(dataInfo);
