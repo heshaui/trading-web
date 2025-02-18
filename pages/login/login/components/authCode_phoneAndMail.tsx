@@ -16,20 +16,22 @@ function AuthCode() {
     const { loginType, setLoginType } = useLoginTypeContext();
     const { registerType, setRegisterType } = useRegisterTypeContext();
     const { loginState, backToLogin, setLoginState } = useLoginStateContext();
-
-
-
-    const registerInfo = store.registerInfo;
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+    const registerInfo = store.registerInfo;
+
     const [form] = Form.useForm();
 
 
-    // 当状态不为 Authcode 时不渲染组件
 
 
-  
-   
+    useEffect(() => {
+        if (loginState == LoginStateEnum.Authcode && !isCounting) {
+            getRegisterCode();
+        }
+    }, [loginState]);
+
+
 
     const goBackPage = () => {
         const authcodeState = store.authcodeState;
@@ -83,7 +85,7 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        
+        if (isCounting) return
         try {
             if (registerInfo.type === 'm') {
                 const dataInfo = {
@@ -107,7 +109,7 @@ function AuthCode() {
             //     startCountdown();
             // } else {
             //     toast.error(res.message)
-            // // }
+            // }
             startCountdown();
         } catch (error) {
             console.error('获取验证码出错:', error);
@@ -127,13 +129,11 @@ function AuthCode() {
                 return prevCountdown - 1;
             });
         }, 1000);
+        // 清理定时器
+        return () => clearInterval(timer);
     };
-    useEffect(() => {
-        console.log(1231234124);
-        
-        getRegisterCode();
-    }, []);
 
+    // 当状态不为 Authcode 时不渲染组件
     if (loginState !== LoginStateEnum.Authcode) return null;
 
     return (
@@ -169,7 +169,7 @@ function AuthCode() {
                     {/* <button className='text-color mt-1'>粘贴</button> */}
                 </Form.Item>
             </Form>
-            <div className='flex mt-10'>
+            <div className='flex mt-6'>
                 <button
                     type='button'
                     className='goback-btn'

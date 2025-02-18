@@ -62,6 +62,7 @@ function Mailbox() {
     });
 
     useEffect(() => {
+        console.log(1234);
         const storedEmails = localStorage.getItem('emailHistory');
         if (storedEmails) {
             setHistoryEmails(JSON.parse(storedEmails));
@@ -75,9 +76,7 @@ function Mailbox() {
             localStorage.setItem('emailHistory', JSON.stringify(newHistory));
         }
     };
-    // 当登录状态不为 LOGIN 时不渲染组件
-    // if (loginState !== LoginStateEnum.LOGIN) return null;
-    if (loginType !== LoginTypeEnum.EMAIL) return null;
+
 
     // 获取浏览器指纹
     // const getFingerprint = async () => {
@@ -169,7 +168,8 @@ function Mailbox() {
     const goResetPassword = () => {
         router.push('/resetPassword');
     }
-
+    // 当登录状态不为 LOGIN 时不渲染组件;
+    if (loginType !== LoginTypeEnum.EMAIL) return null;
     return (
         <div className="flex-y-cc mt-7" >
             <Form

@@ -120,13 +120,13 @@ function Phonebox() {
 							<PhoneCodeSelector/>
 						{/* </Form.Item> */}
 						<Form.Item name="phoneNumber" noStyle rules={[{ required: true, message: "手机号不能为空！" }]}>
-							<Input placeholder="请输入手机号" allowClear={true} className="ml-2" />
+							<Input placeholder="请输入手机号" allowClear={true} className="ml-2 mail-input" />
 						</Form.Item>
 					</div>
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
+					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }

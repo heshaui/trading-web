@@ -104,6 +104,7 @@ const App: React.FC = () => {
                 <Input
                     size="large"
                     placeholder="input here"
+                    className='mail-input'
                     suffix={
                         <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
                     }
