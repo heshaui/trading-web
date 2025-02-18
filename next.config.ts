@@ -24,6 +24,18 @@ const nextConfig: NextConfig = {
     // 不跳转，显示共享首页
     return [];
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.devServer.proxy = {
+        '/api': {
+          target: 'http://ljx.imbit.work:3000', // 确保端口号正确
+          changeOrigin: true,
+          pathRewrite: { '^/api': ''}, // 重写路径以移除 '/api'
+        },
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

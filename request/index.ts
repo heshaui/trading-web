@@ -1,4 +1,9 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://api.example.com';
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://api.example.com';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || 'http://ljx.imbit.work/ambit-home-web';
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || '/api';
+// const BASE_URL = '/api';
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BAS
+// console.log('地址地址地址地址：', BASE_URL);
 
 /**
  * 通用请求封装
@@ -11,6 +16,7 @@ export async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
+  console.log('请求 URL:', url);
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
