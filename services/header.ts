@@ -14,7 +14,7 @@
 
 import { request } from '@/request/index';
 
-const homeMenuUrl = 'ambit-home-web';
+const homeMenuUrl = '/ambit-home-web';
 
 export function homeMenu(data: { lang: string }) {
   // 加密请求数据
