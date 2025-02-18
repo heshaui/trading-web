@@ -16,31 +16,31 @@ import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方
 // t - 多语言
 export default function HomeMenu({ t, test }: HomeMenuProps) {
     // test - request
-    const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
-    useEffect(() => {
-        const getMenuData = async () => {
-            try {
-                setLoading(true); // 开始加载
+    // const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
+    // useEffect(() => {
+    //     const getMenuData = async () => {
+    //         try {
+    //             setLoading(true); // 开始加载
 
-                // 准备请求数据
-                const rawData = {
-                    lang: 'zh_CN', // 语言参数
-                };
+    //             // 准备请求数据
+    //             const rawData = {
+    //                 lang: 'zh_CN', // 语言参数
+    //             };
 
-                // 调用封装好的 homeMenu 方法发送请求
-                const response = await homeMenu(rawData);
+    //             // 调用封装好的 homeMenu 方法发送请求
+    //             const response = await homeMenu(rawData);
 
-                // 设置菜单数据
-                setMenuData(response);
-            } catch (error) {
-                console.error('获取菜单数据失败:', error);
-            } finally {
-                setLoading(false); // 结束加载
-            }
-        };
+    //             // 设置菜单数据
+    //             setMenuData(response);
+    //         } catch (error) {
+    //             console.error('获取菜单数据失败:', error);
+    //         } finally {
+    //             setLoading(false); // 结束加载
+    //         }
+    //     };
 
-        getMenuData(); // 调用 getMenuData 方法
-    }, []);
+    //     getMenuData(); // 调用 getMenuData 方法
+    // }, []);
 
     // t - 多语言
     console.log('t', t('home_menu_title_1'));
