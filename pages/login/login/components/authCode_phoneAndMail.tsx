@@ -9,7 +9,10 @@ import QuestionModal from "@/components/myModal/questionModal";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { registerLogic } from "@/store/registerEnum";
 import { getRegister, getRegisterMailCode, getRegisterSmsCode } from "@/services/login";
-
+interface ApiResponse {
+    code: number;
+    message?: string;
+}
 function AuthCode() {
     const [pointout, setPointout] = useState(false);
 
@@ -54,17 +57,18 @@ function AuthCode() {
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
                 console.log(values, 111);
-                let data = {};
+                let dataInfo = {};
                 if (registerInfo.type === 'm') {
-                    data = {
+                    dataInfo = {
                         type: registerInfo.type,
                         email: registerInfo.email,
                         password: registerInfo.password,
                         parentInviteCode: registerInfo.parentInviteCode || "",
                         code: values.code
                     };
+                    
                 } else if (registerInfo.type === 'p') {
-                    data = {
+                    dataInfo = {
                         type: registerInfo.type,
                         phone: registerInfo.phone,
                         password: registerInfo.password,
@@ -73,9 +77,9 @@ function AuthCode() {
                         code: values.code
                     };
                 }
-                console.log(data, 123);
+                console.log(dataInfo, 123);
 
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(data))
+                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 //  const res=await getRegister({data:dataEncrypt});
                 // await registerLogic(dataEncrypt)
             })
@@ -89,12 +93,16 @@ function AuthCode() {
         try {
             if (registerInfo.type === 'm') {
                 const dataInfo = {
-                    number: registerInfo.email,
+                    number: registerInfo.email||'',
                     // code: "",
                     deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterMailCode(dataInfo);
+                if(res.code === 600){
+                    toast.success("验证码发送成功")
+                    startCountdown();
+                }
             } else if (registerInfo.type === 'p') {
                 const dataInfo = {
                     number: registerInfo.phone,
@@ -103,14 +111,11 @@ function AuthCode() {
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterSmsCode(dataInfo);
+                if(res.code === 600){
+                    toast.success("验证码发送成功")
+                    startCountdown();
+                }
             }
-            // if (res.code === 200) {
-            //     toast.success("验证码发送成功")
-            //     startCountdown();
-            // } else {
-            //     toast.error(res.message)
-            // }
-            startCountdown();
         } catch (error) {
             console.error('获取验证码出错:', error);
         }
