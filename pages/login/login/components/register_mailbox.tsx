@@ -152,7 +152,7 @@ function RegisterMail() {
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large"
+                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
                     // prefix={
                     //     <Iconify icon="solar:lock-password-linear" className="icon-color" />
                     // }
@@ -160,7 +160,7 @@ function RegisterMail() {
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
                 <Form.Item name="referee" rules={[{ required: false }]}>
-                    <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large"
+                    <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large" className="mail-input"
                     // prefix={
                     //     <img src="/images/login/icon-inviter.png" alt="" style={{ width: "14px", height: "14px" }} />
                     // }

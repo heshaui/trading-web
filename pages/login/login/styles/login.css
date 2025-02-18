@@ -13,10 +13,11 @@
 }
 /* 聚焦时鼠标移出的样式 */
 /* .autoComplete-input.ant-select-focused:not(:hover) */
-.autoComplete-input .ant-select-selector:focus:not(:hover)
+.autoComplete-input .ant-select-selector:focus:not(:hover),
+.ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector
  {
     border-color: var(--text-color3) !important; 
-    box-shadow: 0 0 0 1px var(--text-color3) !important; 
+    box-shadow: none !important; 
 }
 
 
