@@ -10,7 +10,8 @@ export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${BASE_URL}${endpoint}`;
+  // const url = `${BASE_URL}${endpoint}`;
+  const url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
   console.log('请求 URL:', url);
   
   const defaultHeaders = {

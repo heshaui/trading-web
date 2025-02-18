@@ -14,6 +14,8 @@
 
 import { request } from '@/request/index';
 
+const homeMenuUrl = 'ambit-home-web';
+
 export function homeMenu(data: { lang: string }) {
   // 加密请求数据
   // const encryptedData = encryptWithPublicKey(JSON.stringify(data));
@@ -22,7 +24,7 @@ export function homeMenu(data: { lang: string }) {
   // }
 
   // 替换路径参数并发送请求
-  return request(`/home-web/v1/menu/selectHomeMenuJson/${data.lang}`, {
+  return request(`${homeMenuUrl}/home-web/v1/menu/selectHomeMenuJson/${data.lang}`, {
     method: 'POST',
     body: JSON.stringify(data), // 将加密后的数据作为请求体
   });
