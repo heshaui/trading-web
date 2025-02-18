@@ -11,6 +11,7 @@ export async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
+  console.log('请求 URL:', url);
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
