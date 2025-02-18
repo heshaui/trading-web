@@ -1,4 +1,4 @@
-const BASE_URL = process.env.VITE_APP_BASE_API || 'http://ljx.imbit.work/ambit-user-web';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE 
 
 /**
  * 通用请求封装
