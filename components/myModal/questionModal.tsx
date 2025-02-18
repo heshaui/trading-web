@@ -11,13 +11,13 @@ type Props = {
     open: boolean;
     acount: string|null;
     type:string|null;
-    onOk: (event: any) => void;
+    // onOk: (event: any) => void;
+    onOk: () => void;
     onCancel: () => void;
 };
 
 function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
     const router = useRouter();
-    const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [pointout, setPointout] = useState(false);
@@ -26,10 +26,7 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
     };
 
     const handOk = async () => {
-        form.validateFields()
-            .then((values) => {
-                onOk(values)
-            });
+        onOk()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
     const startCountdown = () => {
@@ -82,8 +79,8 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
             <ul>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                   {type==="email"&&(<>确保您的邮箱为<span>{acount?encryptEmail(acount):"-"}</span></>)} 
-                   {type==="phone"&&(<>确保您的手机为<span>{acount?encryptPhoneNumber(acount):"-"}</span></>)} 
+                   {type==="m"&&(<>确保您的邮箱为<span>{acount?encryptEmail(acount):"-"}</span></>)} 
+                   {type==="p"&&(<>确保您的手机为<span>{acount?encryptPhoneNumber(acount):"-"}</span></>)} 
                     </li>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />

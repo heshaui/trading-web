@@ -4,11 +4,14 @@ import { type CSSProperties, useEffect, useState } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
+import dayjs from 'dayjs';
 import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import QuestionModal from "@/components/myModal/questionModal";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { registerLogic } from "@/store/registerEnum";
 import { getRegister, getRegisterMailCode, getRegisterSmsCode } from "@/services/login";
+
+
 interface ApiResponse {
     code: number;
     message?: string;
@@ -21,6 +24,7 @@ function AuthCode() {
     const { loginState, backToLogin, setLoginState } = useLoginStateContext();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+    const [sentCodeFlag, setSentCodeFlag] = useState(true);
     const registerInfo = store.registerInfo;
 
     const [form] = Form.useForm();
@@ -66,7 +70,7 @@ function AuthCode() {
                         parentInviteCode: registerInfo.parentInviteCode || "",
                         code: values.code
                     };
-                    
+
                 } else if (registerInfo.type === 'p') {
                     dataInfo = {
                         type: registerInfo.type,
@@ -78,9 +82,13 @@ function AuthCode() {
                     };
                 }
                 console.log(dataInfo, 123);
-
+                const dataEncrypt = {
+                    data: encryptWithPublicKey(JSON.stringify(dataInfo)) || "",
+                    time: dayjs(new Date().getTime()).valueOf(),
+                    reqNo: dayjs(new Date().getTime()).valueOf()
+                }
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                //  const res=await getRegister({data:dataEncrypt});
+                const res = await getRegister(dataEncrypt);
                 // await registerLogic(dataEncrypt)
             })
             .catch((info) => {
@@ -89,34 +97,36 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        if (isCounting) return
+        if (isCounting||!sentCodeFlag) return
         try {
+            setSentCodeFlag(false)
             if (registerInfo.type === 'm') {
                 const dataInfo = {
-                    number: registerInfo.email||'',
+                    number: registerInfo.email || '',
                     // code: "",
                     deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterMailCode(dataInfo);
-                if(res.code === 600){
-                    toast.success("验证码发送成功")
+                if (res.code === "10044") {
+                    toast.success(res.message)
                     startCountdown();
                 }
             } else if (registerInfo.type === 'p') {
                 const dataInfo = {
                     number: registerInfo.phone,
-                    code: registerInfo.countryCode?.replace("+", "") ,
+                    code: registerInfo.countryCode?.replace("+", ""),
                     deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterSmsCode(dataInfo);
-                if(res.code === 600){
-                    toast.success("验证码发送成功")
+                if (res.code === "10044") {
+                    toast.success(res.message)
                     startCountdown();
                 }
             }
         } catch (error) {
+            setSentCodeFlag(false)
             console.error('获取验证码出错:', error);
         }
     };
@@ -137,6 +147,9 @@ function AuthCode() {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    const handCodeOk = async () => {
+        await getRegisterCode()
+    }
 
     // 当状态不为 Authcode 时不渲染组件
     if (loginState !== LoginStateEnum.Authcode) return null;
@@ -192,7 +205,11 @@ function AuthCode() {
                 </button>
             </div>
 
-            <QuestionModal open={pointout} onOk={() => setPointout(false)} type={"email"} acount={"acount"} onCancel={() => setPointout(false)} />
+            <QuestionModal open={pointout} onOk={handCodeOk} type={registerInfo.type}
+                acount={
+                    registerInfo.type === "m" ? (registerInfo.email || "") :
+                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                } onCancel={() => setPointout(false)} />
         </div>
     );
 }
