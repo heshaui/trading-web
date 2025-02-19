@@ -2,6 +2,8 @@
     border: none;
     height: 38px;
 }
+
+
 /* AutoComplete组件样式 */
 .autoComplete-input .ant-select-selection-search-input{
     height: 100% !important;
@@ -70,14 +72,6 @@
 }
 .custom-segmented{
     color: var(--textcolor);
-}
-/* segmented 选中标签样式及动画标签 */
-.custom-segmented .ant-segmented-item-selected,
-.custom-segmented .ant-segmented-thumb {
-    border-radius: 36px;
-    color: #fff;
-    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
-    background: var(--btncolor5)
 }
 
 /* Checkbox 选中样式 */

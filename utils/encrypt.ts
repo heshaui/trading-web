@@ -1,3 +1,6 @@
+import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
+import dayjs from 'dayjs';
+import { v4 as uuidv4 } from 'uuid';
 // 加密手机号的函数
 export function encryptPhoneNumber(phoneNumber?: string | null): string {
     if (!phoneNumber) return "-"
@@ -24,7 +27,7 @@ export function encryptString(input: string | null): string {
     // 邮箱正则表达式
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     // 手机号正则表达式（简单示例，仅匹配 11 位数字）
-    const phoneRegex = /^\d{11}$/;
+    const phoneRegex = /^\d{4,15}$/;
     if (emailRegex.test(input)) {
         return encryptEmail(input);
     } else if (phoneRegex.test(input)) {
@@ -32,4 +35,13 @@ export function encryptString(input: string | null): string {
     }
     // 如果既不是邮箱也不是手机号，原样返回
     return input;
+}
+export const encryptData=async (data:any)=>{
+    const dataInfo=await encryptWithPublicKey(JSON.stringify(data)) || ""
+    const dataEncrypt = {
+        data: dataInfo,
+        time: dayjs(new Date().getTime()).valueOf(),
+        reqNo: uuidv4()
+    }
+    return await dataEncrypt
 }

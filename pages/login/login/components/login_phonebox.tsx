@@ -10,8 +10,9 @@ import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";
 import { areaCodeSelectList } from "@/utils/country"; //地区代码
 import store from "@/store";
-import PhoneCodeSelector from "./PhoneCodeSelector"
+import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import SafeModal from "@/components/myModal/login_safeModal"
+import { useRouter } from 'next/router';
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -30,6 +31,7 @@ interface useInfoType {
 }
 
 function Phonebox() {
+	 const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -106,6 +108,9 @@ function Phonebox() {
         store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
         setLoginState(LoginStateEnum.Authcode)
     }
+	const goResetPassword = () => {
+        router.push('/resetPassword');
+    }
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
@@ -178,7 +183,7 @@ function Phonebox() {
 					</Form.Item>
 				)} */}
 				<Form.Item noStyle>
-					<button type="button" className="forgetPassword-button" >
+					<button type="button" className="forgetPassword-button" onClick={() => goResetPassword()}>
 						{"忘记密码"}
 					</button>
 				</Form.Item>

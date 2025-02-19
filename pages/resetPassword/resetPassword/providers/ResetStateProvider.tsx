@@ -12,19 +12,28 @@ export enum ResetStateEnum {
 	RESET = 2,
 }
 
+interface acountType {
+	type: string;
+	acount: string;
+	areaCode?: string
+}
 
 interface ResetStateContextType {
 	resetState: ResetStateEnum;
 	setResetState: (resetState: ResetStateEnum) => void;
-	acount: string ;
-    setAcount: (acount: string ) => void
+	acount: acountType;
+	setAcount: (acount: acountType) => void
 }
 
 const ResetStateContext = createContext<ResetStateContextType>({
 	resetState: ResetStateEnum.INPUT,
-	setResetState: () => {},
-	acount: '',
-    setAcount: () => {},
+	setResetState: () => { },
+	acount: {
+		type: "",
+		acount: "",
+		areaCode: ""
+	},
+	setAcount: () => { },
 });
 export function useResetStateContext() {
 	const context = useContext(ResetStateContext);
@@ -34,12 +43,16 @@ export function useResetStateContext() {
 
 export function ResetStateProvider({ children }: PropsWithChildren) {
 	const [resetState, setResetState] = useState(ResetStateEnum.INPUT);
-	const [acount, setAcount] = useState<string>('');
+	const [acount, setAcount] = useState<acountType>({
+		type: "",
+		acount: "",
+		areaCode: ""
+	});
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const value: ResetStateContextType = useMemo(
-		() => ({ resetState, setResetState,acount, setAcount}),
-		[resetState,acount],
+		() => ({ resetState, setResetState, acount, setAcount }),
+		[resetState, acount],
 	);
 
 	return (

@@ -8,10 +8,12 @@ import store from "@/store";
 import { useRouter } from 'next/router';
 import styles from "../style/reset.module.css"
 import ResetSuccessModal from "@/components/myModal/ressetSuccessModal"
+import { encryptData } from "@/utils/encrypt";
+import { getResetPassword } from "@/services/resetPassword"
 function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
-    const { resetState, setResetState } = useResetStateContext();
+    const { resetState, setResetState,acount } = useResetStateContext();
     const [authCode, setAuthCode] = useState('');
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -28,6 +30,34 @@ function ResetPassword() {
     }
     const goLast = () => {
         setResetState(ResetStateEnum.SENTCODE)
+    }
+    const  onSubmit=()=>{
+        form
+        .validateFields()
+        .then(async (values) => {
+            try {
+                const dataInfo = {
+                    type: acount.type,
+                    account: acount.acount,
+                    password: values.newPassword,
+                    passwordConfirm: values.checkPassword
+                }
+                const dataEncrypt = await encryptData(dataInfo)
+                const res=await getResetPassword(dataEncrypt)
+                if (res.code === '0') {
+                setResetSuccess(true)
+                    
+                }else{
+                    toast.error(res.message)
+                }
+                
+            } catch (error) {
+                toast.error(String(error))
+            }
+        })
+        .catch((info) => {
+            console.log("Validate Failed:", info);
+        });
     }
 
     return (
@@ -50,6 +80,7 @@ function ResetPassword() {
                     <Form.Item name="newPassword" rules={[{ required: true, message: "密码不能为空！" }]}>
                         <Input.Password
                             style={{ width: "100%" }}
+                            className='custom-input'
                             placeholder="请输入新密码"
                             allowClear
                             visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
@@ -71,6 +102,7 @@ function ResetPassword() {
                         ]}
                     >
                         <Input.Password
+                        className='custom-input'
                             placeholder="请确认密码"
                             allowClear
                             visibilityToggle={{ visible: verifyPasswordVisible, onVisibleChange: setverifyPasswordVisible }}
@@ -80,10 +112,10 @@ function ResetPassword() {
 
 
                 <div className='flex mt-10'>
-                    <Button
-                        className='goback-btn mr-4'
-                        onClick={() => goLast()}>返回</Button>
-                    <button type='button' className={`btn-color ${styles.next_btn} flex-1`} onClick={()=>setResetSuccess(true)}>确认</button>
+                    <button
+                        className={`${styles.goBack_btn} mr-4`}
+                        onClick={() => goLast()}>返回</button>
+                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={onSubmit}>确认</button>
                 </div>
             </div>
             <ResetSuccessModal open={resetSuccess} onOk={() => goNext()}  onCancel={()=>setResetSuccess(false)}/>

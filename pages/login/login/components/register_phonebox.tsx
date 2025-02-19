@@ -14,7 +14,7 @@ import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";;
 import store from "@/store";
-import PhoneCodeSelector from "./PhoneCodeSelector"
+import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",

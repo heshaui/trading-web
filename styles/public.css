@@ -12,6 +12,7 @@
   height: 50px;
 }
 
+
 /* 弹窗背景覆盖 */
 .modal_box  .ant-modal-content {
   background-color: var(--background5);
@@ -33,6 +34,38 @@
 .custom-input:hover{
     border-color: var(--text-color3);
 }
+/* AutoComplete组件样式 */
+.autoComplete-custom .ant-select-selection-search-input{
+  height: 100% !important;
+}
+.autoComplete-custom .ant-select-selector:hover
+/* .autoComplete-input:focus:not(:hover) */
+{
+  border-color: var(--text-color3) !important;
+}
+/* 聚焦时鼠标移出的样式 */
+.autoComplete-custom .ant-select-selector:focus:not(:hover),
+.ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector
+{
+  border-color: var(--text-color3) !important; 
+  box-shadow: none !important; 
+}
+
+/* segmented 选中标签样式及动画标签 */
+.custom-segmented .ant-segmented-item-selected,
+.custom-segmented .ant-segmented-thumb {
+    border-radius: 36px;
+    color: #fff;
+    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
+    background: var(--btncolor5)
+}
+.text-color {
+  color: var(--text-color3);
+}
+.text-color-disable {
+  color: var(--tip-color1)
+}
+
 
 .pointer {
   cursor: pointer;
