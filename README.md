@@ -7,6 +7,8 @@ TRADING-WEB/
 │   └── otc/             # OTC 模块
 ├── node_modules/        # 依赖模块
 ├── pages/               # Next.js 的页面入口
+│   ├── currencyTrading/ # 资金总览模块
+│   ├── bulletinCenter/  # 公共中心模块
 ├── public/              # 静态资源
 ├── styles/              # 全局样式
 ├── .env                 # 环境变量文件
