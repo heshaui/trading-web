@@ -9,7 +9,8 @@ import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import QuestionModal from "@/components/myModal/questionModal";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { registerLogic } from "@/store/registerEnum";
-import { getRegister, getRegisterMailCode, getRegisterSmsCode } from "@/services/login";
+import { getRegister, getRegisterMailCode, getRegisterSmsCode, } from "@/services/login";
+import RepeatModal from "@/components/myModal/register_repeatModal";
 
 
 interface ApiResponse {
@@ -25,6 +26,8 @@ function AuthCode() {
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [sentCodeFlag, setSentCodeFlag] = useState(true);
+    const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
+
     const registerInfo = store.registerInfo;
 
     const [form] = Form.useForm();
@@ -61,35 +64,44 @@ function AuthCode() {
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
                 console.log(values, 111);
-                let dataInfo = {};
-                if (registerInfo.type === 'm') {
-                    dataInfo = {
-                        type: registerInfo.type,
-                        email: registerInfo.email,
-                        password: registerInfo.password,
-                        parentInviteCode: registerInfo.parentInviteCode || "",
-                        code: values.code
-                    };
+                try {
 
-                } else if (registerInfo.type === 'p') {
-                    dataInfo = {
-                        type: registerInfo.type,
-                        phone: registerInfo.phone,
-                        password: registerInfo.password,
-                        parentInviteCode: registerInfo.parentInviteCode || "",
-                        countryCode: registerInfo.countryCode?.replace("+", ""),
-                        code: values.code
-                    };
+                    let dataInfo = {};
+                    if (registerInfo.type === 'm') {
+                        dataInfo = {
+                            type: registerInfo.type,
+                            email: registerInfo.email,
+                            password: registerInfo.password,
+                            parentInviteCode: registerInfo.parentInviteCode || "",
+                            code: values.code
+                        };
+
+                    } else if (registerInfo.type === 'p') {
+                        dataInfo = {
+                            type: registerInfo.type,
+                            phone: registerInfo.phone,
+                            password: registerInfo.password,
+                            parentInviteCode: registerInfo.parentInviteCode || "",
+                            countryCode: registerInfo.countryCode?.replace("+", ""),
+                            code: values.code
+                        };
+                    }
+                    console.log(dataInfo, 123);
+                    const dataEncrypt = {
+                        data: encryptWithPublicKey(JSON.stringify(dataInfo)) || "",
+                        time: dayjs(new Date().getTime()).valueOf(),
+                        reqNo: dayjs(new Date().getTime()).valueOf()
+                    }
+                    // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
+                    const res = await getRegister(dataEncrypt);
+                    if (res.code === '0') {
+                        setRepeatModalOPen(true)
+                        // toast.success("注册成功")
+                    }
+
+                } catch (error) {
+                    toast.error(String(error))
                 }
-                console.log(dataInfo, 123);
-                const dataEncrypt = {
-                    data: encryptWithPublicKey(JSON.stringify(dataInfo)) || "",
-                    time: dayjs(new Date().getTime()).valueOf(),
-                    reqNo: dayjs(new Date().getTime()).valueOf()
-                }
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                const res = await getRegister(dataEncrypt);
-                // await registerLogic(dataEncrypt)
             })
             .catch((info) => {
                 console.log("Validate Failed:", info);
@@ -97,7 +109,7 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        if (isCounting||!sentCodeFlag) return
+        if (isCounting) return
         try {
             setSentCodeFlag(false)
             if (registerInfo.type === 'm') {
@@ -108,21 +120,25 @@ function AuthCode() {
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterMailCode(dataInfo);
-                if (res.code === "10044") {
+                if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
+                } else if (res.code === "10044") {
+                    toast.error(res.message)
                 }
             } else if (registerInfo.type === 'p') {
                 const dataInfo = {
-                    number: registerInfo.phone,
+                    number: registerInfo.phone || '',
                     code: registerInfo.countryCode?.replace("+", ""),
                     deviceType: "web"
                 };
                 // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                 const res = await getRegisterSmsCode(dataInfo);
-                if (res.code === "10044") {
+                if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
+                } else if (res.code === "10044") {
+                    toast.error(res.message)
                 }
             }
         } catch (error) {
@@ -130,7 +146,9 @@ function AuthCode() {
             console.error('获取验证码出错:', error);
         }
     };
-
+    const handCancel = () => {
+        setRepeatModalOPen(false)
+    }
     const startCountdown = () => {
         setCountdown(60);
         setIsCounting(true);
@@ -148,6 +166,7 @@ function AuthCode() {
         return () => clearInterval(timer);
     };
     const handCodeOk = async () => {
+        setPointout(false)
         await getRegisterCode()
     }
 
@@ -174,6 +193,7 @@ function AuthCode() {
             >
                 <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
                     <Input
+                        allowClear
                         placeholder="邮箱/手机号验证"
                         // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         suffix={
@@ -205,11 +225,12 @@ function AuthCode() {
                 </button>
             </div>
 
-            <QuestionModal open={pointout} onOk={handCodeOk} type={registerInfo.type}
+            <QuestionModal open={pointout} type={registerInfo.type}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
-                } onCancel={() => setPointout(false)} />
+                } onOk={() => setPointout(false)} onCancel={handCodeOk} />
+            <RepeatModal open={repeatModalOPen} type='success' message='注册成功!' onCancel={handCancel} onOk={() => setLoginState(LoginStateEnum.LOGIN)} />
         </div>
     );
 }
