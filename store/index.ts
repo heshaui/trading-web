@@ -46,6 +46,12 @@ class AppStore {
     toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;
     }
+    setUserToken(token: string ) {
+        this.userToken = token;
+    }
+    clearUserToken() {
+        this.userToken = null;
+    }
 
     setAuthcodeState(state: string | number, type: string | number) {
         this.authcodeState = { state, type };

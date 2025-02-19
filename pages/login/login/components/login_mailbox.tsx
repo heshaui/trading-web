@@ -126,7 +126,7 @@ function Mailbox() {
                 console.log("Validate Failed:", info);
             });
         // form.resetFields(); //重置表单
-        setLoading(true);
+        // setLoading(true);
 
     }
     // const goAuthCode = () => {

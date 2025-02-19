@@ -8,10 +8,11 @@ import dayjs from 'dayjs';
 import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import QuestionModal from "@/components/myModal/questionModal";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
-import { registerLogic } from "@/store/registerEnum";
+// import { registerLogic } from "@/store/registerEnum";
 import { getRegister, getRegisterMailCode, getRegisterSmsCode, } from "@/services/login";
 import RepeatModal from "@/components/myModal/register_repeatModal";
-
+import { v4 as uuidv4 } from 'uuid';
+import { encryptData } from "@/utils/encrypt";
 
 interface ApiResponse {
     code: number;
@@ -86,17 +87,21 @@ function AuthCode() {
                             code: values.code
                         };
                     }
-                    console.log(dataInfo, 123);
-                    const dataEncrypt = {
-                        data: encryptWithPublicKey(JSON.stringify(dataInfo)) || "",
-                        time: dayjs(new Date().getTime()).valueOf(),
-                        reqNo: dayjs(new Date().getTime()).valueOf()
-                    }
+                    // console.log(dataInfo, 123);
+                    const data = await encryptWithPublicKey(JSON.stringify(dataInfo)) || ""
+                    // const dataEncrypt = {
+                    //     data: data,
+                    //     time: dayjs(new Date().getTime()).valueOf(),
+                    //     reqNo: uuidv4()
+                    // }
+                    const dataEncrypt = await encryptData(dataInfo)
                     // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                     const res = await getRegister(dataEncrypt);
                     if (res.code === '0') {
                         setRepeatModalOPen(true)
                         // toast.success("注册成功")
+                    } else {
+                        toast.error(res.message)
                     }
 
                 } catch (error) {
@@ -118,8 +123,8 @@ function AuthCode() {
                     // code: "",
                     deviceType: "web"
                 };
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                const res = await getRegisterMailCode(dataInfo);
+                const dataEncrypt = await encryptData(dataInfo)
+                const res = await getRegisterMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
@@ -132,8 +137,8 @@ function AuthCode() {
                     code: registerInfo.countryCode?.replace("+", ""),
                     deviceType: "web"
                 };
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                const res = await getRegisterSmsCode(dataInfo);
+                const dataEncrypt = await encryptData(dataInfo)
+                const res = await getRegisterSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();

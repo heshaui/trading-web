@@ -11,7 +11,8 @@ import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
 import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
-import dayjs from 'dayjs';
+import {encryptData} from "@/utils/encrypt";
+
 
 interface acountType {
     type: string,
@@ -39,6 +40,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [pointout, setPointout] = useState(false);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (open) {
             getLoginCode()
@@ -52,8 +54,8 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
         form.validateFields()
             .then(async (values) => {
                 // onOk()
+                setLoading(true);
                 try {
-                    const timeJS = dayjs(new Date().getTime()).valueOf()
                     let dataInfo = {};
                     if (acountInfo.type === 'm') {
                         dataInfo = {
@@ -63,7 +65,6 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                             password: acountInfo.password,
                             authCodeMail: values.code,
                         }
-                        console.log(dataInfo);
 
                     } else if (acountInfo.type === 'p') {
                         dataInfo = {
@@ -73,15 +74,18 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                             password: acountInfo.password,
                             authCodePhone: values.code,
                         }
-                        console.log(dataInfo);
                     }
-                    const dataEncrypt = {
-                        data: encryptWithPublicKey(JSON.stringify(dataInfo)) || "",
-                        time: timeJS,
-                        reqNo: timeJS
-                    }
+                    const dataEncrypt =await encryptData(dataInfo)
                     const res = await getLogin(dataEncrypt)
+                    if (res.code === "0") {
+                        toast.success(res.message)
+                        store.setUserToken(res.data.token)
+                        router.push('/')
+                    }
+                    setLoading(false);
+                    handCancel()
                 } catch (error) {
+                    setLoading(false);
                     toast.error(String(error))
                 }
             })
@@ -99,22 +103,8 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                     // code: "",
                     deviceType: "web"
                 };
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                const res = await getLoginMailCode(dataInfo);
-                if (res.code === "0") {
-                    toast.success(res.message)
-                    startCountdown();
-                } else if (res.code === "10044") {
-                    toast.error(res.message)
-                }
-            } else if (acountInfo.type === 'p') {
-                const dataInfo = {
-                    number: acountInfo.phone || '',
-                    code: acountInfo.countryCode?.replace("+", ""),
-                    deviceType: "web"
-                };
-                // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
-                const res = await getLoginSmsCode(dataInfo);
+                const dataEncrypt =await encryptData(dataInfo)
+                const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
@@ -122,6 +112,20 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                     toast.error(res.message)
                 }
 
+            } else if (acountInfo.type === 'p') {
+                const dataInfo = {
+                    number: acountInfo.phone || '',
+                    code: acountInfo.countryCode?.replace("+", ""),
+                    deviceType: "web"
+                };
+                const dataEncrypt =await encryptData(dataInfo)
+                const res = await getLoginSmsCode(dataEncrypt);
+                if (res.code === "0") {
+                    toast.success(res.message)
+                    startCountdown();
+                } else if (res.code === "10044") {
+                    toast.error(res.message)
+                }
             }
         } catch (error) {
             // setSentCodeFlag(false)
@@ -146,13 +150,20 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
 
         return (
             <div className="flex-col flex-ai-start mt-10 mb-3">
-                <button
-                    type="button"
+                {/* <button
+                    type="submit"
                     className={`${styles.modal_btn} btn-color`}
                     onClick={handOk}
                 >
                     确认
+                </button> */}
+                {!loading ? (<button type="submit" className={`${styles.modal_btn} btn-color`}
+                    onClick={handOk}>
+                    确认
+                </button>) : (<button type="button" className={`${styles.modal_btn} btn-color login-loading`}>
+                    确认
                 </button>
+                )}
                 <button
                     type="button"
                     className={`${styles.text_color} mt-5`}

@@ -4,6 +4,7 @@ import { type CSSProperties, useState, useRef } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
+
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
