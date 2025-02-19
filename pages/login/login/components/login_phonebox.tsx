@@ -11,6 +11,7 @@ import { areaCodeOptionList } from "@/utils/enum";
 import { areaCodeSelectList } from "@/utils/country"; //地区代码
 import store from "@/store";
 import PhoneCodeSelector from "./PhoneCodeSelector"
+import SafeModal from "@/components/myModal/login_safeModal"
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -20,7 +21,13 @@ const fromStyle: CSSProperties = {
 	maxWidth: "400px",
 	minWidth: "350px",
 };
-
+interface useInfoType {
+    type: string ;
+    phone: string ;
+    password: string ;
+    deviceType: string ;
+    authCodePhone: string ;
+}
 
 function Phonebox() {
 	const [loading, setLoading] = useState(false);
@@ -29,6 +36,13 @@ function Phonebox() {
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 	const { loginState, setLoginState } = useLoginStateContext();
 	const { loginType, setLoginType } = useLoginTypeContext();
+		const [loginInfo, setLoginInfo] = useState<useInfoType>({
+			type: "",
+			phone: "",
+			password: "",
+			deviceType: "",
+			authCodePhone: "",
+		});
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
 	// 当登录类型不为 PHONE 时不渲染组件
@@ -46,6 +60,9 @@ function Phonebox() {
 	const handOk = () => {
 		setCodeModelOpen(false);
 	};
+	const handCodeCancel = () => {
+        setCodeModelOpen(false)
+    }
 
 	const onFinish = async () => {
 		form
@@ -53,7 +70,17 @@ function Phonebox() {
 			.then(async (values) => {
 				// form.resetFields(); // 重置表单
 				console.log(values, 111);
-				goAuthCode()
+				// goAuthCode()
+				const data = {
+                    type: "p",
+                    phone: values.phoneNumber,
+                    deviceType: "web",
+                    password: values.password,
+                    authCodePhone: "",
+					countryCode:values.areaCode
+                }
+				setLoginInfo(data)
+                setCodeModelOpen(true)
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
@@ -161,14 +188,18 @@ function Phonebox() {
 					</Button>
 				</Form.Item> */}
 			</Form>
-			{!loading ? (<button type="submit"  className="w-full button-color login-button mt-8"
+			<button type="submit"  className="w-full button-color login-button mt-8"
+                onClick={onFinish}>
+                {"登录"}
+            </button>
+			{/* {!loading ? (<button type="submit"  className="w-full button-color login-button mt-8"
                 onClick={onFinish}>
                 {"登录"}
             </button>) : (<button type="button" className="w-full  mt-8 login-loading"
 				onClick={() => setLoading(false)} >
 				{"登录"}
 			</button>
-			)}
+			)} */}
 			{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5"
 				// onClick={()=>setLoginState(LoginStateEnum.Authcode)}
@@ -189,6 +220,10 @@ function Phonebox() {
 					</button>
 				</p>
 			</div>
+			<SafeModal open={codeModelOpen} 
+            acountInfo={loginInfo} 
+            onCancel={handCodeCancel} 
+             />
 		</div>
 	);
 }

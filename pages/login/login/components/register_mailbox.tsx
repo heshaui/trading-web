@@ -14,7 +14,6 @@ import type { TabsProps, AutoCompleteProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
-import RepeatModal from "@/components/myModal/register_repeatModal";
 
 
 const fromStyle: CSSProperties = {
@@ -32,7 +31,6 @@ function RegisterMail() {
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
-    const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const { setLoginState } = useLoginStateContext();
     const { registerType, setRegisterType } = useRegisterTypeContext();
     // const signIn = useSignIn();
@@ -118,9 +116,7 @@ function RegisterMail() {
         }
         return Promise.resolve();
     };
-    const handCancel = () => {
-        setRepeatModalOPen(false)
-    }
+
     return (
         <div className="flex-y-cc mt-7" >
             <Form
@@ -225,7 +221,6 @@ function RegisterMail() {
                     </button>
                 </p>
             </div>
-            <RepeatModal open={repeatModalOPen} acount={"12332@163.com"} onCancel={handCancel} onOk={() => setLoginState(LoginStateEnum.LOGIN)} />
 
         </div>
 

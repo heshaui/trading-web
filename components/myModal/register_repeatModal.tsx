@@ -5,17 +5,19 @@ import { Iconify } from "@/components/icon/index";
 import store from "@/store"
 import { useRouter } from 'next/router';
 import styles from "./style/repeatModal.module.css";
-import { encryptEmail ,encryptPhoneNumber} from "@/utils/encrypt";
-import {registerLogic} from "@/store/registerEnum"
+import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
+import { registerLogic } from "@/store/registerEnum"
 
 type Props = {
     open: boolean;
-    acount: string;
+    acount?: string;
+    message?: string;
+    type?: string;
     onOk: (event: any) => void;
     onCancel: () => void;
 };
 
-function RepeatModal({ open, onOk, acount,onCancel }: Props) {
+function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: Props) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
@@ -71,21 +73,24 @@ function RepeatModal({ open, onOk, acount,onCancel }: Props) {
 
     return (
         <Modal
-        open={open}
-        // title={}
-        centered
-        onCancel={handCancel}
-        footer={ModalFooter}
-        width={400}
-    >
-        <div className="flex-col flex-ai-center">
-            <img src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`}/>
-            <p className={`${styles.title} `}>
-            {acount} 账号已存在，
-            是否登录该账号？
-            </p>
-        </div>
-    </Modal>
+            open={open}
+            // title={}
+            centered
+            onCancel={handCancel}
+            footer={ModalFooter}
+            width={400}
+        >
+            <div className="flex-col flex-ai-center">
+                <img src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} />
+                {type == 'error' && <p className={`${styles.title} `}>
+                    {acount} 账号已存在，
+                    是否登录该账号？
+                </p>}
+                {type == 'success' && <p className={`${styles.title} `}>
+                    {message}
+                </p>}
+            </div>
+        </Modal>
     );
 }
 

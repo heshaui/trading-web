@@ -31,11 +31,11 @@ const fromStyle: CSSProperties = {
     minWidth: "350px",
 };
 interface useInfoType {
-    type: string | null;
-    email: string | null;
-    password: string | null;
-    deviceType: string | null;
-    authCodeMail: string | null;
+    type: string ;
+    email: string ;
+    password: string ;
+    deviceType: string ;
+    authCodeMail: string ;
 }
 
 function Mailbox() {
@@ -54,11 +54,11 @@ function Mailbox() {
     const [historyEmails, setHistoryEmails] = useState<string[]>([]);
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [loginInfo, setLoginInfo] = useState<useInfoType>({
-        type: null,
-        email: null,
-        password: null,
-        deviceType: null,
-        authCodeMail: null,
+        type: "",
+        email: "",
+        password: "",
+        deviceType: "",
+        authCodeMail: "",
     });
 
     useEffect(() => {
@@ -227,13 +227,17 @@ function Mailbox() {
                     </Button>
                 </Form.Item> */}
             </Form>
-            {!loading ? (<button type="submit" className="w-full button-color login-button mt-8"
+            <button type="submit" className="w-full button-color login-button mt-8"
+                onClick={handleFinish}>
+                {"登录"}
+            </button>
+            {/* {!loading ? (<button type="submit" className="w-full button-color login-button mt-8"
                 onClick={handleFinish}>
                 {"登录"}
             </button>) : (<button type="button" className="w-full  mt-8 login-loading" onClick={() => setLoading(false)}>
                 {"登录"}
             </button>
-            )}
+            )} */}
 
             {/* <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5"
@@ -254,7 +258,10 @@ function Mailbox() {
                 </p>
             </div>
             <ErrModal open={errModelOpen} errMsg={errMsg} onCancel={handCancel} />
-            <SafeModal open={codeModelOpen} acount={loginInfo.email} type={'email'} onCancel={handCodeCancel} onOk={handCodeOk} />
+            <SafeModal open={codeModelOpen} 
+            acountInfo={loginInfo} 
+            onCancel={handCodeCancel} 
+             />
 
         </div>
     );
