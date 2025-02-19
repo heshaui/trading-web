@@ -21,10 +21,6 @@ const nextConfig: NextConfig = {
           source: "/ambit-user-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
           destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
       },
-      {
-          source: "/ambit-home-web/:path*", // 匹配所有 /ambit-home-web/xxx 请求
-          destination: "http://ljx.imbit.work/ambit-home-web/:path*" // 代理到目标服务器
-      }
     ];
   },
   i18n, // 集成 i18n 配置
