@@ -16,7 +16,7 @@ export async function request<T>(
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getToken()}` // 获取 token（可选）
+    // 'Authorization': `Bearer ${getToken()}` // 获取 token（可选）
   };
 
   const config: RequestInit = {
