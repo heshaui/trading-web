@@ -8,20 +8,22 @@ export type MenuListItem = {
     title: string | ReactNode;
     widthSet?: IconName;
     // items: Array<{ key: React.Key; label: React.ReactNode }>;
+    linkHref?: string; // 跳转路径
     onClick?: () => void;
     items: Array<{
-        key: React.Key;
+        key: React.Key | string;
         label: React.ReactNode;
         type: menuType; // 使 type 可选，并允许更多类型
         children?: MenuListItem['items'];
     }>;
 }
-export type menuType = 'group' | 'item' | 'divider';
+export type menuType = 'group' | 'item' | 'divider' | string;
 export interface MenuItems extends MenuListItem['items'] { };
 export type Props = {
     menuList: MenuListItem;
     haveSubMenu?: React.Dispatch<React.SetStateAction<boolean>>;
     haveArrow?: boolean;
+    isCascading?: boolean;
 }
 export type LabelComponentProps = {
     src?: string;
@@ -47,7 +49,8 @@ export type LabelComponentProps = {
     isPositive?: boolean;
     isInput?: boolean;
     isLanguage?: boolean;
-    onInputChange?: (value: string) => void;  // 添加这一行
+    onInputChange?: (value: string) => void;  // 输入框
+    onClick?: () => void;  // 输入框
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {
