@@ -1,7 +1,8 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty } from 'antd';
-import MenuItem from './HomeMenuItems';
+import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
+import MenuItem from './HomeMenuItems'; // 顶部菜单
+import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
@@ -15,15 +16,13 @@ import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方
 
 // t - 多语言
 export default function HomeMenu({ t, test }: HomeMenuProps) {
-    // test - request
+    // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
     const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
+    const [adaptiveMenuData, setAdaptiveMenuData] = useState<MenuListItem[]>([]); // 用于 HomeMenuAdaptiveItems 的数据
     useEffect(() => {
         const getMenuData = async () => {
             try {
-                setLoading(true); // 开始加载
-
-                // 准备请求数据
                 const rawData = {
                     lang: 'zh_CN', // 语言参数
                 };
@@ -32,19 +31,22 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                 const response = await homeMenu(rawData) as { data: any[] };
                 if (response && response.data) {
                     console.log('菜单数据：', response.data);
-                    setMenus(formatMenus(response.data.slice(0, 6))); // 格式化并设置菜单数据，只取前六项
+                    setMenuData(response); // 存储原始请求数据
+
+                    // 为顶部菜单格式化数据
+                    setMenus(formatMenus(response.data.slice(0, 6)));
+
+                    // 为 HomeMenuAdaptiveItems 格式化数据
+                    setAdaptiveMenuData(formatAdaptiveMenus(response.data));
                 } else {
                     console.error('响应数据不包含有效的 data 属性');
-                    setMenus([]); // 设置为空数组或其他默认值
+                    setMenus([]);
+                    setAdaptiveMenuData([]);
                 }
-
-                // 设置菜单数据
-                setMenuData(response);
             } catch (error) {
                 console.error('获取菜单数据失败:', error);
                 setMenus([]);
-            } finally {
-                setLoading(false); // 结束加载
+                setAdaptiveMenuData([]);
             }
         };
 
@@ -104,6 +106,41 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                     //     }
                     // ]
                 }]
+            };
+        });
+    }
+
+    // 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
+    function formatAdaptiveMenus(menuData: any[]): MenuListItem[] {
+        return menuData.map(menu => {
+            return {
+                key: String(menu.id),
+                title: menu.menuName || menu.menuDescription, // 根据实际需求选择字段
+                linkHref: menu.accessPath,
+                items: (menu.children || []).length > 0
+                    ? menu.children.map((child: any) => ({
+                        key: String(child.id),
+                        type: 'item',
+                        label: (
+                            <MenuItemLabel
+                                src={child.iconUrlDay || "/images/home_menu/Avatar.png"}
+                                h5Text={child.menuName || child.menuDescription}
+                                spanText={child.menuViceName || ''}
+                            />
+                        )
+                    }))
+                    : [{
+                        key: String(menu.id),
+                        type: 'item',
+                        label: (
+                            <MenuItemLabel
+                                // src={menu.iconUrlDay || "/images/home_menu/Avatar.png"}
+                                src="/images/home_menu/Avatar.png"
+                                h5Text={menu.menuName || menu.menuDescription}
+                                spanText={menu.menuViceName || ''}
+                            />
+                        )
+                    }]
             };
         });
     }
@@ -1450,6 +1487,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             setLoading(false);
         }, 2000);
     };
+
     return (
         <div style={{ position: 'relative' }}>
             <div className={styles.container}>
@@ -1609,19 +1647,18 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             <Drawer
                 closable
                 destroyOnClose
-                title={<p>Loading Drawer</p>}
+                title={<p>菜单</p>}
                 placement="left"
                 open={open}
                 loading={loading}
                 onClose={() => setOpen(false)}
                 style={{ position: 'relative' }}
+                width={288}
             >
                 <Button type="primary" style={{ marginBottom: 16 }} onClick={showMenu}>
                     Reload
                 </Button>
-                <div>
-                    {listItems}
-                </div>
+                <MenuAdaptiveItem menuList={adaptiveMenuData} />
             </Drawer>
         </div>
     );

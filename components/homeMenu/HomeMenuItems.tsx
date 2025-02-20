@@ -78,7 +78,8 @@ const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, isCascadi
                     trigger={['click']}
                     key={menuList.key}
                     className={styles.menuList}
-                    overlayStyle={ isCascading ? { left: '100px', top: '80px', maxWidth: '364px', minWidth: '300px' }: { top: '80px', maxWidth: '364px', minWidth: '300px' } }
+                    overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}
+                    // overlayStyle={ isCascading ? { left: '100px', top: '80px', maxWidth: '364px', minWidth: '300px' }: { top: '80px', maxWidth: '364px', minWidth: '300px' } }
                 >
                     <a onClick={(e) => {
                         e.preventDefault();

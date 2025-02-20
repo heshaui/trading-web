@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/public.css";
+import '@/styles/homeMenuPublic.css'
 import type { AppProps } from "next/app";
 import { useState } from 'react';
 import { appWithTranslation, useTranslation } from 'next-i18next';
