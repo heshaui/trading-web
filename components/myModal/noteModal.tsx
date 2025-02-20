@@ -15,10 +15,6 @@ type Props = {
 function NoteModal({ open, onOk, onCancel }: Props) {
     const router = useRouter();
 
-    useEffect(() => {
-
-    }, []);
-
     const handCancel = () => {
         onCancel()
     };

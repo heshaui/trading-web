@@ -100,7 +100,8 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        getCountryCodeList()
+        
+        // getCountryCodeList()
     }, [])
     return (
         <Form.Item name="areaCode" noStyle>

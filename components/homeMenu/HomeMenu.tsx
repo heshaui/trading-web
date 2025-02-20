@@ -8,8 +8,10 @@ import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType } from '@/type/types';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import store from "@/store"
+import { useRouter } from 'next/router';
 
-// import { request } from '@/request/index'; // 引入封装的请求方法
+ // import { request } from '@/request/index'; // 引入封装的请求方法
 import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
@@ -18,6 +20,11 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     // test - request
     const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
     const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
+    const router = useRouter();
+    let token = null;
+    if (typeof window !== 'undefined') {
+        token = localStorage.getItem('userToken');
+    }
     useEffect(() => {
         const getMenuData = async () => {
             try {
@@ -53,7 +60,11 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     useEffect(() => {
         // 假设从本地存储或上下文中获取登录状态
         // const isLoggedIn = localStorage.getItem('isLogin') === 'false';
-        setIsLogin(true);
+        if(token){
+            setIsLogin(true);
+        }else {
+            setIsLogin(false);
+        }
     }, []);
     // 格式化菜单数据
     function formatMenus(menuData: any[]): MenuListItem[] {
@@ -118,6 +129,8 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         setIsLogin(false); // 更新登录状态为 false
         localStorage.setItem('isLogin', 'false'); // 可选：同步到本地存储
         console.log('退出登录成功');
+        store.clearUserToken()
+        router.push('/login');
     };
 
     const items = [
@@ -315,7 +328,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={handleLogout} />
+                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={()=> handleLogout()} />
             ),
         },
     ];

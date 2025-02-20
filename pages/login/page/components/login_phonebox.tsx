@@ -49,7 +49,6 @@ function Phonebox() {
 	const [form] = Form.useForm();
 	// 当登录类型不为 PHONE 时不渲染组件
 	// if (loginState !== LoginStateEnum.LOGIN) return null;
-	if (loginType !== LoginTypeEnum.PHONE) return null;
 
 	// 获取浏览器指纹
 	// const getFingerprint = async () => {
@@ -111,6 +110,13 @@ function Phonebox() {
 	const goResetPassword = () => {
         router.push('/resetPassword');
     }
+	 const goRegister = () => {
+	
+		// setLoginState(LoginStateEnum.REGISTER)
+		router.push("/register")
+	}
+	if (loginType !== LoginTypeEnum.PHONE) return null;
+
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
@@ -219,7 +225,7 @@ function Phonebox() {
 					<button
 						type="button"
 						className="text-color"
-						onClick={() => setLoginState(LoginStateEnum.REGISTER)}
+						onClick={() =>goRegister()}
 					>
 						{"注册"}
 					</button>

@@ -13,7 +13,7 @@ import Phonebox from "./components/register_phonebox"
 
 function RegisterForm() {
 	const { t } = useTranslation();
-	const { loginState, backToLogin } = useLoginStateContext();
+	const { loginState } = useLoginStateContext();
 	const formRef = React.useRef<FormInstance>(null); //  使用 ref 来存储 form 实例
 	const [countdown, setCountdown] = useState(0);
 	const [isCounting, setIsCounting] = useState(false);

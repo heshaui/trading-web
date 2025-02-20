@@ -9,7 +9,7 @@
   --background4: #0a0a0a;
   --background5: #ffffff;
   --foreground: #171717;
-  --homeground: #0a0a0a;
+  --homeground: #000000;
   --btnbgcolor: #FF5F1F;
   --btnbgcolor1: #FFAF8F;
   --btnbgcolor2: #1a1a1a;
@@ -44,7 +44,7 @@
     --background4: #0a0a0a;
     --background5: #29292F;
     --foreground: #ededed;
-    --homeground: #171717;
+    --homeground: #000000;
     --btnbgcolor: #FF5F1F;
     --btnbgcolor1: #FFAF8F;
     --btnbgcolor2: #1a1a1a;

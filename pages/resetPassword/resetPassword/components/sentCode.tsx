@@ -123,7 +123,7 @@ function ResetPassword() {
                             allowClear
                             size='large'
                             suffix={
-                                <button type='button' className={isCounting ? 'text-color-disable' : 'text-color'} onClick={getResetCode}>
+                                <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
                                     {isCounting ? `${countdown}s 重发` : "重新发送"}
                                 </button>
                             }

@@ -23,12 +23,12 @@ function AuthCode() {
 
     const { loginType, setLoginType } = useLoginTypeContext();
     const { registerType, setRegisterType } = useRegisterTypeContext();
-    const { loginState, backToLogin, setLoginState } = useLoginStateContext();
+    const { loginState, setLoginState } = useLoginStateContext();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [sentCodeFlag, setSentCodeFlag] = useState(true);
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
-
+    const [loading, setLoading] = useState(false);
     const registerInfo = store.registerInfo;
 
     const [form] = Form.useForm();
@@ -37,7 +37,7 @@ function AuthCode() {
 
 
     useEffect(() => {
-        if (loginState == LoginStateEnum.Authcode && !isCounting) {
+        if (loginState == LoginStateEnum.Authcode && !loading) {
             getRegisterCode();
         }
     }, [loginState]);
@@ -65,6 +65,7 @@ function AuthCode() {
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
                 console.log(values, 111);
+                setLoading(true);
                 try {
 
                     let dataInfo = {};
@@ -88,7 +89,7 @@ function AuthCode() {
                         };
                     }
                     // console.log(dataInfo, 123);
-                    const data = await encryptWithPublicKey(JSON.stringify(dataInfo)) || ""
+                    // const data = await encryptWithPublicKey(JSON.stringify(dataInfo)) || ""
                     // const dataEncrypt = {
                     //     data: data,
                     //     time: dayjs(new Date().getTime()).valueOf(),
@@ -103,8 +104,10 @@ function AuthCode() {
                     } else {
                         toast.error(res.message)
                     }
+                    setLoading(false);
 
                 } catch (error) {
+                    setLoading(false);
                     toast.error(String(error))
                 }
             })
@@ -114,7 +117,7 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        if (isCounting) return
+        if (isCounting&&loading) return
         try {
             setSentCodeFlag(false)
             if (registerInfo.type === 'm') {

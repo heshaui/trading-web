@@ -41,6 +41,9 @@
 .page-box {
     background-color: var(--background);
 }
+.custom-segmented{
+    color: var(--textcolor);
+}
 
 /* .login-button:hover ,.ant-btn:hover,.ant-btn-color-primary:hover{
     background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
@@ -70,9 +73,7 @@
     font-weight: 500;
 
 }
-.custom-segmented{
-    color: var(--textcolor);
-}
+
 
 /* Checkbox 选中样式 */
 .custom-checkbox:hover{

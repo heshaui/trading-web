@@ -28,18 +28,6 @@ function LoginForm() {
 	// const signIn = useSignIn();
 	const { loginType, setLoginType } = useLoginTypeContext();
 	// 当登录状态不为 LOGIN 时不渲染组件
-	if (loginState !== LoginStateEnum.LOGIN) return null;
-
-	// 获取浏览器指纹
-	// const getFingerprint = async () => {
-	// 	const result = await FingerprintJS.load();
-	// 	const visitorId = await result.get();
-	// 	console.log(visitorId.components.vendor);
-	// 	return visitorId.visitorId;
-	// };
-	// useEffect(() => {
-	// 	handOk()
-	// }, [])
 
 	const handCancel = () => {
 		setNoteModelOpen(false);
@@ -74,6 +62,8 @@ function LoginForm() {
 		}
 
 	};
+	if (loginState !== LoginStateEnum.LOGIN) return null;
+
 	return (
 		<div className="flex-col" style={{ height: "70vh" }}>
 			<div className="w-full mb-6"><p className="title-box">登录</p> </div>

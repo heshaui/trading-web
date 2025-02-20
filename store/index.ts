@@ -48,9 +48,11 @@ class AppStore {
     }
     setUserToken(token: string ) {
         this.userToken = token;
+        localStorage.setItem('userToken', token);
     }
     clearUserToken() {
         this.userToken = null;
+        localStorage.removeItem('userToken')
     }
 
     setAuthcodeState(state: string | number, type: string | number) {

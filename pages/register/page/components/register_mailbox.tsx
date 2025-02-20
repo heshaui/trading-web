@@ -1,6 +1,5 @@
 import { Button, Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
 import { type CSSProperties, useState, } from "react";
-import { useTranslation } from "react-i18next";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
@@ -14,7 +13,8 @@ import type { TabsProps, AutoCompleteProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
-
+import { useRouter } from 'next/router';
+// import {goLogin} from "@/store/loginEnum"
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -27,7 +27,7 @@ const fromStyle: CSSProperties = {
 
 
 function RegisterMail() {
-    const { t } = useTranslation();
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -60,7 +60,7 @@ function RegisterMail() {
                     type: "m",
                     email: values.email,
                     password: values.password,
-                    parentInviteCode:values.referee,
+                    parentInviteCode: values.referee,
                 }
                 store.updateRegisterInfo(data)
 
@@ -116,6 +116,10 @@ function RegisterMail() {
         }
         return Promise.resolve();
     };
+    const goLogin = () => {
+        // setLoginState(LoginStateEnum.LOGIN)
+        router.push("/login")
+    }
 
     return (
         <div className="flex-y-cc mt-7" >
@@ -133,11 +137,7 @@ function RegisterMail() {
                 <div className="mb-5 font-16 font-w-500">邮箱</div>
 
                 <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
-                    {/* <Input placeholder="请输入邮箱号" allowClear={true} size="large"
-                    prefix={<Iconify icon="clarity:email-line" className="icon-color" />}
-                    /> */}
                     <AutoComplete
-                        // style={{ width: 200 }}
                         onSearch={handleSearch}
                         placeholder="请输入邮箱号"
                         options={options}
@@ -149,37 +149,15 @@ function RegisterMail() {
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
                     <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
-                    // prefix={
-                    //     <Iconify icon="solar:lock-password-linear" className="icon-color" />
-                    // }
+
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
                 <Form.Item name="referee" rules={[{ required: false }]}>
                     <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large" className="mail-input"
-                    // prefix={
-                    //     <img src="/images/login/icon-inviter.png" alt="" style={{ width: "14px", height: "14px" }} />
-                    // }
                     />
                 </Form.Item>
-                {/* {preCheck && (
-					<Form.Item name="code" rules={[{ required: true, message: t("sys.codeErr") }]} style={{ marginBottom: 33 }}>
-						<div className="flex">
-							<Input placeholder={t("sys.code")} allowClear={true} />
-							<Button
-								type="default"
-								className="w-full"
-								style={{
-									marginLeft: 18,
-									width: "75%",
-								}}
-								onClick={() => setCodeModelOpen(true)}
-							>
-								{t("sys.getcode")}
-							</Button>
-						</div>
-					</Form.Item>
-				)} */}
+
                 <ConfigProvider
                     theme={{
                         token: {
@@ -188,15 +166,10 @@ function RegisterMail() {
                     }}
                 >
                     <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-                        <Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+                        <Checkbox className="custom-checkbox text-color-default">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
                     </Form.Item>
 
                 </ConfigProvider>
-                {/* <Form.Item>
-                    <Button type="primary" htmlType="submit" className="w-full button-color login-button" loading={loading}>
-                        {"登录"}
-                    </Button>
-                </Form.Item> */}
             </Form>
             <button type="submit" className="w-full button-color login-button mt-8"
                 onClick={handleFinish}>
@@ -215,7 +188,7 @@ function RegisterMail() {
                     <button
                         type="button"
                         className="text-color"
-                        onClick={() => setLoginState(LoginStateEnum.LOGIN)}
+                        onClick={goLogin}
                     >
                         {"登录"}
                     </button>

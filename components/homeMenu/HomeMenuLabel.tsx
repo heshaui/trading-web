@@ -42,6 +42,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                         className={styles.menuListA}
                         onClick={(e) => {
                             e.preventDefault(); // 阻止默认行为，即点击关闭下拉菜单
+                            onClick && onClick();
                         }}
                     >
                         {

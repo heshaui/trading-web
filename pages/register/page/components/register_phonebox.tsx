@@ -1,13 +1,7 @@
 import { Button, Form, Input, Select, Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
-// import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
-// import FingerprintJS from "@fingerprintjs/fingerprintjs";
-// import loginApi from "@/api/login/login";
-// import { getEmailCode, getSmsCode } from "@/api/login/register";
-// import CodeModel from "./components/codebutton";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps } from 'antd';
@@ -15,6 +9,8 @@ import { Iconify } from "@/components/icon/index";
 import { areaCodeOptionList } from "@/utils/enum";;
 import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
+import { useRouter } from 'next/router';
+// import {goLogin} from "@/store/loginEnum"
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -27,6 +23,7 @@ const fromStyle: CSSProperties = {
 
 function RegisterPhone() {
 	const { t } = useTranslation();
+	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
 	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
@@ -54,6 +51,10 @@ function RegisterPhone() {
 		console.log(type);
 		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 	};
+	const goLogin = () => {
+        // setLoginState(LoginStateEnum.LOGIN)
+        router.push("/login")
+    }
 
 	const onFinish = async () => {
 
@@ -178,7 +179,7 @@ function RegisterPhone() {
 					}}
 				>
 					<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-						<Checkbox className="custom-checkbox">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+						<Checkbox className="custom-checkbox  text-color-default">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
 					</Form.Item>
 				</ConfigProvider>
 			</Form>
@@ -203,7 +204,7 @@ function RegisterPhone() {
 					<button
 						type="button"
 						className="text-color"
-						onClick={() => setLoginState(LoginStateEnum.LOGIN)}
+						onClick={goLogin}
 					>
 						{"登录"}
 					</button>

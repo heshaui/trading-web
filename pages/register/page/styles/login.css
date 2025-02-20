@@ -1,0 +1,173 @@
+.login-button {
+    border: none;
+    height: 38px;
+}
+
+
+/* AutoComplete组件样式 */
+.autoComplete-input .ant-select-selection-search-input{
+    height: 100% !important;
+}
+.autoComplete-input .ant-select-selector:hover
+/* .autoComplete-input:focus:not(:hover) */
+{
+    border-color: var(--text-color3) !important;
+}
+/* 聚焦时鼠标移出的样式 */
+/* .autoComplete-input.ant-select-focused:not(:hover) */
+.autoComplete-input .ant-select-selector:focus:not(:hover),
+.ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector
+ {
+    border-color: var(--text-color3) !important; 
+    box-shadow: none !important; 
+}
+
+
+.login-loading {
+    border: none;
+    height: 38px;
+    border-radius: 36px;
+    background: var(--btncolor3);
+    color: var(--tip-color2);
+}
+
+.google-btn {
+    border-radius: 36px;
+    height: 38px;
+    color: var(--btncolor2);
+}
+
+.custom-segmented,
+.page-box {
+    background-color: var(--background);
+}
+
+/* .login-button:hover ,.ant-btn:hover,.ant-btn-color-primary:hover{
+    background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
+} */
+
+.forgetPassword-button {
+    border: none;
+    color: var(--text-color3) !important;
+    background-color: transparent;
+}
+
+.title-box {
+    width: 89px;
+    height: 36px;
+    font-size: 32px;
+    font-weight: 500;
+
+}
+
+.tabs-label {
+    width: 89px;
+    height: 36px;
+    padding: 4px;
+    border-radius: 36px;
+    /* color: var(--textcolor); */
+    font-size: 16px;
+    font-weight: 500;
+
+}
+.custom-segmented{
+    color: var(--textcolor);
+}
+
+/* Checkbox 选中样式 */
+.custom-checkbox:hover{
+    border-color: var(--text-color3)
+}
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+    border: none;
+    border-radius: 3px;
+    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
+    background: var(--btncolor5);
+}
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover{
+    border-color: var(--text-color3);
+    background: var(--btncolor5);
+}
+/* .ant-segmented-item-label */
+/* .custom-checkbox .ant-segmented-item:hover{
+    border-radius: 36px !important;
+    background-color: pink !important;
+} */
+
+
+.icon-color {
+    color: rgba(0, 0, 0, .25)
+}
+
+.tip-color1 {
+    color: var(--tip-color1)
+}
+
+.tip-color2 {
+    color: var(--tip-color2);
+
+}
+
+.text-color {
+    color: var(--text-color3);
+}
+.text-color-default {
+    color: var(--textcolor);
+}
+
+/* 自定义表单错误提示样式 */
+.ant-form-item-explain {
+    width: 100%;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 12px;
+}
+
+/* 调整输入框父元素的位置，确保有足够空间显示错误提示 */
+/* .ant-form-item {
+    position: relative;
+} */
+ .authcode-header{
+    font-size: 36px;
+ }
+.authcode-input {
+    width: 400px;
+    height: 50px;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    width: 275px;
+    height: 50px;
+    border-radius: 36px;
+    margin-left: 10px;
+}
+
+.goback-btn {
+    border-radius: 36px;
+    width: 115px;
+    height: 50px;
+    border: 1px solid var(--text-color4);
+    color: var(--btncolor2);
+}
+.icon-rotate {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+}
+/* 输入框组件覆盖 */
+.mail-input:focus,
+.mail-input:focus-within {
+   border-color: var(--text-color3) !important;
+   box-shadow: none;
+   /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
+}
+/* 鼠标聚焦且移出样式 */
+.mail-input:focus:not(:hover){
+    background-color: var(--homeground);
+    color: #fff;
+    box-shadow: none;
+}
+/* 鼠标滑过 */
+.mail-input:hover{
+    border-color: var(--text-color3);
+}

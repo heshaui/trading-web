@@ -35,7 +35,7 @@ export enum RegisterTypeEnum {
 interface LoginStateContextType {
 	loginState: LoginStateEnum;
 	setLoginState: (loginState: LoginStateEnum) => void;
-	backToLogin: () => void;
+	// backToLogin: () => void;
 }
 interface LoginTypeContextType {
 	loginType: LoginTypeEnum;
@@ -50,9 +50,9 @@ interface RegisterTypeContextType {
 
 
 const LoginStateContext = createContext<LoginStateContextType>({
-	loginState: LoginStateEnum.LOGIN,
+	loginState: LoginStateEnum.REGISTER,
 	setLoginState: () => {},
-	backToLogin: () => {},
+	// backToLogin: () => {},
 });
 const LoginTypeContext = createContext<LoginTypeContextType>({
 	loginType: LoginTypeEnum.EMAIL,
@@ -79,16 +79,16 @@ export function useRegisterTypeContext() {
 }
 
 export function LoginStateProvider({ children }: PropsWithChildren) {
-	const [loginState, setLoginState] = useState(LoginStateEnum.LOGIN);
+	const [loginState, setLoginState] = useState(LoginStateEnum.REGISTER);
 
-	function backToLogin() {
-		setLoginState(LoginStateEnum.LOGIN);
+	// function backToLogin() {
+	// 	setLoginState(LoginStateEnum.LOGIN);
 
-	}
+	// }
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const value: LoginStateContextType = useMemo(
-		() => ({ loginState, setLoginState, backToLogin }),
+		() => ({ loginState, setLoginState }),
 		[loginState],
 	);
 

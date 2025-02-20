@@ -12,6 +12,7 @@
     /* align-items: center; */
     justify-content: space-between;
     padding: 8% 0;
+    overflow: hidden;
 }
 
 .experience_main-box {
@@ -32,21 +33,21 @@
 }
 
 /* 输入框组件覆盖 */
- .custom-input:focus,
- .custom-input:focus-within {
+ .custom-input-home:focus,
+ .custom-input-home:focus-within {
     border-color: #fff;
     box-shadow: 0 0 0 2px #fff;
 }
 /* 鼠标聚焦且移出样式 */
-.custom-input:focus:not(:hover){
+.custom-input-home:focus:not(:hover){
     background-color: var(--homeground);
     color: #fff;
 }
 /* 鼠标滑过 */
-.custom-input:hover{
+.custom-input-home:hover{
     border-color: #fff;
 }
-.custom-input {
+.custom-input-home {
     width: 361px;
     height: 49px;
     border-radius: 45px;
@@ -55,10 +56,10 @@
     color: #fff;
     text-indent: 1em;
 }
-.custom-input:hover{
+.custom-input-home:hover{
     background-color: var(--homeground);
 }
-.custom-input::placeholder{
+.custom-input-home::placeholder{
     color:var(--btncolor1);
 }
 /* 按钮组件覆盖 */

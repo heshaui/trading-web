@@ -1,13 +1,16 @@
 import { Layout } from "antd";
 import { Navigate } from "react-router";
 import type { CSSProperties } from "react";
+import { useEffect } from "react";
 import appStore from '@/store';
+import store from "@/store"
 import LoginForm from "./LoginForm";
-import RegisterForm from "./RegisterForm";
-import { LoginStateProvider, LoginTypeProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
+// import RegisterForm from "./RegisterForm";
+import { LoginStateProvider, LoginTypeProvider } from "./providers/LoginStateProvider";
+import { useRouter } from 'next/router';
 import "./styles/login.css"
-import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
-import GoogleAuthcode from "./components/authCode_google";
+// import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
+// import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
@@ -20,13 +23,28 @@ const loginBgcStyle: CSSProperties = {
 	// width: "100%"
 };
 function Login() {
+	const router = useRouter();
 	// const { t } = useTranslation();
-	const token = appStore.userToken;
-	// 判断用户是否有权限/登录
-	if (token) {
-		// 如果有授权，则跳转到首页
-		return <Navigate to={HOMEPAGE} replace />;
-	}
+	// const token = appStore.userToken;
+	// const token=localStorage.getItem('userToken')
+	// // 如果有授权，则跳转到首页
+	// if (token) {
+	// 	router.push('/')
+	// }
+	let token = null;
+
+    // // 判断是否为浏览器环境
+    if (typeof window !== 'undefined') {
+        token = localStorage.getItem('userToken');
+    }
+
+    // 如果有授权，则跳转到首页
+    useEffect(() => {
+        if (token) {
+            router.push('/');
+        }
+    }, [token, router]);
+
 
 	return (
 		<Layout className="relative flex h-overmax w-full flex-row page-box" >
@@ -39,17 +57,14 @@ function Login() {
 
 			<div className="m-auto flex flex-ai-center w-full flex-col justify-center flex-1 position-relative">
 				<div style={{ width: "368px" }}>
-					<LoginStateProvider>
+					{/* <LoginStateProvider> */}
 						{/* 登录注册切换 */}
 						<LoginTypeProvider>
 							<LoginForm />
 						</LoginTypeProvider>
-						<RegisterTypeProvider>
-							<RegisterForm />
-						</RegisterTypeProvider>
-						<PhoneEmailAuthcode />
-						<GoogleAuthcode />
-					</LoginStateProvider>
+						{/* <PhoneEmailAuthcode /> */}
+						{/* <GoogleAuthcode /> */}
+					{/* </LoginStateProvider> */}
 				</div>
 			</div>
 		</Layout>

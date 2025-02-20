@@ -62,7 +62,6 @@ function Mailbox() {
     });
 
     useEffect(() => {
-        console.log(1234);
         const storedEmails = localStorage.getItem('emailHistory');
         if (storedEmails) {
             setHistoryEmails(JSON.parse(storedEmails));
@@ -168,6 +167,11 @@ function Mailbox() {
     const goResetPassword = () => {
         router.push('/resetPassword');
     }
+    const goRegister = () => {
+	
+		// setLoginState(LoginStateEnum.REGISTER)
+		router.push("/register")
+	}
     // 当登录状态不为 LOGIN 时不渲染组件;
     if (loginType !== LoginTypeEnum.EMAIL) return null;
     return (
@@ -251,7 +255,7 @@ function Mailbox() {
                     <button
                         type="button"
                         className="text-color"
-                        onClick={() => setLoginState(LoginStateEnum.REGISTER)}
+                        onClick={() =>goRegister()}
                     >
                         {"注册"}
                     </button>

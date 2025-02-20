@@ -36,7 +36,7 @@ export default function Experience() {
                         </div>
                     </div>
                     <div className='pic-box position-relative' >
-                        <img className='' src="/images/home/rectangle2.png" alt="" />
+                        <img className='pic' src="/images/home/rectangle2.png" alt="" />
                         <div className='text-icon flex-col flex-jc-between'>
                             <div className='text-right title-box'>
                                 <p className='font-22 font-w-500'>重塑系统</p>
@@ -46,7 +46,7 @@ export default function Experience() {
                         </div>
                     </div>
                     <div className='pic-box position-relative' >
-                        <img className='' src="/images/home/rectangle3.png" alt="" />
+                        <img className='pic' src="/images/home/rectangle3.png" alt="" />
                         <div className='text-icon flex-col flex-jc-between'>
                             <div className='text-right title-box'>
                                 <p className='font-22 font-w-500'>单板滑雪运动员斯科特·詹姆斯练</p>

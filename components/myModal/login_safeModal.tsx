@@ -42,7 +42,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (open) {
+        if (open&&!isCounting) {
             getLoginCode()
         }
     }, [open])
@@ -94,7 +94,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
             });
     };
     const getLoginCode = async () => {
-        if (isCounting) return
+        if (isCounting&&loading) return
         try {
             // setSentCodeFlag(false)
             if (acountInfo.type === 'm') {
@@ -129,7 +129,9 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
             }
         } catch (error) {
             // setSentCodeFlag(false)
+            toast.error(String(error))
             console.error('获取验证码出错:', error);
+
         }
     }
     const startCountdown = () => {
