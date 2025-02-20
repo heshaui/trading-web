@@ -102,7 +102,9 @@
 .tip-color1 {
     color: var(--tip-color1)
 }
-
+.tip-color1-input{
+color: #6D6F7A;
+}
 .tip-color2 {
     color: var(--tip-color2);
 
