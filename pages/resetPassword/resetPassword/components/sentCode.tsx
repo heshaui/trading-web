@@ -59,7 +59,7 @@ function ResetPassword() {
         setResetState(ResetStateEnum.INPUT)
     }
     const getResetCode = async () => {
-        if (isCounting&&isLoding) return
+        if (isCounting||isLoding) return
         if (acount.type == 'm' || acount.type == 'email') {
             const dataInfo = {
                 number: acount.acount,

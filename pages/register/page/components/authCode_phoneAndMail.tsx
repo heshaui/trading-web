@@ -26,7 +26,7 @@ function AuthCode() {
     const { loginState, setLoginState } = useLoginStateContext();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
-    const [sentCodeFlag, setSentCodeFlag] = useState(true);
+    const [sentCodeFlag, setSentCodeFlag] = useState(false);
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const [loading, setLoading] = useState(false);
     const registerInfo = store.registerInfo;
@@ -37,7 +37,8 @@ function AuthCode() {
 
 
     useEffect(() => {
-        if (loginState == LoginStateEnum.Authcode && !loading) {
+        // if (loginState == LoginStateEnum.Authcode && !loading&&!isCounting) {
+            if (loginState == LoginStateEnum.Authcode ) {
             getRegisterCode();
         }
     }, [loginState]);
@@ -117,9 +118,9 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        if (isCounting&&loading) return
+        if (isCounting||loading||sentCodeFlag) return
         try {
-            setSentCodeFlag(false)
+            setSentCodeFlag(true)
             if (registerInfo.type === 'm') {
                 const dataInfo = {
                     number: registerInfo.email || '',
@@ -134,6 +135,7 @@ function AuthCode() {
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
+                setSentCodeFlag(false)
             } else if (registerInfo.type === 'p') {
                 const dataInfo = {
                     number: registerInfo.phone || '',
@@ -148,6 +150,7 @@ function AuthCode() {
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
+                setSentCodeFlag(false)
             }
         } catch (error) {
             setSentCodeFlag(false)
@@ -205,7 +208,7 @@ function AuthCode() {
                         placeholder="邮箱/手机号验证"
                         // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         suffix={
-                            <button type='button' className={isCounting ? 'tip-color1' : 'text-color'} onClick={getRegisterCode}>
+                            <button type='button' className={isCounting ? 'tip-color1-input' : 'text-color'} onClick={getRegisterCode}>
                                 {isCounting ? `${countdown}s 重发` : "重新发送"}
                             </button>
                         }

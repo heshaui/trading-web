@@ -41,8 +41,10 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
     const [isCounting, setIsCounting] = useState(false);
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [codeLoading, setCodeLoading] = useState(false);
     useEffect(() => {
-        if (open&&!isCounting) {
+        if (open&&!isCounting&&!loading) {
+            // if (open) {
             getLoginCode()
         }
     }, [open])
@@ -94,7 +96,8 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
             });
     };
     const getLoginCode = async () => {
-        if (isCounting&&loading) return
+        if (isCounting||loading||codeLoading) return
+        setCodeLoading(true)
         try {
             // setSentCodeFlag(false)
             if (acountInfo.type === 'm') {
@@ -111,7 +114,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
-
+                setCodeLoading(false)
             } else if (acountInfo.type === 'p') {
                 const dataInfo = {
                     number: acountInfo.phone || '',
@@ -126,9 +129,10 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
+                setCodeLoading(false)
             }
         } catch (error) {
-            // setSentCodeFlag(false)
+            setCodeLoading(false)
             toast.error(String(error))
             console.error('获取验证码出错:', error);
 
