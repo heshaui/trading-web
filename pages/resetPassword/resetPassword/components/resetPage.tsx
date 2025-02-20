@@ -31,6 +31,10 @@ function ResetPassword() {
     const goLast = () => {
         setResetState(ResetStateEnum.SENTCODE)
     }
+    const handCancel = () => {
+        setResetSuccess(false)
+        setResetState(ResetStateEnum.INPUT)
+    }
     const  onSubmit=()=>{
         form
         .validateFields()
@@ -118,7 +122,7 @@ function ResetPassword() {
                     <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={onSubmit}>确认</button>
                 </div>
             </div>
-            <ResetSuccessModal open={resetSuccess} onOk={() => goNext()}  onCancel={()=>setResetSuccess(false)}/>
+            <ResetSuccessModal open={resetSuccess} onOk={() => goNext()}  onCancel={()=>handCancel()}/>
         </div>
     );
 }

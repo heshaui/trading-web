@@ -54,6 +54,7 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
             onCancel={handCancel}
             footer={ModalFooter}
             width={400}
+            className={`${styles.modal_box} `}
         >
             <div className="flex-col flex-ai-center">
                 <img src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`}/>

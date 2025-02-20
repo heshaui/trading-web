@@ -18,9 +18,10 @@ function ResetPassword() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+    const [isLoding, setIsLoding] = useState(false);
 
     useEffect(() => {
-        if (resetState == ResetStateEnum.SENTCODE) {
+        if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
             getResetCode()
         }
     }, [resetState])
@@ -29,6 +30,7 @@ function ResetPassword() {
         form
             .validateFields()
             .then(async (values) => {
+                setIsLoding(true)
                 try {
                     const dataInfo = {
                         type: acount.type,
@@ -42,7 +44,9 @@ function ResetPassword() {
                     } else {
                         toast.error(res.message)
                     }
+                    setIsLoding(false)
                 } catch (error) {
+                    setIsLoding(false)
                     toast.error(String(error))
                 }
             })
@@ -55,7 +59,7 @@ function ResetPassword() {
         setResetState(ResetStateEnum.INPUT)
     }
     const getResetCode = async () => {
-        if (isCounting) return
+        if (isCounting&&isLoding) return
         if (acount.type == 'm' || acount.type == 'email') {
             const dataInfo = {
                 number: acount.acount,
