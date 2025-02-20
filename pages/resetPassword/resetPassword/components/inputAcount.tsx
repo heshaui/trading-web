@@ -65,7 +65,9 @@ function ResetPassword() {
                         acount: values.acountNumber,
                         areaCode: values.areaCode
                     }
+                    
                 }
+
                 setAcount(data)
                 setResetState(ResetStateEnum.SENTCODE)
 
