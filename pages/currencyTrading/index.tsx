@@ -6,6 +6,8 @@ import {
     // PieChartOutlined,
 } from '@ant-design/icons';
 import React, { useState } from 'react';
+import Image from 'next/image';
+
 import FundingOverview from "./components/FundingOverview"
 import styles from './styles/currencyTrading.module.css';
 
@@ -34,7 +36,13 @@ export default function CurrencyTrading() {
         {
             key: '1',
             // icon: <PieChartOutlined />,
-            icon: <img style={{ width: '18px', height: '18px' }} src='/images/currency_trading/icon-General view-gray.png' />,
+            // icon: <img style={{ width: '18px', height: '18px' }} src='/images/currency_trading/icon-General view-gray.png' />,
+            icon: <Image
+                src="/images/currency_trading/icon-General view-gray.png"
+                alt=""
+                width={18}
+                height={18}
+            />,
             label: '资金总览',
         },
         {
@@ -108,7 +116,7 @@ export default function CurrencyTrading() {
                         console.log('key', info.key);
                     }}
                 />
-                <FundingOverview title={ title } />
+                <FundingOverview title={title} />
             </div>
         </ConfigProvider>
     )

@@ -1,9 +1,11 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/type/types';
-import { ConfigProvider, Input, Menu} from 'antd';
+import { ConfigProvider, Input, Menu } from 'antd';
+import { MenuProps } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src,
@@ -20,7 +22,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     isInput = false,
     // isLanguage = false,
     onInputChange,
-    onClick, // 添加 onClick 属性
+    onClickLogout, // 添加 onClick 属性
     nickName,
     level,
     myWords_1,
@@ -38,7 +40,13 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                         <div className={styles.otherBox}>
                             <h5>{h5Text}</h5>
                             <div className={styles.imgBox}>
-                                <img src={src} />
+                                {/* <img src={src} /> */}
+                                <Image
+                                    src={src}
+                                    alt=""
+                                    width={100}
+                                    height={100}
+                                />
                             </div>
                         </div>
                     </a>
@@ -47,7 +55,8 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                         className={styles.menuListA}
                         onClick={(e) => {
                             e.preventDefault(); // 阻止默认行为，即点击关闭下拉菜单
-                            onClick && onClick();
+                            // onClickLogout && onClickLogout();
+                            onClickLogout?.();
                         }}
                     >
                         {
@@ -66,7 +75,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                 isUserList ? (
                                     <Menu
                                         mode="inline"
-                                        items={items}
+                                        items={items as MenuProps['items']}
                                         style={{ width: '226px', marginLeft: '-10px' }}
                                     />
                                 ) : (
@@ -101,7 +110,13 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     level ? (
                                                         <div className={styles.levelAndIcon}>
                                                             <div className={styles.menuListItemIcon}>
-                                                                <img src={src} alt="icon" />
+                                                                {/* <img src={src} alt="icon" /> */}
+                                                                <Image
+                                                                    src={src}
+                                                                    alt=""
+                                                                    width={28}
+                                                                    height={28}
+                                                                />
                                                             </div>
                                                             <div className={styles.menuListItemlevel} style={{}}>
                                                                 <span style={{ color: '#FFFFFF' }}>{level}</span>
@@ -110,7 +125,13 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     ) : (
                                                         src ? (
                                                             <div className={`${styles.menuListItemIcon} ${styles.menuListItemIconMargin}`}>
-                                                                <img src={src} alt="icon" />
+                                                                {/* <img src={src} alt="icon" /> */}
+                                                                <Image
+                                                                    src={src}
+                                                                    alt=""
+                                                                    width={28}
+                                                                    height={28}
+                                                                />
                                                             </div>
                                                         ) : (null)
                                                     )
