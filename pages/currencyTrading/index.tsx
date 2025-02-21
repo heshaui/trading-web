@@ -3,7 +3,7 @@ import {
     ContainerOutlined,
     DesktopOutlined,
     MailOutlined,
-    PieChartOutlined,
+    // PieChartOutlined,
 } from '@ant-design/icons';
 import React, { useState } from 'react';
 import FundingOverview from "./components/FundingOverview"

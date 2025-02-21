@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Modal, Form, Input } from "antd";
-import {  useState, useEffect } from "react"; //type CSSProperties,
+import {  useState, useEffect ,useCallback} from "react"; //type CSSProperties,
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 import store from "@/store"
@@ -103,12 +104,15 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     // code: "",
                     deviceType: "web"
                 };
+                
                 const dataEncrypt =await encryptData(dataInfo)
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
-                } else if (res.code === "10044") {
+                } else  if (res.code === "10044") {
+                    toast.error('验证码还在有效期内')
+                }else{
                     toast.error(res.message)
                 }
                 setCodeLoading(false)
@@ -136,7 +140,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             console.error('获取验证码出错:', error);
 
         }
-    }
+    };
     const startCountdown = () => {
         setCountdown(60);
         setIsCounting(true);
@@ -151,10 +155,12 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             });
         }, 1000);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // const getCode = async () => {
+        
+    //     await getLoginCode()
+    // }
     useEffect(() => {
         if (open) {
-            // if (open) {
             getLoginCode()
         }
     }, [open])

@@ -1,13 +1,15 @@
-import { ConfigProvider, Dropdown, Space, message } from 'antd';
+// import { ConfigProvider, Dropdown, Space, message } from 'antd';
+import { Dropdown, Space } from 'antd';
 import type { MenuProps } from 'antd';
 // import { DownOutlined } from '@ant-design/icons';
 import styles from '@/styles/components/HomeMenu.module.css';
 // import { MenuListItem } from '@/type/types';
-import { Props, MenuListItem, IconName } from '@/type/types';
-import Link from 'next/link';
+// import { Props, MenuListItem, IconName } from '@/type/types';
+import { Props, IconName } from '@/type/types';
+// import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-const MenuItem: React.FC<Props> = ({ menuList, haveSubMenu, haveArrow, isCascading=false }) => {
+const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
     const hasChildren = menuList.items.some(item => {
         return item.children && item.children.length > 0;
     })

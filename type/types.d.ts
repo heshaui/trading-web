@@ -50,7 +50,12 @@ export type LabelComponentProps = {
     isInput?: boolean;
     isLanguage?: boolean;
     onInputChange?: (value: string) => void;  // 输入框
-    onClick?: () => void;  // 输入框
+    onClick?: () => void;  // 点击
+    nickName?: string; // 我的 - 昵称
+    level?: string; // 我的 - 等级
+    myWords_1?: string; // 我的 - 交易量
+    myWords_2?: string; // 我的 - 具体交易量
+    myWords_3?: string; // 我的 - 交易量币种
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {

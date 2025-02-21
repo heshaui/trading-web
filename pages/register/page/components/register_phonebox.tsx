@@ -75,7 +75,7 @@ function RegisterPhone() {
     }
 
 	// 自定义密码验证规则
-	const validatePassword = (_: any, value: any) => {
+	const validatePassword = ( value:any) => {
 		if (!value) {
 			return Promise.reject(new Error("密码不能为空！"));
 		}

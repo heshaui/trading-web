@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Input, Form } from 'antd';
-import { useEffect, useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
@@ -13,6 +14,7 @@ import { getRegister, getRegisterMailCode, getRegisterSmsCode, } from "@/service
 import RepeatModal from "@/components/myModal/register_repeatModal";
 // import { v4 as uuidv4 } from 'uuid';
 import { encryptData } from "@/utils/encrypt";
+import { useRouter } from 'next/router';
 
 // interface ApiResponse {
 //     code: number;
@@ -29,21 +31,12 @@ function AuthCode() {
     const [sentCodeFlag, setSentCodeFlag] = useState(false);
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const [loading, setLoading] = useState(false);
+    const [requestMsg, setRequestMsg] = useState('注册成功!'); //'success' 
+    const [toastType, setToastType] = useState('success' ); 
     const registerInfo = store.registerInfo;
 
     const [form] = Form.useForm();
-
-
-
-
-    useEffect(() => {
-        // if (loginState == LoginStateEnum.Authcode && !loading&&!isCounting) {
-        if (loginState == LoginStateEnum.Authcode) {
-            getRegisterCode();
-        }
-    }, [loginState]);
-
-
+    const router=useRouter()
 
     const goBackPage = () => {
         const authcodeState = store.authcodeState;
@@ -100,9 +93,17 @@ function AuthCode() {
                     // const dataEncrypt = encryptWithPublicKey(JSON.stringify(dataInfo))
                     const res = await getRegister(dataEncrypt);
                     if (res.code === '0') {
+                        setRequestMsg(res.message)
+                        setToastType('success')
                         setRepeatModalOPen(true)
+                        
                         // toast.success("注册成功")
-                    } else {
+                    } else if (res.code === '10043') {
+                        setRequestMsg(res.message)
+                        setToastType('error')
+                        setRepeatModalOPen(true)
+                    }
+                    else {
                         toast.error(res.message)
                     }
                     setLoading(false);
@@ -117,6 +118,9 @@ function AuthCode() {
             });
     };
 
+    // const getCode = useCallback(async () => {
+    //     await getRegisterCode()
+    // }, [])
     const getRegisterCode = async () => {
         if (isCounting || loading || sentCodeFlag) return
         try {
@@ -156,7 +160,7 @@ function AuthCode() {
             setSentCodeFlag(false)
             console.error('获取验证码出错:', error);
         }
-    };
+    }
     const handCancel = () => {
         setRepeatModalOPen(false)
     }
@@ -180,7 +184,16 @@ function AuthCode() {
         setPointout(false)
         await getRegisterCode()
     }
-
+    const goLoginPage=()=>{
+        // setLoginState(LoginStateEnum.LOGIN)
+        router.push('/login')
+    }
+    useEffect(() => {
+        // if (loginState == LoginStateEnum.Authcode && !loading&&!isCounting) {
+        if (loginState == LoginStateEnum.Authcode) {
+            getRegisterCode();
+        }
+    }, [loginState]);
     // 当状态不为 Authcode 时不渲染组件
     if (loginState !== LoginStateEnum.Authcode) return null;
 
@@ -241,7 +254,15 @@ function AuthCode() {
                     registerInfo.type === "m" ? (registerInfo.email || "") :
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 } onOk={() => setPointout(false)} onCancel={handCodeOk} />
-            <RepeatModal open={repeatModalOPen} type='success' message='注册成功!' onCancel={handCancel} onOk={() => setLoginState(LoginStateEnum.LOGIN)} />
+            <RepeatModal open={repeatModalOPen} 
+            type={toastType} 
+            message={requestMsg} 
+            acount={
+                registerInfo.type === "m" ? (registerInfo.email || "") :
+                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+            }
+            onCancel={handCancel}
+             onOk={() => goLoginPage()} />
         </div>
     );
 }

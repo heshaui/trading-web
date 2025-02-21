@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // import { Button, Form, Input,Tabs } from "antd";
 import { Input, Form } from 'antd';
 // import type { AutoCompleteProps } from 'antd';
@@ -21,12 +22,7 @@ function ResetPassword() {
     const [isLoding, setIsLoding] = useState(false);
     const [isCodeLoding, setIsCodeLoding] = useState(false);
 
-    useEffect(() => {
-        // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
-        if (resetState == ResetStateEnum.SENTCODE) {
-            getResetCode()
-        }
-    }, [resetState])
+
 
     const goNext = () => {
         form
@@ -99,7 +95,11 @@ function ResetPassword() {
             setIsCodeLoding(false)
             toast.error(String(error))
         }
-    }
+    };
+    // const getCode = async () => {
+    //     await getResetCode()
+    // }
+
     const startCountdown = () => {
         setCountdown(60);
         setIsCounting(true);
@@ -114,7 +114,12 @@ function ResetPassword() {
             });
         }, 1000);
     };
-
+    useEffect(() => {
+        // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
+        if (resetState == ResetStateEnum.SENTCODE) {
+             getResetCode() 
+        }
+    }, [resetState])
     // 当状态不为 INPUT 时不渲染组件
     if (resetState !== ResetStateEnum.SENTCODE) return null;
 

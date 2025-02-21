@@ -19,6 +19,7 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
     };
 
     const handOk = async () => {
+        onCancel()
         onOk()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
@@ -30,14 +31,14 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
                 <button
                     type="button"
                     className={`${styles.modal_btn} btn-color`}
-                    onClick={handOk}
+                    onClick={handCancel}
                 >
                     我知道了
                 </button>
                 <button
                     type="button"
                     className={`${styles.modal_btn2} mt-5`}
-                    onClick={handCancel}
+                    onClick={handOk}
                 >
                     重新发送验证码
                 </button>
