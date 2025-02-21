@@ -1,9 +1,9 @@
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Button, Layout } from 'antd';
-import { type CSSProperties, useState, useRef } from "react";
+import {  Layout } from 'antd';
+// import { type CSSProperties, useState, useRef } from "react";
 import { ResetStateProvider } from "../providers/ResetStateProvider";
-import { toast } from "sonner";
-import store from "@/store";
+// import { toast } from "sonner";
+// import store from "@/store";
 import styles from "../style/reset.module.css"
 import { Iconify } from "@/components/icon/index";
 import InputAcount from "../components/inputAcount";
@@ -15,8 +15,8 @@ function ResetPassword() {
     // const [tabsProps, setTabsProps] = useState('email');
     // const signIn = useSignIn();
     // const { loginType, setLoginType } = useLoginTypeContext();
-    const [authCode, setAuthCode] = useState('');
-    const inputRef = useRef<HTMLInputElement | null>(null);
+    // const [authCode, setAuthCode] = useState('');
+    // const inputRef = useRef<HTMLInputElement | null>(null);
     // 当状态不为 Authcode 时不渲染组件
     // if (loginType !== LoginTypeEnum.Authcode || registerType !== RegisterTypeEnum.Authcode) return null;
     // if (loginState !== LoginStateEnum.Googlecode) return null;

@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { TabsItemProps } from '@/type/types';
-
+import Image from "next/image";
 const TabsItem: React.FC<TabsItemProps> = ({
     src,
     h5Text,
@@ -25,11 +25,11 @@ const TabsItem: React.FC<TabsItemProps> = ({
             }
             <div className={styles.childrenItemBox} id={ isHover? 'childrenItemBox': '' }>
                 <div className={styles.leftItem}>
-                    <img src={src} />
+                    <Image src={src} alt=''/>
                     <span>{h5Text}</span>
                     {
                         isFire ? (
-                            <img style={{ marginLeft: '4px', width: '18px', height: '18px' }} src={spanText} />
+                            <Image style={{ marginLeft: '4px', width: '18px', height: '18px' }} src={spanText} alt=''/>
                         ) : (
                             colorSpan === 'blue' ? (
                                 <span className={styles.blueSpan}>{spanText}</span>

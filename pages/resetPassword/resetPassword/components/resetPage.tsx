@@ -1,10 +1,10 @@
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Button, Form } from 'antd';
-import type { AutoCompleteProps } from 'antd';
-import { type CSSProperties, useState, useRef } from "react";
+import { Input,  Form } from 'antd';
+// import type { AutoCompleteProps } from 'antd';
+import {  useState } from "react";
 import { useResetStateContext, ResetStateEnum } from "../providers/ResetStateProvider";
 import { toast } from "sonner";
-import store from "@/store";
+// import store from "@/store";
 import { useRouter } from 'next/router';
 import styles from "../style/reset.module.css"
 import ResetSuccessModal from "@/components/myModal/ressetSuccessModal"
@@ -14,8 +14,8 @@ function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
     const { resetState, setResetState,acount } = useResetStateContext();
-    const [authCode, setAuthCode] = useState('');
-    const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+    // const [authCode, setAuthCode] = useState('');
+    // const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
 	// const [oldPasswordVisible, setOldPasswordVisible] = useState(false);
 	const [verifyPasswordVisible, setverifyPasswordVisible] = useState(false);

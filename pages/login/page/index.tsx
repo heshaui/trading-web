@@ -1,18 +1,17 @@
 import { Layout } from "antd";
-import { Navigate } from "react-router";
 import type { CSSProperties } from "react";
 import { useEffect } from "react";
-import appStore from '@/store';
-import store from "@/store"
+// import appStore from '@/store';
+// import store from "@/store"
 import LoginForm from "./LoginForm";
 // import RegisterForm from "./RegisterForm";
-import { LoginStateProvider, LoginTypeProvider } from "./providers/LoginStateProvider";
+// import { LoginStateProvider, LoginTypeProvider } from "./providers/LoginStateProvider";
+import {  LoginTypeProvider } from "./providers/LoginStateProvider";
 import { useRouter } from 'next/router';
 import "./styles/login.css"
 // import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
-const HOMEPAGE = '/';
 const loginBgcStyle: CSSProperties = {
 	backgroundImage: `url("/images/login/banner.png")`,
 	backgroundColor: "pink",

@@ -1,8 +1,8 @@
 "use client";
 import { Modal, Form, Input } from "antd";
-import { type CSSProperties, useState, useEffect } from "react";;
+import {  useState, useEffect } from "react"; //type CSSProperties,
 import type { ModalProps } from "antd/es/modal/interface";
-import { Iconify } from "@/components/icon/index";
+// import { Iconify } from "@/components/icon/index";
 import store from "@/store"
 import { toast } from "sonner";
 import { useRouter } from 'next/router';
@@ -10,7 +10,7 @@ import styles from "./style/safeModal.module.css";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
 import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
-import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
+// import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import {encryptData} from "@/utils/encrypt";
 
 
@@ -27,14 +27,14 @@ interface acountType {
 }
 type Props = {
     open: boolean;
-    acount?: string | null;
+    // acount?: string | null;
     acountInfo: acountType;
-    type?: string | null;
-    onOk?: () => void;
+    // type?: string | null; //onOk, acount, type,
+    // onOk?: () => void;
     onCancel: () => void;
 };
 
-function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
+function SafeModal({ open,  onCancel, acountInfo }: Props) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
@@ -43,7 +43,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
     useEffect(() => {
-        if (open&&!isCounting&&!loading) {
+        if (open) {
             // if (open) {
             getLoginCode()
         }
@@ -156,7 +156,7 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
             });
         }, 1000);
     };
-    const ModalFooter: ModalProps["footer"] = (_) => {
+    const ModalFooter: ModalProps["footer"] = () => {
 
         return (
             <div className="flex-col flex-ai-start mt-10 mb-3">

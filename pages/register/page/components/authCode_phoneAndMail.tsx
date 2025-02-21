@@ -1,28 +1,28 @@
 "use client";
-import { Input, Button, Form } from 'antd';
-import { type CSSProperties, useEffect, useState } from "react";
+import { Input, Form } from 'antd';
+import { useEffect, useState } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
-import dayjs from 'dayjs';
-import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
+// import dayjs from 'dayjs';
+// import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import QuestionModal from "@/components/myModal/questionModal";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 // import { registerLogic } from "@/store/registerEnum";
 import { getRegister, getRegisterMailCode, getRegisterSmsCode, } from "@/services/login";
 import RepeatModal from "@/components/myModal/register_repeatModal";
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import { encryptData } from "@/utils/encrypt";
 
-interface ApiResponse {
-    code: number;
-    message?: string;
-}
+// interface ApiResponse {
+//     code: number;
+//     message?: string;
+// }
 function AuthCode() {
     const [pointout, setPointout] = useState(false);
 
-    const { loginType, setLoginType } = useLoginTypeContext();
-    const { registerType, setRegisterType } = useRegisterTypeContext();
+    const {  setLoginType } = useLoginTypeContext();
+    const {  setRegisterType } = useRegisterTypeContext();
     const { loginState, setLoginState } = useLoginStateContext();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);

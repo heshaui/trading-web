@@ -1,12 +1,11 @@
-import { Button, Form, Input, Select, Checkbox, ConfigProvider } from "antd";
-import { type CSSProperties, useState } from "react";
-import { useTranslation } from "react-i18next";
+import {  Form, Input,  Checkbox, ConfigProvider } from "antd";
+import { type CSSProperties } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
-import type { TabsProps } from 'antd';
-import { Iconify } from "@/components/icon/index";
-import { areaCodeOptionList } from "@/utils/enum";;
+// import type { TabsProps } from 'antd';
+// import { Iconify } from "@/components/icon/index";
+// import { areaCodeOptionList } from "@/utils/enum";;
 import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useRouter } from 'next/router';
@@ -22,14 +21,9 @@ const fromStyle: CSSProperties = {
 
 
 function RegisterPhone() {
-	const { t } = useTranslation();
 	const router = useRouter();
-	const [loading, setLoading] = useState(false);
-	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
-	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
-	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
-	const { loginState, setLoginState } = useLoginStateContext();
-	const { registerType, setRegisterType } = useRegisterTypeContext();
+	const {  setLoginState } = useLoginStateContext();
+	const { registerType } = useRegisterTypeContext();
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
 	// 当注册类型不为 PHONE 时不渲染组件
@@ -43,14 +37,6 @@ function RegisterPhone() {
 	// 	return visitorId.visitorId;
 	// };
 
-	const handCancel = () => {
-		setCodeModelOpen(false);
-	};
-
-	const handOk = async (type: string) => {
-		console.log(type);
-		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-	};
 	const goLogin = () => {
         // setLoginState(LoginStateEnum.LOGIN)
         router.push("/login")
@@ -145,24 +131,7 @@ function RegisterPhone() {
 					// }
 					/>
 				</Form.Item>
-				{/* {preCheck && (
-					<Form.Item name="code" rules={[{ required: true, message: t("sys.codeErr") }]} style={{ marginBottom: 33 }}>
-						<div className="flex">
-							<Input placeholder={t("sys.code")} allowClear={true} />
-							<Button
-								type="default"
-								className="w-full"
-								style={{
-									marginLeft: 18,
-									width: "75%",
-								}}
-								onClick={() => setCodeModelOpen(true)}
-							>
-								{t("sys.getcode")}
-							</Button>
-						</div>
-					</Form.Item>
-				)} */}
+				
 				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
 				<Form.Item name="referee" rules={[{ required: false, }]}>
 					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large" className="mail-input"

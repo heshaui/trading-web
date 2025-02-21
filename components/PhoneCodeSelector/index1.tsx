@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { UserOutlined } from '@ant-design/icons';
+// import { UserOutlined } from '@ant-design/icons';
 import { AutoComplete, Flex, Input, Form } from 'antd';
 import { Iconify } from "@/components/icon/index";
-import { areaCodeList } from "@/utils/country"; //地区代码
+// import { areaCodeList } from "@/utils/country"; //地区代码
 import { getCountryCode } from "@/services/open";
 
 interface OptionItem {
@@ -117,7 +117,8 @@ const App: React.FC = () => {
                 setCountryCodeList(data)
             }
         } catch (error) {
-
+            console.log(error);
+            
         }
     };
 

@@ -1,9 +1,6 @@
-import { Modal, Form, Input } from "antd";
-import { type CSSProperties, useState, useEffect } from "react";;
+import { Modal } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 import { Iconify } from "@/components/icon/index";
-import store from "@/store"
-import { useRouter } from 'next/router';
 import styles from "./style/questionModal.module.css";
 import { encryptEmail ,encryptPhoneNumber} from "@/utils/encrypt";
 
@@ -17,10 +14,6 @@ type Props = {
 };
 
 function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
-    const router = useRouter();
-    const [countdown, setCountdown] = useState(0);
-    const [isCounting, setIsCounting] = useState(false);
-    const [pointout, setPointout] = useState(false);
     const handCancel = () => {
         onCancel()
     };
@@ -29,21 +22,8 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
         onOk()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
-    const startCountdown = () => {
-        setCountdown(60);
-        setIsCounting(true);
-        const timer = setInterval(() => {
-            setCountdown((prevCountdown) => {
-                if (prevCountdown === 1) {
-                    clearInterval(timer);
-                    setIsCounting(false);
-                    return 0;
-                }
-                return prevCountdown - 1;
-            });
-        }, 1000);
-    };
-    const ModalFooter: ModalProps["footer"] = (_) => {
+
+    const ModalFooter: ModalProps["footer"] = () => {
 
         return (
             <div className="flex-col flex-ai-start mt-10 mb-3">

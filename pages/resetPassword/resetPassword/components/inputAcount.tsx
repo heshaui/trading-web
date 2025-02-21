@@ -1,10 +1,10 @@
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Button, AutoComplete, Form, Segmented } from 'antd';
+import { Input, AutoComplete, Form, Segmented } from 'antd';
 import type { AutoCompleteProps } from 'antd';
-import { type CSSProperties, useState, useRef } from "react";
+import {  useState } from "react";
 import { useResetStateContext, ResetStateEnum } from "../providers/ResetStateProvider";
-import { toast } from "sonner";
-import store from "@/store";
+// import { toast } from "sonner";
+// import store from "@/store";
 import styles from "../style/reset.module.css"
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
@@ -18,30 +18,30 @@ interface acountType {
 function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
-    const { resetState, setResetState, acount, setAcount } = useResetStateContext();
-    const [authCode, setAuthCode] = useState('');
+    const { resetState, setResetState, setAcount } = useResetStateContext();
+    // const [authCode, setAuthCode] = useState('');
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [tabsProps, setTabsProps] = useState('email');
     // 当状态不为 INPUT 时不渲染组件
     if (resetState !== ResetStateEnum.INPUT) return null;
 
     // 定义粘贴功能的处理函数
-    const handlePaste = async () => {
-        try {
-            // 使用 Clipboard API 读取剪贴板内容
-            const clipboardData = await navigator.clipboard.readText();
-            // 如果输入框引用存在，将剪贴板内容赋值给输入框的值
-            // if (inputRef.current) {
-            //     inputRef.current.input.value = clipboardData;
-            // }
-            if (clipboardData) {
-                setAuthCode(clipboardData)
-            }
-        } catch (error) {
-            // 捕获并打印可能出现的错误
-            console.error('Err:', error);
-        }
-    };
+    // const handlePaste = async () => {
+    //     try {
+    //         // 使用 Clipboard API 读取剪贴板内容
+    //         const clipboardData = await navigator.clipboard.readText();
+    //         // 如果输入框引用存在，将剪贴板内容赋值给输入框的值
+    //         // if (inputRef.current) {
+    //         //     inputRef.current.input.value = clipboardData;
+    //         // }
+    //         if (clipboardData) {
+    //             setAuthCode(clipboardData)
+    //         }
+    //     } catch (error) {
+    //         // 捕获并打印可能出现的错误
+    //         console.error('Err:', error);
+    //     }
+    // };
     const goBackPage = () => {
         router.push('/login');
     }

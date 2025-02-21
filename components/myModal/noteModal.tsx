@@ -1,9 +1,9 @@
 import { Modal } from "antd";
-import { type CSSProperties, useState, useEffect } from "react";;
+// import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
-import { Iconify } from "@/components/icon/index";
-import store from "@/store"
-import { useRouter } from 'next/router';
+// import { Iconify } from "@/components/icon/index";
+// import store from "@/store"
+// import { useRouter } from 'next/router';
 import styles from "./style/noteModal.module.css";
 
 type Props = {
@@ -12,18 +12,18 @@ type Props = {
     onCancel: () => void;
 };
 
-function NoteModal({ open, onOk, onCancel }: Props) {
-    const router = useRouter();
+function NoteModal({ open, onCancel }: Props) {
+    // const router = useRouter();
 
     const handCancel = () => {
         onCancel()
     };
 
-    const handOk = async (type: string) => {
-        console.log(type);
-        // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-    };
-    const ModalFooter: ModalProps["footer"] = (_) => {
+    // const handOk = async (type: string) => {
+    //     console.log(type);
+    //     // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
+    // };
+    const ModalFooter: ModalProps["footer"] = () => {
       
         return (
             <div className="flex-x-cc mt-10 mb-8">

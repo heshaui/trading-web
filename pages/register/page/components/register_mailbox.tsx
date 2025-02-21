@@ -1,4 +1,4 @@
-import { Button, Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
+import {  Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
 import { type CSSProperties, useState, } from "react";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
@@ -7,10 +7,10 @@ import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterType
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
-import type { TabsProps, AutoCompleteProps } from 'antd';
-import { Iconify } from "@/components/icon/index";
+import type {  AutoCompleteProps } from 'antd';
+// import { Iconify } from "@/components/icon/index";
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
@@ -28,11 +28,12 @@ const fromStyle: CSSProperties = {
 
 function RegisterMail() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
-    const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
+    // const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const { setLoginState } = useLoginStateContext();
-    const { registerType, setRegisterType } = useRegisterTypeContext();
+    // const { registerType, setRegisterType } = useRegisterTypeContext();
+    const { registerType } = useRegisterTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);

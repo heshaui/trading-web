@@ -1,10 +1,10 @@
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Button, AutoComplete, Form } from 'antd';
-import type { AutoCompleteProps } from 'antd';
-import { type CSSProperties, useState, useRef, useEffect } from "react";
+import { Input, Form } from 'antd';
+// import type { AutoCompleteProps } from 'antd';
+import { useState, useEffect } from "react";
 import { useResetStateContext, ResetStateEnum } from "../providers/ResetStateProvider";
 import { toast } from "sonner";
-import store from "@/store";
+// import store from "@/store";
 import styles from "../style/reset.module.css"
 import { encryptString } from "@/utils/encrypt"
 import QuestionModal from "@/components/myModal/questionModal";
@@ -13,15 +13,17 @@ import { encryptData } from "@/utils/encrypt";
 function ResetPassword() {
     const [form] = Form.useForm();
     const { resetState, setResetState, acount } = useResetStateContext();
-    const [authCode, setAuthCode] = useState('');
+    // const [authCode, setAuthCode] = useState('');
     const [pointout, setPointout] = useState(false);
-    const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+    // const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
     const [isLoding, setIsLoding] = useState(false);
+    const [isCodeLoding, setIsCodeLoding] = useState(false);
 
     useEffect(() => {
-        if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
+        // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
+        if (resetState == ResetStateEnum.SENTCODE) {
             getResetCode()
         }
     }, [resetState])
@@ -59,35 +61,43 @@ function ResetPassword() {
         setResetState(ResetStateEnum.INPUT)
     }
     const getResetCode = async () => {
-        if (isCounting||isLoding) return
-        if (acount.type == 'm' || acount.type == 'email') {
-            const dataInfo = {
-                number: acount.acount,
-                deviceType: 'web'
-            }
-            const dataEncrypt = await encryptData(dataInfo)
-            const res = await getResetMailCode(dataEncrypt)
-            if (res.code === "0") {
-                toast.success(res.message)
-                startCountdown();
-            } else if (res.code === "10044") {
-                toast.error(res.message)
-            }
+        if (isCounting || isLoding||isCodeLoding) return
+        setIsCodeLoding(true)
+        try {
+            if (acount.type == 'm' || acount.type == 'email') {
+                const dataInfo = {
+                    number: acount.acount,
+                    deviceType: 'web'
+                }
+                const dataEncrypt = await encryptData(dataInfo)
+                const res = await getResetMailCode(dataEncrypt)
+                if (res.code === "0") {
+                    toast.success(res.message)
+                    startCountdown();
+                } else if (res.code === "10044") {
+                    toast.error(res.message)
+                }
+                setIsCodeLoding(false)
 
-        } else if (acount.type == 'p' || acount.type == 'phone') {
-            const dataInfo = {
-                number: acount.acount,
-                code: acount.areaCode?.replace("+", "") ,
-                deviceType: 'web'
+            } else if (acount.type == 'p' || acount.type == 'phone') {
+                const dataInfo = {
+                    number: acount.acount,
+                    code: acount.areaCode?.replace("+", ""),
+                    deviceType: 'web'
+                }
+                const dataEncrypt = await encryptData(dataInfo)
+                const res = await getResetSmsCode(dataEncrypt)
+                if (res.code === "0") {
+                    toast.success(res.message)
+                    startCountdown();
+                } else if (res.code === "10044") {
+                    toast.error(res.message)
+                }
+                setIsCodeLoding(false)
             }
-            const dataEncrypt = await encryptData(dataInfo)
-            const res = await getResetSmsCode(dataEncrypt)
-            if (res.code === "0") {
-                toast.success(res.message)
-                startCountdown();
-            } else if (res.code === "10044") {
-                toast.error(res.message)
-            }
+        } catch (error) {
+            setIsCodeLoding(false)
+            toast.error(String(error))
         }
     }
     const startCountdown = () => {

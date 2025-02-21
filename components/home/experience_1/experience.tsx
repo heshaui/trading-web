@@ -1,18 +1,18 @@
 // import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
+// import { useTranslation } from 'next-i18next';
 // import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 // import { GetStaticProps } from 'next';
 
-import React, { useState } from 'react';
+import React from 'react';
 import '@/styles/components/home/experience.css'
 import { Input,Button } from "antd";
-
+// import Image from 'next/image'
 export default function Experience() {
-    const { t } = useTranslation('common');
-    const [email, setEmail] = useState('');
+    // const { t } = useTranslation('common');
+    // const [email, setEmail] = useState('');
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
-        setEmail(e.target.value)
+        // setEmail(e.target.value)
       };
     return (
         <div className='experiencePage'>

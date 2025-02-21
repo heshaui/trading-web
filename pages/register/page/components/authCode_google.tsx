@@ -1,50 +1,45 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Input, Button } from 'antd';
-import { type CSSProperties, useState, useRef } from "react";
+// import {  useState, useRef } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import store from "@/store";
 
-const fromStyle: CSSProperties = {
-    borderRadius: "5px",
-    // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-    padding: "25px",
-    width: "25vw",
-    maxWidth: "400px",
-    minWidth: "350px",
-};
+
 
 
 function AuthCodeGoogle() {
 
     // const [tabsProps, setTabsProps] = useState('email');
     // const signIn = useSignIn();
-    const { loginType, setLoginType } = useLoginTypeContext();
-    const { registerType, setRegisterType } = useRegisterTypeContext();
-    const { loginState, backToLogin, setLoginState } = useLoginStateContext();
-    const [authCode, setAuthCode] = useState('');
-    const inputRef = useRef<HTMLInputElement|null>(null);
+    // const { loginType, setLoginType } = useLoginTypeContext();
+    // const { registerType, setRegisterType } = useRegisterTypeContext();
+    // const { loginState, backToLogin, setLoginState } = useLoginStateContext();
+    const {  setLoginType } = useLoginTypeContext();
+    const {  setRegisterType } = useRegisterTypeContext();
+    const { loginState, setLoginState } = useLoginStateContext();
+    // const [authCode, setAuthCode] = useState('');
     // 当状态不为 Authcode 时不渲染组件
     // if (loginType !== LoginTypeEnum.Authcode || registerType !== RegisterTypeEnum.Authcode) return null;
     if (loginState !== LoginStateEnum.Googlecode) return null;
 
     // 定义粘贴功能的处理函数
-    const handlePaste = async () => {
-        try {
-            // 使用 Clipboard API 读取剪贴板内容
-            const clipboardData = await navigator.clipboard.readText();
-            // 如果输入框引用存在，将剪贴板内容赋值给输入框的值
-            // if (inputRef.current) {
-            //     inputRef.current.input.value = clipboardData;
-            // }
-            if(clipboardData){
-                setAuthCode(clipboardData)
-            }
-        } catch (error) {
-            // 捕获并打印可能出现的错误
-            console.error('Err:', error);
-        }
-    };
+    // const handlePaste = async () => {
+    //     try {
+    //         // 使用 Clipboard API 读取剪贴板内容
+    //         const clipboardData = await navigator.clipboard.readText();
+    //         // 如果输入框引用存在，将剪贴板内容赋值给输入框的值
+    //         // if (inputRef.current) {
+    //         //     inputRef.current.input.value = clipboardData;
+    //         // }
+    //         if(clipboardData){
+    //             setAuthCode(clipboardData)
+    //         }
+    //     } catch (error) {
+    //         // 捕获并打印可能出现的错误
+    //         console.error('Err:', error);
+    //     }
+    // };
 
     const goBackPage = () => {
         const authcodeState = store.authcodeState
@@ -76,7 +71,7 @@ function AuthCodeGoogle() {
                     // value={authCode}
                     allowClear
                 />
-                <button className='text-color mt-1' onClick={handlePaste}>粘贴</button>
+                {/* <button className='text-color mt-1' onClick={handlePaste}>粘贴</button> */}
                 <div className='flex mt-10'>
                     <Button
                         className='goback-btn'

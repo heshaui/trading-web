@@ -1,10 +1,10 @@
 import { Modal } from "antd";
-import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
-import { Iconify } from "@/components/icon/index";
-import store from "@/store"
-import { useRouter } from 'next/router';
+// import { Iconify } from "@/components/icon/index";
+// import store from "@/store"
+// import { useRouter } from 'next/router';
 import styles from "./style/errModal.module.css";
+// import Image from 'next/image';
 
 type Props = {
     open: boolean;
@@ -13,7 +13,6 @@ type Props = {
 };
 
 function ResetSuccessModal({ open, onOk, onCancel }: Props) {
-    const router = useRouter();
 
 
     const handCancel = () => {

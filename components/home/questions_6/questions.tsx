@@ -1,22 +1,12 @@
-import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { GetStaticProps } from 'next';
 
-import React, { useState } from 'react';
+import React from 'react';
 import '@/styles/components/home/questions.css'
-import { Collapse,theme} from "antd";
+import { Collapse} from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';
+// import Image from 'next/image';
 export default function Questions() {
-    const { t } = useTranslation('common');
-    const [email, setEmail] = useState('');
-    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        console.log('Change:', e.target.value);
-        setEmail(e.target.value)
-    };
 
-    const { token } = theme.useToken();
     const text = `
   A dog is a type of domesticated animal.
   Known for its loyalty and faithfulness,

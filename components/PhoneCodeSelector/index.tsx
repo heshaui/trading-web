@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserOutlined } from '@ant-design/icons';
+// import { UserOutlined } from '@ant-design/icons';
 import { AutoComplete, Flex, Input, Form } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { areaCodeList } from "@/utils/country"; //地区代码
@@ -101,7 +101,7 @@ const App: React.FC = () => {
                 setCountryCode(res.data)
             }
         } catch (error) {
-
+            console.log(error);
         }
     };
 

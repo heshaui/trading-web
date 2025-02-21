@@ -1,20 +1,22 @@
 import { Modal } from "antd";
-import { type CSSProperties, useState, useEffect } from "react";;
+// import { type CSSProperties, useState, useEffect } from "react";
+import { useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
-import { Iconify } from "@/components/icon/index";
-import store from "@/store"
-import { useRouter } from 'next/router';
+// import { Iconify } from "@/components/icon/index";
+// import store from "@/store"
+// import { useRouter } from 'next/router';
 import styles from "./style/errModal.module.css";
+// import Image from "next/image";
 
 type Props = {
     open: boolean;
     errMsg: string;
-    onOk?: (event: boolean) => void;
+    // onOk?: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function ErrModal({ open,errMsg, onOk, onCancel }: Props) {
-    const router = useRouter();
+function ErrModal({ open,errMsg,  onCancel }: Props) {
+    // const router = useRouter();
 
     useEffect(() => {
 
@@ -24,11 +26,11 @@ function ErrModal({ open,errMsg, onOk, onCancel }: Props) {
         onCancel()
     };
 
-    const handOk = async (type: string) => {
-        console.log(type);
-        // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-    };
-    const ModalFooter: ModalProps["footer"] = (_) => {
+    // const handOk = async (type: string) => {
+    //     console.log(type);
+    //     // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
+    // };
+    const ModalFooter: ModalProps["footer"] = () => {
       
         return (
             <div className="flex-x-cc mt-10 mb-8">
