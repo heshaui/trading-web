@@ -1517,7 +1517,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                             </Row>
                             <Row align='middle' className={styles.collapsedMenu}>
                                 <Col>{listItems}</Col>
-                                <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                {/* <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
                                     <Row gutter={4} align='middle'>
                                         <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
                                         <Col><span>Web3</span></Col>
@@ -1535,11 +1535,10 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                             <Space style={{ columnGap: '3px' }}>
                                                 打新专区
                                                 <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
-                                                {/* <DownOutlined /> */}
                                             </Space>
                                         </a>
                                     </Dropdown>
-                                </Col>
+                                </Col> */}
                             </Row>
                         </Row>
                     </div>
@@ -1645,8 +1644,9 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                 <Row align='middle'>
                                     <Col><Link href='/login' className={styles.register}>注册</Link></Col>
                                     <Col><Link href='/login' className={styles.login}>登录</Link></Col>
-                                    <div style={{ height: '20px', border: '1px solid #676867', marginLeft: '12px' }}></div>
+                                    <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
                                     {iconItems}
+                                    {/* <Col>{iconItemsLogin}</Col> */}
                                 </Row>
                             )
                         }
