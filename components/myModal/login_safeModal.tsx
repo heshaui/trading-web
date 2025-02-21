@@ -83,6 +83,8 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
                         router.push('/')
+                    }else{
+                        toast.error(res.message)
                     }
                     setLoading(false);
                     handCancel()
@@ -127,6 +129,8 @@ function SafeModal({ open, onOk, acount, type, onCancel, acountInfo }: Props) {
                     toast.success(res.message)
                     startCountdown();
                 } else if (res.code === "10044") {
+                    toast.error('验证码还在有效期内')
+                }else{
                     toast.error(res.message)
                 }
                 setCodeLoading(false)

@@ -33,6 +33,7 @@ interface OptionGroup {
 
 const App: React.FC = () => {
     const [isFocused, setIsFocused] = useState(false);
+    const [countryCode, setCountryCode] = useState([]);
     const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
         <Flex align="center" justify="space-between">
             {props.title}
@@ -82,7 +83,9 @@ const App: React.FC = () => {
 
     const handleFocus = async() => {
         setIsFocused(true);
-        // await getCountryCodeList()
+        if(countryCode.length===0){
+        await getCountryCodeList()
+        }
     };
     const handleBlur = async() => {
         setIsFocused(false);
@@ -94,6 +97,9 @@ const App: React.FC = () => {
         try {
             const res = await getCountryCode()
             console.log(res, 11);
+            if(res.code==='0'){
+                setCountryCode(res.data)
+            }
         } catch (error) {
 
         }

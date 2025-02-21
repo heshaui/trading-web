@@ -33,7 +33,7 @@ interface OptionGroup {
 
 const App: React.FC = () => {
     const [isFocused, setIsFocused] = useState(false);
-    const [searchText, setSearchText] = useState('');
+    const [countryCode, setCountryCode] = useState([]);
     const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
         <Flex align="center" justify="space-between">
             {props.title}
@@ -80,26 +80,12 @@ const App: React.FC = () => {
         // setOptionsListBefore(options);
         return options;
     };
-       // 自定义下拉菜单
-       const dropdownRender = (menu: React.ReactNode) => (
-        <div>
-            {/* 顶部搜索框 */}
-            <div style={{ padding: 8 }}>
-                <Input
-                    placeholder="搜索国家/区号"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    style={{ marginBottom: 8 }}
-                />
-            </div>
-            {/* 原有菜单内容 */}
-            {menu}
-        </div>
-    );
 
     const handleFocus = async() => {
         setIsFocused(true);
-        // await getCountryCodeList()
+        if(countryCode.length===0){
+        await getCountryCodeList()
+        }
     };
     const handleBlur = async() => {
         setIsFocused(false);
@@ -111,13 +97,17 @@ const App: React.FC = () => {
         try {
             const res = await getCountryCode()
             console.log(res, 11);
+            if(res.code==='0'){
+                setCountryCode(res.data)
+            }
         } catch (error) {
 
         }
     };
 
     useEffect(() => {
-        getCountryCodeList()
+        
+        // getCountryCodeList()
     }, [])
     return (
         <Form.Item name="areaCode" noStyle>
