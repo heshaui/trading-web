@@ -21,6 +21,8 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     isLanguage = false,
     onInputChange,
     onClick, // 添加 onClick 属性
+    nickName,
+    level,
 }) => {
     return (
         <>
@@ -84,10 +86,28 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                         <div>
                                             <div className={styles.menuListItem}>
                                                 {
+                                                    level ? (
+                                                        <div className={styles.levelAndIcon}>
+                                                            <div className={styles.menuListItemIcon}>
+                                                                <img src={src} alt="icon" />
+                                                            </div>
+                                                            <div className={styles.menuListItemlevel} style={{}}>
+                                                                <span style={{ color: '#FFFFFF' }}>{level}</span>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        src ? (
+                                                            <div className={styles.menuListItemIcon}>
+                                                                <img src={src} alt="icon" />
+                                                            </div>
+                                                        ) : (null)
+                                                    )
+                                                }
+                                                {/* {
                                                     src ? (<div className={styles.menuListItemIcon}>
                                                         <img src={src} alt="icon" />
                                                     </div>) : (null)
-                                                }
+                                                } */}
                                                 <div className={styles.menuListItemContent}>
                                                     {
                                                         isNew ? (
@@ -96,14 +116,22 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                                 <span>NEW</span>
                                                             </div>
                                                         ) : (
-                                                            isMore ? 
-                                                            <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5></Link>
-                                                            : <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
+                                                            isMore ?
+                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5></Link>
+                                                                : <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
                                                         )
                                                     }
                                                     {
-                                                        spanText ? (<span>{spanText}</span>) : (<></>)
+                                                        nickName ? (
+                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                <span>{nickName}</span>
+                                                                <span>{spanText}</span>
+                                                            </div>
+                                                        ) : (
+                                                            spanText ? (<span>{spanText}</span>) : (<></>)
+                                                        )
                                                     }
+
                                                 </div>
                                             </div>
                                             {

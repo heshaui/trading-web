@@ -12,7 +12,7 @@ import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
 
- // import { request } from '@/request/index'; // 引入封装的请求方法
+// import { request } from '@/request/index'; // 引入封装的请求方法
 import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
@@ -62,9 +62,9 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     useEffect(() => {
         // 假设从本地存储或上下文中获取登录状态
         // const isLoggedIn = localStorage.getItem('isLogin') === 'false';
-        if(token){
+        if (token) {
             setIsLogin(true);
-        }else {
+        } else {
             setIsLogin(false);
         }
     }, []);
@@ -365,7 +365,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={()=> handleLogout()} />
+                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={() => handleLogout()} />
             ),
         },
     ];
@@ -374,7 +374,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '1',
             type: 'group',
             label: (
-                <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' />
+                <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' nickName='昵称：MWUSER-12345678' level='V0' />
             ),
         },
         {
