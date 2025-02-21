@@ -20,16 +20,28 @@ const TabsItem: React.FC<TabsItemProps> = ({
         <div className={`${styles.childrenItemContainer} ${isHover ? styles.childrenItemContainerHover : ''}`}>
             {
                 haveNumber ? (
-                    <h5 style={{ color: isFire ? '#FF5F1F': '#979897'  }}>{ index }</h5>
+                    <h5 style={{ color: isFire ? '#FF5F1F' : '#979897' }}>{index}</h5>
                 ) : (<></>)
             }
-            <div className={styles.childrenItemBox} id={ isHover? 'childrenItemBox': '' }>
+            <div className={styles.childrenItemBox} id={isHover ? 'childrenItemBox' : ''}>
                 <div className={styles.leftItem}>
-                    <Image src={src} alt=''/>
+                    {/* <img src={src} /> */}
+                    <Image
+                        src={src}
+                        alt=""
+                        width={24}
+                        height={24}
+                    />
                     <span>{h5Text}</span>
                     {
                         isFire ? (
-                            <Image style={{ marginLeft: '4px', width: '18px', height: '18px' }} src={spanText} alt=''/>
+                            // <img style={{ marginLeft: '4px', width: '18px', height: '18px' }} src={spanText} />
+                            <Image
+                                src={spanText}
+                                alt=""
+                                width={18}
+                                height={18}
+                            />
                         ) : (
                             colorSpan === 'blue' ? (
                                 <span className={styles.blueSpan}>{spanText}</span>

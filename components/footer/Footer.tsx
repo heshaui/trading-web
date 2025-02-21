@@ -1,7 +1,8 @@
 import styles from '@/styles/components/Footer.module.css';
 import { Button, Dropdown, Space } from 'antd';
 import { DownOutlined, GlobalOutlined, DownloadOutlined } from '@ant-design/icons';
-import { FooterListProps } from "@/type/types"
+import { FooterListProps } from "@/type/types";
+import Image from 'next/image';
 
 export default function Footer() {
     const itemsLan = [
@@ -19,7 +20,13 @@ export default function Footer() {
             label: (
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     <h5>扫码下载APP</h5>
-                    <img src="/images/home_menu/QR_code.png" />
+                    {/* <img src="/images/home_menu/QR_code.png" /> */}
+                    <Image
+                        src="/images/home_menu/QR_code.png"
+                        alt=""
+                        width={100}  // 必须指定宽度
+                        height={100} // 必须指定高度
+                    />
                 </div>
             ),
             key: '1',
@@ -83,7 +90,13 @@ export default function Footer() {
         <div className={styles.footerContainer}>
             <div className={styles.logoAndButton}>
                 <div className={styles.logo}>
-                    <img src="/home_menu_logo.png" />
+                    {/* <img src="/home_menu_logo.png" /> */}
+                    <Image
+                        src="/home_menu_logo.png"
+                        alt=""
+                        width={126}  // 必须指定宽度
+                        height={30} // 必须指定高度
+                    />
                 </div>
                 <p>©2023 - 2024 IMBIT.</p>
                 <Dropdown

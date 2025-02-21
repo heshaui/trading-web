@@ -13,6 +13,7 @@ import {
     RightOutlined,
 } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export default function FundingOverview({ title }: CurrencyTradingProps) {
     // 时间切换 - 默认选中7天
@@ -118,7 +119,7 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                 <>
                     {
                         todayPLUSDT.map((PL) => {
-                            let color = PL.includes('+') ? '#00C788' : '#F73711';
+                            const color = PL.includes('+') ? '#00C788' : '#F73711';
                             return (
                                 <span style={{ color: color, display: 'block' }} key={PL}>
                                     {PL}
@@ -386,7 +387,13 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                                 </div>
                                 <div className={styles.fundingContent}>
                                     <div className={styles.shadowImg}>
-                                        <img src="/images/currency_trading/image 15.png" alt="" />
+                                        {/* <img src="/images/currency_trading/image 15.png" alt="" /> */}
+                                        <Image
+                                            src="/images/currency_trading/image 15.png"
+                                            alt=""
+                                            width={88}
+                                            height={78}
+                                        />
                                     </div>
                                     <div className={styles.shadow}></div>
                                     <div className={styles.contentList}>

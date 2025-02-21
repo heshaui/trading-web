@@ -51,7 +51,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
                     <Space wrap>
                         <Dropdown
                             menu={{
-                                items: menuList.items,
+                                items: menuList.items as MenuProps['items'],
                                 triggerSubMenuAction: 'click',
                                 onClick
                             }}
@@ -73,7 +73,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
             ) : (
                 <Dropdown
                     menu={{
-                        items: menuList.items,
+                        items: menuList.items as MenuProps['items'],
                         triggerSubMenuAction: 'click',
                         onClick: !hasChildren ? onClickLink : undefined
                     }}

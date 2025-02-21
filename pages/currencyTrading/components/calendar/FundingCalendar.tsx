@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import { HolidayUtil, Lunar } from 'lunar-typescript';
+import Image from 'next/image';
 
 import styless from '../../styles/calendar.module.css';
 import AreaChart from '../charts/AreaChart';
@@ -257,11 +258,11 @@ const FundingCalendar: React.FC = () => {
                                         const monthOptions = [];
 
                                         let current = value.clone();
-                                        const localeData = value.localeData();
+                                        // const localeData = value.localeData();
                                         const months = [];
                                         for (let i = 0; i < 12; i++) {
                                             current = current.month(i);
-                                            months.push(localeData.monthsShort(current));
+                                            // months.push(localeData.monthsShort(current));
                                         }
 
                                         for (let i = start; i < end; i++) {
@@ -350,7 +351,13 @@ const FundingCalendar: React.FC = () => {
                                                 <Col>
                                                     <Row justify="start" align="middle" gutter={4}>
                                                         <Col>
-                                                            <img src="/images/currency_trading/icon_Profit_or_loss_ratio.png" alt="" />
+                                                            {/* <img src="/images/currency_trading/icon_Profit_or_loss_ratio.png" alt="" /> */}
+                                                            <Image
+                                                                src="/images/currency_trading/icon_Profit_or_loss_ratio.png"
+                                                                alt=""
+                                                                width={16}
+                                                                height={16}
+                                                            />
                                                         </Col>
                                                         <Col>
                                                             <span>盈亏率</span>
