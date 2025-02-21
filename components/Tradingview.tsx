@@ -67,7 +67,7 @@ const TVChartContainer: React.FC = () => {
     //     setTvWidget(null);
     //   }
     // };
-  }, []);
+  }, []); 
 
   // const toggleModal = () => setShowModal(!showModal);
 

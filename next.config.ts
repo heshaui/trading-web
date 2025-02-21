@@ -7,6 +7,13 @@ const { i18n } = require('./next-i18next.config');
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ["style-loader", "css-loader"],
+    });
+    return config;
+  },
   async rewrites() {
     return [
       {

@@ -28,7 +28,7 @@ function Login() {
 	// const token=localStorage.getItem('userToken')
 	// // 如果有授权，则跳转到首页
 	// if (token) {
-	// 	router.push('/')
+	// 	router.push('/') 
 	// }
 	let token = null;
 
