@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/type/types';
-import { Col, ConfigProvider, Input, Menu, Row } from 'antd';
+import { ConfigProvider, Input, Menu} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     ulItems = [],
     haveItemChildren = false,
     isInput = false,
-    isLanguage = false,
+    // isLanguage = false,
     onInputChange,
     onClick, // 添加 onClick 属性
     nickName,
@@ -97,7 +97,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                         </div>
                                                     ) : (
                                                         src ? (
-                                                            <div className={styles.menuListItemIcon}>
+                                                            <div className={`${styles.menuListItemIcon} ${styles.menuListItemIconMargin}`}>
                                                                 <img src={src} alt="icon" />
                                                             </div>
                                                         ) : (null)

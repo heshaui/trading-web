@@ -7,7 +7,7 @@ import type {
   // InferGetServerSidePropsType,
 } from 'next'
 
-import { useTranslation } from 'next-i18next'
+// import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 // import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -54,7 +54,8 @@ export default function Home() {
 //     },
 //   };
 // };
-export const getServerSideProps: GetServerSideProps<Props> = async ({
+// export const getServerSideProps: GetServerSideProps<Props> = async ({
+  export const getServerSideProps: GetServerSideProps = async ({
   locale,
 }) => ({
   props: {
