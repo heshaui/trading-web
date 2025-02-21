@@ -55,7 +55,7 @@ const FundingTable = <T extends BaseTableData>({ columns, tableData, pieData, ex
                     exceptTable ?
                         <div className={styles.pieDiv}>
                             <div className={styles.pieChart}>
-                                <PieChart data={pieData} />
+                                {/* <PieChart data={pieData} /> */}
                             </div>
                             <ul className={styles.ulPie}>
                                 {pieData && pieData.map((item, index) => (
