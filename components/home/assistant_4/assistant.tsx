@@ -6,7 +6,7 @@
 import React from 'react';
 import '@/styles/components/home/assistant.css'
 // import { Input, Button } from "antd";
-// import Image from 'next/image'
+import Image from 'next/image'
 export default function Experience() {
     // const { t } = useTranslation('common');
     // const [email, setEmail] = useState('');
@@ -20,9 +20,9 @@ export default function Experience() {
                     <h2 className='assistant_main-title1'>您数字货币之旅的得力助手</h2>
                     <h3 className='assistant_main-title2'>从数字货币交易初体验到第一次购买 NFT，IMBIT将助您轻松赚币</h3>
                     <div className='assistant_main-pic flex flex-jc-between'>
-                        <img className='assistant-pic' src="/images/home/comup1.png" alt="" />
-                        <img className='assistant-pic' src="/images/home/comup2.png" alt="" />
-                        <img className='assistant-pic' src="/images/home/comup3.png" alt="" />
+                        <Image className='assistant-pic' src="/images/home/comup1.png" alt=""  width={200} height={100}/>
+                        <Image className='assistant-pic' src="/images/home/comup2.png" alt="" width={200} height={100}/>
+                        <Image className='assistant-pic' src="/images/home/comup3.png" alt="" width={200} height={100}/>
                     </div>
                 </div>
         </div>

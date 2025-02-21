@@ -6,7 +6,7 @@
 import React from 'react';
 import '@/styles/components/home/experience.css'
 import { Input,Button } from "antd";
-// import Image from 'next/image'
+import Image from 'next/image'
 export default function Experience() {
     // const { t } = useTranslation('common');
     // const [email, setEmail] = useState('');
@@ -24,7 +24,7 @@ export default function Experience() {
                         <Button className='experience_main-btn'>立即体验</Button>
                     </div>
                 </div>
-                <img className='' src="/images/home/phone.png" alt="" />
+                <Image className='' src="/images/home/phone.png" alt="" width={620} height={600}/>
 
             </div>
         </div>
