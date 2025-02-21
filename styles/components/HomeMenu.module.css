@@ -58,7 +58,7 @@
 
 .menuListA {
     justify-content: space-between;
-    min-width: 226px;
+    min-width: 208px;
     min-height: 56px;
     color: #0C0D0C;
 }
@@ -198,6 +198,23 @@
 
 .changeAccountButton:hover {
     color: #0c0d0c;
+}
+
+.myWords {
+    width: 100%;
+}
+.myWords, .myWords .myWords_2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.myWords .myWords_1, .myWords .myWords_2 {
+    color: #6D6F7A;
+    font-size: 12px;
+}
+.myWords .myWords_2 span:first-child {
+    color: #000317;
+    margin-right: 4px;
 }
 
 .childrenItemContainer {

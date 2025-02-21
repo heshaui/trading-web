@@ -23,6 +23,9 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     onClick, // 添加 onClick 属性
     nickName,
     level,
+    myWords_1,
+    myWords_2,
+    myWords_3,
 }) => {
     return (
         <>
@@ -49,7 +52,16 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                     >
                         {
                             isUser ? (
-                                <button className={styles.changeAccountButton}>{h5Text}</button>
+                                // <button className={styles.changeAccountButton}>{h5Text}</button>
+                                <div className={styles.myWords}>
+                                    <div className={styles.myWords_1}>
+                                        <span>{myWords_1}</span>
+                                    </div>
+                                    <div className={styles.myWords_2}>
+                                        <span>{myWords_2}</span>
+                                        <span>{myWords_3}</span>
+                                    </div>
+                                </div>
                             ) : (
                                 isUserList ? (
                                     <Menu
