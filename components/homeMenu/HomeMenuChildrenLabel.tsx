@@ -1,7 +1,8 @@
 import React from 'react';
-import styles from '@/styles/components/HomeMenu.module.css';
+// import styles from '@/styles/components/HomeMenu.module.css';
 import { HomeMenuChildrenLabelProps } from '@/type/types';
-import { Input, Tabs, Menu, ConfigProvider } from "antd";
+// import { Input, Tabs, Menu, ConfigProvider } from "antd";
+import { Input, Tabs, ConfigProvider } from "antd";
 import { SearchOutlined } from '@ant-design/icons';
 import TabsItem from './TabsItem';
 

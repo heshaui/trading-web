@@ -1,7 +1,8 @@
 import React from 'react';
-import { ConfigProvider, Menu } from 'antd';
+import { Menu } from 'antd';
 
-import { MenuListItem, LabelComponentProps } from '@/type/types';
+// import { MenuListItem, LabelComponentProps } from '@/type/types';
+import { MenuListItem } from '@/type/types';
 import styles from '@/styles/components/HomeMenu.module.css';
 
 interface MenuAdaptiveItemProps {

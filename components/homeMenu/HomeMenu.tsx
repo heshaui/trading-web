@@ -1,6 +1,8 @@
 import styles from '@/styles/components/HomeMenu.module.css';
-import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
+// import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
+// import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
+import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, } from 'antd';
 import MenuItem from './HomeMenuItems'; // 顶部菜单
 import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
 import MenuItemLabel from './HomeMenuLabel';
@@ -12,7 +14,7 @@ import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
 
- // import { request } from '@/request/index'; // 引入封装的请求方法
+// import { request } from '@/request/index'; // 引入封装的请求方法
 import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
@@ -62,9 +64,9 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     useEffect(() => {
         // 假设从本地存储或上下文中获取登录状态
         // const isLoggedIn = localStorage.getItem('isLogin') === 'false';
-        if(token){
+        if (token) {
             setIsLogin(true);
-        }else {
+        } else {
             setIsLogin(false);
         }
     }, []);
@@ -170,56 +172,56 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         router.push('/login');
     };
 
-    const items = [
-        {
-            key: '1',
-            label: (
-                <MenuItemLabel src="/images/home_menu/Group (3).png" h5Text="我的资产" spanText="" />
-            ),
-        },
-        {
-            key: '2',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon-Make up money.png" h5Text="充币" spanText="" />
-            ),
-        },
-        {
-            key: '3',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon-Withdraw currency.png" h5Text="提币" spanText="" />
-            ),
-        },
-        {
-            key: '4',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_refresh.png" h5Text="资金划转" spanText="" />
-            ),
-        },
-        {
-            key: '5',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_presentation.png" h5Text="资产分析" spanText="" />
-            ),
-        },
-        {
-            key: '6',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_Order for goods.png" h5Text="订单中心" spanText="" />
-            ),
-        },
-        {
-            key: '7',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_sale.png" h5Text="我的手续费" spanText="" />
-            ),
-        },
-        {
-            key: '8',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_Certificate.png" h5Text="储备金证明报告" spanText="" />
-            ),
-        }
-    ];
+    // const items = [
+    //     {
+    //         key: '1',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/Group (3).png" h5Text="我的资产" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '2',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon-Make up money.png" h5Text="充币" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '3',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon-Withdraw currency.png" h5Text="提币" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '4',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_refresh.png" h5Text="资金划转" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '5',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_presentation.png" h5Text="资产分析" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '6',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_Order for goods.png" h5Text="订单中心" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '7',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_sale.png" h5Text="我的手续费" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '8',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_Certificate.png" h5Text="储备金证明报告" spanText="" />
+    //         ),
+    //     }
+    // ];
     // 资产 - 2版
     const itemsFunding = [
         {
@@ -247,50 +249,50 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             ),
         }
     ];
-    const moreItems = [
-        {
-            key: '1',
-            label: (
-                <MenuItemLabel src="/images/home_menu/Group (2).png" h5Text="活动中心" spanText="" />
-            ),
-        },
-        {
-            key: '2',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_trophy.png" h5Text="我的奖励" spanText="" />
-            ),
-        },
-        {
-            key: '3',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_invite.png" h5Text="邀请好友" spanText="" />
-            ),
-        },
-        {
-            key: '4',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_sitemap.png" h5Text="节点计划" spanText="" />
-            ),
-        },
-        {
-            key: '5',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_plugin.png" h5Text="IMBIT ventures" spanText="" />
-            ),
-        },
-        {
-            key: '6',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon-Trading.png" h5Text="使用 TradingView 交易" spanText="" />
-            ),
-        },
-        {
-            key: '7',
-            label: (
-                <MenuItemLabel src="/images/home_menu/icon_file_upload.png" h5Text="上币申请" spanText="" />
-            ),
-        },
-    ];
+    // const moreItems = [
+    //     {
+    //         key: '1',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/Group (2).png" h5Text="活动中心" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '2',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_trophy.png" h5Text="我的奖励" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '3',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_invite.png" h5Text="邀请好友" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '4',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_sitemap.png" h5Text="节点计划" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '5',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_plugin.png" h5Text="IMBIT ventures" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '6',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon-Trading.png" h5Text="使用 TradingView 交易" spanText="" />
+    //         ),
+    //     },
+    //     {
+    //         key: '7',
+    //         label: (
+    //             <MenuItemLabel src="/images/home_menu/icon_file_upload.png" h5Text="上币申请" spanText="" />
+    //         ),
+    //     },
+    // ];
     // const UserIcon = () => <UserOutlined style={{ marginLeft: '12px', fontSize: '16px', cursor: 'pointer', color: '#ffffff' }} />;
     const userItems = [
         {
@@ -365,7 +367,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={()=> handleLogout()} />
+                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={() => handleLogout()} />
             ),
         },
     ];
@@ -374,14 +376,14 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             key: '1',
             type: 'group',
             label: (
-                <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' />
+                <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' nickName='昵称：MWUSER-12345678' level='V0' />
             ),
         },
         {
             key: '2',
             type: 'group',
             label: (
-                <MenuItemLabel h5Text="切换账户" isUser />
+                <MenuItemLabel myWords_1='近30天交易量' myWords_2='0.00' myWords_3='USD' h5Text="切换账户" isUser />
             ),
         },
         {
@@ -963,79 +965,79 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     //     setSearchValue3(event.target.value);
     // };
     const [searchValue4, setSearchValue4] = useState('');
-    const handleInputChange4 = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchValue4(event.target.value);
-    };
+    // const handleInputChange4 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     setSearchValue4(event.target.value);
+    // };
     const filteredData1 = React.useMemo(() => filterData(tabsItemsData1, searchValue1), [tabsItemsData1, searchValue1]);
     const filteredData2 = React.useMemo(() => filterData(tabsItemsData2, searchValue2), [tabsItemsData2, searchValue2]);
     // const filteredData3 = React.useMemo(() => filterData(tabsItemsData3, searchValue3), [tabsItemsData3, searchValue3]);
-    const filteredData4 = React.useMemo(() => filterData(tabsItemsData4, searchValue4), [tabsItemsData4, searchValue4]);
+    // const filteredData4 = React.useMemo(() => filterData(tabsItemsData4, searchValue4), [tabsItemsData4, searchValue4]);
 
     // 子项标签页
-    const tabsItems1 = [
-        {
-            key: '1',
-            label: 'USDT',
-            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData1} onInputChange={handleInputChange1} />,
-        },
-        {
-            key: '2',
-            label: 'USDC',
-            children: 'Content of Tab Pane 2',
-        },
-        {
-            key: '3',
-            label: '稳定币',
-            children: 'Content of Tab Pane 3',
-        },
-        {
-            key: '4',
-            label: 'Crypto',
-            children: 'Content of Tab Pane 4',
-        },
-    ];
-    const tabsItems2 = [
-        {
-            key: '1',
-            label: 'USDT本位',
-            children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData2} onInputChange={handleInputChange2} />,
-        },
-        {
-            key: '2',
-            label: 'USDC本位',
-            children: 'Content of Tab Pane 2',
-        },
-        {
-            key: '3',
-            label: '币本位',
-            children: 'Content of Tab Pane 3',
-        },
-    ];
-    const tabsItems3 = [
-        {
-            key: '1',
-            label: 'T型报价',
-            children: <MenuItemChildrenLabel tabsItemsData={tabsItemsData3} />,
-        },
-        {
-            key: '2',
-            label: '期权简选',
-            children: 'Content of Tab Pane 2',
-        },
-    ];
+    // const tabsItems1 = [
+    //     {
+    //         key: '1',
+    //         label: 'USDT',
+    //         children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData1} onInputChange={handleInputChange1} />,
+    //     },
+    //     {
+    //         key: '2',
+    //         label: 'USDC',
+    //         children: 'Content of Tab Pane 2',
+    //     },
+    //     {
+    //         key: '3',
+    //         label: '稳定币',
+    //         children: 'Content of Tab Pane 3',
+    //     },
+    //     {
+    //         key: '4',
+    //         label: 'Crypto',
+    //         children: 'Content of Tab Pane 4',
+    //     },
+    // ];
+    // const tabsItems2 = [
+    //     {
+    //         key: '1',
+    //         label: 'USDT本位',
+    //         children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData2} onInputChange={handleInputChange2} />,
+    //     },
+    //     {
+    //         key: '2',
+    //         label: 'USDC本位',
+    //         children: 'Content of Tab Pane 2',
+    //     },
+    //     {
+    //         key: '3',
+    //         label: '币本位',
+    //         children: 'Content of Tab Pane 3',
+    //     },
+    // ];
+    // const tabsItems3 = [
+    //     {
+    //         key: '1',
+    //         label: 'T型报价',
+    //         children: <MenuItemChildrenLabel tabsItemsData={tabsItemsData3} />,
+    //     },
+    //     {
+    //         key: '2',
+    //         label: '期权简选',
+    //         children: 'Content of Tab Pane 2',
+    //     },
+    // ];
 
     // 菜单中的子项
-    const ulItems = [
-        {
-            liContent: '简单赚币'
-        },
-        {
-            liContent: '结构化产品'
-        },
-        {
-            liContent: '链上赚币'
-        },
-    ]
+    // const ulItems = [
+    //     {
+    //         liContent: '简单赚币'
+    //     },
+    //     {
+    //         liContent: '结构化产品'
+    //     },
+    //     {
+    //         liContent: '链上赚币'
+    //     },
+    // ];
 
     // 左侧菜单
     // const menus: MenuListItem[] = [

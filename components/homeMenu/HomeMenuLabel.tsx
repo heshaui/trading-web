@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/type/types';
-import { Col, ConfigProvider, Input, Menu, Row } from 'antd';
+import { ConfigProvider, Input, Menu} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
@@ -18,9 +18,14 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     ulItems = [],
     haveItemChildren = false,
     isInput = false,
-    isLanguage = false,
+    // isLanguage = false,
     onInputChange,
     onClick, // 添加 onClick 属性
+    nickName,
+    level,
+    myWords_1,
+    myWords_2,
+    myWords_3,
 }) => {
     return (
         <>
@@ -47,7 +52,16 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                     >
                         {
                             isUser ? (
-                                <button className={styles.changeAccountButton}>{h5Text}</button>
+                                // <button className={styles.changeAccountButton}>{h5Text}</button>
+                                <div className={styles.myWords}>
+                                    <div className={styles.myWords_1}>
+                                        <span>{myWords_1}</span>
+                                    </div>
+                                    <div className={styles.myWords_2}>
+                                        <span>{myWords_2}</span>
+                                        <span>{myWords_3}</span>
+                                    </div>
+                                </div>
                             ) : (
                                 isUserList ? (
                                     <Menu
@@ -84,10 +98,28 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                         <div>
                                             <div className={styles.menuListItem}>
                                                 {
+                                                    level ? (
+                                                        <div className={styles.levelAndIcon}>
+                                                            <div className={styles.menuListItemIcon}>
+                                                                <img src={src} alt="icon" />
+                                                            </div>
+                                                            <div className={styles.menuListItemlevel} style={{}}>
+                                                                <span style={{ color: '#FFFFFF' }}>{level}</span>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        src ? (
+                                                            <div className={`${styles.menuListItemIcon} ${styles.menuListItemIconMargin}`}>
+                                                                <img src={src} alt="icon" />
+                                                            </div>
+                                                        ) : (null)
+                                                    )
+                                                }
+                                                {/* {
                                                     src ? (<div className={styles.menuListItemIcon}>
                                                         <img src={src} alt="icon" />
                                                     </div>) : (null)
-                                                }
+                                                } */}
                                                 <div className={styles.menuListItemContent}>
                                                     {
                                                         isNew ? (
@@ -96,14 +128,22 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                                 <span>NEW</span>
                                                             </div>
                                                         ) : (
-                                                            isMore ? 
-                                                            <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5></Link>
-                                                            : <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
+                                                            isMore ?
+                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5></Link>
+                                                                : <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
                                                         )
                                                     }
                                                     {
-                                                        spanText ? (<span>{spanText}</span>) : (<></>)
+                                                        nickName ? (
+                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                <span>{nickName}</span>
+                                                                <span>{spanText}</span>
+                                                            </div>
+                                                        ) : (
+                                                            spanText ? (<span>{spanText}</span>) : (<></>)
+                                                        )
                                                     }
+
                                                 </div>
                                             </div>
                                             {
