@@ -89,26 +89,26 @@ function ResetPassword() {
             }));
         });
     };
-    // 自定义校验函数
-    const validateAcount = (_: any, value: any) => {
-        // 若输入为空，直接通过校验
-        if (!value) {
-            return Promise.resolve();
-        }
-        // 邮箱和手机号的正则表达式
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        const phoneRegex = /^\d{4,15}$/;
-        // 先校验是否为邮箱
-        if (emailRegex.test(value)) {
-            return Promise.resolve();
-        }
-        // 若不是邮箱，再校验是否为手机号
-        if (phoneRegex.test(value)) {
-            return Promise.resolve();
-        }
-        // 既不是邮箱也不是手机号，校验失败
-        return Promise.reject(new Error('请输入有效的邮箱或手机号！'));
-    };
+    // // 自定义校验函数
+    // const validateAcount = (_: any, value: any) => {
+    //     // 若输入为空，直接通过校验
+    //     if (!value) {
+    //         return Promise.resolve();
+    //     }
+    //     // 邮箱和手机号的正则表达式
+    //     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    //     const phoneRegex = /^\d{4,15}$/;
+    //     // 先校验是否为邮箱
+    //     if (emailRegex.test(value)) {
+    //         return Promise.resolve();
+    //     }
+    //     // 若不是邮箱，再校验是否为手机号
+    //     if (phoneRegex.test(value)) {
+    //         return Promise.resolve();
+    //     }
+    //     // 既不是邮箱也不是手机号，校验失败
+    //     return Promise.reject(new Error('请输入有效的邮箱或手机号！'));
+    // };
     const tabsChange = (value: string) => {
         console.log(value);
         setTabsProps(value)

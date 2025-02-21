@@ -1,7 +1,7 @@
 
 import React from 'react';
 import '@/styles/components/home/assistant.css'
-// import Image from 'next/image'
+import Image from 'next/image'
 export default function Experience() {
 
     return (
@@ -16,33 +16,33 @@ export default function Experience() {
 
                 <div className='assistant_main-pic flex flex-jc-between'>
                     <div className='pic-box position-relative' >
-                        <img className='pic' src="/images/home/rectangle1.png" alt="" />
+                        <Image className='pic' src="/images/home/rectangle1.png" alt="" width={350} height={100}/>
                         <div className='text-icon flex-col flex-jc-between'>
                             <div className='text-right title-box'>
                                 <p className='font-22 font-w-500'>何塞普·瓜迪奥拉教练</p>
                                 <p className='font-16 font-w-400'>讲解“疯狂足球战术”</p>
                             </div>
-                            <img src="/images/home/viedo.png" alt="" />
+                            <Image src="/images/home/viedo.png" alt="" width={350} height={100}/>
                         </div>
                     </div>
                     <div className='pic-box position-relative' >
-                        <img className='pic' src="/images/home/rectangle2.png" alt="" />
+                        <Image className='pic' src="/images/home/rectangle2.png" alt="" width={350} height={100}/>
                         <div className='text-icon flex-col flex-jc-between'>
                             <div className='text-right title-box'>
                                 <p className='font-22 font-w-500'>重塑系统</p>
                                 <p className='font-16 font-w-400'>欢迎来到 Web3</p>
                             </div>
-                            <img src="/images/home/viedo.png" alt="" />
+                            <Image src="/images/home/viedo.png" alt=""width={350} height={100}/>
                         </div>
                     </div>
                     <div className='pic-box position-relative' >
-                        <img className='pic' src="/images/home/rectangle3.png" alt="" />
+                        <Image className='pic' src="/images/home/rectangle3.png" alt="" width={350} height={100}/>
                         <div className='text-icon flex-col flex-jc-between'>
                             <div className='text-right title-box'>
                                 <p className='font-22 font-w-500'>单板滑雪运动员斯科特·詹姆斯练</p>
                                 <p className='font-16 font-w-400'>带领全家欢聚</p>
                             </div>
-                            <img src="/images/home/viedo.png" alt="" />
+                            <Image src="/images/home/viedo.png" alt="" width={350} height={100}/>
                         </div>
                     </div>
                 </div>

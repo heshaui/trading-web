@@ -5,6 +5,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import store from "@/store"
 // import { useRouter } from 'next/router';
 import styles from "./style/noteModal.module.css";
+import Image from 'next/image'
 
 type Props = {
     open: boolean;
@@ -56,7 +57,7 @@ function NoteModal({ open, onCancel }: Props) {
             className={`${styles.modal_box} modal_box`}
         >
             <div className="flex-col flex-ai-center">
-                <img src="/images/login/icon_note.png" alt="" className={`${styles.icon_box}`}/>
+                <Image src="/images/login/icon_note.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
                 {/* t() */}
                 <p className={`${styles.title} `}>重要提示</p> 
                 <p className={`${styles.msg_color} mt-4`}>

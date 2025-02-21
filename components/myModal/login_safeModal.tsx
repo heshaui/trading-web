@@ -42,12 +42,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
-    useEffect(() => {
-        if (open) {
-            // if (open) {
-            getLoginCode()
-        }
-    }, [open])
+
     const handCancel = () => {
         onCancel()
     };
@@ -156,6 +151,13 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             });
         }, 1000);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (open) {
+            // if (open) {
+            getLoginCode()
+        }
+    }, [open])
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (

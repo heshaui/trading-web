@@ -1,6 +1,7 @@
 import { request } from '@/request/index';
 import {API_MODULE_NAME} from '@/config/apiConfig';
 const fixUrl=`/${API_MODULE_NAME.AMBIT_AUTH}`
+
 // 登录
 export function getLogin(data: encryptType): Promise<any> {
   return request(`${fixUrl}/auth/login`, {

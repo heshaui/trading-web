@@ -4,13 +4,17 @@ import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./style/repeatModal.module.css";
 // import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 // import { registerLogic } from "@/store/registerEnum"
-// import Image from 'next/image';
+import Image from 'next/image';
+type FormValueType = {
+    // 根据实际表单字段定义类型
+    [key: string]: any;
+};
 type Props = {
     open: boolean;
     acount?: string;
     message?: string;
     type?: string;
-    onOk: (event: any) => void;
+    onOk: (event: FormValueType) => void;
     onCancel: () => void;
 };
 
@@ -61,7 +65,7 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
             width={400}
         >
             <div className="flex-col flex-ai-center">
-                <img src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} />
+                <Image src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
                 {type == 'error' && <p className={`${styles.title} `}>
                     {acount} 账号已存在，
                     是否登录该账号？

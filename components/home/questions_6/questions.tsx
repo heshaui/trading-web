@@ -4,7 +4,7 @@ import '@/styles/components/home/questions.css'
 import { Collapse} from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';
-// import Image from 'next/image';
+import Image from 'next/image';
 export default function Questions() {
 
     const text = `
@@ -19,7 +19,7 @@ export default function Questions() {
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false, //隐藏组件的箭头图标
-            extra:<img src="/images/home/icon-add.png" alt="" />
+            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
         },
         {
             key: '2',
@@ -27,7 +27,7 @@ export default function Questions() {
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<img src="/images/home/icon-add.png" alt="" />
+            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
         },
         {
             key: '3',
@@ -35,7 +35,7 @@ export default function Questions() {
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<img src="/images/home/icon-add.png" alt="" />
+            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
 
         },
         {
@@ -44,7 +44,7 @@ export default function Questions() {
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<img src="/images/home/icon-add.png" alt="" />
+            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
 
         },
     ];
@@ -72,19 +72,19 @@ export default function Questions() {
 
                     {/* <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                         <h3>IMBIT都提供哪些产品</h3>
-                        <img src="/images/home/icon-add.png" alt="" />
+                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
                     </div>
                     <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                         <h3>如何通过IMBIT平台购买比特币？</h3>
-                        <img src="/images/home/icon-add.png" alt="" />
+                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
                     </div>
                     <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                         <h3>美国公民可以使用IMBIT吗？</h3>
-                        <img src="/images/home/icon-add.png" alt="" />
+                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
                     </div>
                     <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                         <h3>什么是数字货币？</h3>
-                        <img src="/images/home/icon-add.png" alt="" />
+                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
                     </div> */}
                 </div>
             </div>

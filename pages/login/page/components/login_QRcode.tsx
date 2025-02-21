@@ -1,10 +1,10 @@
 import { QRCode } from "antd";
 import { useState } from "react";
-import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
+import {  useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,
 function QrCodeFrom() {
-	const { loginState, setLoginState } = useLoginStateContext();
-	const { loginType, setLoginType } = useLoginTypeContext();
-	const [codeValue, setcodeValue] = useState("https://ant.design/")
+	// const { loginState, setLoginState } = useLoginStateContext();
+	const { loginType } = useLoginTypeContext(); //, setLoginType
+	const [codeValue] = useState("https://ant.design/") //, setcodeValue
 
 	// 当登录类型不为 PHONE 时不渲染组件
 	if (loginType !== LoginTypeEnum.QRcode) return null;

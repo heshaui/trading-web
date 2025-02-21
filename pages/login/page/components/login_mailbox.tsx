@@ -1,26 +1,26 @@
-import { Button, Form, Input, AutoComplete } from "antd";
+import {  Form, Input, AutoComplete } from "antd";
 import { type CSSProperties, useState, useEffect } from "react";
 // import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore";
-import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
+// import { useSignIn } from "@/store/userStore"; 
+import {  useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 import type { TabsProps, AutoCompleteProps } from 'antd';
-import { Iconify } from "@/components/icon/index";
-import store from "@/store";
+// import { Iconify } from "@/components/icon/index";
+// import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
-import Link from 'next/link';
+// import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ErrModal from "@/components/myModal/errModal"
 import SafeModal from "@/components/myModal/login_safeModal"
 
 // import { getLogin } from "@/services/login";
-import { loginLogic } from "@/store/loginEnum"
-import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
+// import { loginLogic } from "@/store/loginEnum"
+// import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",

@@ -21,8 +21,8 @@ import { encryptData } from "@/utils/encrypt";
 function AuthCode() {
     const [pointout, setPointout] = useState(false);
 
-    const {  setLoginType } = useLoginTypeContext();
-    const {  setRegisterType } = useRegisterTypeContext();
+    const { setLoginType } = useLoginTypeContext();
+    const { setRegisterType } = useRegisterTypeContext();
     const { loginState, setLoginState } = useLoginStateContext();
     const [countdown, setCountdown] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
@@ -38,7 +38,7 @@ function AuthCode() {
 
     useEffect(() => {
         // if (loginState == LoginStateEnum.Authcode && !loading&&!isCounting) {
-            if (loginState == LoginStateEnum.Authcode ) {
+        if (loginState == LoginStateEnum.Authcode) {
             getRegisterCode();
         }
     }, [loginState]);
@@ -118,7 +118,7 @@ function AuthCode() {
     };
 
     const getRegisterCode = async () => {
-        if (isCounting||loading||sentCodeFlag) return
+        if (isCounting || loading || sentCodeFlag) return
         try {
             setSentCodeFlag(true)
             if (registerInfo.type === 'm') {

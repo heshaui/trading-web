@@ -1,6 +1,6 @@
 import React from 'react';
 import '@/styles/components/home/try.css'
-// import Image from 'next/image';
+import Image from 'next/image';
 export default function Experience() {
 
     return (
@@ -8,7 +8,7 @@ export default function Experience() {
             {/* <div className='try-main'> */}
             <div className='try-main flex flex-ai-center flex-jc-around'>
                 <div className='try_main-pic'>
-                    <img className='' src="/images/home/app.png" alt="" />
+                    <Image className='' src="/images/home/app.png" alt="" width={400} height={400}/>
                 </div>
                 <div>
                     <h2 className='try_main-title1'>IMBIT App，创造无限可能</h2>

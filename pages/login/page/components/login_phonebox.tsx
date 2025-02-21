@@ -3,12 +3,12 @@ import { Button, Form, Input, Select, Space } from "antd";
 import { type CSSProperties, useState } from "react";
 import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
 
-import { toast } from "sonner";
+// import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
-import type { TabsProps } from 'antd';
-import { Iconify } from "@/components/icon/index";
-import { areaCodeOptionList } from "@/utils/enum";
-import { areaCodeSelectList } from "@/utils/country"; //地区代码
+// import type { TabsProps } from 'antd';
+// import { Iconify } from "@/components/icon/index";
+// import { areaCodeOptionList } from "@/utils/enum";
+// import { areaCodeSelectList } from "@/utils/country"; //地区代码
 import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import SafeModal from "@/components/myModal/login_safeModal"
@@ -32,12 +32,10 @@ interface useInfoType {
 
 function Phonebox() {
 	 const router = useRouter();
-	const [loading, setLoading] = useState(false);
-	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
-	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
+	// const [loading, setLoading] = useState(false);
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
-	const { loginState, setLoginState } = useLoginStateContext();
-	const { loginType, setLoginType } = useLoginTypeContext();
+	// const { loginState,setLoginState } = useLoginStateContext(); // 
+	const { loginType } = useLoginTypeContext(); //, setLoginType
 		const [loginInfo, setLoginInfo] = useState<useInfoType>({
 			type: "",
 			phone: "",
@@ -58,9 +56,9 @@ function Phonebox() {
 	// 	return visitorId.visitorId;
 	// };
 
-	const handOk = () => {
-		setCodeModelOpen(false);
-	};
+	// const handOk = () => {
+	// 	setCodeModelOpen(false);
+	// };
 	const handCodeCancel = () => {
         setCodeModelOpen(false)
     }
@@ -87,26 +85,26 @@ function Phonebox() {
 				console.log("Validate Failed:", info);
 			});
 		// form.resetFields(); //重置表单
-		setLoading(true);
+		// setLoading(true);
 
 	};
 
-	const usernameChange = (changedValues: any) => {
-		// Object.keys(changedValues).forEach((key) => {
-		// 	if (key === "username" && preCheck) {
-		// 		setpreCheck(false);
-		// 	}
-		// });
+	// const usernameChange = (changedValues: any) => {
+	// 	Object.keys(changedValues).forEach((key) => {
+	// 		if (key === "username" && preCheck) {
+	// 			setpreCheck(false);
+	// 		}
+	// 	});
 
-	}
+	// }
 	// const goAuthCode = () => {
 	// 	store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
 	// 	setLoginState(LoginStateEnum.Googlecode)
 	// }
-	const goAuthCode = () => {
-        store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
-        setLoginState(LoginStateEnum.Authcode)
-    }
+	// const goAuthCode = () => {
+    //     store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.PHONE);
+    //     setLoginState(LoginStateEnum.Authcode)
+    // }
 	const goResetPassword = () => {
         router.push('/resetPassword');
     }

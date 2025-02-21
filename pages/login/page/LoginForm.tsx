@@ -1,6 +1,6 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented } from "antd";
-import { type CSSProperties, useEffect, useState } from "react";
+import {  useState } from "react";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProvider";
@@ -8,8 +8,7 @@ import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProv
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";
 // import CodeModel from "./components/codebutton";
-import { toast } from "sonner";
-import type { TabsProps } from 'antd';
+// import { toast } from "sonner";
 import Mailbox from "./components/login_mailbox"
 import Phonebox from "./components/login_phonebox"
 // import QRCodebox from "./components/login_QRcode"
@@ -17,39 +16,35 @@ import { LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvid
 import NoteModal from "@/components/myModal/noteModal"
 
 function LoginForm() {
-	const [loading, setLoading] = useState(false);
-	const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
-	const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
-	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 	const [noteModelOpen, setNoteModelOpen]=useState(false)
 
 	const [tabsProps, setTabsProps] = useState('email');
-	const { loginState, setLoginState } = useLoginStateContext();
+	const { loginState } = useLoginStateContext();
 	// const signIn = useSignIn();
-	const { loginType, setLoginType } = useLoginTypeContext();
+	const {  setLoginType } = useLoginTypeContext();
 	// 当登录状态不为 LOGIN 时不渲染组件
 
 	const handCancel = () => {
 		setNoteModelOpen(false);
 	};
 
-	const handOk = () => {
-		setNoteModelOpen(true);
-		// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-	};
+	// const handOk = () => {
+	// 	setNoteModelOpen(true);
+	// 	// 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
+	// };
 
 	// const handleFinish = async (values: any) => {
 	// 	setLoading(true);
 	// };
 
-	const usernameChange = (changedValues: any) => {
-		Object.keys(changedValues).forEach((key) => {
-			if (key === "username" && preCheck) {
-				setpreCheck(false);
-			}
-		});
+	// const usernameChange = (changedValues: any) => {
+	// 	Object.keys(changedValues).forEach((key) => {
+	// 		if (key === "username" && preCheck) {
+	// 			setpreCheck(false);
+	// 		}
+	// 	});
 
-	}
+	// }
 	const tabsChange = (value: string) => {
 		console.log(value);
 		setTabsProps(value)

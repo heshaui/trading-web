@@ -101,22 +101,22 @@ function RegisterMail() {
         });
     };
     // 自定义密码验证规则
-    const validatePassword = (_: any, value: any) => {
-        if (!value) {
-            return Promise.reject(new Error("密码不能为空！"));
-        }
-        // 检查长度是否在 8 - 30 位之间
-        if (value.length < 8 || value.length > 30) {
-            return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
-        }
-        // 检查是否包含字母和数字
-        const hasLetter = /[a-zA-Z]/.test(value);
-        const hasNumber = /\d/.test(value);
-        if (!hasLetter || !hasNumber) {
-            return Promise.reject(new Error("密码必须包含字母和数字！"));
-        }
-        return Promise.resolve();
-    };
+    // const validatePassword = (_: any, value: any) => {
+    //     if (!value) {
+    //         return Promise.reject(new Error("密码不能为空！"));
+    //     }
+    //     // 检查长度是否在 8 - 30 位之间
+    //     if (value.length < 8 || value.length > 30) {
+    //         return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
+    //     }
+    //     // 检查是否包含字母和数字
+    //     const hasLetter = /[a-zA-Z]/.test(value);
+    //     const hasNumber = /\d/.test(value);
+    //     if (!hasLetter || !hasNumber) {
+    //         return Promise.reject(new Error("密码必须包含字母和数字！"));
+    //     }
+    //     return Promise.resolve();
+    // };
     const goLogin = () => {
         // setLoginState(LoginStateEnum.LOGIN)
         router.push("/login")

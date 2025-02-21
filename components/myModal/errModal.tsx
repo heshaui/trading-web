@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import store from "@/store"
 // import { useRouter } from 'next/router';
 import styles from "./style/errModal.module.css";
-// import Image from "next/image";
+import Image from "next/image";
 
 type Props = {
     open: boolean;
@@ -62,7 +62,7 @@ function ErrModal({ open,errMsg,  onCancel }: Props) {
             width={400}
         >
             <div className="flex-col flex-ai-center">
-                <img src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`}/>
+                <Image src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
                 <p className={`${styles.title} `}>操作失败</p>
                 <p className={`${styles.msg_color} mt-4`}>{errMsg}</p>
             </div>
