@@ -13,11 +13,6 @@ const nextConfig: NextConfig = {
         fs: false, // 禁用 fs 模块
       };
     }
-
-    config.module.rules.push({
-      test: /\.css$/,
-      use: ["style-loader", "css-loader"],
-    });
     config.module.rules.push({
       test: /\.m?js$/, // 匹配所有的 `.mjs` 和 `.js` 文件
       resolve: {
