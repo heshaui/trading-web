@@ -2,15 +2,27 @@ import type { NextConfig } from "next";
 const moduleName = process.env.NEXT_PUBLIC_MODULE || 'shared'; // 默认值改为 'shared'
 // import { i18n } from './next-i18next.config.js';
 
-const { i18n } = require('./next-i18next.config');
+import { i18n } from './next-i18next.config';
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  webpack: (config) => {
+  webpack: (config,{ isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        fs: false, // 禁用 fs 模块
+      };
+    }
+
     config.module.rules.push({
       test: /\.css$/,
       use: ["style-loader", "css-loader"],
+    });
+    config.module.rules.push({
+      test: /\.m?js$/, // 匹配所有的 `.mjs` 和 `.js` 文件
+      resolve: {
+        fullySpecified: false, // 禁用对 .mjs 文件的严格匹配
+      },
     });
     return config;
   },
