@@ -4,7 +4,7 @@
 // import { GetStaticProps } from 'next';
 
 import React from 'react';
-import '@/styles/components/home/experience.css'
+import styles from '@/styles/components/home/experience.module.css'
 import { Input,Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next'
@@ -17,17 +17,16 @@ export default function Experience() {
         // setEmail(e.target.value)
       };
     return (
-        <div className='experiencePage'>
-            <div className='experience-main'>
-                <div className='experience_main-box'>
+        <div className={`${styles.experience_page}`}>
+            <div className={`${styles.experience_main}`}>
+                <div className={`${styles.experience_main_box}`}>
                     <h2>{t('home')}</h2>
-                    <div className='flex flex-ai-center experience_main-email'>
-                        <Input type="text" placeholder={t('email')} onChange={onChange} className='custom-input-home' />
-                        <Button className='experience_main-btn'>{t('experience')}</Button>
+                    <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
+                        <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />
+                        <Button className={`${styles.experience_main_btn}`}>{t('experience')}</Button>
                     </div>
                 </div>
                 <Image className='' src="/images/home/phone.png" alt="" width={620} height={600}/>
-
             </div>
         </div>
     );

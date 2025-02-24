@@ -1,6 +1,6 @@
 
 import React from 'react';
-import '@/styles/components/home/questions.css'
+import styles from '@/styles/components/home/questions.module.css';
 import { Collapse} from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';
@@ -56,39 +56,39 @@ const { t } = useTranslation(['home']);
     };
 
     return (
-        <div className='questionsPage'>
-            <div className='questions-main flex-column flex-ai-center flex-jc-center'>
-                <h2 className='questions_main-title1'>{t('questionsTitle')}</h2>
-                <div className='main-questions-box'>
-                    <Collapse
-                    className='main-questions'
-                        bordered={false}
-                        // defaultActiveKey={['1']}
-                        // expandIcon={({ isActive }) => <span>  </span>}/
-                        style={{ background: "var( --background4)",color: "var(--hometext)" }}
-                        // style={{ background: token.colorBgContainer }}
-                        items={getItems(panelStyle)}
-                        size="large"
-                    />
+        <div className={`${styles.questions_page}`}>
+        <div className={`${styles.questions_main} flex-column flex-ai-center flex-jc-center`}>
+            <h2 className={`${styles.questions_main_title1}`}>{t('questionsTitle')}</h2>
+            <div className={`${styles.main_questions_box}`}>
+                <Collapse
+                    className={`${styles.main_questions} custom-collapse`}
+                    bordered={false}
+                    // defaultActiveKey={['1']}
+                    // expandIcon={({ isActive }) => <span>  </span>}/
+                    style={{ background: "var( --background4)", color: "var(--hometext)" }}
+                    // style={{ background: token.colorBgContainer }}
+                    items={getItems(panelStyle)}
+                    size="large"
+                />
 
-                    {/* <div className='main-questions-list flex flex-ai-center flex-jc-between'>
-                        <h3>IMBIT都提供哪些产品</h3>
-                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
-                    </div>
-                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
-                        <h3>如何通过IMBIT平台购买比特币？</h3>
-                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
-                    </div>
-                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
-                        <h3>美国公民可以使用IMBIT吗？</h3>
-                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
-                    </div>
-                    <div className='main-questions-list flex flex-ai-center flex-jc-between'>
-                        <h3>什么是数字货币？</h3>
-                        <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
-                    </div> */}
+                {/* <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                    <h3>IMBIT都提供哪些产品</h3>
+                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
                 </div>
+                <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                    <h3>如何通过IMBIT平台购买比特币？</h3>
+                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                </div>
+                <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                    <h3>美国公民可以使用IMBIT吗？</h3>
+                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                </div>
+                <div className='main-questions-list flex flex-ai-center flex-jc-between'>
+                    <h3>什么是数字货币？</h3>
+                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                </div> */}
             </div>
         </div>
+    </div>
     );
 }
