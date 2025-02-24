@@ -1,6 +1,7 @@
 .footerContainer {
-    padding: 0 120px;
+    padding: 40px 120px;
     display: flex;
+    background-color: #0C0D0C;
 }
 .footerContainer .logoAndButton {
     display: flex;

@@ -64,7 +64,7 @@ export default function Home() {
   props: {
     ...(await serverSideTranslations(locale ?? 'en', [
       'common',
-      'home-menu',
+      'home_menu',
     ])),
   },
 })

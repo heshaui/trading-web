@@ -105,9 +105,19 @@ export default function Footer() {
                 >
                     <Button>
                         <Space>
-                            <GlobalOutlined />
+                            <Image
+                                src="/images/footer/icon_earth_line.png"
+                                alt=''
+                                width={20}
+                                height={20}
+                            />
                             简体中文
-                            <DownOutlined />
+                            <Image
+                                src="/images/footer/icon_down_line.png"
+                                alt=''
+                                width={20}
+                                height={20}
+                            />
                         </Space>
                     </Button>
                 </Dropdown>
@@ -118,7 +128,12 @@ export default function Footer() {
                 >
                     <Button>
                         <Space>
-                            <DownloadOutlined />
+                            <Image
+                                src="/images/footer/icon_download_line.png"
+                                alt=''
+                                width={20}
+                                height={20}
+                            />
                             下载 APP
                         </Space>
                     </Button>

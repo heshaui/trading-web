@@ -56,6 +56,7 @@ export type LabelComponentProps = {
     myWords_1?: string; // 我的 - 交易量
     myWords_2?: string; // 我的 - 具体交易量
     myWords_3?: string; // 我的 - 交易量币种
+    needHover?: boolean; // 公告中心hover
 }
 // 定义TabsItem的数据类型
 export interface TabsItemData extends LabelComponentProps {

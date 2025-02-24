@@ -3,8 +3,9 @@ import React from 'react';
 import { HomeMenuChildrenLabelProps } from '@/type/types';
 // import { Input, Tabs, Menu, ConfigProvider } from "antd";
 import { Input, Tabs, ConfigProvider } from "antd";
-import { SearchOutlined } from '@ant-design/icons';
+// import { SearchOutlined } from '@ant-design/icons';
 import TabsItem from './TabsItem';
+import Image from 'next/image';
 
 const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
     isTabs = false,
@@ -46,7 +47,14 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                                         <Input
                                             style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }}
                                             placeholder="搜索"
-                                            prefix={<SearchOutlined />}
+                                            prefix={
+                                                <Image
+                                                    src="/images/home_menu/icon_search.png"
+                                                    alt=""
+                                                    width={16}
+                                                    height={16}
+                                                />
+                                            }
                                             onChange={onInputChange}
                                         />
                                     </ConfigProvider>

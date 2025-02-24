@@ -5,6 +5,7 @@
     display: flex;
     /* justify-content: center; */
     align-items: center;
+    background-color: #0C0D0C;
 }
 
 .logo {
@@ -57,10 +58,16 @@
 }
 
 .menuListA {
+    box-sizing: border-box;
+    padding: 10px;
     justify-content: space-between;
     min-width: 208px;
     min-height: 56px;
     color: #0C0D0C;
+}
+.menuListAHover:hover {
+    background-color: #F4F4F4;
+    border-radius: 8px;
 }
 
 .menuListAOther,

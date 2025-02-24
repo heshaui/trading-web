@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Col, Row, Badge, Calendar, ConfigProvider, Segmented, Select, Radio, Button } from 'antd';
 import type { CalendarProps } from 'antd';
-import { RightOutlined, LeftOutlined } from '@ant-design/icons';
+// import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
@@ -315,7 +315,7 @@ const FundingCalendar: React.FC = () => {
                                                                 }}
                                                                 onClick={handlePreviousMonth}
                                                             >
-                                                                <LeftOutlined style={{ color: '#1F40FF', fontSize: '10px' }} />
+                                                                {/* <LeftOutlined style={{ color: '#1F40FF', fontSize: '10px' }} /> */}
                                                             </div>
                                                         </Col>
                                                         <Col>
@@ -332,7 +332,7 @@ const FundingCalendar: React.FC = () => {
                                                                 }}
                                                                 onClick={handleNextMonth}
                                                             >
-                                                                <RightOutlined style={{ color: '#1F40FF', fontSize: '10px' }} />
+                                                                {/* <RightOutlined style={{ color: '#1F40FF', fontSize: '10px' }} /> */}
                                                             </div>
                                                         </Col>
                                                     </Row>
