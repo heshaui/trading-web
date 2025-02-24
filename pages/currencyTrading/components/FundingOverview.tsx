@@ -7,11 +7,11 @@ import TableItem from './table/TableItem';
 import FundingCalendar from './calendar/FundingCalendar';
 
 import { Card, Col, Row, ConfigProvider, Select, Tabs, Checkbox, TableColumnsType, Progress } from 'antd';
-import {
-    InfoCircleOutlined,
-    CheckCircleFilled,
-    RightOutlined,
-} from '@ant-design/icons';
+// import {
+//     InfoCircleOutlined,
+//     CheckCircleFilled,
+//     RightOutlined,
+// } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
@@ -199,7 +199,7 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                             fontSize: '14px'
                         }}>
                             去交易
-                            <RightOutlined />
+                            {/* <RightOutlined /> */}
                         </a>
                     </div>
                 )
@@ -377,7 +377,10 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                                 <div className={styles.todayAndHistory}>
                                     {contentData.map((item, index) => (
                                         <div className={styles.content} key={index}>
-                                            <p>{item.pText}<InfoCircleOutlined style={{ marginLeft: '2px' }} /></p>
+                                            <p>
+                                                {item.pText}
+                                                {/* <InfoCircleOutlined style={{ marginLeft: '2px' }} /> */}
+                                            </p>
                                             <div style={{ marginTop: '8px' }}>
                                                 <span className={styles.span1}>{item.PL}</span>
                                                 <span className={getPLClassName(item.PL)}>{item.percentagePL}</span>
@@ -400,7 +403,7 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                                         <ul className={styles.list}>
                                             {assetMovements.map((item, index) => (
                                                 <li key={index}>
-                                                    <CheckCircleFilled style={{ marginRight: '6px' }} />
+                                                    {/* <CheckCircleFilled style={{ marginRight: '6px' }} /> */}
                                                     <span>{item.spanText}</span>
                                                 </li>
                                             ))}
@@ -464,7 +467,7 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                                         </div>
                                         <div className={styles.more}>
                                             <span>更多</span>
-                                            <RightOutlined />
+                                            {/* <RightOutlined /> */}
                                         </div>
                                     </div>
                                     <div style={{ marginTop: '14px', color: '#A4A5AC', fontSize: '12px' }}>
@@ -486,7 +489,7 @@ export default function FundingOverview({ title }: CurrencyTradingProps) {
                                     <h5>持有币种：<span>25</span></h5>
                                     <div className={styles.more}>
                                         <span>更多</span>
-                                        <RightOutlined />
+                                        {/* <RightOutlined /> */}
                                     </div>
                                 </div>
                                 <div className={styles.pieChart} style={{ marginTop: '30px', height: '178px' }}>
