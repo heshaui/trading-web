@@ -118,7 +118,7 @@ function RegisterPhone() {
 						</Form.Item> */}
 						<PhoneCodeSelector />
 						<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-							<Input placeholder="请输入手机号" allowClear={true} className="ml-2 mail-input" />
+							<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2`} />
 						</Form.Item>
 					</div>
 				</Form.Item>
@@ -126,7 +126,7 @@ function RegisterPhone() {
 				<Form.Item name="password"
 					rules={[{ validator: validatePassword }]}
 				>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
+					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }
@@ -135,7 +135,7 @@ function RegisterPhone() {
 				
 				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
 				<Form.Item name="referee" rules={[{ required: false, }]}>
-					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large" className="mail-input"
+					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }

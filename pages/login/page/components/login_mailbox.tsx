@@ -195,7 +195,7 @@ function Mailbox() {
                     options={options}
                     allowClear={true}
                     backfill={true}
-                    className={`${styles.auto_complete_input}`}
+                    className={`${styles.auto_complete_input} auto-complete-input`}
                     onFocus={setHistoryOptions}
                 />
             </Form.Item>
