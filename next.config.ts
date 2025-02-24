@@ -7,6 +7,7 @@ import { i18n } from './next-i18next.config';
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
+  transpilePackages: [ "antd", "@ant-design", "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table" ,"rc-input"],
   webpack: (config,{ isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
