@@ -8,7 +8,8 @@ import LoginForm from "./LoginForm";
 // import { LoginStateProvider, LoginTypeProvider } from "./providers/LoginStateProvider";
 import {  LoginTypeProvider } from "./providers/LoginStateProvider";
 import { useRouter } from 'next/router';
-import "./styles/login.css"
+// import "./styles/login.css"
+import styles from './styles/login.module.css'
 // import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
@@ -46,7 +47,8 @@ function Login() {
 
 
 	return (
-		<Layout className="relative flex h-overmax w-full flex-row page-box" >
+		<Layout className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
+		{/* <Layout className="relative flex h-overmax w-full flex-row page-box "> */}
 			<div
 				className="isHidden flex-1"
 				style={loginBgcStyle}

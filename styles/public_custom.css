@@ -1,40 +1,47 @@
-.button-color,.btn-color {
+.button-color,
+.btn-color {
     background: var(--btncolor5);
     border-radius: 36px;
     color: #ffffff;
-  }
-  .page-box{
+}
+
+.page-box {
     background-color: var(--background);
-  }
-  .goback-btn{
+}
+
+.goback-btn {
     border-radius: 36px;
     width: 115px;
     height: 50px;
-  }
-  
-  
-  /* 弹窗背景覆盖 */
-  .modal_box  .ant-modal-content {
+}
+
+
+/* 弹窗背景覆盖 */
+.modal_box .ant-modal-content {
     background-color: var(--background5);
-  }
-  /* 输入框组件覆盖 */
-  .custom-input:focus,
-  .custom-input:focus-within {
-     border-color: var(--text-color3) !important;
-     /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
-     box-shadow: none !important;
-     /* background-color: pink !important; */
-  }
-  /* 鼠标聚焦且移出样式 */
-  .custom-input:focus:not(:hover){
-      background-color: var(--homeground);
-      color: #fff;
-  }
-  /* 鼠标滑过 */
-  .custom-input:hover{
-      border-color: var(--text-color3);
-  }
-  /* 
+}
+
+/* 输入框组件覆盖 */
+.custom-input:focus,
+.custom-input:focus-within {
+    border-color: var(--text-color3) !important;
+    /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
+    box-shadow: none !important;
+    /* background-color: pink !important; */
+}
+
+/* 鼠标聚焦且移出样式 */
+.custom-input:focus:not(:hover) {
+    background-color: var(--homeground);
+    color: #fff;
+}
+
+/* 鼠标滑过 */
+.custom-input:hover {
+    border-color: var(--text-color3);
+}
+
+/* 
   输入框组件覆盖 
   .custom-input:focus,
   .custom-input:focus-within {
@@ -66,53 +73,88 @@
     color: var(--textcolor) !important;
   }
   */
-  
-  /* AutoComplete组件样式 */
-  .autoComplete-custom .ant-select-selection-search-input{
+
+/* AutoComplete组件样式 */
+.autoComplete-custom .ant-select-selection-search-input {
     height: 100% !important;
-  }
-  /* 输入框背景色及文本颜色 */
-  /* .autoComplete-custom .ant-select-selector{
+}
+
+/* 输入框背景色及文本颜色 */
+/* .autoComplete-custom .ant-select-selector{
     background-color: var(--background) !important;
     color: var(--textcolor);
   } */
-  /* 输入框提示文本 */
-  /* .autoComplete-custom .ant-select-selection-placeholder {
+/* 输入框提示文本 */
+/* .autoComplete-custom .ant-select-selection-placeholder {
     color: var(--textcolor) ;
   } */
-  .autoComplete-custom .ant-select-selector:hover
-  {
+.autoComplete-custom .ant-select-selector:hover {
     border-color: var(--text-color3) !important;
-  }
-  /* 聚焦时鼠标移出的样式 */
-  .autoComplete-custom .ant-select-selector:focus:not(:hover),
-  .ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector
-  {
-    border-color: var(--text-color3) !important; 
-    box-shadow: none !important; 
-  }
-  
-  /* segmented 选中标签样式及动画标签 */
-  /* 未选中标签鼠标滑过样式 */
-  .custom-segmented .ant-segmented-item .ant-segmented-item-label:hover{
+}
+
+/* 聚焦时鼠标移出的样式 */
+.autoComplete-custom .ant-select-selector:focus:not(:hover),
+.ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+    border-color: var(--text-color3) !important;
+    box-shadow: none !important;
+}
+
+/* AutoComplete 组件样式 */
+.auto-complete-input .ant-select-selection-search-input {
+    height: 100% !important;
+}
+
+.auto-complete-input .ant-select-selector:hover
+
+/* .auto-complete-input:focus:not(:hover) */
+    {
+    border-color: var(--text-color3) !important;
+}
+
+/* 聚焦时鼠标移出的样式 */
+/* .auto-complete-input.ant-select-focused:not(:hover) */
+.auto-complete-input .ant-select-selector:focus:not(:hover),
+.ant-select-focused.ant-select-outlined:not(.ant-select-disaabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+    border-color: var(--text-color3) !important;
+    box-shadow: none !important;
+}
+
+
+/* segmented 选中标签样式及动画标签 */
+/* 未选中标签鼠标滑过样式 */
+/* .custom-segmented .ant-segmented-group,.custom-segmented ant-segmented-item{
+    width: 100px;
+    height: 36px;
+  } */
+.custom-segmented .ant-segmented-item .ant-segmented-item-label:hover {
     color: var(--textcolor);
-  }
-  /* 选中标签鼠标滑过样式 */
-  .custom-segmented .ant-segmented-item-selected .ant-segmented-item-label:hover{
+}
+
+/* 选中标签鼠标滑过样式 */
+.custom-segmented .ant-segmented-item-selected .ant-segmented-item-label:hover {
     color: #fff;
-  }
-  .custom-segmented .ant-segmented-item-selected,
-  .custom-segmented .ant-segmented-thumb {
-      border-radius: 36px;
-      color: #fff;
-      /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
-      background: var(--btncolor5)
-  }
-  
-  .text-color {
+}
+
+.custom-segmented .ant-segmented-item-selected,
+.custom-segmented .ant-segmented-thumb {
+    border-radius: 36px;
+    color: #fff;
+    /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
+    background: var(--btncolor5)
+}
+
+.text-color {
     color: var(--text-color3);
-  }
-  .text-color-disable {
+}
+
+.text-color-disable {
     color: var(--tip-color1)
-  }
-  
+}
+
+/* 自定义表单错误提示样式 */
+.ant-form-item-explain {
+    width: 100%;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 12px;
+}

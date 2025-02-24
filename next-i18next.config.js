@@ -3,6 +3,6 @@ module.exports = {
     locales: ['en', 'zh', 'ko'], // 支持的语言
     defaultLocale: 'en',        // 默认语言
   },
-  ns: ['common', 'home_menu'],
+  ns: ['common', 'home_menu','home','login'],
   defaultNS: 'common',
 };

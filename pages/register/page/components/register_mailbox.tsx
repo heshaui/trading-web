@@ -15,7 +15,7 @@ import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 // import {goLogin} from "@/store/loginEnum"
-
+import styles from '../styles/login.module.css'
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -144,18 +144,18 @@ function RegisterMail() {
                         options={options}
                         allowClear={true}
                         backfill={true}
-                        className="autoComplete-input"
+                        className={`${styles.auto_complete_input} auto-complete-input`}
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
+                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
 
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
                 <Form.Item name="referee" rules={[{ required: false }]}>
-                    <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large" className="mail-input"
+                    <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input}`}
                     />
                 </Form.Item>
 
@@ -172,7 +172,7 @@ function RegisterMail() {
 
                 </ConfigProvider>
             </Form>
-            <button type="submit" className="w-full button-color login-button mt-8"
+            <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
                 onClick={handleFinish}>
                 {"注册"}
             </button>

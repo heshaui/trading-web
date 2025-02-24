@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Input, Form } from 'antd';
-import { useEffect, useState,useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
@@ -15,7 +15,7 @@ import RepeatModal from "@/components/myModal/register_repeatModal";
 // import { v4 as uuidv4 } from 'uuid';
 import { encryptData } from "@/utils/encrypt";
 import { useRouter } from 'next/router';
-
+import styles from '../styles/login.module.css'
 // interface ApiResponse {
 //     code: number;
 //     message?: string;
@@ -32,11 +32,11 @@ function AuthCode() {
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const [loading, setLoading] = useState(false);
     const [requestMsg, setRequestMsg] = useState('注册成功!'); //'success' 
-    const [toastType, setToastType] = useState('success' ); 
+    const [toastType, setToastType] = useState('success');
     const registerInfo = store.registerInfo;
 
     const [form] = Form.useForm();
-    const router=useRouter()
+    const router = useRouter()
 
     const goBackPage = () => {
         const authcodeState = store.authcodeState;
@@ -96,7 +96,7 @@ function AuthCode() {
                         setRequestMsg(res.message)
                         setToastType('success')
                         setRepeatModalOPen(true)
-                        
+
                         // toast.success("注册成功")
                     } else if (res.code === '10043') {
                         setRequestMsg(res.message)
@@ -184,7 +184,7 @@ function AuthCode() {
         setPointout(false)
         await getRegisterCode()
     }
-    const goLoginPage=()=>{
+    const goLoginPage = () => {
         // setLoginState(LoginStateEnum.LOGIN)
         router.push('/login')
     }
@@ -202,7 +202,7 @@ function AuthCode() {
             {/* <div className="mb-6 authcode-header font-w-500" style={{ width: "300px" }}>邮箱/手机号验证</div> */}
             <div className='mb-2'>
                 <p className='font-16 font-w-500 mb-1'>已发送验证码至</p>
-                <p className='tip-color1'>
+                <p className={`${styles.tip_color1}`}>
                     <span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
                     {registerInfo.type === 'm' ? encryptEmail(registerInfo.email) : encryptPhoneNumber(registerInfo.phone)}
                 </p>
@@ -221,11 +221,11 @@ function AuthCode() {
                         placeholder="邮箱/手机号验证"
                         // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         suffix={
-                            <button type='button' className={isCounting ? 'tip-color1-input' : 'text-color'} onClick={getRegisterCode}>
+                            <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getRegisterCode}>
                                 {isCounting ? `${countdown}s 重发` : "重新发送"}
                             </button>
                         }
-                        className='authcode-input mail-input'
+                        className={`${styles.authcode_input} ${styles.mail_input}`}
                         style={{ borderRadius: "8px" }}
                     />
                     {/* <button className='text-color mt-1'>粘贴</button> */}
@@ -234,15 +234,15 @@ function AuthCode() {
             <div className='flex mt-6'>
                 <button
                     type='button'
-                    className='goback-btn'
+                    className={`${styles.goback_btn}`}
                     onClick={() => goBackPage()}
                 >返回</button>
-                <button type='submit' className='btn-color submit-btn' onClick={onSubmit}>提交</button>
+                <button type='submit' className={`btn-color ${styles.submit_btn}`} onClick={onSubmit}>提交</button>
             </div>
             <div>
                 <button
                     type="button"
-                    className="text-color mt-5"
+                    className={`${styles.text_color} mt-5`}
                     onClick={() => setPointout(true)}
                 >
                     收不到验证码？
@@ -254,15 +254,15 @@ function AuthCode() {
                     registerInfo.type === "m" ? (registerInfo.email || "") :
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 } onOk={() => setPointout(false)} onCancel={handCodeOk} />
-            <RepeatModal open={repeatModalOPen} 
-            type={toastType} 
-            message={requestMsg} 
-            acount={
-                registerInfo.type === "m" ? (registerInfo.email || "") :
-                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
-            }
-            onCancel={handCancel}
-             onOk={() => goLoginPage()} />
+            <RepeatModal open={repeatModalOPen}
+                type={toastType}
+                message={requestMsg}
+                acount={
+                    registerInfo.type === "m" ? (registerInfo.email || "") :
+                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                }
+                onCancel={handCancel}
+                onOk={() => goLoginPage()} />
         </div>
     );
 }

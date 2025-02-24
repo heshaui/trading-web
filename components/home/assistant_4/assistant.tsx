@@ -7,8 +7,9 @@ import React from 'react';
 import '@/styles/components/home/assistant.css'
 // import { Input, Button } from "antd";
 import Image from 'next/image'
+import { useTranslation } from 'next-i18next';
 export default function Experience() {
-    // const { t } = useTranslation('common');
+    const { t } = useTranslation(['home']);
     // const [email, setEmail] = useState('');
     // const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     //     console.log('Change:', e.target.value);
@@ -17,8 +18,8 @@ export default function Experience() {
     return (
         <div className='assistantPage'>
                 <div className='assistant-main flex-column flex-ai-center flex-jc-center'>
-                    <h2 className='assistant_main-title1'>您数字货币之旅的得力助手</h2>
-                    <h3 className='assistant_main-title2'>从数字货币交易初体验到第一次购买 NFT，IMBIT将助您轻松赚币</h3>
+                    <h2 className='assistant_main-title1'>{t('assistantTitle')}</h2>
+                    <h3 className='assistant_main-title2'>{t('assistantTip')}</h3>
                     <div className='assistant_main-pic flex flex-jc-between'>
                         <Image className='assistant-pic' src="/images/home/comup1.png" alt=""  width={200} height={100}/>
                         <Image className='assistant-pic' src="/images/home/comup2.png" alt="" width={200} height={100}/>

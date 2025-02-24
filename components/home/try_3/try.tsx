@@ -1,8 +1,9 @@
 import React from 'react';
 import '@/styles/components/home/try.css'
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 export default function Experience() {
-
+const { t } = useTranslation(['home']);
     return (
         <div className='tryPage'>
             {/* <div className='try-main'> */}
@@ -11,8 +12,8 @@ export default function Experience() {
                     <Image className='' src="/images/home/app.png" alt="" width={400} height={400}/>
                 </div>
                 <div>
-                    <h2 className='try_main-title1'>IMBIT App，创造无限可能</h2>
-                    <h3 className='try_main-title2'>初次交易？$5 即可小试牛刀，IMBIT和您一起步步登高</h3>
+                    <h2 className='try_main-title1'>{t('appTitle')}</h2>
+                    <h3 className='try_main-title2'>{t('tradeTip')}</h3>
                 </div>
 
             </div>

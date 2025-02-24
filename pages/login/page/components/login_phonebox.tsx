@@ -9,10 +9,11 @@ import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContex
 // import { Iconify } from "@/components/icon/index";
 // import { areaCodeOptionList } from "@/utils/enum";
 // import { areaCodeSelectList } from "@/utils/country"; //地区代码
-import store from "@/store";
+// import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import SafeModal from "@/components/myModal/login_safeModal"
 import { useRouter } from 'next/router';
+import styles from '../styles/login.module.css'
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -156,13 +157,13 @@ function Phonebox() {
 							<PhoneCodeSelector/>
 						{/* </Form.Item> */}
 						<Form.Item name="phoneNumber" noStyle rules={[{ required: true, message: "手机号不能为空！" }]}>
-							<Input placeholder="请输入手机号" allowClear={true} className="ml-2 mail-input" />
+							<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2`} />
 						</Form.Item>
 					</div>
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className="mail-input"
+					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }
@@ -187,7 +188,7 @@ function Phonebox() {
 					</Form.Item>
 				)} */}
 				<Form.Item noStyle>
-					<button type="button" className="forgetPassword-button" onClick={() => goResetPassword()}>
+					<button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()}>
 						{"忘记密码"}
 					</button>
 				</Form.Item>
@@ -197,7 +198,7 @@ function Phonebox() {
 					</Button>
 				</Form.Item> */}
 			</Form>
-			<button type="submit"  className="w-full button-color login-button mt-8"
+			<button type="submit"  className={`${styles.login_button} w-full button-color mt-8`}
                 onClick={onFinish}>
                 {"登录"}
             </button>

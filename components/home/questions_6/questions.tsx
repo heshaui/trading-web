@@ -5,8 +5,9 @@ import { Collapse} from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 export default function Questions() {
-
+const { t } = useTranslation(['home']);
     const text = `
   A dog is a type of domesticated animal.
   Known for its loyalty and faithfulness,
@@ -15,7 +16,7 @@ export default function Questions() {
     const getItems: (panelStyle: CSSProperties) => CollapseProps['items'] = (panelStyle) => [
         {
             key: '1',
-            label: 'IMBIT都提供哪些产品',
+            label: t('questionsTip1'), //'IMBIT都提供哪些产品'
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false, //隐藏组件的箭头图标
@@ -23,7 +24,7 @@ export default function Questions() {
         },
         {
             key: '2',
-            label: '如何通过IMBIT平台购买比特币？',
+            label: t('questionsTip2'),//'如何通过IMBIT平台购买比特币？',
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
@@ -31,7 +32,7 @@ export default function Questions() {
         },
         {
             key: '3',
-            label: '美国公民可以使用IMBIT吗？',
+            label: t('questionsTip3'),//'美国公民可以使用IMBIT吗？',
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
@@ -40,7 +41,7 @@ export default function Questions() {
         },
         {
             key: '4',
-            label: '什么是数字货币？',
+            label: t('questionsTip4'),//'什么是数字货币？',
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
@@ -57,7 +58,7 @@ export default function Questions() {
     return (
         <div className='questionsPage'>
             <div className='questions-main flex-column flex-ai-center flex-jc-center'>
-                <h2 className='questions_main-title1'>常见问题</h2>
+                <h2 className='questions_main-title1'>{t('questionsTitle')}</h2>
                 <div className='main-questions-box'>
                     <Collapse
                     className='main-questions'
