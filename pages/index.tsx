@@ -65,6 +65,8 @@ export default function Home() {
     ...(await serverSideTranslations(locale ?? 'en', [
       'common',
       'home-menu',
+      'home',
+      'login'
     ])),
   },
 })

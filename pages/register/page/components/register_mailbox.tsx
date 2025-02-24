@@ -15,7 +15,7 @@ import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 // import {goLogin} from "@/store/loginEnum"
-
+import styles from '../styles/login.module.css'
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -172,7 +172,7 @@ function RegisterMail() {
 
                 </ConfigProvider>
             </Form>
-            <button type="submit" className="w-full button-color login-button mt-8"
+            <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
                 onClick={handleFinish}>
                 {"注册"}
             </button>

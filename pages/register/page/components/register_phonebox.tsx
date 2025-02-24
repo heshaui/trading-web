@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useRouter } from 'next/router';
+import styles from '../styles/login.module.css'
 // import {goLogin} from "@/store/loginEnum"
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -156,7 +157,7 @@ function RegisterPhone() {
 				onClick={onFinish}>
 				{"注册"}
 			</Button> */}
-			<button type="submit" className="w-full button-color login-button mt-8"
+			<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
 				onClick={onFinish}>
 				{"注册"}
 			</button>

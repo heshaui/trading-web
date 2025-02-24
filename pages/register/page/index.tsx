@@ -7,7 +7,8 @@ import type { CSSProperties } from "react";
 import RegisterForm from "./RegisterForm";
 // import { LoginStateProvider, LoginTypeProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
 import { LoginStateProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
-import "./styles/login.css"
+// import "./styles/login.css"
+import styles from './styles/login.module.css'
 import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;

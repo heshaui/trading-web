@@ -4,6 +4,6 @@ module.exports = {
     defaultLocale: 'en',        // 默认语言
     localeDetection: true, // 启用语言自动检测
   },
-  ns: ['common', 'home_menu'],
+  ns: ['common', 'home_menu','home','login'],
   defaultNS: 'common',
 };

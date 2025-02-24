@@ -1719,7 +1719,7 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                 </div>
                             ) : (
                                 <Row align='middle'>
-                                    <Col><Link href='/login' className={styles.register}>注册</Link></Col>
+                                    <Col><Link href='/register' className={styles.register}>注册</Link></Col>
                                     <Col><Link href='/login' className={styles.login}>登录</Link></Col>
                                     <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
                                     {iconItems}
