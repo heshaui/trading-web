@@ -1,8 +1,8 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 // import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
+// import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
 // import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
-import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, } from 'antd';
+import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, } from 'antd';
 import { MenuProps } from 'antd';
 import MenuItem from './HomeMenuItems'; // 顶部菜单
 import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
@@ -15,13 +15,19 @@ import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 
 // import { request } from '@/request/index'; // 引入封装的请求方法
 import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
-// t - 多语言
-export default function HomeMenu({ t, test }: HomeMenuProps) {
+
+export default function HomeMenu() {
+    // t - 多语言
+    const { t } = useTranslation(['home_menu']);
+    console.log('t', t('home_menu_title_1'));
+    // console.log('test', test);
+
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
     const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
@@ -164,9 +170,6 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         });
     }
 
-    // t - 多语言
-    console.log('t', t('home_menu_title_1'));
-    console.log('test', test);
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
     // 退出登录
@@ -496,19 +499,19 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
-            case 'download':
-                return <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            case 'bell':
-                return <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            case 'question':
-                return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            case 'global':
-                return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            case 'img_upload':
+            // case 'download':
+            //     return <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
+            // case 'bell':
+            //     return <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
+            // case 'question':
+            //     return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
+            // case 'global':
+            //     return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
+            case 'img_horn':
                 // return <Col><img src="/images/home_menu/icon_upload_line.png" className={styles.iconCursor} /></Col>;
                 return <Col>
                     <Image
-                        src="/images/home_menu/icon_upload_line.png"
+                        src="/images/home_menu/icon_horn_hover.png"
                         alt=""
                         width={20}  // 必须指定宽度
                         height={20} // 必须指定高度
@@ -553,124 +556,6 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
     const IconHtml = ({ icon }: { icon: IconName }) => {
         return getIconByKey(icon);
     };
-    // 右侧icon菜单
-    const iconMenus: MenuListItem[] = [
-        {
-            key: '1',
-            title: <IconHtml icon="download" />,
-            widthSet: 'download',
-            items: [
-                {
-                    key: '1',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
-                    ),
-                },
-            ],
-        },
-        {
-            key: '2',
-            title: <IconHtml icon="bell" />,
-            widthSet: 'bell',
-            items: [
-                {
-                    key: '1',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于上线 Pendle (PENDLE) 现货交易的公告" spanText="2024/09/27 11:00:00" />
-                    ),
-                },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="ETH/BTC 币对现已上线双币赢！" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '3',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于延迟上线 USDC 交易币对的公告" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '4',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正 式上线的公告" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '5',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投 币的公告" spanText="2024/09/27 11:00:00" />
-                    ),
-                },
-                {
-                    key: '6',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel h5Text="查看更多" isMore />
-                    ),
-                },
-            ],
-        },
-        {
-            key: '3',
-            title: <IconHtml icon="question" />,
-            widthSet: 'question',
-            items: [
-                {
-                    key: '1',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="帮助中心" />
-                    ),
-                },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="我的客服工单" />
-                    ),
-                },
-                {
-                    key: '3',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="加入IMBIT社群" />
-                    ),
-                },
-            ],
-        },
-        {
-            key: '4',
-            title: <IconHtml icon="global" />,
-            widthSet: 'global',
-            items: [
-                {
-                    key: '1',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="中文" />
-                    ),
-                },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="English" />
-                    ),
-                },
-            ],
-        },
-    ];
-    const iconItems = iconMenus.map(iconMenu =>
-        <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
-    );
 
     // 语言菜单
     const spanArr = [
@@ -791,59 +676,34 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
         // }
     };
 
+    // 公告中心 - 公告部分测试数据
+    const bulletinArr = [
+        { h5Text: "IMBIT关于上线 Pendle (PENDLE) 现货交易的公告", spanText: "2024/09/27 11:00:00" },
+        { h5Text: "ETH/BTC 币对现已上线双币赢！", spanText: "2024/09/27 14:30:00" },
+        { h5Text: "IMBIT关于延迟上线 USDC 交易币对的公告", spanText: "2024/09/27 14:30:00" },
+        { h5Text: "IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正式上线的公告", spanText: "2024/09/27 14:30:00" },
+        { h5Text: "IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投币的公告", spanText: "2024/09/27 11:00:00" },
+    ];
+    // 公告中心标签页
+    const bulletinItems: TabsProps['items'] = [
+        {
+            key: '1',
+            label: '公告',
+            children:
+                bulletinArr.map((item, index) => (
+                    <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
+                ))
+        },
+        {
+            key: '2',
+            label: '账户助手',
+            children: 'Content of Tab Pane 2',
+        },
+    ];
     // 右侧菜单登陆后
     const iconMenusLogin: MenuListItem[] = [
         {
             key: '1',
-            title: <IconHtml icon="img_upload" />,
-            widthSet: 'bell',
-            items: [
-                {
-                    key: '1',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于上线 Pendle (PENDLE) 现货交易的公告" spanText="2024/09/27 11:00:00" />
-                    ),
-                },
-                {
-                    key: '2',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="ETH/BTC 币对现已上线双币赢！" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '3',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于延迟上线 USDC 交易币对的公告" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '4',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正 式上线的公告" spanText="2024/09/27 14:30:00" />
-                    ),
-                },
-                {
-                    key: '5',
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel h5Text="IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投 币的公告" spanText="2024/09/27 11:00:00" />
-                    ),
-                },
-                {
-                    key: '6',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel h5Text="查看更多" isMore />
-                    ),
-                },
-            ],
-        },
-        {
-            key: '2',
             title: <IconHtml icon="img_download" />,
             widthSet: 'download',
             items: [
@@ -857,14 +717,14 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
             ],
         },
         {
-            key: '3',
+            key: '2',
             title: <IconHtml icon="img_change" />,
             widthSet: 'question',
             items: [],
             onClick: toggleDayMode,
         },
         {
-            key: '4',
+            key: '3',
             title: <IconHtml icon="img_global" />,
             widthSet: 'global',
             items: [
@@ -903,6 +763,68 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                     ],
                 },
 
+            ],
+        },
+        {
+            key: '4',
+            title: <IconHtml icon="img_horn" />,
+            widthSet: 'bell',
+            items: [
+                {
+                    key: '0',
+                    type: 'group',
+                    label: (
+                        <Row align='middle' justify='space-between'>
+                            <Col>
+                                <span style={{
+                                    fontSize: '16px'
+                                }}>
+                                    消息
+                                </span>
+                            </Col>
+                            <Col>
+                                <Link href='/bulletinCenter'>
+                                    <span
+                                        style={{
+                                            color: '#FF5F1F',
+                                            fontSize: '14px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        查看全部
+                                    </span>
+                                </Link>
+                            </Col>
+                        </Row>
+                    ),
+                    children: [
+                        {
+                            key: '0-1',
+                            type: 'group',
+                            label: (
+                                <ConfigProvider
+                                    theme={{
+                                        components: {
+                                            Tabs: {
+                                                inkBarColor: '#0C0D0C',
+                                                itemColor: '#6D6F7A',
+                                                itemActiveColor: '#0C0D0C',
+                                                itemHoverColor: '#6D6F7A',
+                                                itemSelectedColor: '#0C0D0C'
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <Tabs
+                                        defaultActiveKey="1"
+                                        items={isLogin ? bulletinItems : bulletinItems.filter(item => item.key === '1')}
+                                    />
+                                </ConfigProvider>
+
+                            ),
+                        }
+                    ]
+                },
             ],
         },
     ];
@@ -1629,104 +1551,127 @@ export default function HomeMenu({ t, test }: HomeMenuProps) {
                                 </Space>
                             </a>
                         </Dropdown>
-                        {
-                            isLogin ? (
-                                <div className={styles.loginContent}>
-                                    <Row gutter={16} align='middle'>
-                                        <Col>
-                                            <Dropdown
-                                                // menu={{
-                                                //     items: inputItems,
-                                                // }}
-                                                trigger={['click']}
-                                                overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
-                                            >
-                                                {/* <a onClick={(e) => e.preventDefault()}> */}
-                                                <Space>
-                                                    {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
-                                                    <Image
-                                                        onClick={(e) => e.preventDefault()}
-                                                        alt=""
-                                                        width={20}  // 必须指定宽度
-                                                        height={20} // 必须指定高度
-                                                        src="/images/home_menu/icon_search_line.png"
-                                                        className={styles.iconCursor}
-                                                    />
-                                                </Space>
-                                                {/* </a> */}
-                                            </Dropdown>
-
-                                        </Col>
-                                        <Col>
-                                            <Dropdown
-                                                menu={{
-                                                    // items,
-                                                    items: itemsFunding
-                                                }}
-                                                trigger={['click']}
-                                                className={styles.dropDownList}
-                                                overlayStyle={{ top: '80px', width: '180px' }}
-                                            >
-                                                {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
-                                                    <Space style={{ columnGap: '3px' }}>
-                                                        <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                        <div className={styles.loginContent}>
+                            <Row gutter={16} align='middle'>
+                                {
+                                    isLogin ? (
+                                        <>
+                                            <Col>
+                                                <Dropdown
+                                                    // menu={{
+                                                    //     items: inputItems,
+                                                    // }}
+                                                    trigger={['click']}
+                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
+                                                >
+                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                    <Space>
+                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            alt=""
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                            src="/images/home_menu/icon_search_line.png"
+                                                            className={styles.iconCursor}
+                                                        />
                                                     </Space>
-                                                </a> */}
-                                                <Space style={{ columnGap: '3px' }}>
-                                                    {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
-                                                    <Image
-                                                        onClick={(e) => e.preventDefault()}
-                                                        src="/images/home_menu/icon_wallet_line.png"
-                                                        className={styles.iconCursor}
-                                                        alt=""
-                                                        width={20}  // 必须指定宽度
-                                                        height={20} // 必须指定高度
-                                                    />
+                                                    {/* </a> */}
+                                                </Dropdown>
+                                            </Col>
+                                            <Col>
+                                                <Dropdown
+                                                    menu={{
+                                                        // items,
+                                                        items: itemsFunding
+                                                    }}
+                                                    trigger={['click']}
+                                                    className={styles.dropDownList}
+                                                    overlayStyle={{ top: '80px', width: '180px' }}
+                                                >
+                                                    {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
+                                                        <Space style={{ columnGap: '3px' }}>
+                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                        </Space>
+                                                    </a> */}
+                                                    <Space style={{ columnGap: '3px' }}>
+                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            src="/images/home_menu/icon_wallet_line.png"
+                                                            className={styles.iconCursor}
+                                                            alt=""
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                        />
+                                                    </Space>
+                                                </Dropdown>
+                                            </Col>
+                                            {iconItemsLogin}
+                                            <Col>
+                                                <Space direction="vertical">
+                                                    <Space wrap>
+                                                        <Dropdown
+                                                            menu={{
+                                                                items: userItemsAll as MenuProps['items'],
+                                                                triggerSubMenuAction: 'click',
+                                                            }}
+                                                            placement="bottomLeft"
+                                                            trigger={['click']}
+                                                            overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                        >
+                                                            <a onClick={(e) => e.preventDefault()}>
+                                                                {/* <UserIcon /> */}
+                                                                {/* <Avatar src={<img src='/images/home_menu/Avatar (1).png' className={styles.userCursor} alt="avatar" />} /> */}
+                                                                <Avatar src={
+                                                                    <Image
+                                                                        src="/images/home_menu/Avatar (1).png"
+                                                                        className={styles.userCursor}
+                                                                        alt="avatar"
+                                                                        width={28}  // 必须指定宽度
+                                                                        height={28} // 必须指定高度
+                                                                    />}
+                                                                />
+                                                            </a>
+                                                        </Dropdown>
+                                                    </Space>
                                                 </Space>
-                                            </Dropdown>
-                                        </Col>
-                                        {iconItemsLogin}
-                                        <Col>
-                                            <Space direction="vertical">
-                                                <Space wrap>
-                                                    <Dropdown
-                                                        menu={{
-                                                            items: userItemsAll as MenuProps['items'],
-                                                            triggerSubMenuAction: 'click',
-                                                        }}
-                                                        placement="bottomLeft"
-                                                        trigger={['click']}
-                                                        overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
-                                                    >
-                                                        <a onClick={(e) => e.preventDefault()}>
-                                                            {/* <UserIcon /> */}
-                                                            {/* <Avatar src={<img src='/images/home_menu/Avatar (1).png' className={styles.userCursor} alt="avatar" />} /> */}
-                                                            <Avatar src={
-                                                                <Image
-                                                                    src="/images/home_menu/Avatar (1).png"
-                                                                    className={styles.userCursor}
-                                                                    alt="avatar"
-                                                                    width={28}  // 必须指定宽度
-                                                                    height={28} // 必须指定高度
-                                                                />}
-                                                            />
-                                                        </a>
-                                                    </Dropdown>
-                                                </Space>
-                                            </Space>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            ) : (
-                                <Row align='middle'>
-                                    <Col><Link href='/register' className={styles.register}>注册</Link></Col>
-                                    <Col><Link href='/login' className={styles.login}>登录</Link></Col>
-                                    <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
-                                    {iconItems}
-                                    {/* <Col>{iconItemsLogin}</Col> */}
-                                </Row>
-                            )
-                        }
+                                            </Col>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Col><Link href='/login' className={styles.register}>注册</Link></Col>
+                                            <Col><Link href='/login' className={styles.login}>登录</Link></Col>
+                                            <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
+                                            <Col>
+                                                <Dropdown
+                                                    // menu={{
+                                                    //     items: inputItems,
+                                                    // }}
+                                                    trigger={['click']}
+                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
+                                                >
+                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                    <Space>
+                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            alt=""
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                            src="/images/home_menu/icon_search_line.png"
+                                                            className={styles.iconCursor}
+                                                        />
+                                                    </Space>
+                                                    {/* </a> */}
+                                                </Dropdown>
+                                            </Col>
+                                            {iconItemsLogin}
+                                        </>
+                                    )
+                                }
+                            </Row>
+                        </div>
                     </div>
                 </div>
             </div>

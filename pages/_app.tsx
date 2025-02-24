@@ -13,7 +13,8 @@ import Toaster from "@/components/toast";
 
 function App({ Component, pageProps }: AppProps) {
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const { t } = useTranslation(['common', 'home-menu']);
+    // const { t } = useTranslation(['common', 'home_menu']);
+    const { t } = useTranslation(['home_menu']);
     const router = useRouter();
 
     // 定义不需要显示 HomeMenu 和 Footer 的页面路径
@@ -23,7 +24,8 @@ function App({ Component, pageProps }: AppProps) {
 
     return (
         <div className={isDarkMode ? 'dark' : ''}>
-            {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />}
+            {/* {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />} */}
+            {shouldShowMenuAndFooter && <HomeMenu />}
             <Component {...pageProps} />
             {shouldShowMenuAndFooter && <Footer />}
             <Toaster />

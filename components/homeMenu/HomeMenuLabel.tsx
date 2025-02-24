@@ -28,6 +28,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     myWords_1,
     myWords_2,
     myWords_3,
+    needHover = false,
 }) => {
     return (
         <>
@@ -52,7 +53,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                     </a>
                 ) : (
                     <a
-                        className={styles.menuListA}
+                        className={`${styles.menuListA} ${needHover ? styles.menuListAHover : ''}`}
                         onClick={(e) => {
                             e.preventDefault(); // 阻止默认行为，即点击关闭下拉菜单
                             // onClickLogout && onClickLogout();
@@ -94,7 +95,14 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                 <Input
                                                     style={{ width: 200 }}
                                                     placeholder={h5Text}
-                                                    prefix={<SearchOutlined />}
+                                                    prefix={
+                                                        <Image
+                                                            src="/images/home_menu/icon_search.png"
+                                                            alt=""
+                                                            width={16}
+                                                            height={16}
+                                                        />
+                                                    }
                                                     onChange={(e) => {
                                                         if (onInputChange) {
                                                             onInputChange(e.target.value);
