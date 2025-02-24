@@ -17,7 +17,7 @@ function App({ Component, pageProps }: AppProps) {
     const router = useRouter();
 
     // 定义不需要显示 HomeMenu 和 Footer 的页面路径
-    const excludePaths = ['/login', '/register','/resetPassword'];
+    const excludePaths = ['/login', '/register', '/resetPassword'];
 
     const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
@@ -25,8 +25,8 @@ function App({ Component, pageProps }: AppProps) {
         <div className={isDarkMode ? 'dark' : ''}>
             {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />}
             <Component {...pageProps} />
-            <Toaster/> 
             {shouldShowMenuAndFooter && <Footer />}
+            <Toaster />
         </div>
     );
 }

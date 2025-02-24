@@ -1,5 +1,14 @@
-import  '../styles/user.module.css';
+import React from 'react';
+import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 
-export default function SpotPage() {
-  return <div className="container">user  Page</div>;
-}
+const OverviewPage: React.FC = () => {
+    return (
+        <UserCenterLayout>
+            <div>
+                <h1>个人中心概览</h1>
+            </div>
+        </UserCenterLayout>
+    );
+};
+
+export default OverviewPage;

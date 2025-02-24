@@ -60,7 +60,7 @@ export default function Toast() {
                 }}
                 expand
             />
-        </ToasterStyleWrapper>
+         </ToasterStyleWrapper>
     );
 }
 
