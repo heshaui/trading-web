@@ -76,10 +76,13 @@
     color: var(--btncolor);
     border: none;
 }
-
-.ant-btn:hover div {
-    background-color: var(--btnbgcolor1);
-    color: var(--btncolor);
+.experience_main_btn:hover div{
+    border-color: var(--btnbgcolor);
+    color: var(--btnbgcolor);
+}
+.experience_main_btn:hover span{
+    /* background-color: var(--btnbgcolor1); */
+    color: var(--btnbgcolor);
 }
 
 .ant-btn:hover span {
