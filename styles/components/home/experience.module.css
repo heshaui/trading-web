@@ -1,10 +1,10 @@
-.experiencePage {
+.experience_page {
     background-color: var(--homeground);
     color: #fff;
     height: 100vh;
 }
 
-.experience-main {
+.experience_main {
     height: 100%;
     width: 100%;
     position: relative;
@@ -15,7 +15,7 @@
     overflow: hidden;
 }
 
-.experience_main-box {
+.experience_main_box {
     width: 620px;
     font-family: DIN;
     font-size: 62px;
@@ -25,29 +25,31 @@
     margin-left: 12%;
     margin-top: 6%;
     text-align: left;
-
 }
 
-.experience_main-email {
+.experience_main_email {
     margin-top: 147px;
 }
 
 /* 输入框组件覆盖 */
- .custom-input-home:focus,
- .custom-input-home:focus-within {
+.custom_input_home:focus,
+.custom_input_home:focus-within {
     border-color: #fff;
     box-shadow: 0 0 0 2px #fff;
 }
+
 /* 鼠标聚焦且移出样式 */
-.custom-input-home:focus:not(:hover){
+.custom_input_home:focus:not(:hover) {
     background-color: var(--homeground);
     color: #fff;
 }
+
 /* 鼠标滑过 */
-.custom-input-home:hover{
+.custom_input_home:hover {
     border-color: #fff;
 }
-.custom-input-home {
+
+.custom_input_home {
     width: 361px;
     height: 49px;
     border-radius: 45px;
@@ -56,14 +58,17 @@
     color: #fff;
     text-indent: 1em;
 }
-.custom-input-home:hover{
+
+.custom_input_home:hover {
     background-color: var(--homeground);
 }
-.custom-input-home::placeholder{
-    color:var(--btncolor1);
+
+.custom_input_home::placeholder {
+    color: var(--btncolor1);
 }
+
 /* 按钮组件覆盖 */
-.experience_main-btn {
+.experience_main_btn {
     width: 145px;
     height: 49px;
     border-radius: 42px;
@@ -72,15 +77,16 @@
     border: none;
 }
 
-.ant-btn:hover div{
+.ant-btn:hover div {
     background-color: var(--btnbgcolor1);
     color: var(--btncolor);
 }
-.ant-btn:hover span{
+
+.ant-btn:hover span {
     color: var(--btnbgcolor);
 }
 
-.experience_experience-main>img {
+.experience_experience_main>img {
     /* position: absolute;
     right: 0; */
     height: 60%;
@@ -90,13 +96,13 @@
 }
 
 @media (min-width:2560px) {
-    .experiencePage {
+    .experience_page {
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 
-    .experience-main {
+    .experience_main {
         width: 60%;
     }
 }

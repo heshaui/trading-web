@@ -158,3 +158,30 @@
     text-align: right;
     font-size: 12px;
 }
+
+/* 自定义collapse */
+/* 列表文本样式 */
+.custom-collapse .ant-collapse-header {
+    color: var(--hometext) !important;
+    font-size: 20px;
+}
+
+/* 列表背景颜色 */
+.custom-collapse .ant-collapse-content-box {
+    color: var(--hometext) !important;
+}
+
+/* 列表边框 */
+.ant-collapse-item {
+    border: 1px solid #FFFFFF1A;
+}
+
+.custom-collapse .ant-collapse-item {
+    border: none;
+    box-sizing: border-box;
+    border: 1px solid #FFFFFF00;
+}
+
+.custom-collapse .ant-collapse-item:hover {
+    border: 1px solid #FFFFFF33;
+}

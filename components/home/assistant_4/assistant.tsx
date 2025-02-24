@@ -4,7 +4,7 @@
 
 // import React, { useState } from 'react';
 import React from 'react';
-import '@/styles/components/home/assistant.css'
+import styles from '@/styles/components/home/assistant.module.css';
 // import { Input, Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
@@ -16,16 +16,16 @@ export default function Experience() {
     //     setEmail(e.target.value)
     // };
     return (
-        <div className='assistantPage'>
-                <div className='assistant-main flex-column flex-ai-center flex-jc-center'>
-                    <h2 className='assistant_main-title1'>{t('assistantTitle')}</h2>
-                    <h3 className='assistant_main-title2'>{t('assistantTip')}</h3>
-                    <div className='assistant_main-pic flex flex-jc-between'>
-                        <Image className='assistant-pic' src="/images/home/comup1.png" alt=""  width={200} height={100}/>
-                        <Image className='assistant-pic' src="/images/home/comup2.png" alt="" width={200} height={100}/>
-                        <Image className='assistant-pic' src="/images/home/comup3.png" alt="" width={200} height={100}/>
-                    </div>
+        <div className={`${styles.assistant_page}`}>
+            <div className={`${styles.assistant_main} flex-column flex-ai-center flex-jc-center`}>
+                <h2 className={`${styles.assistant_main_title1}`}>{t('assistantTitle')}</h2>
+                <h3 className={`${styles.assistant_main_title2}`}>{t('assistantTip')}</h3>
+                <div className={`${styles.assistant_main_pic} flex flex-jc-between`}>
+                    <Image className={`${styles.assistant_pic}`} src="/images/home/comup1.png" alt="" width={200} height={100} />
+                    <Image className={`${styles.assistant_pic}`} src="/images/home/comup2.png" alt="" width={200} height={100} />
+                    <Image className={`${styles.assistant_pic}`} src="/images/home/comup3.png" alt="" width={200} height={100} />
                 </div>
+            </div>
         </div>
     );
 }
