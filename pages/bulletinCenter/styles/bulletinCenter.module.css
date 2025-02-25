@@ -10,12 +10,17 @@
     padding: 20px 0;
     color: #0C0D0C;
 }
+/* 分页顶部间距 */
+.PaginationMargin {
+    margin-top: 24px;
+}
 
 /* 公告 - 全部公告 */
 .bulletinContainer .bulletinContent .bulletinCenterContent {
     box-sizing: border-box;
     padding: 20px 0;
     border-bottom: 0.5px solid #DCDCDC;
+    cursor: pointer;
 }
 .bulletinContainer .bulletinContent .bulletinCenterContent h6 {
     font-size: 16px;
