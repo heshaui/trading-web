@@ -1,0 +1,9 @@
+/* 公告中心样式更改 */
+.customMenu .ant-menu {
+    box-sizing: border-box;
+    border-radius: 8px;
+    padding: 24px 0;
+}
+.customMenu .ant-menu .ant-menu-item {
+    min-height: 60px;
+}
