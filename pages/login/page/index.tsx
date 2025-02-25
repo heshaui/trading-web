@@ -40,8 +40,8 @@ function Login() {
 
 
 	return (
-		<Layout className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
-		{/* <Layout className="relative flex h-overmax w-full flex-row page-box "> */}
+		<div className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
+		{/* <div className="relative flex h-overmax w-full flex-row page-box "> */}
 			<div
 				className="isHidden flex-1"
 				style={loginBgcStyle}
@@ -61,7 +61,7 @@ function Login() {
 					{/* </LoginStateProvider> */}
 				</div>
 			</div>
-		</Layout>
+		</div>
 	);
 }
 export default Login;
