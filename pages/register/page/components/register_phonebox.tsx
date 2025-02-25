@@ -1,3 +1,4 @@
+"use client";
 import {  Form, Input,  Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";

@@ -1,4 +1,5 @@
 // import { Button, Form, Input,Tabs } from "antd";
+"use client";
 import { Input, AutoComplete, Form, Segmented } from 'antd';
 import type { AutoCompleteProps } from 'antd';
 import {  useState } from "react";

@@ -40,16 +40,17 @@ function App({ Component, pageProps }: AppProps) {
 
     return (
 
+      <ConfigProvider theme={theme}>
         <div className={isDarkMode ? 'dark' : ''}>
-            {/* {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />} */}
             {shouldShowMenuAndFooter && <HomeMenu />}
-            <ConfigProvider theme={theme}>
+         
                 <Component {...pageProps} />
-            </ConfigProvider>
+           
             {shouldShowMenuAndFooter && <Footer />}
             <Toaster />
+            
         </div>
-
+        </ConfigProvider>
 
     );
 }

@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 // import { UserOutlined } from '@ant-design/icons';
 import { AutoComplete, Flex, Input, Form } from 'antd';
