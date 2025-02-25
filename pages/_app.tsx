@@ -25,7 +25,7 @@ function App({ Component, pageProps }: AppProps) {
     const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
     return (
-        <ConfigProvider theme={theme}>
+
         <div className={isDarkMode ? 'dark' : ''}>
             {/* {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />} */}
             {shouldShowMenuAndFooter && <HomeMenu />}
@@ -33,7 +33,7 @@ function App({ Component, pageProps }: AppProps) {
             {shouldShowMenuAndFooter && <Footer />}
             <Toaster />
         </div>
-        </ConfigProvider>
+
 
     );
 }
