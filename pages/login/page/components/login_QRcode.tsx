@@ -1,6 +1,6 @@
 import { QRCode } from "antd";
 import { useState } from "react";
-import {  useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,
+import {  useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider"; //LoginStateEnum,
 function QrCodeFrom() {
 	// const { loginState, setLoginState } = useLoginStateContext();
 	const { loginType } = useLoginTypeContext(); //, setLoginType

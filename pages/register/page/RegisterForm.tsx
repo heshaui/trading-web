@@ -6,7 +6,7 @@ import {  Segmented } from "antd";
 import React, { useState } from "react";
 // import { toast } from "sonner";
 // import { ReturnButton } from "./components/ReturnButton";
-import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "./providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import Mailbox from "./components/register_mailbox"
 import Phonebox from "./components/register_phonebox"
 // import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";

@@ -2,7 +2,7 @@ import {  Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
 import { type CSSProperties, useState, } from "react";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore";
-import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";

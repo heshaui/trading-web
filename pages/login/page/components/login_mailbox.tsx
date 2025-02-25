@@ -2,7 +2,8 @@ import {  Form, Input, AutoComplete } from "antd";
 import { type CSSProperties, useState, useEffect } from "react";
 // import type { SignInReq } from "@/api/services/userService";
 // import { useSignIn } from "@/store/userStore"; 
-import {  useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,
+// import {   LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
+import {   LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
 // import FingerprintJS from "@fingerprintjs/fingerprintjs";
 // import loginApi from "@/api/login/login";
 // import { getEmailCode, getSmsCode } from "@/api/login/register";

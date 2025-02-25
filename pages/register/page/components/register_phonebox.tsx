@@ -1,6 +1,6 @@
 import {  Form, Input,  Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties } from "react";
-import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 // import type { TabsProps } from 'antd';

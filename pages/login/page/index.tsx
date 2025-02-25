@@ -6,7 +6,8 @@ import { useEffect } from "react";
 import LoginForm from "./LoginForm";
 // import RegisterForm from "./RegisterForm";
 // import { LoginStateProvider, LoginTypeProvider } from "./providers/LoginStateProvider";
-import {  LoginTypeProvider } from "./providers/LoginStateProvider";
+// import {  LoginTypeProvider } from "./providers/LoginStateProvider";
+import {  LoginTypeProvider } from "@/config/login-providers/LoginStateProvider";
 import { useRouter } from 'next/router';
 // import "./styles/login.css"
 import styles from './styles/login.module.css'
