@@ -1,7 +1,7 @@
 import { Button, Form, Input, Select, Space } from "antd";
 
 import { type CSSProperties, useState } from "react";
-import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider";
+import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider";
 
 // import { toast } from "sonner";
 // import "@/styles/components/login/login.css"

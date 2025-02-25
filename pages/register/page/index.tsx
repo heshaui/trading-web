@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
 // import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 // import { LoginStateProvider, LoginTypeProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
-import { LoginStateProvider, RegisterTypeProvider } from "./providers/LoginStateProvider";
+import { LoginStateProvider, RegisterTypeProvider } from "@/config/register-providers/LoginStateProvider";
 // import "./styles/login.css"
 import styles from './styles/login.module.css'
 import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";

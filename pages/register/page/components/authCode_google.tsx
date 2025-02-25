@@ -1,7 +1,12 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Input, Button } from 'antd';
 // import {  useState, useRef } from "react";
-import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
+import { LoginTypeEnum,
+     useLoginTypeContext, 
+    RegisterTypeEnum, 
+    useRegisterTypeContext, 
+    LoginStateEnum,
+    useLoginStateContext } from "@/config/register-providers/LoginStateProvider";
 // import { toast } from "sonner";
 import store from "@/store";
 

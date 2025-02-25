@@ -10,7 +10,7 @@ export default function Iconify({ icon, size = "1em", className = "", ...other }
 	return (
 		<StyledIconify className="anticon">
 			<Icon icon={icon} width={size} height={size} className={`m-auto ${className}`} {...other} />
-		</StyledIconify>
+		 </StyledIconify>
 	);
 }
 
