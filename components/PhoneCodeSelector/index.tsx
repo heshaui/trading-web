@@ -31,7 +31,7 @@ interface OptionGroup {
 // ];
 
 
-const App: React.FC = () => {
+const PhoneCode: React.FC = () => {
     const [isFocused, setIsFocused] = useState(false);
     const [countryCode, setCountryCode] = useState([]);
     const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
@@ -135,4 +135,4 @@ const App: React.FC = () => {
     );
 };
 
-export default App;
+export default PhoneCode;

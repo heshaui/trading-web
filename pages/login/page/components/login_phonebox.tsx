@@ -3,13 +3,6 @@ import { Button, Form, Input, Select, Space } from "antd";
 import { type CSSProperties, useState } from "react";
 import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider";
 
-// import { toast } from "sonner";
-// import "@/styles/components/login/login.css"
-// import type { TabsProps } from 'antd';
-// import { Iconify } from "@/components/icon/index";
-// import { areaCodeOptionList } from "@/utils/enum";
-// import { areaCodeSelectList } from "@/utils/country"; //地区代码
-// import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import SafeModal from "@/components/myModal/login_safeModal"
 import { useRouter } from 'next/router';
@@ -48,18 +41,6 @@ function Phonebox() {
 	const [form] = Form.useForm();
 	// 当登录类型不为 PHONE 时不渲染组件
 	// if (loginState !== LoginStateEnum.LOGIN) return null;
-
-	// 获取浏览器指纹
-	// const getFingerprint = async () => {
-	// 	const result = await FingerprintJS.load();
-	// 	const visitorId = await result.get();
-	// 	console.log(visitorId.components.vendor);
-	// 	return visitorId.visitorId;
-	// };
-
-	// const handOk = () => {
-	// 	setCodeModelOpen(false);
-	// };
 	const handCodeCancel = () => {
         setCodeModelOpen(false)
     }

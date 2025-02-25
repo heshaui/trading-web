@@ -1,22 +1,11 @@
 import {  Form, Input, AutoComplete } from "antd";
 import { type CSSProperties, useState, useEffect } from "react";
-// import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore"; 
-// import {   LoginTypeEnum, useLoginTypeContext } from "../providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
 import {   LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
-// import FingerprintJS from "@fingerprintjs/fingerprintjs";
-// import loginApi from "@/api/login/login";
-// import { getEmailCode, getSmsCode } from "@/api/login/register";
-// import CodeModel from "./components/codebutton";
-// import { toast } from "sonner";
-// import "@/styles/components/login/login.css"
 import type { TabsProps, AutoCompleteProps } from 'antd';
 // import { Iconify } from "@/components/icon/index";
 // import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
-// import Link from 'next/link';
 import { useRouter } from 'next/router';
-// import ErrModal from "@/components/myModal/errModal"
 import SafeModal from "@/components/myModal/login_safeModal"
 import styles from '../styles/login.module.css'
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密

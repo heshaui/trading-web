@@ -1,18 +1,8 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented } from "antd";
 import {  useState } from "react";
-// import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore";
-// import FingerprintJS from "@fingerprintjs/fingerprintjs";
-// import loginApi from "@/api/login/login";
-// import { getEmailCode, getSmsCode } from "@/api/login/register";
-// import CodeModel from "./components/codebutton";
-// import { toast } from "sonner";
 import Mailbox from "./components/login_mailbox"
 import Phonebox from "./components/login_phonebox"
-// import QRCodebox from "./components/login_QRcode"
-// import { LoginStateEnum, useLoginStateContext } from "./providers/LoginStateProvider";
-// import { LoginTypeEnum, useLoginTypeContext } from "./providers/LoginStateProvider";
 import { LoginStateEnum, useLoginStateContext } from "@/config/login-providers/LoginStateProvider";
 import { LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider";
 import NoteModal from "@/components/myModal/noteModal"
