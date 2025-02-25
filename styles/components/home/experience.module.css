@@ -81,7 +81,6 @@
     color: var(--btnbgcolor);
 }
 .experience_main_btn:hover span{
-    /* background-color: var(--btnbgcolor1); */
     color: var(--btnbgcolor);
 }
 
@@ -90,8 +89,6 @@
 }
 
 .experience_experience_main>img {
-    /* position: absolute;
-    right: 0; */
     height: 60%;
     width: 40%;
     max-width: 620px;
