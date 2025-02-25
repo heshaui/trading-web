@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
 import { Input, Form } from 'antd';
 import { useEffect, useState, useCallback } from "react";
 import { LoginTypeEnum, 
