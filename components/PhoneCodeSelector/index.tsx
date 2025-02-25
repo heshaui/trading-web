@@ -1,9 +1,8 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-// import { UserOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AutoComplete, Flex, Input, Form } from 'antd';
 import { Iconify } from "@/components/icon/index";
-import { areaCodeList } from "@/utils/country"; //地区代码
+import { areaCodeList } from "@/utils/country"; // 地区代码
 import { getCountryCode } from "@/services/open";
 
 interface OptionItem {
@@ -16,31 +15,17 @@ interface OptionGroup {
     options: OptionItem[];
 }
 
-// const options = [
-//     {
-//         label: <Title title="A" />,
-//         options: [renderItem('AntDesign', 10000), renderItem('AntDesign UI', 10600)],
-//     },
-//     {
-//         label: <Title title="B" />,
-//         options: [renderItem('AntDesign UI FAQ', 60100), renderItem('AntDesign FAQ', 30010)],
-//     },
-//     {
-//         label: <Title title="C" />,
-//         options: [renderItem('AntDesign design language', 100000)],
-//     },
-// ];
-
-
 const PhoneCode: React.FC = () => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [countryCode, setCountryCode] = useState([]);
-    const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
+    const [isFocused, setIsFocused] = useState<boolean>(false);
+    const [countryCode, setCountryCode] = useState<any[]>([]);
+
+    useEffect(() => {
+        setIsFocused(false);
+    }, []);
+
+    const Title: React.FC<{ title?: string }> = ({ title }) => (
         <Flex align="center" justify="space-between">
-            {props.title}
-            {/* <a href="https://www.google.com/search?q=antd" target="_blank" rel="noopener noreferrer">
-          more
-        </a> */}
+            {title}
         </Flex>
     );
 
@@ -49,15 +34,15 @@ const PhoneCode: React.FC = () => {
         label: (
             <Flex align="center" justify="space-between">
                 {country}
-                <span>
-                    {value}
-                </span>
+                <span>{value}</span>
             </Flex>
         ),
     });
 
-    const getoptionsList = () => {
-        const sortedAreaCodeList = [...areaCodeList].sort((a, b) => a.enName.localeCompare(b.enName));
+    const options = useMemo(() => {
+        const sortedAreaCodeList = [...areaCodeList].sort((a, b) =>
+            a.enName.localeCompare(b.enName)
+        );
         const groupedData: { [key: string]: OptionItem[] } = {};
 
         sortedAreaCodeList.forEach(item => {
@@ -68,70 +53,59 @@ const PhoneCode: React.FC = () => {
             groupedData[firstLetter].push(renderItem(item.showName, item.value));
         });
 
-        const options: OptionGroup[] = [];
+        return Object.keys(groupedData).map(letter => ({
+            label: <Title title={letter} />,
+            options: groupedData[letter],
+        }));
+    }, [areaCodeList]);
 
-        Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)).forEach(letter => {
-            if (groupedData[letter]) {
-                options.push({
-                    label: <Title title={letter} />,
-                    options: groupedData[letter]
-                });
-            }
-        });
-        // setOptionsListBefore(options);
-        return options;
-    };
-
-    const handleFocus = async() => {
+    const handleFocus = async () => {
         setIsFocused(true);
-        if(countryCode.length===0){
-        await getCountryCodeList()
+        if (countryCode.length === 0) {
+            await getCountryCodeList();
         }
     };
-    const handleBlur = async() => {
+
+    const handleBlur = () => {
         setIsFocused(false);
-       
-       
     };
 
     const getCountryCodeList = async () => {
         try {
-            const res = await getCountryCode()
-            console.log(res, 11);
-            if(res.code==='0'){
-                setCountryCode(res.data)
+            const res = await getCountryCode();
+            if (res.code === '0') {
+                setCountryCode(res.data);
             }
         } catch (error) {
-            console.log(error);
+            console.error("获取国家代码失败", error);
         }
     };
 
-    useEffect(() => {
-        
-        // getCountryCodeList()
-    }, [])
     return (
         <Form.Item name="areaCode" noStyle>
             <AutoComplete
                 popupClassName="certain-category-search-dropdown"
                 popupMatchSelectWidth={380}
                 style={{ width: 150, height: "100%" }}
-                options={getoptionsList()}
+                options={options} // ✅ 现在 `options` 只计算一次，提高性能
                 size="large"
                 className="autoComplete-custom"
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                // />
-             >
-                 <Input
-                     size="large"
-                     placeholder="input here"
-                     className='custom-input'
-                     suffix={
-                         <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
-                     }
-                 />
-             </AutoComplete>
+            >
+                <Input
+                    size="large"
+                    placeholder="输入区号"
+                    className="custom-input"
+                    suffix={
+                        <Iconify
+                            icon="mingcute:down-fill"
+                            size={14}
+                            className={`icon-color ${isFocused ? 'icon-rotate' : ''}`}
+                        />
+                    }
+                />
+            </AutoComplete>
         </Form.Item>
     );
 };
