@@ -26,7 +26,7 @@ export default function Experience() {
                         <Button className={`${styles.experience_main_btn}`}>{t('experience')}</Button>
                     </div>
                 </div>
-                <Image className='' src="/images/home/phone.png" alt="" width={620} height={600}/>
+                <Image className={`${styles.experience_main_pic}`} src="/images/home/phone.png" alt="" width={620} height={600}/>
             </div>
         </div>
     );

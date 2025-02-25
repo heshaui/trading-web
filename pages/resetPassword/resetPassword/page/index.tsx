@@ -1,7 +1,7 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import {  Layout } from 'antd';
 // import { type CSSProperties, useState, useRef } from "react";
-import { ResetStateProvider } from "../providers/ResetStateProvider";
+import { ResetStateProvider } from "@/config/reset-providers/ResetStateProvider";
 // import { toast } from "sonner";
 // import store from "@/store";
 import styles from "../style/reset.module.css"

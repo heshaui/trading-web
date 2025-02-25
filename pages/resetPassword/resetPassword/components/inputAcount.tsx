@@ -1,8 +1,9 @@
 // import { Button, Form, Input,Tabs } from "antd";
+"use client";
 import { Input, AutoComplete, Form, Segmented } from 'antd';
 import type { AutoCompleteProps } from 'antd';
 import {  useState } from "react";
-import { useResetStateContext, ResetStateEnum } from "../providers/ResetStateProvider";
+import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
 // import { toast } from "sonner";
 // import store from "@/store";
 import styles from "../style/reset.module.css"

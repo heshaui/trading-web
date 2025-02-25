@@ -30,65 +30,69 @@
 .experience_main_email {
     margin-top: 147px;
 }
+.experience_main_pic{
+    max-width:600px ;
+    max-height: 620px;
+}
 
 /* 输入框组件覆盖 */
 .custom_input_home:focus,
 .custom_input_home:focus-within {
-    border-color: #fff;
-    box-shadow: 0 0 0 2px #fff;
+    border-color: #fff !important;
+    box-shadow: 0 0 0 2px #fff !important;
 }
 
 /* 鼠标聚焦且移出样式 */
 .custom_input_home:focus:not(:hover) {
-    background-color: var(--homeground);
-    color: #fff;
+    background-color: var(--homeground) !important;
+    color: #fff !important;
 }
 
 /* 鼠标滑过 */
 .custom_input_home:hover {
-    border-color: #fff;
+    border-color: #fff !important;
 }
 
 .custom_input_home {
-    width: 361px;
-    height: 49px;
-    border-radius: 45px;
-    margin-right: 20px;
-    background-color: var(--homeground);
-    color: #fff;
-    text-indent: 1em;
+    width: 361px !important;
+    height: 49px !important;
+    border-radius: 45px !important;
+    margin-right: 20px !important;
+    background-color: var(--homeground) !important;
+    color: #fff !important;
+    text-indent: 1em !important;
 }
 
 .custom_input_home:hover {
-    background-color: var(--homeground);
+    background-color: var(--homeground) !important;
 }
 
 .custom_input_home::placeholder {
-    color: var(--btncolor1);
+    color: var(--btncolor1) !important;
 }
 
 /* 按钮组件覆盖 */
 .experience_main_btn {
-    width: 145px;
-    height: 49px;
-    border-radius: 42px;
-    background-color: var(--btnbgcolor);
-    color: var(--btncolor);
-    border: none;
+    width: 145px !important;
+    height: 49px !important;
+    border-radius: 42px !important;
+    background-color: var(--btnbgcolor) !important;
+    color: var(--btncolor) !important;
+    border: none !important;
 }
-
-.ant-btn:hover div {
-    background-color: var(--btnbgcolor1);
-    color: var(--btncolor);
+/* .experience_main_btn:hover div{
+    border-color: var(--btnbgcolor) !important;
+    color: var(--btnbgcolor) !important;
 }
+.experience_main_btn:hover span{
+    color: var(--btnbgcolor) !important;
+} */
 
-.ant-btn:hover span {
+/* .ant-btn:hover span {
     color: var(--btnbgcolor);
-}
+} */
 
 .experience_experience_main>img {
-    /* position: absolute;
-    right: 0; */
     height: 60%;
     width: 40%;
     max-width: 620px;

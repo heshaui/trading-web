@@ -1,8 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
 import { Input, Form } from 'antd';
 import { useEffect, useState, useCallback } from "react";
-import { LoginTypeEnum, useLoginTypeContext, RegisterTypeEnum, useRegisterTypeContext, LoginStateEnum, useLoginStateContext } from "../providers/LoginStateProvider";
+import { LoginTypeEnum, 
+    useLoginTypeContext,
+    RegisterTypeEnum,
+     useRegisterTypeContext,
+      LoginStateEnum,
+       useLoginStateContext 
+    } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
 // import dayjs from 'dayjs';
