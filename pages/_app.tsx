@@ -1,7 +1,8 @@
 import "@/styles/globals.css";
 import "@/styles/public.css";
 import "@/styles/public_custom.css";
-// import '@/styles/homeMenuPublic.css'
+// 公告中心
+import '@/styles/bulletinCenterPublic.css';
 import type { AppProps } from "next/app";
 import { ConfigProvider } from 'antd';
 import { useState } from 'react';
