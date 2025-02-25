@@ -3,6 +3,7 @@ import "@/styles/public.css";
 import "@/styles/public_custom.css";
 // import '@/styles/homeMenuPublic.css'
 import type { AppProps } from "next/app";
+import { ConfigProvider } from 'antd';
 import { useState } from 'react';
 import { appWithTranslation, useTranslation } from 'next-i18next';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
@@ -10,6 +11,7 @@ import Footer from '@/components/footer/Footer';
 import { useRouter } from 'next/router';
 // import {  Toaster} from "sonner";
 import Toaster from "@/components/toast";
+import theme from '@/theme/themeConfig';
 
 function App({ Component, pageProps }: AppProps) {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -23,6 +25,7 @@ function App({ Component, pageProps }: AppProps) {
     const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
     return (
+        <ConfigProvider theme={theme}>
         <div className={isDarkMode ? 'dark' : ''}>
             {/* {shouldShowMenuAndFooter && <HomeMenu t={t} test={t('home_menu_title_1')} />} */}
             {shouldShowMenuAndFooter && <HomeMenu />}
@@ -30,6 +33,8 @@ function App({ Component, pageProps }: AppProps) {
             {shouldShowMenuAndFooter && <Footer />}
             <Toaster />
         </div>
+        </ConfigProvider>
+
     );
 }
 

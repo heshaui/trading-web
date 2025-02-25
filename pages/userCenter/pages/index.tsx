@@ -2,7 +2,7 @@
 import React from 'react';
 // import { useRouter } from 'next/router';
 import UserCenterLayout from '@/components/UserCenterLayout/Layout';
-import OverviewPage from './overview';
+
 // import SafeCenterPage from './safeCenter';
 // import IdentityPage from './identity';
 // import UserSettingsPage from './userSettings';
@@ -31,9 +31,9 @@ const UserCenterMainPage = () => {
   // }
 
   return (
-    <UserCenterLayout>
-      <OverviewPage />
-    </UserCenterLayout>
+
+    <div></div>
+
   );
 };
 
