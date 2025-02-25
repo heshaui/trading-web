@@ -586,8 +586,13 @@ export default function HomeMenu() {
     ]
     // 是否选中
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = (language: string) => {
         setSelectedLanguage(language);
+        // 可以在这里添加其他逻辑，例如更新语言设置
+    };
+    const handleRateClick = (rate: string) => {
+        setSelectedRate(rate);
         // 可以在这里添加其他逻辑，例如更新语言设置
     };
     // 定义语言菜单项
@@ -611,8 +616,17 @@ export default function HomeMenu() {
     const rateItems = spanRateArr.map((item, index) => ({
         key: `3-${index + 1}`, // 动态生成 key
         type: 'item',
+        title: `${item.span}`,
         label: (
-            <span>{item.span}</span> // 动态赋值
+            <span style={{
+                fontWeight: selectedRate === item.span ? '500' : '400',
+                cursor: 'pointer',
+                display: 'block',
+                width: '100%',
+                height: '100%'
+            }}
+                onClick={() => handleRateClick(item.span)}>{item.span}
+            </span> // 动态赋值
         ),
     }));
     // 语言过滤(模糊搜索)
