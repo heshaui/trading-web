@@ -83,8 +83,7 @@ function ResetPassword() {
                     <div className="mb-5 font-16 font-w-500">新密码</div>
                     <Form.Item name="newPassword" rules={[{ required: true, message: "密码不能为空！" }]}>
                         <Input.Password
-                            style={{ width: "100%" }}
-                            className='custom-input'
+                            className={`custom-input ${styles.acount_input}`}
                             placeholder="请输入新密码"
                             allowClear
                             visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
@@ -106,7 +105,7 @@ function ResetPassword() {
                         ]}
                     >
                         <Input.Password
-                        className='custom-input'
+                        className={`custom-input ${styles.acount_input}`}
                             placeholder="请确认密码"
                             allowClear
                             visibilityToggle={{ visible: verifyPasswordVisible, onVisibleChange: setverifyPasswordVisible }}

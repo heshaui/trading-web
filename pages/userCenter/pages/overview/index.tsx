@@ -1,13 +1,13 @@
 import React from 'react';
-import UserCenterLayout from '@/components/UserCenterLayout/Layout';
+// import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 
 const OverviewPage: React.FC = () => {
     return (
-        <UserCenterLayout>
+        // <UserCenterLayout>
             <div>
                 <h1>个人中心概览</h1>
             </div>
-        </UserCenterLayout>
+        // </UserCenterLayout>
     );
 };
 

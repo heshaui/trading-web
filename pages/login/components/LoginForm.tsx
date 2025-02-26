@@ -1,13 +1,13 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented } from "antd";
 import {  useState } from "react";
-import Mailbox from "./components/login_mailbox"
-import Phonebox from "./components/login_phonebox"
+import Mailbox from "./login_mailbox"
+import Phonebox from "./login_phonebox"
 import { LoginStateEnum, useLoginStateContext } from "@/config/login-providers/LoginStateProvider";
 import { LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider";
 import NoteModal from "@/components/myModal/noteModal"
 // import { useTranslation } from 'next-i18next';
-import styles from './styles/login.module.css'
+import styles from '../styles/login.module.css'
 function LoginForm() {
 	// const { t } = useTranslation(['login']);
 	const [noteModelOpen, setNoteModelOpen]=useState(false)

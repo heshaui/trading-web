@@ -27,8 +27,8 @@
 
 
 .acount_input {
-    width: 400px;
-    height: 50px;
+    /* width: 400px ; */
+    height: 50px !important;
     border-radius: 8px;
 }
 
@@ -38,8 +38,8 @@
 }
 
 .custom_segmented{
-    background-color: var(--background);
-    color: var(--textcolor);
+    background-color: var(--background) !important;
+    color: var(--textcolor) !important;
 }
 .tabs_label {
     width: 89px;

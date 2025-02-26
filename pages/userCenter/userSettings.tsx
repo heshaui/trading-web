@@ -1,3 +1,9 @@
-export default function overviewPage() {
-    return <div className="container">overview  Page</div>;
-  }
+import UserCenterLayout from '@/components/UserCenterLayout/Layout';
+
+const userSettingsPage=() =>{
+  return <UserCenterLayout>
+    <div className="container">userSettings  Page</div>
+  </UserCenterLayout>
+
+}
+export default userSettingsPage

@@ -38,7 +38,7 @@
 
 .custom_segmented,
 .page_box {
-    background-color: var(--background);
+    background-color: var(--background) !important;
 }
 
 /* .login_button:hover ,.ant-btn:hover,.ant-btn-color-primary:hover{

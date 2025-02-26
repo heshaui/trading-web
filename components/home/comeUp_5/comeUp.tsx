@@ -7,14 +7,16 @@ export default function Experience() {
     return (
         <div className={`${styles.comup_page}`}>
             <div className={`${styles.assistant_main} flex-column flex-ai-center flex-jc-center`}>
-                <div>
-                    <div>
-                        <h2 className={`${styles.comup_main_title1}`}>您数字货币之旅的得力助手</h2>
-                        <h3 className={`${styles.comup_main_title2}`}>从数字货币交易初体验到第一次购买 NFT，IMBIT将助您轻松赚币</h3>
+                <div className={`flex flex-ai-center flex-jc-between ${styles.comup_title}`}>
+                    <div style={{width: '50%'}}>
+                        <h2 className={`${styles.comup_main_title1}`}>走近MetaWave</h2>
+                        <h3 className={`${styles.comup_main_title2}`}>在我们世界级合作伙伴的帮助下，了解为什么IMBIT会是你最喜爱的数
+                        字货币交易 App</h3>
                     </div>
+                    <Image className={`${styles.logo_pic}`} src="/images/home/logo.png" alt="" width={300} height={71}/>
                 </div>
 
-                <div className={`${styles.assistant_main_pic} flex flex-jc-between`}>
+                <div className={`${styles.comup_main_pic} flex flex-jc-between`}>
                     <div className={`${styles.pic_box} position-relative`} >
                         <Image className={`${styles.pic}`} src="/images/home/rectangle1.png" alt="" width={350} height={100}/>
                         <div className={`${styles.text_icon} flex-col flex-jc-between`}>
