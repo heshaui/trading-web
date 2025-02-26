@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'; // 导入 useState
 import styles from './styles/bulletinCenter.module.css';
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
-import { menuData, messageData } from './ts/getItemsMessage';
+import { menuData, messageData } from '@/data/bulletinCenter/getItemsMessage';
 
 
 const { Search } = Input;
