@@ -1,5 +1,5 @@
 .deal_page {
-    background-color: var(--homeground);
+    background-color: var(--homeground2);
     color: var(--hometext);
     height: 100vh;
 }
@@ -17,6 +17,8 @@
 
 .deal_main_title1 {
     font-size: 40px;
+    font-weight: 500;
+    color: var(--hometext3);
 }
 
 .deal_main_title2 {

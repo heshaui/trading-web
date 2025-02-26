@@ -5,12 +5,12 @@ import Image from 'next/image'
 export default function Experience() {
 
     return (
-        <div className={`${styles.assistant_page}`}>
+        <div className={`${styles.comup_page}`}>
             <div className={`${styles.assistant_main} flex-column flex-ai-center flex-jc-center`}>
                 <div>
                     <div>
-                        <h2 className={`${styles.assistant_main_title1}`}>您数字货币之旅的得力助手</h2>
-                        <h3 className={`${styles.assistant_main_title2}`}>从数字货币交易初体验到第一次购买 NFT，IMBIT将助您轻松赚币</h3>
+                        <h2 className={`${styles.comup_main_title1}`}>您数字货币之旅的得力助手</h2>
+                        <h3 className={`${styles.comup_main_title2}`}>从数字货币交易初体验到第一次购买 NFT，IMBIT将助您轻松赚币</h3>
                     </div>
                 </div>
 

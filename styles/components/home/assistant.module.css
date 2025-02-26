@@ -1,4 +1,9 @@
 .assistant_page {
+    background-color: var(--homeground2);
+    color: var(--hometext2);
+    height: 100vh;
+}
+.comup_page {
     background-color: var(--homeground);
     color: var(--hometext);
     height: 100vh;
@@ -14,9 +19,21 @@
 
 .assistant_main_title1 {
     font-size: 40px;
+    font-weight: 500;
+    color: var(--hometext3);
 }
 
 .assistant_main_title2 {
+    font-size: 18px;
+    color: var(--hometext2);
+    margin-top: 1.6vh;
+}
+.comup_main_title1 {
+    font-size: 40px;
+    font-weight: 500;
+    color: var(--hometext);
+}
+.comup_main_title2 {
     font-size: 18px;
     color: var(--hometext2);
     margin-top: 1.6vh;

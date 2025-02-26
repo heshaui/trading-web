@@ -4,8 +4,8 @@ import styles from '@/styles/components/home/questions.module.css';
 import { Collapse} from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';
-import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
+import {Iconify} from '@/components/icon';
 export default function Questions() {
 const { t } = useTranslation(['home']);
     const text = `
@@ -20,7 +20,7 @@ const { t } = useTranslation(['home']);
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false, //隐藏组件的箭头图标
-            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+            extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
         },
         {
             key: '2',
@@ -28,7 +28,7 @@ const { t } = useTranslation(['home']);
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+            extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
         },
         {
             key: '3',
@@ -36,7 +36,7 @@ const { t } = useTranslation(['home']);
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+            extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
 
         },
         {
@@ -45,7 +45,7 @@ const { t } = useTranslation(['home']);
             children: <p>{text}</p>,
             style: panelStyle,
             showArrow:false ,
-            extra:<Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+            extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
 
         },
     ];
@@ -65,7 +65,7 @@ const { t } = useTranslation(['home']);
                     bordered={false}
                     // defaultActiveKey={['1']}
                     // expandIcon={({ isActive }) => <span>  </span>}/
-                    style={{ background: "var( --background4)", color: "var(--hometext)" }}
+                    style={{ background: "var( --homeground2)", color: "var(--hometext3)" }}
                     // style={{ background: token.colorBgContainer }}
                     items={getItems(panelStyle)}
                     size="large"
@@ -73,19 +73,19 @@ const { t } = useTranslation(['home']);
 
                 {/* <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                     <h3>IMBIT都提供哪些产品</h3>
-                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                    <Iconify icon="formkit:add"  size={26} className={styles.icon_color}/>
                 </div>
                 <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                     <h3>如何通过IMBIT平台购买比特币？</h3>
-                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                    <Iconify icon="formkit:add"  size={26} className={styles.icon_color}/>
                 </div>
                 <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                     <h3>美国公民可以使用IMBIT吗？</h3>
-                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                    <Iconify icon="formkit:add"  size={26} className={styles.icon_color}/>
                 </div>
                 <div className='main-questions-list flex flex-ai-center flex-jc-between'>
                     <h3>什么是数字货币？</h3>
-                    <Image src="/images/home/icon-add.png" alt="" width={24} height={24}/>
+                    <Iconify icon="formkit:add"  size={26} className={styles.icon_color}/>
                 </div> */}
             </div>
         </div>
