@@ -18,71 +18,81 @@ import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 
 // import { request } from '@/request/index'; // 引入封装的请求方法
-import { homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
+import { exchangeRate, homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
+import { ExchangeRateParams } from '@/type/bulletin_center/bc_types';
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
 
 export default function HomeMenu() {
+    // 路由
+    const router = useRouter();
     // t - 多语言
     const { t } = useTranslation(['home_menu']);
     console.log('t', t('home_menu_title_1'));
     // console.log('test', test);
 
+    // 是否登录
+    const [isLogin, setIsLogin] = useState<boolean>(false);
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
     const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
-    const router = useRouter();
-    let token = null;
-    if (typeof window !== 'undefined') {
-        token = localStorage.getItem('userToken');
-    }
     const [adaptiveMenuData, setAdaptiveMenuData] = useState<MenuListItem[]>([]); // 用于 HomeMenuAdaptiveItems 的数据
+    // 汇率菜单
+    const [rateData, setRateData] = useState<any[]>([]); // 用于存储汇率数据
+    // 语言
+    const [selectedLanguage, setSelectedLanguage] = useState(() => {
+        // 检查是否在浏览器环境
+        if (typeof window !== 'undefined') {
+            // 从localStorage获取已保存的语言设置
+            const savedLanguage = localStorage.getItem('selectedLanguage');
+            if (savedLanguage) return savedLanguage;
+
+            // 获取系统语言
+            const systemLang = navigator.language.toLowerCase();
+            return systemLang.includes('zh') ? '简体中文' : 'English';
+        }
+
+        // 服务器端渲染时的默认值
+        return '简体中文';
+    });
+
+    // 统一初始化数据
     useEffect(() => {
-        const getMenuData = async () => {
+        const initializeData = async () => {
             try {
-                const rawData = {
-                    lang: 'zh_CN', // 语言参数
-                };
-
-                // 调用封装好的 homeMenu 方法发送请求
-                const response = await homeMenu(rawData) as { data: any[] };
-                if (response && response.data) {
-                    console.log('菜单数据：', response.data);
-                    setMenuData(response); // 存储原始请求数据
-
-                    // 为顶部菜单格式化数据
-                    setMenus(formatMenus(response.data.slice(0, 6)));
-
-                    // 为 HomeMenuAdaptiveItems 格式化数据
-                    setAdaptiveMenuData(formatAdaptiveMenus(response.data));
-                } else {
-                    console.error('响应数据不包含有效的 data 属性');
-                    setMenus([]);
-                    setAdaptiveMenuData([]);
+                // 获取菜单数据
+                const rawData = { lang: 'zh_CN' };
+                const menuResponse = await homeMenu(rawData) as { data: any[] };
+                if (menuResponse?.data) {
+                    console.log('菜单数据：', menuResponse.data);
+                    setMenuData(menuResponse); // 存储原始请求数据
+                    setMenus(formatMenus(menuResponse.data.slice(0, 6)));
+                    setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
                 }
+                // 获取汇率数据
+                const rateResponse = await exchangeRate({
+                    id: 0,
+                    shortName: "",
+                    status: 1
+                }) as { data: any[] };
+                if (rateResponse?.data) {
+                    const formattedRateData = rateResponse.data.map(item => ({
+                        span: `${item.shortName} - ${item.symbol}`
+                    }));
+                    setRateData(formattedRateData);
+                }
+
+                // 检查登录状态
+                const token = localStorage.getItem('userToken');
+                setIsLogin(!!token);
+
             } catch (error) {
-                console.error('获取菜单数据失败:', error);
-                setMenus([]);
-                setAdaptiveMenuData([]);
+                console.error('数据初始化失败:', error);
             }
         };
 
-        getMenuData(); // 调用 getMenuData 方法
+        initializeData();
     }, []);
-    useEffect(() => {
-        // 假设从本地存储或上下文中获取登录状态
-        // const isLoggedIn = localStorage.getItem('isLogin') === 'false';
-        if (token) {
-            setIsLogin(true);
-        } else {
-            setIsLogin(false);
-        }
-    }, [token]);
-    // useEffect(() => {
-    //     const token = localStorage.getItem('token'); // 从本地存储读取
-    //     setIsLogin(!!token); // 转换为布尔值
-    // }, []); // 只在首次渲染时运行
-    // 格式化菜单数据
     function formatMenus(menuData: any[]): MenuListItem[] {
         return menuData.map(menu => {
             return {
@@ -134,7 +144,6 @@ export default function HomeMenu() {
             };
         });
     }
-
     // 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
     function formatAdaptiveMenus(menuData: any[]): MenuListItem[] {
         return menuData.map(menu => {
@@ -170,14 +179,10 @@ export default function HomeMenu() {
         });
     }
 
-    // 是否登录
-    const [isLogin, setIsLogin] = useState<boolean>(false);
     // 退出登录
     const handleLogout = () => {
-        setIsLogin(false); // 更新登录状态为 false
-        localStorage.setItem('isLogin', 'false'); // 可选：同步到本地存储
-        console.log('退出登录成功');
-        store.clearUserToken()
+        setIsLogin(false);
+        store.clearUserToken();  // 清除 token
         router.push('/login');
     };
 
@@ -575,21 +580,22 @@ export default function HomeMenu() {
             span: 'Français'
         },
     ]
-    // 汇率菜单
-    const spanRateArr = [
+
+    // 使用实际数据替换静态数据
+    const spanRateArr = rateData.length > 0 ? rateData : [
         {
-            span: 'CNY - ￥'
+            span: 'CNY - ￥'  // 默认值
         },
         {
-            span: 'USD- $'
+            span: 'USD- $'   // 默认值
         },
-    ]
+    ];
     // 是否选中
-    const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    // const [selectedLanguage, setSelectedLanguage] = useState<string>('');
     const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = (language: string) => {
         setSelectedLanguage(language);
-        // 可以在这里添加其他逻辑，例如更新语言设置
+        localStorage.setItem('selectedLanguage', language);
     };
     const handleRateClick = (rate: string) => {
         setSelectedRate(rate);
@@ -608,7 +614,9 @@ export default function HomeMenu() {
                 width: '100%',
                 height: '100%'
             }}
-                onClick={() => handleLanguageClick(item.span)}>{item.span}
+                onClick={() => handleLanguageClick(item.span)}
+            >
+                {item.span}
             </span> // 动态赋值
         ),
     }));
@@ -1458,8 +1466,10 @@ export default function HomeMenu() {
     // //     },
     // // ];
 
-    const listItems = menus.map(menuList =>
-        <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
+    const listItems = menus.map(menuList => {
+        console.log('menuList', menuList);
+        return <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
+    }
     );
 
     // 左侧菜单展开
@@ -1654,8 +1664,8 @@ export default function HomeMenu() {
                                         </>
                                     ) : (
                                         <>
-                                            <Col><Link href='/login' className={styles.register}>注册</Link></Col>
-                                            <Col><Link href='/login' className={styles.login}>登录</Link></Col>
+                                            <Col><Link href='/login' className={styles.register}><span style={{ color: '#FFF' }}>注册</span></Link></Col>
+                                            <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>登录</span></Link></Col>
                                             <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
                                             <Col>
                                                 <Dropdown

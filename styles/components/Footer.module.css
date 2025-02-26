@@ -23,6 +23,7 @@
     margin-bottom: 40px;
     color: #A4A5AC;
     font-size: 14px;
+    white-space: nowrap;
 }
 .footerContainer .footer {
     width: 100vw;

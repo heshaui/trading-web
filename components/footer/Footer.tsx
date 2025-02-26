@@ -1,10 +1,12 @@
 import styles from '@/styles/components/Footer.module.css';
-import { Button, Dropdown, Space } from 'antd';
-import { DownOutlined, GlobalOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Button, Col, ConfigProvider, Dropdown, Row, Space } from 'antd';
 import { FooterListProps } from "@/type/types";
 import Image from 'next/image';
+import { useState } from 'react';
 
 export default function Footer() {
+    // 添加状态管理选中的语言
+    const [selectedLang, setSelectedLang] = useState('简体中文');
     const itemsLan = [
         {
             label: '简体中文',
@@ -32,8 +34,16 @@ export default function Footer() {
             key: '1',
         },
     ];
+    // 语言选择菜单
     const menuProps1 = {
         items: itemsLan,
+        onClick: ({ key }: { key: string }) => {
+            // 根据选中项的key更新显示的语言
+            const selectedItem = itemsLan.find(item => item.key === key);
+            if (selectedItem) {
+                setSelectedLang(selectedItem.label);
+            }
+        }
     };
     const menuProps2 = {
         items: itemsDownLoad,
@@ -87,64 +97,110 @@ export default function Footer() {
         );
     }
     return (
-        <div className={styles.footerContainer}>
-            <div className={styles.logoAndButton}>
-                <div className={styles.logo}>
-                    {/* <img src="/home_menu_logo.png" /> */}
-                    <Image
-                        src="/home_menu_logo.png"
-                        alt=""
-                        width={126}  // 必须指定宽度
-                        height={30} // 必须指定高度
-                    />
+        <ConfigProvider
+            theme={{
+                components: {
+                    Button: {
+                        defaultBg: 'inherit',
+                        defaultColor: 'inherit',
+                        contentFontSize: 12,
+                        paddingInline: 0,
+                        defaultHoverBg: 'inherit',
+                        defaultHoverColor: 'inherit',
+                        defaultBorderColor: 'inherit',
+                        defaultHoverBorderColor: 'inherit',
+                        defaultActiveBg: 'inherit',
+                        defaultActiveColor: 'inherit',
+                        defaultActiveBorderColor: 'inherit',
+
+                    },
+                    Dropdown: {
+                        fontSize: 12,
+                    }
+                },
+            }}
+        >
+            <div className={styles.footerContainer}>
+                <div className={styles.logoAndButton}>
+                    <div className={styles.logo}>
+                        {/* <img src="/home_menu_logo.png" /> */}
+                        <Image
+                            src="/home_menu_logo.png"
+                            alt=""
+                            width={126}  // 必须指定宽度
+                            height={30} // 必须指定高度
+                        />
+                    </div>
+                    <p>©2023 - 2024 MetaWave.</p>
+                    <Dropdown
+                        menu={menuProps1}
+                        trigger={['click']}
+                    >
+                        <Button>
+                            <Row justify='space-between' align='middle' gutter={32}>
+                                <Col>
+                                    <Row align='middle' gutter={4}>
+                                        <Col>
+                                            <Image
+                                                src="/images/footer/icon_earth_line.png"
+                                                alt=''
+                                                width={20}
+                                                height={20}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <span style={{ fontSize: '12px' }}>{selectedLang}</span>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col>
+                                    <Image
+                                        src="/images/footer/icon_down_line.png"
+                                        alt=''
+                                        width={20}
+                                        height={20}
+                                    />
+                                </Col>
+                            </Row>
+                        </Button>
+                    </Dropdown>
+                    <div style={{ marginTop: '20px' }}></div>
+                    <Dropdown
+                        menu={menuProps2}
+                        trigger={['click']}
+                    >
+                        <Button>
+                            <Row justify='start' align='middle' gutter={32}>
+                                <Col>
+                                    <Row align='middle' gutter={4}>
+                                        <Col>
+                                            <Image
+                                                src="/images/footer/icon_download_line.png"
+                                                alt=''
+                                                width={20}
+                                                height={20}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <span style={{ fontSize: '12px' }}>下载APP</span>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                {/* 占位 */}
+                                <Col>
+                                    <div style={{ width: '20px', height: '20px' }}></div>
+                                </Col>
+                            </Row>
+                        </Button>
+                    </Dropdown>
                 </div>
-                <p>©2023 - 2024 IMBIT.</p>
-                <Dropdown
-                    menu={menuProps1}
-                    trigger={['click']}
-                >
-                    <Button>
-                        <Space>
-                            <Image
-                                src="/images/footer/icon_earth_line.png"
-                                alt=''
-                                width={20}
-                                height={20}
-                            />
-                            简体中文
-                            <Image
-                                src="/images/footer/icon_down_line.png"
-                                alt=''
-                                width={20}
-                                height={20}
-                            />
-                        </Space>
-                    </Button>
-                </Dropdown>
-                <div style={{ marginTop: '20px' }}></div>
-                <Dropdown
-                    menu={menuProps2}
-                    trigger={['click']}
-                >
-                    <Button>
-                        <Space>
-                            <Image
-                                src="/images/footer/icon_download_line.png"
-                                alt=''
-                                width={20}
-                                height={20}
-                            />
-                            下载 APP
-                        </Space>
-                    </Button>
-                </Dropdown>
+                <div className={styles.footer}>
+                    {renderFooterList({ title: "关于IMBIT", items: aboutIMBIT })}
+                    {renderFooterList({ title: "产品", items: products })}
+                    {renderFooterList({ title: "帮助中心", items: helpCenter })}
+                    {renderFooterList({ title: "法律与风险披露", items: legalAndRisk })}
+                </div>
             </div>
-            <div className={styles.footer}>
-                {renderFooterList({ title: "关于IMBIT", items: aboutIMBIT })}
-                {renderFooterList({ title: "产品", items: products })}
-                {renderFooterList({ title: "帮助中心", items: helpCenter })}
-                {renderFooterList({ title: "法律与风险披露", items: legalAndRisk })}
-            </div>
-        </div>
+        </ConfigProvider>
     )
 }
