@@ -1,21 +1,13 @@
 import {  Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
 import { type CSSProperties, useState, } from "react";
-// import type { SignInReq } from "@/api/services/userService";
-// import { useSignIn } from "@/store/userStore";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
-// import FingerprintJS from "@fingerprintjs/fingerprintjs";
-// import loginApi from "@/api/login/login";
-// import { getEmailCode, getSmsCode } from "@/api/login/register";
-// import CodeModel from "./components/codebutton";
 import { toast } from "sonner";
-// import "@/styles/components/login/login.css"
-import type {  AutoCompleteProps } from 'antd';
-// import { Iconify } from "@/components/icon/index";
+import type {  AutoCompleteProps } from 'antd';;
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
-// import {goLogin} from "@/store/loginEnum"
 import styles from '../styles/login.module.css'
+
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -26,7 +18,7 @@ const fromStyle: CSSProperties = {
 };
 
 
-function RegisterMail() {
+export default function RegisterMail() {
     const router = useRouter();
     // const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
@@ -39,15 +31,6 @@ function RegisterMail() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
 
     // 当注册状态不为 EMAIL 时不渲染组件
-    if (registerType !== RegisterTypeEnum.EMAIL) return null;
-
-    // 获取浏览器指纹
-    // const getFingerprint = async () => {
-    // 	const result = await FingerprintJS.load();
-    // 	const visitorId = await result.get();
-    // 	console.log(visitorId.components.vendor);
-    // 	return visitorId.visitorId;
-    // };
 
     const handleFinish = async () => {
         form
@@ -100,28 +83,11 @@ function RegisterMail() {
             }));
         });
     };
-    // 自定义密码验证规则
-    // const validatePassword = (_: any, value: any) => {
-    //     if (!value) {
-    //         return Promise.reject(new Error("密码不能为空！"));
-    //     }
-    //     // 检查长度是否在 8 - 30 位之间
-    //     if (value.length < 8 || value.length > 30) {
-    //         return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
-    //     }
-    //     // 检查是否包含字母和数字
-    //     const hasLetter = /[a-zA-Z]/.test(value);
-    //     const hasNumber = /\d/.test(value);
-    //     if (!hasLetter || !hasNumber) {
-    //         return Promise.reject(new Error("密码必须包含字母和数字！"));
-    //     }
-    //     return Promise.resolve();
-    // };
     const goLogin = () => {
         // setLoginState(LoginStateEnum.LOGIN)
         router.push("/login")
     }
-
+    if (registerType !== RegisterTypeEnum.EMAIL) return null;
     return (
         <div className="flex-y-cc mt-7" >
             <Form
@@ -201,4 +167,4 @@ function RegisterMail() {
     );
 }
 
-export default RegisterMail;
+

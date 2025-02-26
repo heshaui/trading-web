@@ -29,7 +29,6 @@ function RegisterPhone() {
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
 	// 当注册类型不为 PHONE 时不渲染组件
-	if (registerType !== RegisterTypeEnum.PHONE) return null;
 
 	// 获取浏览器指纹
 	// const getFingerprint = async () => {
@@ -93,6 +92,8 @@ function RegisterPhone() {
 		}
 		return Promise.resolve();
 	};
+	if (registerType !== RegisterTypeEnum.PHONE) return null;
+
 	return (
 		<div className="flex-y-cc mt-7" >
 			<Form
