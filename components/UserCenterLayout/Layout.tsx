@@ -1,6 +1,7 @@
 import React from 'react';
 import UserCenterSidebar from './menu';
 import { useRouter, NextRouter } from 'next/router';
+import styles from "./styles/layout.module.css"
 
 // 定义 UserCenterLayout 组件的属性类型
 interface UserCenterLayoutProps {
@@ -14,8 +15,8 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
     
 
     return (
-        <div className="user-center-page flex">
-            <UserCenterSidebar />
+        <div className={`user-center-page flex ${styles.layout_container}`}>
+            <UserCenterSidebar  />
             <div className="content">
                 {children}
             </div>
