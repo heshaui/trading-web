@@ -17,7 +17,7 @@ const { t } = useTranslation(['home']);
         {
             key: '1',
             label: t('questionsTip1'), //'IMBIT都提供哪些产品'
-            children: <p>{text}</p>,
+            children: <p>{t('text1')}</p>,
             style: panelStyle,
             showArrow:false, //隐藏组件的箭头图标
             extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
@@ -25,7 +25,7 @@ const { t } = useTranslation(['home']);
         {
             key: '2',
             label: t('questionsTip2'),//'如何通过IMBIT平台购买比特币？',
-            children: <p>{text}</p>,
+            children: <p>{t('text2')}</p>,
             style: panelStyle,
             showArrow:false ,
             extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
@@ -33,7 +33,7 @@ const { t } = useTranslation(['home']);
         {
             key: '3',
             label: t('questionsTip3'),//'美国公民可以使用IMBIT吗？',
-            children: <p>{text}</p>,
+            children: <p>{t('text3')}</p>,
             style: panelStyle,
             showArrow:false ,
             extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
@@ -42,7 +42,7 @@ const { t } = useTranslation(['home']);
         {
             key: '4',
             label: t('questionsTip4'),//'什么是数字货币？',
-            children: <p>{text}</p>,
+            children: <p>{t('text4')}</p>,
             style: panelStyle,
             showArrow:false ,
             extra:<Iconify icon="formkit:add"  size={26} className={styles.icon_color3}/>
