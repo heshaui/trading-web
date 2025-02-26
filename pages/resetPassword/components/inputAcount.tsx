@@ -24,7 +24,6 @@ function ResetPassword() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [tabsProps, setTabsProps] = useState('email');
     // 当状态不为 INPUT 时不渲染组件
-    if (resetState !== ResetStateEnum.INPUT) return null;
 
     // 定义粘贴功能的处理函数
     // const handlePaste = async () => {
@@ -114,6 +113,7 @@ function ResetPassword() {
         console.log(value);
         setTabsProps(value)
     };
+    if (resetState !== ResetStateEnum.INPUT) return null;
 
     return (<>
         <Segmented

@@ -21,7 +21,6 @@ function ResetPassword() {
 	const [verifyPasswordVisible, setverifyPasswordVisible] = useState(false);
 	const [resetSuccess, setResetSuccess] = useState(false);
     // 当状态不为 INPUT 时不渲染组件
-    if (resetState !== ResetStateEnum.RESET) return null;
 
 
 
@@ -63,6 +62,7 @@ function ResetPassword() {
             console.log("Validate Failed:", info);
         });
     }
+    if (resetState !== ResetStateEnum.RESET) return null;
 
     return (
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>

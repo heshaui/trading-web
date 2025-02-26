@@ -26,7 +26,6 @@ function RegisterForm() {
 	const [tabsProps, setTabsProps] = useState('email');
 	// const { registerType, setRegisterType, backToRegisterType } = useRegisterTypeContext();
 	const {  setRegisterType } = useRegisterTypeContext();
-	if (loginState !== LoginStateEnum.REGISTER) return null;
 	const tabsChange = (value: string) => {
 		console.log(value);
 		setTabsProps(value)
@@ -66,6 +65,7 @@ function RegisterForm() {
 	// 	// backToLogin();
 	// };
 
+	if (loginState !== LoginStateEnum.REGISTER) return null;
 
 	return (
 		<>
