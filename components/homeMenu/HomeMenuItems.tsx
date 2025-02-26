@@ -40,7 +40,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
     // 点击跳转
     const router = useRouter();
     const onClickLink: MenuProps['onClick'] = ({ key }) => {
-        if(menuList && menuList.linkHref) {
+        if (menuList && menuList.linkHref) {
             router.push(menuList.linkHref);
         }
     };
@@ -65,7 +65,7 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
                                 e.preventDefault();
                                 menuList.onClick?.(); // 调用点击事件
                             }}>
-                                {menuList.title}
+                                <span style={{ color: '#000' }}>{menuList.title}</span>
                             </a>
                         </Dropdown>
                     </Space>
@@ -81,14 +81,14 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
                     key={menuList.key}
                     className={styles.menuList}
                     overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}
-                    // overlayStyle={ isCascading ? { left: '100px', top: '80px', maxWidth: '364px', minWidth: '300px' }: { top: '80px', maxWidth: '364px', minWidth: '300px' } }
+                // overlayStyle={ isCascading ? { left: '100px', top: '80px', maxWidth: '364px', minWidth: '300px' }: { top: '80px', maxWidth: '364px', minWidth: '300px' } }
                 >
                     <a onClick={(e) => {
                         e.preventDefault();
                         menuList.onClick?.(); // 调用点击事件
                     }}>
                         <Space style={{ columnGap: '3px' }}>
-                            {menuList.title}
+                            <span style={{ color: '#FFF' }}>{menuList.title}</span>
                             {/* <DownOutlined /> */}
                         </Space>
                     </a>
