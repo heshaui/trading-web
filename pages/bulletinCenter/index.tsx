@@ -211,7 +211,7 @@ export default function BulletinCenter() {
                                             <MessageItemDetail
                                                 message={currentMessage}
                                                 onBack={handleBack}
-                                                currentDetailLabel={selectedLabel} // 传递当前选中的标签
+                                                currentDetailLabel={selectedLabel || '最新动态'} // 传递当前选中的标签
                                             />
                                         </Col>
                                     ) : (
