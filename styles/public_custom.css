@@ -4,6 +4,17 @@
     border-radius: 36px;
     color: #ffffff;
 }
+.button-color-disable,
+.btn-disable {
+    background: var(--cancel-btn);
+    border-radius: 36px;
+    color: var(--cancel-color);
+}
+.btn-color-default{
+    border-radius: 36px;
+    color: var(--btncolor5);
+    border: 1px solid var(--btncolor5);
+}
 
 .page-box {
     background-color: var(--background);
@@ -188,9 +199,12 @@
 }
 
 /* menu菜单自定义样式 */
+.custom-menu .ant-menu-item{
+    border-radius: 0 50px 50px 0 !important;
+}
 .custom-menu .ant-menu-item-selected {
     background: linear-gradient(90deg, rgba(255, 95, 31, 0) 0%, rgba(255, 95, 31, 0.5) 100%) !important;
-    border-radius: 0 50px 50px 0 !important;
+    /* border-radius: 0 50px 50px 0 !important; */
 }
 
 .custom-menu .ant-menu-item-selected::after {

@@ -1,5 +1,22 @@
 .layout_container {
-    display: grid;
-    grid-template-columns: auto 1fr; /* 侧边栏自适应宽度，内容区域占剩余空间 */
-    min-height: 86vh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  /* 侧边栏自适应宽度，内容区域占剩余空间 */
+  min-height: 70vh;
+}
+
+.content {
+  background: var(--background6);
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+  /* 添加垂直滚动 */
+  height: calc(100vh - 80px);
+  /* ：隐藏滚动条但保持滚动功能 */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+  /* 针对 Webkit 浏览器（Chrome、Safari等）隐藏滚动条 */
+  &::-webkit-scrollbar {
+    display: none;
   }
+}

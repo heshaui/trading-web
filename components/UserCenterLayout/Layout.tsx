@@ -11,13 +11,13 @@ interface UserCenterLayoutProps {
 const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
     // 使用 useRouter 钩子获取路由对象，并指定其类型为 NextRouter
     const router: NextRouter = useRouter();
-    console.log(router);
+    // console.log(router);
     
 
     return (
         <div className={`user-center-page flex ${styles.layout_container}`}>
             <UserCenterSidebar  />
-            <div className="content">
+            <div className={`${styles.content}`}>
                 {children}
             </div>
         </div>

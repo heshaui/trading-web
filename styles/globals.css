@@ -8,6 +8,8 @@
   --background3: #ffffff;
   --background4: #0a0a0a;
   --background5: #ffffff;
+  --background6: #F3F3F3;
+  --background7: #FFFFFF;
   --foreground: #171717;
   --homeground: #000000;
   --homeground2: #FFFFFF;
@@ -24,6 +26,7 @@
   --btncolor3: #E1E1E4;
   --btncolor4: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
   --btncolor5: #FF5F1F;
+  --btncolor6: #F3F3F3;
   --tip-color1: #6D6F7A;
   --tip-color2: #A4A5AC;
   --text-color: #1F40FF;
@@ -31,13 +34,14 @@
   --text-color3: #FF5F1F;
   --text-color4: #9E9E9E;
   --text-color5: #0C0D0C;
+  --text-color6: #676867;
   --waring-color: #FF8A26;
   --waring-bg: #FF8A2614;
   --cancel-btn: #F3F3F3;
   --cancel-color: #0C0D0C;
-  --border-color:#DCDCDC;
-  --border-color2:#FFFFFF1A;
-  --border-color3:#0C0D0C;
+  --border-color: #DCDCDC;
+  --border-color2: #FFFFFF1A;
+  --border-color3: #0C0D0C;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +51,8 @@
     --background3: #333333;
     --background4: #0a0a0a;
     --background5: #29292F;
+    --background6: rgb(20, 20, 20);
+    --background7: #FFFFFF14;
     --foreground: #ededed;
     --homeground: #000000;
     --homeground2: #000000;
@@ -63,6 +69,7 @@
     --btncolor3: #1B1E30;
     --btncolor4: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%);
     --btncolor5: #FF5F1F;
+    --btncolor6: #333333;
     --tip-color1: #FFFFFFB2;
     --tip-color2: #979897;
     --text-color: #1F40FF;
@@ -70,13 +77,14 @@
     --text-color3: #FF5F1F;
     --text-color4: #9E9E9E;
     --text-color5: #ffffff;
+    --text-color6: #A4A5AC;
     --waring-color: #FF8A26;
     --waring-bg: #FF8A2614;
     --cancel-btn: #3D3D3F;
     --cancel-color: #ffffff;
-    --border-color:#FFFFFF33;
-    --border-color2:#DCDCDC;
-    --border-color3:#FFFFFF;
+    --border-color: #FFFFFF33;
+    --border-color2: #DCDCDC;
+    --border-color3: #FFFFFF;
   }
 }
 

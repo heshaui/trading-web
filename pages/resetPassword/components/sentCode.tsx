@@ -153,7 +153,7 @@ function ResetPassword() {
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}
-                        onClick={() => goLast()}>返回</button>
+                        onClick={() => goLast()}>上一步</button>
                     <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>下一步</button>
                 </div>
                 <div>

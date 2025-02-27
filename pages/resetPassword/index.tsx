@@ -23,7 +23,7 @@ function ResetPassword() {
 
 
     return (
-        <Layout className="relative flex h-overmax w-full flex-row page-box" >
+        <div className="relative flex h-overmax w-full flex-row page-box" >
             <div className=" flex-col flex-ai-center w-full  justify-center flex-1 position-relative">
                 <div>
                     <h2 className="mb-6 font-w-500 font-36" >重置密码</h2>
@@ -39,7 +39,7 @@ function ResetPassword() {
                 </div>
 
             </div>
-        </Layout>
+        </div>
 
     );
 }

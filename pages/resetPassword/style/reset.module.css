@@ -1,6 +1,6 @@
 .warning_box {
     color: var(--waring-color);
-    background-color: var(--waring-bg);
+    background-color: var(--waring-bg) !important;
     /* width: 400px; */
     height: 41px;
     padding: 12px 10px;
