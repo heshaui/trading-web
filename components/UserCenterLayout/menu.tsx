@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Menu, ConfigProvider } from 'antd';
 import type { MenuProps } from 'antd';
