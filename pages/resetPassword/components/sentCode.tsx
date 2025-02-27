@@ -114,6 +114,11 @@ function ResetPassword() {
             });
         }, 1000);
     };
+    const handleOk = (event: boolean) => {
+        if (event) {
+            getResetCode()
+        }
+    }
     useEffect(() => {
         // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
         if (resetState == ResetStateEnum.SENTCODE) {
@@ -166,7 +171,7 @@ function ResetPassword() {
                     </button>
                 </div>
             </div>
-            <QuestionModal open={pointout} onOk={() => setPointout(false)} type={"email"} acount={acount.acount} onCancel={() => setPointout(false)} />
+            <QuestionModal open={pointout} onOk={handleOk} type={acount.type} acount={acount.acount} onCancel={() => setPointout(false)} />
         </div>
     );
 }

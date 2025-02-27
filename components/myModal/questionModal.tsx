@@ -60,8 +60,8 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
             <ul>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                   {type==="m"&&(<>确保您的邮箱为<span>{acount?encryptEmail(acount):"-"}</span></>)} 
-                   {type==="p"&&(<>确保您的手机为<span>{acount?encryptPhoneNumber(acount):"-"}</span></>)} 
+                   {(type==="m"||type==="email"||type==="mail")&&(<>确保您的邮箱为<span>{acount?encryptEmail(acount):"-"}</span></>)} 
+                   {(type==="p"||type==="phone")&&(<>确保您的手机为<span>{acount?encryptPhoneNumber(acount):"-"}</span></>)} 
                     </li>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
