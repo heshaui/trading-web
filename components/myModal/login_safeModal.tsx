@@ -155,10 +155,11 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             });
         }, 1000);
     };
-    // const getCode = async () => {
-        
-    //     await getLoginCode()
-    // }
+    const handleOk = (event: boolean) => {
+        if (event) {
+            getLoginCode()
+        }
+    }
     useEffect(() => {
         if (open) {
             getLoginCode()
@@ -226,7 +227,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             </Form>
             <QuestionModal
                 open={pointout}
-                onOk={() => setPointout(false)}
+                onOk={handleOk}
                 type={acountInfo.type}
                 acount={
                     acountInfo.type === "m" ? (acountInfo.email || "") :

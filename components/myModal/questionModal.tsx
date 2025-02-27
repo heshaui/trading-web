@@ -8,8 +8,8 @@ type Props = {
     open: boolean;
     acount: string|null;
     type:string|null;
-    // onOk: (event: any) => void;
-    onOk: () => void;
+    onOk: (event: boolean) => void;
+    // onOk: () => void;
     onCancel: () => void;
 };
 
@@ -20,7 +20,7 @@ function QuestionModal({ open, onOk, acount,type, onCancel }: Props) {
 
     const handOk = async () => {
         onCancel()
-        onOk()
+        onOk(true)
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
 
