@@ -36,7 +36,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                 isOtherItem ? (
                     <a
                         className={styles.menuListAOther}
-                        style={{ cursor: 'default' }}
+                        style={{ cursor: 'default', color: 'inherit' }}
                     >
                         <div className={styles.otherBox}>
                             <h5>{h5Text}</h5>

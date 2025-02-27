@@ -1,4 +1,4 @@
-import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card } from 'antd';
+import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card, Breadcrumb } from 'antd';
 import type { MenuProps } from 'antd';
 import Image from 'next/image';
 import { useMemo, useState } from 'react'; // 导入 useState
@@ -6,7 +6,9 @@ import { useMemo, useState } from 'react'; // 导入 useState
 import styles from './styles/bulletinCenter.module.css';
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
-import { menuData, messageData } from '@/data/bulletinCenter/getItemsMessage';
+import { menuData, messageData, detailMenuItems } from '@/data/bulletinCenter/getItemsMessage';
+import { MessageData } from '@/type/bulletin_center/bc_types';
+import MessageItemDetail from './components/MessageItemDetail';
 
 
 const { Search } = Input;
@@ -17,34 +19,129 @@ export default function BulletinCenter() {
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
     const [selectedKeys, setSelectedKeys] = useState<string[]>(['1']); // 默认选中 '1'
     const [selectedLabel, setSelectedLabel] = useState<string>('全部公告'); // 跟踪选中的菜单项标签，默认为“全部公告”
+    // 使用对象存储每个菜单项的页码状态
+    const [pagesState, setPagesState] = useState<Record<string, number>>({});
+    // 每页显示的消息数量
+    const pageSize = 5;
+    // 获取当前菜单项的页码
+    const getCurrentPage = (key: string) => pagesState[key] || 1;
+    // 公告中心 - 详情页
+    const [showDetail, setShowDetail] = useState(false);
+    const [currentMessage, setCurrentMessage] = useState<MessageData | null>(null);
+    // 保存之前的菜单状态 - 公告部分
+    const [previousState, setPreviousState] = useState<{
+        selectedKeys: string[];
+        selectedLabel: string;
+    } | null>(null);
+    const [detailSelectedKey, setDetailSelectedKey] = useState('latest'); // 默认选中 '最新动态'
 
-    // 动态生成菜单项
-    const items: MenuItem[] = menuData.map((item) => ({
-        key: item.key,
-        icon: (
-            <Image
-                src={
-                    hoveredKey === item.key || selectedKeys.includes(item.key)
-                        ? item.hoverIcon
-                        : item.defaultIcon
-                }
-                alt=""
-                width={20}
-                height={20}
-            // unoptimized={true} // 禁用 Next.js 图像优化，确保直接加载
-            />
-        ),
-        label: item.label,
-        onMouseEnter: () => setHoveredKey(item.key), // 鼠标进入时设置悬浮状态
-        onMouseLeave: () => setHoveredKey(null), // 鼠标离开时清除悬浮状态
-    }));
-    // 获取当前选中的消息数据（使用 useMemo 优化性能）
+    // 创建一个通用的生成菜单项的函数
+    const generateMenuItems = (
+        menuItemsData: Array<{
+            key: string;
+            label: string;
+            defaultIcon: string;
+            hoverIcon: string;
+        }>,
+        currentSelectedKey: string | string[]
+    ): MenuItem[] => {
+        return menuItemsData.map((item) => ({
+            key: item.key,
+            icon: (
+                <Image
+                    src={
+                        hoveredKey === item.key || 
+                        (Array.isArray(currentSelectedKey) 
+                            ? currentSelectedKey.includes(item.key) 
+                            : currentSelectedKey === item.key)
+                            ? item.hoverIcon
+                            : item.defaultIcon
+                    }
+                    alt=""
+                    width={20}
+                    height={20}
+                />
+            ),
+            label: item.label,
+            onMouseEnter: () => setHoveredKey(item.key),
+            onMouseLeave: () => setHoveredKey(null),
+        }));
+    };
+    // 生成公告中心顶层菜单项
+    const items = generateMenuItems(menuData, selectedKeys);
+    // 生成详情页菜单项
+    const detailItems = generateMenuItems(detailMenuItems, detailSelectedKey);
+
+    // 获取当前选中的消息数据
     const currentMessages = useMemo(() => {
-        const currentKey = selectedKeys[0] || '1'; // 默认取第一个 key，如果没有则用 '1'
-        return messageData[currentKey] || [
-            { title: '默认公告标题', time: '2024-12-16 00:00:00' },
-        ];
-    }, [selectedKeys]);
+        const currentKey = selectedKeys[0] || '1';
+        const messages = messageData[currentKey] || [];
+        const currentPage = getCurrentPage(currentKey);
+
+        // 计算当前页的数据
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        return {
+            data: messages.slice(startIndex, endIndex),
+            total: messages.length
+        };
+    }, [selectedKeys, pagesState, messageData]);
+    // 处理页码变化
+    const handlePageChange = (page: number) => {
+        const currentKey = selectedKeys[0] || '1';
+        setPagesState(prev => ({
+            ...prev,
+            [currentKey]: page
+        }));
+    };
+    // 处理菜单选择变化
+    const handleMenuSelect = (info: { key: string }) => {
+        setSelectedKeys([info.key]);
+
+        if (showDetail) {
+            // 在详情页时更新详情页的选中状态
+            setDetailSelectedKey(info.key);
+            // 在详情页时的菜单选择逻辑
+            if (info.key === 'latest') {
+                setSelectedLabel('公告中心');
+            } else {
+                // 根据 key 设置对应的 label
+                const selectedItem = detailMenuItems.find((item) => item.key === info.key);
+                setSelectedLabel(selectedItem ? selectedItem.label : '公告中心');
+            }
+        } else {
+            // 原有的菜单选择逻辑
+            if (info.key === '1') {
+                setSelectedLabel('全部公告');
+            } else {
+                const selectedItem = menuData.find((item) => item.key === info.key);
+                setSelectedLabel(selectedItem ? selectedItem.label : '全部公告');
+            }
+        }
+    };
+    // 点击查看详情
+    const handleMessageClick = (message: MessageData) => {
+        if (selectedKeys[0] === '1') { // 只有公告类型可以查看详情
+            // 保存当前状态
+            setPreviousState({
+                selectedKeys: selectedKeys,
+                selectedLabel: selectedLabel
+            });
+            setCurrentMessage(message);
+            setShowDetail(true);
+            setDetailSelectedKey('latest'); // 重置为最新动态
+            setSelectedLabel('公告中心'); // 确保进入详情页时设置为公告中心
+        }
+    };
+    // 处理返回列表页
+    const handleBack = () => {
+        setShowDetail(false);
+        // 恢复之前的状态
+        if (previousState) {
+            setSelectedKeys(previousState.selectedKeys);
+            setSelectedLabel(previousState.selectedLabel);
+        }
+    };
     return (
         <ConfigProvider
             theme={{
@@ -93,20 +190,10 @@ export default function BulletinCenter() {
                         <Col flex={1}>
                             <Menu
                                 defaultSelectedKeys={['1']}
-                                selectedKeys={selectedKeys} // 绑定选中的键
-                                onSelect={(info) => {
-                                    setSelectedKeys([info.key]); // 更新选中的键
-                                    // 根据选中的 key 找到对应的 label 并更新
-                                    const selectedItem = menuData.find((item) => item.key === info.key);
-                                    if (info.key === '1') {
-                                        setSelectedLabel('全部公告'); // key 为 '1' 时显示“全部公告”
-                                    } else {
-                                        setSelectedLabel(selectedItem ? selectedItem.label : '全部公告'); // 其他 key 使用对应的 label
-                                    }
-                                }} // 选中时更新状态和标签
-                                defaultOpenKeys={['sub1']}
+                                selectedKeys={showDetail ? [detailSelectedKey] : selectedKeys}
+                                onSelect={handleMenuSelect}
                                 mode="inline"
-                                items={items}
+                                items={showDetail ? detailItems : items}
                             />
                         </Col>
                         <Col flex={4}>
@@ -119,16 +206,33 @@ export default function BulletinCenter() {
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col flex={1}>
-                                        {currentMessages.map((message, index) => (
-                                            <MessageItem
-                                                key={index}
-                                                title={message.title}
-                                                time={message.time}
+                                    {showDetail && currentMessage ? (
+                                        <Col flex={1}>
+                                            <MessageItemDetail
+                                                message={currentMessage}
+                                                onBack={handleBack}
+                                                currentDetailLabel={selectedLabel} // 传递当前选中的标签
                                             />
-                                        ))}
-                                        <MessagePagination />
-                                    </Col>
+                                        </Col>
+                                    ) : (
+                                        <Col flex={1}>
+                                            {currentMessages.data.map((message, index) => (
+                                                <MessageItem
+                                                    key={index}
+                                                    title={message.title}
+                                                    time={message.time}
+                                                    onClick={() => handleMessageClick(message)}
+                                                    isClickable={selectedKeys[0] === '1'}
+                                                />
+                                            ))}
+                                            <MessagePagination
+                                                current={getCurrentPage(selectedKeys[0] || '1')}
+                                                total={currentMessages.total}
+                                                onChange={handlePageChange}
+                                                pageSize={pageSize}
+                                            />
+                                        </Col>
+                                    )}
                                 </Row>
                             </Card>
                         </Col>

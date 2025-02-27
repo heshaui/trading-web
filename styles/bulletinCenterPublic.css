@@ -6,4 +6,5 @@
 }
 .customMenu .ant-menu .ant-menu-item {
     min-height: 60px;
+    cursor: pointer;
 }
