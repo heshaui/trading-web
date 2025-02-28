@@ -19,7 +19,6 @@ import { useTranslation } from 'next-i18next';
 
 // import { request } from '@/request/index'; // 引入封装的请求方法
 import { exchangeRate, homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
-import { ExchangeRateParams } from '@/type/bulletin_center/bc_types';
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
 

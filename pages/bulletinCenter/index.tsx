@@ -1,14 +1,16 @@
-import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card, Breadcrumb } from 'antd';
+import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card, Breadcrumb, Empty } from 'antd';
 import type { MenuProps } from 'antd';
+import { useCallback, useMemo, useState } from 'react'; // 导入 useState
 import Image from 'next/image';
-import { useMemo, useState } from 'react'; // 导入 useState
+import dayjs from 'dayjs';
 
-import styles from './styles/bulletinCenter.module.css';
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
+import MessageItemDetail from './components/MessageItemDetail';
+import RenderBulletinTop from './components/RenderBulletinTop';
+import styles from './styles/bulletinCenter.module.css';
 import { menuData, messageData, detailMenuItems } from '@/data/bulletinCenter/getItemsMessage';
 import { MessageData } from '@/type/bulletin_center/bc_types';
-import MessageItemDetail from './components/MessageItemDetail';
 
 
 const { Search } = Input;
@@ -24,7 +26,9 @@ export default function BulletinCenter() {
     // 每页显示的消息数量
     const pageSize = 5;
     // 获取当前菜单项的页码
-    const getCurrentPage = (key: string) => pagesState[key] || 1;
+    const getCurrentPage = useCallback((key: string) => {
+        return pagesState[key] || 1;
+    }, [pagesState]);
     // 公告中心 - 详情页
     const [showDetail, setShowDetail] = useState(false);
     const [currentMessage, setCurrentMessage] = useState<MessageData | null>(null);
@@ -34,6 +38,12 @@ export default function BulletinCenter() {
         selectedLabel: string;
     } | null>(null);
     const [detailSelectedKey, setDetailSelectedKey] = useState('latest'); // 默认选中 '最新动态'
+    // 添加状态来控制是否显示文章详情
+    const [showArticle, setShowArticle] = useState(true);
+    // 存储已读消息的 ID
+    const [readMessageIds, setReadMessageIds] = useState<Set<string>>(new Set());
+    // 添加状态来控制是否只显示未读消息
+    const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
     // 创建一个通用的生成菜单项的函数
     const generateMenuItems = (
@@ -50,10 +60,10 @@ export default function BulletinCenter() {
             icon: (
                 <Image
                     src={
-                        hoveredKey === item.key || 
-                        (Array.isArray(currentSelectedKey) 
-                            ? currentSelectedKey.includes(item.key) 
-                            : currentSelectedKey === item.key)
+                        hoveredKey === item.key ||
+                            (Array.isArray(currentSelectedKey)
+                                ? currentSelectedKey.includes(item.key)
+                                : currentSelectedKey === item.key)
                             ? item.hoverIcon
                             : item.defaultIcon
                     }
@@ -101,6 +111,7 @@ export default function BulletinCenter() {
         if (showDetail) {
             // 在详情页时更新详情页的选中状态
             setDetailSelectedKey(info.key);
+            setShowArticle(false); // 切换到列表视图
             // 在详情页时的菜单选择逻辑
             if (info.key === 'latest') {
                 setSelectedLabel('公告中心');
@@ -121,19 +132,20 @@ export default function BulletinCenter() {
     };
     // 点击查看详情
     const handleMessageClick = (message: MessageData) => {
-        if (selectedKeys[0] === '1') { // 只有公告类型可以查看详情
-            // 保存当前状态
+        if (selectedKeys[0] === '1') {
+            setReadMessageIds(prev => new Set([...prev, message.id || '']));
             setPreviousState({
                 selectedKeys: selectedKeys,
                 selectedLabel: selectedLabel
             });
             setCurrentMessage(message);
             setShowDetail(true);
-            setDetailSelectedKey('latest'); // 重置为最新动态
-            setSelectedLabel('公告中心'); // 确保进入详情页时设置为公告中心
+            setShowArticle(true);
+            setDetailSelectedKey('latest');
+            setSelectedLabel('公告中心');
         }
     };
-    // 处理返回列表页
+    // 处理返回公告列表页
     const handleBack = () => {
         setShowDetail(false);
         // 恢复之前的状态
@@ -142,6 +154,72 @@ export default function BulletinCenter() {
             setSelectedLabel(previousState.selectedLabel);
         }
     };
+    // 处理点击最新动态
+    const handleLatestClick = () => {
+        setDetailSelectedKey('latest'); // 设置为最新动态菜单项
+        setSelectedLabel('公告中心'); // 设置标签为最新动态
+        setShowArticle(false);  // 切换到列表视图
+    };
+
+    // 处理 只看未读 变化
+    const handleUnreadChange = (checked: boolean) => {
+        setShowUnreadOnly(checked);
+    };
+    // 全部已读处理
+    const handleReadAll = () => {
+        if (currentMessages && selectedKeys[0] === '1') {
+            const newReadIds = new Set(readMessageIds);
+            // 获取所有菜单项下已读的id
+            // currentMessages.data.forEach(message => {
+            //     newReadIds.add(message.id || '');
+            // });
+            // 只将公告菜单项（key='1'）的消息标记为已读
+            messageData['1'].forEach(message => {
+                newReadIds.add(message.id || '');
+            });
+            setReadMessageIds(newReadIds);
+        }
+    };
+    // 判断消息是否已读
+    const isMessageRead = (messageId: string) => {
+        // return readMessageIds.has(messageId);
+        
+        // 只有公告菜单项的消息才判断已读状态
+        if (selectedKeys[0] === '1') {
+            return readMessageIds.has(messageId);
+        }
+        return false; // 其他菜单项始终返回 false，保持原有颜色
+    };
+    // 获取经过筛选和排序的消息列表：先按已读状态，再按时间排序
+    const getFilteredAndSortedMessages = (messages: MessageData[]) => {
+        if (selectedKeys[0] === '1') {
+            let filteredMessages = [...messages];
+
+            // 如果开启了只看未读，过滤出未读消息
+            if (showUnreadOnly) {
+                filteredMessages = filteredMessages.filter(message => !isMessageRead(message.id || ''));
+            }
+
+            // 按已读状态和时间排序
+            return filteredMessages.sort((a, b) => {
+                const aRead = isMessageRead(a.id || '');
+                const bRead = isMessageRead(b.id || '');
+
+                if (aRead !== bRead) {
+                    return aRead ? 1 : -1;
+                }
+
+                const timeA = dayjs(a.time);
+                const timeB = dayjs(b.time);
+                return timeB.diff(timeA);
+            });
+        }
+        return messages;
+    };
+    // 在渲染列表时使用筛选和排序后的数据
+    const filteredAndSortedMessages = getFilteredAndSortedMessages(currentMessages.data);
+
+
     return (
         <ConfigProvider
             theme={{
@@ -169,22 +247,12 @@ export default function BulletinCenter() {
             }}
         >
             <div className={styles.bulletinContainer}>
-                <div className={styles.bulletinTop}>
-                    <Row align='middle' justify='space-between'>
-                        <Col>
-                            <Row gutter={16} align='middle'>
-                                <Col><h5>通知</h5></Col>
-                                <Col><Search placeholder="搜索" allowClear style={{ width: 200 }} /></Col>
-                            </Row>
-                        </Col>
-                        <Col>
-                            <Checkbox>
-                                <span style={{ color: '#FFFFFF' }}>只看未读</span>
-                            </Checkbox>
-                            <span style={{ color: '#FF5F1F' }}>全部已读</span>
-                        </Col>
-                    </Row>
-                </div>
+                <RenderBulletinTop
+                    showDetail={showDetail}
+                    onBack={handleBack}
+                    onReadAll={handleReadAll}
+                    onUnreadChange={handleUnreadChange}
+                />
                 <div className={`${styles.bulletinContent} customMenu`}>
                     <Row justify='space-between' gutter={16}>
                         <Col flex={1}>
@@ -211,20 +279,34 @@ export default function BulletinCenter() {
                                             <MessageItemDetail
                                                 message={currentMessage}
                                                 onBack={handleBack}
-                                                currentDetailLabel={selectedLabel || '最新动态'} // 传递当前选中的标签
+                                                currentDetailLabel={selectedLabel === '公告中心' ? '最新动态' : selectedLabel} // 传递当前选中的标签
+                                                currentDetailKey={detailSelectedKey} // 传递当前选中的 key
+                                                onLatestClick={handleLatestClick} // 传递点击最新动态的处理函数
+                                                showArticle={showArticle} // 传递是否显示文章详情的状态
                                             />
                                         </Col>
                                     ) : (
                                         <Col flex={1}>
-                                            {currentMessages.data.map((message, index) => (
-                                                <MessageItem
-                                                    key={index}
-                                                    title={message.title}
-                                                    time={message.time}
-                                                    onClick={() => handleMessageClick(message)}
-                                                    isClickable={selectedKeys[0] === '1'}
-                                                />
-                                            ))}
+                                            {filteredAndSortedMessages.length > 0 ? (
+                                                filteredAndSortedMessages.map((message) => (
+                                                    <MessageItem
+                                                        key={message.id}
+                                                        title={message.title}
+                                                        time={message.time}
+                                                        onClick={() => handleMessageClick(message)}
+                                                        isClickable={selectedKeys[0] === '1'}
+                                                        isRead={isMessageRead(message.id || '')}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    padding: '40px 0'
+                                                }}>
+                                                    <Empty image='/images/bulletin_center/chat.png' description='暂无通知' />
+                                                </div>
+                                            )}
                                             <MessagePagination
                                                 current={getCurrentPage(selectedKeys[0] || '1')}
                                                 total={currentMessages.total}
