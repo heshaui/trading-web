@@ -1,6 +1,6 @@
 import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card, Breadcrumb, Empty } from 'antd';
 import type { MenuProps } from 'antd';
-import { useMemo, useState } from 'react'; // 导入 useState
+import { useCallback, useMemo, useState } from 'react'; // 导入 useState
 import Image from 'next/image';
 import dayjs from 'dayjs';
 
@@ -26,7 +26,9 @@ export default function BulletinCenter() {
     // 每页显示的消息数量
     const pageSize = 5;
     // 获取当前菜单项的页码
-    const getCurrentPage = (key: string) => pagesState[key] || 1;
+    const getCurrentPage = useCallback((key: string) => {
+        return pagesState[key] || 1;
+    }, [pagesState]);
     // 公告中心 - 详情页
     const [showDetail, setShowDetail] = useState(false);
     const [currentMessage, setCurrentMessage] = useState<MessageData | null>(null);

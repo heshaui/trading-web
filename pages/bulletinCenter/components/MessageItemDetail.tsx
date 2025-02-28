@@ -14,14 +14,12 @@ export default function MessageItemDetail({
     onLatestClick,
     showArticle
 }: MessageItemDetailProps) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5; // 每页显示的数量
     // 确保 message 存在
     if (!message) {
         return null; // 或者返回一个加载状态/错误状态的组件
     }
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 5; // 每页显示的数量
-
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
