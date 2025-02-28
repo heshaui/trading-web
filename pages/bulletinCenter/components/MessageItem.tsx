@@ -7,15 +7,16 @@ export default function MessageItem({
     content,
     isClickable = false,
     isDetail = false,
-    onClick
+    onClick,
+    isRead = false
 }: MessageData) {
     return (
         <>
             <div
-                className={`${styles.bulletinCenterContent} ${isClickable ? styles.clickable : ''} ${isDetail ? styles.detail : ''}`}
+                className={`${styles.bulletinCenterContent} ${isDetail ? styles.detail : ''}`}
                 onClick={isClickable ? onClick : undefined}
             >
-                <h6 className={isDetail ? styles.detailTitle : ''}>{title}</h6>
+                <h6 className={isRead ? styles.readTitle : ''}>{title}</h6>
                 <div className={styles.timeContent}>
                     <span>{time}</span>
                 </div>

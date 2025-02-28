@@ -17,7 +17,7 @@ export async function request<T>(
   const defaultHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${getToken()}`, // 获取 token（可选）
-    'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||''
+    'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS || ''
   };
 
   const config: RequestInit = {
