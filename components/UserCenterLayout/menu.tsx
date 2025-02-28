@@ -44,7 +44,7 @@ const UserCenterSidebar = () => {
       // 使用 useCallback 来记忆防抖函数
   const debouncedCheckWidth = useCallback(
     debounce(() => {
-      setCollapsed(window.innerWidth < 980);
+      setCollapsed(window.innerWidth < 1208);
     }, 200),  // 200ms 延迟
     []
   );
