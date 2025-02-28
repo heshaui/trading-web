@@ -132,3 +132,9 @@ export interface Table2Data extends BaseTableData {
     assetProportion: string; // 资产占比
     assetProportionNode: string; // 资产占比
 }
+// 汇率
+export interface ExchangeRateParams {
+    id: number;
+    shortName: string;
+    status: number;
+}

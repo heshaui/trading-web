@@ -2,13 +2,14 @@ import { MessageData } from '@/type/bulletin_center/bc_types';
 // 定义消息数据类型（数组形式）
 type Messages = MessageData[];
 
-// 定义菜单项数据，使用循环生成四个菜单项
+// 定义公告顶层的菜单项数据，使用循环生成四个菜单项
 const menuData = [
   { key: '1', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: '公告（4）' },
   { key: '2', defaultIcon: '/images/bulletin_center/icon_contacts.png', hoverIcon: '/images/bulletin_center/icon_contacts_hover.png', label: '账户助手' },
   { key: '3', defaultIcon: '/images/bulletin_center/icon_assets.png', hoverIcon: '/images/bulletin_center/icon_assets_hover.png', label: '资产' },
   { key: '4', defaultIcon: '/images/bulletin_center/icon_Trading.png', hoverIcon: '/images/bulletin_center/icon_Trading_hover.png', label: '交易' },
 ];
+// 定义公告下级的菜单项
 const detailMenuItems = [
   {
     key: 'latest',
@@ -35,41 +36,148 @@ const detailMenuItems = [
     hoverIcon: '/images/bulletin_center/icon_charging_hover.png',
   }
 ];
+// 公告下级的菜单项下的数据
+const detailListData: Record<string, Array<{ title: string; time: string; content?: string }>> = {
+  'latest': [
+    {
+      title: '最新动态公告 1',
+      time: '2024-12-16 10:00:00',
+      content: '最新动态内容 1...'
+    },
+    {
+      title: '最新动态公告 2',
+      time: '2024-12-16 09:30:00',
+      content: '最新动态内容 2...'
+    },
+    {
+      title: '最新动态公告 1',
+      time: '2024-12-16 10:00:00',
+      content: '最新动态内容 1...'
+    },
+    {
+      title: '最新动态公告 2',
+      time: '2024-12-16 09:30:00',
+      content: '最新动态内容 2...'
+    },
+    {
+      title: '最新动态公告 1',
+      time: '2024-12-16 10:00:00',
+      content: '最新动态内容 1...'
+    },
+    {
+      title: '最新动态公告 2',
+      time: '2024-12-16 09:30:00',
+      content: '最新动态内容 2...'
+    },
+    {
+      title: '最新动态公告 1',
+      time: '2024-12-16 10:00:00',
+      content: '最新动态内容 1...'
+    },
+    {
+      title: '最新动态公告 2',
+      time: '2024-12-16 09:30:00',
+      content: '最新动态内容 2...'
+    },
+  ],
+  'new': [
+    {
+      title: 'BTC/USDT 交易对上线公告',
+      time: '2024-12-16 09:00:00',
+      content: '新币上线内容...'
+    },
+    {
+      title: 'ETH/USDT 交易对上线公告',
+      time: '2024-12-16 08:30:00',
+      content: '新币上线内容...'
+    },
+    // ... 更多新币上线数据
+  ],
+  'delist': [
+    {
+      title: 'ABC/USDT 交易对下线公告',
+      time: '2024-12-15 14:30:00',
+      content: '币对下线内容...'
+    },
+    // ... 更多币对下线数据
+  ],
+  'suspension': [
+    {
+      title: 'ETH 充提业务暂停公告',
+      time: '2024-12-14 16:45:00',
+      content: '充提暂停内容...'
+    },
+    // ... 更多充提暂停数据
+  ]
+};
 
 // 定义消息数据，使用 menuData 的 key 作为索引
 const messageData: Record<string, Messages> = {
   '1': [
     {
+      id: '1',
       title: '公告 1 标题XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
       time: '2024-12-12 12:12:12',
       content: '公告 1 内容XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
     },
-    { title: '公告 2 标题YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY', time: '2024-12-12 13:15:30', content: '公告 2 内容YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' },
-    { title: '公告 3 标题ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ', time: '2024-12-12 14:20:45', content: '公告 3 内容ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ' },
-    { title: '公告 4 标题AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', time: '2024-12-12 15:25:10', content: '公告 4 内容AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-    { title: '公告 1 标题XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', time: '2024-12-12 12:12:12', content: '公告 1 内容XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' },
-    { title: '公告 2 标题YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY', time: '2024-12-12 13:15:30', content: '公告 2 内容YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' },
-    { title: '公告 3 标题ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ', time: '2024-12-12 14:20:45', content: '公告 3 内容ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ' },
-    { title: '公告 4 标题AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', time: '2024-12-12 15:25:10', content: '公告 4 内容AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-    { title: '公告 1 标题XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', time: '2024-12-12 12:12:12', content: '公告 1 内容XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' },
-    { title: '公告 2 标题YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY', time: '2024-12-12 13:15:30', content: '公告 2 内容YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' },
-    { title: '公告 3 标题ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ', time: '2024-12-12 14:20:45', content: '公告 3 内容ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ' },
-    { title: '公告 4 标题AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', time: '2024-12-12 15:25:10', content: '公告 4 内容AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
+    {
+      id: '2',
+      title: '公告 2 标题YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      time: '2024-12-12 13:15:30',
+      content: '公告 2 内容YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
+    },
+    {
+      id: '3',
+      title: '公告 3 标题ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ',
+      time: '2024-12-12 14:20:45',
+      content: '公告 3 内容ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ'
+    },
+    {
+      id: '4',
+      title: '公告 4 标题AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      time: '2024-12-12 15:25:50',
+      content: '公告 4 内容AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+    },
+    {
+      id: '5',
+      title: '公告 5 标题BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+      time: '2024-12-12 16:30:55',
+      content: '公告 5 内容BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
+    },
+    {
+      id: '6',
+      title: '公告 6 标题CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
+      time: '2024-12-12 17:35:00',
+      content: '公告 6 内容CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
+    },
+    {
+      id: '7',
+      title: '公告 7 标题DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD',
+      time: '2024-12-12 18:40:05',
+      content: '公告 7 内容DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
+    },
+    {
+      id: '8',
+      title: '公告 8 标题EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE',
+      time: '2024-12-12 19:45:10',
+      content: '公告 8 内容EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
+    },
+
   ],
   '2': [
-    { title: '账户助手通知 1', time: '2024-12-13 14:30:00' },
-    { title: '账户助手通知 2', time: '2024-12-13 15:45:20' },
+    { id: '1', title: '账户助手通知 1', time: '2024-12-13 14:30:00' },
+    { id: '2', title: '账户助手通知 2', time: '2024-12-13 15:45:20' },
   ],
   '3': [
-    { title: '资产更新 1', time: '2024-12-14 09:00:00' },
-    { title: '资产更新 2', time: '2024-12-14 10:15:30' },
-    { title: '资产更新 3', time: '2024-12-14 11:30:45' },
-    { title: '资产更新 4', time: '2024-12-14 12:45:10' },
+    { id: '1', title: '资产更新 1', time: '2024-12-14 09:00:00' },
+    { id: '2', title: '资产更新 2', time: '2024-12-14 10:15:30' },
+    { id: '3', title: '资产更新 3', time: '2024-12-14 11:30:45' },
+    { id: '4', title: '资产更新 4', time: '2024-12-14 12:45:10' },
   ],
   '4': [
-    { title: '交易动态 1', time: '2024-12-15 16:45:00' },
-    { title: '交易动态 2', time: '2024-12-15 17:50:15' },
+    { id: '1', title: '交易动态 1', time: '2024-12-15 16:45:00' },
+    { id: '2', title: '交易动态 2', time: '2024-12-15 17:50:15' },
   ],
 };
 
-export { menuData, messageData, detailMenuItems };
+export { messageData, menuData, detailMenuItems, detailListData };

@@ -1,6 +1,6 @@
 import { request } from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
-import { ExchangeRateParams } from '@/type/bulletin_center/bc_types';
+import { ExchangeRateParams } from '@/type/types';
 
 
 export function homeMenu(data: { lang: string }) {

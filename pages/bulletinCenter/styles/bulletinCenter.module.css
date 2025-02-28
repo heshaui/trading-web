@@ -22,9 +22,15 @@
     border-bottom: 0.5px solid #DCDCDC;
     cursor: pointer;
 }
+.bulletinContainer .bulletinContent .detail {
+    cursor: default;
+}
 .bulletinContainer .bulletinContent .bulletinCenterContent h6 {
     font-size: 16px;
     font-weight: 500;
+}
+.bulletinContainer .bulletinContent .bulletinCenterContent .readTitle {
+    color: #9E9E9E;
 }
 .bulletinContainer .bulletinContent .bulletinCenterContent .timeContent {
     margin-top: 10px;
