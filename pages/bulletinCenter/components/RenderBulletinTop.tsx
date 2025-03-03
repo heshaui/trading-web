@@ -20,7 +20,9 @@ export default function RenderBulletinTop({ showDetail, onBack, onReadAll, onUnr
                     </Col>
                     <Col>
                         <Checkbox onChange={(e) => onUnreadChange?.(e.target.checked)}>
-                            <span style={{ color: '#FFFFFF' }}>只看未读</span>
+                            {/* <span style={{ color: '#FFFFFF' }}>只看未读</span> */}
+                            {/* 只看未读 */}
+                            <span className={styles.themeText}>只看未读</span>
                         </Checkbox>
                         <span style={{ color: '#FF5F1F', cursor: 'pointer' }} onClick={onReadAll}>全部已读</span>
                     </Col>

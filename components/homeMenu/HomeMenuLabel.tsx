@@ -8,9 +8,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
-    src,
-    h5Text,
-    spanText,
+    src="/images/home_menu/Avatar.png",
+    h5Text = '默认标题',
+    spanText = '默认副标题',
     isOtherItem = false,
     isMore = false,
     isUser = false,

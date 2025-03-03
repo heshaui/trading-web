@@ -96,16 +96,19 @@ export default function HomeMenu() {
         return menuData.map(menu => {
             return {
                 key: String(menu.id),
-                title: menu.menuDescription,
+                title: menu.menuName,
                 linkHref: menu.accessPath,
-                // items: (menu.children || []).map((child: { id: any; iconUrlDay: any; menuDescription: string | undefined; isNew: any; }) => ({
+                // items: (menu.children || []).map((child: {
+                //     menuName: string;
+                //     menuViceName: string; id: any; iconUrlDay: any; menuDescription: string | undefined; isNew: any;
+                // }) => ({
                 //     key: String(child.id),
                 //     type: 'item',
                 //     label: (
                 //         <MenuItemLabel
                 //             src={child.iconUrlDay || "/images/home_menu/Avatar.png"} // 使用白天图标或默认图片路径
-                //             h5Text={child.menuDescription}
-                //             spanText={child.menuDescription}
+                //             h5Text={child.menuName || '默认子标题'}
+                //             spanText={child.menuViceName || '默认子副标题'}
                 //             isNew={child.isNew ? true : undefined} // 如果有isNew属性则添加
                 //         />
                 //     ),
@@ -721,73 +724,25 @@ export default function HomeMenu() {
             children: 'Content of Tab Pane 2',
         },
     ];
-    // 右侧菜单登陆后
+    // 右侧菜单
     const iconMenusLogin: MenuListItem[] = [
+        // {
+        //     key: '1',
+        //     title: <IconHtml icon="img_download" />,
+        //     widthSet: 'download',
+        //     items: [
+        //         {
+        //             key: '1',
+        //             type: 'group',
+        //             label: (
+        //                 <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
+        //             ),
+        //         },
+        //     ],
+        // },
+
         {
             key: '1',
-            title: <IconHtml icon="img_download" />,
-            widthSet: 'download',
-            items: [
-                {
-                    key: '1',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
-                    ),
-                },
-            ],
-        },
-        {
-            key: '2',
-            title: <IconHtml icon="img_change" />,
-            widthSet: 'question',
-            items: [],
-            onClick: toggleDayMode,
-        },
-        {
-            key: '3',
-            title: <IconHtml icon="img_global" />,
-            widthSet: 'global',
-            items: [
-                {
-                    key: '0',
-                    type: 'group',
-                    label: (
-                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>语言</h6>
-                    )
-                },
-                {
-                    key: '1',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
-                    ),
-                    children: [
-                        ...filterLanguages(languageItems, searchLanguageValue),
-                    ],
-                },
-                {
-                    key: '2',
-                    type: 'group',
-                    label: (
-                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>汇率</h6>
-                    )
-                },
-                {
-                    key: '3',
-                    type: 'group',
-                    label: (
-                        <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
-                    ),
-                    children: [
-                        ...filterRates(rateItems, searchRateValue),
-                    ],
-                },
-
-            ],
-        },
-        {
-            key: '4',
             title: <IconHtml icon="img_horn" />,
             widthSet: 'bell',
             items: [
@@ -846,6 +801,55 @@ export default function HomeMenu() {
                         }
                     ]
                 },
+            ],
+        },
+        {
+            key: '2',
+            title: <IconHtml icon="img_change" />,
+            widthSet: 'question',
+            items: [],
+            onClick: toggleDayMode,
+        },
+        {
+            key: '3',
+            title: <IconHtml icon="img_global" />,
+            widthSet: 'global',
+            items: [
+                {
+                    key: '0',
+                    type: 'group',
+                    label: (
+                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>语言</h6>
+                    )
+                },
+                {
+                    key: '1',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
+                    ),
+                    children: [
+                        ...filterLanguages(languageItems, searchLanguageValue),
+                    ],
+                },
+                {
+                    key: '2',
+                    type: 'group',
+                    label: (
+                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>汇率</h6>
+                    )
+                },
+                {
+                    key: '3',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
+                    ),
+                    children: [
+                        ...filterRates(rateItems, searchRateValue),
+                    ],
+                },
+
             ],
         },
     ];
@@ -1666,17 +1670,17 @@ export default function HomeMenu() {
                                             <Col><Link href='/login' className={styles.register}><span style={{ color: '#FFF' }}>注册</span></Link></Col>
                                             <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>登录</span></Link></Col>
                                             <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
-                                            <Col>
-                                                <Dropdown
-                                                    // menu={{
-                                                    //     items: inputItems,
-                                                    // }}
+                                            {/* <Col> */}
+                                            {/* <Dropdown */}
+                                            {/* menu={{
+                                                     items: inputItems,
+                                                 }}
                                                     trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
-                                                >
-                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
-                                                    <Space>
-                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }} */}
+                                            {/* > */}
+                                            {/* <a onClick={(e) => e.preventDefault()}> */}
+                                            {/* <Space> */}
+                                            {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
                                                         <Image
                                                             onClick={(e) => e.preventDefault()}
                                                             alt=""
@@ -1684,11 +1688,11 @@ export default function HomeMenu() {
                                                             height={20} // 必须指定高度
                                                             src="/images/home_menu/icon_search_line.png"
                                                             className={styles.iconCursor}
-                                                        />
-                                                    </Space>
-                                                    {/* </a> */}
-                                                </Dropdown>
-                                            </Col>
+                                                        /> */}
+                                            {/* </Space> */}
+                                            {/* </a> */}
+                                            {/* </Dropdown> */}
+                                            {/* </Col> */}
                                             {iconItemsLogin}
                                         </>
                                     )
