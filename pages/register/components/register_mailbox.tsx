@@ -139,7 +139,7 @@ export default function RegisterMail() {
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
                 <Form.Item name="password" rules={[{ validator: validatePassword }]}>
-                    <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
+                    <Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
 
                     />
                 </Form.Item>

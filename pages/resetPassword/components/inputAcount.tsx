@@ -2,7 +2,7 @@
 "use client";
 import { Input, AutoComplete, Form, Segmented } from 'antd';
 import type { AutoCompleteProps } from 'antd';
-import {  useState } from "react";
+import { useState ,useEffect} from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
 // import { toast } from "sonner";
 // import store from "@/store";
@@ -12,9 +12,9 @@ import { useRouter } from 'next/router';
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 
 interface acountType {
-	type: string;
-	acount: string;
-	areaCode?: string
+    type: string;
+    acount: string;
+    areaCode?: string
 }
 function ResetPassword() {
     const router = useRouter();
@@ -23,7 +23,8 @@ function ResetPassword() {
     // const [authCode, setAuthCode] = useState('');
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [tabsProps, setTabsProps] = useState('email');
-    // 当状态不为 INPUT 时不渲染组件
+    const { acount, type, areaCode } = router.query;
+    console.log(acount, type, areaCode, 123);
 
     // 定义粘贴功能的处理函数
     // const handlePaste = async () => {
@@ -50,22 +51,22 @@ function ResetPassword() {
             .validateFields()
             .then(async (values) => {
                 console.log(values);
-                let data:acountType={
-                    type:"",
-                    acount:""
+                let data: acountType = {
+                    type: "",
+                    acount: ""
                 }
                 if (tabsProps === 'email') {
-                     data = {
+                    data = {
                         type: 'm',
                         acount: values.acount,
                     }
                 } else if (tabsProps === 'phone') {
-                     data = {
+                    data = {
                         type: 'p',
                         acount: values.acountNumber,
                         areaCode: values.areaCode
                     }
-                    
+
                 }
 
                 setAcount(data)
@@ -89,30 +90,23 @@ function ResetPassword() {
             }));
         });
     };
-    // // 自定义校验函数
-    // const validateAcount = (_: any, value: any) => {
-    //     // 若输入为空，直接通过校验
-    //     if (!value) {
-    //         return Promise.resolve();
-    //     }
-    //     // 邮箱和手机号的正则表达式
-    //     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    //     const phoneRegex = /^\d{4,15}$/;
-    //     // 先校验是否为邮箱
-    //     if (emailRegex.test(value)) {
-    //         return Promise.resolve();
-    //     }
-    //     // 若不是邮箱，再校验是否为手机号
-    //     if (phoneRegex.test(value)) {
-    //         return Promise.resolve();
-    //     }
-    //     // 既不是邮箱也不是手机号，校验失败
-    //     return Promise.reject(new Error('请输入有效的邮箱或手机号！'));
-    // };
+
     const tabsChange = (value: string) => {
-        console.log(value);
         setTabsProps(value)
     };
+    useEffect(() => {
+        form.setFieldsValue({
+            areaCode: `+${areaCode}` || "+1",
+            acount: type === 'm' ? acount : "",
+            acountNumber: type === 'p' ? acount : ""
+        });
+        if (type === 'm') {
+            setTabsProps('email')
+        } else if (type === 'p') {
+            setTabsProps('phone')
+        }
+    }, [acount, type, areaCode, form]);
+
     if (resetState !== ResetStateEnum.INPUT) return null;
 
     return (<>
@@ -141,6 +135,7 @@ function ResetPassword() {
 
             ]}
             onChange={tabsChange}
+            defaultValue={tabsProps}
             value={tabsProps}
         />
 
@@ -149,7 +144,7 @@ function ResetPassword() {
             <Form
                 name="aount"
                 form={form}
-                initialValues={{ areaCode: "+1" }}
+                // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
             >
                 {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: "请输入邮箱！" }
                     //  { validator: validateAcount }
