@@ -1,0 +1,66 @@
+.tip_color {
+    color: var(--text-color6);
+}
+
+.card_bgc {
+    background-color: var(--background7);
+    border-radius: 8px;
+    padding: 24px 0;
+}
+
+.pt0 {
+    padding-top: 0;
+}
+
+.success_icon {
+    color: #00C788;
+}
+
+.error_icon {
+    color: #F73710;
+}
+
+.warning_color {
+    color: #FF5F1F;
+}
+
+
+.default_icon {
+    color: #A4A5AC;
+}
+.svgIcon {
+    fill: currentColor;
+    color:#FF5F1F;
+    margin-right: 14px;
+  }
+.btn_style{
+    min-width: 80px;
+    height: 32px;
+}
+.content_ul>li{
+    height: 88px;
+}
+.content_ul>li:hover{
+    background-color:  var(--bgc-color);
+}
+.border_bottom::after{
+    content: '';
+    display: inline-block;
+    width: calc(100% - 48px);
+    border-bottom: 1px solid var(--border-color);
+    margin: 0 auto; /* 水平居中 */
+}
+
+.log_box{
+    width: 35%;
+}
+@media (max-width: 680px) {
+   
+
+}
+
+@media (min-width: 1680px) {
+    .safe_page{
+        width: 60%;
+    }
+}

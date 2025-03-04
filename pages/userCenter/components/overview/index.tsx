@@ -1,0 +1,269 @@
+import React from 'react';
+// import UserCenterLayout from '@/components/UserCenterLayout/Layout';
+import styles from "../../styles/overview.module.css"
+import { Iconify } from "@/components/icon"
+import { CSSProperties, useState } from "react";
+import { QRCode } from "antd";
+import Image from 'next/image';
+import AssetsAreaChart from '../charts/AreaChart';
+
+const identityStyle: CSSProperties = {
+    position: 'relative',
+    backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 20px bottom 24px',
+    backgroundSize: '58px'
+};
+const safeStyle: CSSProperties = {
+    position: 'relative',
+    backgroundImage: "url('/images/userCenter/overview/icon_safe.png')",
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 20px bottom 24px',
+    backgroundSize: '58px'
+};
+const inviteStyle: CSSProperties = {
+    position: 'relative',
+    backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')",
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 20px bottom 24px',
+    backgroundSize: '58px'
+};
+const OverviewPage: React.FC = () => {
+    const [codeValue] = useState("https://ant.design/") //, setcodeValue
+    return (<div className={`${styles.overview_page}`} >
+        <div className={`${styles.overview_header}`}>
+            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，IMUSER-NavyXU</h2>
+            <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
+                {`"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
+                </p>
+        </div>
+        {/* userInfo-header*/}
+        <div className={`${styles.card_bgc} ${styles.pt0} mt-3 flex-row justify-between `}>
+            <div className={`flex-row justify-between align-center flex-wrap  ${styles.userInfo_content}`}>
+                <div className={`${styles.content_header_userInfo} flex-row align-center mt-6`}>
+                    <div className={`${styles.userInfo_pic}`}></div>
+                    <div className='ml-3 '>
+                        <div className={`${styles.userInfo_name} font-18`}>IMUSER-NavyXU</div>
+                        <div className={`${styles.userInfo_uid} font-14`}>
+                            UID：123456789
+                            <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer' size={18} />
+                        </div>
+                    </div>
+                </div>
+                <div className={`${styles.card_mt} mt-6`}>
+                    <p className={`${styles.tip_color} font-12`}>注册账号</p>
+                    <p className='font-14 mt-2'>ma***66@qq.com</p>
+                </div>
+                <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
+                    <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}>
+                        身份认证
+                        <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
+                    </div>
+                    <div className='font-14 mt-2 flex-x align-center'>
+                        <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
+                        <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
+                    </div>
+                    {/* <div className='font-14 mt-2 flex-x align-center'>
+                    <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
+                    <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
+                </div>
+                <div className='font-14 mt-2 flex-x align-center'>
+                    <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
+                    <span className={`${styles.tip_color} font-14 font-w-500`}>认证中</span>
+                </div>
+                <div className='font-14 mt-2 flex-x align-center'>
+                    <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
+                    <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
+
+                </div> */}
+                </div>
+                <div className={`${styles.card_mt} mt-6`}>
+                    <p className={`${styles.tip_color} font-12`}>账号状态</p>
+                    <p className='font-14 mt-2 font-w-500'>正常</p>
+                </div>
+
+            </div>
+            <div className={`${styles.userInfo_detail} flex-row align-start justify-end flex-1 mt-6`} >
+                <button type='button' className={`${styles.userInfo_btn} font-w-500`}>
+                    个人资料
+                </button>
+            </div>
+
+        </div>
+        {/* userInfo-content */}
+        <div className={`flex flex-wrap`} >
+            {/* content-content */}
+            <div className={`${styles.content_box}  mt-6 mr-6 flex-1`}>
+                {/* content-main */}
+                <div className={`flex-row justify-between`} >
+                    {/* 身份认证 */}
+                    <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6`} style={identityStyle}>
+                        <div className={`flex-row justify-between font-18 font-w-500`} >身份认证
+                        </div>
+                        <p className={`font-14 mt-2 ${styles.tip_color}`}>
+                            未认证
+                        </p>
+                        <p className={`font-14 mt-3`}>完成身份认证后可以享受交易所完整服务</p>
+                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`} >去认证</button>
+
+                    </div>
+                    {/* 安全认证 */}
+                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1`} style={safeStyle}>
+                        <div className={`flex-row justify-between font-18 font-w-500`} >安全验证
+                        </div>
+                        <div className={`font-14 mt-2 ${styles.tip_color} flex align-center`}>
+                            <span className='mr-2_5' >安全强度(中)</span>
+                            <Image src="/images/userCenter/safe/icon_safe2.svg"
+                                width={71}
+                                height={4}
+                                alt="" />
+                        </div>
+                        <p className={`font-14 mt-3`}>启用双重认证提高账户安全性</p>
+                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`} >去绑定</button>
+                        {/* <Image
+                                src="/images/userCenter/overview/icon_safe.png"
+                                width={58}
+                                height={58}
+                                alt="identity icon"
+                                style={{
+                                    position: 'absolute',
+                                    right: '20px',
+                                    bottom: '24px'
+                                }}
+                            /> */}
+                    </div>
+                </div>
+                {/* 资产 */}
+                <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
+                    <div className={`flex-row justify-between font-18 font-w-500`} >资产
+                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
+                    </div>
+                    <div className={`flex-row justify-between align-center`}>
+                        <div className={`${styles.assets_main}`} >
+                            <div className={`${styles.tip_color} mt-2`} >
+                                总资产折合
+                                <Iconify icon="clarity:eye-show-line" className='cursor-pointer ml-1' size={20} />
+                            </div>
+                            <p className='font-32 font-w-700'>0.00 USDT</p>
+                            <p className={`${styles.tip_color} font-14`}>≈￥0.00</p>
+                            <div className='font-14 mt-4'>今日盈亏
+                                <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
+                                <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
+                            </div>
+                            <div className='mt-5'>
+                                <button className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} >充值</button>
+                                <button className={`btn-disable font-14 font-w-500  ${styles.btn}`} >提现</button>
+                            </div>
+                        </div>
+                        <div className={`${styles.assets_chart}`} >
+                            <AssetsAreaChart />
+                        </div>
+                    </div>
+                </div>
+                {/* 最近登录 */}
+                <div className={`${styles.card_bgc} mt-6`}>
+                    <div className={`flex-row justify-between font-18 font-w-500`} >最近登录
+                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
+                    </div>
+                    <div className={`flex-1`} >
+                        <ul>
+                            <li className='flex-row justify-between mt-5'>
+                                <p className='font-14 font-w-500 flex-col'>
+                                    <span className='font-w-500'> WEB</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
+                                </p>
+                                <p className='font-14 font-w-500 flex-col align-end'>
+                                    <span className='font-w-500'>2024-01-01 12:00:00</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>5.180.44.127</span>
+                                </p>
+                            </li>
+                            <li className='flex-row justify-between mt-5'>
+                                <p className='font-14 font-w-500 flex-col '>
+                                    <span className='font-w-500'> ANDROID</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
+                                </p>
+                                <p className='font-14 font-w-500 flex-col align-end'>
+                                    <span className='font-w-500'>2024-10-08 09:53:42</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {/* 授权设备 */}
+                <div className={`${styles.card_bgc} mt-6`}>
+                    <div className={`flex-row justify-between font-18 font-w-500`} >授权设备
+                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
+                    </div>
+                    <div className={`flex-1`} >
+                        <ul>
+                            <li className='flex-row justify-between mt-5'>
+                                <p className='font-14 font-w-500 flex-col'>
+                                    <span className='font-w-500'> Chrome 12 125.0.0.0(Mac OS X)</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400`}>2020-02-20 12:12:01 中国香港</span>
+                                </p>
+                                <p className='font-14 font-w-500 flex-col align-end'>
+                                    <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>223.168.123.111</span>
+                                </p>
+                            </li>
+                            <li className='flex-row justify-between mt-5'>
+                                <p className='font-14 font-w-500 flex-col '>
+                                    <span className='font-w-500'> ANDROID</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400`}>Xiaomi Mi 10</span>
+                                </p>
+                                <p className='font-14 font-w-500 flex-col align-end'>
+                                    <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            {/* content-aside */}
+            <div className={`${styles.aside_box}  mt-6`}>
+                <div className={`${styles.aside_invite_box} flex-1`}>
+                    <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >为你推荐
+                    </div>
+                    <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `} style={inviteStyle}>
+                        <div className={`flex-row justify-between font-18 font-w-500`} >邀请新用户
+                        </div>
+                        <p style={{ width: '60%' }} className='font-14'>邀请加入我们一起开启数字货币之旅吧 ！</p>
+                    </div>
+                </div>
+
+                <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
+                    <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >邀请好友获得
+                    </div>
+                    <div className={`${styles.qr_code} flex-x align-center justify-between flex-1`}>
+                        <QRCode
+                            style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
+                            value={codeValue} size={68}
+                            
+                        />
+                        <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between flex-1`}>
+                            <div>
+                                <p className='font-14 font-w-400'>邀请码</p>
+                                <div className={`${styles.invite_code} font-12`}>
+                                    <span className={`${styles.tip_color}`}>IMUSER-NavyXU</span>
+                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20} />
+                                </div>
+                            </div>
+                            <div>
+                                <p className='font-14 font-w-400'>链接</p>
+                                <div className={`${styles.invite_code} font-12`}>
+                                    <span className={`${styles.tip_color}`}>{codeValue}</span>
+                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>);
+};
+
+export default OverviewPage;

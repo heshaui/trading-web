@@ -241,7 +241,7 @@ function AuthCode() {
                     type='button'
                     className={`${styles.goback_btn}`}
                     onClick={() => goBackPage()}
-                >返回</button>
+                >上一步</button>
                 <button type='submit' className={`btn-color ${styles.submit_btn}`} onClick={onSubmit}>提交</button>
             </div>
             <div>

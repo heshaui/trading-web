@@ -1,5 +1,5 @@
 "use client";
-import {  Form, Input,  Checkbox, ConfigProvider } from "antd";
+import { Form, Input, Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
@@ -24,7 +24,7 @@ const fromStyle: CSSProperties = {
 
 function RegisterPhone() {
 	const router = useRouter();
-	const {  setLoginState } = useLoginStateContext();
+	const { setLoginState } = useLoginStateContext();
 	const { registerType } = useRegisterTypeContext();
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
@@ -39,9 +39,9 @@ function RegisterPhone() {
 	// };
 
 	const goLogin = () => {
-        // setLoginState(LoginStateEnum.LOGIN)
-        router.push("/login")
-    }
+		// setLoginState(LoginStateEnum.LOGIN)
+		router.push("/login")
+	}
 
 	const onFinish = async () => {
 
@@ -56,7 +56,7 @@ function RegisterPhone() {
 					phone: values.phoneNumber,
 					password: values.password,
 					parentInviteCode: values.referee,
-					countryCode:values.areaCode
+					countryCode: values.areaCode
 				}
 				store.updateRegisterInfo(data)
 
@@ -71,12 +71,15 @@ function RegisterPhone() {
 	};
 	// 跳转规则
 	const goAuthCode = () => {
-        store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE); //存储跳转前状态
-        setLoginState(LoginStateEnum.Authcode) //设置跳转状态
-    }
+		store.setAuthcodeState(LoginStateEnum.REGISTER, RegisterTypeEnum.PHONE); //存储跳转前状态
+		setLoginState(LoginStateEnum.Authcode) //设置跳转状态
+	}
 
 	// 自定义密码验证规则
-	const validatePassword = ( value:any) => {
+	const validatePassword = (_:any,value: string) => {
+		if (typeof value === 'string') {
+			value = value.trim();
+		}
 		if (!value) {
 			return Promise.reject(new Error("密码不能为空！"));
 		}
@@ -85,11 +88,14 @@ function RegisterPhone() {
 			return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
 		}
 		// 检查是否包含字母和数字
-		const hasLetter = /[a-zA-Z]/.test(value);
-		const hasNumber = /\d/.test(value);
-		if (!hasLetter || !hasNumber) {
-			return Promise.reject(new Error("密码必须包含字母和数字！"));
+		// const hasLetter = /[a-zA-Z]/.test(value);
+		// const hasNumber = /\d/.test(value);
+		const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
+		// console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
+		if (!hasRegex.test(value)) {
+			return Promise.reject(new Error("密码必须包含字母和数字，且长度在 8 - 30 位之间！"));
 		}
+
 		return Promise.resolve();
 	};
 	if (registerType !== RegisterTypeEnum.PHONE) return null;
@@ -127,14 +133,14 @@ function RegisterPhone() {
 				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password"
 					rules={[{ validator: validatePassword }]}
-				>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
+					>
+					<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }
 					/>
 				</Form.Item>
-				
+
 				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
 				<Form.Item name="referee" rules={[{ required: false, }]}>
 					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input}`}

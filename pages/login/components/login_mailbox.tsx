@@ -1,6 +1,6 @@
-import {  Form, Input, AutoComplete } from "antd";
+import { Form, Input, AutoComplete } from "antd";
 import { type CSSProperties, useState, useEffect } from "react";
-import {   LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
+import { LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider"; //LoginStateEnum,useLoginStateContext,
 import type { TabsProps, AutoCompleteProps } from 'antd';
 // import { Iconify } from "@/components/icon/index";
 // import store from "@/store";
@@ -19,26 +19,21 @@ const fromStyle: CSSProperties = {
     minWidth: "350px",
 };
 interface useInfoType {
-    type: string ;
-    email: string ;
-    password: string ;
-    deviceType: string ;
-    authCodeMail: string ;
+    type: string;
+    email: string;
+    password: string;
+    deviceType: string;
+    authCodeMail: string;
 }
 
 function Mailbox() {
     const router = useRouter();
-
-    // const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
-    // const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
-    // const [errModelOpen, setErrModelOpen] = useState(false); //错误提示弹窗
-    // const [errMsg, setErrMsg] = useState('请检查网络!');
-    // const { loginState, setLoginState } = useLoginStateContext();
     const { loginType } = useLoginTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
+    const email = Form.useWatch('email', form);
     const [historyEmails, setHistoryEmails] = useState<string[]>([]);
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [loginInfo, setLoginInfo] = useState<useInfoType>({
@@ -153,77 +148,77 @@ function Mailbox() {
         });
     }
     const goResetPassword = () => {
-        router.push('/resetPassword');
+        router.push('/resetPassword?acount=' + email + '&type=m');
     }
     const goRegister = () => {
-	
-		// setLoginState(LoginStateEnum.REGISTER)
-		router.push("/register")
-	}
+
+        // setLoginState(LoginStateEnum.REGISTER)
+        router.push("/register")
+    }
     // 当登录状态不为 LOGIN 时不渲染组件;
     if (loginType !== LoginTypeEnum.EMAIL) return null;
     return (
         <div className="flex-y-cc mt-7" >
-        <Form
-            style={fromStyle}
-            name="login"
-            size="large"
-            form={form}
-            initialValues={{
-                remember: true,
-            }}
-            // onFinish={handleFinish}
-            onValuesChange={usernameChange}
-        >
-            <div className="mb-5 font-16 font-w-500">邮箱</div>
+            <Form
+                style={fromStyle}
+                name="login"
+                size="large"
+                form={form}
+                initialValues={{
+                    remember: true,
+                }}
+                // onFinish={handleFinish}
+                onValuesChange={usernameChange}
+            >
+                <div className="mb-5 font-16 font-w-500">邮箱</div>
 
-            <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
-                <AutoComplete
-                    // style={{ width: 200 }}
-                    onSearch={handleSearch}
-                    placeholder="请输入邮箱号"
-                    options={options}
-                    allowClear={true}
-                    backfill={true}
-                    className={`${styles.auto_complete_input} auto-complete-input`}
-                    onFocus={setHistoryOptions}
-                />
-            </Form.Item>
-            <div className="mb-5 font-16 font-w-500">密码</div>
-            <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-                <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
-                // prefix={<Iconify icon="solar:lock-password-linear" className="icon-color" />}
-                />
-            </Form.Item>
-            <Form.Item noStyle>
-                <button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()} >
-                    {"忘记密码"}
-                </button>
-            </Form.Item>
-        </Form>
-        <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
-            onClick={handleFinish}>
-            {"登录"}
-        </button>
-        <div className="flex-cc mt-4">
-            <p>
-                {"没有账号？"}
-                <button
-                    type="button"
-                    className="text-color"
-                    onClick={() => goRegister()}
-                >
-                    {"注册"}
-                </button>
-            </p>
+                <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
+                    <AutoComplete
+                        // style={{ width: 200 }}
+                        onSearch={handleSearch}
+                        placeholder="请输入邮箱号"
+                        options={options}
+                        allowClear={true}
+                        backfill={true}
+                        className={`${styles.auto_complete_input} auto-complete-input`}
+                        onFocus={setHistoryOptions}
+                    />
+                </Form.Item>
+                <div className="mb-5 font-16 font-w-500">密码</div>
+                <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
+                    <Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
+                    // prefix={<Iconify icon="solar:lock-password-linear" className="icon-color" />}
+                    />
+                </Form.Item>
+                <Form.Item noStyle>
+                    <button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()} >
+                        {"忘记密码"}
+                    </button>
+                </Form.Item>
+            </Form>
+            <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
+                onClick={handleFinish}>
+                {"登录"}
+            </button>
+            <div className="flex-cc mt-4">
+                <p>
+                    {"没有账号？"}
+                    <button
+                        type="button"
+                        className="text-color"
+                        onClick={() => goRegister()}
+                    >
+                        {"注册"}
+                    </button>
+                </p>
+            </div>
+            {/* <ErrModal open={errModelOpen} errMsg={errMsg} onCancel={handCancel} /> */}
+            <SafeModal open={codeModelOpen}
+                acountInfo={loginInfo}
+                onCancel={handCodeCancel}
+            />
+
         </div>
-        {/* <ErrModal open={errModelOpen} errMsg={errMsg} onCancel={handCancel} /> */}
-        <SafeModal open={codeModelOpen}
-            acountInfo={loginInfo}
-            onCancel={handCodeCancel}
-        />
-
-    </div>
     );
 }
 

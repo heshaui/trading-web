@@ -62,6 +62,29 @@ function ResetPassword() {
             console.log("Validate Failed:", info);
         });
     }
+    	// 自定义密码验证规则
+	const validatePassword = (_:any,value: string) => {
+		if (typeof value === 'string') {
+			value = value.trim();
+		}
+		if (!value) {
+			return Promise.reject(new Error("密码不能为空！"));
+		}
+		// 检查长度是否在 8 - 30 位之间
+		if (value.length < 8 || value.length > 30) {
+			return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
+		}
+		// 检查是否包含字母和数字
+		// const hasLetter = /[a-zA-Z]/.test(value);
+		// const hasNumber = /\d/.test(value);
+		const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
+		// console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
+		if (!hasRegex.test(value)) {
+			return Promise.reject(new Error("密码必须包含字母和数字，且长度在 8 - 30 位之间！"));
+		}
+
+		return Promise.resolve();
+	};
     if (resetState !== ResetStateEnum.RESET) return null;
 
     return (
@@ -81,7 +104,7 @@ function ResetPassword() {
                     // onValuesChange={usernameChange}
                 >
                     <div className="mb-5 font-16 font-w-500">新密码</div>
-                    <Form.Item name="newPassword" rules={[{ required: true, message: "密码不能为空！" }]}>
+                    <Form.Item name="newPassword" rules={[{ validator: validatePassword }]}>
                         <Input.Password
                             className={`custom-input ${styles.acount_input}`}
                             placeholder="请输入新密码"
