@@ -10,8 +10,7 @@ export default function Experience() {
                 <div className={`flex flex-ai-center flex-jc-between ${styles.comup_title}`}>
                     <div style={{width: '50%'}}>
                         <h2 className={`${styles.comup_main_title1}`}>走近MetaWave</h2>
-                        <h3 className={`${styles.comup_main_title2}`}>在我们世界级合作伙伴的帮助下，了解为什么IMBIT会是你最喜爱的数
-                        字货币交易 App</h3>
+                        <h3 className={`${styles.comup_main_title2}`}>在我们世界级合作伙伴的帮助下，了解为什么IMBIT会是你最喜爱的数字货币交易 App</h3>
                     </div>
                     <Image className={`${styles.logo_pic}`} src="/images/home/logo.png" alt="" width={300} height={71}/>
                 </div>
