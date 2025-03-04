@@ -7,6 +7,7 @@ import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
+import {Iconify} from "@/components/icon"
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -87,6 +88,29 @@ export default function RegisterMail() {
         // setLoginState(LoginStateEnum.LOGIN)
         router.push("/login")
     }
+        	// 自定义密码验证规则
+	const validatePassword = (_:any,value: string) => {
+		if (typeof value === 'string') {
+			value = value.trim();
+		}
+		if (!value) {
+			return Promise.reject(new Error("密码不能为空！"));
+		}
+		// 检查长度是否在 8 - 30 位之间
+		if (value.length < 8 || value.length > 30) {
+			return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
+		}
+		// 检查是否包含字母和数字
+		// const hasLetter = /[a-zA-Z]/.test(value);
+		// const hasNumber = /\d/.test(value);
+		const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
+		// console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
+		if (!hasRegex.test(value)) {
+			return Promise.reject(new Error("密码必须包含字母和数字，且长度在 8 - 30 位之间！"));
+		}
+
+		return Promise.resolve();
+	};
     if (registerType !== RegisterTypeEnum.EMAIL) return null;
     return (
         <div className="flex-y-cc mt-7" >
@@ -114,12 +138,14 @@ export default function RegisterMail() {
                     />
                 </Form.Item>
                 <div className="mb-5 font-16 font-w-500">密码</div>
-                <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
+                <Form.Item name="password" rules={[{ validator: validatePassword }]}>
                     <Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
 
                     />
                 </Form.Item>
-                <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
+                <div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)
+
+                </div>
                 <Form.Item name="referee" rules={[{ required: false }]}>
                     <Input.Password type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input}`}
                     />
