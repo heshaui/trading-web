@@ -4,6 +4,7 @@ export default function LanguageSwitcher() {
   const router = useRouter();
 
   const changeLanguage = (locale: string) => {
+    localStorage.setItem('localeLanguage',locale)
     router.push(router.pathname, router.asPath, { locale });
   };
 
