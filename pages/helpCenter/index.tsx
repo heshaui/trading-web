@@ -2,7 +2,7 @@ import styles from './styles/helpCenter.module.css';
 import ConfigurationCard from './components/ConfigurationCard';
 
 import Image from 'next/image';
-import { Button, Col, ConfigProvider, Input, Row } from 'antd';
+import { Button, Card, Col, ConfigProvider, Input, Row } from 'antd';
 import HelpCenterSection from './components/HelperCenterSection';
 import { HelpCenterItem } from '@/type/help_center/hc_types';
 export default function HelpCenter() {
@@ -40,6 +40,11 @@ export default function HelpCenter() {
     ]
     // const configurationList: any[] = [];
     const helpCenterList = [
+        {
+            title: '新手帮助',
+            icon: '/images/help_center/icon_user.png',
+            buttonWord: '账户功能',
+        },
         {
             title: '新手帮助',
             icon: '/images/help_center/icon_user.png',
@@ -121,6 +126,64 @@ export default function HelpCenter() {
                     helpCenterList={helpCenterList}
                     onButtonClick={handleButtonClick}
                 />
+                <div className={`${styles.otherSupport} customCard`}>
+                    <Row>
+                        <Col>
+                            <h2 style={{ fontSize: 24, fontWeight: 500 }}>其他支持</h2>
+                        </Col>
+                    </Row>
+                    <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
+                        <Col span={12}>
+                            <Card>
+                                <Row>
+                                    <Col>
+                                        <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>在线沟通</h3>
+                                    </Col>
+                                </Row>
+                                <Row style={{ marginTop: 20 }}>
+                                    <Col>
+                                        <p style={{ color: '#676867', fontSize: 14 }}>我们提供全天候服务，始终满足您的需求。</p>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card
+                                styles={{
+                                    body: {
+                                        padding: '20px'
+                                    }
+                                }}
+                            >
+                                <Row>
+                                    <Col>
+                                        <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>通过电子邮件联系我们</h3>
+                                    </Col>
+                                </Row>
+                                <Row style={{ marginTop: 20 }}>
+                                    <Col>
+                                        <Row align='middle' gutter={4}>
+                                            <Col>
+                                                <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
+                                            </Col>
+                                            <Col>
+                                                <span style={{ color: '#676867', fontSize: 14 }}>商户洽谈: 11123@qq.com</span>
+                                            </Col>
+                                        </Row>
+                                        <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
+                                            <Col>
+                                                <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
+                                            </Col>
+                                            <Col>
+                                                <span style={{ color: '#676867', fontSize: 14 }}>法律合规: 123@qq.com</span>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
             </ConfigProvider>
         </div>
     )

@@ -12,7 +12,7 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
     return (
         <div className={styles.helpCenterCard}>
             {helpCenterList.map((item, index) => (
-                <div key={index}>
+                <div key={index} className={styles.helpCenterCardContent}>
                     <Row>
                         <Col>
                             <h2 style={{ fontSize: 24, fontWeight: 500 }}>

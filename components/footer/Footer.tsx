@@ -1,12 +1,17 @@
 import styles from '@/styles/components/Footer.module.css';
-import { Button, Col, ConfigProvider, Dropdown, Row, Space } from 'antd';
+import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
 import { FooterListProps } from "@/type/types";
+
+import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
+
 
 export default function Footer() {
     // 添加状态管理选中的语言
     const [selectedLang, setSelectedLang] = useState('简体中文');
+    // 获取logo
+    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
     const itemsLan = [
         {
             label: '简体中文',
@@ -123,12 +128,12 @@ export default function Footer() {
             <div className={styles.footerContainer}>
                 <div className={styles.logoAndButton}>
                     <div className={styles.logo}>
-                        {/* <img src="/home_menu_logo.png" /> */}
                         <Image
-                            src="/home_menu_logo.png"
+                            src={logoUrl}
                             alt=""
                             width={126}  // 必须指定宽度
                             height={30} // 必须指定高度
+                            onError={() => setLogoUrl('/home_menu_logo.png')} // 图片加载失败时使用默认值
                         />
                     </div>
                     <p>©2023 - 2024 MetaWave.</p>

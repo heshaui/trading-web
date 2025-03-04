@@ -9,7 +9,7 @@ import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜�
 import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
-import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType } from '@/type/types';
+import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import store from "@/store"
@@ -18,24 +18,29 @@ import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 
 // import { request } from '@/request/index'; // 引入封装的请求方法
-import { exchangeRate, homeMenu } from '@/services/header'; // 引入封装好的 homeMenu 方法
+import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
+import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
 
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
     // t - 多语言
     const { t } = useTranslation(['home_menu']);
-    console.log('t', t('home_menu_title_1'));
+    // console.log('t', t('home_menu_title_1'));
     // console.log('test', test);
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
+    // 获取logo
+    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
     const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
     const [adaptiveMenuData, setAdaptiveMenuData] = useState<MenuListItem[]>([]); // 用于 HomeMenuAdaptiveItems 的数据
+    // 语言
+    const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
     // 汇率菜单
     const [rateData, setRateData] = useState<any[]>([]); // 用于存储汇率数据
     // 语言
@@ -63,10 +68,20 @@ export default function HomeMenu() {
                 const rawData = { lang: 'zh_CN' };
                 const menuResponse = await homeMenu(rawData) as { data: any[] };
                 if (menuResponse?.data) {
-                    console.log('菜单数据：', menuResponse.data);
+                    // console.log('菜单数据：', menuResponse.data);
                     setMenuData(menuResponse); // 存储原始请求数据
                     setMenus(formatMenus(menuResponse.data.slice(0, 6)));
                     setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
+                }
+                // 获取语言数据
+                const languageResponse = await getLanguage({
+                    lang: '',
+                }) as ApiResponse<LanguageParams[]>;
+                if (languageResponse?.code === '0' && languageResponse.data) {
+                    const formattedLanguageData = languageResponse.data.map(item => ({
+                        span: `${item.lang}`
+                    }));
+                    setLanguageList(formattedLanguageData);
                 }
                 // 获取汇率数据
                 const rateResponse = await exchangeRate({
@@ -565,7 +580,7 @@ export default function HomeMenu() {
     };
 
     // 语言菜单
-    const spanArr = [
+    const spanArr = languageList.length > 0 ? languageList : [
         {
             span: '简体中文'
         },
@@ -1470,7 +1485,7 @@ export default function HomeMenu() {
     // // ];
 
     const listItems = menus.map(menuList => {
-        console.log('menuList', menuList);
+        // console.log('menuList', menuList);
         return <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
     }
     );
@@ -1493,12 +1508,12 @@ export default function HomeMenu() {
         <div style={{ position: 'relative' }}>
             <div className={styles.container}>
                 <div className={styles.logo}>
-                    {/* <img src="/home_menu_logo.png" alt="logo" /> */}
                     <Image
-                        src="/home_menu_logo.png"
+                        src={logoUrl}
                         alt=""
-                        width={126}  // 必须指定宽度
-                        height={30} // 必须指定高度
+                        width={126}
+                        height={30}
+                        onError={() => setLogoUrl('/home_menu_logo.png')}
                     />
                 </div>
                 <div className={styles.menuContainer}>

@@ -19,7 +19,7 @@ const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList
                                     const listLength = configurationList.length;
                                     const spanValue = listLength === 5 ? 4 : 6;
                                     return (
-                                        <Col key={index} span={spanValue}>
+                                        <Col key={index} span={spanValue} style={{ cursor: 'pointer' }}>
                                             <Row justify='center'>
                                                 <Col>
                                                     <Image
