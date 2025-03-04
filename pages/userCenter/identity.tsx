@@ -1,0 +1,103 @@
+import React from 'react';
+import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLayout';
+import styles from './styles/identity.module.css';
+import { Iconify } from "@/components/icon"
+import Image from 'next/image';
+import NoAuthentication from './components/Authentication/noAuthentication';
+import Certified from './components/Authentication/Certified';
+import { Collapse, theme, ConfigProvider } from 'antd';
+import type { CollapseProps } from 'antd';
+import { CaretRightOutlined } from '@ant-design/icons';
+import type { CSSProperties } from 'react';
+// 按钮配置接口
+interface ButtonConfig {
+  title: string;
+  onok?: () => void;
+  onbind?: () => void;
+}
+
+// 安全项配置接口
+interface SafeListItem {
+  title: string;
+  type: string;
+  desc: string;
+  isBind?: boolean;
+  bindValue: string;
+  bindBtn?: ButtonConfig[];
+  noBindBtn?: ButtonConfig[];
+  icon: string;  // 可选的图标路径
+}
+
+const IdentityPage: React.FC = () => {
+  const { token } = theme.useToken();
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: 'var(--background8)',
+    borderRadius: token.borderRadiusLG,
+    color: 'var( --cancel-color)',
+    border: 'none',
+  };
+  const getItems: (panelStyle: CSSProperties) => CollapseProps['items'] = (panelStyle) => [
+    {
+      key: '1',
+      label: '什么是KYC验证？',
+      children: <p className={`${styles.tip_color}`}>KYC (Know Your Customer)是一种身份验证和调查过程，旨在核实客户的身份信息和背景，以确保金融机构或服务提供商遵守反洗(AML) 和反恐怖融资(CFT) 法规。它有助于保证账户安全，减少欺诈和非法活勤的风险。</p>,
+      style: panelStyle,
+    },
+    {
+      key: '2',
+      label: '为什么我需要进行KYC 验证？',
+      children: <p className={`${styles.tip_color}`}>KYC 是了保您的赈户安全和权益。保障您的身份信息和背景，防止他人冒用您的身份谁行欺菲或非法活勤。</p>,
+      style: panelStyle,
+    },
+    {
+      key: '3',
+      label: '身份验证遇到问题，如何获取帮助？',
+      children: <p className={`${styles.tip_color}`}>如果您在 KYC 程中遇到任何问题，请向我们的客服寻求帮助。我们的客服团队将竭诚为您提供支持和解答。请提供具体问题和相关信息，以便我们能够更快速地帮助您完成认证。</p>,
+      style: panelStyle,
+    },
+  ];
+
+
+  return (<div className={`${styles.safe_page}`} >
+    <div >
+      <h2 className={`font-w-500 font-20`}>身份认证</h2>
+    </div>
+    {/* identity box*/}
+    <div className={`${styles.card_bgc} ${styles.identity_box} mt-6 flex-row flex-wrap`}>
+      {/* 未认证 */}
+      <NoAuthentication />
+      {/* 已认证 */}
+      {/* <Certified /> */}
+      <div className={`${styles.identity_aside}`}>
+        <p className={`flex-row justify-between font-18 font-w-500 `} >常见问题
+        </p>
+        <div className='mt-6'>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorTextHeading: 'var( --cancel-color)',
+              },
+            }}
+          >
+            <Collapse
+              bordered={false}
+              defaultActiveKey={['1']}
+              expandIcon={({ isActive }) => <CaretRightOutlined style={{ color: 'var(--text-color6)' }} rotate={isActive ? 90 : -90} />}
+              expandIconPosition="end"
+              style={{ background: 'var(--background8)' }}
+              items={getItems(panelStyle)}
+
+            />
+          </ConfigProvider>
+        </div>
+
+      </div>
+    </div>
+
+
+  </div>);
+};
+
+export default withUserCenterLayout(IdentityPage);

@@ -1,0 +1,14 @@
+.area_tooltip{
+    background-color: #0C0D0C;
+    border: none;
+    padding: 4px 6px;
+    border-radius: 4px;
+    color: #fff;
+}
+.tooltip_circle{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #FF5F1F;
+    display: inline-block;
+}

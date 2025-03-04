@@ -1,3 +1,17 @@
+.default_btn{
+  background-color: #FF5F1F;
+  color: #fff;
+}
+.cancel_btn{
+  background-color: #fff;
+  color: #FF5F1F;
+  border: 1px solid #FF5F1F;
+  box-sizing: border-box;
+}
+.disabled_btn{
+  color: #A4A5AC;
+  background: #E1E1E4;
+}
 
 
 .pointer {
@@ -14,7 +28,7 @@
 }
 
 /* 主轴横向 */
-.flex-row, .row, .row-x, .x,.flex-x{
+.flex,.flex-row, .row, .row-x, .x,.flex-x{
   display: flex;
   flex-direction: row;
 }
@@ -231,6 +245,9 @@
 .ml-2 {
   margin-left: 8px;
 }
+.ml-2_5 {
+  margin-left: 10px;
+}
 
 .ml-3 {
   margin-left: 12px;
@@ -258,6 +275,9 @@
 
 .mr-2 {
   margin-right: 8px;
+}
+.mr-2_5 {
+  margin-right: 10px;
 }
 
 .mr-3 {
