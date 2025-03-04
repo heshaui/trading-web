@@ -122,7 +122,7 @@ export default function BulletinCenter() {
         const messages = messageData[currentKey] || [];
         
         // 先进行筛选和排序
-        let processedMessages = getFilteredAndSortedMessages(messages);
+        const processedMessages = getFilteredAndSortedMessages(messages);
         
         // 然后进行分页
         const currentPage = getCurrentPage(currentKey);
