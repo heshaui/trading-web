@@ -5,7 +5,10 @@ export interface ConfigurationItem {
 }
 // 帮助中心卡片 - 组件props
 export interface ConfigurationCardProps {
-    configurationList: ConfigurationItem[];
+    configurationList: Array<{
+        icon: string;
+        title: string;
+    }>;
 }
 // 帮助中心
 export interface HelpCenterItem {
@@ -16,7 +19,11 @@ export interface HelpCenterItem {
 
 // 帮助中心后端配置 - 组件props
 export interface HelpCenterSectionProps {
-    helpCenterList: HelpCenterItem[];
+    helpCenterList?: Array<{
+        title: string;
+        icon: string;
+        buttonWord: string;
+    }>;
     onButtonClick?: (item: HelpCenterItem) => void;
 }
 // 帮助中心搜索 - 组件props

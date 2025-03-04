@@ -6,12 +6,12 @@ import styles from '../styles/helpCenter.module.css';
 import { HelpCenterSectionProps } from '@/type/help_center/hc_types';
 
 const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({ 
-    helpCenterList,
+    helpCenterList = [],
     onButtonClick 
 }) => {
     return (
         <div className={styles.helpCenterCard}>
-            {helpCenterList.map((item, index) => (
+            {Array.isArray(helpCenterList) && helpCenterList.map((item, index) => (
                 <div key={index} className={styles.helpCenterCardContent}>
                     <Row>
                         <Col>

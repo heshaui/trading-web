@@ -14,7 +14,7 @@ const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList
                     <Card className={styles.card}>
                         <Row justify='space-evenly'>
                             {
-                                configurationList.map((item, index) => {
+                                Array.isArray(configurationList) && configurationList.map((item, index) => {
                                     // 根据数组长度动态计算span
                                     const listLength = configurationList.length;
                                     const spanValue = listLength === 5 ? 4 : 6;

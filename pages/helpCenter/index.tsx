@@ -8,6 +8,23 @@ import { HelpCenterItem } from '@/type/help_center/hc_types';
 import { useState } from 'react';
 import SearchDetail from './components/SearchDetail';
 export default function HelpCenter() {
+    // 历史搜索
+    const [historicalSearchList] = useState(['永续合约', '期货合约', '期权合约']);
+    // 配置列表
+    const [configurationList] = useState([
+        {
+            icon: '/images/help_center/icon_lock.png',
+            title: '重置登录密码',
+        }
+    ]);
+    // 帮助中心列表
+    const [helpCenterList] = useState([
+        {
+            title: '新手帮助',
+            icon: '/images/help_center/icon_user.png',
+            buttonWord: '账户功能',
+        }
+    ]);
     // 搜索框
     const [searchValue, setSearchValue] = useState('');
     const [showSearch, setShowSearch] = useState(false);
@@ -28,44 +45,6 @@ export default function HelpCenter() {
         width={18}
         height={18}
     />;
-    // 历史搜索列表
-    const historicalSearchList = ['永续合约', '期货合约', '期权合约', '期权合约', '期货合约', '期权合约', '期权合约'];
-    // 后端配置列表
-    const configurationList = [
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        },
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        },
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        },
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        },
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        },
-    ]
-    // const configurationList: any[] = [];
-    const helpCenterList = [
-        {
-            title: '新手帮助',
-            icon: '/images/help_center/icon_user.png',
-            buttonWord: '账户功能',
-        },
-        {
-            title: '新手帮助',
-            icon: '/images/help_center/icon_user.png',
-            buttonWord: '账户功能',
-        },
-    ];
     // 按钮点击事件
     const handleButtonClick = (item: HelpCenterItem) => {
         console.log(item);
@@ -148,7 +127,7 @@ export default function HelpCenter() {
                 ) : (
                     <>
                         <HelpCenterSection
-                            helpCenterList={helpCenterList}
+                            helpCenterList={helpCenterList || []}
                             onButtonClick={handleButtonClick}
                         />
                         <div className={`${styles.otherSupport} customCard`}>
