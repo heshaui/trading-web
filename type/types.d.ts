@@ -141,7 +141,9 @@ export interface LanguageParams {
     status?: number;
 }
 export interface FormattedLanguage {
-    span: string;
+    span?: string;
+    label?: string;
+    key?: string;
 }
 // 汇率
 export interface ExchangeRateParams {

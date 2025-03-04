@@ -9,12 +9,3 @@ export function getCountryCode(): Promise<any> {
     method: 'GET',
   });
 }
-
-// 获取logo
-export function getLogo(data: { key: string }) {
-  // 替换路径参数并发送请求
-  return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/kv/params/${data.key}`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}

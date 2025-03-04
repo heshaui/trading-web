@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getLogo } from '@/services/open';
+import { getLogo } from '@/services/footer';
 import { ApiResponse } from '@/type/types';
 
 // 检查图片URL是否可用

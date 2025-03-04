@@ -2,10 +2,25 @@ import styles from './styles/helpCenter.module.css';
 import ConfigurationCard from './components/ConfigurationCard';
 
 import Image from 'next/image';
-import { Button, Card, Col, ConfigProvider, Input, Row } from 'antd';
+import { Card, Col, ConfigProvider, Input, message, Row } from 'antd';
 import HelpCenterSection from './components/HelperCenterSection';
 import { HelpCenterItem } from '@/type/help_center/hc_types';
+import { useState } from 'react';
+import SearchDetail from './components/SearchDetail';
 export default function HelpCenter() {
+    // 搜索框
+    const [searchValue, setSearchValue] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
+    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            if (!searchValue.trim()) {
+                message.warning('请输入搜索内容');
+                return;
+            }
+            setShowSearch(true);
+        }
+    };
+
     // 搜索图标
     const SearchIcon = <Image
         src="/images/help_center/icon_search.png"
@@ -83,7 +98,13 @@ export default function HelpCenter() {
                         </Row>
                         <Row style={{ marginTop: 16 }}>
                             <Col flex={1}>
-                                <Input placeholder="请输入您的问题" prefix={SearchIcon} />
+                                <Input
+                                    placeholder="请输入您的问题"
+                                    prefix={SearchIcon}
+                                    value={searchValue}
+                                    onChange={(e) => setSearchValue(e.target.value)}
+                                    onKeyDown={handleSearch}
+                                />
                             </Col>
                         </Row>
                         <Row align='middle'>
@@ -122,68 +143,74 @@ export default function HelpCenter() {
                         <ConfigurationCard configurationList={configurationList} />
                     )}
                 </div>
-                <HelpCenterSection
-                    helpCenterList={helpCenterList}
-                    onButtonClick={handleButtonClick}
-                />
-                <div className={`${styles.otherSupport} customCard`}>
-                    <Row>
-                        <Col>
-                            <h2 style={{ fontSize: 24, fontWeight: 500 }}>其他支持</h2>
-                        </Col>
-                    </Row>
-                    <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
-                        <Col span={12}>
-                            <Card>
-                                <Row>
-                                    <Col>
-                                        <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>在线沟通</h3>
-                                    </Col>
-                                </Row>
-                                <Row style={{ marginTop: 20 }}>
-                                    <Col>
-                                        <p style={{ color: '#676867', fontSize: 14 }}>我们提供全天候服务，始终满足您的需求。</p>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Col>
-                        <Col span={12}>
-                            <Card
-                                styles={{
-                                    body: {
-                                        padding: '20px'
-                                    }
-                                }}
-                            >
-                                <Row>
-                                    <Col>
-                                        <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>通过电子邮件联系我们</h3>
-                                    </Col>
-                                </Row>
-                                <Row style={{ marginTop: 20 }}>
-                                    <Col>
-                                        <Row align='middle' gutter={4}>
+                {showSearch ? (
+                    <SearchDetail searchValue={searchValue} />
+                ) : (
+                    <>
+                        <HelpCenterSection
+                            helpCenterList={helpCenterList}
+                            onButtonClick={handleButtonClick}
+                        />
+                        <div className={`${styles.otherSupport} customCard`}>
+                            <Row>
+                                <Col>
+                                    <h2 style={{ fontSize: 24, fontWeight: 500 }}>其他支持</h2>
+                                </Col>
+                            </Row>
+                            <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
+                                <Col span={12}>
+                                    <Card>
+                                        <Row>
                                             <Col>
-                                                <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
-                                            </Col>
-                                            <Col>
-                                                <span style={{ color: '#676867', fontSize: 14 }}>商户洽谈: 11123@qq.com</span>
+                                                <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>在线沟通</h3>
                                             </Col>
                                         </Row>
-                                        <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
+                                        <Row style={{ marginTop: 20 }}>
                                             <Col>
-                                                <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
-                                            </Col>
-                                            <Col>
-                                                <span style={{ color: '#676867', fontSize: 14 }}>法律合规: 123@qq.com</span>
+                                                <p style={{ color: '#676867', fontSize: 14 }}>我们提供全天候服务，始终满足您的需求。</p>
                                             </Col>
                                         </Row>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Col>
-                    </Row>
-                </div>
+                                    </Card>
+                                </Col>
+                                <Col span={12}>
+                                    <Card
+                                        styles={{
+                                            body: {
+                                                padding: '20px'
+                                            }
+                                        }}
+                                    >
+                                        <Row>
+                                            <Col>
+                                                <h3 style={{ color: '#0C0D0C', fontSize: 20, fontWeight: 500 }}>通过电子邮件联系我们</h3>
+                                            </Col>
+                                        </Row>
+                                        <Row style={{ marginTop: 20 }}>
+                                            <Col>
+                                                <Row align='middle' gutter={4}>
+                                                    <Col>
+                                                        <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
+                                                    </Col>
+                                                    <Col>
+                                                        <span style={{ color: '#676867', fontSize: 14 }}>商户洽谈: 11123@qq.com</span>
+                                                    </Col>
+                                                </Row>
+                                                <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
+                                                    <Col>
+                                                        <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
+                                                    </Col>
+                                                    <Col>
+                                                        <span style={{ color: '#676867', fontSize: 14 }}>法律合规: 123@qq.com</span>
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </div>
+                    </>
+                )}
             </ConfigProvider>
         </div>
     )

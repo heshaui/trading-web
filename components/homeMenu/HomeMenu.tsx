@@ -631,7 +631,7 @@ export default function HomeMenu() {
                 width: '100%',
                 height: '100%'
             }}
-                onClick={() => handleLanguageClick(item.span)}
+                onClick={() => handleLanguageClick(item.span || '')}
             >
                 {item.span}
             </span> // 动态赋值
@@ -703,16 +703,20 @@ export default function HomeMenu() {
     // 定义汇率状态变量
     const [searchRateValue, setSearchRateValue] = useState<string>("");
 
-    // 定义状态变量
-    const [isDayMode, setIsDayMode] = useState(false);
-    // 点击切换日间/夜间模式的函数
+    // 初始化时从localStorage获取状态
+    const [isDayMode, setIsDayMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const savedMode = localStorage.getItem('isDayMode');
+            return savedMode ? JSON.parse(savedMode) : false;
+        }
+        return false;
+    });
+
+    // 切换模式时同时更新localStorage
     const toggleDayMode = () => {
-        setIsDayMode(!isDayMode); // 切换状态
-        // if (isDayMode) {
-        //     document.body.style.backgroundColor = '#000000'; // 切换到夜间模式
-        // } else {
-        //     document.body.style.backgroundColor = '#FFFFFF'; // 切换到日间模式
-        // }
+        const newMode = !isDayMode;
+        setIsDayMode(newMode);
+        localStorage.setItem('isDayMode', JSON.stringify(newMode));
     };
 
     // 公告中心 - 公告部分测试数据
