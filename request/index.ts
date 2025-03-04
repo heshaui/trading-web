@@ -16,8 +16,9 @@ export async function request<T>(
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getToken()}`, // 获取 token（可选）
-    'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||''
+    'Authorization': `${getToken()}`, // 获取 token（可选）
+    'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||'',
+    'sa-token': `${getToken()}`
   };
 
   const config: RequestInit = {
@@ -46,7 +47,7 @@ export async function request<T>(
 // 获取 Token（如果有鉴权）
 function getToken() {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('token') || '';
+    return localStorage.getItem('userToken') || '';
   }
   return '';
 }

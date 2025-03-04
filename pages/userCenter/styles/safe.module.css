@@ -1,0 +1,78 @@
+.tip_color {
+    color: var(--text-color6);
+}
+
+.card_bgc {
+    background-color: var(--background7);
+    border-radius: 8px;
+    padding: 24px 0;
+}
+
+.pt0 {
+    padding-top: 0;
+}
+
+.success_icon {
+    color: #00C788;
+}
+
+.error_icon {
+    color: #F73710;
+}
+
+.warning_color {
+    color: #FF5F1F;
+}
+
+
+.default_icon {
+    color: #A4A5AC;
+}
+.svgIcon {
+    fill: currentColor;
+    color:#FF5F1F;
+    margin-right: 14px;
+  }
+.btn_style{
+    min-width: 80px;
+    height: 32px;
+}
+.content_ul>li{
+    min-height: 88px;
+    padding: 12px 24px;
+    box-sizing: border-box;
+    
+}
+.content_ul>li:hover{
+    background-color:  var(--bgc-color);
+}
+.border_bottom::after{
+    content: '';
+    display: inline-block;
+    width: calc(100% - 48px);
+    border-bottom: 1px solid var(--border-color);
+    margin: 0 24px; 
+}
+
+.log_box{
+    width: 35%;
+    min-width: 200px;
+}
+
+@media (max-width: 1080px) {
+   .log_box{
+    width: 100%;
+    margin-top: 12px;
+   }
+   .log_tip{
+    display: flex;
+    flex-direction: row ;
+    justify-content: center;
+}
+}
+
+@media (min-width: 1680px) {
+    .safe_page{
+        width: 60%;
+    }
+}

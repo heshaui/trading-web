@@ -1,3 +1,17 @@
+.default_btn{
+  background-color: #FF5F1F;
+  color: #fff;
+}
+.cancel_btn{
+  background-color: #fff;
+  color: #FF5F1F;
+  border: 1px solid #FF5F1F;
+  box-sizing: border-box;
+}
+.disabled_btn{
+  color: #A4A5AC;
+  background: #E1E1E4;
+}
 
 
 .pointer {
