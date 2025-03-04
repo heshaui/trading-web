@@ -9,4 +9,16 @@ export function getCountryCode(): Promise<any> {
     method: 'GET',
   });
 }
+export function getPic(data:Array<string>): Promise<any> {
+  return request(`${fixUrl}/home-web/v1/kv/paramsByKeys`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function getPic2(key:string): Promise<any> {
+  return request(`${fixUrl}/home-web/v1/kv/params/${key}`, {
+    method: 'POST',
+  });
+}
 
