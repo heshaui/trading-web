@@ -13,23 +13,67 @@ import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 // const HOMEPAGE = '/';
+import {  getPic2 } from "@/services/open";
+import { useEffect, useState } from "react";
 const loginBgcStyle: CSSProperties = {
-	backgroundImage: `url("/images/login/banner.png")`,
-	backgroundColor: "pink",
+	// backgroundImage: `url("/images/login/banner.png")`,
+	backgroundColor: "#ffffff",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
 	height: "100%",
 	// backgroundColor:"pink"
 	// width: "100%"
 };
-function Login() {
+interface LoginPicType {
+	[key: string]: {
+			image: string,
+			title: string,
+			url: string
+	}
+}
+function Register() {
+	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
 	// const { t } = useTranslation();
 	// const token = appStore.userToken;
+	const getBgc = async () => {
+		try {
+			// const res=await getPic(['pcLogin'])
+			const res = await getPic2('pcLogin')
+			if (res.code === '0') {
+			
+				const resdata = JSON.parse(res.data)
+				
+				let lang = '';
+                if (typeof window !== 'undefined') {
+                    lang = localStorage.getItem('localeLanguage') || '';
+                }
+				if (lang === 'en') {
+					setLoginPic(resdata['en_US'])
+				} else if (lang === 'zh_CN' || lang === 'zh') {
+					setLoginPic(resdata['zh_CN'])	
+				} else if (lang === 'ko'||lang === 'ko-KR') {
+					setLoginPic(resdata['ko_KR'])
+				}else if (lang === 'ja'||lang === 'jp'||lang === 'ja-JP') {
+					setLoginPic(resdata['ja_JP'])
+				}else if(lang){
+					setLoginPic(resdata[lang])
+				}else{
+					setLoginPic(resdata['en_US'])
+				}
+			}
+		} catch (error) {
+
+		}
+	}
+	useEffect(() => {
+		getBgc()
+	}, []);
 	return (
 		<div className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
 			<div
 				className="isHidden flex-1"
-				style={loginBgcStyle}
+				// style={loginBgcStyle}
+				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.register.url})`}}
 			>
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}
 			</div>
@@ -52,4 +96,4 @@ function Login() {
 		</div>
 	);
 }
-export default Login;
+export default Register;

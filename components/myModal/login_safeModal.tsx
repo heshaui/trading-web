@@ -179,7 +179,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                 {!loading ? (<button type="submit" className={`${styles.modal_btn} btn-color`}
                     onClick={handOk}>
                     确认
-                </button>) : (<button type="button" className={`${styles.modal_btn} btn-color login-loading`}>
+                </button>) : (<button type="button" className={`${styles.modal_btn} btn-disable login-loading`}>
                     确认
                 </button>
                 )}
