@@ -9,4 +9,3 @@ export function getCountryCode(): Promise<any> {
     method: 'GET',
   });
 }
-

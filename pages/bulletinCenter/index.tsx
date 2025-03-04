@@ -1,4 +1,4 @@
-import { Input, Col, Row, Checkbox, ConfigProvider, Menu, Card, Breadcrumb, Empty } from 'antd';
+import { Col, Row, ConfigProvider, Menu, Card, Empty } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useMemo, useState } from 'react'; // 导入 useState
 import Image from 'next/image';
@@ -13,7 +13,6 @@ import { menuData, messageData, detailMenuItems } from '@/data/bulletinCenter/ge
 import { MessageData } from '@/type/bulletin_center/bc_types';
 
 
-const { Search } = Input;
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function BulletinCenter() {
@@ -82,20 +81,60 @@ export default function BulletinCenter() {
     // 生成详情页菜单项
     const detailItems = generateMenuItems(detailMenuItems, detailSelectedKey);
 
-    // 获取当前选中的消息数据
+    // 判断消息是否已读
+    const isMessageRead = (messageId: string) => {
+        // return readMessageIds.has(messageId);
+        
+        // 只有公告菜单项的消息才判断已读状态
+        if (selectedKeys[0] === '1') {
+            return readMessageIds.has(messageId);
+        }
+        return false; // 其他菜单项始终返回 false，保持原有颜色
+    };
+    // 获取经过筛选和排序的消息列表：先按已读状态，再按时间排序
+    const getFilteredAndSortedMessages = (messages: MessageData[]) => {
+        if (selectedKeys[0] === '1') {
+            let filteredMessages = [...messages];
+
+            // 如果开启了只看未读，过滤出未读消息
+            if (showUnreadOnly) {
+                filteredMessages = filteredMessages.filter(message => !isMessageRead(message.id || ''));
+            }
+
+            // 按已读状态和时间排序
+            return filteredMessages.sort((a, b) => {
+                const aRead = isMessageRead(a.id || '');
+                const bRead = isMessageRead(b.id || '');
+
+                if (aRead !== bRead) {
+                    return aRead ? 1 : -1;
+                }
+
+                const timeA = dayjs(a.time);
+                const timeB = dayjs(b.time);
+                return timeB.diff(timeA);
+            });
+        }
+        return messages;
+    };
     const currentMessages = useMemo(() => {
         const currentKey = selectedKeys[0] || '1';
         const messages = messageData[currentKey] || [];
+        
+        // 先进行筛选和排序
+        const processedMessages = getFilteredAndSortedMessages(messages);
+        
+        // 然后进行分页
         const currentPage = getCurrentPage(currentKey);
-
-        // 计算当前页的数据
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
+        
         return {
-            data: messages.slice(startIndex, endIndex),
-            total: messages.length
+            data: processedMessages.slice(startIndex, endIndex),
+            total: processedMessages.length
         };
-    }, [selectedKeys, pagesState, messageData]);
+    }, [selectedKeys, pagesState, messageData, showUnreadOnly, readMessageIds]);
+
     // 处理页码变化
     const handlePageChange = (page: number) => {
         const currentKey = selectedKeys[0] || '1';
@@ -164,57 +203,27 @@ export default function BulletinCenter() {
     // 处理 只看未读 变化
     const handleUnreadChange = (checked: boolean) => {
         setShowUnreadOnly(checked);
+        // 重置当前选中菜单的页码为1
+        const currentKey = selectedKeys[0] || '1';
+        setPagesState(prev => ({
+            ...prev,
+            [currentKey]: 1
+        }));
     };
     // 全部已读处理
     const handleReadAll = () => {
         if (currentMessages && selectedKeys[0] === '1') {
             const newReadIds = new Set(readMessageIds);
-            // 获取所有菜单项下已读的id
-            // currentMessages.data.forEach(message => {
-            //     newReadIds.add(message.id || '');
-            // });
-            // 只将公告菜单项（key='1'）的消息标记为已读
             messageData['1'].forEach(message => {
                 newReadIds.add(message.id || '');
             });
             setReadMessageIds(newReadIds);
+            // 重置当前页码为1
+            setPagesState(prev => ({
+                ...prev,
+                '1': 1  // 只重置公告菜单（key='1'）的页码
+            }));
         }
-    };
-    // 判断消息是否已读
-    const isMessageRead = (messageId: string) => {
-        // return readMessageIds.has(messageId);
-        
-        // 只有公告菜单项的消息才判断已读状态
-        if (selectedKeys[0] === '1') {
-            return readMessageIds.has(messageId);
-        }
-        return false; // 其他菜单项始终返回 false，保持原有颜色
-    };
-    // 获取经过筛选和排序的消息列表：先按已读状态，再按时间排序
-    const getFilteredAndSortedMessages = (messages: MessageData[]) => {
-        if (selectedKeys[0] === '1') {
-            let filteredMessages = [...messages];
-
-            // 如果开启了只看未读，过滤出未读消息
-            if (showUnreadOnly) {
-                filteredMessages = filteredMessages.filter(message => !isMessageRead(message.id || ''));
-            }
-
-            // 按已读状态和时间排序
-            return filteredMessages.sort((a, b) => {
-                const aRead = isMessageRead(a.id || '');
-                const bRead = isMessageRead(b.id || '');
-
-                if (aRead !== bRead) {
-                    return aRead ? 1 : -1;
-                }
-
-                const timeA = dayjs(a.time);
-                const timeB = dayjs(b.time);
-                return timeB.diff(timeA);
-            });
-        }
-        return messages;
     };
     // 在渲染列表时使用筛选和排序后的数据
     const filteredAndSortedMessages = getFilteredAndSortedMessages(currentMessages.data);
@@ -236,10 +245,7 @@ export default function BulletinCenter() {
                         itemMarginBlock: 0,
                         itemBorderRadius: 10
                     },
-                    Pagination: {
-                        // itemActiveBg: '#FF5F1F',
-                        // itemBg: '#FF5F1F',
-                    }
+                    Pagination: {}
                 },
                 token: {
                     colorPrimary: '#FF5F1F',

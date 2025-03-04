@@ -1,12 +1,88 @@
 import styles from '@/styles/components/Footer.module.css';
-import { Button, Col, ConfigProvider, Dropdown, Row, Space } from 'antd';
-import { FooterListProps } from "@/type/types";
+import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
+import { ApiResponse, FooterListProps, FormattedLanguage, LanguageParams } from "@/type/types";
+
+import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getCustomFooter, getLogo } from '@/services/footer';
+import { getLanguage } from '@/services/header';
+
+interface FooterSetting {
+    statu: string;
+    // 添加其他可能的字段
+}
+interface FooterItem {
+    bottomName: string;
+    children?: FooterItem[];
+}
+interface CustomFooterResponse {
+    code: string;
+    message: string;
+    reqNo: string;
+    data: FooterItem[];  // 直接是数组类型，不是字符串
+}
 
 export default function Footer() {
     // 添加状态管理选中的语言
     const [selectedLang, setSelectedLang] = useState('简体中文');
+    // 获取logo
+    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
+    // 获取footer自定义数据
+    const [footerSetting, setFooterSetting] = useState<FooterSetting | null>(null);
+    const [customFooter, setCustomFooter] = useState<FooterItem[]>([]);
+    // 语言
+    const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
+    useEffect(() => {
+        const fetchFooterSetting = async () => {
+            try {
+                const response = await getLogo({ key: 'footer_setting' }) as ApiResponse<string>;
+                if (response?.data) {
+                    const fixedJsonString = response.data.replace(/([{,]\s*)([a-zA-Z0-9_]+):/g, '$1"$2":')
+                        .replace(/:\s*'([^']*?)'/g, ':"$1"');
+                    const parsedData = JSON.parse(fixedJsonString) as FooterSetting;
+                    setFooterSetting(parsedData);
+                    console.log('footerSetting', parsedData);
+
+                    // 如果 statu 为 '1'，获取自定义 footer 数据
+                    if (parsedData.statu === '1') {
+                        const customResponse = await getCustomFooter({ lang: 'zh_CN' }) as CustomFooterResponse;
+                        if (customResponse?.data?.length > 0) {
+                            setCustomFooter(customResponse.data);
+                        }
+                    }
+                }
+
+                // 获取语言数据
+                const languageResponse = await getLanguage({
+                    lang: '',
+                }) as ApiResponse<LanguageParams[]>;
+                if (languageResponse?.code === '0' && languageResponse.data) {
+                    const formattedLanguageData = languageResponse.data.map((item, index) => ({
+                        label: `${item.lang}`,
+                        key: `${String(index + 1)}`
+                    }));
+                    setLanguageList(formattedLanguageData);
+                }
+            } catch (error) {
+                console.error('获取footer设置失败:', error);
+            }
+        };
+
+        fetchFooterSetting();
+    }, []);
+
+    // const itemsLan = languageList.length > 0 ? languageList :  [
+    //     {
+    //         label: '简体中文',
+    //         key: '1',
+    //     },
+    //     {
+    //         label: 'English',
+    //         key: '2',
+    //     },
+    // ];
+
     const itemsLan = [
         {
             label: '简体中文',
@@ -41,7 +117,7 @@ export default function Footer() {
             // 根据选中项的key更新显示的语言
             const selectedItem = itemsLan.find(item => item.key === key);
             if (selectedItem) {
-                setSelectedLang(selectedItem.label);
+                setSelectedLang(selectedItem.label || '');
             }
         }
     };
@@ -96,6 +172,29 @@ export default function Footer() {
             </div>
         );
     }
+
+    const renderCustomFooter = () => {
+        if (customFooter.length > 0) {
+            return customFooter.map((item, index) => (
+                <div key={index}>
+                    {renderFooterList({
+                        title: item.bottomName,
+                        items: item.children?.map(child => child.bottomName) || []
+                    })}
+                </div>
+            ));
+        }
+
+        // 默认 footer
+        return (
+            <>
+                {renderFooterList({ title: "关于IMBIT", items: aboutIMBIT })}
+                {renderFooterList({ title: "产品", items: products })}
+                {renderFooterList({ title: "帮助中心", items: helpCenter })}
+                {renderFooterList({ title: "法律与风险披露", items: legalAndRisk })}
+            </>
+        );
+    };
     return (
         <ConfigProvider
             theme={{
@@ -123,17 +222,26 @@ export default function Footer() {
             <div className={styles.footerContainer}>
                 <div className={styles.logoAndButton}>
                     <div className={styles.logo}>
-                        {/* <img src="/home_menu_logo.png" /> */}
                         <Image
-                            src="/home_menu_logo.png"
+                            src={logoUrl}
                             alt=""
                             width={126}  // 必须指定宽度
                             height={30} // 必须指定高度
+                            onError={() => setLogoUrl('/home_menu_logo.png')} // 图片加载失败时使用默认值
                         />
                     </div>
                     <p>©2023 - 2024 MetaWave.</p>
                     <Dropdown
-                        menu={menuProps1}
+                        menu={{
+                            items: itemsLan,
+                            onClick: ({ key }: { key: string }) => {
+                                // 根据选中项的key更新显示的语言
+                                const selectedItem = itemsLan.find(item => item.key === key);
+                                if (selectedItem) {
+                                    setSelectedLang(selectedItem.label || '');
+                                }
+                            }
+                        }}
                         trigger={['click']}
                     >
                         <Button>
@@ -195,10 +303,7 @@ export default function Footer() {
                     </Dropdown>
                 </div>
                 <div className={styles.footer}>
-                    {renderFooterList({ title: "关于IMBIT", items: aboutIMBIT })}
-                    {renderFooterList({ title: "产品", items: products })}
-                    {renderFooterList({ title: "帮助中心", items: helpCenter })}
-                    {renderFooterList({ title: "法律与风险披露", items: legalAndRisk })}
+                    {renderCustomFooter()}
                 </div>
             </div>
         </ConfigProvider>

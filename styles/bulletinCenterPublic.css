@@ -8,3 +8,8 @@
     min-height: 60px;
     cursor: pointer;
 }
+/* 帮助中心样式更改 */
+.customCard .ant-card {
+    height: 158px;
+    cursor: pointer;
+}
