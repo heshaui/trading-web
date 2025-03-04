@@ -14,15 +14,7 @@ import styles from '../styles/login.module.css'
 function RegisterForm() {
 	// const { t } = useTranslation();
 	const { loginState } = useLoginStateContext();
-	// const formRef = React.useRef<FormInstance>(null); //  使用 ref 来存储 form 实例
-	// const [countdown, setCountdown] = useState(0);
-	// const [isCounting, setIsCounting] = useState(false);
 
-	// const fromStyle: CSSProperties = {
-	// 	borderRadius: "5px",
-	// 	boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-	// 	padding: "25px",
-	// };
 	const [tabsProps, setTabsProps] = useState('email');
 	// const { registerType, setRegisterType, backToRegisterType } = useRegisterTypeContext();
 	const {  setRegisterType } = useRegisterTypeContext();

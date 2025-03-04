@@ -38,6 +38,8 @@ function Phonebox() {
 		});
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
+	const phoneNumber = Form.useWatch('phoneNumber', form);
+	const areaCode = Form.useWatch('areaCode', form);
 	// 当登录类型不为 PHONE 时不渲染组件
 	// if (loginState !== LoginStateEnum.LOGIN) return null;
 	const handCodeCancel = () => {
@@ -87,7 +89,8 @@ function Phonebox() {
     //     setLoginState(LoginStateEnum.Authcode)
     // }
 	const goResetPassword = () => {
-        router.push('/resetPassword');
+		
+        router.push('/resetPassword?acount=' + phoneNumber + '&type=p'+ '&areaCode='+areaCode);
     }
 	 const goRegister = () => {
 	
@@ -143,7 +146,7 @@ function Phonebox() {
 				</Form.Item>
 				<div className="mb-5 font-16 font-w-500">密码</div>
 				<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
+					<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }

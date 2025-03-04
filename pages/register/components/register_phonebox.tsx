@@ -134,7 +134,7 @@ function RegisterPhone() {
 				<Form.Item name="password"
 					rules={[{ validator: validatePassword }]}
 					>
-					<Input.Password type="password" placeholder="请输入密码" allowClear={true} size="large" className={`${styles.mail_input}`}
+					<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
 					// prefix={
 					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 					// }
