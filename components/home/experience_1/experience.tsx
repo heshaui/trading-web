@@ -5,11 +5,11 @@
 
 import React from 'react';
 import styles from '@/styles/components/home/experience.module.css'
-import { Input,Button } from "antd";
+import { Input, Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
 import { CSSProperties } from "react";
-import {  getPic2 } from "@/services/open";
+import { getPic2 } from "@/services/open";
 import { useEffect, useState } from "react";
 
 const bgStyle: CSSProperties = {
@@ -19,82 +19,92 @@ const bgStyle: CSSProperties = {
     backgroundRepeat: 'no-repeat',
 };
 interface isLoginType {
-        buttonText: string,
-        image: string,
-        subtitle: string,
-        title: string,
-        url: string
+    buttonText: string,
+    image: string,
+    subtitle: string,
+    title: string,
+    url: string
 }
 interface isDayModeType {
-       before_login: isLoginType,
-       after_login: isLoginType
-    }
+    before_login: isLoginType,
+    after_login: isLoginType
+}
 interface LoginPicType {
-	dark: isDayModeType,
+    dark: isDayModeType,
     light: isDayModeType
 }
 export default function Experience() {
     // const { t } = useTranslation('common');
     const { t } = useTranslation(['home']);
-	const [homePic, setHomePic] = useState<LoginPicType | null>(null)
-    const isDayMode=localStorage.getItem('isDayMode')
-    const token = localStorage.getItem('userToken');
+    const [homePic, setHomePic] = useState<LoginPicType | null>(null)
+    // const isDayMode=localStorage.getItem('isDayMode')||''
+    // const token = localStorage.getItem('userToken')||''
     // const [email, setEmail] = useState('');
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
         // setEmail(e.target.value)
-      };
+    };
 
-	const getBgc = async () => {
-		try {
-			// const res=await getPic(['pcLogin'])
-			const res = await getPic2('HomeBanner')
-			if (res.code === '0') {
-				const resdata = JSON.parse(res.data)
-				console.log(resdata, 121);
-				
-				const lang = localStorage.getItem('localeLanguage')||''
-				if (lang === 'en') {
-					setHomePic(resdata['en_US'])
-				} else if (lang === 'zh_CN' || lang === 'zh') {
-					setHomePic(resdata['zh_CN'])	
-				} else if (lang === 'ko'||lang === 'ko-KR') {
-					setHomePic(resdata['ko_KR'])
-				}else if (lang === 'ja'||lang === 'jp'||lang === 'ja-JP') {
-					setHomePic(resdata['ja_JP'])
-				}else if(lang){
-					setHomePic(resdata[lang])
-				}else{
-                    setHomePic(resdata['English']?resdata['English']:resdata['en_US'])
+    const getBgc = async () => {
+        try {
+            // const res=await getPic(['pcLogin'])
+            const res = await getPic2('HomeBanner')
+            if (res.code === '0') {
+                const resdata = JSON.parse(res.data)
+                console.log(resdata, 121);
+
+                let lang = '';
+                if (typeof window !== 'undefined') {
+                    lang = localStorage.getItem('localeLanguage') || '';
                 }
-               
-			}
-		} catch (error) {
+                if (lang === 'en') {
+                    setHomePic(resdata['en_US'])
+                } else if (lang === 'zh_CN' || lang === 'zh') {
+                    setHomePic(resdata['zh_CN'])
+                } else if (lang === 'ko' || lang === 'ko-KR') {
+                    setHomePic(resdata['ko_KR'])
+                } else if (lang === 'ja' || lang === 'jp' || lang === 'ja-JP') {
+                    setHomePic(resdata['ja_JP'])
+                } else if (lang) {
+                    setHomePic(resdata[lang])
+                } else {
+                    setHomePic(resdata['English'] ? resdata['English'] : resdata['en_US'])
+                }
 
-		}
-	}
-    const bgUrl=()=>{
-        if(isDayMode){
-            if(token){
+            }
+        } catch (error) {
+
+        }
+    }
+    const bgUrl = () => {
+        let isDayMode = '';
+        let token = '';
+        if (typeof window !== 'undefined') {
+            isDayMode = localStorage.getItem('isDayMode') || ''
+            token = localStorage.getItem('userToken') || ''
+        }
+
+        if (isDayMode) {
+            if (token) {
                 return homePic?.light.after_login
-            }else{
+            } else {
                 return homePic?.light.before_login
             }
-        }else{
-            if(token){
+        } else {
+            if (token) {
                 return homePic?.dark.after_login
-            }else{
+            } else {
                 return homePic?.dark.before_login
             }
         }
     }
     useEffect(() => {
-		getBgc()
-	}, []);
+        getBgc()
+    }, []);
 
     return (
         <div className={`${styles.experience_page} flex-y-cc`}>
-            <div className={`${styles.experience_main}`} 
+            <div className={`${styles.experience_main}`}
             // style={{...bgStyle, backgroundImage: `url(${homePic?.url})`}}
             >
                 <div className={`${styles.experience_main_box} flex-y flex-ai-center mt-10 `}>
@@ -104,11 +114,11 @@ export default function Experience() {
                         <Button className={`${styles.experience_main_btn}`}>{bgUrl()?.buttonText}</Button>
                     </div>
                 </div>
-                <div 
-                className={`${styles.experience_main_pic}`} 
-                style={{...bgStyle,backgroundImage: `url(${bgUrl()?.url})`}}
-               >
-               </div>
+                <div
+                    className={`${styles.experience_main_pic}`}
+                    style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.url})` }}
+                >
+                </div>
             </div>
         </div>
     );

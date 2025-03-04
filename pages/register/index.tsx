@@ -43,7 +43,10 @@ function Register() {
 			
 				const resdata = JSON.parse(res.data)
 				
-				const lang = localStorage.getItem('localeLanguage')||''
+				let lang = '';
+                if (typeof window !== 'undefined') {
+                    lang = localStorage.getItem('localeLanguage') || '';
+                }
 				if (lang === 'en') {
 					setLoginPic(resdata['en_US'])
 				} else if (lang === 'zh_CN' || lang === 'zh') {

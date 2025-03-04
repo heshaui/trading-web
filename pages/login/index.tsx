@@ -104,8 +104,10 @@ function Login() {
 				});
 				const resdata = JSON.parse(res.data)
 				console.log(resdata, 121);
-				
-				const lang = localStorage.getItem('localeLanguage')||''
+				let lang = '';
+                if (typeof window !== 'undefined') {
+                    lang = localStorage.getItem('localeLanguage') || '';
+                }
 				if (lang === 'en'||lang === 'en_US') {
 					setLoginPic(resdata['en_US'])
 				} else if (lang === 'zh_CN' || lang === 'zh') {
