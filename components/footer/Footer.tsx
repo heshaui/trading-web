@@ -231,6 +231,19 @@ export default function Footer() {
                         />
                     </div>
                     <p>©2023 - 2024 MetaWave.</p>
+                    <Row>
+                        <Col><h6 style={{ color: 'var(--text-color5)', fontSize: 12 }}>社区</h6></Col>
+                    </Row>
+                    <Row style={{ margin: '10px 0 8px 0' }}>
+                        <Col>
+                            <Image
+                                src="/images/footer/icon_discord.png"
+                                alt=''
+                                width={20}
+                                height={20}
+                            />
+                        </Col>
+                    </Row>
                     <Dropdown
                         menu={{
                             items: itemsLan,
@@ -272,7 +285,7 @@ export default function Footer() {
                             </Row>
                         </Button>
                     </Dropdown>
-                    <div style={{ marginTop: '20px' }}></div>
+                    <div style={{ marginTop: '10px' }}></div>
                     <Dropdown
                         menu={menuProps2}
                         trigger={['click']}

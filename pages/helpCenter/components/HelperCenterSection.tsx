@@ -23,6 +23,7 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
                     <Row style={{ marginTop: 40 }}>
                         <Col span={8}>
                             <Button
+                                className={styles.helpCenterCardButton}
                                 style={{
                                     width: '100%',
                                     height: 64,
@@ -40,7 +41,7 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
                                     <Col>
                                         <Image
                                             src={item.icon}
-                                            alt="arrow_right"
+                                            alt={item.alt}
                                             width={18}
                                             height={18}
                                         />

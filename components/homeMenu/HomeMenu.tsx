@@ -22,7 +22,7 @@ import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引�
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
 import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
-
+import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -59,11 +59,34 @@ export default function HomeMenu() {
         // 服务器端渲染时的默认值
         return '简体中文';
     });
+    // 使用 hook
+    const { isDayMode, toggleTheme } = useDayModeChange(); // 使用 hook
+    // 渲染主题切换图标
+    const renderThemeIcon = () => {
+        return (
+            <Col onClick={toggleTheme} style={{ cursor: 'pointer' }}>
+                <Image
+                    src={
+                        isDayMode
+                            ? "/images/home_menu/icon_sun_fill.png"
+                            : "/images/home_menu/icon_moon_line.png"
+                    }
+                    alt={isDayMode ? '日间模式' : '夜间模式'}
+                    width={20}
+                    height={20}
+                />
+            </Col>
+        );
+    };
 
     // 统一初始化数据
     useEffect(() => {
         const initializeData = async () => {
             try {
+                // 检查登录状态
+                const token = localStorage.getItem('userToken');
+                setIsLogin(!!token);
+
                 // 获取菜单数据
                 const rawData = { lang: 'zh_CN' };
                 const menuResponse = await homeMenu(rawData) as { data: any[] };
@@ -95,10 +118,6 @@ export default function HomeMenu() {
                     }));
                     setRateData(formattedRateData);
                 }
-
-                // 检查登录状态
-                const token = localStorage.getItem('userToken');
-                setIsLogin(!!token);
 
             } catch (error) {
                 console.error('数据初始化失败:', error);
@@ -521,16 +540,7 @@ export default function HomeMenu() {
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
-            // case 'download':
-            //     return <DownloadOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            // case 'bell':
-            //     return <BellOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            // case 'question':
-            //     return <QuestionCircleOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
-            // case 'global':
-            //     return <GlobalOutlined style={{ marginLeft: '12px', cursor: 'pointer', color: '#ffffff' }} />;
             case 'img_horn':
-                // return <Col><img src="/images/home_menu/icon_upload_line.png" className={styles.iconCursor} /></Col>;
                 return <Col>
                     <Image
                         src="/images/home_menu/icon_horn_hover.png"
@@ -540,7 +550,6 @@ export default function HomeMenu() {
                     />
                 </Col>;
             case 'img_download':
-                // return <Col><img src="/images/home_menu/icon_download_line.png" className={styles.iconCursor} /></Col>;
                 return <Col>
                     <Image
                         src="/images/home_menu/icon_download_line.png"
@@ -550,19 +559,8 @@ export default function HomeMenu() {
                     />
                 </Col>;
             case 'img_change':
-                // return <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>;
-                // return isDayMode ? (
-                //     <Col><img src="/images/home_menu/icon_sun_fill.png" className={styles.iconCursor} /></Col>
-                // ) : (
-                //     <Col><img src="/images/home_menu/icon_moon_line.png" className={styles.iconCursor} /></Col>
-                // );
-                return isDayMode ? (
-                    <Col><Image src="/images/home_menu/icon_sun_fill.png" alt='' width={20} height={20} /></Col>
-                ) : (
-                    <Col><Image src="/images/home_menu/icon_moon_line.png" alt='' width={20} height={20} /></Col>
-                );
+                return renderThemeIcon();
             case 'img_global':
-                // return <Col><img src="/images/home_menu/icon_earth_line.png" className={styles.iconCursor} /></Col>;
                 return <Col>
                     <Image
                         src="/images/home_menu/icon_earth_line.png"
@@ -702,23 +700,6 @@ export default function HomeMenu() {
     const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
     // 定义汇率状态变量
     const [searchRateValue, setSearchRateValue] = useState<string>("");
-
-    // 初始化时从localStorage获取状态
-    const [isDayMode, setIsDayMode] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const savedMode = localStorage.getItem('isDayMode');
-            return savedMode ? JSON.parse(savedMode) : false;
-        }
-        return false;
-    });
-
-    // 切换模式时同时更新localStorage
-    const toggleDayMode = () => {
-        const newMode = !isDayMode;
-        setIsDayMode(newMode);
-        localStorage.setItem('isDayMode', JSON.stringify(newMode));
-    };
-
     // 公告中心 - 公告部分测试数据
     const bulletinArr = [
         { h5Text: "IMBIT关于上线 Pendle (PENDLE) 现货交易的公告", spanText: "2024/09/27 11:00:00" },
@@ -827,7 +808,6 @@ export default function HomeMenu() {
             title: <IconHtml icon="img_change" />,
             widthSet: 'question',
             items: [],
-            onClick: toggleDayMode,
         },
         {
             key: '3',
@@ -1604,29 +1584,6 @@ export default function HomeMenu() {
                                         <>
                                             <Col>
                                                 <Dropdown
-                                                    // menu={{
-                                                    //     items: inputItems,
-                                                    // }}
-                                                    trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
-                                                >
-                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
-                                                    <Space>
-                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            alt=""
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                            src="/images/home_menu/icon_search_line.png"
-                                                            className={styles.iconCursor}
-                                                        />
-                                                    </Space>
-                                                    {/* </a> */}
-                                                </Dropdown>
-                                            </Col>
-                                            <Col>
-                                                <Dropdown
                                                     menu={{
                                                         // items,
                                                         items: itemsFunding
@@ -1636,10 +1593,10 @@ export default function HomeMenu() {
                                                     overlayStyle={{ top: '80px', width: '180px' }}
                                                 >
                                                     {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
-                                                        <Space style={{ columnGap: '3px' }}>
-                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
-                                                        </Space>
-                                                    </a> */}
+                                                    <Space style={{ columnGap: '3px' }}>
+                                                        <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                    </Space>
+                                                </a> */}
                                                     <Space style={{ columnGap: '3px' }}>
                                                         {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
                                                         <Image
@@ -1651,6 +1608,34 @@ export default function HomeMenu() {
                                                             height={20} // 必须指定高度
                                                         />
                                                     </Space>
+                                                </Dropdown>
+                                            </Col>
+                                            <Col>
+                                                <Dropdown
+                                                    menu={{
+                                                        items: [
+                                                            {
+                                                                key: '1',
+                                                                label: '上传文件',
+                                                            },
+                                                        ],
+                                                    }}
+                                                    trigger={['click']}
+                                                    overlayStyle={{ top: '80px', maxWidth: '200px', width: '180px' }}
+                                                >
+                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                    <Space>
+                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            alt=""
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                            src="/images/home_menu/icon_upload_line.png"
+                                                            className={styles.iconCursor}
+                                                        />
+                                                    </Space>
+                                                    {/* </a> */}
                                                 </Dropdown>
                                             </Col>
                                             {iconItemsLogin}
