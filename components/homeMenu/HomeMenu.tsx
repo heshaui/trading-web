@@ -70,7 +70,7 @@ export default function HomeMenu() {
                         isDayMode
                             ? "/images/home_menu/icon_sun_fill.png"
                             : "/images/home_menu/icon_moon_line.png"
-                        }
+                    }
                     alt={isDayMode ? '日间模式' : '夜间模式'}
                     width={20}
                     height={20}
@@ -1584,29 +1584,6 @@ export default function HomeMenu() {
                                         <>
                                             <Col>
                                                 <Dropdown
-                                                    // menu={{
-                                                    //     items: inputItems,
-                                                    // }}
-                                                    trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
-                                                >
-                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
-                                                    <Space>
-                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            alt=""
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                            src="/images/home_menu/icon_search_line.png"
-                                                            className={styles.iconCursor}
-                                                        />
-                                                    </Space>
-                                                    {/* </a> */}
-                                                </Dropdown>
-                                            </Col>
-                                            <Col>
-                                                <Dropdown
                                                     menu={{
                                                         // items,
                                                         items: itemsFunding
@@ -1616,10 +1593,10 @@ export default function HomeMenu() {
                                                     overlayStyle={{ top: '80px', width: '180px' }}
                                                 >
                                                     {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
-                                                        <Space style={{ columnGap: '3px' }}>
-                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
-                                                        </Space>
-                                                    </a> */}
+                                                    <Space style={{ columnGap: '3px' }}>
+                                                        <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                    </Space>
+                                                </a> */}
                                                     <Space style={{ columnGap: '3px' }}>
                                                         {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
                                                         <Image
@@ -1631,6 +1608,34 @@ export default function HomeMenu() {
                                                             height={20} // 必须指定高度
                                                         />
                                                     </Space>
+                                                </Dropdown>
+                                            </Col>
+                                            <Col>
+                                                <Dropdown
+                                                    menu={{
+                                                        items: [
+                                                            {
+                                                                key: '1',
+                                                                label: '上传文件',
+                                                            },
+                                                        ],
+                                                    }}
+                                                    trigger={['click']}
+                                                    overlayStyle={{ top: '80px', maxWidth: '200px', width: '180px' }}
+                                                >
+                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                    <Space>
+                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            alt=""
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                            src="/images/home_menu/icon_upload_line.png"
+                                                            className={styles.iconCursor}
+                                                        />
+                                                    </Space>
+                                                    {/* </a> */}
                                                 </Dropdown>
                                             </Col>
                                             {iconItemsLogin}
