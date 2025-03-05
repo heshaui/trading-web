@@ -32,7 +32,7 @@ const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList
                                             </Row>
                                             <Row justify='center' style={{ marginTop: 18 }}>
                                                 <Col>
-                                                    <span style={{ color: '#0C0D0C', fontSize: 16, fontWeight: 500 }}>
+                                                    <span style={{ color: 'var(--text-color5)', fontSize: 16, fontWeight: 500 }}>
                                                         {item.title}
                                                     </span>
                                                 </Col>

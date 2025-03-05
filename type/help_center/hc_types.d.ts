@@ -20,6 +20,7 @@ export interface HelpCenterItem {
 // 帮助中心后端配置 - 组件props
 export interface HelpCenterSectionProps {
     helpCenterList?: Array<{
+        alt: string;
         title: string;
         icon: string;
         buttonWord: string;
