@@ -8,3 +8,19 @@
     min-height: 60px;
     cursor: pointer;
 }
+/* 帮助中心样式更改 */
+.customCard .ant-card {
+    height: 158px;
+    cursor: pointer;
+}
+.customSegmented .ant-segmented-item {
+    border-radius: 55px;
+    width: 33.33%;
+    color: var(--text-color6);
+}
+.customSegmented .ant-segmented-item.ant-segmented-item-selected,
+.customSegmented .ant-segmented-thumb {
+    border-radius: 55px !important;
+    background-color: var(--btncolor7) !important;
+    color: var(--text-color5) !important;
+}

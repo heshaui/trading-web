@@ -21,4 +21,3 @@ export function getPic2(key:string): Promise<any> {
     method: 'POST',
   });
 }
-
