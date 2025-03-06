@@ -36,6 +36,7 @@ function ResetPassword() {
                         code: values.code
                     }
                     const dataEncrypt = await encryptData(dataInfo)
+                    // 重置密码校验
                     const res = await getResetPasswordCheck(dataEncrypt)
                     if (res.code === '0') {
                         setResetState(ResetStateEnum.RESET)
