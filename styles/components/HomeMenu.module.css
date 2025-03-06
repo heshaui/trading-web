@@ -346,7 +346,6 @@
 }
 
 .userCursor {
-    width: 28px;
-    height: 28px;
     cursor: pointer;
+    vertical-align: top;
 }

@@ -10,7 +10,7 @@ import Image from 'next/image';
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src="/images/home_menu/Avatar.png",
     h5Text = '默认标题',
-    spanText = '默认副标题',
+    spanText,
     isOtherItem = false,
     isMore = false,
     isUser = false,
