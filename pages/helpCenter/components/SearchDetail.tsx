@@ -6,17 +6,20 @@ import SearchResult from './SearchResult';
 import { useState } from 'react';
 
 const SearchDetail: React.FC<SearchDetailProps> = ({
-    searchValue,
-    searchResults,
+    searchValue = '',
+    searchResults = [],
     setShowSearch,
     setSearchValue
 }) => {
     // 当前分类
     const [currentCategory, setCurrentCategory] = useState<SearchCategory>('全部');
+    // 添加空值检查
+    if (!searchResults) return null;
+    
     // 根据分类筛选结果
-    const filteredResults = searchResults.filter(item =>
+    const filteredResults = searchResults?.filter(item =>
         currentCategory === '全部' || item.category === currentCategory
-    );
+    ) || [];
     // 返回按钮
     const handleBack = () => {
         setShowSearch(false);

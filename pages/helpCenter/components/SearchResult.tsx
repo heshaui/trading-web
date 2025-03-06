@@ -1,8 +1,11 @@
 import styles from '../styles/helpCenter.module.css';
 import { SearchResultProps } from '@/type/help_center/hc_types';
-import { highlightText } from './/highlight';
+import { highlightText } from '@/utils/highlight';
 
-const SearchResult: React.FC<SearchResultProps> = ({ resultCount, items, currentCategory, searchValue }) => {
+const SearchResult: React.FC<SearchResultProps> = ({ resultCount=0, items=[], currentCategory='全部', searchValue='' }) => {
+    // 添加空值检查
+    if (!items) return null;
+
     return (
         <div className={styles.searchResult}>
             <h2 className={styles.searchResultTitle}>
