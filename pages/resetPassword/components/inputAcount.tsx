@@ -95,10 +95,11 @@ function ResetPassword() {
         setTabsProps(value)
     };
     useEffect(() => {
+        // 初始表单内容
         form.setFieldsValue({
-            areaCode: `+${areaCode}` || "+1",
-            acount: type === 'm' ? acount : "",
-            acountNumber: type === 'p' ? acount : ""
+            areaCode: type === 'p'&&acount&&acount!=='undefined' ?`+${areaCode}` : "+1",
+            acount: type === 'm'&&acount&&acount!=='undefined'  ? acount : "",
+            acountNumber: type === 'p'&&acount&&acount!=='undefined' ? acount : ""
         });
         if (type === 'm') {
             setTabsProps('email')
