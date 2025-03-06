@@ -14,7 +14,7 @@ type Props = {
     acount?: string;
     message?: string;
     type?: string;
-    onOk: (event: FormValueType) => void;
+    onOk: () => void;
     onCancel: () => void;
 };
 
@@ -25,10 +25,7 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
     };
 
     const handOk = async () => {
-        form.validateFields()
-            .then((values) => {
-                onOk(values)
-            });
+        onOk()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
 
@@ -65,7 +62,10 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
             width={400}
         >
             <div className="flex-col flex-ai-center">
-                <Image src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
+                {type == 'error' && <Image src="/images/login/icon_faild.png"
+                    alt=""
+                    className={`${styles.icon_box}`} width={160} height={160} />
+                }
                 {type == 'error' && <p className={`${styles.title} `}>
                     {acount} 账号已存在，
                     是否登录该账号？

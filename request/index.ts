@@ -45,7 +45,7 @@ export async function request<T>(
 }
 
 // 获取 Token（如果有鉴权）
-function getToken() {
+export function getToken() {
   if (typeof window !== 'undefined') {
     return localStorage.getItem('userToken') || '';
   }

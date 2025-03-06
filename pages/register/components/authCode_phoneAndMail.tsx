@@ -168,6 +168,8 @@ function AuthCode() {
     }
     const handCancel = () => {
         setRepeatModalOPen(false)
+        setLoginState(LoginStateEnum.REGISTER);
+        setRegisterType(RegisterTypeEnum.EMAIL);
     }
     const startCountdown = () => {
         setCountdown(60);
