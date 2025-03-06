@@ -6,6 +6,10 @@ import Image from 'next/image';
 import { getLoginUserInfo, getUserCenter, updateUserCenter } from '@/services/userCenter';
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import NeckNameModal from '@/components/userCenterModal/nickname_Modal';
+import AvatarUrlModal from "@/components/userCenterModal/avatarUrl_Modal";
+import BirthdayModal from "@/components/userCenterModal/birthday_Modal";
+import dayjs from 'dayjs';
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -42,7 +46,7 @@ const UserSettingsPage: React.FC = () => {
       icon: "/images/userCenter/userSettings/icon_nickname.svg",
       bindBtn: [{
         title: "修改",
-        onok: () => { }
+        onok: () => setNecknameOpen(true)
       }
       ]
     },
@@ -50,12 +54,12 @@ const UserSettingsPage: React.FC = () => {
       title: "头像",
       type: "avatarUrl",
       desc: "设置头像为你的账户增添个人化元素，可在 NFT 市场购买属于自己的 NFT 头像",
-      isBind: true,
+      isBind: false,
       bindValue: "/images/userCenter/userSettings/icon_user.svg",
       icon: "/images/userCenter/userSettings/icon_avatar.svg",
       bindBtn: [{
         title: "修改",
-        onok: () => { }
+        onok: () => setAvatarUrlOpen(true)
       },
       ],
     },
@@ -64,11 +68,11 @@ const UserSettingsPage: React.FC = () => {
       type: "birthday",
       desc: "破壳日",
       isBind: true,
-      bindValue: "1999-12-12",
+      bindValue: "",
       icon: "/images/userCenter/userSettings/icon_brithday.svg",
       noBindBtn: [{
         title: "添加",
-        onok: () => { }
+        onok: () => setBirthdayOpen(true)
       }
       ]
     },
@@ -89,28 +93,55 @@ const UserSettingsPage: React.FC = () => {
     },
   ]
   const [userCenterData, setUserCenterData] = useState<SafeListItem[]>(userInfoList);
-
+  const [userInfo, setUserInfo] = useState({
+    userId:0,
+    nickname: "",
+    avatarUrl: "",
+    birthday: "",
+  });
+  const [necknameOpen, setNecknameOpen] = useState(false);
+  const [avatarUrlOpen,setAvatarUrlOpen]=useState(false);
+  const [birthdayOpen,setBirthdayOpen]=useState(false);
+  // const [withdrawData, setWithdrawData] = useState<SafeListItem[]>(withdrawList);
   const getUserCenterData = async () => {
     try {
       const res = await getUserCenter();
       const { code, data } = res;
       if (code === '0') {
+        setUserInfo(data);
         // 遍历 userInfoList
-        userInfoList.forEach(item => {
+        const updatedUserInfoList = userInfoList.map(item => {
           if (data.hasOwnProperty(item.type)) {
+            if(item.type === 'birthday'){
+              const value = data[item.type];
+              return {
+                ...item,
+                bindValue: value?dayjs(value).format('YYYY/MM/DD'):'',
+                isBind: Boolean(value),
+              };
+            }
             const value = data[item.type];
-            item.bindValue = value;
-            item.isBind = Boolean(value);
+            return {
+              ...item,
+              bindValue: value,
+              isBind: Boolean(value),
+            };
           }
+          return item;
         });
-        console.log(userInfoList, 114);
 
-        setUserCenterData(userInfoList);
+        setUserCenterData(updatedUserInfoList);
+
       }
     } catch (error) {
       toast.error(String(error));
     }
   };
+  const handOk = (bool: boolean) => {
+    if (bool) {
+      getUserCenterData();
+    }
+  }
   useEffect(() => {
     getUserCenterData();
   }, [])
@@ -149,12 +180,13 @@ const UserSettingsPage: React.FC = () => {
                   /> */}
                   {item.type === "avatarUrl" ?
                     item.isBind ?
-                      <Image src={item.bindValue} alt="avatar" width={20} height={20} />
+                      <Image src={item.bindValue} className={styles.avatar_icon} alt="avatar" width={20} height={20} />
                       :
-                      <Image src="/images/userCenter/userSettings/icon_user.svg" alt="avatar" 
-                      className={styles.avatar_icon} style={{color: "pink"}} width={20} height={20} />
+                      <Iconify icon="teenyicons:user-circle-outline" className={styles.avatar_icon}/>
+                      // <Image src="/images/userCenter/userSettings/icon_user.svg" alt="avatar"
+                      //   className={styles.avatar_icon}  width={20} height={20} />
                     :
-                    <span>{item.bindValue}</span>
+                    <span>{item.bindValue||'-'}</span>
                   }
 
                 </div>
@@ -165,10 +197,10 @@ const UserSettingsPage: React.FC = () => {
               <div className={`flex-row align-center justify-end flex-1`}>
 
                 {item.bindBtn?.map((btn: ButtonConfig, index: number) => (
-                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}>{btn.title}</button>
+                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
                 ))}
                 {item.type === "birthday" && !item.isBind && item.noBindBtn?.map((btn: ButtonConfig, index: number) => (
-                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}>{btn.title}</button>
+                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
                 ))}
 
               </div>
@@ -239,6 +271,21 @@ const UserSettingsPage: React.FC = () => {
       </ul>
 
     </div>
+    {/* 修改昵称 */}
+    <NeckNameModal
+      open={necknameOpen}
+      onCancel={() => setNecknameOpen(false)}
+      nickname={userInfo.nickname} />
+
+    {/* 修改头像 */}
+    <AvatarUrlModal open={avatarUrlOpen}
+      onCancel={() => setAvatarUrlOpen(false)} />
+
+    {/* 修改生日 */}
+    <BirthdayModal open={birthdayOpen} userId={userInfo.userId}
+      onCancel={() => setBirthdayOpen(false)} 
+      onOk={handOk}
+      />
 
   </div>);
 };

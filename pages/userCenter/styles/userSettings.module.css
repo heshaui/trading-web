@@ -35,13 +35,15 @@
   }
 .avatar_icon{
     color: var(--foreground);
+    width: 20px;
+    height: 20px;
 }
 .btn_style{
     min-width: 80px;
     height: 32px;
 }
 .content_ul>li{
-    height: 88px;
+    min-height: 88px;
 }
 .content_ul>li:hover{
     background-color:  var(--bgc-color);
@@ -52,7 +54,13 @@
     width: 35%;
 }
 @media (max-width: 680px) {
-   
+    .content_ul>li{
+        flex-wrap: wrap;
+        padding: 16px 24px;
+    }
+    .log_box{
+        width: 100%;
+    }
 
 }
 

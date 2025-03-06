@@ -3,6 +3,12 @@ import {API_MODULE_NAME} from '@/config/apiConfig';
 
 const fixUrl=`/${API_MODULE_NAME.AMBIT_USER_WEB}`
 
+interface UpdateUserCenterType {
+  userId: number;
+  birthday?: string;
+  avatarUrl?:string;
+  nickname?:string;
+}
 
 //用户信息
 export function getLoginUserInfo(): Promise<any> {
@@ -24,9 +30,10 @@ export function getSafeCenter(): Promise<any> {
     });
   }
 //   修改个人中心
-  export function updateUserCenter(): Promise<any> {
+  export function updateUserCenter(data:UpdateUserCenterType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/user/updateUserCenter`, {
       method: 'POST',
+      body:JSON.stringify(data)
     });
   }
   
