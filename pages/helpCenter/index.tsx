@@ -1,15 +1,38 @@
 import styles from './styles/helpCenter.module.css';
 import ConfigurationCard from './components/ConfigurationCard';
 import { useThemeMode } from '@/hooks/useThemeMode';
-
-import Image from 'next/image';
-import { Card, Col, ConfigProvider, Input, message, Row } from 'antd';
 import HelpCenterSection from './components/HelperCenterSection';
-import { HelpCenterItem } from '@/type/help_center/hc_types';
-import { useEffect, useState } from 'react';
+import { HelpCenterItem, SearchCategory } from '@/type/help_center/hc_types';
 import SearchDetail from './components/SearchDetail';
 
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Card, Col, ConfigProvider, Empty, Input, message, Row } from 'antd';
+
 export default function HelpCenter() {
+    // 测试数据
+    const testDataFAQ = [
+        {
+            title: '如何修改密码',
+            content: '点击个人中心，找到修改密码选项1',
+            time: '2024-03-05',
+            category: '常见问题' as SearchCategory
+        },
+        // ... 更多常见问题数据
+    ];
+
+    const testDataAnnouncement = [
+        {
+            title: '系统升级公告',
+            content: '系统将于3月15日进行升级维护1',
+            time: '2024-03-01',
+            category: '公告' as SearchCategory
+        },
+        // ... 更多公告数据
+    ];
+    // 合并数组 - 全部分类数据
+    const allData = [...testDataFAQ, ...testDataAnnouncement];
+
     // 日夜间判断
     const { isDayMode } = useThemeMode();
     // 添加客户端渲染标记
@@ -47,15 +70,27 @@ export default function HelpCenter() {
             setHelpCenterList(updatedList);
         }
     }, [isDayMode, isClient]);
-    // 搜索框
+    // 搜索框输入值
     const [searchValue, setSearchValue] = useState('');
+    // 搜索框显示状态
     const [showSearch, setShowSearch] = useState(false);
+    // 搜索结果
+    const [searchResults, setSearchResults] = useState<typeof allData>([]);
+    // 搜索事件
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             if (!searchValue.trim()) {
                 message.warning('请输入搜索内容');
                 return;
             }
+
+            // 搜索逻辑
+            const filteredResults = allData.filter(item =>
+                item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+                item.content.toLowerCase().includes(searchValue.toLowerCase())
+            );
+
+            setSearchResults(filteredResults);
             setShowSearch(true);
         }
     };
@@ -158,7 +193,35 @@ export default function HelpCenter() {
 
                 </div>
                 {showSearch ? (
-                    <SearchDetail searchValue={searchValue} />
+                    searchResults.length > 0 ? (
+                        <SearchDetail
+                            searchValue={searchValue}
+                            searchResults={searchResults}
+                            setShowSearch={setShowSearch}
+                            setSearchValue={setSearchValue}
+                        />
+                    ) : (
+                        <div style={{ margin: '60px 0' }}>
+                            <ConfigProvider
+                                theme={{
+                                    components: {
+                                        Empty: {
+                                            colorTextDescription: '#A4A5AC'
+                                        }
+                                    },
+                                }}
+                            >
+                                <Empty
+                                    image='/images/help_center/no_data.png'
+                                    imageStyle={{
+                                        width: '156px',
+                                        height: '156px',
+                                        margin: '0px auto'
+                                    }}
+                                />
+                            </ConfigProvider>
+                        </div>
+                    )
                 ) : (
                     <>
                         <HelpCenterSection

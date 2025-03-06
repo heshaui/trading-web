@@ -27,7 +27,31 @@ export interface HelpCenterSectionProps {
     }>;
     onButtonClick?: (item: HelpCenterItem) => void;
 }
+
+// 帮助中心搜索页的分段分类
+export type SearchCategory = '全部' | '常见问题' | '公告';
+
 // 帮助中心搜索 - 组件props
 export interface SearchDetailProps {
     searchValue: string;
+    searchResults: {
+        title: string;
+        content: string;
+        time: string;
+        category?: SearchCategory; // 添加分类字段
+    }[];
+    setShowSearch: (show: boolean) => void;  // 点击返回按钮
+    setSearchValue: (value: string) => void;  // 输入框内容清空
+}
+// 帮助中心搜索结果 - 组件props
+export interface SearchResultProps {
+    resultCount: number;
+    items: {
+        title: string;
+        content: string;
+        time: string;
+        category?: SearchCategory;
+    }[];
+    currentCategory: SearchCategory;
+    searchValue: string; // 添加搜索关键词
 }

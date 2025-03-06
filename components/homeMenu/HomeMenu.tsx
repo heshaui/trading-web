@@ -1577,7 +1577,7 @@ export default function HomeMenu() {
                                 </Space>
                             </a>
                         </Dropdown>
-                        <div className={styles.loginContent}>
+                        <div className={`${styles.loginContent} customMenu`}>
                             <Row gutter={16} align='middle'>
                                 {
                                     isLogin ? (
@@ -1638,36 +1638,29 @@ export default function HomeMenu() {
                                                     {/* </a> */}
                                                 </Dropdown>
                                             </Col>
-                                            {iconItemsLogin}
                                             <Col>
-                                                <Space direction="vertical">
-                                                    <Space wrap>
-                                                        <Dropdown
-                                                            menu={{
-                                                                items: userItemsAll as MenuProps['items'],
-                                                                triggerSubMenuAction: 'click',
-                                                            }}
-                                                            placement="bottomLeft"
-                                                            trigger={['click']}
-                                                            overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
-                                                        >
-                                                            <a onClick={(e) => e.preventDefault()}>
-                                                                {/* <UserIcon /> */}
-                                                                {/* <Avatar src={<img src='/images/home_menu/Avatar (1).png' className={styles.userCursor} alt="avatar" />} /> */}
-                                                                <Avatar src={
-                                                                    <Image
-                                                                        src="/images/home_menu/Avatar (1).png"
-                                                                        className={styles.userCursor}
-                                                                        alt="avatar"
-                                                                        width={28}  // 必须指定宽度
-                                                                        height={28} // 必须指定高度
-                                                                    />}
-                                                                />
-                                                            </a>
-                                                        </Dropdown>
+                                                <Dropdown
+                                                    menu={{
+                                                        items: userItemsAll as MenuProps['items'],
+                                                        triggerSubMenuAction: 'click',
+                                                    }}
+                                                    placement="bottomLeft"
+                                                    trigger={['click']}
+                                                    overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                >
+                                                    <Space>
+                                                        <Image
+                                                            onClick={(e) => e.preventDefault()}
+                                                            src="/images/home_menu/icon_user_line.png"
+                                                            className={styles.userCursor}
+                                                            alt="avatar"
+                                                            width={20}  // 必须指定宽度
+                                                            height={20} // 必须指定高度
+                                                        />
                                                     </Space>
-                                                </Space>
+                                                </Dropdown>
                                             </Col>
+                                            {iconItemsLogin}
                                         </>
                                     ) : (
                                         <>
