@@ -1,7 +1,7 @@
 import { request } from '@/request/index';
 import {API_MODULE_NAME} from '@/config/apiConfig';
 const fixUrl=`/${API_MODULE_NAME.AMBIT_HOME_WEB}`
-
+const fixUrl2=`/${API_MODULE_NAME.AMBIT_OSS}`
 
 // 获取全部国家区号
 export function getCountryCode(): Promise<any> {
@@ -19,5 +19,13 @@ export function getPic(data:Array<string>): Promise<any> {
 export function getPic2(key:string): Promise<any> {
   return request(`${fixUrl}/home-web/v1/kv/params/${key}`, {
     method: 'POST',
+  });
+}
+
+// 上传图片
+export function fileImg(file:File): Promise<any> {
+  return request(`${fixUrl2}/oss/img/file`, {
+    method: 'POST',
+    body: file,
   });
 }

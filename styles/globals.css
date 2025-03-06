@@ -43,14 +43,18 @@
   --waring-color: #FF8A26;
   --waring-bg: #FF8A2614;
   --cancel-btn: #F3F3F3;
+  --cancel-btn2: #F3F3F3;
   --cancel-color: #0C0D0C;
   --border-color: #DCDCDC;
   --border-color2: #FFFFFF1A;
   --border-color3: #0C0D0C;
   --border-color4: #DCDCDC;
+  --border-color5: #E5E5E5;
   --bgc-color:#FFF5F1;
   --help-center-banner: 'url("/images/help_center/banner.png")';
   --help-center-input-text: #9E9E9E;
+  --segmented-item-active-bg: #FFFFFF;
+  --segmented-item-bgc: #F6F7FB;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -95,14 +99,18 @@
     --waring-color: #FF8A26;
     --waring-bg: #FF8A2614;
     --cancel-btn: #3D3D3F;
+    --cancel-btn2: #333333;
     --cancel-color: #ffffff;
     --border-color: #FFFFFF33;
     --border-color2: #DCDCDC;
     --border-color3: #FFFFFF;
     --border-color4: #37373A;
+    --border-color5: #29292F;
     --bgc-color:#281D1A;
     --help-center-banner: 'url("/images/help_center/banner_dark.png")';
     --help-center-input-text: #979897;
+    --segmented-item-active-bg: #272727;
+    --segmented-item-bgc: #141414;
   }
 }
 

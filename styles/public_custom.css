@@ -44,12 +44,17 @@
 /* 鼠标聚焦且移出样式 */
 .custom-input:focus:not(:hover) {
     background-color: var(--homeground) !important;
+    /* background-color: pink !important; */
     color: #fff !important;
 }
 
 /* 鼠标滑过 */
 .custom-input:hover {
     border-color: var(--text-color3) !important;
+}
+/* modal输入框placeholder颜色 */
+.modal-input input::placeholder{
+    color: var(--text-color6) !important;
 }
 
 /* 
