@@ -21,15 +21,18 @@ import { useTranslation } from 'next-i18next';
 import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 
-import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
+import { useLogoImage } from '@/services/webLogo'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
+
     // t - 多语言
-    const { t } = useTranslation(['home_menu']);
-    // console.log('t', t('home_menu_title_1'));
-    // console.log('test', test);
+    const { t, i18n } = useTranslation('home_menu');
+    // 添加调试日志
+    // console.log('Current language:', i18n.language);
+    // console.log('Router locale:', router.locale);
+    // console.log('Translation test:', t('title_1_1_h5'));
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -80,52 +83,56 @@ export default function HomeMenu() {
     };
 
     // 统一初始化数据
-    useEffect(() => {
-        const initializeData = async () => {
-            try {
-                // 检查登录状态
-                const token = localStorage.getItem('userToken');
-                setIsLogin(!!token);
+    const initializeData = async (currentLang: string) => {
+        try {
+            // 检查登录状态
+            const token = localStorage.getItem('userToken');
+            setIsLogin(!!token);
 
-                // 获取菜单数据
-                const rawData = { lang: 'zh_CN' };
-                const menuResponse = await homeMenu(rawData) as { data: any[] };
-                if (menuResponse?.data) {
-                    // console.log('菜单数据：', menuResponse.data);
-                    setMenuData(menuResponse); // 存储原始请求数据
-                    setMenus(formatMenus(menuResponse.data.slice(0, 6)));
-                    setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
-                }
-                // 获取语言数据
-                const languageResponse = await getLanguage({
-                    lang: '',
-                }) as ApiResponse<LanguageParams[]>;
-                if (languageResponse?.code === '0' && languageResponse.data) {
-                    const formattedLanguageData = languageResponse.data.map(item => ({
-                        span: `${item.lang}`
-                    }));
-                    setLanguageList(formattedLanguageData);
-                }
-                // 获取汇率数据
-                const rateResponse = await exchangeRate({
-                    id: 0,
-                    shortName: "",
-                    status: 1
-                }) as { data: any[] };
-                if (rateResponse?.data) {
-                    const formattedRateData = rateResponse.data.map(item => ({
-                        span: `${item.shortName} - ${item.symbol}`
-                    }));
-                    setRateData(formattedRateData);
-                }
-
-            } catch (error) {
-                console.error('数据初始化失败:', error);
+            // 获取菜单数据
+            const menuResponse = await homeMenu({ lang: currentLang }) as { data: any[] };
+            if (menuResponse?.data) {
+                setMenuData(menuResponse);
+                setMenus(formatMenus(menuResponse.data.slice(0, 6)));
+                setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
             }
-        };
 
-        initializeData();
+            // 获取语言数据
+            const languageResponse = await getLanguage({
+                lang: '',
+            }) as ApiResponse<LanguageParams[]>;
+
+            if (languageResponse?.code === '0' && languageResponse.data) {
+                const formattedLanguageData = languageResponse.data.map(item => ({
+                    span: `${item.lang}`,
+                    key: `${item.langEncode}`
+                }));
+                setLanguageList(formattedLanguageData);
+            }
+
+            // 获取汇率数据
+            const rateResponse = await exchangeRate({
+                id: 0,
+                shortName: "",
+                status: 1
+            }) as { data: any[] };
+            if (rateResponse?.data) {
+                const formattedRateData = rateResponse.data.map(item => ({
+                    span: `${item.shortName} - ${item.symbol}`
+                }));
+                setRateData(formattedRateData);
+            }
+        } catch (error) {
+            console.error('数据初始化失败:', error);
+        }
+    };
+    // 首次加载时初始化数据
+    useEffect(() => {
+        const lang = localStorage.getItem('lang') || 'zh_CN';
+        initializeData(lang);
     }, []);
+
+    // 格式化菜单
     function formatMenus(menuData: any[]): MenuListItem[] {
         return menuData.map(menu => {
             return {
@@ -580,19 +587,24 @@ export default function HomeMenu() {
     // 语言菜单
     const spanArr = languageList.length > 0 ? languageList : [
         {
-            span: '简体中文'
+            span: '简体中文',
+            key: 'zh-CN'
         },
         {
-            span: 'English'
+            span: 'English',
+            key: 'en-US'
         },
         {
-            span: '日本語'
+            span: '日本語',
+            key: 'ja-JP'
         },
         {
-            span: 'Español'
+            span: 'Español',
+            key: 'es-ES'
         },
         {
-            span: 'Français'
+            span: 'Français',
+            key: 'fr-FR'
         },
     ]
 
@@ -605,13 +617,16 @@ export default function HomeMenu() {
             span: 'USD- $'   // 默认值
         },
     ];
-    // 是否选中
-    // const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    // 语言点击
     const [selectedRate, setSelectedRate] = useState<string>('');
-    const handleLanguageClick = (language: string) => {
+    const handleLanguageClick = async (language: string, langEncode: string) => {
         setSelectedLanguage(language);
-        localStorage.setItem('selectedLanguage', language);
+        localStorage.setItem('lang', langEncode);
+
+        // 切换语言后重新请求所有数据
+        initializeData(langEncode);
     };
+    // 汇率点击
     const handleRateClick = (rate: string) => {
         setSelectedRate(rate);
         // 可以在这里添加其他逻辑，例如更新语言设置
@@ -629,7 +644,7 @@ export default function HomeMenu() {
                 width: '100%',
                 height: '100%'
             }}
-                onClick={() => handleLanguageClick(item.span || '')}
+                onClick={() => handleLanguageClick(item.span || '', item.key || '')}
             >
                 {item.span}
             </span> // 动态赋值
@@ -1719,6 +1734,7 @@ export default function HomeMenu() {
                 </Button>
                 <MenuAdaptiveItem menuList={adaptiveMenuData} />
             </Drawer>
+            <p>{t('home_menu:home_menu_title_2')}</p>
         </div>
     );
 }

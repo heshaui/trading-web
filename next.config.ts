@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 const moduleName = process.env.NEXT_PUBLIC_MODULE || 'shared'; // 默认值改为 'shared'
-// import { i18n } from './next-i18next.config.js';
 
 import { i18n } from './next-i18next.config';
+
+// const { i18n } = require('./next-i18next.config');
 
 const nextConfig: NextConfig = {
   /* config options here */

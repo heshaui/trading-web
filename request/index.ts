@@ -12,7 +12,7 @@ export async function request<T>(
 ): Promise<T> {
   // const url = `${BASE_URL}${endpoint}`;
   const url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
-  console.log('请求 URL:', url);
+  // console.log('请求 URL:', url);
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
