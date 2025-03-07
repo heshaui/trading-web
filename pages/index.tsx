@@ -30,13 +30,11 @@ import Questions from '@/components/home/questions_6/questions';
 // }
 
 export default function Home() {
-  // const { t } = useTranslation(['common', 'home-menu']);
 
   return (
     <div>
       {/* <HomeMenu t={t} /> */}
-      {/* <LanguageSwitcher />
-      <div>{t('home')}</div> */}
+      {/* <LanguageSwitcher /> */}
       <Experience />
       <Deal />
       <Try />
@@ -58,15 +56,58 @@ export default function Home() {
 //   };
 // };
 // export const getServerSideProps: GetServerSideProps<Props> = async ({
-  export const getServerSideProps: GetServerSideProps = async ({
-  locale,
-}) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? 'en', [
+// export const getServerSideProps: GetServerSideProps = async ({
+//   locale,
+// }) => ({
+//   props: {
+//     ...(await serverSideTranslations(locale ?? 'en', [
+//       'common',
+//       'home_menu',
+//       'home',
+//       'login'
+//     ])),
+//   },
+// })
+
+// export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+//   console.log('Server locale:', locale); // 添加调试日志
+
+//   const translations = await serverSideTranslations(locale ?? 'en', [
+//     'common',
+//     'home_menu',
+//     'home',
+//     'login'
+//   ]);
+
+//   return {
+//     props: {
+//       ...translations,
+//     },
+//   };
+// };
+
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  // 添加调试日志
+  console.log('Server-side props - locale:', locale);
+  
+  try {
+    const translations = await serverSideTranslations(locale ?? 'en', [
       'common',
       'home_menu',
       'home',
       'login'
-    ])),
-  },
-})
+    ]);
+    
+    console.log('Server-side props - translations loaded successfully');
+    
+    return {
+      props: {
+        ...translations,
+      },
+    };
+  } catch (error) {
+    console.error('Error loading translations:', error);
+    return { props: {} };
+  }
+};
