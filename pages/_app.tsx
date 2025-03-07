@@ -5,7 +5,7 @@ import "@/styles/public_custom.css";
 import '@/styles/bulletinCenterPublic.css';
 import type { AppProps } from "next/app";
 import { ConfigProvider } from 'antd';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { appWithTranslation, useTranslation } from 'next-i18next';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import Footer from '@/components/footer/Footer';
@@ -16,10 +16,24 @@ import theme from '@/theme/themeConfig';
 
 
 function App({ Component, pageProps }: AppProps) {
-    const [isDarkMode, setIsDarkMode] = useState(false);
-    // const { t } = useTranslation(['common', 'home_menu']);
-    const { t } = useTranslation(['home_menu']);
-    const router = useRouter();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  // const { t } = useTranslation(['common', 'home_menu']);
+  const { t, i18n } = useTranslation('common');
+  const router = useRouter();
+  // 使用 ready 状态来确保 i18n 已初始化
+  useEffect(() => {
+    if (i18n.isInitialized && router.locale) {
+      console.log('Changing language to:', router.locale);
+    }
+  }, [router.locale, i18n.isInitialized]);
+
+
+  // 添加调试日志
+  console.log('App - i18n ready:', i18n.isInitialized);
+  console.log('App - Router locale:', router.locale);
+  console.log('App - pageProps:', pageProps);
+  console.log('App - Translation test:', t('title'));
+
   // 在客户端同步暗色模式状态
   useEffect(() => {
     const savedMode = localStorage.getItem("darkMode") === "true";
@@ -33,26 +47,26 @@ function App({ Component, pageProps }: AppProps) {
       return newMode;
     });
   };
-    // 定义不需要显示 HomeMenu 和 Footer 的页面路径
-    const excludePaths = ['/login', '/register', '/resetPassword'];
+  // 定义不需要显示 HomeMenu 和 Footer 的页面路径
+  const excludePaths = ['/login', '/register', '/resetPassword'];
 
-    const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
+  const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
-    return (
+  return (
 
-      <ConfigProvider theme={theme}>
-        <div className={isDarkMode ? 'dark' : ''}>
-            {shouldShowMenuAndFooter && <HomeMenu />}
-         
-                <Component {...pageProps} />
-           
-            {shouldShowMenuAndFooter && <Footer />}
-            <Toaster />
-            
-        </div>
-        </ConfigProvider>
+    <ConfigProvider theme={theme}>
+      <div className={isDarkMode ? 'dark' : ''}>
+        {shouldShowMenuAndFooter && <HomeMenu />}
 
-    );
+        <Component {...pageProps} />
+
+        {shouldShowMenuAndFooter && <Footer />}
+        <Toaster />
+
+      </div>
+    </ConfigProvider>
+
+  );
 }
 
 export default appWithTranslation(App);
