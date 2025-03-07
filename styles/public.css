@@ -16,6 +16,10 @@
   color: var(--cancel-color);
   background-color: var( --cancel-btn2);
 }
+.cancel_btn3{
+  color: var(--cancel-color);
+  border: 1px solid var(--border-color4);
+}
 .success_icon {
   color: #00C788;
 }
@@ -167,7 +171,10 @@
 }
 
 .h-overmax {
-  height: 100vh;
+  min-height: 100vh;
+}
+.page-h{
+  min-height: calc(100vh - 80px);
 }
 
 .m-auto {
@@ -410,6 +417,18 @@
 }
 .font-22 {
   font-size: 22px;
+}
+.font-24 {
+  font-size: 24px;
+}
+.font-26 {
+  font-size: 26px;
+}
+.font-28 {
+  font-size: 28px;
+}
+.font-30 {
+  font-size: 30px;
 }
 .font-32 {
   font-size: 32px;

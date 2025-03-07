@@ -43,6 +43,7 @@
 
 .btn_box {
     height: 100%;
+    min-height: 100px;
 }
 
 
@@ -67,14 +68,14 @@
     border-radius: 8px;
     padding: 20px;
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 0.8fr 3fr 0.5fr;
     grid-template-rows:auto;
-
+    /* display: flex; */
 }
 
 .header_icon {
-    /* width: 60px;
-    height: 52px; */
+    width: 120px;
+    height: 102px;
     display: inline-block;
     /* box-shadow: 0px 4px 30px 0px #FF5F1F33; */
 }

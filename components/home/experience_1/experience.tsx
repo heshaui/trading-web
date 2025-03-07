@@ -116,7 +116,7 @@ export default function Experience() {
                 </div>
                 <div
                     className={`${styles.experience_main_pic}`}
-                    style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.url})` }}
+                    style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
                 >
                 </div>
             </div>

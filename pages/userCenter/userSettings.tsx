@@ -142,6 +142,11 @@ const UserSettingsPage: React.FC = () => {
       getUserCenterData();
     }
   }
+  const handOk2 = (bool: boolean) => {
+    if (bool) {
+      getUserCenterData();
+    }
+  }
   useEffect(() => {
     getUserCenterData();
   }, [])
@@ -279,7 +284,9 @@ const UserSettingsPage: React.FC = () => {
 
     {/* 修改头像 */}
     <AvatarUrlModal open={avatarUrlOpen}
-      onCancel={() => setAvatarUrlOpen(false)} />
+      onCancel={() => setAvatarUrlOpen(false)}
+      userId={userInfo.userId}
+      onOk={handOk2} />
 
     {/* 修改生日 */}
     <BirthdayModal open={birthdayOpen} userId={userInfo.userId}

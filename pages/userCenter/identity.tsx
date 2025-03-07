@@ -1,14 +1,18 @@
 import React from 'react';
 import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLayout';
 import styles from './styles/identity.module.css';
-import { Iconify } from "@/components/icon"
-import Image from 'next/image';
+// import { Iconify } from "@/components/icon"
+// import Image from 'next/image';
 import NoAuthentication from './components/Authentication/noAuthentication';
 import Certified from './components/Authentication/Certified';
 import { Collapse, theme, ConfigProvider } from 'antd';
 import type { CollapseProps } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
+import { getUserIdentityInfo,getLevelBenefitDetail } from '@/services/identity';
+import store from "@/store"
+import { useEffect,useState } from 'react';
+import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -30,7 +34,10 @@ interface SafeListItem {
 
 const IdentityPage: React.FC = () => {
   const { token } = theme.useToken();
-
+  const { t } = useTranslation(['home']);
+  const [userIdentityInfo, setUserIdentityInfo] = useState<any>({
+    authStatus:2,
+  });
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
     background: 'var(--background8)',
@@ -58,18 +65,37 @@ const IdentityPage: React.FC = () => {
       style: panelStyle,
     },
   ];
+  const getUserIdentityInfoData = async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo')||'{}');
+    const res = await getUserIdentityInfo({
+      userId: userInfo.userId||''
+    });
+    if(res.code === '0'){
+      setUserIdentityInfo(res.data);
+    }
+  }
+  // const getLevelBenefitData = async (userId) => {
+  //   const res = await getLevelBenefitDetail({
+  //     userId: userInfo.userId||''
+  //   });
+  // }
+  useEffect(() => {
+    getUserIdentityInfoData();
+  }, []);
 
 
   return (<div className={`${styles.safe_page}`} >
     <div >
-      <h2 className={`font-w-500 font-20`}>身份认证</h2>
+      <h2 className={`font-w-500 font-20`}>身份认证
+        {/* {t('detailTitle')} */}
+        </h2>
     </div>
     {/* identity box*/}
     <div className={`${styles.card_bgc} ${styles.identity_box} mt-6 flex-row flex-wrap`}>
-      {/* 未认证 */}
-      <NoAuthentication />
+      {/* 未认证 - 驳回 - 审核中*/}
+      {(userIdentityInfo?.authStatus === 2||userIdentityInfo?.authStatus === 0||userIdentityInfo?.authStatus === 3) && <NoAuthentication identityInfo={userIdentityInfo}/>}
       {/* 已认证 */}
-      {/* <Certified /> */}
+      {userIdentityInfo?.authStatus === 1 && <Certified />}
       <div className={`${styles.identity_aside}`}>
         <p className={`flex-row justify-between font-18 font-w-500 `} >常见问题
         </p>

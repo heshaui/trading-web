@@ -78,6 +78,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     if (res.code === "0") {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
+                        store.updateUserInfo({...res.data})
                         router.push('/')
                     }else{
                         toast.error(res.message)
