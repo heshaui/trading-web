@@ -1,5 +1,10 @@
 import { makeAutoObservable } from "mobx";
-
+interface UserInfoType {
+    userId: number,
+    nickname?: string,
+    avatarUrl?: string,
+    token: string,
+}
 class AppStore {
     isDarkMode: boolean = false;
     userToken: string | null = null;
@@ -37,7 +42,12 @@ class AppStore {
         countryCode: "",
         code: ""
         };
-
+    userInfo: UserInfoType = {
+        userId: 0,
+        nickname: "",
+        avatarUrl: "",
+        token: ""
+    }
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -74,6 +84,22 @@ class AppStore {
             ...this.registerInfo,
             ...newRegisterInfo
         };
+    }
+    updateUserInfo(newUserInfo: Partial<typeof this.userInfo>) {
+        this.userInfo = {
+            ...this.userInfo,
+            ...newUserInfo
+        };
+        localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+    }
+    clearUserInfo() {
+        this.userInfo = {
+            userId: 0,
+            nickname: "",
+            avatarUrl: "",
+            token: ""
+        };
+        localStorage.removeItem('userInfo');
     }
 }
 

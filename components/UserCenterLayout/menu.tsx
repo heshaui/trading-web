@@ -42,19 +42,35 @@ const UserCenterSidebar = () => {
         // mingcute:location-line //地址
     ]
     // 处理选中状态的逻辑
+    // 处理选中状态的逻辑
     const getSelectedKey = () => {
+        // const currentPath = router.pathname;
+        // if (currentPath.startsWith('/userCenter/safeCenter')) {
+        //     return '/userCenter/safeCenter';
+        // }
+        // return currentPath;
         const currentPath = router.pathname;
-        if (currentPath.startsWith('/userCenter/safeCenter')) {
-            return '/userCenter/safeCenter';
+        const parentPaths = [
+            // '/userCenter',
+            '/userCenter/safeCenter',
+            '/userCenter/identity',
+            '/userCenter/userSettings'
+        ];
+        for (const path of parentPaths) {
+            if (currentPath.startsWith(path)) {
+                return path;
+            }
         }
         return currentPath;
-    };    
+    };
     // 选中项再次点击
     const handleMenuClick = (path: string) => {
         const currentPath = router.pathname;
-        if(path === '/userCenter'){
+        // console.log(currentPath,1234);
+
+        if (path === '/userCenter') {
             router.push(path);
-        }else if (currentPath === path || currentPath.startsWith(path)) {
+        } else if (currentPath === path || currentPath.startsWith(path)) {
             // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
             return;
         }

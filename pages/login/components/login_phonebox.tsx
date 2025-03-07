@@ -51,7 +51,7 @@ function Phonebox() {
 			.validateFields()
 			.then(async (values) => {
 				// form.resetFields(); // 重置表单
-				console.log(values, 111);
+				// console.log(values, 111);
 				// goAuthCode()
 				const data = {
                     type: "p",

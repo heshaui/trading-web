@@ -1,9 +1,9 @@
 .container {
+    box-sizing: border-box;
     width: 100vw;
     height: 80px;
-    /* line-height: 80px; */
+    padding: 0 1vw;
     display: flex;
-    /* justify-content: center; */
     align-items: center;
     background-color: #0C0D0C;
 }

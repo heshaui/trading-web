@@ -1,5 +1,5 @@
 import styles from '@/styles/components/Footer.module.css';
-import { useLogoImage } from '@/hooks/webLogo'; // 获取logo
+import { useLogoImage } from '@/services/webLogo'; // 获取logo
 import { ApiResponse, FooterListProps, FormattedLanguage, LanguageParams } from "@/type/types";
 
 import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
@@ -42,7 +42,7 @@ export default function Footer() {
                         .replace(/:\s*'([^']*?)'/g, ':"$1"');
                     const parsedData = JSON.parse(fixedJsonString) as FooterSetting;
                     setFooterSetting(parsedData);
-                    console.log('footerSetting', parsedData);
+                    // console.log('footerSetting', parsedData);
 
                     // 如果 statu 为 '1'，获取自定义 footer 数据
                     if (parsedData.statu === '1') {
@@ -270,7 +270,7 @@ export default function Footer() {
                                             />
                                         </Col>
                                         <Col>
-                                            <span style={{ fontSize: '12px' }}>{selectedLang}</span>
+                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>{selectedLang}</span>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -303,7 +303,7 @@ export default function Footer() {
                                             />
                                         </Col>
                                         <Col>
-                                            <span style={{ fontSize: '12px' }}>下载APP</span>
+                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>下载APP</span>
                                         </Col>
                                     </Row>
                                 </Col>

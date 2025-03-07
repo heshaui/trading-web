@@ -40,68 +40,7 @@ function Login() {
 			// const res=await getPic(['pcLogin'])
 			const res = await getPic2('pcLogin')
 			if (res.code === '0') {
-				const a = JSON.stringify({
-					"en": {
-						"login": {
-							"title": "MBTI Personality Test",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://images.pexels.com/photos/4836103/pexels-photo-4836103.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-						},
-						"register": {
-							"title": "New User Promotion",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/register-promotion"
-						}
-					},
-					"zh_CN": {
-						"login": {
-							"title": "MBTI性格测试",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/test"
-						},
-						"register": {
-							"title": "新用户注册优惠",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/register-promotion"
-						}
-					},
-					"zh_TW": {
-						"login": {
-							"title": "MBTI性格測試",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/test"
-						},
-						"register": {
-							"title": "新用戶註冊優惠",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/register-promotion"
-						}
-					},
-					"ja": {
-						"login": {
-							"title": "MBTI性格診断テスト",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/test"
-						},
-						"register": {
-							"title": "新規登録キャンペーン",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/register-promotion"
-						}
-					},
-					"ko": {
-						"login": {
-							"title": "MBTI 성격 검사",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/test"
-						},
-						"register": {
-							"title": "신규 회원 혜택",
-							"image": "https://via.placeholder.com/80",
-							"url": "https://www.mbti.com/register-promotion"
-						}
-					}
-				});
+				
 				const resdata = JSON.parse(res.data)
 				console.log(resdata, 121);
 				let lang = '';
@@ -142,7 +81,7 @@ function Login() {
 			{/* <div className="relative flex h-overmax w-full flex-row page-box "> */}
 			<div
 				className="isHidden flex-1"
-				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.url})`}}
+				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
 				// style={loginBgcStyle}
 			>
 				{/* {loginPic?.login.url} */}

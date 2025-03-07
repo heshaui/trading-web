@@ -89,7 +89,7 @@ function Mailbox() {
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
                 saveEmailToHistory(values.email)
-                console.log(values);
+                // console.log(values);
                 const data = {
                     type: "m",
                     email: values.email,

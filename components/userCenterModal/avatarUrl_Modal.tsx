@@ -9,10 +9,12 @@ import { getToken } from '@/request/index';
 import { useState } from "react";
 import { toast } from "sonner";
 import { fileImg } from "@/services/open";
+import { updateUserCenter } from '@/services/userCenter';
 
 type Props = {
     open: boolean;
-    onOk?: () => void;
+    userId: number;
+    onOk: (bool: boolean) => void;
     onCancel: () => void;
 };
 
@@ -23,7 +25,7 @@ interface AvatarItem {
     type: string;
 }
 
-function avatarUrlModal({ open, onCancel }: Props) {
+function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
    
     const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
     const initAvatarList: AvatarItem[] = [
@@ -127,7 +129,28 @@ function avatarUrlModal({ open, onCancel }: Props) {
     };
 
     const handOk = async () => {
-        
+        if(!selectedAvatar){
+            toast.error('请选择或选择头像!');
+            return;
+        }
+        const params = {
+            userId: userId,
+            avatarUrl: selectedAvatar
+        }
+
+        try {
+            const res = await updateUserCenter(params);
+            if(res.code === '0'){
+                toast.success('头像修改成功');
+                onOk(true)
+                onCancel()
+            }else{
+                toast.error(res.msg);
+            }
+
+        } catch (error) {
+            toast.error(String(error));
+        }
     };
 
     const handleAvatarClick = (item: AvatarItem) => {

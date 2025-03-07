@@ -43,10 +43,12 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                         toast.success('生日修改成功');
                         onOk(true)
                         onCancel()
+                    }else{
+                        toast.error(res.msg);
                     }
 
                 } catch (error) {
-
+                    toast.error(String(error));
                 }
 
             });

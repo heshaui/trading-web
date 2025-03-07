@@ -73,7 +73,7 @@ function Register() {
 			<div
 				className="isHidden flex-1"
 				// style={loginBgcStyle}
-				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.register.url})`}}
+				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.register.image})`}}
 			>
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}
 			</div>
