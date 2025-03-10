@@ -15,7 +15,7 @@ type Props = {
     onCancel: () => void;
 };
 
-function nicknameModal({ open, onCancel ,nickname}: Props) {
+function NicknameModal({ open, onCancel ,nickname}: Props) {
     // const router = useRouter();
     const [form] = Form.useForm();
 
@@ -144,4 +144,4 @@ function nicknameModal({ open, onCancel ,nickname}: Props) {
     );
 }
 
-export default nicknameModal;
+export default NicknameModal;

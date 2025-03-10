@@ -126,8 +126,8 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                     <span>账户权益</span>
                 </div>
                 <ul className={`${styles.border_btm} mt-3`}>
-                    {levelBenefit.map((item: levelBenefitType, index: number) => (
-                        <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={index}>
+                    {levelBenefit&&levelBenefit.map((item: levelBenefitType) => (
+                        <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
                             <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
                             <div className={` font-w-500`}>{
                                 item.status === 0 ? "禁止":
@@ -153,19 +153,19 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 <ul className={`mt-3`}>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>真实姓名</div>
-                        <div className={` font-w-500`}>{identityInfo.surname} {identityInfo.firstName}</div>
+                        <div className={` font-w-500`}>{identityInfo?.surname} {identityInfo?.firstName}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>证件类型</div>
-                        <div className={` font-w-500`}>{cardTypeSeelect.find(item => item.value === identityInfo.cardType.toString())?.label}</div>
+                        <div className={` font-w-500`}>{cardTypeSeelect.find(item => item.value === identityInfo?.cardType.toString())?.label}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>国家</div>
-                        <div className={` font-w-500`}>{identityInfo.countryId === 1 ? '中国大陆' : '中国香港'}</div>
+                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ? '中国大陆' : '中国香港'}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>证件号</div>
-                        <div className={` font-w-500`}>{encryptIdCard(identityInfo.cardCode)}</div>
+                        <div className={` font-w-500`}>{encryptIdCard(identityInfo?.cardCode)}</div>
                     </li>
                 </ul>
 

@@ -2,10 +2,11 @@ import { Modal, ConfigProvider, Segmented, Upload, Button } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/avatarUrl.module.css";
 import Image from "next/image";
-import type { UploadFile, UploadProps } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import { API_MODULE_NAME } from '@/config/apiConfig';
-import { getToken } from '@/request/index';
+// import type { UploadFile, UploadProps } from 'antd';
+import type {  UploadProps } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+// import { API_MODULE_NAME } from '@/config/apiConfig';
+// import { getToken } from '@/request/index';
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { fileImg } from "@/services/open";
@@ -25,110 +26,108 @@ interface AvatarItem {
     alt: string;
     type: string;
 }
-
-function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
-
-    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
-    const initAvatarList: AvatarItem[] = [
-        {
-            id: 1,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 2,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 3,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar3.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 4,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar4.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 5,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar5.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 6,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar6.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 7,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar7.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 8,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar8.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 9,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar9.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 10,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar10.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 11,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar11.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 12,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar12.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 13,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar13.png',
-            alt: 'avatar',
-            type: 'female'
-        },
-        {
-            id: 14,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar14.png',
-            alt: 'avatar',
-            type: 'male'
-        },
-        {
-            id: 15,
-            src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar15.png',
-            alt: 'avatar',
-            type: 'male'
-        }
-    ]
-    const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
+const initAvatarList: AvatarItem[] = [
+    {
+        id: 1,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 2,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 3,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar3.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 4,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar4.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 5,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar5.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 6,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar6.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 7,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar7.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 8,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar8.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 9,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar9.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 10,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar10.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 11,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar11.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 12,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar12.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 13,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar13.png',
+        alt: 'avatar',
+        type: 'female'
+    },
+    {
+        id: 14,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar14.png',
+        alt: 'avatar',
+        type: 'male'
+    },
+    {
+        id: 15,
+        src: 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar15.png',
+        alt: 'avatar',
+        type: 'male'
+    }
+]
+function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null); // 选中的头像
     const [selectedImages, setSelectedImages] = useState<string[]>([]); // 显示上传的图片内容
     const [imageItem, setImageItem] = useState(false); // 是否显示删除上传的图片
     const [selectedFile, setSelectedFile] = useState<File | null>(null); // 上传的图片文件
-    // 添加状态来存储 isDayMode 的值
-    //  const [isDayMode, setIsDayMode] = useState<string>(localStorage.getItem('isDayMode') || 'true');
-    // const isDayMode = localStorage.getItem('isDayMode')
+    const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
+
+    // const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
+
+
     const handCancel = () => {
         onCancel();
     };
@@ -393,4 +392,4 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     );
 }
 
-export default avatarUrlModal;
+export default AvatarUrlModal;

@@ -74,7 +74,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
     return (< >
         <div className={`${styles.identity_content} flex-1`}>
             {/* 认证状态-未认证 */}
-            {identityInfo.authStatus === 2 && <div className={`${styles.content_header} `}>
+            {identityInfo&&identityInfo?.authStatus === 2 && <div className={`${styles.content_header} `}>
                 <Image src="/images/userCenter/identity/icon_Identity.svg"
                     alt="identity" width={120} height={54}
                     className={`${styles.header_icon}`} />
@@ -132,7 +132,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
             </div>}
 
             {/* 认证状态-重新认证 */}
-            {identityInfo.authStatus === 0 && <div className={`${styles.content_header} `}>
+            {identityInfo&&identityInfo?.authStatus === 0 && <div className={`${styles.content_header} `}>
                 <Image src="/images/userCenter/identity/icon_Identity.svg"
                     alt="identity" width={120} height={54}
                     className={`${styles.header_icon}`} />
@@ -158,7 +158,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 </div>
             </div>}
             {/* 认证状态-审核中 */}
-            {identityInfo.authStatus === 3 && <div className={`${styles.content_header} `}>
+            {identityInfo&&identityInfo?.authStatus === 3 && <div className={`${styles.content_header} `}>
                 <Image src="/images/userCenter/identity/icon_Identity.svg"
                     alt="identity" width={120} height={54}
                     className={`${styles.header_icon}`} />
@@ -185,20 +185,19 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
             </div>}
 
             {/* 2.认证权益 */}
-            {levelBenefit.length > 0 && <div className='mt-6'>
+            {levelBenefit&&levelBenefit.length > 0 && <div className='mt-6'>
                 <div className={`font-18 font-w-500 flex align-center `} >
                     <Image src="/images/userCenter/identity/icon_rights.svg" alt='' width={24} height={24} className='mr-1' />
                     <span>认证权益</span>
                 </div>
                 <ul>
-
                     <li className={`flex align-center justify-between  mt-2_5 font-12 ${styles.rights_header}`}>
                         <div className='ml-6 '>服务</div>
                         <div className='flex-x-cc '>尚未认证</div>
                         <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>完成标准身份认证后</div>
                     </li>
-                    {levelBenefit.map((item: levelBenefitType, index: number) => (
-                        <li key={index} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
+                    {levelBenefit&&levelBenefit.map((item: levelBenefitType) => (
+                        <li key={item.benefitId} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
                                 {item.status === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
