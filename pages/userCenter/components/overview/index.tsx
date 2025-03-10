@@ -2,40 +2,88 @@ import React from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import { QRCode } from "antd";
 import Image from 'next/image';
 import AssetsAreaChart from '../charts/AreaChart';
-
+import { useRouter } from 'next/router';
+import { getLoginInfo } from '@/services/overview';
+import { toast } from "sonner";
+import { encryptString } from '@/utils/encrypt';
+import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
 const identityStyle: CSSProperties = {
     position: 'relative',
-    backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
+    // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 20px bottom 24px',
     backgroundSize: '58px'
 };
-const safeStyle: CSSProperties = {
-    position: 'relative',
-    backgroundImage: "url('/images/userCenter/overview/icon_safe.png')",
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 20px bottom 24px',
-    backgroundSize: '58px'
-};
-const inviteStyle: CSSProperties = {
-    position: 'relative',
-    backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')",
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 20px bottom 24px',
-    backgroundSize: '58px'
-};
+interface LoginInfoType {
+    userId: number,
+    account: string,
+    status: number,
+    email: string,
+    password: string,
+    phone: string,
+    inviteCode: string,
+    parentUserId: number,
+    isGoogleAuth: number,
+    isPhoneAuth: number,
+    isEmailAuth: number,
+    realnessStatus: number,
+    addressStatus: number,
+    fundPassword: string,
+    countryCode: string,
+    userLevel: string,
+    createTime: number,
+    updateTime: number,
+    tenantId: string,
+    salt: string,
+    transactionStatus: number,
+    withdrawalStatus: number,
+    famousAphorisms: string,
+    registerAccount: string,
+}
 const OverviewPage: React.FC = () => {
+    const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
+
     const [codeValue] = useState("https://ant.design/") //, setcodeValue
+    const router = useRouter();
+    const { copyFn } = useCopyToClipboard();
+    const getLoginInfoData = async () => {
+        try {
+            const res = await getLoginInfo();
+            setLoginInfo(res.data);
+        } catch (error) {
+            toast.error(String(error));
+        }
+
+    }
+    const statusText = (status: number) => {
+        switch (status) {
+            case 1:
+                return '已认证';
+            case 0:
+                return '已驳回';
+            case 2:
+                return '未认证';
+            case 3:
+                return '审核中';
+            default:
+                return '--';
+        }
+    }
+
+    useEffect(() => {
+        getLoginInfoData()
+    }, []);
+
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
-            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，IMUSER-NavyXU</h2>
+            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || '--'}</h2>
             <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
-                {`"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
-                </p>
+                {loginInfo?.famousAphorisms || `"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
+            </p>
         </div>
         {/* userInfo-header*/}
         <div className={`${styles.card_bgc} ${styles.pt0} mt-3 flex-row justify-between `}>
@@ -43,48 +91,57 @@ const OverviewPage: React.FC = () => {
                 <div className={`${styles.content_header_userInfo} flex-row align-center mt-6`}>
                     <div className={`${styles.userInfo_pic}`}></div>
                     <div className='ml-3 '>
-                        <div className={`${styles.userInfo_name} font-18`}>IMUSER-NavyXU</div>
+                        <div className={`${styles.userInfo_name} font-18`}>{loginInfo?.account || '--'}</div>
                         <div className={`${styles.userInfo_uid} font-14`}>
-                            UID：123456789
-                            <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer' size={18} />
+                            UID：{loginInfo?.userId || '--'}
+                            <Iconify icon="icon-park-solid:copy"
+                                className='ml-1 cursor-pointer' size={18}
+                                onClick={() => copyFn(loginInfo?.userId?.toString() || '')}
+                            />
                         </div>
                     </div>
                 </div>
                 <div className={`${styles.card_mt} mt-6`}>
                     <p className={`${styles.tip_color} font-12`}>注册账号</p>
-                    <p className='font-14 mt-2'>ma***66@qq.com</p>
+                    <p className='font-14 mt-2'>{encryptString(loginInfo?.registerAccount)}</p>
                 </div>
                 <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
                     <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}>
                         身份认证
                         <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
                     </div>
-                    <div className='font-14 mt-2 flex-x align-center'>
-                        <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
-                        <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
-                    </div>
-                    {/* <div className='font-14 mt-2 flex-x align-center'>
-                    <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
-                    <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
-                </div>
-                <div className='font-14 mt-2 flex-x align-center'>
-                    <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
-                    <span className={`${styles.tip_color} font-14 font-w-500`}>认证中</span>
-                </div>
-                <div className='font-14 mt-2 flex-x align-center'>
-                    <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
-                    <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
+                    {loginInfo && loginInfo?.realnessStatus === 1 && (
+                        <div className='font-14 mt-2 flex-x align-center'>
+                            <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
+                            <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
+                        </div>)}
+                    {loginInfo && loginInfo?.realnessStatus === 0 && (
+                        <div className='font-14 mt-2 flex-x align-center'>
+                            <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
+                            <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
+                        </div>
+                    )}
+                    {loginInfo && loginInfo?.realnessStatus === 3 && (
+                        <div className='font-14 mt-2 flex-x align-center'>
+                            <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
+                            <span className={`${styles.tip_color} font-14 font-w-500`}>认证中</span>
+                        </div>
+                    )}
+                    {loginInfo && loginInfo?.realnessStatus === 2 && (
+                        <div className='font-14 mt-2 flex-x align-center'>
+                            <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
+                            <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
 
-                </div> */}
+                        </div>)}
                 </div>
                 <div className={`${styles.card_mt} mt-6`}>
                     <p className={`${styles.tip_color} font-12`}>账号状态</p>
-                    <p className='font-14 mt-2 font-w-500'>正常</p>
+                    <p className='font-14 mt-2 font-w-500'>{loginInfo?.status === 1 ? '正常' : '冻结'}</p>
                 </div>
 
             </div>
             <div className={`${styles.userInfo_detail} flex-row align-start justify-end flex-1 mt-6`} >
-                <button type='button' className={`${styles.userInfo_btn} font-w-500`}>
+                <button type='button' className={`${styles.userInfo_btn} font-w-500`} onClick={() => router.push('/userCenter/userSettings')}>
                     个人资料
                 </button>
             </div>
@@ -93,22 +150,32 @@ const OverviewPage: React.FC = () => {
         {/* userInfo-content */}
         <div className={`flex flex-wrap`} >
             {/* content-content */}
-            <div className={`${styles.content_box}  mt-6 mr-6 flex-1`}>
+            <div className={`${styles.content_box}   mr-6 flex-1`}>
                 {/* content-main */}
-                <div className={`flex-row justify-between`} >
+                <div className={`flex-row justify-between flex-wrap ${styles.content_box_main}`} >
                     {/* 身份认证 */}
-                    <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6`} style={identityStyle}>
+                    <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6`}
+                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_identity.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >身份认证
                         </div>
                         <p className={`font-14 mt-2 ${styles.tip_color}`}>
-                            未认证
+                            {statusText(loginInfo?.realnessStatus)}
                         </p>
-                        <p className={`font-14 mt-3`}>完成身份认证后可以享受交易所完整服务</p>
-                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`} >去认证</button>
-
+                        <p className={`font-14 mt-3`}>{loginInfo?.realnessStatus === 1 ? '已完成身份认证，开始您的货币之旅吧！' : '完成身份认证后可以享受交易所完整服务'}</p>
+                       <button className={`${loginInfo?.realnessStatus === 3 ? 'disabled_btn' : 'btn-color'} font-14 font-w-500 mt-10 ${styles.btn}`}
+                            onClick={() => router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${loginInfo?.realnessStatus}`)}
+                        >
+                            {loginInfo?.realnessStatus === 2 && '去认证'}
+                            {loginInfo?.realnessStatus === 0 && '重新认证'}
+                            {loginInfo?.realnessStatus === 3 && '审核中'}
+                        </button>
+                        {/* {loginInfo?.realnessStatus === 3 && <button className={`disabled_btn font-14 font-w-500 mt-10 ${styles.btn}`}
+                            onClick={() => router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${loginInfo?.realnessStatus}`)}
+                        >审核中</button>} */}
                     </div>
                     {/* 安全认证 */}
-                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1`} style={safeStyle}>
+                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-6`}
+                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_safe.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >安全验证
                         </div>
                         <div className={`font-14 mt-2 ${styles.tip_color} flex align-center`}>
@@ -119,7 +186,9 @@ const OverviewPage: React.FC = () => {
                                 alt="" />
                         </div>
                         <p className={`font-14 mt-3`}>启用双重认证提高账户安全性</p>
-                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`} >去绑定</button>
+                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
+                            onClick={() => router.push('/userCenter/safeCenter')}
+                        >去绑定</button>
                         {/* <Image
                                 src="/images/userCenter/overview/icon_safe.png"
                                 width={58}
@@ -227,7 +296,8 @@ const OverviewPage: React.FC = () => {
                 <div className={`${styles.aside_invite_box} flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >为你推荐
                     </div>
-                    <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `} style={inviteStyle}>
+                    <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
+                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >邀请新用户
                         </div>
                         <p style={{ width: '60%' }} className='font-14'>邀请加入我们一起开启数字货币之旅吧 ！</p>
@@ -241,7 +311,7 @@ const OverviewPage: React.FC = () => {
                         <QRCode
                             style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
                             value={codeValue} size={68}
-                            
+
                         />
                         <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between flex-1`}>
                             <div>

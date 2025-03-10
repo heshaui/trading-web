@@ -60,6 +60,7 @@
 .btn {
     padding: 4px 18px;
     min-width: 80px;
+    border-radius: 40px;
 }
 
 .userInfo_btn {
@@ -73,8 +74,8 @@
 .content_safe,
 .content_identity,
 .aside_invite_box {
-    min-height: 165px;
-    height: 199px;
+    min-height: 195px;
+    /* height: 199px; */
 }
 
 .assets_box,
@@ -124,6 +125,14 @@
     .card_mt {
         margin-top: 24px;
     }
+.content_box_main{
+    display: flex;
+    flex-direction: column;
+}
+    .content_safe,
+    .content_identity {
+        width: 100%;
+    }
 
 }
 
@@ -134,19 +143,23 @@
         width: 100%;
     }
 
-    .content_box ,.aside_invite2{
+    .content_box,
+    .aside_invite2 {
         margin-right: 0;
     }
-    .aside_box{
+
+    .aside_box {
         display: flex;
         flex-direction: row;
         align-items: center;
     }
-    .aside_invite_box{
+
+    .aside_invite_box {
         height: 100%;
         margin-right: 24px;
     }
-    .aside_invite{
+
+    .aside_invite {
         height: calc(100% - 40px);
     }
 }

@@ -57,7 +57,7 @@ export default function Experience() {
                 if (typeof window !== 'undefined') {
                     lang = localStorage.getItem('localeLanguage') || '';
                 }
-                if (lang === 'en') {
+                if (lang === 'en'||lang === 'en_US') {
                     setHomePic(resdata['en_US'])
                 } else if (lang === 'zh_CN' || lang === 'zh') {
                     setHomePic(resdata['zh_CN'])

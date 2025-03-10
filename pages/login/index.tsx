@@ -10,13 +10,15 @@ import { getPic, getPic2 } from "@/services/open";
 import Image from "next/image";
 
 const loginBgcStyle: CSSProperties = {
-	backgroundImage: `url("/images/login/banner.png")`,
+	// backgroundImage: `url("/images/login/banner.png")`,
+	// backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png')`,
 	backgroundColor: "#ffffff",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
-	height: "100%",
+	// height: "100%",
+	height: "100vh",
 	// backgroundColor:"pink"
-	// width: "100%"
+	width: "100px"
 };
 interface LoginPicType {
 	[key: string]: {
@@ -81,11 +83,12 @@ function Login() {
 			{/* <div className="relative flex h-overmax w-full flex-row page-box "> */}
 			<div
 				className="isHidden flex-1"
+				// style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
 				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
-				// style={loginBgcStyle}
+				// style={loginBgcStyle}'
 			>
 				{/* {loginPic?.login.url} */}
-				{/* <Image className="" src={loginPic?.login.image||'/images/login/banner.png'} alt="" width={1920} height={1080}/> */}
+				{/* <Image className="" src='https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png' alt="" width={1920} height={1080}/> */}
 			</div>
 
 			<div className="m-auto flex flex-ai-center w-full flex-col justify-center flex-1 position-relative">

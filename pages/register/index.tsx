@@ -20,9 +20,9 @@ const loginBgcStyle: CSSProperties = {
 	backgroundColor: "#ffffff",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
-	height: "100%",
+	height: "100vh",
 	// backgroundColor:"pink"
-	// width: "100%"
+	width: "100%"
 };
 interface LoginPicType {
 	[key: string]: {
@@ -42,6 +42,7 @@ function Register() {
 			if (res.code === '0') {
 			
 				const resdata = JSON.parse(res.data)
+				console.log(resdata, 111)
 				
 				let lang = '';
                 if (typeof window !== 'undefined') {

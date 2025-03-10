@@ -19,6 +19,7 @@ interface textType {
     time: number;
 }
 interface levelBenefitType {
+    userId: number;
     id: number;
     levelId: number;
     createTime: number;
@@ -197,7 +198,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>完成标准身份认证后</div>
                     </li>
                     {levelBenefit&&levelBenefit.map((item: levelBenefitType) => (
-                        <li key={item.benefitId} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
+                        <li key={item.id} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
                                 {item.status === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
