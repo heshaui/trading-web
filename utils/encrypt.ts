@@ -36,6 +36,20 @@ export function encryptString(input: string | null): string {
     // 如果既不是邮箱也不是手机号，原样返回
     return input;
 }
+export function encryptIdCard(idCard: string): string {
+    // 检查传入的参数是否为有效的字符串
+    if (typeof idCard!=='string' || idCard.length < 5) {
+        return idCard;
+    }
+    // 提取身份证号的前两位
+    const start = idCard.slice(0, 2);
+    // 提取身份证号的后三位
+    const end = idCard.slice(-3);
+    // 生成用于替换中间部分的 * 字符串
+    const encryptedPart = '*'.repeat(idCard.length - 5);
+    // 拼接前两位、* 字符串和后三位
+    return start + encryptedPart + end;
+}
 export const encryptData=async (data:any)=>{
     const dataInfo=await encryptWithPublicKey(JSON.stringify(data)) || ""
     const dataEncrypt = {
@@ -44,4 +58,16 @@ export const encryptData=async (data:any)=>{
         reqNo: uuidv4()
     }
     return await dataEncrypt
+}
+export  const getBenefitValue = (text: string) => {
+    let text1 = JSON.parse(text);
+    const amount = Number(text1.amountLimit);
+    let amountRes = '';
+    if (!isNaN(amount) && amount > 1000) {
+        // 去掉末尾三个 0 并添加 'K' 后缀
+        amountRes=(amount / 1000).toString() + 'K';
+    }else{
+        amountRes = amount.toString();
+    }
+    return `${amountRes} ${text1.coin} ${text1.time}h`
 }

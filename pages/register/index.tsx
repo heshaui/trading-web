@@ -47,13 +47,13 @@ function Register() {
                 if (typeof window !== 'undefined') {
                     lang = localStorage.getItem('localeLanguage') || '';
                 }
-				if (lang === 'en') {
+				if (lang === 'en'||lang === 'en_US') {
 					setLoginPic(resdata['en_US'])
 				} else if (lang === 'zh_CN' || lang === 'zh') {
 					setLoginPic(resdata['zh_CN'])	
 				} else if (lang === 'ko'||lang === 'ko-KR') {
 					setLoginPic(resdata['ko_KR'])
-				}else if (lang === 'ja'||lang === 'jp'||lang === 'ja-JP') {
+				}else if (lang === 'ja'||lang === 'jp'||lang === 'ja_JP') {
 					setLoginPic(resdata['ja_JP'])
 				}else if(lang){
 					setLoginPic(resdata[lang])

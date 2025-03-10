@@ -1,5 +1,6 @@
 import { request } from '@/request/index';
 import {API_MODULE_NAME} from '@/config/apiConfig';
+import { log } from 'console';
 const fixUrl=`/${API_MODULE_NAME.AMBIT_HOME_WEB}`
 const fixUrl2=`/${API_MODULE_NAME.AMBIT_OSS}`
 
@@ -24,8 +25,10 @@ export function getPic2(key:string): Promise<any> {
 
 // 上传图片
 export function fileImg(file:File): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file); // 将文件添加到 FormData 中，字段名为 'file'
   return request(`${fixUrl2}/oss/img/file`, {
     method: 'POST',
-    body: file,
+    body: formData,
   });
 }

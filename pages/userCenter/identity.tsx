@@ -9,10 +9,11 @@ import { Collapse, theme, ConfigProvider } from 'antd';
 import type { CollapseProps } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
-import { getUserIdentityInfo,getLevelBenefitDetail } from '@/services/identity';
+import { getUserIdentityInfo, getLevelBenefitDetail } from '@/services/identity';
 import store from "@/store"
-import { useEffect,useState } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+// import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -34,10 +35,11 @@ interface SafeListItem {
 
 const IdentityPage: React.FC = () => {
   const { token } = theme.useToken();
-  const { t } = useTranslation(['home']);
+  // const { t } = useTranslation(['home']);
   const [userIdentityInfo, setUserIdentityInfo] = useState<any>({
-    authStatus:2,
+    authStatus: 2,
   });
+  const [levelBenefitData, setLevelBenefitData] = useState([]);
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
     background: 'var(--background8)',
@@ -66,19 +68,35 @@ const IdentityPage: React.FC = () => {
     },
   ];
   const getUserIdentityInfoData = async () => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo')||'{}');
-    const res = await getUserIdentityInfo({
-      userId: userInfo.userId||''
-    });
-    if(res.code === '0'){
-      setUserIdentityInfo(res.data);
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    try {
+      const res = await getUserIdentityInfo({
+        userId: userInfo.userId || ''
+      });
+      if (res.code === '0') {
+        setUserIdentityInfo(res.data);
+        if (res.data.authStatus === 1) {
+          getLevelBenefitData(userInfo.userId);
+        } else {
+          getLevelBenefitData(null);
+        }
+      }
+    } catch (error) {
+      toast.error(String(error));
     }
   }
-  // const getLevelBenefitData = async (userId) => {
-  //   const res = await getLevelBenefitDetail({
-  //     userId: userInfo.userId||''
-  //   });
-  // }
+  const getLevelBenefitData = async (userId: string | number | null) => {
+    try {
+      const res = await getLevelBenefitDetail({
+        userId: userId || ''
+      });
+      if (res.code === '0') {
+        setLevelBenefitData(res.data);
+      }
+    } catch (error) {
+      toast.error(String(error));
+    }
+  }
   useEffect(() => {
     getUserIdentityInfoData();
   }, []);
@@ -88,14 +106,16 @@ const IdentityPage: React.FC = () => {
     <div >
       <h2 className={`font-w-500 font-20`}>身份认证
         {/* {t('detailTitle')} */}
-        </h2>
+      </h2>
     </div>
     {/* identity box*/}
     <div className={`${styles.card_bgc} ${styles.identity_box} mt-6 flex-row flex-wrap`}>
       {/* 未认证 - 驳回 - 审核中*/}
-      {(userIdentityInfo?.authStatus === 2||userIdentityInfo?.authStatus === 0||userIdentityInfo?.authStatus === 3) && <NoAuthentication identityInfo={userIdentityInfo}/>}
+      {/* {(userIdentityInfo?.authStatus === 2||userIdentityInfo?.authStatus === 0||userIdentityInfo?.authStatus === 3) && <NoAuthentication identityInfo={userIdentityInfo}/>} */}
       {/* 已认证 */}
-      {userIdentityInfo?.authStatus === 1 && <Certified />}
+      {userIdentityInfo?.authStatus === 1 ? <Certified identityInfo={userIdentityInfo} levelBenefit={levelBenefitData} />
+        :
+        <NoAuthentication identityInfo={userIdentityInfo} levelBenefit={levelBenefitData} />}
       <div className={`${styles.identity_aside}`}>
         <p className={`flex-row justify-between font-18 font-w-500 `} >常见问题
         </p>

@@ -75,3 +75,18 @@
     box-sizing: border-box;
     border-radius: 8px;
 }
+.upload_img_box{
+    display: inline-block;
+    border-radius: 50%;
+    /* border: 1px solid #E1E1E4; */
+    border: 1px solid var(--btnbgcolor3);
+}
+/* .overlay{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+} */
+.error_icon {
+    color: #F73710;
+}

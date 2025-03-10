@@ -3,13 +3,14 @@ import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/avatarUrl.module.css";
 import Image from "next/image";
 import type { UploadFile, UploadProps } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { API_MODULE_NAME } from '@/config/apiConfig';
 import { getToken } from '@/request/index';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { fileImg } from "@/services/open";
 import { updateUserCenter } from '@/services/userCenter';
+import { Iconify } from "../icon";
 
 type Props = {
     open: boolean;
@@ -26,7 +27,7 @@ interface AvatarItem {
 }
 
 function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
-   
+
     const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
     const initAvatarList: AvatarItem[] = [
         {
@@ -120,41 +121,69 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             type: 'male'
         }
     ]
-
-    const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList);
-    const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-
+    const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
+    const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null); // 选中的头像
+    const [selectedImages, setSelectedImages] = useState<string[]>([]); // 显示上传的图片内容
+    const [imageItem, setImageItem] = useState(false); // 是否显示删除上传的图片
+    const [selectedFile, setSelectedFile] = useState<File | null>(null); // 上传的图片文件
+    // 添加状态来存储 isDayMode 的值
+    //  const [isDayMode, setIsDayMode] = useState<string>(localStorage.getItem('isDayMode') || 'true');
+    // const isDayMode = localStorage.getItem('isDayMode')
     const handCancel = () => {
         onCancel();
     };
 
     const handOk = async () => {
-        if(!selectedAvatar){
+        if ((!selectedAvatar) && selectedImages.length === 0) {
             toast.error('请选择或选择头像!');
             return;
         }
-        const params = {
-            userId: userId,
-            avatarUrl: selectedAvatar
-        }
+
 
         try {
-            const res = await updateUserCenter(params);
-            if(res.code === '0'){
-                toast.success('头像修改成功');
-                onOk(true)
-                onCancel()
-            }else{
-                toast.error(res.msg);
+            if (selectedImages.length > 0 && selectedFile) {
+                console.log(selectedFile);
+
+                const res = await fileImg(selectedFile);
+                console.log(res);
+                if (res.code === '0') {
+                    const params = {
+                        userId: userId,
+                        avatarUrl: res.data
+                    }
+                    await updateUserCenterApi(params)
+                }
+            } else if (selectedAvatar) {
+                const params = {
+                    userId: userId,
+                    avatarUrl: selectedAvatar
+                }
+                await updateUserCenterApi(params)
             }
 
         } catch (error) {
             toast.error(String(error));
         }
     };
+    const updateUserCenterApi = async (params: any) => {
+        try {
+            const res = await updateUserCenter(params);
+            if (res.code === '0') {
+                toast.success('头像修改成功');
+                onOk(true)
+                onCancel()
+            }
+        } catch (error) {
+            toast.error(String(error));
+        }
 
+    };
     const handleAvatarClick = (item: AvatarItem) => {
-        setSelectedAvatar(item.src);
+        if (item.src === selectedAvatar) {
+            setSelectedAvatar(null);
+        } else {
+            setSelectedAvatar(item.src);
+        }
     };
 
     const avatarTypeChange = (value: string) => {
@@ -164,29 +193,63 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             setSiftAvatarList(initAvatarList.filter((item) => item.type === value));
         }
     };
+    const isDayMode = () => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('isDayMode') == 'true'
+        }
+    }
 
     const props: UploadProps = {
-        name: 'file',
-        action: `${BASE_URL}/${API_MODULE_NAME.AMBIT_OSS}/oss/img/file`,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${getToken()}`,
-            'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS || '',
-            'sa-token': `${getToken()}`
-        },
-        listType: "picture-circle",
+        // name: 'file',
+        // action: `${BASE_URL}/${API_MODULE_NAME.AMBIT_OSS}/oss/img/file`,
+        // headers: {
+        //     'Content-Type': 'application/json',
+        //     'Authorization': `${getToken()}`,
+        //     'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS || '',
+        //     'sa-token': `${getToken()}`
+        // },
+        // listType: "picture-circle",
+        showUploadList: false,
         maxCount: 1,
+        beforeUpload: (file) => {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
+            const isPNG = allowedTypes.includes(file.type);
+            if (!isPNG) {
+                toast.error(`${file.name} 不是正确的图片格式！`);
+            }
+            return isPNG || Upload.LIST_IGNORE;
+        },
         onChange(info) {
             if (info.file.status !== 'uploading') {
-                console.log('uploading', info.file, info.fileList);
-            }
-            if (info.file.status === 'done') {
-                console.log('done', info.file.name);
-            } else if (info.file.status === 'error') {
-                console.log('error', info.file.name);
+                handleUploadChange(info);
+                // console.log('uploading', info.file, info.fileList);
             }
         },
     };
+    // 处理文件上传变化的函数
+    const handleUploadChange = (info: any) => {
+        const { fileList } = info;
+        // 过滤出状态为 "done" 的文件（即上传成功的文件）
+        const doneFiles = fileList.filter((file: any) => file.status === 'done');
+        if (doneFiles.length > 0) {
+            const file = doneFiles[0].originFileObj;
+            setSelectedFile(file);
+            // 获取这些文件的 URL
+            const imageUrls = doneFiles.map((file: any) => {
+                // 优先使用 response 中的 url，如果没有则使用文件的 originFileObj 的 URL
+                return file.response?.url || URL.createObjectURL(file.originFileObj);
+            });
+            setSelectedImages(imageUrls);
+        }
+    }
+
+    const handleDeleteImage = () => {
+        // setSelectedImages(prevImages => {
+        //     return prevImages.filter((_, i) => i !== index);
+        // });
+        setSelectedImages([])
+    };
+
 
     const ModalFooter: ModalProps["footer"] = () => (
         <div className="flex-x align-center justify-end">
@@ -230,7 +293,7 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                         itemSelectedColor: "var(--cancel-color)",
                         itemHoverColor: "var(--cancel-color)",
                     },
-                    Modal:{
+                    Modal: {
                         contentBg: "var(--background5)",
                         footerBg: "var(--background5)",
                         headerBg: "var(--background5)",
@@ -254,7 +317,39 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 }}
             >
                 <div className="flex-x flex-ai-center" style={{ width: "100%" }}>
-                    <div className={`${styles.upload_box}`}>
+                    <div className={`${styles.upload_box} flex-y-cc`}>
+                        <div className={`${styles.upload_img_box} mb-4 relative`}
+                            onMouseEnter={() => setImageItem(true)}
+                            onMouseLeave={() => setImageItem(false)}
+                        >
+                            {selectedImages.length === 0 ? <Image
+                                src={isDayMode() ? '/images/userCenter/userSettings/up.png' : '/images/userCenter/userSettings/up_night.png'}
+                                alt={`Selected Image `}
+                                width={88}
+                                height={88}
+                                style={{ borderRadius: '50%' }}
+                            /> :
+                                selectedImages.map((imageUrl: string, index: number) => (
+                                    <Image
+                                        key={index}
+                                        src={imageUrl}
+                                        alt={`Selected Image ${index}`}
+                                        width={88}
+                                        height={88}
+                                        style={{ borderRadius: '50%' }}
+                                    />
+                                ))
+                            }
+                            {(imageItem && selectedImages.length > 0) && (
+                                <div className={`${styles.overlay} absolute-center `}>
+                                    <Iconify icon="fluent:delete-12-filled"
+                                        size={24}
+                                        className={`${styles.error_icon}`}
+                                        onClick={() => handleDeleteImage()} />
+                                </div>
+                            )}
+
+                        </div>
                         <Upload {...props}>
                             <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
                                 上传
@@ -284,9 +379,9 @@ function avatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                         />
                         <ul className={`${styles.avatar_icon_box} flex-x flex-wrap`}>
                             {siftAvatarList.map((item) => (
-                                <li 
-                                className={`${styles.avatar_icon_item} mt-2_5 ${selectedAvatar === item.src ? styles.selected : ''}`}
-                                 key={item.id} onClick={() => handleAvatarClick(item)}>
+                                <li
+                                    className={`${styles.avatar_icon_item} mt-2_5 ${selectedAvatar === item.src ? styles.selected : ''}`}
+                                    key={item.id} onClick={() => handleAvatarClick(item)}>
                                     <Image src={item.src} className={`${styles.avatar_icon_img}`} alt={item.alt} width={58} height={58} />
                                 </li>
                             ))}
