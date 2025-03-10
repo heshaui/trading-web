@@ -15,9 +15,8 @@ export function getUserIdentityInfo({userId}:UserIdentityInfoType): Promise<any>
   }
 //   账户权益
   export function getLevelBenefitDetail({userId}:UserIdentityInfoType): Promise<any> {
-    return request(`${fixUrl} /user-web/v1/user/levelBenefitDetail?userId=${userId}`, {
+    return request(`${fixUrl}/user-web/v1/user/levelBenefitDetail?userId=${userId}`, {
       method: 'POST',
     //   body:JSON.stringify({userId:userId})
     });
   }
- 

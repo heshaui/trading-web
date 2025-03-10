@@ -3,6 +3,7 @@ import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLa
 import styles from '../../styles/identity.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
+import { encryptIdCard,getBenefitValue } from '@/utils/encrypt';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -10,20 +11,85 @@ interface ButtonConfig {
     onbind?: () => void;
 }
 
-// 安全项配置接口
-interface SafeListItem {
-    title: string;
-    type: string;
-    desc: string;
-    isBind?: boolean;
-    bindValue: string;
-    bindBtn?: ButtonConfig[];
-    noBindBtn?: ButtonConfig[];
-    icon: string;  // 可选的图标路径
+interface textType {
+    amountLimit: number;
+    coin: string;
+    time: number;
+}
+interface levelBenefitType {
+    id: number;
+    levelId: number;
+    createTime: number;
+    updateTime: number;
+    tenantId: string;
+    status: number;
+    // value: textType;
+    value: string;
+    benefitId: number;
+    benefitName: string;
+}
+interface infoType {
+    id: number;
+    userId: number;
+    surname: string;
+    firstName: string;
+    countryId: number;
+    cardType: number;
+    cardCode: string;
+    cardName: string;
+    birthday: string;
+    currentLanguage: string;
+    firstCheckTime: number;
+    currentCheckTime: number;
+    authStatus: number;
+    frontUrl: string;
+    backUrl: string;
+    selfieUrl: string;
+    createTime: number;
+    updateTime: number;
+    tenantId: string;
 }
 
-const NoAuthentication: React.FC = () => {
+const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBenefitType[] }> = ({ identityInfo, levelBenefit }) => {
+    const cardTypeSeelect: { label: string, value: string }[] = [
+        {
+            label: '居民身份证',
+            value: '1'
+        },
+        {
+            label: '普通护照',
+            value: '2'
+        },
+        {
+            label: '港澳通行证',
+            value: '3'
+        },
+        {
+            label: '台湾通行证',
+            value: '4'
+        },
+        {
+            label: '台湾身份证',
+            value: '5'
+        },
+        {
+            label: '外国人永久居住身份证',
+            value: '6'
+        }
+    ]
+    // const getBenefitValue = (text: string) => {
+    //     let text1 = JSON.parse(text);
+    //     const amount = Number(text1.amountLimit);
+    //     let amountRes = '';
+    //     if (!isNaN(amount) && amount > 1000) {
+    //         // 去掉末尾三个 0 并添加 'K' 后缀
+    //         amountRes=(amount / 1000).toString() + 'K';
+    //     }else{
+    //         amountRes = amount.toString();
+    //     }
+    //     return `${amountRes} ${text1.coin} ${text1.time}h`
 
+    // }
     return (< >
         <div className={`${styles.identity_content} flex-1`}>
             <div className={`${styles.content_header} `}>
@@ -60,20 +126,24 @@ const NoAuthentication: React.FC = () => {
                     <span>账户权益</span>
                 </div>
                 <ul className={`${styles.border_btm} mt-3`}>
-                    <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>加密货币提现</div>
-                        <div className={` font-w-500`}>50K USDT每日</div>
-                    </li>
-                    <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>加密货币充值</div>
-                        <div className={` font-w-500`}>允许</div>
-                    </li>
-                    <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>C2C交易</div>
-                        <div className={` font-w-500`}>禁止</div>
-                    </li>
+                    {levelBenefit.map((item: levelBenefitType, index: number) => (
+                        <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={index}>
+                            <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
+                            <div className={` font-w-500`}>{
+                                item.status === 0 ? "禁止":
+                                item.value ?getBenefitValue(item.value) :"允许"}</div>
+                        </li>
+                        // <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
+                        //     <div className={` font-w-400 ${styles.tip_color}`}>加密货币充值</div>
+                        //     <div className={` font-w-500`}>允许</div>
+                        // </li>
+                        // <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
+                        //     <div className={` font-w-400 ${styles.tip_color}`}>C2C交易</div>
+                        //     <div className={` font-w-500`}>禁止</div>
+                        // </li>
+                    ))}
                 </ul>
-                
+
             </div>
             <div className='mt-6'>
                 <div className={`font-18 font-w-500 flex align-center `} >
@@ -83,22 +153,22 @@ const NoAuthentication: React.FC = () => {
                 <ul className={`mt-3`}>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>真实姓名</div>
-                        <div className={` font-w-500`}>杰</div>
+                        <div className={` font-w-500`}>{identityInfo.surname} {identityInfo.firstName}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>证件类型</div>
-                        <div className={` font-w-500`}>护照</div>
+                        <div className={` font-w-500`}>{cardTypeSeelect.find(item => item.value === identityInfo.cardType.toString())?.label}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>国家</div>
-                        <div className={` font-w-500`}>中国大陆</div>
+                        <div className={` font-w-500`}>{identityInfo.countryId === 1 ? '中国大陆' : '中国香港'}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>证件号</div>
-                        <div className={` font-w-500`}>12**********223</div>
+                        <div className={` font-w-500`}>{encryptIdCard(identityInfo.cardCode)}</div>
                     </li>
                 </ul>
-                
+
             </div>
         </div>
 
