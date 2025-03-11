@@ -53,6 +53,7 @@
 
 .assistant_pic {
     width: 25%;
+    max-width: 261px;
     /* height: 386px; */
 }
 

@@ -38,7 +38,7 @@ interface CountryCodeItem {
 // ];
 
 
-const App: React.FC = () => {
+const App: React.FC<{className?:string}> = ({className}) => {
     const [isFocused, setIsFocused] = useState(false);
     const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
     const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
@@ -103,7 +103,7 @@ const App: React.FC = () => {
     const getCountryCodeList = async () => {
         try {
             const res = await getCountryCode()
-            console.log(res, 11);
+            // console.log(res, 11);
             if(res.code==='0'){
                 const data=res.data.map((item:any)=>{
                     return {
@@ -142,7 +142,7 @@ const App: React.FC = () => {
                  <Input
                      size="large"
                      placeholder="input here"
-                     className='custom-input'
+                     className={`custom-input modal-input ${className}`}
                      suffix={
                          <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
                      }

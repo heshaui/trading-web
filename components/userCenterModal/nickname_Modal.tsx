@@ -7,15 +7,17 @@ import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/nickname.module.css";
 import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
+import {updateUserCenter} from '@/services/userCenter'
+import { toast } from "sonner";
 type Props = {
     open: boolean;
     nickname: string|null;
     // onOk?: (event: boolean) => void;
-    onOk?: () => void;
+    onOk: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function NicknameModal({ open, onCancel ,nickname}: Props) {
+function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
     // const router = useRouter();
     const [form] = Form.useForm();
 
@@ -27,8 +29,25 @@ function NicknameModal({ open, onCancel ,nickname}: Props) {
     const handOk = async () => {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
         form.validateFields()
-            .then((values) => {
+            .then(async(values) => {
                 console.log(values);
+                try {
+                    const param={
+                        userId:localStorage.getItem('userId')||'',
+                        nickname:values.nickname
+                    }
+                    console.log(param);
+                    
+                    const res=await updateUserCenter(param)
+                    if(res.code==='0'){
+                        onOk(true)
+                        handCancel()
+                    }else{
+                        toast.error(res.msg)
+                    }
+                } catch (error) {
+                    toast.error(String(error))
+                }
             });
     };
     const ModalFooter: ModalProps["footer"] = () => {

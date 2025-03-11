@@ -11,6 +11,8 @@ import { getLoginInfo } from '@/services/overview';
 import { toast } from "sonner";
 import { encryptString } from '@/utils/encrypt';
 import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
+import dayjs from 'dayjs';
+import { getUserLoginLogList, getUserDeviceNoList, getUserSafeSettingLoginLogList } from '@/services/safeCenter';
 const identityStyle: CSSProperties = {
     position: 'relative',
     // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
@@ -44,10 +46,24 @@ interface LoginInfoType {
     famousAphorisms: string,
     registerAccount: string,
 }
+interface LoginLogListType {
+    id: number,
+    userId: number,
+    platformType: number,
+    deviceNo: string,
+    ip: string,
+    address: string,
+    token: string,
+    tokenTime: string,
+    createTime: number,
+    updateTime: number,
+    tenantId: string
+}
 const OverviewPage: React.FC = () => {
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
-
-    const [codeValue] = useState("https://ant.design/") //, setcodeValue
+    const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
+    const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
+    const [codeValue] = useState("https://ant.design") //, setcodeValue
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
     const getLoginInfoData = async () => {
@@ -58,6 +74,35 @@ const OverviewPage: React.FC = () => {
             toast.error(String(error));
         }
 
+    }
+    const getLoginLogListData = async () => {
+        try {
+            const params = {
+                pageNo: 1,
+                pageSize: 5,
+            }
+            const res = await getUserLoginLogList(params);
+            if (res.code === '0') {
+                setLoginLogList(res.data.list)
+            }
+
+        } catch (error) {
+            toast.error(String(error));
+        }
+    }
+    const getUserDeviceNoListData = async () => {
+        try {
+            const params = {
+                pageNo: 1,
+                pageSize: 5,
+            }
+            const res = await getUserDeviceNoList(params);
+            if (res.code === '0') {
+                setUserDeviceNoList(res.data.list)
+            }
+        } catch (error) {
+            toast.error(String(error));
+        }
     }
     const statusText = (status: number) => {
         switch (status) {
@@ -76,6 +121,8 @@ const OverviewPage: React.FC = () => {
 
     useEffect(() => {
         getLoginInfoData()
+        getLoginLogListData()
+        getUserDeviceNoListData()
     }, []);
 
     return (<div className={`${styles.overview_page}`} >
@@ -162,7 +209,7 @@ const OverviewPage: React.FC = () => {
                             {statusText(loginInfo?.realnessStatus)}
                         </p>
                         <p className={`font-14 mt-3`}>{loginInfo?.realnessStatus === 1 ? '已完成身份认证，开始您的货币之旅吧！' : '完成身份认证后可以享受交易所完整服务'}</p>
-                       <button className={`${loginInfo?.realnessStatus === 3 ? 'disabled_btn' : 'btn-color'} font-14 font-w-500 mt-10 ${styles.btn}`}
+                        <button className={`${loginInfo?.realnessStatus === 3 ? 'disabled_btn' : 'btn-color'} font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${loginInfo?.realnessStatus}`)}
                         >
                             {loginInfo?.realnessStatus === 2 && '去认证'}
@@ -232,60 +279,90 @@ const OverviewPage: React.FC = () => {
                 {/* 最近登录 */}
                 <div className={`${styles.card_bgc} mt-6`}>
                     <div className={`flex-row justify-between font-18 font-w-500`} >最近登录
-                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
+                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
+                            onClick={() => router.push('/userCenter/safeCenter/safe_log')}
+                        />
                     </div>
                     <div className={`flex-1`} >
                         <ul>
-                            <li className='flex-row justify-between mt-5'>
-                                <p className='font-14 font-w-500 flex-col'>
-                                    <span className='font-w-500'> WEB</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
-                                </p>
-                                <p className='font-14 font-w-500 flex-col align-end'>
-                                    <span className='font-w-500'>2024-01-01 12:00:00</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>5.180.44.127</span>
-                                </p>
-                            </li>
-                            <li className='flex-row justify-between mt-5'>
-                                <p className='font-14 font-w-500 flex-col '>
-                                    <span className='font-w-500'> ANDROID</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
-                                </p>
-                                <p className='font-14 font-w-500 flex-col align-end'>
-                                    <span className='font-w-500'>2024-10-08 09:53:42</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
-                                </p>
-                            </li>
+                            {loginLogList && loginLogList.map((item: any) => (
+                                <li className='flex-row justify-between mt-5' key={item.id}>
+                                    <p className='font-14 font-w-500 flex-col'>
+                                        <span className='font-w-500'>
+                                            {/* WEB */}
+                                            {item.deviceNo || '--'}
+                                        </span>
+                                        <span className={`${styles.tip_color} font-12 font-w-400`}>
+                                            {/* 中国香港 */}
+                                            {item.address || '--'}
+                                        </span>
+                                    </p>
+                                    <p className='font-14 font-w-500 flex-col align-end'>
+                                        <span className='font-w-500'>
+                                            {/* 2024-01-01 12:00:00 */}
+                                            {item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '--'}
+                                        </span>
+                                        <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
+                                            {/* 5.180.44.127 */}
+                                            {item.ip || '--'}
+                                        </span>
+                                    </p>
+                                </li>
+                                // <li className='flex-row justify-between mt-5'>
+                                //     <p className='font-14 font-w-500 flex-col '>
+                                //         <span className='font-w-500'> ANDROID</span>
+                                //         <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
+                                //     </p>
+                                //     <p className='font-14 font-w-500 flex-col align-end'>
+                                //         <span className='font-w-500'>2024-10-08 09:53:42</span>
+                                //         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
+                                //     </p>
+                                // </li>
+                            ))}
                         </ul>
                     </div>
                 </div>
                 {/* 授权设备 */}
                 <div className={`${styles.card_bgc} mt-6`}>
                     <div className={`flex-row justify-between font-18 font-w-500`} >授权设备
-                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
+                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
+                            onClick={() => router.push('/userCenter/safeCenter/equipment')}
+                        />
                     </div>
                     <div className={`flex-1`} >
                         <ul>
-                            <li className='flex-row justify-between mt-5'>
-                                <p className='font-14 font-w-500 flex-col'>
-                                    <span className='font-w-500'> Chrome 12 125.0.0.0(Mac OS X)</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400`}>2020-02-20 12:12:01 中国香港</span>
+                            {userDeviceNoList && userDeviceNoList.map((item: any) => (
+                                <li className='flex-row justify-between mt-5' key={item.id}>
+                                    <p className='font-14 font-w-500 flex-col'>
+                                        <span className='font-w-500'> 
+                                            {/* Chrome 12 125.0.0.0(Mac OS X) */}
+                                            {item.deviceNo || '--'}
+                                            </span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400`}>
+                                        {/* 2020-02-20 12:12:01 中国香港 */}
+                                        {/* {item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '--'} */}
+                                       {item.createTime ?`${dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss')} ${item.address || '--'}`:'--'}
+                                        </span>
                                 </p>
                                 <p className='font-14 font-w-500 flex-col align-end'>
                                     <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>223.168.123.111</span>
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
+                                        {/* 223.168.123.111 */}
+                                        {item.ip || '--'}
+                                        </span>
                                 </p>
                             </li>
-                            <li className='flex-row justify-between mt-5'>
-                                <p className='font-14 font-w-500 flex-col '>
-                                    <span className='font-w-500'> ANDROID</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400`}>Xiaomi Mi 10</span>
-                                </p>
-                                <p className='font-14 font-w-500 flex-col align-end'>
-                                    <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
-                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
-                                </p>
-                            </li>
+                            // <li className='flex-row justify-between mt-5'>
+                            //     <p className='font-14 font-w-500 flex-col '>
+                            //         <span className='font-w-500'> ANDROID</span>
+                            //         <span className={`${styles.tip_color} font-12 font-w-400`}>Xiaomi Mi 10</span>
+                            //     </p>
+                            //     <p className='font-14 font-w-500 flex-col align-end'>
+                            //         <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
+                            //         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
+                            //     </p>
+                            // </li>
+                            ))}
                         </ul>
                     </div>
                 </div>
@@ -307,25 +384,29 @@ const OverviewPage: React.FC = () => {
                 <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >邀请好友获得
                     </div>
-                    <div className={`${styles.qr_code} flex-x align-center justify-between flex-1`}>
+                    <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
                         <QRCode
                             style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
-                            value={codeValue} size={68}
-
+                            value={`${codeValue}?inviteCode=${loginInfo?.inviteCode || '--'}`} size={68}
+                            // className='flex-1'
                         />
-                        <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between flex-1`}>
+                        <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between`}>
                             <div>
                                 <p className='font-14 font-w-400'>邀请码</p>
                                 <div className={`${styles.invite_code} font-12`}>
-                                    <span className={`${styles.tip_color}`}>IMUSER-NavyXU</span>
-                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20} />
+                                    <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
+                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20}
+                                        onClick={() => copyFn(loginInfo?.inviteCode || '')}
+                                    />
                                 </div>
                             </div>
-                            <div>
+                            <div style={{maxWidth:"230px"}}>
                                 <p className='font-14 font-w-400'>链接</p>
-                                <div className={`${styles.invite_code} font-12`}>
-                                    <span className={`${styles.tip_color}`}>{codeValue}</span>
-                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20} />
+                                <div className={`${styles.invite_code} font-12 `}>
+                                    <span className={`${styles.tip_color} mr-1`}>{`${codeValue}?inviteCode=${loginInfo?.inviteCode || '--'}`}</span>
+                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20}
+                                        onClick={() => copyFn(`${codeValue}?inviteCode=${loginInfo?.inviteCode || ''}`)}
+                                    />
                                 </div>
                             </div>
                         </div>

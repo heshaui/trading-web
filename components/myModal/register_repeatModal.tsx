@@ -19,7 +19,7 @@ type Props = {
 };
 
 function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: Props) {
-    const [form] = Form.useForm();
+    // const [form] = Form.useForm();
     const handCancel = () => {
         onCancel()
     };
@@ -62,7 +62,7 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
             width={400}
         >
             <div className="flex-col flex-ai-center">
-                {type == 'error' && <Image src="/images/login/icon_faild.png"
+                {type == 'error' && <Image src="/images/login/icon_repeat.png"
                     alt=""
                     className={`${styles.icon_box}`} width={160} height={160} />
                 }
