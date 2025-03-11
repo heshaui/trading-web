@@ -147,6 +147,11 @@ const UserSettingsPage: React.FC = () => {
       getUserCenterData();
     }
   }
+  const handOk3 = (bool: boolean) => {
+    if (bool) {
+      getUserCenterData();
+    }
+  }
   useEffect(() => {
     getUserCenterData();
   }, [])
@@ -280,7 +285,8 @@ const UserSettingsPage: React.FC = () => {
     <NeckNameModal
       open={necknameOpen}
       onCancel={() => setNecknameOpen(false)}
-      nickname={userInfo.nickname} />
+      nickname={userInfo.nickname}
+      onOk={handOk3} />
 
     {/* 修改头像 */}
     <AvatarUrlModal open={avatarUrlOpen}

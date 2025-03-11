@@ -3,9 +3,18 @@ import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLa
 import styles from './styles/safe.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
+import { getSafeCenter } from "@/services/safeCenter"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { encryptString } from '@/utils/encrypt'
+import SetPhoneModal from '@/components/safeCenterModal/setPhone_Modal'
+import SetMailModal from '@/components/safeCenterModal/setMail_Modal'
+import CheckModal from '@/components/safeCenterModal/change_check'
+import SafeModal from '@/components/safeCenterModal/safe_Modal';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
+    key: string;
     onok?: () => void;
     onbind?: () => void;
 }
@@ -33,11 +42,131 @@ interface SecurityLogItem {
     type: string;
     button: () => void;
 }
+// 手机
+//  -关闭-1确认弹窗-2安全验证
+//  -修改-1确认弹窗-2安全验证-3添加/修改手机号
+//  -绑定-1确认弹窗-2添加/修改手机号
+
+// 邮箱
+//  -修改-1确认弹窗-2安全验证-3添加/修改邮箱
+//  -绑定-1确认弹窗-2添加/修改邮箱
+
+
+
 const SafeCenter: React.FC = () => {
-    const baseSafeList: SafeListItem[] = [
+    const [safeData, setSafeData] = useState({})
+    const [phoneModalOpen, setPhoneModalOpen] = useState(false)
+    const [phoneType, setPhoneType] = useState('')
+    const [mailModalOpen, setMailModalOpen] = useState(false)
+    const [mailType, setMailType] = useState('')
+    const [checkModalOpen, setCheckModalOpen] = useState(false)
+    const [checkType, setCheckType] = useState('')
+    const [safeModalOpen, setSafeModalOpen] = useState(false) 
+    const [safeType, setSafeType] = useState('')
+    // const [baseSafeList,setBaseSafeList] = useState<SafeListItem[]>([
+    //     {
+    //         title: "谷歌验证器(推荐)",
+    //         type: "google",
+    //         desc: "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。",
+    //         isBind: true,
+    //         bindValue: "启用",
+    //         noBindValue: "未绑定",
+    //         icon: "/images/userCenter/safe/icon_google.svg",
+    //         bindBtn: [{
+    //             title: "解绑",
+    //             onok: () => { }
+    //         }
+    //         ],
+    //         noBindBtn: [{
+    //             title: "绑定",
+    //             onbind: () => { }
+    //         }]
+    //     },
+    //     {
+    //         title: "手机验证",
+    //         type: "phone",
+    //         desc: "短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。",
+    //         isBind: true,
+    //         bindValue: "187***8523",
+    //         noBindValue: "未绑定",
+    //         icon: "/images/userCenter/safe/icon_phone.svg",
+    //         bindBtn: [{
+    //             title: "修改",
+    //             onok: () => { }
+    //         },
+    //         {
+    //             title: "关闭验证",
+    //             onok: () => { }
+    //         }
+    //         ],
+    //         noBindBtn: [{
+    //             title: "绑定",
+    //             onbind: () => { }
+    //         }]
+    //     },
+    //     {
+    //         title: "邮箱验证",
+    //         type: "email",
+    //         desc: "邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。",
+    //         isBind: false,
+    //         bindValue: "11****33@qq.com",
+    //         noBindValue: "未绑定",
+    //         icon: "/images/userCenter/safe/icon_email.svg",
+    //         bindBtn: [{
+    //             title: "修改",
+    //             onok: () => { }
+    //         }
+    //         ],
+    //         noBindBtn: [{
+    //             title: "绑定",
+    //             onbind: () => { }
+    //         }]
+    //     },
+    //     {
+    //         title: "登录密码",
+    //         type: "password",
+    //         desc: "重置时自动退出当前账号",
+    //         isBind: false,
+    //         bindValue: "已设置",
+    //         noBindValue: "未设置",
+    //         icon: "/images/userCenter/safe/icon_password.svg",
+    //         bindBtn: [{
+    //             title: "修改",
+    //             onok: () => { }
+    //         }
+    //         ],
+    //         noBindBtn: [{
+    //             title: "设置",
+    //             onbind: () => { }
+    //         }]
+    //     },
+    // ])
+    // const [securityLogList,setSecurityLogList] = useState<SecurityLogItem[]>([
+    //     {
+    //         title: "安全设备",
+    //         desc: "管理已授权允许登录的设备。",
+    //         tip: "授权设备数：",
+    //         value: "3",
+    //         btntext: "管理",
+    //         icon: "/images/userCenter/safe/equipment.svg",
+    //         type: "equipment",
+    //         button: () => { }
+    //     },
+    //     {
+    //         title: "安全日志",
+    //         desc: "用于登录等IP地址安全。",
+    //         tip: "最近登录IP地址：",
+    //         value: "58.152.*.*",
+    //         btntext: "查看",
+    //         icon: "/images/userCenter/safe/icon_security_og.svg",
+    //         type: "log",
+    //         button: () => { }
+    //     }
+    // ])
+    const initBaseSafeList: SafeListItem[] = [
         {
             title: "谷歌验证器(推荐)",
-            type: "google",
+            type: "googleCode",
             desc: "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。",
             isBind: true,
             bindValue: "启用",
@@ -45,34 +174,56 @@ const SafeCenter: React.FC = () => {
             icon: "/images/userCenter/safe/icon_google.svg",
             bindBtn: [{
                 title: "解绑",
-                onok: () => { }
+                onok: () => {
+                    // 解绑-确认弹窗
+                    setCheckModalOpen(true)
+                    setCheckType('4')
+                 },
+                key: 'unbind'
             }
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { }
+                onbind: () => { },
+                key: 'bind'
             }]
         },
         {
             title: "手机验证",
             type: "phone",
             desc: "短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。",
-            isBind: true,
-            bindValue: "187***8523",
+            isBind: false,
+            bindValue: "--",
             noBindValue: "未绑定",
             icon: "/images/userCenter/safe/icon_phone.svg",
             bindBtn: [{
                 title: "修改",
-                onok: () => { }
+                onok: () => {
+                    // setPhoneModalOpen(true)
+                    // setPhoneType('change')
+                     // 手机修改-1确认弹窗
+                    setCheckModalOpen(true)
+                    setCheckType('0')
+                },
+                key: 'change'
             },
             {
                 title: "关闭验证",
-                onok: () => { }
+                onok: () => { 
+                     // 关闭-确认弹窗
+                    setCheckModalOpen(true)
+                    setCheckType('1')
+                },
+                key: 'close'
             }
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { }
+                onbind: () => {
+                    setPhoneModalOpen(true)
+                    setPhoneType('set')
+                },
+                key: 'bind'
             }]
         },
         {
@@ -80,17 +231,29 @@ const SafeCenter: React.FC = () => {
             type: "email",
             desc: "邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。",
             isBind: false,
-            bindValue: "11****33@qq.com",
+            bindValue: "--",
             noBindValue: "未绑定",
             icon: "/images/userCenter/safe/icon_email.svg",
             bindBtn: [{
                 title: "修改",
-                onok: () => { }
+                onok: () => {
+                    // setMailModalOpen(true)
+                    // setMailType('change')
+                     // 邮箱修改-1确认弹窗
+                    setCheckModalOpen(true)
+                    setCheckType('2')
+                },
+                key: 'change'
             }
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { }
+                onbind: () => {
+                    // 绑定-添加/修改邮箱弹窗
+                    setMailModalOpen(true)
+                    setMailType('set')
+                },
+                key: 'bind'
             }]
         },
         {
@@ -103,16 +266,21 @@ const SafeCenter: React.FC = () => {
             icon: "/images/userCenter/safe/icon_password.svg",
             bindBtn: [{
                 title: "修改",
-                onok: () => { }
+                onok: () => { 
+                    setCheckModalOpen(true)
+                    setCheckType('3')
+                },
+                key: 'change'
             }
             ],
             noBindBtn: [{
                 title: "设置",
-                onbind: () => { }
+                onbind: () => { },
+                key: 'bind'
             }]
         },
     ]
-    const securityLogList: SecurityLogItem[] = [
+    const initSecurityLogList: SecurityLogItem[] = [
         {
             title: "安全设备",
             desc: "管理已授权允许登录的设备。",
@@ -120,7 +288,7 @@ const SafeCenter: React.FC = () => {
             value: "3",
             btntext: "管理",
             icon: "/images/userCenter/safe/equipment.svg",
-            type: "equipment",
+            type: "deviceNos",
             button: () => { }
         },
         {
@@ -130,10 +298,118 @@ const SafeCenter: React.FC = () => {
             value: "58.152.*.*",
             btntext: "查看",
             icon: "/images/userCenter/safe/icon_security_og.svg",
-            type: "log",
+            type: "recentIp",
             button: () => { }
         }
     ]
+    const [baseSafeList, setBaseSafeList] = useState<SafeListItem[]>(initBaseSafeList)
+    const [securityLogList, setSecurityLogList] = useState<SecurityLogItem[]>(initSecurityLogList)
+    const handCheckModal = async (type: string) => {
+        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:修改密码 4:关闭谷歌验证
+        if (type.toString() === '0') {
+            // 手机修改-2验证安全弹窗
+            setSafeModalOpen(true)
+            setSafeType('phone')
+        }else if (type.toString() === '1') {
+            // 关闭手机-2安全验证弹窗
+            setSafeModalOpen(true)
+            setSafeType('phone')
+        }
+        else if (type.toString() === '2') {
+             // 修改邮箱-2验证安全弹窗
+            setSafeModalOpen(true)
+            setSafeType('email')
+        }else if (type.toString() === '3') {
+           
+        }else if (type.toString() === '4') {
+            
+        }
+    }
+    const handsvcOk=(type:string)=>{
+        if(type==='phone'){
+             // 手机修改-3添加/修改手机号弹窗
+             setPhoneModalOpen(true)
+             setPhoneType('change')
+        }else if(type==='email'){
+            // 邮箱修改-3添加/修改邮箱弹窗
+            setMailModalOpen(true)
+            setMailType('change')
+        }
+    }
+    const getSafeCenterData = async () => {
+        try {
+            const res = await getSafeCenter()
+            const { code, data } = res
+            if (code === '0') {
+                setSafeData(data)
+                const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
+                    if (data.hasOwnProperty(item.type)) {
+                        if (item.type === 'googleCode') {
+                            const value = data[item.type];
+                            return {
+                                ...item,
+                                bindValue: '启用',
+                                isBind: Boolean(value),
+                            };
+                        }
+                        if (item.type === 'password') {
+                            const value = data[item.type];
+                            return {
+                                ...item,
+                                bindValue: '已设置',
+                                isBind: Boolean(value),
+                            };
+                        }
+                        if (item.type === 'phone' || item.type === 'email') {
+                            const value = data[item.type];
+                            return {
+                                ...item,
+                                bindValue: encryptString(value),
+                                isBind: Boolean(value),
+                            }
+                        }
+                        const value = data[item.type];
+                        return {
+                            ...item,
+                            bindValue: value,
+                            isBind: Boolean(value),
+                        };
+                    }
+                    return item;
+
+                })
+                const securityLogData = initSecurityLogList.map((item: SecurityLogItem) => {
+                    if (data.hasOwnProperty(item.type)) {
+                        const value = data[item.type];
+                        return {
+                            ...item,
+                            value: value,
+                            bindValue: value,
+                            isBind: Boolean(value),
+                        };
+                    }
+                    return item;
+                })
+                console.log(baseSafeData, 1);
+                console.log(securityLogData, 2);
+
+                setBaseSafeList(baseSafeData)
+                setSecurityLogList(securityLogData)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+    const handOk = async () => {
+        await getSafeCenterData()
+    }
+
+    useEffect(() => {
+        getSafeCenterData()
+    }, [])
+
     return (<div className={`${styles.safe_page}`} >
         <div >
             <h2 className={`font-w-500 font-20`}>安全中心</h2>
@@ -186,15 +462,22 @@ const SafeCenter: React.FC = () => {
                             </div>
                             {/* 按钮 button */}
                             <div className={`flex-row align-center justify-end flex-1 ml-6`} >
-                                {item.isBind ?
-                                    (item.bindBtn.map((btn: ButtonConfig,index:number) => (
-                                        <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}>{btn.title}</button>
-                                    )))
-                                    :
-                                    (item.noBindBtn.map((btn: ButtonConfig,index:number) => (
-                                        <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}>{btn.title}</button>
-                                    )))
-                                }
+                                {/* {item.isBind ?( */}
+                                    {item.bindBtn.map((btn: ButtonConfig, index: number) => (
+                                        <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}
+                                            onClick={btn.onok}
+                                        >{btn.title}</button>
+                                    ))}
+                                    {/* // )))
+                                    // : 
+                                    // ( */}
+                                        {item.noBindBtn.map((btn: ButtonConfig, index: number) => (
+                                        <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}
+                                            onClick={btn.onbind}
+                                        >{btn.title}</button>
+                                    ))}
+                                    {/* )))
+                                } */}
                             </div>
                         </div>
 
@@ -228,12 +511,36 @@ const SafeCenter: React.FC = () => {
                                 </span>
                             </p>
 
-                            <button className={`${styles.btn_style} btn-color-default`}>{item.btntext}</button>
+                            <button className={`${styles.btn_style} btn-color-default`} onClick={item.button}>{item.btntext}</button>
                         </div>
 
                     </li>
                 ))}
             </ul>
+            {/* 修改确认弹窗 */}
+            <CheckModal
+                open={checkModalOpen}
+                type={checkType}
+                onOk={handCheckModal}
+                onCancel={() => setCheckModalOpen(false)} />
+            {/* 设置/修改手机号 */}
+            <SetPhoneModal
+                open={phoneModalOpen}
+                type={phoneType}
+                onOk={() => handOk()}
+                onCancel={() => setPhoneModalOpen(false)} />
+            {/* 设置/修改邮箱 */}
+            <SetMailModal
+                open={mailModalOpen}
+                type={mailType}
+                onOk={() => handOk()}
+                onCancel={() => setMailModalOpen(false)} />
+            {/* 安全验证-关闭手机验证 /修改邮箱*/}
+            <SafeModal
+                open={safeModalOpen}
+                type={safeType}
+                onOk={handsvcOk}
+                onCancel={() => setSafeModalOpen(false)} />
         </div>
 
     </div>);

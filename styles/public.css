@@ -15,6 +15,7 @@
 .cancel_btn2{
   color: var(--cancel-color);
   background-color: var( --cancel-btn2);
+  border: 1px solid var(--cancel-btn2);
 }
 .cancel_btn3{
   color: var(--cancel-color);
@@ -233,6 +234,9 @@
 
 .mb-2 {
   margin-bottom: 8px;
+}
+.mb-2_5 {
+  margin-bottom: 10px;
 }
 
 .mb-3 {
@@ -456,7 +460,11 @@
 .text-right{
   text-align: right;
 }
-
+.line-1 {
+  white-space: nowrap; /* 禁止文本换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+}
 
 
 @media (max-width: 680px) {

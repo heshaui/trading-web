@@ -193,6 +193,7 @@ function AuthCode() {
     }
     const goLoginPage = () => {
         // setLoginState(LoginStateEnum.LOGIN)
+        store.clearUserToken()
         router.push('/login')
     }
     useEffect(() => {
@@ -210,8 +211,10 @@ function AuthCode() {
             <div className='mb-2'>
                 <p className='font-16 font-w-500 mb-1'>已发送验证码至</p>
                 <p className={`${styles.tip_color1}`}>
-                    <span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
-                    {registerInfo.type === 'm' ? encryptEmail(registerInfo.email) : encryptPhoneNumber(registerInfo.phone)}
+                    {registerInfo.type === 'm'&& encryptEmail(registerInfo.email) }
+                    {registerInfo.type === 'p' &&(<><span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
+                     {encryptPhoneNumber(registerInfo.phone)}
+                     </>)}
                 </p>
             </div>
             <Form

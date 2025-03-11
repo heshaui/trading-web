@@ -4,7 +4,7 @@ import {API_MODULE_NAME} from '@/config/apiConfig';
 const fixUrl=`/${API_MODULE_NAME.AMBIT_USER_WEB}`
 
 interface UpdateUserCenterType {
-  userId: number;
+  userId: number|string;
   birthday?: string;
   avatarUrl?:string;
   nickname?:string;

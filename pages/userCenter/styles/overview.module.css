@@ -98,6 +98,7 @@
 }
 
 .qr_code {
+    width: 100%;
     padding: 24px;
 }
 
@@ -107,7 +108,9 @@
 
 .invite_code {
     margin-top: 6px;
-    width: 100%;
+    /* width: 80%; */
+    max-width: 230px;
+    flex: 1;
     height: 37px;
     border-radius: 4px;
     border: 1px solid var(--border-color);
