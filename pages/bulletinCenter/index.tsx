@@ -9,8 +9,9 @@ import MessagePagination from './components/MessagePagination';
 import MessageItemDetail from './components/MessageItemDetail';
 import RenderBulletinTop from './components/RenderBulletinTop';
 import styles from './styles/bulletinCenter.module.css';
-import { menuData, messageData, detailMenuItems } from '@/data/bulletinCenter/getItemsMessage';
+import { menuData, messageData, detailMenuItems, detailListData } from '@/data/bulletinCenter/getItemsMessage';
 import { MessageData } from '@/type/bulletin_center/bc_types';
+import { highlightText } from '@/utils/highlight';
 
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -43,6 +44,10 @@ export default function BulletinCenter() {
     const [readMessageIds, setReadMessageIds] = useState<Set<string>>(new Set());
     // 添加状态来控制是否只显示未读消息
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+    // 添加搜索值
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [filteredData, setFilteredData] = useState(messageData);
+    const [filteredDetailData, setFilteredDetailData] = useState(detailListData);
 
     // 创建一个通用的生成菜单项的函数
     const generateMenuItems = (
@@ -84,7 +89,7 @@ export default function BulletinCenter() {
     // 判断消息是否已读
     const isMessageRead = (messageId: string) => {
         // return readMessageIds.has(messageId);
-        
+
         // 只有公告菜单项的消息才判断已读状态
         if (selectedKeys[0] === '1') {
             return readMessageIds.has(messageId);
@@ -117,23 +122,41 @@ export default function BulletinCenter() {
         }
         return messages;
     };
+    // const currentMessages = useMemo(() => {
+    //     const currentKey = selectedKeys[0] || '1';
+    //     const messages = messageData[currentKey] || [];
+
+    //     // 先进行筛选和排序
+    //     const processedMessages = getFilteredAndSortedMessages(messages);
+
+    //     // 然后进行分页
+    //     const currentPage = getCurrentPage(currentKey);
+    //     const startIndex = (currentPage - 1) * pageSize;
+    //     const endIndex = startIndex + pageSize;
+
+    //     return {
+    //         data: processedMessages.slice(startIndex, endIndex),
+    //         total: processedMessages.length
+    //     };
+    // }, [selectedKeys, pagesState, messageData, showUnreadOnly, readMessageIds]);
     const currentMessages = useMemo(() => {
         const currentKey = selectedKeys[0] || '1';
-        const messages = messageData[currentKey] || [];
-        
+        // 使用过滤后的数据
+        const messages = filteredData[currentKey] || [];
+
         // 先进行筛选和排序
         const processedMessages = getFilteredAndSortedMessages(messages);
-        
+
         // 然后进行分页
         const currentPage = getCurrentPage(currentKey);
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        
+
         return {
             data: processedMessages.slice(startIndex, endIndex),
             total: processedMessages.length
         };
-    }, [selectedKeys, pagesState, messageData, showUnreadOnly, readMessageIds]);
+    }, [selectedKeys, pagesState, filteredData, showUnreadOnly, readMessageIds]);
 
     // 处理页码变化
     const handlePageChange = (page: number) => {
@@ -228,6 +251,56 @@ export default function BulletinCenter() {
     // 在渲染列表时使用筛选和排序后的数据
     const filteredAndSortedMessages = getFilteredAndSortedMessages(currentMessages.data);
 
+    // 处理搜索
+    const handleSearch = (keyword: string) => {
+        setSearchKeyword(keyword);
+
+        if (!keyword.trim()) {
+            // 如果搜索关键词为空，恢复原始数据
+            setFilteredData(messageData);
+            setFilteredDetailData(detailListData);
+            return;
+        }
+
+        // 过滤消息数据
+        const newFilteredData = Object.keys(messageData).reduce((acc, key) => {
+            const filtered = messageData[key].filter(item =>
+                item.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                (item.content && item.content.toLowerCase().includes(keyword.toLowerCase()))
+            );
+            if (filtered.length > 0) {
+                acc[key] = filtered;
+            }
+            return acc;
+        }, {} as typeof messageData);
+
+        // 过滤详情列表数据
+        const newFilteredDetailData = Object.keys(detailListData).reduce((acc, key) => {
+            const filtered = detailListData[key].filter(item =>
+                item.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                (item.content && item.content.toLowerCase().includes(keyword.toLowerCase()))
+            );
+            if (filtered.length > 0) {
+                acc[key] = filtered;
+            }
+            return acc;
+        }, {} as typeof detailListData);
+
+        setFilteredData(newFilteredData);
+        setFilteredDetailData(newFilteredDetailData);
+    };
+
+    // 渲染带高亮的标题
+    const renderHighlightedTitle = (title: string) => {
+        return searchKeyword ? highlightText(title, searchKeyword) : title;
+    };
+
+    // 渲染带高亮的内容
+    const renderHighlightedContent = (content?: string) => {
+        if (!content) return null;
+        return searchKeyword ? highlightText(content, searchKeyword) : content;
+    };
+
 
     return (
         <ConfigProvider
@@ -258,6 +331,7 @@ export default function BulletinCenter() {
                     onBack={handleBack}
                     onReadAll={handleReadAll}
                     onUnreadChange={handleUnreadChange}
+                    onSearch={handleSearch}
                 />
                 <div className={`${styles.bulletinContent} customMenu`}>
                     <Row justify='space-between' gutter={16}>
@@ -295,9 +369,17 @@ export default function BulletinCenter() {
                                         <Col flex={1}>
                                             {filteredAndSortedMessages.length > 0 ? (
                                                 filteredAndSortedMessages.map((message) => (
+                                                    // <MessageItem
+                                                    //     key={message.id}
+                                                    //     title={message.title}
+                                                    //     time={message.time}
+                                                    //     onClick={() => handleMessageClick(message)}
+                                                    //     isClickable={selectedKeys[0] === '1'}
+                                                    //     isRead={isMessageRead(message.id || '')}
+                                                    // />
                                                     <MessageItem
                                                         key={message.id}
-                                                        title={message.title}
+                                                        title={renderHighlightedTitle(message.title) as string}
                                                         time={message.time}
                                                         onClick={() => handleMessageClick(message)}
                                                         isClickable={selectedKeys[0] === '1'}
