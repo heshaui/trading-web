@@ -4,23 +4,70 @@
     border-radius: 8px;
     padding: 24px 0;
 }
+
 .customMenu .ant-menu .ant-menu-item {
     min-height: 60px;
     cursor: pointer;
 }
+
 /* 帮助中心样式更改 */
 .customCard .ant-card {
     height: 158px;
     cursor: pointer;
 }
+
 .customSegmented .ant-segmented-item {
     border-radius: 55px;
     width: 33.33%;
     color: var(--text-color6);
 }
+
 .customSegmented .ant-segmented-item.ant-segmented-item-selected,
 .customSegmented .ant-segmented-thumb {
     border-radius: 55px !important;
     background-color: var(--btncolor7) !important;
     color: var(--text-color5) !important;
+}
+
+
+.customHelperMenu .ant-menu-submenu.ant-menu-submenu-active .ant-menu-submenu-title:hover {
+    background-color: transparent;
+}
+
+.customHelperMenu .ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-title-content,
+.customHelperMenu .ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-submenu-arrow,
+.customHelperMenu .ant-menu-submenu-title:hover .ant-menu-title-content,
+.customHelperMenu .ant-menu-submenu-title:hover .ant-menu-submenu-arrow {
+    color: #FF5F1F;
+}
+
+.customHelperMenu .ant-menu .ant-menu-item {
+    padding-left: 24px !important;
+    height: 60px;
+}
+
+.customHelperMenu .ant-menu .ant-menu-item-selected,
+.customHelperMenu .ant-menu .ant-menu-item.ant-menu-item-active,
+.customHelperMenu .ant-menu .ant-menu-item.ant-menu-item-active:hover {
+    background-color: #FF5F1F;
+}
+/* 分页 */
+.customHelperMenu .ant-pagination .ant-pagination-item {
+    border-radius: 0px;
+}
+.customHelperMenu .ant-pagination .ant-pagination-item a {
+    font-size: 14px;
+    color: var(--text-color5);
+}
+.customHelperMenu .ant-pagination .ant-pagination-item-active a {
+    color: #FFFFFF;
+}
+
+.customHelperMenu .ant-pagination  .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link .anticon.anticon-left,
+.customHelperMenu .ant-pagination  .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link .anticon.anticon-right {
+    color: #A4A5AC;
+}
+.customHelperMenu .ant-pagination  .ant-pagination-prev .ant-pagination-item-link .anticon.anticon-left,
+.customHelperMenu .ant-pagination  .ant-pagination-next .ant-pagination-item-link .anticon.anticon-right {
+    color: var(--text-color5);
 }

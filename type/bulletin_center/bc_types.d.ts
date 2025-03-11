@@ -31,4 +31,5 @@ export interface RenderBulletinTopProps {
     onBack?: () => void; // 添加返回处理函数
     onReadAll?: () => void; // 添加全部已读处理函数
     onUnreadChange?: (checked: boolean) => void; // 添加未读筛选回调
+    onSearch?: (value: string) => void; // 添加搜索处理函数
 }

@@ -1734,7 +1734,7 @@ export default function HomeMenu() {
                 </Button>
                 <MenuAdaptiveItem menuList={adaptiveMenuData} />
             </Drawer>
-            <p>{t('home_menu:home_menu_title_2')}</p>
+            {/* <p>{t('home_menu:home_menu_title_2')}</p> */}
         </div>
     );
 }

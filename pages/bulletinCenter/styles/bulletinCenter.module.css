@@ -15,16 +15,8 @@
     margin-top: 24px;
 }
 /* 顶部字体颜色 */
-@media (prefers-color-scheme: dark) {
-    .themeText {
-        color: #FFFFFF;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .themeText {
-        color: #000000;
-    }
+.themeText {
+    color: var(--text-color5);
 }
 
 /* 公告 - 全部公告 */

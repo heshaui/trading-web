@@ -56,7 +56,13 @@ export default function HelpCenter() {
             icon: '/images/help_center/icon_user.png',
             buttonWord: '账户功能',
             alt: 'user',
-        }
+        },
+        {
+            title: '常见问题',
+            icon: '/images/help_center/icon_user.png',
+            buttonWord: '账户功能',
+            alt: 'user',
+        },
     ]);
     // 如果需要在主题切换时更新列表
     useEffect(() => {
