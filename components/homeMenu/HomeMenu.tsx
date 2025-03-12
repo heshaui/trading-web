@@ -135,58 +135,95 @@ export default function HomeMenu() {
     // 格式化菜单
     function formatMenus(menuData: any[]): MenuListItem[] {
         return menuData.map(menu => {
-            return {
+            // 检查图片 URL 是否为本地路径
+            const getImagePath = (url: string, isDay: boolean) => {
+                // 如果没有URL，返回默认图片
+                if (!url) return '/images/home_menu/Avatar.png';
+
+                try {
+                    // 如果是完整的 URL，直接返回
+                    if (url.startsWith('http')) {
+                        return url;
+                    }
+
+                    // 如果已经是本地路径，检查格式是否正确
+                    if (!url.startsWith('/')) {
+                        // 如果不是以/开头，添加/
+                        return `/${url}`;
+                    }
+
+                    // 返回有效的本地路径
+                    return url;
+                } catch (error) {
+                    console.error('处理图片路径时出错:', error);
+                    return '/images/home_menu/Avatar.png'; // 出错时返回默认图片
+                }
+            };
+
+            // 基本菜单项结构
+            const menuItem = {
                 key: String(menu.id),
                 title: menu.menuName,
                 linkHref: menu.accessPath,
-                // items: (menu.children || []).map((child: {
-                //     menuName: string;
-                //     menuViceName: string; id: any; iconUrlDay: any; menuDescription: string | undefined; isNew: any;
-                // }) => ({
-                //     key: String(child.id),
-                //     type: 'item',
-                //     label: (
-                //         <MenuItemLabel
-                //             src={child.iconUrlDay || "/images/home_menu/Avatar.png"} // 使用白天图标或默认图片路径
-                //             h5Text={child.menuName || '默认子标题'}
-                //             spanText={child.menuViceName || '默认子副标题'}
-                //             isNew={child.isNew ? true : undefined} // 如果有isNew属性则添加
-                //         />
-                //     ),
-                // }))
-                // test
-                items: [{
+                items: [] as any[]
+            };
+
+            // 处理二级菜单
+            if (menu.children && menu.children.length > 0) {
+                menuItem.items = menu.children.map((child: any) => {
+                    // 二级菜单项
+                    const secondLevelItem = {
+                        key: String(child.id),
+                        type: child.typeId === 1 ? 'group' : (child.typeId === 2 ? 'item' : 'divider'),
+                        label: (
+                            <MenuItemLabel
+                                src={getImagePath(isDayMode ? child.iconUrlDay : child.iconUrlNight, isDayMode)}
+                                h5Text={child.menuName || ''}
+                                spanText={child.menuViceName || ''}
+                                isNew={child.cornerMarkOne === '新' || child.cornerMarkTwo === '新'}
+                            />
+                        ),
+                        children: [] as any[]
+                    };
+
+                    // 处理三级菜单
+                    if (child.children && child.children.length > 0) {
+                        secondLevelItem.children = child.children.map((grandChild: any) => ({
+                            key: String(grandChild.id),
+                            type: grandChild.typeId === 1 ? 'group' : (grandChild.typeId === 2 ? 'item' : 'divider'),
+                            label: (
+                                <MenuItemLabel
+                                    src={getImagePath(isDayMode ? grandChild.iconUrlDay : grandChild.iconUrlNight, isDayMode)}
+                                    h5Text={grandChild.menuName || ''}
+                                    spanText={grandChild.menuViceName || ''}
+                                    isNew={grandChild.cornerMarkOne === '新' || grandChild.cornerMarkTwo === '新'}
+                                />
+                            )
+                        }));
+                    }
+
+                    return secondLevelItem;
+                });
+            } else {
+                // 如果没有子菜单，创建一个默认项
+                menuItem.items = [{
                     key: String(menu.id),
-                    // type: menu.typeId === 1 ? 'group' : ( menu.typeId === 2 ? 'item' : 'divider' ) || 'item',
-                    type: 'item',
+                    type: menu.typeId === 1 ? 'group' : (menu.typeId === 2 ? 'item' : 'divider'),
                     label: (
                         <MenuItemLabel
-                            // src={menu.iconUrlDay || "/images/home_menu/Avatar.png"} // 使用白天图标或默认图片路径
-                            src="/images/home_menu/Avatar.png" // 使用白天图标或默认图片路径
-                            h5Text={menu.menuName || ''} // 使用 menuName
-                            spanText={menu.menuViceName || ''} // 使用 menuViceName
-                        // isNew={menu.isNew ? true : undefined} // 如果有isNew属性则添加
+                            src={getImagePath(isDayMode ? menu.iconUrlDay : menu.iconUrlNight, isDayMode)}
+                            h5Text={menu.menuName || ''}
+                            spanText={menu.menuViceName || ''}
+                            isNew={menu.cornerMarkOne === '新' || menu.cornerMarkTwo === '新'}
                         />
                     ),
-                    // children: [
-                    //     {
-                    //         key: String(menu.id),
-                    //         type: 'item',
-                    //         label: (
-                    //             <MenuItemLabel
-                    //                 // src={menu.iconUrlDay || "/images/home_menu/Avatar.png"} // 使用白天图标或默认图片路径
-                    //                 src="/images/home_menu/Avatar.png" // 使用白天图标或默认图片路径
-                    //                 h5Text={menu.menuName || ''} // 使用 menuName
-                    //                 spanText={menu.menuViceName || ''} // 使用 menuViceName
-                    //                 // isNew={menu.isNew ? true : undefined} // 如果有isNew属性则添加
-                    //             />
-                    //         ),
-                    //     }
-                    // ]
-                }]
-            };
+                }];
+            }
+
+            return menuItem;
         });
     }
+
     // 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
     function formatAdaptiveMenus(menuData: any[]): MenuListItem[] {
         return menuData.map(menu => {
@@ -622,6 +659,10 @@ export default function HomeMenu() {
     const handleLanguageClick = async (language: string, langEncode: string) => {
         setSelectedLanguage(language);
         localStorage.setItem('lang', langEncode);
+
+        // 分发自定义事件通知其他组件语言已更改
+        const event = new CustomEvent('langChange', { detail: langEncode });
+        window.dispatchEvent(event);
 
         // 切换语言后重新请求所有数据
         initializeData(langEncode);
@@ -1718,7 +1759,7 @@ export default function HomeMenu() {
                 <div>{menuData ? JSON.stringify(menuData) : '暂无数据'}</div>
             </div> */}
             {/* 点击展开的左侧菜单栏 */}
-            <Drawer
+            {/* <Drawer
                 closable
                 destroyOnClose
                 title={<p>菜单</p>}
@@ -1733,7 +1774,7 @@ export default function HomeMenu() {
                     Reload
                 </Button>
                 <MenuAdaptiveItem menuList={adaptiveMenuData} />
-            </Drawer>
+            </Drawer> */}
             {/* <p>{t('home_menu:home_menu_title_2')}</p> */}
         </div>
     );

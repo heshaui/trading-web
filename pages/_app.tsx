@@ -12,10 +12,25 @@ import Footer from '@/components/footer/Footer';
 import { useRouter } from 'next/router';
 // import {  Toaster} from "sonner";
 import Toaster from "@/components/toast";
-import theme from '@/theme/themeConfig';
+// import theme from '@/theme/themeConfig';
+import type { ThemeConfig } from 'antd';
+import defaultTheme, { getThemeConfig } from '@/theme/themeConfig';
 
 
 function App({ Component, pageProps }: AppProps) {
+  // 动态主题
+  const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
+  // 获取动态主题
+  useEffect(() => {
+    // 在客户端加载时获取动态主题
+    const fetchTheme = async () => {
+      const dynamicTheme = await getThemeConfig();
+      setTheme(dynamicTheme);
+    };
+    
+    fetchTheme();
+  }, []);
+  
   const [isDarkMode, setIsDarkMode] = useState(false);
   // const { t } = useTranslation(['common', 'home_menu']);
   const { t, i18n } = useTranslation('common');
