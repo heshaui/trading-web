@@ -5,7 +5,7 @@ import { ApiResponse, FooterListProps, FormattedLanguage, LanguageParams } from 
 import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { getCustomFooter, getLogo } from '@/services/footer';
+import { getCustomFooter, getLogo, getSocialMediaList } from '@/services/footer';
 import { getLanguage } from '@/services/header';
 
 interface FooterSetting {
@@ -22,6 +22,17 @@ interface CustomFooterResponse {
     reqNo: string;
     data: FooterItem[];  // 直接是数组类型，不是字符串
 }
+// 添加社交媒体项的接口
+interface SocialMediaItem {
+    id: number;
+    nameText: string;
+    imgUrl: string;
+    linkUrl: string;
+    status: number;
+    createTime: number;
+    updateTime: number;
+    tenantId: string;
+}
 
 export default function Footer() {
     // 添加状态管理选中的语言
@@ -33,6 +44,9 @@ export default function Footer() {
     const [customFooter, setCustomFooter] = useState<FooterItem[]>([]);
     // 语言
     const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
+    // 添加社交媒体列表状态
+    const [socialMediaList, setSocialMediaList] = useState<SocialMediaItem[]>([]);
+
     useEffect(() => {
         const fetchFooterSetting = async () => {
             try {
@@ -63,6 +77,14 @@ export default function Footer() {
                         key: `${String(index + 1)}`
                     }));
                     setLanguageList(formattedLanguageData);
+                }
+
+                // 获取社交媒体列表
+                const socialMediaResponse = await getSocialMediaList() as ApiResponse<SocialMediaItem[]>;
+                if (socialMediaResponse?.code === '0' && socialMediaResponse.data) {
+                    // 只显示状态为1的社交媒体
+                    const activeMediaList = socialMediaResponse.data.filter(item => item.status === 1);
+                    setSocialMediaList(activeMediaList);
                 }
             } catch (error) {
                 console.error('获取footer设置失败:', error);
@@ -195,6 +217,36 @@ export default function Footer() {
             </>
         );
     };
+    // 渲染社交媒体图标
+    const renderSocialMediaIcons = () => {
+        if (socialMediaList.length === 0) {
+            // 如果没有社交媒体数据，显示默认的Discord图标
+            return (
+                <Col style={{ marginBottom: '10px' }} span={6}>
+                    <Image
+                        src="/images/footer/icon_discord.png"
+                        alt=''
+                        width={20}
+                        height={20}
+                    />
+                </Col>
+            );
+        }
+
+        // 渲染从API获取的社交媒体图标
+        return socialMediaList.map((item, index) => (
+            <Col key={item.id || index} style={{ marginRight: '12px' }}>
+                <a href={item.linkUrl} target="_blank" rel="noopener noreferrer">
+                    <Image
+                        src={item.imgUrl}
+                        alt={item.nameText || '社交媒体'}
+                        width={20}
+                        height={20}
+                    />
+                </a>
+            </Col>
+        ));
+    };
     return (
         <ConfigProvider
             theme={{
@@ -232,17 +284,10 @@ export default function Footer() {
                     </div>
                     <p>©2023 - 2024 MetaWave.</p>
                     <Row>
-                        <Col><h6 style={{ color: 'var(--text-color5)', fontSize: 12 }}>社区</h6></Col>
+                        <Col><h6 style={{ color: '#FFFFFF', fontSize: 12 }}>社区</h6></Col>
                     </Row>
-                    <Row style={{ margin: '10px 0 8px 0' }}>
-                        <Col>
-                            <Image
-                                src="/images/footer/icon_discord.png"
-                                alt=''
-                                width={20}
-                                height={20}
-                            />
-                        </Col>
+                    <Row align='middle' style={{ marginTop: '10px' }}>
+                        {renderSocialMediaIcons()}
                     </Row>
                     <Dropdown
                         menu={{

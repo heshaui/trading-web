@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumb, ConfigProvider, Layout, Menu, Pagination } from 'antd';
 import Link from 'next/link';
 import styles from './styles/helpCenter.module.css';
@@ -159,7 +159,68 @@ export default function HelperCenterDetail() {
     const { title, category } = router.query;
     // 路由参数
     const locale = router.query.locale || 'zh';
+    // 从本地存储获取语言设置
+    const [storedLang, setStoredLang] = useState<string>('zh_CN');
+    // 在组件加载时从本地存储获取语言并添加监听器
+    useEffect(() => {
+        // 确保代码在客户端执行
+        if (typeof window !== 'undefined') {
+            // 初始获取语言
+            const localLang = localStorage.getItem('lang') || 'zh_CN';
+            setStoredLang(localLang);
 
+            // 创建存储事件监听器（其他标签页更改时触发）
+            const handleStorageChange = (event: StorageEvent) => {
+                if (event.key === 'lang' && event.newValue) {
+                    setStoredLang(event.newValue);
+                }
+            };
+
+            // 创建自定义事件监听器（当前页面更改时触发）
+            const handleCustomLangChange = (event: CustomEvent) => {
+                if (event.detail && typeof event.detail === 'string') {
+                    setStoredLang(event.detail);
+                }
+            };
+
+            // 添加事件监听器
+            window.addEventListener('storage', handleStorageChange);
+            window.addEventListener('langChange', handleCustomLangChange as EventListener);
+
+            // 清理函数
+            return () => {
+                window.removeEventListener('storage', handleStorageChange);
+                window.removeEventListener('langChange', handleCustomLangChange as EventListener);
+            };
+        }
+    }, []);
+    // 获取动态菜单数据
+    const fetchMenuItems = useCallback(async () => {
+        if (!category || (category !== '常见问题' && category !== '新手帮助')) {
+            return;
+        }
+
+        try {
+            // 使用本地存储中的语言设置
+            const lang = storedLang;
+
+            // 调用接口获取菜单数据
+            const response = await getHelpCenterMenu({ lang });
+
+            // 在控制台打印获取的数据
+            console.log('帮助中心菜单数据:', response);
+            console.log('当前语言:', lang);
+
+            // 暂时不渲染到页面上，仍使用模拟数据
+        } catch (error) {
+            console.error('获取菜单数据失败:', error);
+        }
+    }, [category, storedLang]);
+
+    // 当 category 或 storedLang 变化时获取数据
+    useEffect(() => {
+        fetchMenuItems();
+    }, [fetchMenuItems]);
     // 选中菜单
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     // 展开菜单

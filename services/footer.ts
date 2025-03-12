@@ -16,3 +16,9 @@ export function getCustomFooter(data: { lang: string }) {
         body: JSON.stringify(data),
     });
 }
+// 获取社交媒体列表
+export function getSocialMediaList() {
+    return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/open/homeSocialMedia/homeSocialMediaList`, {
+        method: 'POST',
+    });
+}
