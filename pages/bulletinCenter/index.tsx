@@ -307,6 +307,12 @@ export default function BulletinCenter() {
             theme={{
                 components: {
                     Input: {
+                        inputFontSize: 12,
+                        colorTextPlaceholder: 'var(--help-center-input-text)',
+                        colorBorder: 'var(--border-color4)',
+                        activeBg: 'transparent',
+                        hoverBg: 'transparent',
+                        colorText: 'var(--text-color5)'
                     },
                     Menu: {
                         itemColor: '#A4A5AC',
@@ -318,7 +324,16 @@ export default function BulletinCenter() {
                         itemMarginBlock: 0,
                         itemBorderRadius: 10
                     },
-                    Pagination: {}
+                    Pagination: {
+                        itemActiveBg: '#FF5F1F',
+                    },
+                    Breadcrumb: {
+                        itemColor: 'var(--text-color6)',
+                        lastItemColor: 'var(--text-color5)',
+                        separatorColor: 'var(--text-color6)',
+                        linkColor: 'var(--text-color6)',
+                        linkHoverColor: 'none',
+                    },
                 },
                 token: {
                     colorPrimary: '#FF5F1F',
@@ -345,10 +360,10 @@ export default function BulletinCenter() {
                             />
                         </Col>
                         <Col flex={4}>
-                            <Card>
+                            <Card style={{ backgroundColor: 'transparent' }}>
                                 <Row>
                                     <Col>
-                                        <h5 style={{ fontSize: 18, fontWeight: 500, color: '#0C0D0C' }}>
+                                        <h5 style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-color5)' }}>
                                             {selectedLabel}
                                         </h5>
                                     </Col>

@@ -4,11 +4,11 @@
 }
 .bulletinContainer .bulletinTop {
     padding: 15px 0;
-    border-bottom: 0.5px solid #DCDCDC;
+    border-bottom: 0.5px solid var(--border-color4);
 }
 .bulletinContainer .bulletinContent {
     padding: 20px 0;
-    color: #0C0D0C;
+    color: var(--text-color5);
 }
 /* 分页顶部间距 */
 .PaginationMargin {
@@ -23,7 +23,7 @@
 .bulletinContainer .bulletinContent .bulletinCenterContent {
     box-sizing: border-box;
     padding: 20px 0;
-    border-bottom: 0.5px solid #DCDCDC;
+    border-bottom: 0.5px solid var(--border-color4);
     cursor: pointer;
 }
 .bulletinContainer .bulletinContent .detail {
@@ -32,13 +32,16 @@
 .bulletinContainer .bulletinContent .bulletinCenterContent h6 {
     font-size: 16px;
     font-weight: 500;
+    color: var(--text-color5);
 }
 .bulletinContainer .bulletinContent .bulletinCenterContent .readTitle {
     color: #9E9E9E;
 }
 .bulletinContainer .bulletinContent .bulletinCenterContent .timeContent {
     margin-top: 10px;
-    color: #A4A5AC;
+}
+.bulletinContainer .bulletinContent .bulletinCenterContent .timeContent span {
+    color: var(--text-color6);
 }
 /* 公告 - 详情页 */
 .contentContainer {
