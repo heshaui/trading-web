@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
     "rc-upload",
     "rc-util",
   ],
-  webpack: (config,{ isServer }) => {
+  webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         fs: false, // 禁用 fs 模块
@@ -82,13 +82,17 @@ const nextConfig: NextConfig = {
         destination: "http://ljx.imbit.work/ambit-home-web/:path*", // 代理到目标服务器
       },
       {
-          source: "/ambit-user-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
-          destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
+        source: "/ambit-inform-web/:path*", // 公告数据
+        destination: "http://ljx.imbit.work/ambit-inform-web/:path*", // 代理到目标服务器
+      },
+      {
+        source: "/ambit-user-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
+        destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
       },
       {
         source: "/ambit-oss/:path*", // 匹配所有 /ambit-user-web/xxx 请求
         destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
-    },
+      },
     ];
   },
   i18n, // 集成 i18n 配置
@@ -109,7 +113,7 @@ const nextConfig: NextConfig = {
     return [];
   },
   images: {
-    domains: ['meta2025.oss-ap-northeast-2.aliyuncs.com'],
+    domains: ['meta2025.oss-ap-northeast-2.aliyuncs.com', 'example.com'],
   },
 };
 
