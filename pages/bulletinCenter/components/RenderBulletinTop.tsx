@@ -21,7 +21,7 @@ export default function RenderBulletinTop({ showDetail, onBack, onReadAll, onUnr
     if (!showDetail) {
         // 在公告中心主页面时
         return (
-            <div className={styles.bulletinTop}>
+            <div className={`${styles.bulletinTop} customSearch`}>
                 <Row align='middle' justify='space-between'>
                     <Col>
                         <Row gutter={16} align='middle'>
@@ -34,6 +34,7 @@ export default function RenderBulletinTop({ showDetail, onBack, onReadAll, onUnr
                                     value={searchValue}
                                     onChange={(e) => setSearchValue(e.target.value)}
                                     onSearch={handleSearch}
+                                    className={styles.input}
                                 />
                             </Col>
                         </Row>
