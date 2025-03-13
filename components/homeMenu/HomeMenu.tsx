@@ -101,18 +101,18 @@ export default function HomeMenu() {
             }
 
             // 获取公告数据
-            const bulletinResponse = await getBulletinMessage({
-                languageCode: currentLang
-            }) as ApiResponse<any>;
+            // const bulletinResponse = await getBulletinMessage({
+            //     languageCode: currentLang
+            // }) as ApiResponse<any>;
 
-            if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
-                // 格式化公告数据
-                const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
-                    h5Text: item.title,
-                    spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
-                }));
-                setBulletinData(formattedBulletinData);
-            }
+            // if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+            //     // 格式化公告数据
+            //     const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+            //         h5Text: item.title,
+            //         spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+            //     }));
+            //     setBulletinData(formattedBulletinData);
+            // }
 
             // 获取语言数据
             const languageResponse = await getLanguage({
