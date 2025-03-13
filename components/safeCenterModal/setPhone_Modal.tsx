@@ -9,18 +9,18 @@ import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
-import { bindPhone, getSmsCode ,getEmailCode} from '@/services/safeCenter'
+import { bindPhone, getSmsCode } from '@/services/safeCenter'
 import { toast } from "sonner";
 import { encryptData } from "@/utils/encrypt";
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
-    onOk: (type: string) => void;
+    onOk?: () => void;
     onCancel: () => void;
     type: string;
 };
 
-function SetMailModal({ open, onCancel, type, onOk }: Props) {
+function SetMailModal({ open, onCancel, type }: Props) {
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [countdown, setCountdown] = useState(60);
@@ -39,7 +39,41 @@ function SetMailModal({ open, onCancel, type, onOk }: Props) {
         form.validateFields()
             .then(async (values) => {
                 // console.log(values);
-                onOk(type)
+                if (firstCheck) return toast.error('请先发送验证码')
+                try {
+                    let params = {}
+                    if (type === 'set') {
+                        // 设置手机号
+                        params = {
+                            isPhoneAuth: 1,
+                            phone: values.phoneNumber,
+                            code: values.code,
+                            googleCode: values.googleCode,
+                            countryCode: values.areaCode.replace("+", "")
+                        }
+
+                    } else if (type === 'change') {
+                        // 修改手机号
+                        params = {
+                            phoneStatus: 1,
+                            phone: values.phoneNumber,
+                            code: values.code,
+                            countryCode: values.areaCode.replace("+", "")
+                        }
+
+                    }
+                    const dataEncrypt = await encryptData(params)
+                    const res = await bindPhone(dataEncrypt)
+                    if (res.code === '0') {
+                        toast.success(res.data)
+                        // setFirstCheck(true)
+                        handCancel()
+                    } else {
+                        toast.error(res.message)
+                    }
+                } catch (error) {
+                    toast.error(String(error))
+                }
             });
     };
     const getPhoneCode = async () => {
@@ -47,7 +81,7 @@ function SetMailModal({ open, onCancel, type, onOk }: Props) {
         const number = form.getFieldValue('phoneNumber')
         const code = form.getFieldValue('areaCode')
         if (!number) return toast.error('请先输入手机号')
-        setCodeLoading(false)
+        setCodeLoading(true)
         try {
             const dataInfo = {
                 number: number,
@@ -74,36 +108,7 @@ function SetMailModal({ open, onCancel, type, onOk }: Props) {
 
         }
     };
-    const getMailCode = async () => {
-        if (isCounting || loading || codeLoading) return
-        const number = form.getFieldValue('email')
-        if (!number) return toast.error('请先输入邮箱！')
-        setCodeLoading(false)
-        try {
-            const dataInfo = {
-                number: number,
-                deviceType: "web"
-            };
-            const dataEncrypt = await encryptData(dataInfo)
-            const res = await getEmailCode(dataEncrypt);
-            if (res.code === "0") {
-                setFirstCheck(false)
-                toast.success(res.message)
-                startCountdown();
-            } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
-            } else {
-                toast.error(res.message)
-            }
-            setCodeLoading(false)
 
-        } catch (error) {
-            setCodeLoading(false)
-            toast.error(String(error))
-            console.error('获取验证码出错:', error);
-
-        }
-    };
     const startCountdown = () => {
         setCountdown(60);
         setIsCounting(true);

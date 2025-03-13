@@ -180,7 +180,7 @@
 .ant-form-item-explain {
     width: 100%;
     white-space: nowrap;
-    text-align: right;
+    /* text-align: right; */
     font-size: 12px;
 }
 
@@ -233,4 +233,54 @@
     width: 4px;
     height: 50px;
     background: #FF5F1F;
+}
+
+/*table 表格组件 */
+/* 背景色/各行背景色 */
+.table-box .ant-table{
+    background: transparent !important;
+    color: var(--text-color5) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+/* 表头文字*/
+.table-box .ant-table-thead{
+    font-weight: 400 !important;
+    font-size: 12px !important;
+}
+/* 展开行margin及padding */
+.table-box .ant-table-expanded-row-fixed,
+.table-box2 .ant-table-expanded-row-fixed{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* 展开行hover背景色 */
+.table-box .ant-table-cell-row-hover{
+    background: var(--bgc-color) !important;
+    color: var(--text-color5) !important;
+}
+.table-box2 .ant-table-cell-row-hover{
+    background: transparent !important;
+}
+/* 不显示展开图标时展开列表位置 */
+.table-box2 .ant-table{
+    margin-left: 0 !important;
+}
+.table-box .ant-table-cell{
+    padding: 16px 0 !important;
+    padding-left: 16px !important;
+}
+/* 展开行边框 */
+.table-box2 .ant-table-tbody >tr >td {
+    border-color: transparent !important;
+}
+/* 表头边框 */
+.table-box .ant-table-thead >tr >th{
+    border-bottom: 1px solid var(--border-color4) !important;
+    border-top: 1px solid var(--border-color4) !important;
+}
+/* 空数据 */
+.table-box .ant-table-placeholder,
+.table-box .ant-table-placeholder:hover>td{
+    background: transparent !important;
 }

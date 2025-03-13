@@ -30,7 +30,7 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
         form.validateFields()
             .then(async(values) => {
-                console.log(values);
+                // console.log(values);
                 try {
                     const param={
                         userId:localStorage.getItem('userId')||'',
