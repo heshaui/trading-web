@@ -95,7 +95,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  i18n, // 集成 i18n 配置
+  i18n,
+  // 集成 i18n 配置
   // i18n: {
   //   locales: ['en', 'zh', 'ko'],
   //   defaultLocale: 'en',
