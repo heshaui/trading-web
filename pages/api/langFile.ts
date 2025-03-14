@@ -1,72 +1,115 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+
+// 语言编码到目录名称的映射
+const langCodeMapping: Record<string, string> = {
+  'zh_CN': 'zh',
+  'zh_TW': 'tw',
+  'zh_HK': 'tw',
+  'en_US': 'en',
+  'ja_JP': 'ja',
+  'ko_KR': 'ko'
+};
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { key } = req.query;
-  
-  // 打印接收到的请求信息
-  console.log('接收到请求:', {
-    查询参数: req.query,
-    请求方法: req.method,
-    请求头: req.headers
-  });
-  
   try {
-    // 需要使用完整的URL（包括协议和主机名）
-    const baseUrl = process.env.API_BASE_URL || 'http://ljx.imbit.work/ambit-home-web';
-    const fullUrl = `${baseUrl}/home-web/v1/open/userLangPackage/userLangPackageDetail`;
+    // 第一步：获取语言文件列表
+    const baseUrl = 'http://ljx.imbit.work/ambit-home-web';
+    const listUrl = `${baseUrl}/home-web/v1/open/userLangPackage/userLangPackageDetail`;
     
-    // 打印即将发送的请求信息
-    console.log('准备发送请求:', {
-      URL: fullUrl,
-      数据: { key },
-      配置: {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    });
-    
-    // 使用 fetch 发送请求到完整URL
-    const response = await fetch(fullUrl, {
+    const listResponse = await fetch(listUrl, {
       method: 'POST',
       headers: {
+        'ambit-saas': '2e5bbf22907d4a31992e9641079af195', 
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ key }),
     });
     
-    // 检查响应状态
-    if (!response.ok) {
-      throw new Error(`HTTP 错误! 状态: ${response.status}`);
+    if (!listResponse.ok) {
+      throw new Error(`获取语言文件列表失败! 状态: ${listResponse.status}`);
     }
     
-    // 解析 JSON 响应
-    const data = await response.json();
+    const listData = await listResponse.json();
+    console.log('语言文件列表:', listData);
     
-    // 打印响应信息
-    console.log('收到响应:', {
-      状态码: response.status,
-      响应头: Object.fromEntries(response.headers.entries()),
-      数据: data
+    // 如果没有文件信息，直接返回
+    if (!listData.data || listData.data.length === 0) {
+      return res.status(200).json({
+        code: "1",
+        message: "未找到语言文件信息",
+        data: null
+      });
+    }
+    
+    // 第二步：获取所有语言文件并保存
+    const publicDir = path.join(process.cwd(), 'public');
+    const savedFiles = [];
+    const savedContents: Record<string, any> = {};
+    
+    // 处理每个语言文件
+    for (const langFile of listData.data) {
+      const fileUrl = langFile.fileUrl;
+      const langCode = langFile.langEncode;
+      const fileName = langFile.fileName; // 使用原始文件名
+      
+      console.log(`准备获取语言文件内容: ${langCode} - ${fileUrl}`);
+      
+      try {
+        // 获取文件内容
+        const fileResponse = await fetch(fileUrl);
+        if (!fileResponse.ok) {
+          console.error(`获取语言文件 ${langCode} 内容失败! 状态: ${fileResponse.status}`);
+          continue; // 跳过这个文件，继续处理其他文件
+        }
+        
+        const fileContent = await fileResponse.json();
+        console.log(`语言文件 ${langCode} 内容获取成功`);
+        
+        // 确定目标目录
+        const dirName = langCodeMapping[langCode] || langCode.split('_')[0].toLowerCase();
+        const localesDir = path.join(publicDir, 'locales', dirName);
+        
+        // 确保目录存在
+        if (!fs.existsSync(localesDir)) {
+          fs.mkdirSync(localesDir, { recursive: true });
+        }
+        
+        // 使用后端返回的原始文件名
+        const filePath = path.join(localesDir, fileName);
+        fs.writeFileSync(filePath, JSON.stringify(fileContent, null, 2), 'utf8');
+        
+        console.log(`语言文件 ${langCode} 已成功写入到: ${filePath}`);
+        savedFiles.push(filePath);
+        savedContents[langCode] = fileContent;
+      } catch (error) {
+        console.error(`处理语言文件 ${langCode} 时发生错误:`, error);
+        // 继续处理其他文件
+      }
+    }
+    
+    // 返回成功响应
+    res.status(200).json({
+      code: "0",
+      message: `成功保存 ${savedFiles.length} 个语言文件`,
+      meta: listData.data,
+      savedFiles: savedFiles,
+      contents: savedContents
     });
     
-    // 返回语言数据
-    res.status(200).json(data);
   } catch (error) {
-    // 打印详细错误信息
-    console.error('获取语言文件失败:', {
-      错误消息: error.message,
-      错误堆栈: error.stack
+    console.error('语言文件处理失败:', {
+      错误消息: error instanceof Error ? error.message : '未知错误',
+      错误堆栈: error instanceof Error ? error.stack : '无堆栈信息'
     });
     
     res.status(500).json({ 
       data: null, 
       code: 'error',
-      message: '获取语言文件失败'
+      message: '获取或保存语言文件失败'
     });
   }
 } 
