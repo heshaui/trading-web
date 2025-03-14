@@ -674,15 +674,48 @@ export default function HomeMenu() {
     // 语言点击
     const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = async (language: string, langEncode: string) => {
+        // 保存选中的语言到状态和本地存储
         setSelectedLanguage(language);
         localStorage.setItem('lang', langEncode);
-
-        // 分发自定义事件通知其他组件语言已更改
-        const event = new CustomEvent('langChange', { detail: langEncode });
-        window.dispatchEvent(event);
-
-        // 切换语言后重新请求所有数据
-        initializeData(langEncode);
+        localStorage.setItem('selectedLanguage', language);
+        
+        // 直接设置i18n实例的语言
+        i18n.changeLanguage(langEncode.split('-')[0]);
+        
+        // 根据语言编码确定Next.js的locale值
+        let nextLocale = 'en';
+        if (langEncode.startsWith('zh')) {
+            nextLocale = 'zh';
+        } else if (langEncode.startsWith('ja')) {
+            nextLocale = 'ja';
+        } else if (langEncode.startsWith('ko')) {
+            nextLocale = 'ko';
+        } else if (langEncode.startsWith('tw')) {
+            nextLocale = 'tw';
+        } else if (langEncode.startsWith('hk')) {
+            nextLocale = 'tw';
+        }
+        
+        // 切换路由语言，确保使用硬刷新以重新加载所有组件
+        if (typeof window !== 'undefined') {
+            // 分发自定义事件
+            const event = new CustomEvent('langChange', { detail: langEncode });
+            window.dispatchEvent(event);
+            
+            // 添加调试信息
+            console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}`);
+            
+            // 使用硬刷新确保语言切换生效
+            const currentPath = router.asPath;
+            const baseUrl = window.location.origin;
+            window.location.href = `${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
+            
+            // 下面的router.push可能不会触发完全重新加载
+            // router.push(router.pathname, router.asPath, { locale: nextLocale });
+        }
+        
+        // 重新加载数据（如果使用硬刷新，这行代码不会执行到）
+        // initializeData(langEncode);
     };
     // 汇率点击
     const handleRateClick = (rate: string) => {

@@ -1,6 +1,6 @@
 {
-    "login": "登录",
-    "register": "注册",
+    "login": "login",
+    "register": "register",
     "email": "邮箱",
     "phone": "手机",
     "else": "QRcode",
