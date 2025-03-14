@@ -7,7 +7,7 @@ import { getSafeCenter, getPhoneClose } from "@/services/safeCenter"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
-import { Spin } from 'antd';
+import store from "@/store/index"
 import { encryptString, encryptData } from '@/utils/encrypt'
 import SetPhoneModal from '@/components/safeCenterModal/setPhone_Modal'
 import SetMailModal from '@/components/safeCenterModal/setMail_Modal'
@@ -15,6 +15,9 @@ import CheckModal from '@/components/safeCenterModal/change_check'
 import SafeModal from '@/components/safeCenterModal/safe_Modal';
 import SetLockModal from '@/components/safeCenterModal/setLock_Modal';
 import MailSafeModal from '@/components/safeCenterModal/mailSafe_Modal';
+import PhoneSafeModal from '@/components/safeCenterModal/phoneSafe_Modal';
+import LockSafeModal from '@/components/safeCenterModal/lockSafe_Modal';
+import UnbindGoogleModal from '@/components/safeCenterModal/unbindGoogle_Modal';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -86,9 +89,13 @@ const SafeCenter: React.FC = () => {
     const [checkType, setCheckType] = useState('')
     const [safeModalOpen, setSafeModalOpen] = useState(false)
     const [safeType, setSafeType] = useState('')
+    const [lockSafeModalOpen, setLockSafeModalOpen] = useState(false) // 密码修改-安全验证
+    const [lockSafeType, setLockSafeType] = useState('')
     const [safeAccount, setSafeAccount] = useState<SafeDataType>({})
     const [mailSafeModalOpen, setMailSafeModalOpen] = useState(false)
+    const [phoneSafeModalOpen, setPhoneSafeModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [unbindGoogleModalOpen, setUnbindGoogleModalOpen] = useState(false)
     const router = useRouter();
 
     const initBaseSafeList: SafeListItem[] = [
@@ -107,7 +114,7 @@ const SafeCenter: React.FC = () => {
                     setCheckModalOpen(true)
                     setCheckType('4')
                 },
-                key: 'unbind'
+                key: 'close'
             }
             ],
             noBindBtn: [{
@@ -180,6 +187,8 @@ const SafeCenter: React.FC = () => {
                     // 绑定-添加/修改邮箱弹窗
                     setMailModalOpen(true)
                     setMailType('set')
+                    // setCheckModalOpen(true)
+                    // setCheckType('5')
                 },
                 key: 'bind'
             }]
@@ -242,22 +251,28 @@ const SafeCenter: React.FC = () => {
     const [securityLogList, setSecurityLogList] = useState<SecurityLogItem[]>(initSecurityLogList)
     // 确认弹窗后续操作
     const handCheckModal = async (type: string) => {
-        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:设置/修改密码 4:关闭谷歌验证
+        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:设置/修改密码 4:关闭谷歌验证 5:绑定邮箱
         if (type.toString() === '0') {
             // 手机修改-2验证安全弹窗
-            setSafeModalOpen(true)
+            // setSafeModalOpen(true)
+            setPhoneSafeModalOpen(true)
             setSafeType('0')
             setSafeAccount({
-                phone: safeData?.phone || '',
-                countryCode: safeData?.countryCode || ''
+                ...safeData,
+                type: safeData?.phone ? 'phone' : 'email',
+                // phone: safeData?.phone || '',
+                // countryCode: safeData?.countryCode || ''
             })
         } else if (type.toString() === '1') {
             // 关闭手机-2安全验证弹窗
-            setSafeModalOpen(true)
+            // setSafeModalOpen(true)
+            setPhoneSafeModalOpen(true)
             setSafeType('1')
             setSafeAccount({
-                phone: safeData?.phone || '',
-                countryCode: safeData?.countryCode || ''
+                ...safeData,
+                type: safeData?.phone ? 'phone' : 'email',
+                // phone: safeData?.phone || '',
+                // countryCode: safeData?.countryCode || ''
             })
         }
         else if (type.toString() === '2') {
@@ -267,26 +282,26 @@ const SafeCenter: React.FC = () => {
             setSafeType('2')
             setSafeAccount({
                 ...safeData,
-                type: 'email',
+                type: safeData?.email ? 'email' : safeData?.phone ? 'phone' : '',
             })
             // setMailModalOpen(true)
             // setMailType('change')
 
         } else if (type.toString() === '3') {
             // 修改密码-2验证安全弹窗
-            setSafeModalOpen(true)
+            // setSafeModalOpen(true)
+            setLockSafeModalOpen(true)
             setSafeType('3')
             setSafeAccount({
+                ...safeData,
                 type: safeData?.email ? 'email' : 'phone',
-                email: safeData?.email || '',
-                phone: safeData?.phone || '',
-                countryCode: safeData?.countryCode || ''
             })
 
         } else if (type.toString() === '4') {
-
+            setUnbindGoogleModalOpen(true)
         }
     }
+    // 安全校验完毕
     const handsvcOk = async (type: string) => {
         // 0:修改手机号 1:关闭手机验证 2:修改邮箱
         if (type === '0') {
@@ -298,7 +313,7 @@ const SafeCenter: React.FC = () => {
             await handPhoneClose()
         }
         else if (type === '2') {
-            // 邮箱修改-3添加/修改邮箱弹窗
+            // 邮箱修改-3修改邮箱弹窗
             setMailModalOpen(true)
             setMailType('change')
         } else if (type === '3') {
@@ -306,6 +321,11 @@ const SafeCenter: React.FC = () => {
             setLockModalOpen(true)
             setLockType('change')
         }
+        // else if (type === '5') {
+        //     // 绑定邮箱-3添加邮箱弹窗
+        //     setMailModalOpen(true)
+        //     setMailType('set')
+        // }
     }
     // 关闭手机
     const handPhoneClose = async () => {
@@ -325,6 +345,14 @@ const SafeCenter: React.FC = () => {
             toast.error(String(error))
         }
     }
+    // 检查安全验证方式的数量
+    const checkMethodsCount = (data: SafeDataType) => {
+        let count = 0;
+        if (data.phone) count++;
+        if (data.email) count++;
+        if (data.googleCode) count++;
+        return count;
+    }
     // 获取安全中心数据
     const getSafeCenterData = async () => {
         setLoading(true)
@@ -333,14 +361,20 @@ const SafeCenter: React.FC = () => {
             const { code, data } = res
             if (code === '0') {
                 setSafeData(data)
+                const securityMethodsCount = checkMethodsCount(data);
                 const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
                     if (data.hasOwnProperty(item.type)) {
                         if (item.type === 'googleCode') {
                             const value = data[item.type];
+                            // 如果只有一种安全验证方式，且当前是googleCode，则过滤掉close按钮
+                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                                item.bindBtn.filter(btn => btn.key !== 'close') :
+                                item.bindBtn;
                             return {
                                 ...item,
                                 bindValue: '启用',
                                 isBind: Boolean(value),
+                                bindBtn: filteredBindBtn
                             };
                         }
                         if (item.type === 'password') {
@@ -353,10 +387,15 @@ const SafeCenter: React.FC = () => {
                         }
                         if (item.type === 'phone' || item.type === 'email') {
                             const value = data[item.type];
+                            // 如果只有一种安全验证方式，且当前是phone或email，则过滤掉close按钮
+                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                                item.bindBtn.filter(btn => btn.key !== 'close') :
+                                item.bindBtn;
                             return {
                                 ...item,
                                 bindValue: encryptString(value),
                                 isBind: Boolean(value),
+                                bindBtn: filteredBindBtn
                             }
                         }
                         const value = data[item.type];
@@ -398,6 +437,12 @@ const SafeCenter: React.FC = () => {
     // 重新获取安全中心数据
     const handOk = async () => {
         await getSafeCenterData()
+    }
+    // 修改密码成功后
+    const changeLock = () => {
+        store.clearUserInfo()
+        store.clearUserToken()
+        router.push('/login')
     }
 
     useEffect(() => {
@@ -457,22 +502,28 @@ const SafeCenter: React.FC = () => {
                             </div>
                             {/* 按钮 button */}
                             <div className={`flex-row align-center justify-end flex-1 ml-6`} >
-                                {/* {item.isBind ?( */}
-                                {item.bindBtn.map((btn: ButtonConfig, index: number) => (
-                                    <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}
-                                        onClick={btn.onok}
-                                    >{btn.title}</button>
-                                ))}
-                                {/* // )))
-                                    // : 
-                                    // ( */}
-                                {item.noBindBtn.map((btn: ButtonConfig, index: number) => (
-                                    <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}
-                                        onClick={btn.onbind}
-                                    >{btn.title}</button>
-                                ))}
-                                {/* )))
-                                } */}
+                                {item.isBind && Array.isArray(item.bindBtn) && item.bindBtn.length > 0 && (
+                                    item.bindBtn.map((btn: ButtonConfig, index: number) => (
+                                        <button
+                                            className={`${styles.btn_style} btn-color-default ml-2`}
+                                            key={index}
+                                            onClick={btn.onok}
+                                        >
+                                            {btn.title}
+                                        </button>
+                                    ))
+                                )}
+                                {!item.isBind && Array.isArray(item.noBindBtn) && item.noBindBtn.length > 0 && !item.isBind && (
+                                    item.noBindBtn.map((btn: ButtonConfig, index: number) => (
+                                        <button
+                                            className={`${styles.btn_style} btn-color-default ml-2`}
+                                            key={index}
+                                            onClick={btn.onbind}
+                                        >
+                                            {btn.title}
+                                        </button>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -518,10 +569,37 @@ const SafeCenter: React.FC = () => {
                 type={checkType}
                 onOk={handCheckModal}
                 onCancel={() => setCheckModalOpen(false)} />
+            {/* 安全验证-关闭/修改手机 */}
+            {/* <SafeModal
+                open={safeModalOpen}
+                type={safeType}
+                onOk={handsvcOk}
+                acountInfo={safeAccount}
+                onCancel={() => setSafeModalOpen(false)} /> */}
+            <MailSafeModal
+                open={mailSafeModalOpen}
+                type={safeType}
+                onOk={handsvcOk}
+                acountInfo={safeAccount}
+                onCancel={() => setMailSafeModalOpen(false)} />
+            <PhoneSafeModal
+                open={phoneSafeModalOpen}
+                type={safeType}
+                onOk={handsvcOk}
+                acountInfo={safeAccount}
+                onCancel={() => setPhoneSafeModalOpen(false)} />
+            {/* 安全验证-设置/修改密码 */}
+            <LockSafeModal
+                open={lockSafeModalOpen}
+                type={safeType}
+                onOk={handsvcOk}
+                acountInfo={safeAccount}
+                onCancel={() => setLockSafeModalOpen(false)} />
             {/* 设置/修改手机号 */}
             <SetPhoneModal
                 open={phoneModalOpen}
                 type={phoneType}
+                acountInfo={safeAccount}
                 onOk={() => handOk()}
                 onCancel={() => setPhoneModalOpen(false)} />
             {/* 设置/修改邮箱 */}
@@ -531,24 +609,18 @@ const SafeCenter: React.FC = () => {
                 acountInfo={safeAccount}
                 onOk={() => handOk()}
                 onCancel={() => setMailModalOpen(false)} />
-            {/* 安全验证-关闭/修改手机 /修改邮箱*/}
-            <SafeModal
-                open={safeModalOpen}
-                type={safeType}
-                onOk={handsvcOk}
-                acountInfo={safeAccount}
-                onCancel={() => setSafeModalOpen(false)} />
-            <MailSafeModal
-                open={mailSafeModalOpen}
-                type={safeType}
-                onOk={handsvcOk}
-                acountInfo={safeAccount}
-                onCancel={() => setMailSafeModalOpen(false)} />
+            {/* 设置/修改密码 */}
             <SetLockModal
                 open={lockModalOpen}
                 type={lockType}
-                onOk={() => handOk()}
+                onOk={() => changeLock()}
                 onCancel={() => setLockModalOpen(false)} />
+            {/* 解绑谷歌 */}
+            <UnbindGoogleModal
+                open={unbindGoogleModalOpen}
+                acountInfo={safeData}
+                onOk={() => handOk()}
+                onCancel={() => setUnbindGoogleModalOpen(false)} />
         </div>
 
     </div>);

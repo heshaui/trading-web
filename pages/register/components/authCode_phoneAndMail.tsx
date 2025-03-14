@@ -1,13 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Input, Form } from 'antd';
+import { Input, Form, ConfigProvider } from 'antd';
 import { useEffect, useState, useCallback } from "react";
-import { LoginTypeEnum, 
+import {
+    LoginTypeEnum,
     useLoginTypeContext,
     RegisterTypeEnum,
-     useRegisterTypeContext,
-      LoginStateEnum,
-       useLoginStateContext 
-    } from "@/config/register-providers/LoginStateProvider";
+    useRegisterTypeContext,
+    LoginStateEnum,
+    useLoginStateContext
+} from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 import store from "@/store";
 // import dayjs from 'dayjs';
@@ -211,36 +212,59 @@ function AuthCode() {
             <div className='mb-2'>
                 <p className='font-16 font-w-500 mb-1'>已发送验证码至</p>
                 <p className={`${styles.tip_color1}`}>
-                    {registerInfo.type === 'm'&& encryptEmail(registerInfo.email) }
-                    {registerInfo.type === 'p' &&(<><span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
-                     {encryptPhoneNumber(registerInfo.phone)}
-                     </>)}
+                    {registerInfo.type === 'm' && encryptEmail(registerInfo.email)}
+                    {registerInfo.type === 'p' && (<><span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
+                        {encryptPhoneNumber(registerInfo.phone)}
+                    </>)}
                 </p>
             </div>
-            <Form
-                name="login"
-                size="large"
-                form={form}
-            // initialValues={{
-            //     remember: true,
-            // }}
-            >
-                <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
-                    <Input
-                        allowClear
-                        placeholder="邮箱/手机号验证"
-                        // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
-                        suffix={
-                            <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getRegisterCode}>
-                                {isCounting ? `${countdown}s 重发` : "重新发送"}
-                            </button>
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Form: {
+                            itemMarginBottom: 20, // 去除表单项之间的间距
+                        },
+                        Input: {
+                            controlHeightLG: 50,
+                            activeBorderColor: '#FF5F1F',
+                            hoverBorderColor: '#FF5F1F',
+                            activeBg: 'var(--background11)',
+                            hoverBg: 'var(--background11)',
+                        },
+                        Select: {
+                            selectorBg: 'var(--background11)',
                         }
-                        className={`${styles.authcode_input} ${styles.mail_input}`}
-                        style={{ borderRadius: "8px" }}
-                    />
-                    {/* <button className='text-color mt-1'>粘贴</button> */}
-                </Form.Item>
-            </Form>
+                    },
+                    token: {
+                        // colorBgContainerDisabled: '#fff',
+                    }
+                }}
+            >
+                <Form
+                    name="login"
+                    size="large"
+                    form={form}
+                // initialValues={{
+                //     remember: true,
+                // }}
+                >
+                    <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                        <Input
+                            allowClear
+                            placeholder="邮箱/手机号验证"
+                            // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                            suffix={
+                                <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getRegisterCode}>
+                                    {isCounting ? `${countdown}s 重发` : "重新发送"}
+                                </button>
+                            }
+                            className={`${styles.authcode_input} ${styles.mail_input} modal-input`}
+                            style={{ borderRadius: "8px" }}
+                        />
+                        {/* <button className='text-color mt-1'>粘贴</button> */}
+                    </Form.Item>
+                </Form>
+            </ConfigProvider>
             <div className='flex mt-6'>
                 <button
                     type='button'

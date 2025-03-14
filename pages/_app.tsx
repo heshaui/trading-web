@@ -62,8 +62,8 @@ function App({ Component, pageProps }: AppProps) {
       return newMode;
     });
   };
-  // 定义不需要显示 HomeMenu 和 Footer 的页面路径
-  const excludePaths = ['/login', '/register', '/resetPassword'];
+  // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
+  const excludePaths = [ '/resetPassword'];
 
   const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 

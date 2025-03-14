@@ -56,7 +56,6 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [firstCheck2, setFirstCheck2] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
-    const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [form] = Form.useForm();
@@ -87,13 +86,29 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 //     }
                 //     checkPhoneSafe(dataInfo)
                 // } else if (type === '2') {
-                const dataInfo = {
-                    email: acountInfo?.email,
-                    code: values.code,
-                    googleCode: values.googleCode || '',
-                    phoneCode: values.phoneCode || ''
-                }
-                checkEmailSafe(dataInfo)
+                // onOk(type)
+                // handCancel()
+                // if (acountInfo.type === 'email') {
+                //     const dataInfo = {
+                //         email: acountInfo?.email,
+                //         code: values.code || '',
+                //         googleCode: values.googleCode || '',
+                //         phoneCode: values.phoneCode || ''
+                //     }
+                //     checkEmailSafe(dataInfo)
+                // } else {
+                    const dataInfo = {
+                        // phone: acountInfo?.phone,
+                        code: values.code|| '',
+                        googleCode: values.googleCode || '',
+                        phoneCode: values.code
+                    }
+                    checkEmailSafe(dataInfo)
+                // }
+
+
+
+
                 // } else if (type === '3') {
                 //     // onOk(type)
                 //     // handCancel()
@@ -120,6 +135,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
     };
     const checkEmailSafe = async (data: acountType) => {
+        setLoading(true)
         try {
             const dataEncrypt = await encryptData(data)
             const res = await getEmailSafe(dataEncrypt)
@@ -172,8 +188,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     }
     const getPhoneCode = async () => {
-        if (isCounting || loading || codeLoading) return
-        setCodeLoading(true)
+        if (isCounting2 || loading || codeLoading2) return
+        setCodeLoading2(true)
         try {
             const dataInfo = {
                 number: acountInfo?.phone,
@@ -183,18 +199,18 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const dataEncrypt = await encryptData(dataInfo)
             const res = await getSmsCode(dataEncrypt);
             if (res.code === "0") {
-                setFirstCheck(false)
+                setFirstCheck2(false)
                 toast.success(res.message)
-                startCountdown();
+                startCountdown2();
             } else if (res.code === "10044") {
                 toast.error('验证码还在有效期内')
             } else {
                 toast.error(res.message)
             }
-            setCodeLoading(false)
+            setCodeLoading2(false)
 
         } catch (error) {
-            setCodeLoading(false)
+            setCodeLoading2(false)
             toast.error(String(error))
             console.error('获取验证码出错:', error);
 
@@ -236,6 +252,22 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 if (prevCountdown === 1) {
                     clearInterval(timer);
                     setIsCounting(false);
+                    return 0;
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+        // 清理定时器
+        return () => clearInterval(timer);
+    };
+    const startCountdown2 = () => {
+        setCountdown2(60);
+        setIsCounting2(true);
+        const timer = setInterval(() => {
+            setCountdown2((prevCountdown) => {
+                if (prevCountdown === 1) {
+                    clearInterval(timer);
+                    setIsCounting2(false);
                     return 0;
                 }
                 return prevCountdown - 1;
@@ -302,14 +334,17 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     };
     const getCode = async () => {
-        if (['1', '0'].includes(type)) {
-            await getPhoneCode();
-        } else if (type === '2') {
+        // if (['1', '0'].includes(type)) {
+        //     await getPhoneCode();
+        // } else if (type === '2') {
+        //     await getMailCode();
+        // } else 
+        if (type === '2') {
             await getMailCode();
-        } else if (type === '3' && acountInfo.type === 'email') {
-            await getLockEmailCode();
-        } else if (type === '3' && acountInfo.type === 'phone') {
-            await getLockPhoneCode();
+        } else if (type === '5' && acountInfo.type === 'phone') {
+            await getPhoneCode();
+        } else if (type === '5' && acountInfo.type === 'email') {
+            await getMailCode();
         }
     }
     const handlePaste = async () => {
@@ -399,13 +434,10 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         style={{ width: '100%' }}
                     >
                         <div className={`font-16 font-w-400  ${styles.tip_title}`}>{
-                            (type === '2' || (type === '3' && acountInfo.type === 'email')) ? '邮箱验证' : '手机号验证'
+                            '邮箱验证' 
                         }</div>
                         <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck ? '验证码发送至' : '验证码已发送至'}
-                            <span>&nbsp;{
-                                (type === '2' || (type === '3' && acountInfo.type === 'email')) ? encryptEmail(acountInfo.email)
-                                    :
-                                    encryptPhoneNumber(acountInfo.phone)
+                            <span>&nbsp;{encryptEmail(acountInfo.email)
                             }</span>
                         </p>
                         <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
@@ -426,21 +458,21 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
                         {acountInfo.googleCode && (<>
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
-                        <Form.Item name="googleCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
-                            <Input placeholder="请输入谷歌验证码" allowClear className={`${styles.input_box} modal-input`}
-                                suffix={
-                                    <button type='button' className={`${styles.default_color}`} onClick={handlePaste}>
-                                        粘贴
-                                    </button>
-                                }
-                            />
-                        </Form.Item>
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
+                            <Form.Item name="googleCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                                <Input placeholder="请输入谷歌验证码" allowClear className={`${styles.input_box} modal-input`}
+                                    suffix={
+                                        <button type='button' className={`${styles.default_color}`} onClick={handlePaste}>
+                                            粘贴
+                                        </button>
+                                    }
+                                />
+                            </Form.Item>
                         </>)}
-                        {(acountInfo.phone&&!acountInfo.googleCode) && (<>
+                        {(acountInfo.phone && !acountInfo.googleCode ) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
-                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck ? '验证码发送至' : '验证码已发送至'}
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
                             </p>
                             <Form.Item name="phoneCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
@@ -449,16 +481,15 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     placeholder="请输入验证码"
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
-                                        <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`}
+                                        <button type='button' className={isCounting2 ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                             onClick={getPhoneCode}
                                         >
-                                            {isCounting ? `${countdown}s 重发` : firstCheck ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                            {isCounting2 ? `${countdown2}s 重发` : firstCheck2 ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
                                         </button>
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                 />
-                                {/* <button className='text-color mt-1'>粘贴</button> */}
                             </Form.Item>
                         </>)}
 

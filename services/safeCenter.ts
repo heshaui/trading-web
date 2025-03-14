@@ -163,3 +163,10 @@ export function getPasswordEmailCode(data:  encryptType): Promise<any> {
     body: JSON.stringify(data),
   });
 }
+// 解绑谷歌验证
+export function unbindGoogle(data: encryptType): Promise<any> {
+  return request(`${fixUrl}/user-web/v1/google/relieveGoogleKey`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}

@@ -62,15 +62,15 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
             width={400}
         >
             <div className="flex-col flex-ai-center">
-                {type == 'error' && <Image src="/images/login/icon_repeat.png"
+                {type === 'error' && <Image src="/images/login/icon_repeat.png"
                     alt=""
                     className={`${styles.icon_box}`} width={160} height={160} />
                 }
-                {type == 'error' && <p className={`${styles.title} `}>
+                {type === 'error' && <p className={`${styles.title} `}>
                     {acount} 账号已存在，
                     是否登录该账号？
                 </p>}
-                {type == 'success' && <p className={`${styles.title} `}>
+                {type === 'success' && <p className={`${styles.title} `}>
                     {message}
                 </p>}
             </div>

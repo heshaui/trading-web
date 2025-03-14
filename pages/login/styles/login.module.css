@@ -22,7 +22,9 @@
     box-shadow: none !important; 
 }
 
-
+.title_color{
+    color:var(--text-color5)
+}
 .login_loading {
     border: none;
     height: 38px;
@@ -39,7 +41,7 @@
 
 .custom_segmented,
 .page_box {
-    background-color: var(--background) !important;
+    background-color: var(--background11) !important;
 }
 .custom_segmented{
     color: var(--textcolor) !important;
@@ -151,6 +153,10 @@
 .icon_rotate {
     transform: rotate(180deg);
     transition: transform 0.3s ease;
+}
+.mail_input{
+    color:var(--text-color5) !important;
+    background-color: var(--background11) !important;
 }
 /* 输入框组件覆盖 */
 .mail_input:focus,
