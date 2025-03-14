@@ -8,7 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
-    src="",
+    src = "",
     h5Text = '',
     spanText,
     isOtherItem = false,
@@ -39,7 +39,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                         style={{ cursor: 'default', color: 'inherit' }}
                     >
                         <div className={styles.otherBox}>
-                            <h5>{h5Text}</h5>
+                            <h5 style={{ color: 'var(--text-color5)' }}>{h5Text}</h5>
                             <div className={styles.imgBox}>
                                 {/* <img src={src} /> */}
                                 <Image
@@ -74,43 +74,33 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                 </div>
                             ) : (
                                 isUserList ? (
-                                    <Menu
-                                        mode="inline"
-                                        items={items as MenuProps['items']}
-                                        style={{ width: '226px', marginLeft: '-10px' }}
-                                    />
+                                    <div className={`${styles.menuBox} customUserMenu`}>
+                                        <Menu
+                                            mode="inline"
+                                            items={items as MenuProps['items']}
+                                        />
+                                    </div>
                                 ) : (
                                     isInput ? (
-                                        <>
-                                            <ConfigProvider
-                                                theme={{
-                                                    components: {
-                                                        Input: {
-                                                            activeBorderColor: '#FF5F1F',
-                                                            hoverBorderColor: '#FF5F1F'
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                <Input
-                                                    style={{ width: 200 }}
-                                                    placeholder={h5Text}
-                                                    prefix={
-                                                        <Image
-                                                            src="/images/home_menu/icon_search.png"
-                                                            alt=""
-                                                            width={16}
-                                                            height={16}
-                                                        />
+                                        <div className={`${styles.inputBox} customInput`}>
+                                            <Input
+                                                style={{ width: 200 }}
+                                                placeholder={h5Text}
+                                                prefix={
+                                                    <Image
+                                                        src="/images/home_menu/icon_search.png"
+                                                        alt=""
+                                                        width={16}
+                                                        height={16}
+                                                    />
+                                                }
+                                                onChange={(e) => {
+                                                    if (onInputChange) {
+                                                        onInputChange(e.target.value);
                                                     }
-                                                    onChange={(e) => {
-                                                        if (onInputChange) {
-                                                            onInputChange(e.target.value);
-                                                        }
-                                                    }}
-                                                />
-                                            </ConfigProvider>
-                                        </>
+                                                }}
+                                            />
+                                        </div>
                                     ) : (
                                         <div>
                                             <div className={styles.menuListItem}>
@@ -153,13 +143,13 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     {
                                                         isNew ? (
                                                             <div className={styles.newBox}>
-                                                                <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
+                                                                <h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5>
                                                                 <span>NEW</span>
                                                             </div>
                                                         ) : (
                                                             isMore ?
-                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5></Link>
-                                                                : <h5 style={{ color: isMore ? '#FF5F1F' : '#0C0D0C' }}>{h5Text}</h5>
+                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5></Link>
+                                                                : <h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5>
                                                         )
                                                     }
                                                     {
@@ -181,8 +171,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                         <ul className={styles.menuListUl}>
                                                             {ulItems.map((item, index) => (
                                                                 <li key={index}>
-                                                                    <span className={styles.pointStyle}></span>
-                                                                    {item.liContent}
+                                                                    <span className={styles.pointStyle}>{item.liContent}</span>
                                                                 </li>
                                                             ))}
                                                         </ul>

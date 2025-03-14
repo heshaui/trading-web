@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 
 import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
-import { useLogoImage } from '@/services/webLogo'; // 获取logo
+import { useLogoImage } from '@/hooks/useKv'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 import { getBulletinMessage } from '@/services/bulletinCenter';
 
@@ -33,7 +33,7 @@ export default function HomeMenu() {
     // 添加调试日志
     // console.log('Current language:', i18n.language);
     // console.log('Router locale:', router.locale);
-    // console.log('Translation test:', t('title_1_1_h5'));
+    console.log('Translation test:', t('title_1_1_h5'));
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -101,18 +101,18 @@ export default function HomeMenu() {
             }
 
             // 获取公告数据
-            // const bulletinResponse = await getBulletinMessage({
-            //     languageCode: currentLang
-            // }) as ApiResponse<any>;
+            const bulletinResponse = await getBulletinMessage({
+                languageCode: currentLang
+            }) as ApiResponse<any>;
 
-            // if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
-            //     // 格式化公告数据
-            //     const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
-            //         h5Text: item.title,
-            //         spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
-            //     }));
-            //     setBulletinData(formattedBulletinData);
-            // }
+            if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+                // 格式化公告数据
+                const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                    h5Text: item.title,
+                    spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+                }));
+                setBulletinData(formattedBulletinData);
+            }
 
             // 获取语言数据
             const languageResponse = await getLanguage({
@@ -189,7 +189,12 @@ export default function HomeMenu() {
             if (menu.children && menu.children.length > 0) {
                 menuItem.items = menu.children.map((child: any) => {
                     // 二级菜单项
-                    const secondLevelItem = {
+                    const secondLevelItem: {
+                        key: string;
+                        type: string;
+                        label: React.ReactNode;
+                        children?: any[]
+                    } = {
                         key: String(child.id),
                         type: child.typeId === 1 ? 'group' : (child.typeId === 2 ? 'item' : 'divider'),
                         label: (
@@ -199,8 +204,7 @@ export default function HomeMenu() {
                                 spanText={child.menuViceName || ''}
                                 isNew={child.cornerMarkOne === '新' || child.cornerMarkTwo === '新'}
                             />
-                        ),
-                        children: [] as any[]
+                        )
                     };
 
                     // 处理三级菜单
@@ -213,7 +217,6 @@ export default function HomeMenu() {
                                     src={getImagePath(isDayMode ? grandChild.iconUrlDay : grandChild.iconUrlNight, isDayMode)}
                                     h5Text={grandChild.menuName || ''}
                                     spanText={grandChild.menuViceName || ''}
-                                    isNew={grandChild.cornerMarkOne === '新' || grandChild.cornerMarkTwo === '新'}
                                 />
                             )
                         }));
@@ -639,38 +642,10 @@ export default function HomeMenu() {
     };
 
     // 语言菜单
-    const spanArr = languageList.length > 0 ? languageList : [
-        {
-            span: '简体中文',
-            key: 'zh-CN'
-        },
-        {
-            span: 'English',
-            key: 'en-US'
-        },
-        {
-            span: '日本語',
-            key: 'ja-JP'
-        },
-        {
-            span: 'Español',
-            key: 'es-ES'
-        },
-        {
-            span: 'Français',
-            key: 'fr-FR'
-        },
-    ]
+    const spanArr = languageList.length > 0 ? languageList : []
 
     // 使用实际数据替换静态数据
-    const spanRateArr = rateData.length > 0 ? rateData : [
-        {
-            span: 'CNY - ￥'  // 默认值
-        },
-        {
-            span: 'USD- $'   // 默认值
-        },
-    ];
+    const spanRateArr = rateData.length > 0 ? rateData : [];
     // 语言点击
     const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = async (language: string, langEncode: string) => {
@@ -678,44 +653,43 @@ export default function HomeMenu() {
         setSelectedLanguage(language);
         localStorage.setItem('lang', langEncode);
         localStorage.setItem('selectedLanguage', language);
-        
+
         // 直接设置i18n实例的语言
-        i18n.changeLanguage(langEncode.split('-')[0]);
-        
+        if (typeof i18n.changeLanguage === 'function') {
+            i18n.changeLanguage(langEncode.split('-')[0]);
+        } else {
+            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
+            // 使用替代方法
+            localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
+        }
+
         // 根据语言编码确定Next.js的locale值
         let nextLocale = 'en';
         if (langEncode.startsWith('zh')) {
-            nextLocale = 'zh';
+            nextLocale = 'zh'; // 简体中文 / 繁体中文
         } else if (langEncode.startsWith('ja')) {
             nextLocale = 'ja';
         } else if (langEncode.startsWith('ko')) {
             nextLocale = 'ko';
-        } else if (langEncode.startsWith('tw')) {
-            nextLocale = 'tw';
-        } else if (langEncode.startsWith('hk')) {
-            nextLocale = 'tw';
         }
-        
-        // 切换路由语言，确保使用硬刷新以重新加载所有组件
-        if (typeof window !== 'undefined') {
-            // 分发自定义事件
-            const event = new CustomEvent('langChange', { detail: langEncode });
-            window.dispatchEvent(event);
-            
-            // 添加调试信息
-            console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}`);
-            
-            // 使用硬刷新确保语言切换生效
-            const currentPath = router.asPath;
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
-            
-            // 下面的router.push可能不会触发完全重新加载
-            // router.push(router.pathname, router.asPath, { locale: nextLocale });
-        }
-        
-        // 重新加载数据（如果使用硬刷新，这行代码不会执行到）
-        // initializeData(langEncode);
+
+        // 分发自定义事件
+        const event = new CustomEvent('langChange', { detail: langEncode });
+        window.dispatchEvent(event);
+
+        // 添加调试信息
+        console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}`);
+
+        // 使用硬刷新确保语言切换生效并保持路径
+        const currentPath = router.asPath;
+        const baseUrl = window.location.origin;
+
+        // 保存当前路径到会话存储，以便在重定向后恢复
+        sessionStorage.setItem('lastPath', currentPath);
+
+        // 构建新URL时保留查询参数和哈希
+        const url = new URL(`${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`);
+        window.location.href = url.toString();
     };
     // 汇率点击
     const handleRateClick = (rate: string) => {
@@ -723,7 +697,7 @@ export default function HomeMenu() {
         // 可以在这里添加其他逻辑，例如更新语言设置
     };
     // 定义语言菜单项
-    const languageItems = spanArr.map((item, index) => ({
+    const languageItems = spanArr.length > 0 ? spanArr.map((item, index) => ({
         key: `1-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -740,9 +714,15 @@ export default function HomeMenu() {
                 {item.span}
             </span> // 动态赋值
         ),
-    }));
+    })) : [
+        {
+            key: 'empty-language',
+            type: 'group',
+            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无语言数据" />
+        }
+    ];
     // 定义汇率菜单项
-    const rateItems = spanRateArr.map((item, index) => ({
+    const rateItems = spanRateArr.length > 0 ? spanRateArr.map((item, index) => ({
         key: `3-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -757,7 +737,13 @@ export default function HomeMenu() {
                 onClick={() => handleRateClick(item.span)}>{item.span}
             </span> // 动态赋值
         ),
-    }));
+    })) : [
+        {
+            key: 'empty-rate',
+            type: 'group',
+            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无汇率数据" />
+        }
+    ];
     // 语言过滤(模糊搜索)
     const filterLanguages = (languages: any[], searchValue: string) => {
         if (!searchValue) return languages; // 如果没有搜索值，直接返回所有语言项
@@ -825,9 +811,18 @@ export default function HomeMenu() {
                     ? bulletinData.map((item, index) => (
                         <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
                     ))
-                    : bulletinArr.map((item, index) => (
-                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
-                    ))
+                    // : bulletinArr.map((item, index) => (
+                    //     <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
+                    // ))
+                    : (
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            padding: '40px 0'
+                        }}>
+                            <Empty image='/images/bulletin_center/chat.png' description='暂无新的通知' />
+                        </div>
+                    )
         },
         {
             key: '2',
@@ -864,7 +859,8 @@ export default function HomeMenu() {
                         <Row align='middle' justify='space-between'>
                             <Col>
                                 <span style={{
-                                    fontSize: '16px'
+                                    fontSize: '16px',
+                                    color: 'var(--text-color5)'
                                 }}>
                                     消息
                                 </span>
@@ -893,11 +889,12 @@ export default function HomeMenu() {
                                     theme={{
                                         components: {
                                             Tabs: {
-                                                inkBarColor: '#0C0D0C',
+                                                inkBarColor: 'var(--text-color5)',
                                                 itemColor: '#6D6F7A',
-                                                itemActiveColor: '#0C0D0C',
+                                                itemActiveColor: 'var(--text-color5)',
                                                 itemHoverColor: '#6D6F7A',
-                                                itemSelectedColor: '#0C0D0C'
+                                                itemSelectedColor: 'var(--text-color5)',
+                                                colorBorderSecondary: 'var(--border-color4)'
                                             },
                                         },
                                     }}
@@ -929,7 +926,7 @@ export default function HomeMenu() {
                     key: '0',
                     type: 'group',
                     label: (
-                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>语言</h6>
+                        <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>语言</h6>
                     )
                 },
                 {
@@ -946,7 +943,7 @@ export default function HomeMenu() {
                     key: '2',
                     type: 'group',
                     label: (
-                        <h6 style={{ color: '#000000', marginBottom: '-10px' }}>汇率</h6>
+                        <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>汇率</h6>
                     )
                 },
                 {
@@ -1600,237 +1597,263 @@ export default function HomeMenu() {
     };
 
     return (
-        <div style={{ position: 'relative' }}>
-            <div className={styles.container}>
-                <div className={styles.logo}>
-                    <Image
-                        src={logoUrl}
-                        alt=""
-                        width={126}
-                        height={30}
-                        onError={() => setLogoUrl('/home_menu_logo.png')}
-                    />
-                </div>
-                <div className={styles.menuContainer}>
-                    <div className={styles.menuListContainer}>
-                        <Row align='middle'>
-                            <Row>
-                                <Col style={{ cursor: 'pointer' }} onClick={showMenu}>
-                                    {/* <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} /> */}
-                                    <Image
-                                        src="/images/home_menu/icon_classify_line.png"
-                                        alt=""
-                                        width={18}  // 必须指定宽度
-                                        height={18} // 必须指定高度
-                                        style={{ marginRight: '20px' }}
-                                    />
-                                </Col>
-                            </Row>
-                            <Row align='middle' className={styles.collapsedMenu}>
-                                <Col>{listItems}</Col>
-                                {/* <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
-                                    <Row gutter={4} align='middle'>
-                                        <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
-                                        <Col><span>Web3</span></Col>
-                                    </Row>
-                                </Link>
-                                <Col>
-                                    <Dropdown
-                                        menu={{
-                                            items: moreItems,
-                                        }}
-                                        trigger={['click']}
-                                        overlayStyle={{ top: '80px' }}
-                                    >
-                                        <a style={{ cursor: 'pointer', position: 'relative' }} onClick={(e) => e.preventDefault()}>
-                                            <Space style={{ columnGap: '3px' }}>
-                                                打新专区
-                                                <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
-                                            </Space>
-                                        </a>
-                                    </Dropdown>
-                                </Col> */}
-                            </Row>
-                        </Row>
+        <ConfigProvider
+            theme={{
+                components: {
+                    Dropdown: {
+                        colorBgElevated: 'var(--background-menu)',
+                        colorText: 'var(--text-color5)'
+                    },
+                    Menu: {
+                        itemBg: 'var(--background-menu)',
+                        itemColor: 'var(--text-color5)',
+                    },
+                    Input: {
+                        inputFontSize: 12,
+                        colorTextPlaceholder: 'var(--help-center-input-text)',
+                        colorBorder: 'var(--border-color4)',
+                        activeBg: 'transparent',
+                        hoverBg: 'transparent',
+                        colorText: 'var(--text-color5)'
+                    },
+                    Empty: {
+                        colorTextDescription: 'var(--text-color6)'
+                    }
+                }
+            }}
+        >
+            <div style={{ position: 'relative' }}>
+                <div className={styles.container}>
+                    <div className={styles.logo}>
+                        <Image
+                            src={logoUrl}
+                            alt=""
+                            width={126}
+                            height={30}
+                            onError={() => setLogoUrl('/home_menu_logo.png')}
+                        />
                     </div>
-                    <div className={styles.rightListContainer}>
-                        <Dropdown
-                            // menu={{
-                            //     items: inputItems,
-                            // }}
-                            trigger={['click']}
-                            overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
-                        >
-                            <a onClick={(e) => e.preventDefault()}>
-                                <Space>
-                                    <ConfigProvider
-                                        theme={{
-                                            components: {
-                                                Input: {
-                                                    activeBorderColor: '#FF5F1F',
-                                                    hoverBorderColor: '#FF5F1F'
-                                                },
-                                            },
-                                            token: {
-                                                // colorTextPlaceholder: '#979897',
-                                                fontSize: 12
-                                            }
-                                        }}
-                                    >
-                                        {/* <Input
-                                            style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
-                                            placeholder="搜索币对和其他产品"
-                                            prefix={<SearchOutlined />}
-                                            value={searchValue}
-                                            onChange={(e) => setSearchValue(e.target.value)}
-                                        /> */}
-                                    </ConfigProvider>
-                                </Space>
-                            </a>
-                        </Dropdown>
-                        <div className={`${styles.loginContent} customMenu`}>
-                            <Row gutter={16} align='middle'>
-                                {
-                                    isLogin ? (
-                                        <>
-                                            <Col>
-                                                <Dropdown
-                                                    menu={{
-                                                        // items,
-                                                        items: itemsFunding
-                                                    }}
-                                                    trigger={['click']}
-                                                    className={styles.dropDownList}
-                                                    overlayStyle={{ top: '80px', width: '180px' }}
-                                                >
-                                                    {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
-                                                    <Space style={{ columnGap: '3px' }}>
-                                                        <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
-                                                    </Space>
-                                                </a> */}
-                                                    <Space style={{ columnGap: '3px' }}>
-                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            src="/images/home_menu/icon_wallet_line.png"
-                                                            className={styles.iconCursor}
-                                                            alt=""
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                        />
-                                                    </Space>
-                                                </Dropdown>
-                                            </Col>
-                                            <Col>
-                                                <Dropdown
-                                                    menu={{
-                                                        items: [
-                                                            {
-                                                                key: '1',
-                                                                label: '上传文件',
-                                                            },
-                                                        ],
-                                                    }}
-                                                    trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '200px', width: '180px' }}
-                                                >
-                                                    {/* <a onClick={(e) => e.preventDefault()}> */}
-                                                    <Space>
-                                                        {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            alt=""
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                            src="/images/home_menu/icon_upload_line.png"
-                                                            className={styles.iconCursor}
-                                                        />
-                                                    </Space>
-                                                    {/* </a> */}
-                                                </Dropdown>
-                                            </Col>
-                                            <Col>
-                                                <Dropdown
-                                                    menu={{
-                                                        items: userItemsAll as MenuProps['items'],
-                                                        triggerSubMenuAction: 'click',
-                                                    }}
-                                                    placement="bottomLeft"
-                                                    trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
-                                                >
-                                                    <Space>
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            src="/images/home_menu/icon_user_line.png"
-                                                            className={styles.userCursor}
-                                                            alt="avatar"
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                        />
-                                                    </Space>
-                                                </Dropdown>
-                                            </Col>
-                                            {iconItemsLogin}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Col><Link href='/login' className={styles.register}><span style={{ color: '#FFF' }}>注册</span></Link></Col>
-                                            <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>登录</span></Link></Col>
-                                            <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
-                                            {/* <Col> */}
-                                            {/* <Dropdown */}
-                                            {/* menu={{
-                                                     items: inputItems,
-                                                 }}
-                                                    trigger={['click']}
-                                                    overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }} */}
-                                            {/* > */}
-                                            {/* <a onClick={(e) => e.preventDefault()}> */}
-                                            {/* <Space> */}
-                                            {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
-                                                        <Image
-                                                            onClick={(e) => e.preventDefault()}
-                                                            alt=""
-                                                            width={20}  // 必须指定宽度
-                                                            height={20} // 必须指定高度
-                                                            src="/images/home_menu/icon_search_line.png"
-                                                            className={styles.iconCursor}
-                                                        /> */}
-                                            {/* </Space> */}
-                                            {/* </a> */}
-                                            {/* </Dropdown> */}
-                                            {/* </Col> */}
-                                            {iconItemsLogin}
-                                        </>
-                                    )
-                                }
+                    <div className={styles.menuContainer}>
+                        <div className={styles.menuListContainer}>
+                            <Row align='middle'>
+                                <Row>
+                                    <Col style={{ cursor: 'pointer' }} onClick={showMenu}>
+                                        {/* <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} /> */}
+                                        <Image
+                                            src="/images/home_menu/icon_classify_line.png"
+                                            alt=""
+                                            width={18}  // 必须指定宽度
+                                            height={18} // 必须指定高度
+                                            style={{ marginRight: '20px' }}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row align='middle' className={styles.collapsedMenu}>
+                                    <Col>{listItems}</Col>
+                                    {/* <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>
+                                        <Row gutter={4} align='middle'>
+                                            <Col><img src="/images/home_menu/icon_fire_fill.png" className={styles.iconCursor} /></Col>
+                                            <Col><span>Web3</span></Col>
+                                        </Row>
+                                    </Link>
+                                    <Col>
+                                        <Dropdown
+                                            menu={{
+                                                items: moreItems,
+                                            }}
+                                            trigger={['click']}
+                                            overlayStyle={{ top: '80px' }}
+                                        >
+                                            <a style={{ cursor: 'pointer', position: 'relative' }} onClick={(e) => e.preventDefault()}>
+                                                <Space style={{ columnGap: '3px' }}>
+                                                    打新专区
+                                                    <img src="/images/home_menu/new.png" style={{ width: '40px', height: '20px', position: 'absolute', right: '-35px', top: '-20px' }} />
+                                                </Space>
+                                            </a>
+                                        </Dropdown>
+                                    </Col> */}
+                                </Row>
                             </Row>
+                        </div>
+                        <div className={styles.rightListContainer}>
+                            <Dropdown
+                                // menu={{
+                                //     items: inputItems,
+                                // }}
+                                trigger={['click']}
+                                overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
+                            >
+                                <a onClick={(e) => e.preventDefault()}>
+                                    <Space>
+                                        <ConfigProvider
+                                            theme={{
+                                                components: {
+                                                    Input: {
+                                                        activeBorderColor: '#FF5F1F',
+                                                        hoverBorderColor: '#FF5F1F'
+                                                    },
+                                                },
+                                                token: {
+                                                    // colorTextPlaceholder: '#979897',
+                                                    fontSize: 12
+                                                }
+                                            }}
+                                        >
+                                            {/* <Input
+                                                style={{ width: '188px', minWidth: '188px', backgroundColor: '#1C1E1C', color: '#979897', borderColor: '#979897' }}
+                                                placeholder="搜索币对和其他产品"
+                                                prefix={<SearchOutlined />}
+                                                value={searchValue}
+                                                onChange={(e) => setSearchValue(e.target.value)}
+                                            /> */}
+                                        </ConfigProvider>
+                                    </Space>
+                                </a>
+                            </Dropdown>
+                            <div className={`${styles.loginContent} customMenu`}>
+                                <Row gutter={16} align='middle'>
+                                    {
+                                        isLogin ? (
+                                            <>
+                                                <Col>
+                                                    <Dropdown
+                                                        menu={{
+                                                            // items,
+                                                            items: itemsFunding
+                                                        }}
+                                                        trigger={['click']}
+                                                        className={styles.dropDownList}
+                                                        overlayStyle={{ top: '80px', width: '180px' }}
+                                                    >
+                                                        {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
+                                                        <Space style={{ columnGap: '3px' }}>
+                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
+                                                        </Space>
+                                                    </a> */}
+                                                        <Space style={{ columnGap: '3px' }}>
+                                                            {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
+                                                            <Image
+                                                                onClick={(e) => e.preventDefault()}
+                                                                src="/images/home_menu/icon_wallet_line.png"
+                                                                className={styles.iconCursor}
+                                                                alt=""
+                                                                width={20}  // 必须指定宽度
+                                                                height={20} // 必须指定高度
+                                                            />
+                                                        </Space>
+                                                    </Dropdown>
+                                                </Col>
+                                                <Col>
+                                                    <Dropdown
+                                                        menu={{
+                                                            items: [
+                                                                {
+                                                                    key: '1',
+                                                                    label: '订单中心',
+                                                                },
+                                                            ],
+                                                        }}
+                                                        trigger={['click']}
+                                                        overlayStyle={{ top: '80px', maxWidth: '200px', width: '180px' }}
+                                                    >
+                                                        {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                        <Space>
+                                                            {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} /> */}
+                                                            <Image
+                                                                onClick={(e) => e.preventDefault()}
+                                                                alt=""
+                                                                width={20}  // 必须指定宽度
+                                                                height={20} // 必须指定高度
+                                                                src="/images/home_menu/icon_upload_line.png"
+                                                                className={styles.iconCursor}
+                                                            />
+                                                        </Space>
+                                                        {/* </a> */}
+                                                    </Dropdown>
+                                                </Col>
+                                                <Col>
+                                                    <Dropdown
+                                                        menu={{
+                                                            items: userItemsAll as MenuProps['items'],
+                                                            triggerSubMenuAction: 'click',
+                                                        }}
+                                                        placement="bottomLeft"
+                                                        trigger={['click']}
+                                                        overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                    >
+                                                        <Space>
+                                                            <Image
+                                                                onClick={(e) => e.preventDefault()}
+                                                                src="/images/home_menu/icon_user_line.png"
+                                                                className={styles.userCursor}
+                                                                alt="avatar"
+                                                                width={20}  // 必须指定宽度
+                                                                height={20} // 必须指定高度
+                                                            />
+                                                        </Space>
+                                                    </Dropdown>
+                                                </Col>
+                                                {iconItemsLogin}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Col><Link href='/login' className={styles.register}><span style={{ color: '#FFF' }}>注册</span></Link></Col>
+                                                <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>登录</span></Link></Col>
+                                                <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
+                                                {/* <Col> */}
+                                                {/* <Dropdown */}
+                                                {/* menu={{
+                                                        items: inputItems,
+                                                    }}
+                                                        trigger={['click']}
+                                                        overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }} */}
+                                                {/* > */}
+                                                {/* <a onClick={(e) => e.preventDefault()}> */}
+                                                {/* <Space> */}
+                                                {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_search_line.png" className={styles.iconCursor} />
+                                                            <Image
+                                                                onClick={(e) => e.preventDefault()}
+                                                                alt=""
+                                                                width={20}  // 必须指定宽度
+                                                                height={20} // 必须指定高度
+                                                                src="/images/home_menu/icon_search_line.png"
+                                                                className={styles.iconCursor}
+                                                            /> */}
+                                                {/* </Space> */}
+                                                {/* </a> */}
+                                                {/* </Dropdown> */}
+                                                {/* </Col> */}
+                                                {iconItemsLogin}
+                                            </>
+                                        )
+                                    }
+                                </Row>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {/* <div className={styles.container}>
+                    <div>{menuData ? JSON.stringify(menuData) : '暂无数据'}</div>
+                </div> */}
+                {/* 点击展开的左侧菜单栏 */}
+                {/* <Drawer
+                    closable
+                    destroyOnClose
+                    title={<p>菜单</p>}
+                    placement="left"
+                    open={open}
+                    loading={loading}
+                    onClose={() => setOpen(false)}
+                    style={{ position: 'relative' }}
+                    width={288}
+                >
+                    <Button type="primary" style={{ marginBottom: 16 }} onClick={showMenu}>
+                        Reload
+                    </Button>
+                    <MenuAdaptiveItem menuList={adaptiveMenuData} />
+                </Drawer> */}
+                {/* <p>{t('home_menu:home_menu_title_2')}</p> */}
             </div>
-            {/* <div className={styles.container}>
-                <div>{menuData ? JSON.stringify(menuData) : '暂无数据'}</div>
-            </div> */}
-            {/* 点击展开的左侧菜单栏 */}
-            {/* <Drawer
-                closable
-                destroyOnClose
-                title={<p>菜单</p>}
-                placement="left"
-                open={open}
-                loading={loading}
-                onClose={() => setOpen(false)}
-                style={{ position: 'relative' }}
-                width={288}
-            >
-                <Button type="primary" style={{ marginBottom: 16 }} onClick={showMenu}>
-                    Reload
-                </Button>
-                <MenuAdaptiveItem menuList={adaptiveMenuData} />
-            </Drawer> */}
-            {/* <p>{t('home_menu:home_menu_title_2')}</p> */}
-        </div>
+        </ConfigProvider>
     );
 }

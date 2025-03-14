@@ -10,9 +10,13 @@
     min-height: 60px;
     cursor: pointer;
 }
+.customUserMenu .ant-menu .ant-menu-item {
+    padding-left: 0 !important;
+}
 .customMenu .ant-card-bordered {
     border: none;
 }
+.customInput .ant-input-outlined,
 .customSearch .ant-input-outlined {
     background-color: transparent;
 }
@@ -99,3 +103,8 @@
 .customHelperMenu .ant-pagination  .ant-pagination-next .ant-pagination-item-link .anticon.anticon-right {
     color: var(--text-color5);
 }
+/* 顶部导航栏 */
+/* .customTopMenu .ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-active,
+.customTopMenu .ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover {
+    background-color: var(--background-menu-item) !important;
+} */
