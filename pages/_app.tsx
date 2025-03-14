@@ -67,6 +67,27 @@ function App({ Component, pageProps }: AppProps) {
 
   const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
+  // 在应用加载时调用langFile API
+  useEffect(() => {
+    const fetchLanguageFiles = async () => {
+      try {
+        console.log('正在获取语言文件...');
+        const response = await fetch('/api/langFile');
+        
+        if (!response.ok) {
+        console.log('获取语言文件失败:', response);
+        }
+        
+        const data = await response.json();
+        console.log('语言文件获取成功:', data);
+      } catch (error) {
+        console.error('获取语言文件时出错:', error);
+      }
+    };
+
+    fetchLanguageFiles();
+  }, []); // 空依赖数组确保只在组件挂载时执行一次
+
   return (
 
     <ConfigProvider theme={theme}>
