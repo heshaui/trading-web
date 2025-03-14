@@ -163,12 +163,12 @@
     justify-content: center;
     width: 32px;
     height: 17px;
-    background-color: #000317;
+    background-color: var(--btncolor2);
     margin-top: 10px;
     border-radius: 2px;
 }
 .menuListItem .menuListItemlevel span {
-    color: #FFFFFF;
+    color: var(--text-color8) !important;
     font-size: 12px;
 }
 
@@ -220,7 +220,7 @@
     font-size: 12px;
 }
 .myWords .myWords_2 span:first-child {
-    color: #000317;
+    color: var(--btncolor2);
     margin-right: 4px;
 }
 
@@ -348,4 +348,14 @@
 .userCursor {
     cursor: pointer;
     vertical-align: top;
+}
+
+.menuBox {
+    width: 100%;
+}
+
+/* 顶部导航栏 */
+.menuItemHoverBgColor .ant-dropdown-menu .ant-dropdown-menu-item-active,
+.menuItemHoverBgColor .ant-dropdown-menu .ant-dropdown-menu-item:hover {
+    background-color: var(--background-menu-item) !important;
 }

@@ -58,7 +58,6 @@ export default async function handler(
     res.status(200).json(data);
   } catch (error) {
     // 打印详细错误信息
-    // 打印详细错误信息
     console.error('获取语言文件失败:', {
       错误消息: error instanceof Error ? error.message : '未知错误',
       错误堆栈: error instanceof Error ? error.stack : '无堆栈信息'

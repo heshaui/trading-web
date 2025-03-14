@@ -334,6 +334,9 @@ export default function BulletinCenter() {
                         linkColor: 'var(--text-color6)',
                         linkHoverColor: 'none',
                     },
+                    Empty: {
+                        colorTextDescription: 'var(--text-color6)'
+                    }
                 },
                 token: {
                     colorPrimary: '#FF5F1F',
@@ -384,14 +387,6 @@ export default function BulletinCenter() {
                                         <Col flex={1}>
                                             {filteredAndSortedMessages.length > 0 ? (
                                                 filteredAndSortedMessages.map((message) => (
-                                                    // <MessageItem
-                                                    //     key={message.id}
-                                                    //     title={message.title}
-                                                    //     time={message.time}
-                                                    //     onClick={() => handleMessageClick(message)}
-                                                    //     isClickable={selectedKeys[0] === '1'}
-                                                    //     isRead={isMessageRead(message.id || '')}
-                                                    // />
                                                     <MessageItem
                                                         key={message.id}
                                                         title={renderHighlightedTitle(message.title) as string}

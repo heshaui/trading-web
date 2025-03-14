@@ -38,6 +38,7 @@ export const themeVariables = {
         '--text-color5': '#0C0D0C',
         '--text-color6': '#676867',
         '--text-color7': '#0C0D0C',
+        '--text-color8': '#ffffff',
         '--waring-color': '#FF8A26',
         '--waring-bg': '#FF8A2614',
         '--cancel-btn': '#F3F3F3',
@@ -56,6 +57,8 @@ export const themeVariables = {
         '--help-center-card-shadow': '0px 0px 36px 0px #A5A5A533',
         '--segmented-item-active-bg': '#FFFFFF',
         '--segmented-item-bgc': '#F6F7FB',
+        '--background-menu': '#FFFFFF',
+        '--background-menu-item': '#F4F4F4',
     },
     dark: {
         '--background': '#0a0a0a',
@@ -95,6 +98,7 @@ export const themeVariables = {
         '--text-color5': '#ffffff',
         '--text-color6': '#A4A5AC',
         '--text-color7': '#A4A5AC',
+        '--text-color8': '#0C0D0C',
         '--waring-color': '#FF8A26',
         '--waring-bg': '#FF8A2614',
         '--cancel-btn': '#3D3D3F',
@@ -113,6 +117,7 @@ export const themeVariables = {
         '--help-center-card-shadow': '0px 0px 36px 0px #A5A5A533',
         '--segmented-item-active-bg': '#272727',
         '--segmented-item-bgc': '#141414',
-
+        '--background-menu': '#232328',
+        '--background-menu-item': '#0C0D0C',
     }
 };
