@@ -1,69 +1,115 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+
+// 语言编码到目录名称的映射
+const langCodeMapping: Record<string, string> = {
+  'zh_CN': 'zh',
+  'zh_TW': 'tw',
+  'zh_HK': 'tw',
+  'en_US': 'en',
+  'ja_JP': 'ja',
+  'ko_KR': 'ko'
+};
+
+// 缓存上次语言文件的修改时间
+let lastModifiedTimestamp: number = 0;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { key } = req.query;
-
-  // 打印接收到的请求信息
-  console.log('接收到请求:', {
-    查询参数: req.query,
-    请求方法: req.method,
-    请求头: req.headers
-  });
-
   try {
-    // 需要使用完整的URL（包括协议和主机名）
-    const baseUrl = process.env.API_BASE_URL || 'http://ljx.imbit.work/ambit-home-web';
-    const fullUrl = `${baseUrl}/home-web/v1/open/userLangPackage/userLangPackageDetail`;
-
-    // 打印即将发送的请求信息
-    console.log('准备发送请求:', {
-      URL: fullUrl,
-      数据: { key },
-      配置: {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    });
-
-    // 使用 fetch 发送请求到完整URL
-    const response = await fetch(fullUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ key }),
-    });
-
-    // 检查响应状态
-    if (!response.ok) {
-      throw new Error(`HTTP 错误! 状态: ${response.status}`);
+    // 获取请求中的lastUpdated参数
+    const clientLastUpdated = req.query.lastUpdated ? parseInt(req.query.lastUpdated as string, 10) : 0;
+    
+    // 检查语言文件目录中所有文件的最新修改时间
+    const localesDir = path.join(process.cwd(), 'public/locales');
+    const currentModifiedTime = await getLatestModificationTime(localesDir);
+    
+    // 如果是初次加载或强制刷新，则始终返回完整数据
+    if (clientLastUpdated === 0) {
+      // 更新服务器上缓存的最后修改时间
+      lastModifiedTimestamp = currentModifiedTime;
+      
+      // 返回所有语言文件数据
+      const langData = await getAllLangData();
+      return res.status(200).json({
+        updated: true,
+        timestamp: currentModifiedTime,
+        data: langData
+      });
     }
-
-    // 解析 JSON 响应
-    const data = await response.json();
-
-    // 打印响应信息
-    console.log('收到响应:', {
-      状态码: response.status,
-      响应头: Object.fromEntries(response.headers.entries()),
-      数据: data
-    });
-
-    // 返回语言数据
-    res.status(200).json(data);
+    
+    // 检查是否有更新
+    const hasUpdates = currentModifiedTime > clientLastUpdated;
+    
+    if (hasUpdates) {
+      // 有更新，返回更新的语言文件数据
+      lastModifiedTimestamp = currentModifiedTime;
+      const langData = await getAllLangData();
+      return res.status(200).json({
+        updated: true,
+        timestamp: currentModifiedTime,
+        data: langData
+      });
+    } else {
+      // 没有更新，返回简单响应
+      return res.status(200).json({
+        updated: false,
+        timestamp: lastModifiedTimestamp
+      });
+    }
   } catch (error) {
-    // 打印详细错误信息
-    console.error('获取语言文件失败:', {
-      错误消息: error instanceof Error ? error.message : '未知错误',
-      错误堆栈: error instanceof Error ? error.stack : '无堆栈信息'
-    });
-
-    // 返回错误响应
-    res.status(500).json({ error: '获取语言文件失败' });
+    console.error('获取语言文件出错:', error);
+    return res.status(500).json({ error: '获取语言文件失败' });
   }
+}
+
+// 递归获取目录中所有文件的最新修改时间
+async function getLatestModificationTime(dir: string): Promise<number> {
+  let latestTime = 0;
+  
+  const items = fs.readdirSync(dir);
+  
+  for (const item of items) {
+    const itemPath = path.join(dir, item);
+    const stats = fs.statSync(itemPath);
+    
+    if (stats.isDirectory()) {
+      const dirLatestTime = await getLatestModificationTime(itemPath);
+      latestTime = Math.max(latestTime, dirLatestTime);
+    } else if (stats.isFile() && item.endsWith('.json')) {
+      latestTime = Math.max(latestTime, stats.mtimeMs);
+    }
+  }
+  
+  return latestTime;
+}
+
+// 获取所有语言文件数据
+async function getAllLangData() {
+  // 这里实现读取并返回所有语言文件的逻辑
+  // 根据您现有的实现可能需要调整
+  const localesDir = path.join(process.cwd(), 'public/locales');
+  const languages = fs.readdirSync(localesDir);
+  
+  const result: Record<string, Record<string, any>> = {};
+  
+  for (const lang of languages) {
+    const langPath = path.join(localesDir, lang);
+    if (fs.statSync(langPath).isDirectory()) {
+      result[lang] = {};
+      
+      const namespaceFiles = fs.readdirSync(langPath).filter(file => file.endsWith('.json'));
+      for (const file of namespaceFiles) {
+        const namespace = file.replace('.json', '');
+        const filePath = path.join(langPath, file);
+        const content = fs.readFileSync(filePath, 'utf8');
+        result[lang][namespace] = JSON.parse(content);
+      }
+    }
+  }
+  
+  return result;
 } 

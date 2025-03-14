@@ -1,5 +1,5 @@
 import styles from '@/styles/components/Footer.module.css';
-import { useLogoImage } from '@/services/webLogo'; // 获取logo
+import { useLogoImage } from '@/hooks/useKv'; // 获取logo
 import { ApiResponse, FooterListProps, FormattedLanguage, LanguageParams } from "@/type/types";
 
 import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { getCustomFooter, getLogo, getSocialMediaList } from '@/services/footer';
 import { getLanguage } from '@/services/header';
+import { useWebConfig } from '@/hooks/useKv';
 
 interface FooterSetting {
     statu: string;
@@ -35,6 +36,9 @@ interface SocialMediaItem {
 }
 
 export default function Footer() {
+    // 使用现有的 useWebConfig hook 获取所有配置
+    const { config, loading } = useWebConfig();
+    const [socialMedia, setSocialMedia] = useState<any[]>([]);
     // 添加状态管理选中的语言
     const [selectedLang, setSelectedLang] = useState('简体中文');
     // 获取logo
@@ -47,52 +51,52 @@ export default function Footer() {
     // 添加社交媒体列表状态
     const [socialMediaList, setSocialMediaList] = useState<SocialMediaItem[]>([]);
 
-    useEffect(() => {
-        const fetchFooterSetting = async () => {
-            try {
-                const response = await getLogo({ key: 'footer_setting' }) as ApiResponse<string>;
-                if (response?.data) {
-                    const fixedJsonString = response.data.replace(/([{,]\s*)([a-zA-Z0-9_]+):/g, '$1"$2":')
-                        .replace(/:\s*'([^']*?)'/g, ':"$1"');
-                    const parsedData = JSON.parse(fixedJsonString) as FooterSetting;
-                    setFooterSetting(parsedData);
-                    // console.log('footerSetting', parsedData);
+    // useEffect(() => {
+    //     const fetchFooterSetting = async () => {
+    //         try {
+    //             const response = await getLogo({ key: 'footer_setting' }) as ApiResponse<string>;
+    //             if (response?.data) {
+    //                 const fixedJsonString = response.data.replace(/([{,]\s*)([a-zA-Z0-9_]+):/g, '$1"$2":')
+    //                     .replace(/:\s*'([^']*?)'/g, ':"$1"');
+    //                 const parsedData = JSON.parse(fixedJsonString) as FooterSetting;
+    //                 setFooterSetting(parsedData);
+    //                 // console.log('footerSetting', parsedData);
 
-                    // 如果 statu 为 '1'，获取自定义 footer 数据
-                    if (parsedData.statu === '1') {
-                        const customResponse = await getCustomFooter({ lang: 'zh_CN' }) as CustomFooterResponse;
-                        if (customResponse?.data?.length > 0) {
-                            setCustomFooter(customResponse.data);
-                        }
-                    }
-                }
+    //                 // 如果 statu 为 '1'，获取自定义 footer 数据
+    //                 if (parsedData.statu === '1') {
+    //                     const customResponse = await getCustomFooter({ lang: 'zh_CN' }) as CustomFooterResponse;
+    //                     if (customResponse?.data?.length > 0) {
+    //                         setCustomFooter(customResponse.data);
+    //                     }
+    //                 }
+    //             }
 
-                // 获取语言数据
-                const languageResponse = await getLanguage({
-                    lang: '',
-                }) as ApiResponse<LanguageParams[]>;
-                if (languageResponse?.code === '0' && languageResponse.data) {
-                    const formattedLanguageData = languageResponse.data.map((item, index) => ({
-                        label: `${item.lang}`,
-                        key: `${String(index + 1)}`
-                    }));
-                    setLanguageList(formattedLanguageData);
-                }
+    //             // 获取语言数据
+    //             const languageResponse = await getLanguage({
+    //                 lang: '',
+    //             }) as ApiResponse<LanguageParams[]>;
+    //             if (languageResponse?.code === '0' && languageResponse.data) {
+    //                 const formattedLanguageData = languageResponse.data.map((item, index) => ({
+    //                     label: `${item.lang}`,
+    //                     key: `${String(index + 1)}`
+    //                 }));
+    //                 setLanguageList(formattedLanguageData);
+    //             }
 
-                // 获取社交媒体列表
-                const socialMediaResponse = await getSocialMediaList() as ApiResponse<SocialMediaItem[]>;
-                if (socialMediaResponse?.code === '0' && socialMediaResponse.data) {
-                    // 只显示状态为1的社交媒体
-                    const activeMediaList = socialMediaResponse.data.filter(item => item.status === 1);
-                    setSocialMediaList(activeMediaList);
-                }
-            } catch (error) {
-                console.error('获取footer设置失败:', error);
-            }
-        };
+    //             // 获取社交媒体列表
+    //             const socialMediaResponse = await getSocialMediaList() as ApiResponse<SocialMediaItem[]>;
+    //             if (socialMediaResponse?.code === '0' && socialMediaResponse.data) {
+    //                 // 只显示状态为1的社交媒体
+    //                 const activeMediaList = socialMediaResponse.data.filter(item => item.status === 1);
+    //                 setSocialMediaList(activeMediaList);
+    //             }
+    //         } catch (error) {
+    //             console.error('获取footer设置失败:', error);
+    //         }
+    //     };
 
-        fetchFooterSetting();
-    }, []);
+    //     fetchFooterSetting();
+    // }, []);
 
     // const itemsLan = languageList.length > 0 ? languageList :  [
     //     {
@@ -104,6 +108,41 @@ export default function Footer() {
     //         key: '2',
     //     },
     // ];
+
+
+    useEffect(() => {
+        // 获取社交媒体列表
+        const fetchSocialMedia = async () => {
+            try {
+                const response = await getSocialMediaList() as ApiResponse<any[]>;
+                if (response?.code === '0' && response.data) {
+                    setSocialMedia(response.data);
+                }
+            } catch (error) {
+                console.error('获取社交媒体列表失败:', error);
+            }
+        };
+
+        fetchSocialMedia();
+    }, []);
+    useEffect(() => {
+        // 当 config 加载完成且 footerSetting.statu 为 '1' 时，获取自定义 footer
+        if (!loading && footerSetting && footerSetting.statu === '1') {
+            const fetchCustomFooter = async () => {
+                try {
+                    const customResponse = await getCustomFooter({ lang: 'zh_CN' }) as CustomFooterResponse;
+                    if (customResponse?.data?.length > 0) {
+                        setCustomFooter(customResponse.data);
+                    }
+                } catch (error) {
+                    console.error('获取自定义 footer 失败:', error);
+                }
+            };
+
+            fetchCustomFooter();
+        }
+    }, [loading, footerSetting]);
+
 
     const itemsLan = [
         {

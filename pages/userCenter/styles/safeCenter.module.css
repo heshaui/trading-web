@@ -1,0 +1,57 @@
+.tip_color {
+    color: var(--text-color6);
+}
+.title_color{
+    color:var(--foreground)
+}
+
+.card_bgc {
+    background-color: var(--background8);
+    border-radius: 8px;
+    padding: 24px;
+}
+.identity_auth_box{
+   width: 85%;
+   padding: 24px 0;
+   /* background-color: pink; */
+}
+
+.pt0 {
+    padding-top: 0;
+}
+
+.success_icon {
+    color: #00C788;
+}
+
+.error_icon {
+    color: #F73710;
+}
+
+.warning_color {
+    color: #F8A145;
+}
+
+
+.default_icon {
+    color: #A4A5AC;
+}
+.content_table_box,.table_box_inner{
+    width: 100%;
+}
+/* .table_box{
+    border-top: 1px solid var(--border-color4);
+} */
+
+
+ /* @media (max-width: 1080px) {
+
+} */
+
+@media (min-width: 1680px) {
+
+.table_box_inner{
+    width: 65%;
+}
+   
+} 

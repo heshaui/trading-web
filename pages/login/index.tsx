@@ -8,6 +8,10 @@ import { useRouter } from 'next/router';
 import styles from './styles/login.module.css'
 import { getPic, getPic2 } from "@/services/open";
 import Image from "next/image";
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+
 
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
@@ -29,6 +33,7 @@ interface LoginPicType {
 }
 function Login() {
 	const router = useRouter();
+	const { t } = useTranslation(['login']);
 	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
 	// localStorage.getItem('localeLanguage')
 	let token = null;
@@ -80,6 +85,7 @@ function Login() {
 
 	return (
 		<div className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
+			
 			{/* <div className="relative flex h-overmax w-full flex-row page-box "> */}
 			<div
 				className="isHidden flex-1"
@@ -106,4 +112,15 @@ function Login() {
 		</div>
 	);
 }
+
+// 添加此导出函数以支持服务端翻译加载
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['login'])),
+		},
+	};
+};
+
 export default Login;
+

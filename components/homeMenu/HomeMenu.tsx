@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 
 import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
-import { useLogoImage } from '@/services/webLogo'; // 获取logo
+import { useLogoImage } from '@/hooks/useKv'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 import { getBulletinMessage } from '@/services/bulletinCenter';
 
@@ -33,7 +33,7 @@ export default function HomeMenu() {
     // 添加调试日志
     // console.log('Current language:', i18n.language);
     // console.log('Router locale:', router.locale);
-    // console.log('Translation test:', t('title_1_1_h5'));
+    console.log('Translation test:', t('title_1_1_h5'));
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -642,50 +642,54 @@ export default function HomeMenu() {
     };
 
     // 语言菜单
-    const spanArr = languageList.length > 0 ? languageList : [
-        {
-            span: '简体中文',
-            key: 'zh-CN'
-        },
-        {
-            span: 'English',
-            key: 'en-US'
-        },
-        {
-            span: '日本語',
-            key: 'ja-JP'
-        },
-        {
-            span: 'Español',
-            key: 'es-ES'
-        },
-        {
-            span: 'Français',
-            key: 'fr-FR'
-        },
-    ]
+    const spanArr = languageList.length > 0 ? languageList : []
 
     // 使用实际数据替换静态数据
-    const spanRateArr = rateData.length > 0 ? rateData : [
-        {
-            span: 'CNY - ￥'  // 默认值
-        },
-        {
-            span: 'USD- $'   // 默认值
-        },
-    ];
+    const spanRateArr = rateData.length > 0 ? rateData : [];
     // 语言点击
     const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = async (language: string, langEncode: string) => {
+        // 保存选中的语言到状态和本地存储
         setSelectedLanguage(language);
         localStorage.setItem('lang', langEncode);
+        localStorage.setItem('selectedLanguage', language);
 
-        // 分发自定义事件通知其他组件语言已更改
+        // 直接设置i18n实例的语言
+        if (typeof i18n.changeLanguage === 'function') {
+            i18n.changeLanguage(langEncode.split('-')[0]);
+        } else {
+            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
+            // 使用替代方法
+            localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
+        }
+
+        // 根据语言编码确定Next.js的locale值
+        let nextLocale = 'en';
+        if (langEncode.startsWith('zh')) {
+            nextLocale = 'zh'; // 简体中文 / 繁体中文
+        } else if (langEncode.startsWith('ja')) {
+            nextLocale = 'ja';
+        } else if (langEncode.startsWith('ko')) {
+            nextLocale = 'ko';
+        }
+
+        // 分发自定义事件
         const event = new CustomEvent('langChange', { detail: langEncode });
         window.dispatchEvent(event);
 
-        // 切换语言后重新请求所有数据
-        initializeData(langEncode);
+        // 添加调试信息
+        console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}`);
+
+        // 使用硬刷新确保语言切换生效并保持路径
+        const currentPath = router.asPath;
+        const baseUrl = window.location.origin;
+
+        // 保存当前路径到会话存储，以便在重定向后恢复
+        sessionStorage.setItem('lastPath', currentPath);
+
+        // 构建新URL时保留查询参数和哈希
+        const url = new URL(`${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`);
+        window.location.href = url.toString();
     };
     // 汇率点击
     const handleRateClick = (rate: string) => {
@@ -693,7 +697,7 @@ export default function HomeMenu() {
         // 可以在这里添加其他逻辑，例如更新语言设置
     };
     // 定义语言菜单项
-    const languageItems = spanArr.map((item, index) => ({
+    const languageItems = spanArr.length > 0 ? spanArr.map((item, index) => ({
         key: `1-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -710,9 +714,15 @@ export default function HomeMenu() {
                 {item.span}
             </span> // 动态赋值
         ),
-    }));
+    })) : [
+        {
+            key: 'empty-language',
+            type: 'group',
+            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无语言数据" />
+        }
+    ];
     // 定义汇率菜单项
-    const rateItems = spanRateArr.map((item, index) => ({
+    const rateItems = spanRateArr.length > 0 ? spanRateArr.map((item, index) => ({
         key: `3-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -727,7 +737,13 @@ export default function HomeMenu() {
                 onClick={() => handleRateClick(item.span)}>{item.span}
             </span> // 动态赋值
         ),
-    }));
+    })) : [
+        {
+            key: 'empty-rate',
+            type: 'group',
+            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无汇率数据" />
+        }
+    ];
     // 语言过滤(模糊搜索)
     const filterLanguages = (languages: any[], searchValue: string) => {
         if (!searchValue) return languages; // 如果没有搜索值，直接返回所有语言项
