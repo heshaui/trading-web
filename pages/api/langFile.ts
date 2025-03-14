@@ -12,107 +12,104 @@ const langCodeMapping: Record<string, string> = {
   'ko_KR': 'ko'
 };
 
+// 缓存上次语言文件的修改时间
+let lastModifiedTimestamp: number = 0;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    // 第一步：获取语言文件列表
-    const baseUrl = 'http://ljx.imbit.work/ambit-home-web';
-    const listUrl = `${baseUrl}/home-web/v1/open/userLangPackage/userLangPackageDetail`;
+    // 获取请求中的lastUpdated参数
+    const clientLastUpdated = req.query.lastUpdated ? parseInt(req.query.lastUpdated as string, 10) : 0;
     
-    const listResponse = await fetch(listUrl, {
-      method: 'POST',
-      headers: {
-        'ambit-saas': '2e5bbf22907d4a31992e9641079af195', 
-        'Content-Type': 'application/json'
-      },
-    });
+    // 检查语言文件目录中所有文件的最新修改时间
+    const localesDir = path.join(process.cwd(), 'public/locales');
+    const currentModifiedTime = await getLatestModificationTime(localesDir);
     
-    if (!listResponse.ok) {
-      throw new Error(`获取语言文件列表失败! 状态: ${listResponse.status}`);
-    }
-    
-    const listData = await listResponse.json();
-    console.log('语言文件列表:', listData);
-    
-    // 如果没有文件信息，直接返回
-    if (!listData.data || listData.data.length === 0) {
+    // 如果是初次加载或强制刷新，则始终返回完整数据
+    if (clientLastUpdated === 0) {
+      // 更新服务器上缓存的最后修改时间
+      lastModifiedTimestamp = currentModifiedTime;
+      
+      // 返回所有语言文件数据
+      const langData = await getAllLangData();
       return res.status(200).json({
-        code: "1",
-        message: "未找到语言文件信息",
-        data: null
+        updated: true,
+        timestamp: currentModifiedTime,
+        data: langData
       });
     }
     
-    // 第二步：获取所有语言文件并保存
-    const publicDir = path.join(process.cwd(), 'public');
-    const savedFiles = [];
-    const savedContents: Record<string, any> = {};
+    // 检查是否有更新
+    const hasUpdates = currentModifiedTime > clientLastUpdated;
     
-    // 处理每个语言文件
-    for (const langFile of listData.data) {
-      const fileUrl = langFile.fileUrl;
-      const langCode = langFile.langEncode;
-      const fileName = langFile.fileName; // 使用原始文件名
+    if (hasUpdates) {
+      // 有更新，返回更新的语言文件数据
+      lastModifiedTimestamp = currentModifiedTime;
+      const langData = await getAllLangData();
+      return res.status(200).json({
+        updated: true,
+        timestamp: currentModifiedTime,
+        data: langData
+      });
+    } else {
+      // 没有更新，返回简单响应
+      return res.status(200).json({
+        updated: false,
+        timestamp: lastModifiedTimestamp
+      });
+    }
+  } catch (error) {
+    console.error('获取语言文件出错:', error);
+    return res.status(500).json({ error: '获取语言文件失败' });
+  }
+}
+
+// 递归获取目录中所有文件的最新修改时间
+async function getLatestModificationTime(dir: string): Promise<number> {
+  let latestTime = 0;
+  
+  const items = fs.readdirSync(dir);
+  
+  for (const item of items) {
+    const itemPath = path.join(dir, item);
+    const stats = fs.statSync(itemPath);
+    
+    if (stats.isDirectory()) {
+      const dirLatestTime = await getLatestModificationTime(itemPath);
+      latestTime = Math.max(latestTime, dirLatestTime);
+    } else if (stats.isFile() && item.endsWith('.json')) {
+      latestTime = Math.max(latestTime, stats.mtimeMs);
+    }
+  }
+  
+  return latestTime;
+}
+
+// 获取所有语言文件数据
+async function getAllLangData() {
+  // 这里实现读取并返回所有语言文件的逻辑
+  // 根据您现有的实现可能需要调整
+  const localesDir = path.join(process.cwd(), 'public/locales');
+  const languages = fs.readdirSync(localesDir);
+  
+  const result: Record<string, Record<string, any>> = {};
+  
+  for (const lang of languages) {
+    const langPath = path.join(localesDir, lang);
+    if (fs.statSync(langPath).isDirectory()) {
+      result[lang] = {};
       
-      console.log(`准备获取语言文件内容: ${langCode} - ${fileUrl}`);
-      
-      try {
-        // 获取文件内容
-        const fileResponse = await fetch(fileUrl);
-        if (!fileResponse.ok) {
-          console.error(`获取语言文件 ${langCode} 内容失败! 状态: ${fileResponse.status}`);
-          continue; // 跳过这个文件，继续处理其他文件
-        }
-        
-        const fileContent = await fileResponse.json();
-        console.log(`语言文件 ${langCode} 内容获取成功`);
-        
-        // 确定目标目录
-        const dirName = langCodeMapping[langCode] || langCode.split('_')[0].toLowerCase();
-        const localesDir = path.join(publicDir, 'locales', dirName);
-        
-        // 确保目录存在
-        if (!fs.existsSync(localesDir)) {
-          fs.mkdirSync(localesDir, { recursive: true });
-        }
-        
-        // 使用后端返回的原始文件名
-        const filePath = path.join(localesDir, fileName);
-        fs.writeFileSync(filePath, JSON.stringify(fileContent, null, 2), 'utf8');
-        
-        console.log(`语言文件 ${langCode} 已成功写入到: ${filePath}`);
-        savedFiles.push(filePath);
-        savedContents[langCode] = fileContent;
-      } catch (error) {
-        console.error(`处理语言文件 ${langCode} 时发生错误:`, error);
-        // 继续处理其他文件
+      const namespaceFiles = fs.readdirSync(langPath).filter(file => file.endsWith('.json'));
+      for (const file of namespaceFiles) {
+        const namespace = file.replace('.json', '');
+        const filePath = path.join(langPath, file);
+        const content = fs.readFileSync(filePath, 'utf8');
+        result[lang][namespace] = JSON.parse(content);
       }
     }
-    
-    // 返回成功响应
-    res.status(200).json({
-      code: "0",
-      message: `成功保存 ${savedFiles.length} 个语言文件`,
-      meta: listData.data,
-      savedFiles: savedFiles,
-      contents: savedContents
-    });
-    
-  } catch (error) {
-    console.error('语言文件处理失败:', {
-      错误消息: error instanceof Error ? error.message : '未知错误',
-      错误堆栈: error instanceof Error ? error.stack : '无堆栈信息'
-    });
-    
-    res.status(500).json({ 
-      data: null, 
-      code: 'error',
-      message: '获取或保存语言文件失败'
-    });
-
-    // 返回错误响应
-    res.status(500).json({ error: '获取语言文件失败' });
   }
+  
+  return result;
 } 

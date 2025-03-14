@@ -67,29 +67,57 @@ function App({ Component, pageProps }: AppProps) {
 
   const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
-  // 在应用加载时调用langFile API
+  // 添加最后更新时间状态
+  const [lastUpdated, setLastUpdated] = useState<number>(0);
+
+  // 在应用加载时调用langFile API并设置定时检查
   useEffect(() => {
-    const fetchLanguageFiles = async () => {
+    const fetchLanguageFiles = async (checkTimestamp = false) => {
       try {
         console.log('正在获取语言文件...');
-        const response = await fetch('/api/langFile');
+        // 如果是检查更新，则带上最后更新时间参数
+        const url = checkTimestamp ? `/api/langFile?lastUpdated=${lastUpdated}` : '/api/langFile';
+        const response = await fetch(url);
         
         if (!response.ok) {
-        console.log('获取语言文件失败:', response);
+          console.log('获取语言文件失败:', response);
+          return;
         }
         
         const data = await response.json();
-        console.log('语言文件获取成功:', data);
+        
+        if (checkTimestamp && data.updated) {
+          console.log('语言文件有更新，正在刷新...');
+          // 重新加载资源
+          if (i18n.isInitialized) {
+            i18n.reloadResources();
+          }
+          setLastUpdated(Date.now());
+        } else if (!checkTimestamp) {
+          console.log('语言文件获取成功:', data);
+          setLastUpdated(Date.now());
+        } else {
+          console.log('语言文件无更新');
+        }
       } catch (error) {
         console.error('获取语言文件时出错:', error);
       }
     };
 
+    // 初始加载
     fetchLanguageFiles();
+    
+    // 设置定期检查 - 每5分钟检查一次更新
+    const interval = setInterval(() => {
+      console.log('定时检查语言文件更新...');
+      fetchLanguageFiles(true);
+    }, 5 * 60 * 1000); // 5分钟 = 5 * 60 * 1000毫秒
+    
+    // 组件卸载时清除定时器
+    return () => clearInterval(interval);
   }, []); // 空依赖数组确保只在组件挂载时执行一次
 
   return (
-
     <ConfigProvider theme={theme}>
       <div className={isDarkMode ? 'dark' : ''}>
         {shouldShowMenuAndFooter && <HomeMenu />}
@@ -98,10 +126,8 @@ function App({ Component, pageProps }: AppProps) {
 
         {shouldShowMenuAndFooter && <Footer />}
         <Toaster />
-
       </div>
     </ConfigProvider>
-
   );
 }
 
