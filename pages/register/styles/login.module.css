@@ -4,6 +4,9 @@
 }
 
 /* AutoComplete 组件样式 */
+.auto_complete_input{
+    color:var(--text-color5);
+}
 .auto_complete_input .ant-select-selection-search-input {
     height: 100% !important;
 }
@@ -38,7 +41,7 @@
 
 .custom_segmented,
 .page_box {
-    background-color: var(--background) !important;
+    background-color: var(--background11) !important;
 }
 
 /* .login_button:hover ,.ant-btn:hover,.ant-btn-color-primary:hover{
@@ -179,4 +182,17 @@
 /* 鼠标滑过 */
 .mail_input:hover {
     border-color: var(--text-color3);
+}
+.title_color{
+    color:var(--text-color5)
+}
+.mail_input{
+    color:var(--text-color5) !important;
+    background-color: var(--background11) !important;
+}
+.custom_segmented{
+    color: var(--textcolor) !important;
+}
+.tip_icon{
+    color:var(--text-color4) ;
 }

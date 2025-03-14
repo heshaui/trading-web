@@ -1,11 +1,11 @@
 "use client";
 import { Form, Input, Checkbox, ConfigProvider } from "antd";
-import { type CSSProperties } from "react";
+import { type CSSProperties, useState } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
 // import type { TabsProps } from 'antd';
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import { areaCodeOptionList } from "@/utils/enum";;
 import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
@@ -23,6 +23,7 @@ const fromStyle: CSSProperties = {
 
 
 function RegisterPhone() {
+    const [isOpen, setIsOpen] = useState(true); //是否展开
 	const router = useRouter();
 	const { setLoginState } = useLoginStateContext();
 	const { registerType } = useRegisterTypeContext();
@@ -76,7 +77,7 @@ function RegisterPhone() {
 	}
 
 	// 自定义密码验证规则
-	const validatePassword = (_:any,value: string) => {
+	const validatePassword = (_: any, value: string) => {
 		if (typeof value === 'string') {
 			value = value.trim();
 		}
@@ -102,92 +103,113 @@ function RegisterPhone() {
 
 	return (
 		<div className="flex-y-cc mt-7" >
-			<Form
-				style={fromStyle}
-				name="login"
-				size="large"
-				form={form}
-				// onFinish={onFinish}
-				initialValues={{ areaCode: "+1" }}
-			// onValuesChange={usernameChange}
-			>
-				<div className="mb-5 font-16 font-w-500">手机号</div>
-				<Form.Item >
-					<div className="flex">
-						{/* <Form.Item name="areaCode" noStyle>
-							<Select
-								defaultValue="1"
-								style={{ width: 115 }}
-								options={areaCodeOptionList}
-								prefix={
-									<Iconify icon="zondicons:network" className="icon-color" />
-								}
-							/>
-						</Form.Item> */}
-						<PhoneCodeSelector />
-						<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-							<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2`} />
-						</Form.Item>
-					</div>
-				</Form.Item>
-				<div className="mb-5 font-16 font-w-500">密码</div>
-				<Form.Item name="password"
-					rules={[{ validator: validatePassword }]}
-					>
-					<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input}`}
-					// prefix={
-					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
-					// }
-					/>
-				</Form.Item>
-
-				<div className="mb-5 font-16 font-w-500">推荐人的邀请码(选填)</div>
-				<Form.Item name="referee" rules={[{ required: false, }]}>
-					<Input.Password type="password" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input}`}
-					// prefix={
-					// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
-					// }
-					/>
-				</Form.Item>
-				<ConfigProvider
-					theme={{
-						token: {
-							colorPrimary: "#FF5F1F"
+			<ConfigProvider
+				theme={{
+					components: {
+						Form: {
+							itemMarginBottom: 20, // 去除表单项之间的间距
 						},
-					}}
+						Input: {
+							controlHeightLG: 50,
+							activeBorderColor: '#FF5F1F',
+							hoverBorderColor: '#FF5F1F',
+							activeBg: 'var(--background11)',
+							hoverBg: 'var(--background11)',
+						},
+						Select: {
+							selectorBg: 'var(--background11)',
+						}
+					},
+					token: {
+						// colorBgContainerDisabled: '#fff',
+					}
+				}}
+			>
+				<Form
+					style={fromStyle}
+					name="login"
+					size="large"
+					form={form}
+					// onFinish={onFinish}
+					initialValues={{ areaCode: "+1" }}
+				// onValuesChange={usernameChange}
 				>
-					<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-						<Checkbox className="custom-checkbox  text-color-default">我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></Checkbox>
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>手机号</div>
+					<Form.Item >
+						<div className="flex">
+							<PhoneCodeSelector />
+							<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+								<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} />
+							</Form.Item>
+						</div>
 					</Form.Item>
-				</ConfigProvider>
-			</Form>
-			{/* <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>密码</div>
+					<Form.Item name="password"
+						rules={[{ validator: validatePassword }]}
+					>
+						<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
+						// prefix={
+						// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
+						// }
+						/>
+					</Form.Item>
+
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
+					onClick={()=>{setIsOpen(!isOpen)}}>推荐人的邀请码(选填)
+                        <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"} 
+						className={`${styles.tip_icon} ml-1`} size={20} />
+
+                    </div>
+					{isOpen && (
+                        <Form.Item name="referee" rules={[{ required: false }]}>
+                            <Input type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
+                        />
+                        </Form.Item>
+                    )}
+					<ConfigProvider
+						theme={{
+							token: {
+								colorPrimary: "#FF5F1F"
+							},
+						}}
+					>
+						<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
+							<Checkbox className="custom-checkbox  text-color-default">
+							<p className={`${styles.title_color}`}>
+								我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span>
+								</p>
+								</Checkbox>
+						</Form.Item>
+					</ConfigProvider>
+				</Form>
+				{/* <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
 				onClick={onFinish}>
 				{"注册"}
 			</Button> */}
-			<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
-				onClick={onFinish}>
-				{"注册"}
-			</button>
-			{/* <p className="tip-color2 mt-5">或者</p>
+				<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
+					onClick={onFinish}>
+					{"注册"}
+				</button>
+				{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
 				icon={<Iconify icon="fa6-brands:google" className="icon-color1" />}
 				onClick={() => goAuthCode()}
 			>
 				使用Google继续
 			</Button> */}
-			<div className="flex-cc mt-4">
-				<p>
-					{"已有账号？"}
-					<button
-						type="button"
-						className="text-color"
-						onClick={goLogin}
-					>
-						{"登录"}
-					</button>
-				</p>
-			</div>
+				<div className="flex-cc mt-4">
+					<p>
+						{"已有账号？"}
+						<button
+							type="button"
+							className="text-color"
+							onClick={goLogin}
+						>
+							{"登录"}
+						</button>
+					</p>
+				</div>
+			</ConfigProvider>
 		</div>
 	);
 }

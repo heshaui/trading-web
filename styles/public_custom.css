@@ -64,6 +64,9 @@
     color: var(--text-color4) !important;
 }
 
+.autoComplete-custom .ant-input::placeholder{
+    color: var(--text-color4) !important;
+}
 
 
 /* 
@@ -127,6 +130,7 @@
 /* AutoComplete 组件样式 */
 .auto-complete-input .ant-select-selection-search-input {
     height: 100% !important;
+    color:var(--text-color5) !important;
 }
 
 .auto-complete-input .ant-select-selector:hover
@@ -269,6 +273,11 @@
 .table-box .ant-table-cell{
     padding: 16px 0 !important;
     padding-left: 16px !important;
+    /* padding:0 !important; */
+}
+/* 展开列表间距 */
+.table-box .ant-table-expanded-row>.ant-table-cell{
+    padding: 0 !important;
 }
 /* 展开行边框 */
 .table-box2 .ant-table-tbody >tr >td {

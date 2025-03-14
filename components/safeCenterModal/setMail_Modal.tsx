@@ -52,7 +52,8 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
 
     const handCancel = () => {
         form.resetFields();
-        // setFirstCheck(true)
+        setFirstCheck(true)
+        setFirstCheck2(true)
         onCancel()
     };
 
@@ -61,29 +62,30 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
         form.validateFields()
             .then(async (values) => {
                 // console.log(values);
-                if (firstCheck) return toast.error('请先发送验证码')
+                // if (firstCheck) return toast.error('请先发送验证码')
                 setLoading(true)
                 try {
                     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
                     let params = {}
                     if (type === 'set') {
-
                         params = {
                             isPhoneAuth: 1,
                             email: values.email,
-                            code: values.code,
-                            googleCode: values.googleCode,
+                            code: values.code||'',
+                            googleCode: values.googleCode||'',
                             userId: userInfo.userId||'',
-                            phoneCode: values.phoneCode
+                            phoneCode: values.phoneCode||'',
+                            type:2
                         }
 
                     } else if (type === 'change') {
                         params = {
                             phoneStatus: 1,
                             email: values.email,
-                            code: values.code,
+                            code: values.code||'',
                             userId: userInfo.userId||'',
-                            phoneCode: values.phoneCode
+                            phoneCode: values.phoneCode||'',
+                            type:1
                         }
 
                     }
@@ -326,7 +328,7 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                 <Input placeholder="请输入谷歌验证码" allowClear={true} className={`${styles.input_box} modal-input`} />
                             </Form.Item>
                         </>}
-                        {(type === 'set' && acountInfo?.phone) && <>
+                        {(type === 'set' && acountInfo?.phone&& !acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
@@ -346,7 +348,6 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                 />
-                                {/* <button className='text-color mt-1'>粘贴</button> */}
                             </Form.Item>
                         </>}
 

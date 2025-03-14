@@ -113,7 +113,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                             <p className={`${styles.msg_color} mt-4 text-center` }>确认后，您将无法使用手机获取到验证码。</p>
                         </>
                     )}
-                     {type === "2" && (
+                     {(type === "2"||type==='5') && (
                         < >
                             <Image src="/images/userCenter/safe/change_email.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
                             <p className={`${styles.title} `}>您确认修改邮箱吗？</p>

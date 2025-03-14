@@ -33,7 +33,6 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
 
   const handCancel = () => {
     form.resetFields();
-    // setFirstCheck(true)
     onCancel()
   };
 

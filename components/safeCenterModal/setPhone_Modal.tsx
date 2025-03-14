@@ -9,28 +9,48 @@ import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
-import { bindPhone, getSmsCode } from '@/services/safeCenter'
+import { bindPhone, getSmsCode,getEmailCode } from '@/services/safeCenter'
 import { toast } from "sonner";
-import { encryptData } from "@/utils/encrypt";
+import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
+
+interface SafeDataType {
+    phone?: string;
+    email?: string;
+    countryCode?: string;
+    googleCode?: boolean;
+    password?: boolean;
+    deviceNos?: string;
+    recentIp?: string;
+    userId?: string;
+    type?: string;
+}
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
     onOk?: () => void;
     onCancel: () => void;
     type: string;
+    acountInfo:SafeDataType;
 };
 
-function SetMailModal({ open, onCancel, type }: Props) {
+function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
+    const [isCounting2, setIsCounting2] = useState(false);
     const [countdown, setCountdown] = useState(60);
+    const [countdown2, setCountdown2] = useState(60);
     const [firstCheck, setFirstCheck] = useState(true);
-    const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false); // 按钮loading
+    const [firstCheck2, setFirstCheck2] = useState(true);
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
+    const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+
+    const [loading, setLoading] = useState(false); // 按钮loading
+    const [form] = Form.useForm();
 
     const handCancel = () => {
         form.resetFields();
+        setFirstCheck(true)
+        setFirstCheck2(true)
         onCancel()
     };
 
@@ -39,7 +59,7 @@ function SetMailModal({ open, onCancel, type }: Props) {
         form.validateFields()
             .then(async (values) => {
                 // console.log(values);
-                if (firstCheck) return toast.error('请先发送验证码')
+                // if (firstCheck) return toast.error('请先发送验证码')
                 try {
                     let params = {}
                     if (type === 'set') {
@@ -49,7 +69,8 @@ function SetMailModal({ open, onCancel, type }: Props) {
                             phone: values.phoneNumber,
                             code: values.code,
                             googleCode: values.googleCode,
-                            countryCode: values.areaCode.replace("+", "")
+                            countryCode: values.areaCode.replace("+", ""),
+                            type:2
                         }
 
                     } else if (type === 'change') {
@@ -58,7 +79,8 @@ function SetMailModal({ open, onCancel, type }: Props) {
                             phoneStatus: 1,
                             phone: values.phoneNumber,
                             code: values.code,
-                            countryCode: values.areaCode.replace("+", "")
+                            countryCode: values.areaCode.replace("+", ""),
+                            type:2
                         }
 
                     }
@@ -66,7 +88,6 @@ function SetMailModal({ open, onCancel, type }: Props) {
                     const res = await bindPhone(dataEncrypt)
                     if (res.code === '0') {
                         toast.success(res.data)
-                        // setFirstCheck(true)
                         handCancel()
                     } else {
                         toast.error(res.message)
@@ -108,6 +129,34 @@ function SetMailModal({ open, onCancel, type }: Props) {
 
         }
     };
+    const getMailCode = async () => {
+        if (isCounting2 || loading || codeLoading2) return
+        setCodeLoading2(true)
+        try {
+            const dataInfo = {
+                number: acountInfo?.email,
+                deviceType: "web"
+            };
+            const dataEncrypt = await encryptData(dataInfo)
+            const res = await getEmailCode(dataEncrypt);
+            if (res.code === "0") {
+                setFirstCheck2(false)
+                toast.success(res.message)
+                startCountdown2();
+            } else if (res.code === "10044") {
+                toast.error('验证码还在有效期内')
+            } else {
+                toast.error(res.message)
+            }
+            setCodeLoading2(false)
+
+        } catch (error) {
+            setCodeLoading2(false)
+            toast.error(String(error))
+            console.error('获取验证码出错:', error);
+
+        }
+    };
 
     const startCountdown = () => {
         setCountdown(60);
@@ -125,9 +174,22 @@ function SetMailModal({ open, onCancel, type }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
-    // const getPhoneCode = () => {
-    //     startCountdown()
-    // }
+    const startCountdown2 = () => {
+        setCountdown2(60);
+        setIsCounting2(true);
+        const timer = setInterval(() => {
+            setCountdown2((prevCountdown) => {
+                if (prevCountdown === 1) {
+                    clearInterval(timer);
+                    setIsCounting2(false);
+                    return 0;
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+        // 清理定时器
+        return () => clearInterval(timer);
+    };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -232,10 +294,32 @@ function SetMailModal({ open, onCancel, type }: Props) {
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
-                        {type === 'set' && <>
+                        {( type === 'set'&&acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
                             <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
                                 <Input placeholder="请输入谷歌验证码" allowClear={true} className={`${styles.input_box} modal-input`} />
+                            </Form.Item>
+                        </>}
+                        {( type === 'set'&&acountInfo?.email&& !acountInfo?.googleCode) && <>
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>邮箱验证</div>
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
+                                <span>&nbsp;{encryptEmail(acountInfo.email)}</span>
+                            </p>
+                            <Form.Item name="emailCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                                <Input
+                                    allowClear
+                                    placeholder="请输入验证码"
+                                    // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                    suffix={
+                                        <button type='button' className={isCounting2 ? `${styles.tip_color1_input}` : `${styles.text_color}`}
+                                            onClick={getMailCode}
+                                        >
+                                            {isCounting2 ? `${countdown2}s 重发` : firstCheck2 ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                        </button>
+                                    }
+                                    className={`${styles.authcode_input} ${styles.input_box} modal-input`}
+                                    style={{ borderRadius: "8px" }}
+                                />
                             </Form.Item>
                         </>}
 

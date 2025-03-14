@@ -1,11 +1,11 @@
 import { Modal, ConfigProvider, Form, Input } from "antd";
-// import { type CSSProperties, useState, useEffect } from "react";;
+
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 // import store from "@/store"
 // import { useRouter } from 'next/router';
 import styles from "./styles/nickname.module.css";
-import Image from 'next/image'
+// import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
 import {updateUserCenter} from '@/services/userCenter'
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         userId:localStorage.getItem('userId')||'',
                         nickname:values.nickname
                     }
-                    console.log(param);
+                    // console.log(param);
                     
                     const res=await updateUserCenter(param)
                     if(res.code==='0'){
