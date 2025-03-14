@@ -16,13 +16,14 @@ import store from "@/store"
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
+import dayjs from 'dayjs';
 
-// import { request } from '@/request/index'; // 引入封装的请求方法
 import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
-
 import { useLogoImage } from '@/services/webLogo'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
+import { getBulletinMessage } from '@/services/bulletinCenter';
+
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -81,6 +82,8 @@ export default function HomeMenu() {
             </Col>
         );
     };
+    // 添加公告数据状态
+    const [bulletinData, setBulletinData] = useState<any[]>([]);
 
     // 统一初始化数据
     const initializeData = async (currentLang: string) => {
@@ -96,6 +99,20 @@ export default function HomeMenu() {
                 setMenus(formatMenus(menuResponse.data.slice(0, 6)));
                 setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
             }
+
+            // 获取公告数据
+            // const bulletinResponse = await getBulletinMessage({
+            //     languageCode: currentLang
+            // }) as ApiResponse<any>;
+
+            // if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+            //     // 格式化公告数据
+            //     const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+            //         h5Text: item.title,
+            //         spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+            //     }));
+            //     setBulletinData(formattedBulletinData);
+            // }
 
             // 获取语言数据
             const languageResponse = await getLanguage({
@@ -764,15 +781,20 @@ export default function HomeMenu() {
         { h5Text: "IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正式上线的公告", spanText: "2024/09/27 14:30:00" },
         { h5Text: "IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投币的公告", spanText: "2024/09/27 11:00:00" },
     ];
-    // 公告中心标签页
+    // 公告中心标签页 - 使用动态获取的数据
     const bulletinItems: TabsProps['items'] = [
         {
             key: '1',
             label: '公告',
             children:
-                bulletinArr.map((item, index) => (
-                    <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
-                ))
+                // 如果有公告数据则使用，否则使用默认数据
+                bulletinData.length > 0
+                    ? bulletinData.map((item, index) => (
+                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
+                    ))
+                    : bulletinArr.map((item, index) => (
+                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
+                    ))
         },
         {
             key: '2',

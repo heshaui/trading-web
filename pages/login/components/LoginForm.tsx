@@ -40,7 +40,7 @@ function LoginForm() {
 
 	// }
 	const tabsChange = (value: string) => {
-		console.log(value);
+		// console.log(value);
 		setTabsProps(value)
 		if (value === "email") {
 			setLoginType(LoginTypeEnum.EMAIL)

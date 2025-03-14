@@ -1,85 +1,54 @@
-// import { Button, Form, Input,Tabs } from "antd";
-import { Layout } from 'antd';
-// import { type CSSProperties, useState, useRef } from "react";
-// import { toast } from "sonner";
-// import store from "@/store";
-import styles from "../styles/identityAuth.module.css"
-// import { Iconify } from "@/components/icon/index";
-import { Breadcrumb, ConfigProvider, Steps } from "antd";
-import Link from 'next/link'
+import styles from "../styles/safeCenter.module.css"
+import { Iconify } from "@/components/icon/index";
+import { ConfigProvider, Tabs } from "antd";
+// import Link from 'next/link'
 import { useRouter } from 'next/router';
-import { useState } from "react";
-import IDV from "../components/Identity/idv";
-import Upload from "../components/Identity/upload";
-import Sumbit from "../components/Identity/sumbit";
+import { useState, useEffect } from "react";
+import type { ColumnsType } from "antd/es/table";
+import { getUserDeviceNoList, delectUserDeviceNo } from "@/services/safeCenter";
+import { toast } from "sonner";
+import dayjs from 'dayjs';
+import LoginRecord from "../components/safeLog/login_record";
+import SafeSet from "../components/safeLog/safe_set";
+import type { TabsProps } from 'antd';
 function SafeLog() {
     const router = useRouter();
-    const { userId, authStatus } = router.query;
-    const [current, setCurrent] = useState(0);
-    const items = [
+    const items: TabsProps['items'] = [
         {
-            title: '基本信息',
-            content: <IDV onNext={()=>onNextSetup()}/>,
-
+            key: '1',
+            label: '登录记录',
+            children: <LoginRecord />,
         },
         {
-            title: '上传照片',
-            content: <Upload onNext={()=>onNextSetup()} onPrev={()=>onPrevSetup()}/>,
-
+            key: '2',
+            label: '安全设置记录',
+            children: <SafeSet />,
         },
-        {
-            title: '已提交',
-            content: <Sumbit />,
+    ];
+    useEffect(() => {
 
-        },
-    ]
-    const onNextSetup = () => { 
-        setCurrent(current + 1);
-    }
-    const onPrevSetup = () => {
-        setCurrent(current - 1);
-    }
-
+    }, [])
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >
-            <div className={`${styles.identity_auth_box}`} style={{}}>
-                <div className={`flex-row justify-between font-18 font-w-500`} >安全日志
-                </div>
-                <Breadcrumb items={[
-                    {
-                        title: <Link href="/userCenter/identity">安全中心</Link>,
-                    },
-                    {
-                        title: '认证信息',
-                    },
-                ]} style={{ fontSize: 14 }} />
-
-                <div className={`${styles.identity_content_box} flex-y-cc`}>
-                    <div className={`${styles.content_steps_box} flex-y-cc`}>
-                        <ConfigProvider
-                            theme={{
-                                components: {
-                                    Steps: {
-                                        /* 这里是你的组件 token */
-                                    },
+            <div className={`${styles.identity_auth_box}`} >
+                <h2 className={`flex-row justify-between font-18 font-w-500`} >安全日志
+                </h2>
+                <div className={`${styles.content_table_box} mt-3 flex-y align-center`}>
+                    <div className={`${styles.table_box_inner}`}>
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Tabs: {
+                                    horizontalMargin:"0 0 0 0"
                                 },
-                                token: {
-                                    // colorPrimary:"pink",
-                                    colorTextQuaternary: '#FF5F1F',
-                                },
-                            }}>
-                            <Steps current={current}
-                                labelPlacement="vertical"
-                                items={items} />
-                        </ConfigProvider>
-                        {/* <div style={{ width: '100%', marginTop: 50 }}> */}
-                            {items[current].content}
-                        {/* </div> */}
+                            },
+                        }}>
+                        <Tabs items={items} />
+                    </ConfigProvider>
                     </div>
                 </div>
             </div>
         </div>
-
     );
 }
 

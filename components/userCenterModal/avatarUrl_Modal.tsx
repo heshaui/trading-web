@@ -137,8 +137,6 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             toast.error('请选择或选择头像!');
             return;
         }
-
-
         try {
             if (selectedImages.length > 0 && selectedFile) {
                 console.log(selectedFile);
@@ -218,6 +216,11 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             }
             return isPNG || Upload.LIST_IGNORE;
         },
+        // 自定义上传
+        customRequest: async ({ file, onSuccess })=>{
+            // const uploadResult = await fileImg(file as File);
+            const uploadResult = await uploadHandler(file as File);
+        },
         onChange(info) {
             if (info.file.status !== 'uploading') {
                 handleUploadChange(info);
@@ -225,6 +228,15 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             }
         },
     };
+    const uploadHandler = async (file: File) => {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          const res = await fileImg(file);
+          
+        } catch (error) {
+        }
+      };
     // 处理文件上传变化的函数
     const handleUploadChange = (info: any) => {
         const { fileList } = info;

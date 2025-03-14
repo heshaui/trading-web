@@ -30,5 +30,8 @@ export function fileImg(file:File): Promise<any> {
   return request(`${fixUrl2}/oss/img/file`, {
     method: 'POST',
     body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
 }

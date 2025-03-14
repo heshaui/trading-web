@@ -111,5 +111,8 @@ export default async function handler(
       code: 'error',
       message: '获取或保存语言文件失败'
     });
+
+    // 返回错误响应
+    res.status(500).json({ error: '获取语言文件失败' });
   }
 } 
