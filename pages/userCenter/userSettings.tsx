@@ -137,21 +137,14 @@ const UserSettingsPage: React.FC = () => {
       toast.error(String(error));
     }
   };
-  const handOk = (bool: boolean) => {
-    if (bool) {
-      getUserCenterData();
-    }
+  const handOk = async (bool: boolean) => {
+    console.log(bool);
+    
+    // if (bool) {
+      await getUserCenterData();
+    // }
   }
-  const handOk2 = (bool: boolean) => {
-    if (bool) {
-      getUserCenterData();
-    }
-  }
-  const handOk3 = (bool: boolean) => {
-    if (bool) {
-      getUserCenterData();
-    }
-  }
+ 
   useEffect(() => {
     getUserCenterData();
   }, [])
@@ -286,13 +279,13 @@ const UserSettingsPage: React.FC = () => {
       open={necknameOpen}
       onCancel={() => setNecknameOpen(false)}
       nickname={userInfo.nickname}
-      onOk={handOk3} />
+      onOk={handOk} />
 
     {/* 修改头像 */}
     <AvatarUrlModal open={avatarUrlOpen}
       onCancel={() => setAvatarUrlOpen(false)}
       userId={userInfo.userId}
-      onOk={handOk2} />
+      onOk={handOk} />
 
     {/* 修改生日 */}
     <BirthdayModal open={birthdayOpen} userId={userInfo.userId}

@@ -9,6 +9,11 @@ interface UpdateUserCenterType {
   avatarUrl?:string;
   nickname?:string;
 }
+interface codeEncrypt {
+  data: string,
+  time: string|number,
+  reqNo: string|number
+}
 
 //用户信息
 export function getLoginUserInfo(): Promise<any> {
@@ -32,6 +37,14 @@ export function getSafeCenter(): Promise<any> {
 //   修改个人中心
   export function updateUserCenter(data:UpdateUserCenterType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/user/updateUserCenter`, {
+      method: 'POST',
+      body:JSON.stringify(data)
+    });
+  }
+
+  // 身份认证
+  export function postSaveIdentity(data:codeEncrypt): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/user/saveIdentityVerification`, {
       method: 'POST',
       body:JSON.stringify(data)
     });

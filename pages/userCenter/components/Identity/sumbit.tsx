@@ -21,20 +21,18 @@ interface IDVProps {
 function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
-
-
-    const onSubmit = () => {
-        form
-            .validateFields()
-            .then(async (values) => {
-                console.log(values);
-            })
-            .catch((info) => {
-                console.log("Validate Failed:", info);
-            });
-    }
+    // const onSubmit = () => {
+    //     form
+    //         .validateFields()
+    //         .then(async (values) => {
+    //             console.log(values);
+    //         })
+    //         .catch((info) => {
+    //             console.log("Validate Failed:", info);
+    //         });
+    // }
     const onNext = () => {
-        console.log("onNext");
+        router.push('/userCenter')
     }
 
     return (

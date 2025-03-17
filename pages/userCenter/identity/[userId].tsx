@@ -25,7 +25,7 @@ function ResetPassword() {
     const router = useRouter();
     const { userId, authStatus } = router.query;
     const parsedAuthStatus = typeof authStatus === 'string' && !isNaN(Number(authStatus)) ? Number(authStatus) : undefined;
-    const [current, setCurrent] = useState(1);
+    const [current, setCurrent] = useState(0);
     const items = [
         {
             title: '基本信息',
@@ -57,13 +57,28 @@ function ResetPassword() {
     const onPrevSetup = () => {
         setCurrent(current - 1);
     }
-    // useEffect(()=>{
-    //     if(parsedAuthStatus?.toString() === '3'){
-    //         setCurrent(2);
-    //     }else{
-    //         setCurrent(0);
-    //     }
-    // },[parsedAuthStatus])
+    useEffect(() => {
+        // 处理 localStorage 变化的函数
+        const handleStorageChange = () => {
+            const authStatus = localStorage.getItem('identity_authStatus');
+            if (authStatus === '3') {
+                setCurrent(2);
+            } else {
+                setCurrent(0);
+            }
+        };
+        
+        // 初始执行一次
+        handleStorageChange();
+        
+        // 添加事件监听器
+        window.addEventListener('storage', handleStorageChange);
+        
+        // 清理函数
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >

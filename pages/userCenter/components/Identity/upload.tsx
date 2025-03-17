@@ -9,6 +9,7 @@ import type { UploadFile, UploadProps } from 'antd';
 import Image from 'next/image';
 import type { CSSProperties } from "react";
 import { fileImg } from "@/services/open";
+import { postSaveIdentity } from "@/services/userCenter";
 
 interface eventType {
     surname: string;
@@ -39,188 +40,293 @@ const uploadBgcStyle: CSSProperties = {
 function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
     const router = useRouter();
     const [form] = Form.useForm();
-    const [frontFile, setFrontFile] = useState<UploadFile | null>(null);
-    const [backFile, setBackFile] = useState<UploadFile | null>(null);
-    const [selfieFile, setSelfieFile] = useState<UploadFile | null>(null);
-    const [isNext, setIsNext] = useState(false);
+    const [frontFileLoading, setFrontFileLoading] = useState<boolean>(false);
+    const [frontFileUrl, setFrontFileUrl] = useState<string>('');
+    const [backFileLoading, setBackFileLoading] = useState<boolean>(false);
+    const [backFileUrl, setBackFileUrl] = useState<string>('');
+    const [selfieFileLoading, setSelfieFileLoading] = useState<boolean>(false);
+    const [selfieFileUrl, setSelfieFileUrl] = useState<string>('');
+    // const [isNext, setIsNext] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // 提交loading
 
     // Check if all required files are uploaded
     const checkFilesComplete = () => {
-        return !!frontFile && !!backFile && !!selfieFile;
+        return !!frontFileUrl && !!backFileUrl && !!selfieFileUrl;
     };
 
-    // Update isNext state whenever files change
-    const updateNextState = () => {
-        setIsNext(checkFilesComplete());
-    };
 
     const beforeUpload = (file: File) => {
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng) {
-            toast.error('只能上传JPG/PNG格式的图片!');
-            return false;
+        const allowedTypes = ['image/jpg', 'image/png', 'image/gif']
+        const isPNG = allowedTypes.includes(file.type);
+        if (!isPNG) {
+            toast.error(`${file.name} 不是正确的图片格式！`);
         }
         const isLt8M = file.size / 1024 / 1024 < 8;
         if (!isLt8M) {
             toast.error('图片必须小于8MB!');
             return false;
         }
-        return isJpgOrPng && isLt8M;
+        return isPNG && isLt8M;
     };
 
-    const handleFrontChange: UploadProps['onChange'] = ({ fileList }) => {
-        if (fileList.length > 0) {
-            setFrontFile(fileList[0]);
-        } else {
-            setFrontFile(null);
-        }
-        updateNextState();
-    };
-
-    const handleBackChange: UploadProps['onChange'] = ({ fileList }) => {
-        if (fileList.length > 0) {
-            setBackFile(fileList[0]);
-        } else {
-            setBackFile(null);
-        }
-        updateNextState();
-    };
-
-    const handleSelfieChange: UploadProps['onChange'] = ({ fileList }) => {
-        if (fileList.length > 0) {
-            setSelfieFile(fileList[0]);
-        } else {
-            setSelfieFile(null);
-        }
-        updateNextState();
-    };
-
-    const onSubmit = () => {
+    const onSubmit = async () => {
+        if(isLoading) return
         if (checkFilesComplete()) {
-            // Combine user info with file URLs
-            const updatedUserInfo = {
-                ...userInfo,
-                frontUrl: frontFile?.response?.url || '',
-                backUrl: backFile?.response?.url || '',
-                selfieUrl: selfieFile?.response?.url || '',
-            };
-            console.log(updatedUserInfo);
-            onNext();
+            const isNext = checkFilesComplete()
+            if (!isNext) return toast.error('请上传所有必要的证件照片');
+            try {
+                const params = {
+                    ...userInfo,
+                    frontUrl: frontFileUrl,
+                    backUrl: backFileUrl,
+                    selfieUrl: selfieFileUrl
+                }
+                const encrypt = await encryptData(params)
+                const res = await postSaveIdentity(encrypt)
+                setIsLoading(true)
+                if (res.code === '0') {
+                    toast.success('提交成功');
+                    onNext();
+                    localStorage.setItem('identity_authStatus','3')
+                } else {
+                    toast.error(res.message);
+                }
+            } catch (error) {
+                toast.error(String(error));
+            } finally {
+                setIsLoading(false)
+            }
+
         } else {
             toast.error('请上传所有必要的证件照片');
         }
     };
-    // const handFrontFile=async ({ file, onSuccess })=>{
-    //     const uploadResult = await uploadHandler(file as File);
+    // const uploadHandler = async (file: File) => {
+    //     try {
+    //       const formData = new FormData();
+    //       formData.append('file', file);
+    //       const res = await fileImg(file);
+    //       if(res.code==='0'){
 
-    // }
-    const uploadHandler = async (file: File) => {
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-          const res = await fileImg(file);
-          if(res.code==='0'){
-            
-          }else{
-            toast.error(res.message);
+    //       }else{
+    //         toast.error(res.message);
 
-          }
-          
-        } catch (error) {
-            toast.error(String(error));
-        }
-      };
+    //       }
+
+    //     } catch (error) {
+    //         toast.error(String(error));
+    //     }
+    //   };
+    const propsFront: UploadProps = {
+        // 自定义上传
+        customRequest: async ({ file, onSuccess, onError }) => {
+            // const uploadResult = await fileImg(file as File);
+            // const uploadResult = await uploadHandler(file as File);
+            setFrontFileLoading(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                // 检查文件类型
+                if (!(file instanceof File)) {
+                    toast.error('无效的文件类型');
+                    return;
+                }
+                const res = await fileImg(file);
+                if (res.code === '0') {
+                    // onSuccess(res.data);
+                    console.log(res.data);
+                    setFrontFileUrl(res.data.data);
+
+                } else {
+                    toast.error(res.message);
+                }
+
+            } catch (error) {
+                toast.error(String(error));
+            } finally {
+                setFrontFileLoading(false);
+            }
+        },
+    };
+    const propsBack: UploadProps = {
+        // 自定义上传
+        customRequest: async ({ file, onSuccess, onError }) => {
+            // const uploadResult = await fileImg(file as File);
+            // const uploadResult = await uploadHandler(file as File);
+            setBackFileLoading(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                // 检查文件类型
+                if (!(file instanceof File)) {
+                    toast.error('无效的文件类型');
+                    return;
+                }
+                const res = await fileImg(file);
+                if (res.code === '0') {
+                    // onSuccess(res.data);
+                    console.log(res.data);
+                    setBackFileUrl(res.data.data);
+
+                } else {
+                    toast.error(res.message);
+                }
+
+            } catch (error) {
+                toast.error(String(error));
+            } finally {
+                setBackFileLoading(false);
+            }
+        },
+    };
+    const propsSelfie: UploadProps = {
+        // 自定义上传
+        customRequest: async ({ file, onSuccess, onError }) => {
+            // const uploadResult = await fileImg(file as File);
+            // const uploadResult = await uploadHandler(file as File);
+            setSelfieFileLoading(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                // 检查文件类型
+                if (!(file instanceof File)) {
+                    toast.error('无效的文件类型');
+                    return;
+                }
+                const res = await fileImg(file);
+                if (res.code === '0') {
+                    // onSuccess(res.data);
+                    console.log(res.data);
+                    setSelfieFileUrl(res.data.data);
+
+                } else {
+                    toast.error(res.message);
+                }
+
+            } catch (error) {
+                toast.error(String(error));
+            } finally {
+                setSelfieFileLoading(false);
+            }
+        },
+    };
     return (
         <div className="flex-col" style={{ width: "67%" }}>
 
             <div className={`flex-y align-center mt-6`}>
                 {/* 证件正面 */}
-                <div className={`${styles.upload_content} flex-y-cc`}
+                <div className={`${styles.upload_content} flex-y-cc relative`}
                     style={{
                         ...uploadBgcStyle,
                         backgroundImage: `url(${'/images/userCenter/identity/frontage_day1.png'})`,
                     }}>
-                        <Upload
+                    {frontFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
+                        <Image src={frontFileUrl}
+                            alt="证件正面"
+                            width={350} height={225}
+                            style={{ width: '99%', height: '99%', borderRadius: '10px' }}
+                        />
+                    </div>}
+                    <Upload
                         name="frontImage"
                         // listType="picture-card"
-                        className={styles.upload_box}
                         showUploadList={false}
                         beforeUpload={beforeUpload}
-                        // onChange={handleFrontChange}
-                        // customRequest={handFrontFile}
+                        {...propsFront}
                         maxCount={1}
-                        style={{width:'100%',height:'100%'}}
+                        style={{ width: '100%', height: '100%' }}
+                        className={`${styles.upload_box} absolute-center`}
+                        openFileDialogOnClick={!frontFileLoading}
                     >
-                    {!frontFile && (
+                        {/* {!frontFileUrl && ( */}
                         <div className={`flex-y-cc`}
                         >
                             <div className={`${styles.upload_icon} flex-x algin-center`}>
-                                <Iconify icon="solar:upload-linear" size={20} />
+                                <Iconify icon={frontFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
 
                             </div>
                             <div className={`font-16 font-w-500 ${styles.title_color}`}>证件正面</div>
                         </div>
-                    )}
+                        {/* )} */}
                     </Upload>
+
                 </div>
                 {/* </Upload> */}
                 {/* </div> */}
 
                 {/* 证件反面 */}
-                <div className={`${styles.upload_content} flex-y-cc mt-2_5`}
+                <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
                     style={{
                         ...uploadBgcStyle,
                         backgroundImage: `url(${'/images/userCenter/identity/back_day2.png'})`,
                     }}>
+                    {backFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
+                        <Image src={backFileUrl}
+                            alt="证件反面"
+                            width={350} height={225}
+                            style={{ width: '99%', height: '99%', borderRadius: '10px' }}
+                        />
+                    </div>}
                     <Upload
                         // listType="picture-card"
-                        className={styles.upload_box}
+                        className={`${styles.upload_box} absolute-center`}
                         showUploadList={false}
                         beforeUpload={beforeUpload}
                         // onChange={handleBackChange}
                         maxCount={1}
+                        {...propsBack}
+                        openFileDialogOnClick={!backFileLoading}
                     >
-                        {!backFile && (
-                            <div className={` flex-y-cc`}>
-                                 <div className={`${styles.upload_icon} flex-x algin-center`}>
-                                <Iconify icon="solar:upload-linear" size={20} />
+                        {/* {!backFileUrl && ( */}
+                        <div className={` flex-y-cc`}>
+                            <div className={`${styles.upload_icon} flex-x algin-center`}>
+                                <Iconify icon={backFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
 
                             </div>
-                                <div className={`font-16 font-w-500 ${styles.title_color}`}>证件反面</div>
-                            </div>
-                        )}
+                            <div className={`font-16 font-w-500 ${styles.title_color}`}>证件反面</div>
+                        </div>
+                        {/* )} */}
                     </Upload>
 
                 </div>
 
 
                 {/* 手持证件照 */}
-                <div className={`${styles.upload_content} flex-y-cc mt-2_5`}
+                <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
                     style={{
                         ...uploadBgcStyle,
                         backgroundImage: `url(${'/images/userCenter/identity/handcard_day3.png'})`,
                     }}>
-                         <Upload
+                    {selfieFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
+                        <Image src={selfieFileUrl}
+                            alt="手持证件照"
+                            width={350} height={225}
+                            style={{ width: '99%', height: '99%', borderRadius: '10px' }}
+                        />
+                    </div>}
+                    <Upload
                         name="selfieImage"
                         // listType="picture-card"
-                        className={styles.upload_box}
+                        className={`${styles.upload_box} absolute-center`}
                         showUploadList={false}
                         beforeUpload={beforeUpload}
                         // onChange={handleSelfieChange}
                         maxCount={1}
+                        {...propsSelfie}
+                        openFileDialogOnClick={!selfieFileLoading}
                     >
-                    {!selfieFile && (
+                        {/* {!selfieFileUrl && ( */}
                         <div className={` flex-y-cc`}>
                             <div className={`${styles.upload_icon} flex-x algin-center`}>
-                                <Iconify icon="solar:upload-linear" size={20} />
+                                <Iconify icon={selfieFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
 
                             </div>
                             <div className={`font-16 font-w-500 ${styles.title_color}`}>证件反面</div>
                         </div>
-                    )}
+                        {/* )} */}
                     </Upload>
                 </div>
             </div>
@@ -245,7 +351,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     className={`${styles.btn_style_prev} cancel_btn3`}
                     onClick={onPrev}
                 >上一步</button>
-                {!isNext ? (
+                {!checkFilesComplete() ? (
                     <button
                         className={`${styles.btn_style_next} disabled_btn`}
                         disabled
@@ -253,9 +359,12 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 ) : (
                     <button
                         type='submit'
-                        className={`default_btn ${styles.btn_style_next}`}
+                        className={`default_btn ${styles.btn_style_next} flex-x-cc`}
                         onClick={onSubmit}
-                    >下一步</button>
+                    >
+                        {isLoading && <Iconify icon="eos-icons:bubble-loading" size={20} />}
+                        {'下一步'}
+                    </button>
                 )}
             </div>
         </div>

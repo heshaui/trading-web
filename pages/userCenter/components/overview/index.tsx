@@ -119,6 +119,10 @@ const OverviewPage: React.FC = () => {
         }
     }
 
+    const goIdentity = (status:number) => {
+        localStorage.setItem('identity_authStatus',status.toString())
+        router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${status}`)
+    }
     useEffect(() => {
         getLoginInfoData()
         getLoginLogListData()
@@ -153,7 +157,8 @@ const OverviewPage: React.FC = () => {
                     <p className='font-14 mt-2'>{encryptString(loginInfo?.registerAccount)}</p>
                 </div>
                 <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
-                    <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}>
+                    <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}
+                    onClick={()=>goIdentity(loginInfo?.realnessStatus)}>
                         身份认证
                         <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
                     </div>
@@ -210,7 +215,7 @@ const OverviewPage: React.FC = () => {
                         </p>
                         <p className={`font-14 mt-3`}>{loginInfo?.realnessStatus === 1 ? '已完成身份认证，开始您的货币之旅吧！' : '完成身份认证后可以享受交易所完整服务'}</p>
                         <button className={`${loginInfo?.realnessStatus === 3 ? 'disabled_btn' : 'btn-color'} font-14 font-w-500 mt-10 ${styles.btn}`}
-                            onClick={() => router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${loginInfo?.realnessStatus}`)}
+                            onClick={() => goIdentity(loginInfo?.realnessStatus)}
                         >
                             {loginInfo?.realnessStatus === 2 && '去认证'}
                             {loginInfo?.realnessStatus === 0 && '重新认证'}

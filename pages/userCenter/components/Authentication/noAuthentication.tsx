@@ -57,6 +57,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
     const router = useRouter();
 
     const goReAuth = (authStatus: number) => {
+        localStorage.setItem('identity_authStatus',authStatus.toString())
         router.push(`/userCenter/identity/${identityInfo.userId}?authStatus=${authStatus}`)
     }
     // const getBenefitValue = (text: string) => {

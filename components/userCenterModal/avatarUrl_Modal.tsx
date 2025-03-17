@@ -10,6 +10,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { fileImg } from "@/services/open";
+
 import { updateUserCenter } from '@/services/userCenter';
 import { Iconify } from "../icon";
 
@@ -123,6 +124,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     const [selectedImages, setSelectedImages] = useState<string[]>([]); // 显示上传的图片内容
     const [imageItem, setImageItem] = useState(false); // 是否显示删除上传的图片
     const [selectedFile, setSelectedFile] = useState<File | null>(null); // 上传的图片文件
+    const [fileUrl, setFileUrl] = useState<string>(''); // 上传的图片文件的URL
     const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
     const [form] = Form.useForm();
     // const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
@@ -133,30 +135,26 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     };
 
     const handOk = async () => {
-        if ((!selectedAvatar) && selectedImages.length === 0) {
+        if ((!fileUrl) && selectedImages.length === 0) {
             toast.error('请选择或选择头像!');
             return;
         }
         try {
-            if (selectedImages.length > 0 && selectedFile) {
-                console.log(selectedFile);
-
-                const res = await fileImg(selectedFile);
-                console.log(res);
-                if (res.code === '0') {
-                    const params = {
-                        userId: userId,
-                        avatarUrl: res.data
-                    }
-                    await updateUserCenterApi(params)
+            let params = {};
+            if (!fileUrl) {
+                // console.log(selectedFile);
+                 params = {
+                    userId: userId,
+                    avatarUrl: fileUrl
                 }
             } else if (selectedAvatar) {
-                const params = {
+                 params = {
                     userId: userId,
                     avatarUrl: selectedAvatar
                 }
-                await updateUserCenterApi(params)
             }
+            await updateUserCenterApi(params)
+
 
         } catch (error) {
             toast.error(String(error));
@@ -209,7 +207,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         showUploadList: false,
         maxCount: 1,
         beforeUpload: (file) => {
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
+            const allowedTypes = ['image/jpg', 'image/png', 'image/gif']
             const isPNG = allowedTypes.includes(file.type);
             if (!isPNG) {
                 toast.error(`${file.name} 不是正确的图片格式！`);
@@ -217,9 +215,30 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             return isPNG || Upload.LIST_IGNORE;
         },
         // 自定义上传
-        customRequest: async ({ file, onSuccess,onError }) => {
+        customRequest: async ({ file, onSuccess, onError }) => {
             // const uploadResult = await fileImg(file as File);
-            const uploadResult = await uploadHandler(file as File);
+            // const uploadResult = await uploadHandler(file as File);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                // 检查文件类型
+                if (!(file instanceof File)) {
+                    toast.error('无效的文件类型');
+                    return;
+                }
+                const res = await fileImg(file);
+                if (res.code === '0') {
+                    // onSuccess(res.data);
+                    console.log(res.data);
+                    setFileUrl(res.data.data);
+
+                } else {
+                    toast.error(res.message);
+                }
+
+            } catch (error) {
+                toast.error(String(error));
+            }
         },
         onChange(info) {
             if (info.file.status !== 'uploading') {
@@ -228,20 +247,20 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             }
         },
     };
-    const uploadHandler = async (file: File) => {
-        try {
-            //   const formData = new FormData();
-            //   formData.append('file', file);
-            // 检查文件类型
-            if (!(file instanceof File)) {
-                toast.error('无效的文件类型');
-                return;
-            }
-            const res = await fileImg(file);
+    // const uploadHandler = async (file: File) => {
+    //     try {
+    //         const formData = new FormData();
+    //         formData.append('file', file);
+    //         // 检查文件类型
+    //         if (!(file instanceof File)) {
+    //             toast.error('无效的文件类型');
+    //             return;
+    //         }
+    //         const res = await fileImg(file);
 
-        } catch (error) {
-        }
-    };
+    //     } catch (error) {
+    //     }
+    // };
     // 处理文件上传变化的函数
     const handleUploadChange = (info: any) => {
         const { fileList } = info;
@@ -263,15 +282,16 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         // setSelectedImages(prevImages => {
         //     return prevImages.filter((_, i) => i !== index);
         // });
+        setFileUrl('')
         setSelectedImages([])
     };
     const handleUpload = () => {
         form.validateFields(['file'])
-        .then((values) => {
-            console.log(values);
-        }).catch((error) => {
-            console.log(error);
-        })
+            .then((values) => {
+                console.log(values);
+            }).catch((error) => {
+                console.log(error);
+            })
     }
 
 
@@ -346,26 +366,23 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                             onMouseEnter={() => setImageItem(true)}
                             onMouseLeave={() => setImageItem(false)}
                         >
-                            {selectedImages.length === 0 ? <Image
+                            {!fileUrl ? <Image
                                 src={isDayMode() ? '/images/userCenter/userSettings/up.png' : '/images/userCenter/userSettings/up_night.png'}
                                 alt={`Selected Image `}
                                 width={88}
                                 height={88}
                                 style={{ borderRadius: '50%' }}
                             /> :
-                                selectedImages.map((imageUrl: string, index: number) => (
-                                    <Image
-                                        key={index}
-                                        src={imageUrl}
-                                        alt={`Selected Image ${index}`}
-                                        width={88}
-                                        height={88}
-                                        style={{ borderRadius: '50%' }}
-                                    />
-                                ))
+                                <Image
+                                    src={fileUrl}
+                                    alt={`Selected Image`}
+                                    width={88}
+                                    height={88}
+                                    style={{ borderRadius: '50%',width:'88px',height:'88px' }}
+                                />
                             }
-                            {(imageItem && selectedImages.length > 0) && (
-                                <div className={`${styles.overlay} absolute-center `}>
+                            {(fileUrl) && (
+                                <div className={`${styles.overlay} absolute-center cursor-pointer`}>
                                     <Iconify icon="fluent:delete-12-filled"
                                         size={24}
                                         className={`${styles.error_icon}`}
@@ -374,17 +391,17 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                             )}
 
                         </div>
-                        <Form
+                        {/* <Form
                             form={form}
                         >
-                            <Form.Item name="file" noStyle>
-                                <Upload {...props}>
-                                    <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
-                                        上传
-                                    </Button>
-                                </Upload>
-                            </Form.Item>
-                        </Form>
+                            <Form.Item name="file" noStyle> */}
+                        <Upload {...props}>
+                            <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
+                                上传
+                            </Button>
+                        </Upload>
+                        {/* </Form.Item>
+                        </Form> */}
                         <p className={`${styles.tip_color} font-12 font-w-400 mt-2_5`}>图片头像仅支持jpg、png、gif格式</p>
                     </div>
                     <div className={`${styles.avatar_icon} flex-1`}>
