@@ -121,8 +121,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         {
             title: <p className={`${styles.tip_title}`}>Android/iOS 谷歌验证器下载</p>,
             description: <div>
-                <p className={`${styles.tip_color} font-12 font-w-400`}>i0S用户在App Store搜索"Authenticator"下载</p>
-                <p className={`${styles.tip_color} font-12 font-w-400 mt-1`}>Andriod用户在应用商店或手机浏览器搜索"谷歌验证器"下载</p>
+                <p className={`${styles.tip_color} font-12 font-w-400`}>{`i0S用户在App Store搜索"Authenticator"下载`}</p>
+                <p className={`${styles.tip_color} font-12 font-w-400 mt-1`}>{`Andriod用户在应用商店或手机浏览器搜索"谷歌验证器"下载`}</p>
             </div>,
 
         },
