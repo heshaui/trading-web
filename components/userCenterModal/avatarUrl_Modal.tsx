@@ -1,9 +1,9 @@
-import { Modal, ConfigProvider, Segmented, Upload, Button } from "antd";
+import { Modal, ConfigProvider, Segmented, Upload, Button, Form } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/avatarUrl.module.css";
 import Image from "next/image";
 // import type { UploadFile, UploadProps } from 'antd';
-import type {  UploadProps } from 'antd';
+import type { UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 // import { API_MODULE_NAME } from '@/config/apiConfig';
 // import { getToken } from '@/request/index';
@@ -124,7 +124,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     const [imageItem, setImageItem] = useState(false); // 是否显示删除上传的图片
     const [selectedFile, setSelectedFile] = useState<File | null>(null); // 上传的图片文件
     const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
-
+    const [form] = Form.useForm();
     // const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 
 
@@ -217,7 +217,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             return isPNG || Upload.LIST_IGNORE;
         },
         // 自定义上传
-        customRequest: async ({ file, onSuccess })=>{
+        customRequest: async ({ file, onSuccess,onError }) => {
             // const uploadResult = await fileImg(file as File);
             const uploadResult = await uploadHandler(file as File);
         },
@@ -230,13 +230,18 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     };
     const uploadHandler = async (file: File) => {
         try {
-          const formData = new FormData();
-          formData.append('file', file);
-          const res = await fileImg(file);
-          
+            //   const formData = new FormData();
+            //   formData.append('file', file);
+            // 检查文件类型
+            if (!(file instanceof File)) {
+                toast.error('无效的文件类型');
+                return;
+            }
+            const res = await fileImg(file);
+
         } catch (error) {
         }
-      };
+    };
     // 处理文件上传变化的函数
     const handleUploadChange = (info: any) => {
         const { fileList } = info;
@@ -260,6 +265,14 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         // });
         setSelectedImages([])
     };
+    const handleUpload = () => {
+        form.validateFields(['file'])
+        .then((values) => {
+            console.log(values);
+        }).catch((error) => {
+            console.log(error);
+        })
+    }
 
 
     const ModalFooter: ModalProps["footer"] = () => (
@@ -361,11 +374,17 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                             )}
 
                         </div>
-                        <Upload {...props}>
-                            <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
-                                上传
-                            </Button>
-                        </Upload>
+                        <Form
+                            form={form}
+                        >
+                            <Form.Item name="file" noStyle>
+                                <Upload {...props}>
+                                    <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
+                                        上传
+                                    </Button>
+                                </Upload>
+                            </Form.Item>
+                        </Form>
                         <p className={`${styles.tip_color} font-12 font-w-400 mt-2_5`}>图片头像仅支持jpg、png、gif格式</p>
                     </div>
                     <div className={`${styles.avatar_icon} flex-1`}>

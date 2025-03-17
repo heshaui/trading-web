@@ -74,6 +74,69 @@
     /* background:pink; */
 }
 
+/* Upload styles */
+.upload_container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.upload_item {
+    width: 100%;
+}
+
+.upload_box {
+    width: 100% !important;
+    /* height: 360px !important; */
+}
+
+.upload_box :global(.ant-upload) {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.upload_content {
+    width: 100%;
+    /* height: 211px; */
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative; */
+}
+
+.upload_icon {
+    /* color: #FF5F1F; */
+    margin-bottom: 8px;
+    background:var(--background8);
+    color:var(--tip-color2);
+    padding:8px 32px;
+    border: 1px solid var( --border-color4);
+
+border-radius: 4px;
+
+}
+.upload_text {
+    color: #FF5F1F;
+    font-size: 14px;
+}
+
+.upload_label {
+    color: var(--text-color6);
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    .upload_container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+
+    
+    
+}
 
 @media (max-width: 1080px) {
     .identity_content{
@@ -93,6 +156,4 @@
     .safe_page {
         width: 60%;
     }
-
-   
 }

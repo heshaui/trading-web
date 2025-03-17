@@ -1,7 +1,7 @@
 
-import { Input, Form, ConfigProvider,Select } from 'antd';
+import { Input, Form, ConfigProvider, DatePicker, Select, Calendar } from 'antd';
 // import type { AutoCompleteProps } from 'antd';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 // import store from "@/store";
 import { useRouter } from 'next/router';
@@ -11,15 +11,36 @@ import { encryptData } from "@/utils/encrypt";
 import { getResetPassword } from "@/services/resetPassword"
 import { Iconify } from "@/components/icon/index";
 import dayjs from 'dayjs';
+import { getCountryCode } from "@/services/open";
+import type { CalendarProps } from 'antd';
+import type { Dayjs } from 'dayjs';
 
 interface IDVProps {
-    onNext: () => void;
+    onNext: (event: eventType) => void;
+}
+interface ICountryData {
+    id: number;
+    areaCode: string;
+    iconUrl: string;
+    countryName: string;
+    status: number;
+}
+interface eventType {
+    surname: string;
+    firstName: string;
+    countryId: string;
+    cardType: string;
+    cardCode: string;
+    birthday: string;
 }
 
+
 function ResetPassword({ onNext }: IDVProps) {
+    const [countryData, setCountryData] = useState<ICountryData[]>([]);
+    const [isNext, setIsNext] = useState(false);
     const router = useRouter();
     const [form] = Form.useForm();
-    const cardTypeSeelect:{ label: string, value: string }[] = [
+    const cardTypeSeelect: { label: string, value: string }[] = [
         {
             label: '居民身份证',
             value: '1'
@@ -56,49 +77,59 @@ function ResetPassword({ onNext }: IDVProps) {
             .validateFields()
             .then(async (values) => {
                 console.log(values);
+                const param = {
+                    ...values,
+                    birthday: dayjs(values.birthday).format('YYYY-MM-DD')
+                }
+                onNext(param)
             })
             .catch((info) => {
                 console.log("Validate Failed:", info);
             });
     }
-    // 自定义验证规则
-    const validatePassword = (_: any, value: string) => {
-        if (typeof value === 'string') {
-            value = value.trim();
-        }
-        if (!value) {
-            return Promise.reject(new Error("请输入生日!"));
-        }
-        const validFormats = ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD']
-        let isValid = false;
-
-        validFormats.forEach((format) => {
-            if (dayjs(value, format, true).isValid()) {
-                isValid = true;
-            }
-        });
-
-        if (!isValid) {
-            return Promise.reject(new Error("请输入有效的日期格式（年/月/日）！"));
-        }
-
-        return Promise.resolve();
+    const onValuesChange = (changedValues: any, allValues: any) => {
+        // console.log(changedValues);
+        const isFormComplete = checkFormComplete(allValues);
+        setIsNext(isFormComplete)
     };
+    const checkFormComplete = (values: any) => {
+        const requiredFields = ['countryId', 'cardType', 'cardCode', 'surname', 'firstName', 'birthday'];
+        return requiredFields.every(field => {
+            const value = values[field];
+            return value !== undefined && value !== null && value !== '';
+        });
+    }
+    const getCountryCodeData = async () => {
+        const res = await getCountryCode();
+        if (res.code === '0') {
+            const info = res.data.map((item: ICountryData) => {
+                return {
+                    label: item.countryName,
+                    value: item.areaCode
+                }
+            })
+            setCountryData(info);
+        }
+    }
+
+    useEffect(() => {
+        getCountryCodeData();
+    }, [])
 
     return (
-        <div className="flex-col " style={{ width: "60%",marginTop:50 }}>
+        <div className="flex-col " style={{ width: "60%", marginTop: 50 }}>
             <div className="mb-2 font-w-500 flex-y-cc font-24" >
-                新密码
+                证件验证
                 <p className={`${styles.tip_color} font-14 font-w-400 mt-2_5`}>请务必确保输入信息与证件信息一致</p>
             </div>
             <div className='mt-7'>
                 <ConfigProvider
                     theme={{
-                        components:{
-                            Select:{
-                                clearBg:"#ffffff",
-                                selectorBg:'var(--background)',
-                                singleItemHeightLG:50,
+                        components: {
+                            Select: {
+                                clearBg: "#ffffff",
+                                selectorBg: 'var(--background)',
+                                singleItemHeightLG: 50,
                             },
                             Form: {
                                 itemMarginBottom: 20, // 去除表单项之间的间距
@@ -132,21 +163,22 @@ function ResetPassword({ onNext }: IDVProps) {
                         initialValues={{
                             remember: true,
                         }}
-                    // onFinish={handleFinish}
-                    // onValuesChange={usernameChange}
+                        // onFinish={handleFinish}
+                        // onValuesChange={usernameChange}
+                        onValuesChange={onValuesChange}
                     >
-                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>国家名称</div>
+                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>国家名称</div>
                         <Form.Item name="countryId">
                             <Select allowClear
-                             placeholder="请选择"
-                                options={cardTypeSeelect}
+                                placeholder="请选择"
+                                options={countryData}
                                 className={`custom-sleect`}
                             />
                         </Form.Item>
                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>证件类型</div>
                         <Form.Item name="cardType">
                             <Select allowClear
-                             placeholder="请选择"
+                                placeholder="请选择"
                                 options={cardTypeSeelect}
                                 className={`custom-sleect`}
                             />
@@ -161,40 +193,51 @@ function ResetPassword({ onNext }: IDVProps) {
                         </Form.Item>
                         <div className="flex">
                             <div className='flex-1 mr-2_5'>
+                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>姓</div>
                                 <Form.Item
                                     name="surname"
-                            >
-                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>姓</div>
-                                <Input
-                                    className={`custom-input ${styles.input_box} modal-input2`}
-                                    placeholder="请输入"
-                                    allowClear
+                                >
+                                    <Input
+                                        className={`custom-input ${styles.input_box} modal-input2`}
+                                        placeholder="请输入"
+                                        allowClear
                                     />
                                 </Form.Item>
                             </div>
                             <div className='flex-1'>
+                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>名</div>
                                 <Form.Item
                                     name="firstName"
-                            >
-                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>名</div>
-                                <Input
-                                    className={`custom-input ${styles.input_box} modal-input2`}
-                                    placeholder="请输入"
-                                    allowClear
-                                />
+                                >
+                                    <Input
+                                        className={`custom-input ${styles.input_box} modal-input2`}
+                                        placeholder="请输入"
+                                        allowClear
+                                    />
 
                                 </Form.Item>
                             </div>
                         </div>
                         <div className="mb-2 font-16 font-w-400">出生日期</div>
-                        <Form.Item name="birthday" 
+                        <Form.Item name="birthday"
                         // rules={[{ validator: validatePassword }]}
                         >
-                            <Input placeholder="年/月/日"
+                            {/* <Input placeholder="年/月/日"
                                 className={`${styles.input_box} modal-input2`}
                                 maxLength={13}
                                 suffix={
                                     <Iconify icon="cuida:calendar-outline" className={`${styles.suffix_icon} mr-1`} />
+                                }
+                            /> */}
+                            <DatePicker
+                                className={`custom-input ${styles.input_box} modal-input2`}
+                                style={{ width: '100%', height: '50px' }}
+                                placeholder="年/月/日"
+                                allowClear
+                                suffixIcon={
+                                    <Iconify icon="cuida:calendar-outline"
+                                        className={`${styles.suffix_icon} mr-1`}
+                                        size={20} />
                                 }
                             />
                         </Form.Item>
@@ -202,10 +245,19 @@ function ResetPassword({ onNext }: IDVProps) {
 
                 </ConfigProvider>
                 <div className='mt-10'>
-                    <button
-                        className={`${styles.btn_style} disabled_btn`}
-                    >下一步</button>
-                    <button type='submit' className={`default_btn ${styles.btn_style} flex-1`} onClick={onNext}>下一步</button>
+                    
+                    {!isNext ? (
+                        <button
+                            className={`${styles.btn_style} disabled_btn cursor-not-allowed`}
+                            disabled
+                        >下一步</button>
+                    ) : (
+                        <button
+                            type='submit'
+                            className={`default_btn ${styles.btn_style} flex-1 cursor-pointer`}
+                            onClick={onSubmit}
+                        >下一步</button>
+                    )}
                 </div>
             </div>
         </div>

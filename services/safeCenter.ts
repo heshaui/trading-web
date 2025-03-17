@@ -170,3 +170,18 @@ export function unbindGoogle(data: encryptType): Promise<any> {
     body: JSON.stringify(data),
   });
 }
+// 获取谷歌key
+export function getGoogleKey(): Promise<any> {
+  return request(`${fixUrl}/user-web/v1/google/sendGoogleKey`, {
+    method: 'GET',
+    // body: JSON.stringify(data),
+  });
+}
+// 绑定谷歌验证
+export function bindGoogle(data: encryptType): Promise<any> {
+  return request(`${fixUrl}/user-web/v1/google/bindGoogleKey`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+

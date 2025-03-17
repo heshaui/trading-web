@@ -90,7 +90,7 @@ const nextConfig: NextConfig = {
         destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
       },
       {
-        source: "/ambit-oss/:path*", // 匹配所有 /ambit-user-web/xxx 请求
+        source: "/ambit-oss/:path*", // 匹配所有 zs/xxx 请求
         destination: "http://ljx.imbit.work/ambit-oss/:path*" // 代理到目标服务器
       },
     ];

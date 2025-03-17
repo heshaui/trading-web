@@ -20,7 +20,10 @@ export async function request<T>(
     'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||'',
     'sa-token': `${getToken()}`
   };
-
+ // 发送 FormData 时才添加 Content-Type: application/json
+ if (options.body instanceof FormData) {
+  defaultHeaders['Content-Type'] = 'multipart/form-data';
+}
   const config: RequestInit = {
     ...options,
     headers: {

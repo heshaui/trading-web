@@ -41,8 +41,11 @@
   color: #FF5F1F;
 }
 
-.pointer {
+.pointer ,.cursor-pointer{
   cursor: pointer;
+}
+.cursor-not-allowed{
+  cursor: not-allowed;
 }
 
 .flex {

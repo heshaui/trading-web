@@ -110,6 +110,7 @@ const IdentityPage: React.FC = () => {
     </div>
     {/* identity box*/}
     <div className={`${styles.card_bgc} ${styles.identity_box} mt-6 flex-row flex-wrap`}>
+      {/* 0驳回 1已认证 2未认证 3审核中 */}
       {/* 未认证 - 驳回 - 审核中*/}
       {/* {(userIdentityInfo?.authStatus === 2||userIdentityInfo?.authStatus === 0||userIdentityInfo?.authStatus === 3) && <NoAuthentication identityInfo={userIdentityInfo}/>} */}
       {/* 已认证 */}

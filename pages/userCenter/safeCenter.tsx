@@ -18,6 +18,7 @@ import MailSafeModal from '@/components/safeCenterModal/mailSafe_Modal';
 import PhoneSafeModal from '@/components/safeCenterModal/phoneSafe_Modal';
 import LockSafeModal from '@/components/safeCenterModal/lockSafe_Modal';
 import UnbindGoogleModal from '@/components/safeCenterModal/unbindGoogle_Modal';
+import BindGoogleModal from '@/components/safeCenterModal/bindGoogle_Modal';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -96,6 +97,7 @@ const SafeCenter: React.FC = () => {
     const [phoneSafeModalOpen, setPhoneSafeModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [unbindGoogleModalOpen, setUnbindGoogleModalOpen] = useState(false)
+    const [BindGoogleModalOpen, setBindGoogleModalOpen] = useState(false)
     const router = useRouter();
 
     const initBaseSafeList: SafeListItem[] = [
@@ -103,7 +105,7 @@ const SafeCenter: React.FC = () => {
             title: "谷歌验证器(推荐)",
             type: "googleCode",
             desc: "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。",
-            isBind: true,
+            isBind: false,
             bindValue: "启用",
             noBindValue: "未绑定",
             icon: "/images/userCenter/safe/icon_google.svg",
@@ -119,7 +121,9 @@ const SafeCenter: React.FC = () => {
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { },
+                onbind: () => { 
+                    setBindGoogleModalOpen(true)
+                },
                 key: 'bind'
             }]
         },
@@ -621,6 +625,12 @@ const SafeCenter: React.FC = () => {
                 acountInfo={safeData}
                 onOk={() => handOk()}
                 onCancel={() => setUnbindGoogleModalOpen(false)} />
+            {/* 绑定谷歌 */}
+            <BindGoogleModal
+                open={BindGoogleModalOpen}
+                acountInfo={safeData}
+                onOk={() => handOk()}
+                onCancel={() => setBindGoogleModalOpen(false)} />
         </div>
 
     </div>);

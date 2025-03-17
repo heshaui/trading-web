@@ -53,7 +53,7 @@
     border-color: var(--text-color3) !important;
 }
 /* modal输入框placeholder颜色 */
-.modal-input input::placeholder{
+.modal-input input::placeholder,.modal-input2::placeholder{
     color: var(--text-color6) !important;
 }
 .modal-input2 input::placeholder{
