@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Modal, Form, Input } from "antd";
-import {  useState, useEffect ,useCallback} from "react"; //type CSSProperties,
+import { useState, useEffect, useCallback } from "react"; //type CSSProperties,
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 import store from "@/store"
@@ -12,7 +12,8 @@ import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
 import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
-import {encryptData} from "@/utils/encrypt";
+import { encryptData } from "@/utils/encrypt";
+import { useAuth } from "@/context/AuthContext";
 
 
 interface acountType {
@@ -35,7 +36,7 @@ type Props = {
     onCancel: () => void;
 };
 
-function SafeModal({ open,  onCancel, acountInfo }: Props) {
+function SafeModal({ open, onCancel, acountInfo }: Props) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
@@ -43,6 +44,8 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
+    // 添加 useAuth 钩子
+    const { login } = useAuth();
 
     const handCancel = () => {
         onCancel()
@@ -73,14 +76,16 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                             authCodePhone: values.code,
                         }
                     }
-                    const dataEncrypt =await encryptData(dataInfo)
+                    const dataEncrypt = await encryptData(dataInfo)
                     const res = await getLogin(dataEncrypt)
                     if (res.code === "0") {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
-                        store.updateUserInfo({...res.data})
+                        store.updateUserInfo({ ...res.data })
+                        // 添加 useAuth 的登录方法
+                        login(res.data.token)
                         router.push('/')
-                    }else{
+                    } else {
                         toast.error(res.message)
                     }
                     setLoading(false);
@@ -95,7 +100,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             });
     };
     const getLoginCode = async () => {
-        if (isCounting||loading||codeLoading) return
+        if (isCounting || loading || codeLoading) return
         setCodeLoading(true)
         try {
             // setSentCodeFlag(false)
@@ -105,15 +110,15 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     // code: "",
                     deviceType: "web"
                 };
-                
-                const dataEncrypt =await encryptData(dataInfo)
+
+                const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
-                } else  if (res.code === "10044") {
+                } else if (res.code === "10044") {
                     toast.error('验证码还在有效期内')
-                }else{
+                } else {
                     toast.error(res.message)
                 }
                 setCodeLoading(false)
@@ -123,14 +128,14 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     code: acountInfo.countryCode?.replace("+", ""),
                     deviceType: "web"
                 };
-                const dataEncrypt =await encryptData(dataInfo)
+                const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
                 } else if (res.code === "10044") {
                     toast.error('验证码还在有效期内')
-                }else{
+                } else {
                     toast.error(res.message)
                 }
                 setCodeLoading(false)
