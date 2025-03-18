@@ -466,8 +466,8 @@ const SafeCenter: React.FC = () => {
             <div className={`flex-row justify-between font-18 font-w-500 pl-6 mb-4`} >基础安全
             </div>
             {loadingSkeleton ? <div className='px-6'>
-                {baseSafeList.map(() => (
-                    <Skeleton active />
+                {baseSafeList.map((item: SafeListItem) => (
+                    <Skeleton active key={item.type}/>
                 ))}
             </div>
                 :
@@ -547,8 +547,8 @@ const SafeCenter: React.FC = () => {
                 </ul>}
             <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >安全日志
             </div>{loadingSkeleton ? <div className='px-6'>
-                {securityLogList.map(() => (
-                    <Skeleton active />
+                {securityLogList.map((item: SecurityLogItem) => (
+                    <Skeleton active key={item.type}/>
                 ))}
             </div>
             :
