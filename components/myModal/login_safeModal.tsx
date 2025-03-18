@@ -14,6 +14,7 @@ import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import { encryptData } from "@/utils/encrypt";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { useAuth } from "@/context/AuthContext";
 
 
 interface acountType {
@@ -44,6 +45,8 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
+    // 添加 useAuth 钩子
+    const { login } = useAuth();
 
     const handCancel = () => {
         onCancel()
@@ -87,6 +90,8 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
                         store.updateUserInfo({ ...res.data })
+                        // 添加 useAuth 的登录方法
+                        login(res.data.token)
                         router.push('/')
                     } else {
                         toast.error(res.message)
