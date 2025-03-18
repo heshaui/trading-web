@@ -413,28 +413,39 @@ export default function HomeMenu() {
             key: '1',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_layout_line.png' h5Text="总览" />
+                <MenuItemLabel src='/images/home_menu/icon_layout_line.png' h5Text="总览"
+                onClick={()=>{
+                    router.push('/userCenter')
+                }} />
             ),
         },
         {
             key: '2',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_user.png' h5Text="个人资料" />
+                <MenuItemLabel src='/images/home_menu/icon_user.png' h5Text="个人中心" 
+                onClick={()=>{
+                    router.push('/userCenter/userSettings')
+                }}/>
             ),
         },
         {
             key: '3',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_safety_certificate_line.png' h5Text="安全中心" />
+                <MenuItemLabel src='/images/home_menu/icon_safety_certificate_line.png' h5Text="安全中心"  onClick={()=>{
+                    router.push('/userCenter/safeCenter')
+                }}/>
             ),
         },
         {
             key: '4',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_IDcard_line.png' h5Text="身份认证" />
+                <MenuItemLabel src='/images/home_menu/icon_IDcard_line.png' h5Text="身份认证" 
+                onClick={()=>{
+                    router.push('/userCenter/identity')
+                }}/>
             ),
         },
         {
@@ -481,7 +492,7 @@ export default function HomeMenu() {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClickLogout={() => handleLogout()} />
+                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={() => handleLogout()} />
             ),
         },
     ];

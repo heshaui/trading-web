@@ -22,7 +22,8 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     isInput = false,
     // isLanguage = false,
     onInputChange,
-    onClickLogout, // 添加 onClick 属性
+    // onClickLogout, // 添加 onClick 属性
+    onClick, // 添加 onClick 属性
     nickName,
     level,
     myWords_1,
@@ -57,7 +58,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                         onClick={(e) => {
                             e.preventDefault(); // 阻止默认行为，即点击关闭下拉菜单
                             // onClickLogout && onClickLogout();
-                            onClickLogout?.();
+                            onClick?.();
                         }}
                     >
                         {

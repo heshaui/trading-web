@@ -13,6 +13,7 @@ import { fileImg } from "@/services/open";
 
 import { updateUserCenter } from '@/services/userCenter';
 import { Iconify } from "../icon";
+import {encryptData} from '@/utils/encrypt'
 
 type Props = {
     open: boolean;
@@ -153,7 +154,8 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                     avatarUrl: selectedAvatar
                 }
             }
-            await updateUserCenterApi(params)
+            const encrypt=await encryptData(params)
+            await updateUserCenterApi(encrypt)
 
 
         } catch (error) {

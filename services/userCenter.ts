@@ -35,7 +35,7 @@ export function getSafeCenter(): Promise<any> {
     });
   }
 //   修改个人中心
-  export function updateUserCenter(data:UpdateUserCenterType): Promise<any> {
+  export function updateUserCenter(data:UpdateUserCenterType|codeEncrypt): Promise<any> {
     return request(`${fixUrl}/user-web/v1/user/updateUserCenter`, {
       method: 'POST',
       body:JSON.stringify(data)

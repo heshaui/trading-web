@@ -202,7 +202,7 @@ const OverviewPage: React.FC = () => {
         {/* userInfo-content */}
         <div className={`flex flex-wrap`} >
             {/* content-content */}
-            <div className={`${styles.content_box}   mr-6 flex-1`}>
+            <div className={`${styles.content_box}  flex-1`}>
                 {/* content-main */}
                 <div className={`flex-row justify-between flex-wrap ${styles.content_box_main}`} >
                     {/* 身份认证 */}
@@ -374,7 +374,7 @@ const OverviewPage: React.FC = () => {
 
             </div>
             {/* content-aside */}
-            <div className={`${styles.aside_box}  mt-6`}>
+            {/* <div className={`${styles.aside_box} ml-6 mt-6`}>
                 <div className={`${styles.aside_invite_box} flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >为你推荐
                     </div>
@@ -417,7 +417,7 @@ const OverviewPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     </div>);
 };

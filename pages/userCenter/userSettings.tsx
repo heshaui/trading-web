@@ -215,13 +215,12 @@ const UserSettingsPage: React.FC = () => {
 
     </div>
     {/* withdraw box*/}
-    <div className={` mt-6 `}>
+    {/* <div className={` mt-6 `}>
       <div className={`flex-row justify-between font-18 font-w-500 pl-6`} >提现
       </div>
       <ul className={`${styles.content_ul} ${styles.card_bgc} mt-6`} >
         {withdrawList.map((item: SafeListItem) => (
           <li className={`flex-row align-center justify-between px-4`} key={item.type}>
-            {/* 绑定类型 bind type*/}
             <div className={`flex-row align-center`}>
               <Image src={item.icon}
                 alt="safe_device" width={28} height={28}
@@ -235,16 +234,11 @@ const UserSettingsPage: React.FC = () => {
               </p>
 
             </div>
-            {/* 绑定状态 bind status*/}
             <div className={`flex-row align-center justify-between ${styles.log_box}`}>
 
               <div className='flex-y font-16 font-w-500'>
 
                 <div className={`flex-row align-center`}>
-                  {/* <Image src="/images/userCenter/safe/check.svg"
-                    alt="safe_device" width={20} height={20}
-                    className={`${styles.svgIcon}`}
-                  /> */}
                   {item.type === "avatarUrl" ?
                     item.isBind ?
                       <Image src="/images/userCenter/userSettings/icon_avatar.svg" alt="avatar" width={20} height={20} />
@@ -258,7 +252,6 @@ const UserSettingsPage: React.FC = () => {
 
 
               </div>
-              {/* 按钮 button */}
               <div className={`flex-row align-center justify-end flex-1`}>
 
                 {item.bindBtn?.map((btn: ButtonConfig, index: number) => (
@@ -273,7 +266,7 @@ const UserSettingsPage: React.FC = () => {
         ))}
       </ul>
 
-    </div>
+    </div> */}
     {/* 修改昵称 */}
     <NeckNameModal
       open={necknameOpen}

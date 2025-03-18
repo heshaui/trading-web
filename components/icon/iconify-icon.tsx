@@ -20,5 +20,4 @@ const StyledIconify = styled.div`
   vertical-align: middle;
   svg {
     display: inline-block;
-  }
-`;
+  }`;
