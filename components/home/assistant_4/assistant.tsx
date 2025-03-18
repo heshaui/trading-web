@@ -12,19 +12,14 @@ import comup1_day from "@/public/images/home/comup1_day.png"
 import comup2_day from "@/public/images/home/comup2_day.png"
 import comup3_day from "@/public/images/home/comup3_day.png"
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
-
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 export default function Experience() {
     // 添加客户端渲染标记
     const { t } = useTranslation(['home']);
-    const { isDayMode } = useDayModeChange(); // 使用 hook
-    // const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-    // useEffect(() => {
-    //     if (typeof window !== 'undefined') {
-    //         const darkMode = localStorage.getItem('darkMode');
-    //         setIsDarkMode(darkMode === "true");
-    //     }
-    // },[]);
+    // const { isDayMode } = useDayModeChange(); // 使用 hook
+    const { isDayMode } = useThemeMode(); // 使用 hook
+
 
     return (
         <div className={`${styles.assistant_page}`}>

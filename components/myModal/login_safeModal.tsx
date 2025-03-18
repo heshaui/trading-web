@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { Modal, Form, Input } from "antd";
-import {  useState, useEffect ,useCallback} from "react"; //type CSSProperties,
+import { Modal, Form, Input, ConfigProvider } from "antd";
+import { useState, useEffect } from "react"; //type CSSProperties,
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 import store from "@/store"
@@ -12,7 +12,7 @@ import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
 import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
-import {encryptData} from "@/utils/encrypt";
+import { encryptData } from "@/utils/encrypt";
 
 
 interface acountType {
@@ -35,7 +35,7 @@ type Props = {
     onCancel: () => void;
 };
 
-function SafeModal({ open,  onCancel, acountInfo }: Props) {
+function SafeModal({ open, onCancel, acountInfo }: Props) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
@@ -73,14 +73,14 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                             authCodePhone: values.code,
                         }
                     }
-                    const dataEncrypt =await encryptData(dataInfo)
+                    const dataEncrypt = await encryptData(dataInfo)
                     const res = await getLogin(dataEncrypt)
                     if (res.code === "0") {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
-                        store.updateUserInfo({...res.data})
+                        store.updateUserInfo({ ...res.data })
                         router.push('/')
-                    }else{
+                    } else {
                         toast.error(res.message)
                     }
                     setLoading(false);
@@ -95,7 +95,7 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
             });
     };
     const getLoginCode = async () => {
-        if (isCounting||loading||codeLoading) return
+        if (isCounting || loading || codeLoading) return
         setCodeLoading(true)
         try {
             // setSentCodeFlag(false)
@@ -105,15 +105,15 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     // code: "",
                     deviceType: "web"
                 };
-                
-                const dataEncrypt =await encryptData(dataInfo)
+
+                const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
-                } else  if (res.code === "10044") {
+                } else if (res.code === "10044") {
                     toast.error('验证码还在有效期内')
-                }else{
+                } else {
                     toast.error(res.message)
                 }
                 setCodeLoading(false)
@@ -123,14 +123,14 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
                     code: acountInfo.countryCode?.replace("+", ""),
                     deviceType: "web"
                 };
-                const dataEncrypt =await encryptData(dataInfo)
+                const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
                     startCountdown();
                 } else if (res.code === "10044") {
                     toast.error('验证码还在有效期内')
-                }else{
+                } else {
                     toast.error(res.message)
                 }
                 setCodeLoading(false)
@@ -197,45 +197,71 @@ function SafeModal({ open,  onCancel, acountInfo }: Props) {
     };
 
     return (
-        <Modal
-            open={open}
-            title="安全验证"
-            centered
-            onCancel={handCancel}
-            footer={ModalFooter}
-            width={400}
+        <ConfigProvider
+            theme={{
+                components: {
+                    Form: {
+                        // itemMarginBottom: 0, // 去除表单项之间的间距
+                    },
+                    Input: {
+                        activeBorderColor: '#FF5F1F',
+                        hoverBorderColor: '#FF5F1F',
+                        controlHeightLG: 50,
+                        activeBg: 'var(--background5)',
+                        hoverBg: 'var(--background5)',
+                    },
+                    Modal: {
+                        contentBg: "var(--background5)",
+                        footerBg: "var(--background5)",
+                        headerBg: "var(--background5)",
+                    },
+
+                },
+                // token: {
+                //     controlHeight: 40,
+                // }
+            }}
         >
-            <h4 className={`${styles.title_color} mt-7`}>{acountInfo.type == 'm' ? '邮箱验证码' : "手机验证码"}</h4>
-            <p className={`${styles.tip_color} mt-1`}>验证码已发送至
-                <span>&nbsp;{acountInfo.type == 'm' ? encryptEmail(acountInfo.email) : encryptPhoneNumber(acountInfo.phone)}</span>
-            </p>
-            <Form form={form} style={{ margin: "10px 0" }} colon={false}>
-                <Form.Item name="code" rules={[{ required: true, message: "不能为空！" }]} className="position-relative">
-                    <Input
-                        className="custom-input mb-2"
-                        style={{ width: "100%", height: "40px" }}
-                        placeholder="请输入"
-                        allowClear
-                        suffix={
-                            <button type="button" onClick={getLoginCode} className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`} >
-                                {isCounting ? `${countdown}s 重发` : "重新发送"}
-                                {/* {isCounting ? t("sys.login.sendSmsText", { second: countdown }) : t("sys.getcode")} */}
-                            </button>
-                        }
-                    />
-                    {/* <span className={`${styles.text_color} ${styles.code_err}`}>验证码错误</span> */}
-                </Form.Item>
-            </Form>
-            <QuestionModal
-                open={pointout}
-                onOk={handleOk}
-                type={acountInfo.type}
-                acount={
-                    acountInfo.type === "m" ? (acountInfo.email || "") :
-                        acountInfo.type === "p" ? (acountInfo.phone || "") : ""
-                }
-                onCancel={() => setPointout(false)} />
-        </Modal>
+            <Modal
+                open={open}
+                title={<p className={`${styles.title_color}`}>安全验证</p>}
+                centered
+                onCancel={handCancel}
+                footer={ModalFooter}
+                width={400}
+            >
+                <h4 className={`${styles.title_color} mt-7`}>{acountInfo.type == 'm' ? '邮箱验证码' : "手机验证码"}</h4>
+                <p className={`${styles.tip_color} mt-1`}>验证码已发送至
+                    <span>&nbsp;{acountInfo.type == 'm' ? encryptEmail(acountInfo.email) : encryptPhoneNumber(acountInfo.phone)}</span>
+                </p>
+                <Form form={form} style={{ margin: "10px 0" }} colon={false}>
+                    <Form.Item name="code" rules={[{ required: true, message: "不能为空！" }]} className="position-relative">
+                        <Input
+                            className={`${styles.input_box} modal-input`}
+                            style={{ width: "100%", height: "40px" }}
+                            placeholder="请输入"
+                            allowClear
+                            suffix={
+                                <button type="button" onClick={getLoginCode} className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`} >
+                                    {isCounting ? `${countdown}s 重发` : "重新发送"}
+                                    {/* {isCounting ? t("sys.login.sendSmsText", { second: countdown }) : t("sys.getcode")} */}
+                                </button>
+                            }
+                        />
+                        {/* <span className={`${styles.text_color} ${styles.code_err}`}>验证码错误</span> */}
+                    </Form.Item>
+                </Form>
+                <QuestionModal
+                    open={pointout}
+                    onOk={handleOk}
+                    type={acountInfo.type}
+                    acount={
+                        acountInfo.type === "m" ? (acountInfo.email || "") :
+                            acountInfo.type === "p" ? (acountInfo.phone || "") : ""
+                    }
+                    onCancel={() => setPointout(false)} />
+            </Modal>
+        </ConfigProvider>
     );
 }
 

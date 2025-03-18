@@ -38,6 +38,7 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         userId:localStorage.getItem('userId')||'',
                         nickname:values.nickname
                     }
+                console.log(values);
                     const encrypt=await encryptData(param)
                     const res=await updateUserCenter(encrypt)
                     if(res.code==='0'){

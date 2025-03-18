@@ -59,6 +59,9 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -194,6 +197,22 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setEmailCodeInputValue(filteredValue);
+        form.setFieldsValue({ emailCode: filteredValue });
+    };
+     // 过滤输入，只允许数字和字母
+     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setPhoneCodeInputValue(filteredValue);
+        form.setFieldsValue({ code: filteredValue });
+    };
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -304,6 +323,8 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                onChange={handleInputChange2}
+                                    value={phoneCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -339,6 +360,8 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    onChange={handleInputChange}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

@@ -11,11 +11,11 @@ import { Iconify } from "@/components/icon/index";
 import { useState, useEffect } from "react";
 import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
 import { getGoogleKey,bindGoogle } from '@/services/safeCenter'
-import {
-    getSmsCode,
-    getEmailCode,
-    unbindGoogle
-} from '@/services/safeCenter'
+// import {
+//     getSmsCode,
+//     getEmailCode,
+//     unbindGoogle
+// } from '@/services/safeCenter'
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 interface acountType {

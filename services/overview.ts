@@ -11,3 +11,10 @@ export function getLoginInfo(): Promise<any> {
     //   body:JSON.stringify({userId:userId})
     });
   }
+  // 安全验证强度
+  export function getSafetyCertification(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/user/safetyCertification`, {
+      method: 'POST',
+    //   body:JSON.stringify({userId:userId})
+    });
+  }

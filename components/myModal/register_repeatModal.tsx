@@ -1,4 +1,4 @@
-import { Modal, Form } from "antd";
+import { Modal, ConfigProvider } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 import styles from "./style/repeatModal.module.css";
@@ -53,6 +53,31 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
     };
 
     return (
+        <ConfigProvider
+        theme={{
+            components: {
+                Form: {
+                    // itemMarginBottom: 0, // 去除表单项之间的间距
+                },
+                Input: {
+                    activeBorderColor: '#FF5F1F',
+                    hoverBorderColor: '#FF5F1F',
+                    controlHeightLG: 50,
+                    activeBg: 'var(--background5)',
+                    hoverBg: 'var(--background5)',
+                },
+                Modal: {
+                    contentBg: "var(--background5)",
+                    footerBg: "var(--background5)",
+                    headerBg: "var(--background5)",
+                },
+
+            },
+            // token: {
+            //     controlHeight: 40,
+            // }
+        }}
+    >
         <Modal
             open={open}
             // title={}
@@ -75,6 +100,7 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
                 </p>}
             </div>
         </Modal>
+        </ConfigProvider>
     );
 }
 

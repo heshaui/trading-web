@@ -287,7 +287,8 @@ function AuthCode() {
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
-                } onOk={() => setPointout(false)} onCancel={handCodeOk} />
+                } 
+                onOk={() => setPointout(false)} onCancel={handCodeOk} />
             <RepeatModal open={repeatModalOPen}
                 type={toastType}
                 message={requestMsg}

@@ -61,6 +61,8 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [pointout, setPointout] = useState(false);
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
 
     const [form] = Form.useForm();
 
@@ -212,6 +214,22 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setEmailCodeInputValue(filteredValue);
+        form.setFieldsValue({ emailCode: filteredValue });
+    };
+     // 过滤输入，只允许数字和字母
+     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setPhoneCodeInputValue(filteredValue);
+        form.setFieldsValue({ phoneCode: filteredValue });
+    };
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -312,7 +330,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                             </p>
                             <Form.Item name="emailCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
                                 <Input
-                                    // allowClear
+                                    allowClear
                                     placeholder="请输入验证码"
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
@@ -325,6 +343,8 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
+                                    onChange={handleInputChange}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
@@ -349,6 +369,8 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
+                                    onChange={handleInputChange2}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

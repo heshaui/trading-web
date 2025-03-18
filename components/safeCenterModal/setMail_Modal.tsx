@@ -47,7 +47,8 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
-
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -89,7 +90,7 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                         }
 
                     }
-                    console.log(params, 11);
+                    // console.log(params, 11);
 
                     const dataEncrypt = await encryptData(params)
                     const res = await bindEmail(dataEncrypt)
@@ -209,6 +210,22 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
             }));
         });
     };
+        // 过滤输入，只允许数字和字母
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            // 只保留数字和字母
+            const filteredValue = value.replace(/[^0-9]/g, '');
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        };
+         // 过滤输入，只允许数字和字母
+         const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            // 只保留数字和字母
+            const filteredValue = value.replace(/[^0-9]/g, '');
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -319,6 +336,8 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                onChange={handleInputChange}
+                                    value={emailCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -347,6 +366,8 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    onChange={handleInputChange2}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>}

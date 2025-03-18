@@ -228,7 +228,8 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
                 className={`${styles.input_box} modal-input `}
               onChange={handlePasswordChange} 
               />
-              <div className={`mt-1`}>
+            </Form.Item>
+            <div className={`mt-1`}>
                 {showLengthCheck && (
                   <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
                     <Iconify
@@ -255,7 +256,6 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
                        至少一个大写字母
                   </div> */}
               </div>
-            </Form.Item>
             <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>确认密码</div>
             <Form.Item name="checkPassword"
               rules={[

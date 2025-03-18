@@ -58,6 +58,9 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [loading, setLoading] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -333,20 +336,22 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         }
     };
-    const getCode = async () => {
-        // if (['1', '0'].includes(type)) {
-        //     await getPhoneCode();
-        // } else if (type === '2') {
-        //     await getMailCode();
-        // } else 
-        if (type === '2') {
-            await getMailCode();
-        } else if (type === '5' && acountInfo.type === 'phone') {
-            await getPhoneCode();
-        } else if (type === '5' && acountInfo.type === 'email') {
-            await getMailCode();
-        }
-    }
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setEmailCodeInputValue(filteredValue);
+        form.setFieldsValue({ code: filteredValue });
+    };
+     // 过滤输入，只允许数字和字母
+     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setPhoneCodeInputValue(filteredValue);
+        form.setFieldsValue({ phoneCode: filteredValue });
+    };
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -454,6 +459,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                onChange={handleInputChange}
+                                value={emailCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -489,6 +496,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    onChange={handleInputChange2}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

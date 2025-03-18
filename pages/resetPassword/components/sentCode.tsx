@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Form } from 'antd';
+import { Input, Form ,ConfigProvider} from 'antd';
 // import type { AutoCompleteProps } from 'antd';
 import { useState, useEffect } from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
@@ -136,6 +136,25 @@ function ResetPassword() {
                 <span className={`${styles.text_color} font-w-400 mt-2`}>{encryptString(acount.acount.toString()) || '-'}</span>
             </div>
             <div className='mt-1'>
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Form: {
+                            // itemMarginBottom: 0, // 去除表单项之间的间距
+                        },
+                        Input: {
+                            controlHeightLG: 50,
+                            activeBorderColor: '#FF5F1F',
+                            hoverBorderColor: '#FF5F1F',
+                            activeBg: 'var(--background11)',
+                            hoverBg: 'var(--background11)',
+                        },
+                    },
+                    token: {
+                        // colorBgContainerDisabled: '#fff',
+                    }
+                }}
+            >
                 <Form
                     name="aount"
                     form={form}
@@ -152,10 +171,12 @@ function ResetPassword() {
                                     {isCounting ? `${countdown}s 重发` : "重新发送"}
                                 </button>
                             }
-                            className='custom-input'
+                            className={`${styles.mail_input} modal-input`}
+                            // className='custom-input'
                         />
                     </Form.Item>
                 </Form>
+                </ConfigProvider>
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}

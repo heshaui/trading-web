@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Modal,ConfigProvider } from "antd";
 // import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
@@ -47,6 +47,18 @@ function NoteModal({ open, onCancel }: Props) {
     };
 
     return (
+        <ConfigProvider
+            theme={{
+                components: {
+                    Modal: {
+                        contentBg: "var(--background5)",
+                        footerBg: "var(--background5)",
+                        headerBg: "var(--background5)",
+                    },
+
+                },
+            }}
+        >
         <Modal
             open={open}
             // title={}
@@ -68,6 +80,7 @@ function NoteModal({ open, onCancel }: Props) {
                 </p>
             </div>
         </Modal>
+        </ConfigProvider>
     );
 }
 

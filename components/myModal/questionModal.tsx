@@ -9,19 +9,20 @@ type Props = {
     acount: string | null;
     acount2?: string | null;
     type: string | null;
-    onOk: (event: boolean) => void;
-    // onOk: () => void;
+    onOk?: (event: boolean) => void;
+    onAgain?: (type: string) => void;
     onCancel: () => void;
 };
 
-function QuestionModal({ open, onOk, acount, acount2, type, onCancel }: Props) {
+function QuestionModal({ open, onOk, acount, acount2, type, onCancel, onAgain }: Props) {
     const handCancel = () => {
         onCancel()
     };
 
     const handOk = async () => {
         onCancel()
-        onOk(true)
+        onOk?.(true)
+        onAgain?.(type||'')
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
 

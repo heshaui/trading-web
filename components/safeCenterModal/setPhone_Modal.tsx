@@ -45,6 +45,9 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
 
     const [loading, setLoading] = useState(false); // 按钮loading
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -67,10 +70,11 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                         params = {
                             isPhoneAuth: 1,
                             phone: values.phoneNumber,
-                            code: values.code,
-                            googleCode: values.googleCode,
+                            phoneCode: values.code,
+                            googleCode: values.googleCode||'',
                             countryCode: values.areaCode.replace("+", ""),
-                            type:2
+                            type:2,
+                            code:values.emailCode||''
                         }
 
                     } else if (type === 'change') {
@@ -78,9 +82,9 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                         params = {
                             phoneStatus: 1,
                             phone: values.phoneNumber,
-                            code: values.code,
+                            phoneCode: values.code,
                             countryCode: values.areaCode.replace("+", ""),
-                            type:2
+                            type:2,
                         }
 
                     }
@@ -190,6 +194,22 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+       // 过滤输入，只允许数字和字母
+       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setEmailCodeInputValue(filteredValue);
+        form.setFieldsValue({ emailCode: filteredValue });
+    };
+     // 过滤输入，只允许数字和字母
+     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setPhoneCodeInputValue(filteredValue);
+        form.setFieldsValue({ code: filteredValue });
+    };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -291,6 +311,8 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                onChange={handleInputChange2}
+                                    value={phoneCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -319,6 +341,8 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    onChange={handleInputChange}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>}

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
 import store from "@/store/index"
+import { Skeleton } from 'antd'
 import { encryptString, encryptData } from '@/utils/encrypt'
 import SetPhoneModal from '@/components/safeCenterModal/setPhone_Modal'
 import SetMailModal from '@/components/safeCenterModal/setMail_Modal'
@@ -96,6 +97,7 @@ const SafeCenter: React.FC = () => {
     const [mailSafeModalOpen, setMailSafeModalOpen] = useState(false)
     const [phoneSafeModalOpen, setPhoneSafeModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [loadingSkeleton, setLoadingSkeleton] = useState(true)
     const [unbindGoogleModalOpen, setUnbindGoogleModalOpen] = useState(false)
     const [BindGoogleModalOpen, setBindGoogleModalOpen] = useState(false)
     const router = useRouter();
@@ -121,7 +123,7 @@ const SafeCenter: React.FC = () => {
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { 
+                onbind: () => {
                     setBindGoogleModalOpen(true)
                 },
                 key: 'bind'
@@ -364,6 +366,7 @@ const SafeCenter: React.FC = () => {
             const res = await getSafeCenter()
             const { code, data } = res
             if (code === '0') {
+                setLoadingSkeleton(false)
                 setSafeData(data)
                 const securityMethodsCount = checkMethodsCount(data);
                 const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
@@ -462,80 +465,93 @@ const SafeCenter: React.FC = () => {
         <div className={`${styles.card_bgc} mt-3 `}>
             <div className={`flex-row justify-between font-18 font-w-500 pl-6 mb-4`} >基础安全
             </div>
-            <ul className={`${styles.content_ul} ${styles.border_bottom} mt-4 `} >
-                {baseSafeList.map((item: SafeListItem) => (
-                    <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
-                        {/* 绑定类型 bind type*/}
-                        <div className={`flex-row align-center`}>
-                            <Image src={item.icon}
-                                alt="safe_device" width={28} height={28}
-                                className={`${styles.svgIcon}`}
-                            />
-                            <p className='flex-y font-16 font-w-500'>
-                                {item.title}
-                                <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
-                                    {item.desc}
-                                </span>
-                            </p>
+            {loadingSkeleton ? <div className='px-6'>
+                {baseSafeList.map(() => (
+                    <Skeleton active />
+                ))}
+            </div>
+                :
+                <ul className={`${styles.content_ul} ${styles.border_bottom} mt-4 `} >
 
-                        </div>
-                        {/* 绑定状态 bind status*/}
-                        <div className={`flex-row align-center justify-between ${styles.log_box} `}>
+                    {baseSafeList.map((item: SafeListItem) => (
+                        <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
+                            {/* 绑定类型 bind type*/}
+                            <div className={`flex-row align-center`}>
+                                <Image src={item.icon}
+                                    alt="safe_device" width={28} height={28}
+                                    className={`${styles.svgIcon}`}
+                                />
+                                <p className='flex-y font-16 font-w-500'>
+                                    {item.title}
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
+                                        {item.desc}
+                                    </span>
+                                </p>
 
-                            <div className='flex-y font-16 font-w-500 flex-1'>
-                                {item.isBind ? (
-                                    <div className={`flex-row align-center`}>
-                                        <Image src="/images/userCenter/safe/check.svg"
-                                            alt="safe_device" width={20} height={20}
-                                            className={`${styles.svgIcon}`}
-                                        />
-                                        <span>{item.bindValue}</span>
-                                    </div>
+                            </div>
+                            {/* 绑定状态 bind status*/}
+                            <div className={`flex-row align-center justify-between ${styles.log_box} `}>
 
-                                )
-                                    :
-                                    (
+                                <div className='flex-y font-16 font-w-500 flex-1'>
+                                    {item.isBind ? (
                                         <div className={`flex-row align-center`}>
-                                            <Image src="/images/userCenter/safe/close.svg"
+                                            <Image src="/images/userCenter/safe/check.svg"
                                                 alt="safe_device" width={20} height={20}
                                                 className={`${styles.svgIcon}`}
                                             />
-                                            <span>{item.noBindValue}</span>
+                                            <span>{item.bindValue}</span>
                                         </div>
-                                    )}
-                            </div>
-                            {/* 按钮 button */}
-                            <div className={`flex-row align-center justify-end flex-1 ml-6`} >
-                                {item.isBind && Array.isArray(item.bindBtn) && item.bindBtn.length > 0 && (
-                                    item.bindBtn.map((btn: ButtonConfig, index: number) => (
-                                        <button
-                                            className={`${styles.btn_style} btn-color-default ml-2`}
-                                            key={index}
-                                            onClick={btn.onok}
-                                        >
-                                            {btn.title}
-                                        </button>
-                                    ))
-                                )}
-                                {!item.isBind && Array.isArray(item.noBindBtn) && item.noBindBtn.length > 0 && !item.isBind && (
-                                    item.noBindBtn.map((btn: ButtonConfig, index: number) => (
-                                        <button
-                                            className={`${styles.btn_style} btn-color-default ml-2`}
-                                            key={index}
-                                            onClick={btn.onbind}
-                                        >
-                                            {btn.title}
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-                        </div>
 
-                    </li>
-                ))}
-            </ul>
+                                    )
+                                        :
+                                        (
+                                            <div className={`flex-row align-center`}>
+                                                <Image src="/images/userCenter/safe/close.svg"
+                                                    alt="safe_device" width={20} height={20}
+                                                    className={`${styles.svgIcon}`}
+                                                />
+                                                <span>{item.noBindValue}</span>
+                                            </div>
+                                        )}
+                                </div>
+                                {/* 按钮 button */}
+                                <div className={`flex-row align-center justify-end flex-1 ml-6`} >
+                                    {item.isBind && Array.isArray(item.bindBtn) && item.bindBtn.length > 0 && (
+                                        item.bindBtn.map((btn: ButtonConfig, index: number) => (
+                                            <button
+                                                className={`${styles.btn_style} btn-color-default ml-2`}
+                                                key={index}
+                                                onClick={btn.onok}
+                                            >
+                                                {btn.title}
+                                            </button>
+                                        ))
+                                    )}
+                                    {!item.isBind && Array.isArray(item.noBindBtn) && item.noBindBtn.length > 0 && !item.isBind && (
+                                        item.noBindBtn.map((btn: ButtonConfig, index: number) => (
+                                            <button
+                                                className={`${styles.btn_style} btn-color-default ml-2`}
+                                                key={index}
+                                                onClick={btn.onbind}
+                                            >
+                                                {btn.title}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                        </li>
+                    ))}
+
+                </ul>}
             <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >安全日志
+            </div>{loadingSkeleton ? <div className='px-6'>
+                {securityLogList.map(() => (
+                    <Skeleton active />
+                ))}
             </div>
+            :
             <ul className={`${styles.content_ul}`}>
                 {securityLogList.map((item: SecurityLogItem) => (
                     <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
@@ -567,6 +583,7 @@ const SafeCenter: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            }
             {/* 修改确认弹窗 */}
             <CheckModal
                 open={checkModalOpen}
