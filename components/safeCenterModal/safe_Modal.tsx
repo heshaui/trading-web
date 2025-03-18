@@ -275,7 +275,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setCodeLoading(true)
         try {
             const dataInfo = {
-                number: acountInfo?.phone,
+                number: acountInfo?.email,
                 deviceType: "web"
             };
             const dataEncrypt = await encryptData(dataInfo)

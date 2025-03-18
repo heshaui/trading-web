@@ -13,6 +13,7 @@ import QuestionModal from "@/components/myModal/questionModal";
 import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import { encryptData } from "@/utils/encrypt";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 
 interface acountType {
@@ -47,19 +48,26 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
     const handCancel = () => {
         onCancel()
     };
-
+	// 获取浏览器指纹
+	const getFingerprint = async () => {
+		const result = await FingerprintJS.load();
+		const visitorId = await result.get();
+		console.log(visitorId);
+		return visitorId.visitorId;
+	};
     const handOk = async () => {
         form.validateFields()
             .then(async (values) => {
                 // onOk()
                 setLoading(true);
                 try {
+                    const fingerprint = await getFingerprint();
                     let dataInfo = {};
                     if (acountInfo.type === 'm') {
                         dataInfo = {
                             type: acountInfo.type,
                             email: acountInfo.email,
-                            deviceType: acountInfo.deviceType,
+                            deviceType: fingerprint,
                             password: acountInfo.password,
                             authCodeMail: values.code,
                         }
@@ -68,7 +76,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                         dataInfo = {
                             type: acountInfo.type,
                             phone: acountInfo.phone,
-                            deviceType: acountInfo.deviceType,
+                            deviceType: fingerprint,
                             password: acountInfo.password,
                             authCodePhone: values.code,
                         }

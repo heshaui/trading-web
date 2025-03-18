@@ -136,13 +136,14 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     };
 
     const handOk = async () => {
-        if ((!fileUrl) && selectedImages.length === 0) {
+        if ((!fileUrl) && (!selectedAvatar)) {
             toast.error('请选择或选择头像!');
             return;
         }
+        
         try {
             let params = {};
-            if (!fileUrl) {
+            if (fileUrl) {
                 // console.log(selectedFile);
                  params = {
                     userId: userId,
@@ -154,6 +155,8 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                     avatarUrl: selectedAvatar
                 }
             }
+        console.log(params,111);
+
             const encrypt=await encryptData(params)
             await updateUserCenterApi(encrypt)
 

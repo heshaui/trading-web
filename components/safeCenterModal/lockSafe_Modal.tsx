@@ -159,10 +159,14 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setCodeLoading(true)
         try {
             const dataInfo = {
-                number: acountInfo?.phone,
+                number: acountInfo?.email,
                 deviceType: "web"
             };
+            console.log(dataInfo, 11);
+            
             const dataEncrypt = await encryptData(dataInfo)
+            console.log(dataEncrypt, 111);
+
             const res = await getPasswordEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)

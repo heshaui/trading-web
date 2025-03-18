@@ -14,6 +14,8 @@ import { getUserDeviceNoList, delectUserDeviceNo } from "@/services/safeCenter";
 import { toast } from "sonner";
 import dayjs from 'dayjs';
 import DelectModal from "@/components/safeCenterModal/delect_Modal";
+import { getFingerprint } from "@/hooks/user-fingerprint";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 interface DataLogsType {
     id: number,
@@ -27,6 +29,7 @@ interface DataLogsType {
     createTime: number,
     updateTime: number,
     tenantId: string,
+    fingerprinting: string,
 }
 interface DataType {
     id: number,
@@ -40,6 +43,7 @@ interface DataType {
     createTime: number,
     updateTime: number,
     tenantId: string,
+    fingerprinting: string,
     userLoginLogs: DataLogsType[]
 }
 function Equipment() {
@@ -49,23 +53,30 @@ function Equipment() {
     const [deviceNoData, setDeviceNoData] = useState<DataType[]>([]);
     const [childDeviceNoData, setChildDeviceNoData] = useState<DataType[]>([]);
     const [deviceNo, setDeviceNo] = useState<string>('');
+    const [fingerprint, setFingerprint] = useState<string>('');
     const { userId } = router.query;
     const [open, setOpen] = useState(false);
-
+	// 获取浏览器指纹
+	const getFingerprintData = async () => {
+        const fp = await getFingerprint();
+        setFingerprint(fp);
+	};
     const columns: ColumnsType<DataType> = [
         {
             title: "设备管理",
             dataIndex: "deviceNo",
             key: "deviceNo",
             width: 158,
-            render: (text, record) => <div>{`${text} (${record.platformType || '--'})`}
-                <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
-                    : "icon-park-solid:down-one"}
-                    style={{ color: "#FF5F1F" }}
+            render:  (text, record) => {
+                return (<div className='flex-row align-start '>{`${text} (${record.platformType || '--'})`}
+                    <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
+                        : "icon-park-solid:down-one"}
+                        style={{ color: "#FF5F1F" }}
                     className='ml-2'
                     size={20}
                 />
-            </div>,
+                {fingerprint === record.fingerprinting && <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>当前设备</p>}
+            </div>)},
         },
         {
             title: "登录时间",
@@ -190,6 +201,7 @@ function Equipment() {
     };
 
     useEffect(() => {
+        getFingerprintData()
         getDeviceNoData()
     }, [])
 
