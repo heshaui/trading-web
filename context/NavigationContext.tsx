@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { homeMenu, getLanguage, exchangeRate } from '@/services/header';
-import { getBulletinMessage } from '@/services/bulletinCenter';
+import { getBulletinMessage, getBulletinMessageLogined } from '@/services/bulletinCenter';
 import dayjs from 'dayjs';
 import { processMenuItems, formatMenus, formatAdaptiveMenus } from '@/utils/menuHooks';
 import { useDayModeChange } from '@/hooks/dayModeChange';
+import { useAuth } from '@/context/AuthContext';
 
 // 创建上下文
 const NavigationContext = createContext<any>(null);
@@ -19,6 +20,14 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [currentLang, setCurrentLang] = useState('');
     const { isDayMode } = useDayModeChange();
+    const { isLoggedIn } = useAuth();
+    
+    // 使用 ref 记录已请求的状态
+    const dataFetchStatusRef = useRef({
+        loggedInFetched: false,  // 是否已经获取过登录后的数据
+        loggedOutFetched: false, // 是否已经获取过登录前的数据
+        lastLoginState: null as boolean | null // 上次请求时的登录状态
+    });
 
     // 初始化数据
     const initializeData = async (lang: string) => {
@@ -33,14 +42,36 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                 setAdaptiveMenuData(formatAdaptiveMenus(processedMenuData));
             }
 
-            // 获取公告数据
-            const bulletinResponse = await getBulletinMessage({ languageCode: lang }) as any;
-            if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
-                const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
-                    h5Text: item.title,
-                    spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
-                }));
-                setBulletinData(formattedBulletinData);
+            // 记录当前的登录状态
+            dataFetchStatusRef.current.lastLoginState = isLoggedIn;
+            
+            // 根据登录状态获取公告数据
+            if (isLoggedIn) {
+                // 如果已登录但未获取过登录状态的数据
+                if (!dataFetchStatusRef.current.loggedInFetched) {
+                    const bulletinResponse = await getBulletinMessageLogined({ languageCode: lang }) as any;
+                    if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+                        const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            h5Text: item.title,
+                            spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+                        }));
+                        setBulletinData(formattedBulletinData);
+                        dataFetchStatusRef.current.loggedInFetched = true;
+                    }
+                }
+            } else {
+                // 如果未登录但未获取过未登录状态的数据
+                if (!dataFetchStatusRef.current.loggedOutFetched) {
+                    const bulletinResponse = await getBulletinMessage({ languageCode: lang }) as any;
+                    if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+                        const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            h5Text: item.title,
+                            spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+                        }));
+                        setBulletinData(formattedBulletinData);
+                        dataFetchStatusRef.current.loggedOutFetched = true;
+                    }
+                }
             }
 
             // 获取语言数据
@@ -72,6 +103,12 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
     const changeLanguage = (lang: string) => {
         if (lang !== currentLang) {
             setCurrentLang(lang);
+            // 切换语言时重置数据获取状态
+            dataFetchStatusRef.current = {
+                loggedInFetched: false,
+                loggedOutFetched: false,
+                lastLoginState: null
+            };
             initializeData(lang);
         }
     };
@@ -82,6 +119,47 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
         setCurrentLang(lang);
         initializeData(lang);
     }, []);
+
+    // 监听登录状态变化
+    useEffect(() => {
+        if (currentLang && dataFetchStatusRef.current.lastLoginState !== isLoggedIn) {
+            // 只有在登录状态改变且已设置语言时才获取数据
+            const fetchBulletinData = async () => {
+                try {
+                    if (isLoggedIn && !dataFetchStatusRef.current.loggedInFetched) {
+                        // 登录状态变为已登录，且未获取过登录状态的数据
+                        const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang }) as any;
+                        if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+                            const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                h5Text: item.title,
+                                spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+                            }));
+                            setBulletinData(formattedBulletinData);
+                            dataFetchStatusRef.current.loggedInFetched = true;
+                        }
+                    } else if (!isLoggedIn && !dataFetchStatusRef.current.loggedOutFetched) {
+                        // 登录状态变为未登录，且未获取过未登录状态的数据
+                        const bulletinResponse = await getBulletinMessage({ languageCode: currentLang }) as any;
+                        if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
+                            const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                h5Text: item.title,
+                                spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
+                            }));
+                            setBulletinData(formattedBulletinData);
+                            dataFetchStatusRef.current.loggedOutFetched = true;
+                        }
+                    }
+                    
+                    // 更新上次的登录状态
+                    dataFetchStatusRef.current.lastLoginState = isLoggedIn;
+                } catch (error) {
+                    console.error('获取公告数据失败:', error);
+                }
+            };
+            
+            fetchBulletinData();
+        }
+    }, [isLoggedIn, currentLang]);
 
     return (
         <NavigationContext.Provider value={{

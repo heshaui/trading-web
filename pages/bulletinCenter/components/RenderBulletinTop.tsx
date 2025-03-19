@@ -8,7 +8,15 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 
 const { Search } = Input;
 
-export default function RenderBulletinTop({ showDetail, onBack, onReadAll, onUnreadChange, onSearch }: RenderBulletinTopProps) {
+export default function RenderBulletinTop({ 
+    showDetail, 
+    onBack, 
+    onReadAll, 
+    onUnreadChange, 
+    onSearch,
+    hasUnreadMessages = true, // 默认值为 true，向下兼容
+    disableUnreadCheckbox = false // 默认值为 false，向下兼容
+}: RenderBulletinTopProps) {
     // 搜索值
     const [searchValue, setSearchValue] = useState('');
     // 日夜间判断
@@ -40,12 +48,25 @@ export default function RenderBulletinTop({ showDetail, onBack, onReadAll, onUnr
                         </Row>
                     </Col>
                     <Col>
-                        <Checkbox onChange={(e) => onUnreadChange?.(e.target.checked)}>
-                            {/* <span style={{ color: '#FFFFFF' }}>只看未读</span> */}
-                            {/* 只看未读 */}
-                            <span className={styles.themeText}>只看未读</span>
+                        <Checkbox 
+                            onChange={(e) => onUnreadChange?.(e.target.checked)}
+                            disabled={disableUnreadCheckbox}
+                        >
+                            <span className={styles.themeText} style={{ 
+                                opacity: disableUnreadCheckbox ? 0.6 : 1 
+                            }}>只看未读</span>
                         </Checkbox>
-                        <span style={{ color: '#FF5F1F', cursor: 'pointer' }} onClick={onReadAll}>全部已读</span>
+                        <span 
+                            style={{ 
+                                color: hasUnreadMessages ? '#FF5F1F' : '#999', 
+                                cursor: hasUnreadMessages ? 'pointer' : 'not-allowed',
+                                opacity: hasUnreadMessages ? 1 : 0.6,
+                                marginLeft: '8px'
+                            }} 
+                            onClick={hasUnreadMessages ? onReadAll : undefined}
+                        >
+                            全部已读
+                        </span>
                     </Col>
                 </Row>
             </div>
