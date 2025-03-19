@@ -7,7 +7,7 @@ import { i18n } from './next-i18next.config';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactStrictMode: true,
+  reactStrictMode: false,
   transpilePackages: [
     // antd & deps
     "@ant-design",
