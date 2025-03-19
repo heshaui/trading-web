@@ -1,13 +1,13 @@
 import styles from "../styles/safeCenter.module.css"
-import { Iconify } from "@/components/icon/index";
+// import { Iconify } from "@/components/icon/index";
 import { ConfigProvider, Tabs } from "antd";
 // import Link from 'next/link'
 import { useRouter } from 'next/router';
 import { useState, useEffect } from "react";
-import type { ColumnsType } from "antd/es/table";
-import { getUserDeviceNoList, delectUserDeviceNo } from "@/services/safeCenter";
-import { toast } from "sonner";
-import dayjs from 'dayjs';
+// import type { ColumnsType } from "antd/es/table";
+// import { getUserDeviceNoList, delectUserDeviceNo } from "@/services/safeCenter";
+// import { toast } from "sonner";
+// import dayjs from 'dayjs';
 import LoginRecord from "../components/safeLog/login_record";
 import SafeSet from "../components/safeLog/safe_set";
 import type { TabsProps } from 'antd';
@@ -39,11 +39,12 @@ function SafeLog() {
                         theme={{
                             components: {
                                 Tabs: {
-                                    horizontalMargin:"0 0 0 0"
+                                    horizontalMargin:"0 0 0 0",
+                                    itemColor:"var(--text-color5)",
                                 },
                             },
                         }}>
-                        <Tabs items={items} />
+                        <Tabs items={items} className="custom-tabs"/>
                     </ConfigProvider>
                     </div>
                 </div>

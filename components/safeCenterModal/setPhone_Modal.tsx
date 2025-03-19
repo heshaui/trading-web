@@ -71,22 +71,23 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                         // 设置手机号
                         params = {
                             isPhoneAuth: 1,
-                            phone: values.phoneNumber,
-                            phoneCode: values.code,
-                            googleCode: values.googleCode||'',
+                            newPhone: values.phoneNumber,
+                            phoneCode: values.code||'',
                             countryCode: values.areaCode.replace("+", ""),
                             type:2,
-                            code:values.emailCode||''
+                            googleCode: values.googleCode||'',
+                            code:values.emailCode||'',
+                            email:values.emailCode?acountInfo?.email:''
                         }
 
                     } else if (type === 'change') {
                         // 修改手机号
                         params = {
                             phoneStatus: 1,
-                            phone: values.phoneNumber,
+                            newPhone: values.phoneNumber,
                             phoneCode: values.code,
                             countryCode: values.areaCode.replace("+", ""),
-                            type:2,
+                            type:1,
                         }
 
                     }

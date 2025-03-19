@@ -67,7 +67,9 @@
 .custom-sleect .ant-select-selection-placeholder{
     color: var(--text-color4) !important;
 }
-
+.custom-select .ant-select-selection-item{
+    color: var(--text-color6) !important;
+}
 .autoComplete-custom .ant-input::placeholder{
     color: var(--text-color4) !important;
 }
@@ -296,4 +298,8 @@
 .table-box .ant-table-placeholder,
 .table-box .ant-table-placeholder:hover>td{
     background: transparent !important;
+}
+
+.custom-tabs .ant-tabs-nav::before{
+    border-color: transparent !important;
 }
