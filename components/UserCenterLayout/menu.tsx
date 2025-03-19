@@ -11,9 +11,28 @@ import debounce from 'lodash/debounce';
 type MenuItem = Required<MenuProps>['items'][number];
 const UserCenterSidebar = () => {
     const router = useRouter();
-    const [collapsed, setCollapsed] = useState(false);
-    // 添加一个状态来记录是否已经初始化了collapsed状态
-    const [initialized, setInitialized] = useState(false);
+    
+    // 使用localStorage来持久化collapsed状态
+    const [collapsed, setCollapsed] = useState(() => {
+        // 尝试从localStorage获取状态，如果没有则根据窗口宽度初始化
+        if (typeof window !== 'undefined') {
+            const savedState = localStorage.getItem('sidebarCollapsed');
+            if (savedState !== null) {
+                return JSON.parse(savedState);
+            }
+            return window.innerWidth < 1208;
+        }
+        return false;
+    });
+
+    // 更新collapsed状态的函数，同时保存到localStorage
+    const updateCollapsed = useCallback((value: boolean) => {
+        setCollapsed(value);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('sidebarCollapsed', JSON.stringify(value));
+        }
+    }, []);
+    
     const items: MenuItem[] = [
         {
             key: '/userCenter',
@@ -46,11 +65,6 @@ const UserCenterSidebar = () => {
     // 处理选中状态的逻辑
     // 处理选中状态的逻辑
     const getSelectedKey = () => {
-        // const currentPath = router.pathname;
-        // if (currentPath.startsWith('/userCenter/safeCenter')) {
-        //     return '/userCenter/safeCenter';
-        // }
-        // return currentPath;
         const currentPath = router.pathname;
         const parentPaths = [
             // '/userCenter',
@@ -65,18 +79,11 @@ const UserCenterSidebar = () => {
         }
         return currentPath;
     };
+    
     // 选中项再次点击
     const handleMenuClick = (path: string) => {
         const currentPath = router.pathname;
-        // console.log(currentPath,1234);
-
-        // if (path === '/userCenter') {
-        //     router.push(path);
-        // } else if (currentPath === path || currentPath.startsWith(path)) {
-        //     // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
-        //     return;
-        // }
-        // router.push(path);
+        
         // 特殊处理根路径 /userCenter
         if (path === '/userCenter') {
             // 只有当当前不在 /userCenter 精确路径时才跳转
@@ -86,6 +93,7 @@ const UserCenterSidebar = () => {
             }
             return;
         }
+        
         // 处理其他路径
         if (currentPath === path || currentPath.startsWith(path + '/')) {
             // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
@@ -96,36 +104,29 @@ const UserCenterSidebar = () => {
         router.push(path, undefined, { shallow: true })
             .catch(err => console.error('Navigation failed:', err));
     };
+    
     // 使用 useCallback 来记忆防抖函数
     const debouncedCheckWidth = useCallback(
         debounce(() => {
-            setCollapsed(window.innerWidth < 1208);
+            const shouldCollapse = window.innerWidth < 1208;
+            updateCollapsed(shouldCollapse);
         }, 200),  // 200ms 延迟
-        []
+        [updateCollapsed]
     );
 
+    // 只在客户端初始化时和窗口大小变化时执行
     useEffect(() => {
-        // 初始检查
-        // debouncedCheckWidth();
-        // 初始检查 - 只在组件首次加载时设置一次
-        if (!initialized) {
-            setCollapsed(window.innerWidth < 1208);
-            setInitialized(true);
+        if (typeof window !== 'undefined') {
+            // 添加监听器
+            window.addEventListener('resize', debouncedCheckWidth);
+
+            // 清理监听器
+            return () => {
+                window.removeEventListener('resize', debouncedCheckWidth);
+                debouncedCheckWidth.cancel();  // 取消未执行的防抖函数
+            };
         }
-
-        // 添加监听器
-        window.addEventListener('resize', debouncedCheckWidth);
-
-        // 清理监听器
-        return () => {
-            window.removeEventListener('resize', debouncedCheckWidth);
-            debouncedCheckWidth.cancel();  // 取消未执行的防抖函数
-        };
-    }, [debouncedCheckWidth, initialized]);
-    // 添加一个新的useEffect来处理路由变化，但不改变collapsed状态
-    useEffect(() => {
-        // 路由变化时不重置collapsed状态
-    }, [router.pathname]);
+    }, [debouncedCheckWidth]);
 
     return (<>
         {/* <nav className="sidebar">

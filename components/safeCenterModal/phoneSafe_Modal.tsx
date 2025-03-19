@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -56,7 +56,6 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [firstCheck2, setFirstCheck2] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
-    const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
 
@@ -84,12 +83,16 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     code: values.emailCode || '',
                     googleCode: values.googleCode || '',
                     phoneCode: values.code || '',
+                    email: values.emailCode?acountInfo.email : '',
+                    phone: values.code?acountInfo.phone : '',
+                    countryCode: values.code?acountInfo.countryCode : '',
                 }
                 checkPhoneSafe(dataInfo)
             })
 
     };
     const checkPhoneSafe = async (data: acountType) => {
+        setLoading(true)
         try {
             const dataEncrypt = await encryptData(data)
             const res = await getPhoneSafe(dataEncrypt)
@@ -237,7 +240,7 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
             </div>
         );

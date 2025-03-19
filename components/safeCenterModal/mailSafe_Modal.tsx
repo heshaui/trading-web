@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -102,13 +102,16 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 //     }
                 //     checkEmailSafe(dataInfo)
                 // } else {
-                    const dataInfo = {
-                        // phone: acountInfo?.phone,
-                        code: values.code|| '',
-                        googleCode: values.googleCode || '',
-                        phoneCode: values.phoneCode||''
-                    }
-                    checkEmailSafe(dataInfo)
+                const dataInfo = {
+                    // phone: acountInfo?.phone,
+                    code: values.code || '',
+                    googleCode: values.googleCode || '',
+                    phoneCode: values.phoneCode || '',
+                    email: values.code?acountInfo.email : '',
+                    phone: values.phoneCode?acountInfo.phone : '',
+                    countryCode: values.phoneCode?acountInfo.countryCode : '',
+                }
+                checkEmailSafe(dataInfo)
                 // }
 
 
@@ -339,24 +342,24 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     };
     // 过滤输入，只允许数字和字母
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
         const { value } = e.target;
         // 只保留数字和字母
         const filteredValue = value.replace(/[^0-9]/g, '');
         // setEmailCodeInputValue(filteredValue);
         // form.setFieldsValue({ code: filteredValue });
-        if(type === 'email'){
+        if (type === 'email') {
             setEmailCodeInputValue(filteredValue);
             form.setFieldsValue({ code: filteredValue });
-        }else if(type === 'phone'){
+        } else if (type === 'phone') {
             setPhoneCodeInputValue(filteredValue);
             form.setFieldsValue({ phoneCode: filteredValue });
-        }else if(type === 'google'){
+        } else if (type === 'google') {
             setGoogleCodeInputValue(filteredValue);
             form.setFieldsValue({ googleCode: filteredValue });
         }
     };
-     // 过滤输入，只允许数字和字母
+    // 过滤输入，只允许数字和字母
     //  const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
     //     const { value } = e.target;
     //     // 只保留数字和字母
@@ -385,7 +388,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
             </div>
         );
@@ -451,7 +454,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         style={{ width: '100%' }}
                     >
                         <div className={`font-16 font-w-400  ${styles.tip_title}`}>{
-                            '邮箱验证' 
+                            '邮箱验证'
                         }</div>
                         <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck ? '验证码发送至' : '验证码已发送至'}
                             <span>&nbsp;{encryptEmail(acountInfo.email)
@@ -492,7 +495,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {(acountInfo.phone && !acountInfo.googleCode ) && (<>
+                        {(acountInfo.phone && !acountInfo.googleCode) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}

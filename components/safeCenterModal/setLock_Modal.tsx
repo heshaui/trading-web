@@ -158,7 +158,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
           className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
           onClick={handOk}
         >
-          保存
+          确认
         </button>
       </div>
     );

@@ -43,7 +43,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    确认
+                    继续
                 </button>
             </div>
         );

@@ -338,7 +338,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    确认
                 </button>
             </div>
         );

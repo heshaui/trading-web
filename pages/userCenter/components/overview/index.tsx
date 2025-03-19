@@ -135,7 +135,7 @@ const OverviewPage: React.FC = () => {
 
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
-            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || `IMUSER-${loginInfo?.userId}`}</h2>
+            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || `IMUSER-${loginInfo?.userId||'--'}`}</h2>
             <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
                 {loginInfo?.famousAphorisms || `"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
             </p>

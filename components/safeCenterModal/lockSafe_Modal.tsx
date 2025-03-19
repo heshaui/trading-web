@@ -1,4 +1,4 @@
-import { Modal, ConfigProvider, Form, Input, InputNumber } from "antd";
+import { Modal, ConfigProvider, Form, Input, Button } from "antd";
 // import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -57,7 +57,6 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [firstCheck2, setFirstCheck2] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
-    const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [pointout, setPointout] = useState(false);
@@ -82,8 +81,15 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 const dataInfo = {
                     code: values.emailCode || '',
                     googleCode: values.googleCode || '',
-                    phoneCode: values.phoneCode || ''
+                    phoneCode: values.phoneCode || '',
+                    email: values.emailCode?acountInfo.email : '',
+                    phone: values.phoneCode?acountInfo.phone : '',
+                    countryCode: values.phoneCode?acountInfo.countryCode : '',
                 }
+                // let dataInfo={}
+                // if(values.emailCode){
+
+                // }
                 checkPasswordSafe(dataInfo)
 
             })
@@ -259,8 +265,14 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
+                {/* <Button type="primary" onClick={handOk}
+                className={`${styles.modal_footerBtn} default_btn`}
+                loading={loading}
+                >
+                    确认
+                </Button> */}
                 <button
                     type="button"
                     className={`text-color mt-5`}
