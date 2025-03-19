@@ -1,6 +1,6 @@
 import { Col, Row, ConfigProvider, Menu, Card, Empty } from 'antd';
 import type { MenuProps } from 'antd';
-import { useCallback, useMemo, useState } from 'react'; // 导入 useState
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 
@@ -9,18 +9,34 @@ import MessagePagination from './components/MessagePagination';
 import MessageItemDetail from './components/MessageItemDetail';
 import RenderBulletinTop from './components/RenderBulletinTop';
 import styles from './styles/bulletinCenter.module.css';
-import { menuData, messageData, detailMenuItems, detailListData } from '@/data/bulletinCenter/getItemsMessage';
+import { menuData as staticMenuData, messageData, detailMenuItems, detailListData } from '@/data/bulletinCenter/getItemsMessage';
 import { MessageData } from '@/type/bulletin_center/bc_types';
 import { highlightText } from '@/utils/highlight';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigation } from '@/context/NavigationContext';
+import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount } from '@/services/bulletinCenter';
 
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function BulletinCenter() {
+    // 获取登录状态
+    const { isLoggedIn } = useAuth();
+    // 获取导航上下文中的公告数据
+    const { bulletinData } = useNavigation();
+
+    // API请求状态跟踪
+    const apiRequestRef = useRef({
+        unreadCountLoading: false,
+        unreadCountTimestamp: 0,
+        bulletinLoading: false,
+        lastBulletinTimestamp: 0
+    });
+
     // 状态管理：跟踪悬浮的菜单项和选中的菜单项
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
     const [selectedKeys, setSelectedKeys] = useState<string[]>(['1']); // 默认选中 '1'
-    const [selectedLabel, setSelectedLabel] = useState<string>('全部公告'); // 跟踪选中的菜单项标签，默认为“全部公告”
+    const [selectedLabel, setSelectedLabel] = useState<string>('全部公告'); // 跟踪选中的菜单项标签，默认为"全部公告"
     // 使用对象存储每个菜单项的页码状态
     const [pagesState, setPagesState] = useState<Record<string, number>>({});
     // 每页显示的消息数量
@@ -48,6 +64,195 @@ export default function BulletinCenter() {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [filteredData, setFilteredData] = useState(messageData);
     const [filteredDetailData, setFilteredDetailData] = useState(detailListData);
+    // 添加登录后的公告数据状态
+    const [loginedMessageData, setLoginedMessageData] = useState<Record<string, MessageData[]>>({
+        '1': []
+    });
+    // 当前公告详情内容
+    const [currentMessageContent, setCurrentMessageContent] = useState<string>('');
+    // 是否正在加载数据
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    // 未读公告数量
+    const [unreadCount, setUnreadCount] = useState<number>(0);
+    // 自定义菜单数据
+    const [menuData, setMenuData] = useState(staticMenuData);
+    // 标记是否已从NavigationContext获取过数据
+    const [hasInitializedFromContext, setHasInitializedFromContext] = useState(false);
+
+    // 获取未读公告数量 - 带防抖和缓存
+    const fetchUnreadCount = useCallback(async (forceRefresh = false) => {
+        if (!isLoggedIn) {
+            setUnreadCount(0);
+            return;
+        }
+
+        const now = Date.now();
+        // 如果上次请求在3秒内，且不是强制刷新，则跳过
+        if (
+            apiRequestRef.current.unreadCountLoading || 
+            (!forceRefresh && now - apiRequestRef.current.unreadCountTimestamp < 3000)
+        ) {
+            return;
+        }
+
+        try {
+            apiRequestRef.current.unreadCountLoading = true;
+            apiRequestRef.current.unreadCountTimestamp = now;
+
+            const response = await getBulletinMessageUnreadCount() as any;
+            if (response?.code === '0' && response.data !== undefined) {
+                setUnreadCount(response.data);
+                // 更新菜单数据中的公告数量
+                const updatedMenuData = [...staticMenuData];
+                updatedMenuData[0] = {
+                    ...updatedMenuData[0],
+                    label: `公告（${response.data}）`
+                };
+                setMenuData(updatedMenuData);
+            }
+        } catch (error) {
+            console.error('获取未读公告数量失败:', error);
+        } finally {
+            apiRequestRef.current.unreadCountLoading = false;
+        }
+    }, [isLoggedIn]);
+
+    // 使用NavigationContext中的数据初始化公告数据
+    useEffect(() => {
+        if (isLoggedIn && bulletinData && bulletinData.length > 0 && !hasInitializedFromContext) {
+            // 从NavigationContext转换数据格式
+            const formattedData = bulletinData.map((item: { h5Text: string; spanText: string }, index: number) => ({
+                id: (index + 1).toString(), // 假设没有实际ID，用索引代替
+                title: item.h5Text,
+                time: item.spanText,
+                isRead: false // 初始假设所有消息未读
+            }));
+
+            // 更新数据
+            setLoginedMessageData({
+                '1': formattedData
+            });
+
+            // 更新筛选数据
+            if (searchKeyword) {
+                handleSearch(searchKeyword);
+            } else {
+                setFilteredData({
+                    ...messageData,
+                    '1': formattedData
+                });
+            }
+
+            // 标记已从Context获取过数据
+            setHasInitializedFromContext(true);
+            
+            // 获取未读公告数量
+            fetchUnreadCount();
+        }
+    }, [isLoggedIn, bulletinData]);
+
+    // 监听登录状态变化，确保在登录状态变化时重置菜单选择并获取未读数量
+    useEffect(() => {
+        // 如果未登录，或者选择的菜单不是公告（key='1'），则重置为公告菜单
+        if (!isLoggedIn && selectedKeys[0] !== '1') {
+            setSelectedKeys(['1']);
+            setSelectedLabel('全部公告');
+            // 重置页码
+            setPagesState(prev => ({
+                ...prev,
+                '1': 1
+            }));
+            // 重置为默认菜单数据
+            setMenuData(staticMenuData);
+        } else if (isLoggedIn) {
+            // 仅在登录状态变化时获取未读公告数量，而不是所有状态变化
+            fetchUnreadCount(true);
+        }
+    }, [isLoggedIn]); // 移除 selectedKeys 依赖，减少不必要的请求
+
+    // 仅在NavigationContext没有提供数据时才获取登录后的公告数据
+    useEffect(() => {
+        const fetchLoginedBulletinData = async () => {
+            // 仅当已登录且未从NavigationContext初始化过数据时才请求
+            if (isLoggedIn && !hasInitializedFromContext && (!bulletinData || bulletinData.length === 0)) {
+                // 检查是否正在加载或者短时间内已加载过
+                const now = Date.now();
+                if (
+                    apiRequestRef.current.bulletinLoading || 
+                    (now - apiRequestRef.current.lastBulletinTimestamp < 3000)
+                ) {
+                    return;
+                }
+
+                setIsLoading(true);
+                apiRequestRef.current.bulletinLoading = true;
+                apiRequestRef.current.lastBulletinTimestamp = now;
+
+                try {
+                    const lang = localStorage.getItem('lang') || 'zh_CN';
+                    const response = await getBulletinMessageLogined({ languageCode: lang }) as any;
+
+                    if (response?.code === '0' && response.data?.list && Array.isArray(response.data.list)) {
+                        // 转换API返回的数据格式为应用所需的格式
+                        const formattedData = response.data.list.map((item: {
+                            id: number;
+                            title: string;
+                            releaseTime: number;
+                            onTop: number;
+                            classMenu: number;
+                            isRead: boolean;
+                        }) => ({
+                            id: item.id.toString(),
+                            title: item.title,
+                            time: dayjs(item.releaseTime).format('YYYY-MM-DD HH:mm:ss'),
+                            isRead: item.isRead || false,
+                            // content会在点击查看详情时获取
+                        }));
+
+                        // 更新数据
+                        setLoginedMessageData({
+                            '1': formattedData
+                        });
+
+                        // 标记已读的消息
+                        const newReadIds = new Set(readMessageIds);
+                        formattedData.forEach((item: {
+                            id: string;
+                            title: string;
+                            time: string;
+                            isRead: boolean;
+                        }) => {
+                            if (item.isRead) {
+                                newReadIds.add(item.id);
+                            }
+                        });
+                        setReadMessageIds(newReadIds);
+
+                        // 更新筛选数据
+                        if (searchKeyword) {
+                            handleSearch(searchKeyword);
+                        } else {
+                            // 如果没有搜索关键词，则使用完整的数据
+                            setFilteredData({
+                                ...messageData,
+                                '1': formattedData
+                            });
+                        }
+
+                        // 获取未读公告数量，但不强制刷新
+                        fetchUnreadCount();
+                    }
+                } catch (error) {
+                    console.error('获取登录后公告数据失败:', error);
+                } finally {
+                    setIsLoading(false);
+                    apiRequestRef.current.bulletinLoading = false;
+                }
+            }
+        };
+
+        fetchLoginedBulletinData();
+    }, [isLoggedIn, hasInitializedFromContext, bulletinData]);
 
     // 创建一个通用的生成菜单项的函数
     const generateMenuItems = (
@@ -81,21 +286,32 @@ export default function BulletinCenter() {
             onMouseLeave: () => setHoveredKey(null),
         }));
     };
-    // 生成公告中心顶层菜单项
-    const items = generateMenuItems(menuData, selectedKeys);
+
+    // 根据登录状态筛选菜单项
+    const filteredMenuData = useMemo(() => {
+        if (isLoggedIn) {
+            // 已登录状态，显示所有菜单项
+            return menuData;
+        } else {
+            // 未登录状态，仅显示第一项（公告）
+            return [menuData[0]];
+        }
+    }, [isLoggedIn, menuData]);
+
+    // 生成公告中心顶层菜单项（根据登录状态过滤）
+    const items = generateMenuItems(filteredMenuData, selectedKeys);
     // 生成详情页菜单项
     const detailItems = generateMenuItems(detailMenuItems, detailSelectedKey);
 
     // 判断消息是否已读
     const isMessageRead = (messageId: string) => {
-        // return readMessageIds.has(messageId);
-
         // 只有公告菜单项的消息才判断已读状态
         if (selectedKeys[0] === '1') {
             return readMessageIds.has(messageId);
         }
         return false; // 其他菜单项始终返回 false，保持原有颜色
     };
+
     // 获取经过筛选和排序的消息列表：先按已读状态，再按时间排序
     const getFilteredAndSortedMessages = (messages: MessageData[]) => {
         if (selectedKeys[0] === '1') {
@@ -122,27 +338,25 @@ export default function BulletinCenter() {
         }
         return messages;
     };
-    // const currentMessages = useMemo(() => {
-    //     const currentKey = selectedKeys[0] || '1';
-    //     const messages = messageData[currentKey] || [];
 
-    //     // 先进行筛选和排序
-    //     const processedMessages = getFilteredAndSortedMessages(messages);
+    // 获取当前应该显示的消息数据源
+    const currentDataSource = useMemo(() => {
+        // 如果已登录并且选择了公告菜单（key='1'），使用从API获取的数据
+        if (isLoggedIn && selectedKeys[0] === '1') {
+            return {
+                ...filteredData,
+                '1': loginedMessageData['1']
+            };
+        }
+        // 其他情况使用静态数据
+        return filteredData;
+    }, [isLoggedIn, selectedKeys, filteredData, loginedMessageData]);
 
-    //     // 然后进行分页
-    //     const currentPage = getCurrentPage(currentKey);
-    //     const startIndex = (currentPage - 1) * pageSize;
-    //     const endIndex = startIndex + pageSize;
-
-    //     return {
-    //         data: processedMessages.slice(startIndex, endIndex),
-    //         total: processedMessages.length
-    //     };
-    // }, [selectedKeys, pagesState, messageData, showUnreadOnly, readMessageIds]);
+    // 获取当前应该显示的消息
     const currentMessages = useMemo(() => {
         const currentKey = selectedKeys[0] || '1';
-        // 使用过滤后的数据
-        const messages = filteredData[currentKey] || [];
+        // 使用当前数据源
+        const messages = currentDataSource[currentKey] || [];
 
         // 先进行筛选和排序
         const processedMessages = getFilteredAndSortedMessages(messages);
@@ -156,7 +370,7 @@ export default function BulletinCenter() {
             data: processedMessages.slice(startIndex, endIndex),
             total: processedMessages.length
         };
-    }, [selectedKeys, pagesState, filteredData, showUnreadOnly, readMessageIds]);
+    }, [selectedKeys, pagesState, currentDataSource, showUnreadOnly, readMessageIds, getCurrentPage]);
 
     // 处理页码变化
     const handlePageChange = (page: number) => {
@@ -166,8 +380,53 @@ export default function BulletinCenter() {
             [currentKey]: page
         }));
     };
+
+    // 获取公告详情 - 添加防抖和缓存
+    const fetchMessageDetail = useCallback(async (messageId: string) => {
+        if (!isLoggedIn || !messageId) return;
+
+        // 如果已经在加载中，则不重复请求
+        if (isLoading) return;
+        
+        setIsLoading(true);
+        try {
+            const lang = localStorage.getItem('lang') || 'zh_CN';
+            const response = await getBulletinDetailLogined({
+                languageCode: lang,
+                id: parseInt(messageId, 10) // 将字符串 ID 转换为数字
+            }) as any;
+
+            if (response?.code === '0' && response.data) {
+                setCurrentMessageContent(response.data.content || '');
+
+                // 更新当前消息对象，添加内容
+                if (currentMessage) {
+                    setCurrentMessage({
+                        ...currentMessage,
+                        content: response.data.content
+                    });
+                }
+
+                // 标记该消息为已读
+                setReadMessageIds(prev => new Set([...prev, messageId]));
+
+                // 仅在消息标记为已读后才更新未读计数
+                fetchUnreadCount(true);
+            }
+        } catch (error) {
+            console.error('获取公告详情失败:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isLoggedIn, isLoading, currentMessage, fetchUnreadCount]);
+
     // 处理菜单选择变化
     const handleMenuSelect = (info: { key: string }) => {
+        // 如果未登录且试图选择非公告菜单项，不执行操作
+        if (!isLoggedIn && info.key !== '1') {
+            return;
+        }
+
         setSelectedKeys([info.key]);
 
         if (showDetail) {
@@ -192,30 +451,47 @@ export default function BulletinCenter() {
             }
         }
     };
+
     // 点击查看详情
-    const handleMessageClick = (message: MessageData) => {
+    const handleMessageClick = useCallback((message: MessageData) => {
         if (selectedKeys[0] === '1') {
+            // 记录为已读
             setReadMessageIds(prev => new Set([...prev, message.id || '']));
+
+            // 保存当前状态
             setPreviousState({
                 selectedKeys: selectedKeys,
                 selectedLabel: selectedLabel
             });
+
+            // 设置当前消息并显示详情页
             setCurrentMessage(message);
             setShowDetail(true);
             setShowArticle(true);
             setDetailSelectedKey('latest');
             setSelectedLabel('公告中心');
+
+            // 获取消息详情内容 - 只有在消息没有内容时才请求
+            if (isLoggedIn && message.id && !message.content) {
+                fetchMessageDetail(message.id);
+            } else if (message.content) {
+                // 如果消息已有内容，直接设置
+                setCurrentMessageContent(message.content);
+            }
         }
-    };
+    }, [selectedKeys, selectedLabel, isLoggedIn, fetchMessageDetail]);
+
     // 处理返回公告列表页
     const handleBack = () => {
         setShowDetail(false);
+        setCurrentMessageContent('');
         // 恢复之前的状态
         if (previousState) {
             setSelectedKeys(previousState.selectedKeys);
             setSelectedLabel(previousState.selectedLabel);
         }
     };
+
     // 处理点击最新动态
     const handleLatestClick = () => {
         setDetailSelectedKey('latest'); // 设置为最新动态菜单项
@@ -233,14 +509,134 @@ export default function BulletinCenter() {
             [currentKey]: 1
         }));
     };
+
+    // 判断是否有未读消息
+    const hasUnreadMessages = useMemo(() => {
+        if (selectedKeys[0] === '1') {
+            // 如果是在公告菜单
+            if (isLoggedIn) {
+                // 登录状态下，检查未读数量或检查 loginedMessageData 是否包含未读消息
+                if (unreadCount > 0) {
+                    return true;
+                }
+                
+                // 未读数可能未更新，检查数据中是否有未读消息
+                return loginedMessageData['1'].some(message => !message.isRead);
+            } else {
+                // 未登录状态下，检查 readMessageIds 是否包含所有 messageData 的 ID
+                const messages = messageData['1'];
+                return messages.some(message => !readMessageIds.has(message.id || ''));
+            }
+        }
+        return false; // 不是公告菜单，没有未读消息
+    }, [selectedKeys, isLoggedIn, unreadCount, loginedMessageData, messageData, readMessageIds]);
+
+    // 当"只看未读"选项被选中且没有未读消息时，需要自动关闭该选项
+    useEffect(() => {
+        if (showUnreadOnly && !hasUnreadMessages) {
+            setShowUnreadOnly(false);
+        }
+    }, [hasUnreadMessages, showUnreadOnly]);
+
     // 全部已读处理
-    const handleReadAll = () => {
+    const handleReadAll = async () => {
+        // 如果没有未读消息，直接返回
+        if (!hasUnreadMessages) {
+            return;
+        }
+        
         if (currentMessages && selectedKeys[0] === '1') {
-            const newReadIds = new Set(readMessageIds);
-            messageData['1'].forEach(message => {
-                newReadIds.add(message.id || '');
-            });
-            setReadMessageIds(newReadIds);
+            if (isLoggedIn) {
+                // 登录状态下，调用API标记所有公告为已读
+                try {
+                    setIsLoading(true);
+                    
+                    // 获取所有公告ID
+                    const messageIds = loginedMessageData['1']
+                        .filter(item => !item.isRead) // 只获取未读消息的ID
+                        .map(item => parseInt(item.id || '0', 10)) // 将字符串ID转换为数字
+                        .filter(id => id > 0); // 过滤掉无效ID
+                    
+                    // 如果没有未读消息，则不需要调用API
+                    if (messageIds.length === 0) {
+                        setIsLoading(false);
+                        return;
+                    }
+                    
+                    // 调用批量已读API
+                    const response = await readBulletinMessageLogined({ ids: messageIds }) as any;
+                    
+                    if (response === true || (response?.code === '0')) {
+                        // 将所有消息标记为已读状态
+                        const updatedFormattedData = loginedMessageData['1'].map(item => ({
+                            ...item,
+                            isRead: true
+                        }));
+                        
+                        // 更新数据
+                        setLoginedMessageData({
+                            '1': updatedFormattedData
+                        });
+                        
+                        // 标记所有消息为已读
+                        const newReadIds = new Set(readMessageIds);
+                        updatedFormattedData.forEach(item => {
+                            if (item.id) {
+                                newReadIds.add(item.id);
+                            }
+                        });
+                        setReadMessageIds(newReadIds);
+                        
+                        // 更新筛选数据
+                        if (searchKeyword) {
+                            handleSearch(searchKeyword);
+                        } else {
+                            setFilteredData({
+                                ...messageData,
+                                '1': updatedFormattedData
+                            });
+                        }
+                        
+                        // 强制刷新未读公告数量
+                        fetchUnreadCount(true);
+                    }
+                } catch (error) {
+                    console.error('标记全部已读失败:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                // 未登录状态下，仅在本地标记已读
+                const newReadIds = new Set(readMessageIds);
+
+                // 使用当前数据源的消息
+                const messages = messageData['1'];
+                // 更新消息状态
+                const updatedMessages = messages.map(message => ({
+                    ...message,
+                    isRead: true
+                }));
+                
+                // 添加所有ID到已读集合
+                updatedMessages.forEach(message => {
+                    if (message.id) {
+                        newReadIds.add(message.id);
+                    }
+                });
+                
+                setReadMessageIds(newReadIds);
+                
+                // 更新筛选数据
+                if (searchKeyword) {
+                    handleSearch(searchKeyword);
+                } else {
+                    setFilteredData({
+                        ...filteredData,
+                        '1': updatedMessages
+                    });
+                }
+            }
+
             // 重置当前页码为1
             setPagesState(prev => ({
                 ...prev,
@@ -248,6 +644,7 @@ export default function BulletinCenter() {
             }));
         }
     };
+
     // 在渲染列表时使用筛选和排序后的数据
     const filteredAndSortedMessages = getFilteredAndSortedMessages(currentMessages.data);
 
@@ -257,14 +654,26 @@ export default function BulletinCenter() {
 
         if (!keyword.trim()) {
             // 如果搜索关键词为空，恢复原始数据
-            setFilteredData(messageData);
+            if (isLoggedIn) {
+                setFilteredData({
+                    ...messageData,
+                    '1': loginedMessageData['1']
+                });
+            } else {
+                setFilteredData(messageData);
+            }
             setFilteredDetailData(detailListData);
             return;
         }
 
+        // 确定要搜索的源数据
+        const sourceData = isLoggedIn ?
+            { ...messageData, '1': loginedMessageData['1'] } :
+            messageData;
+
         // 过滤消息数据
-        const newFilteredData = Object.keys(messageData).reduce((acc, key) => {
-            const filtered = messageData[key].filter(item =>
+        const newFilteredData = Object.keys(sourceData).reduce((acc, key) => {
+            const filtered = sourceData[key].filter(item =>
                 item.title.toLowerCase().includes(keyword.toLowerCase()) ||
                 (item.content && item.content.toLowerCase().includes(keyword.toLowerCase()))
             );
@@ -350,6 +759,8 @@ export default function BulletinCenter() {
                     onReadAll={handleReadAll}
                     onUnreadChange={handleUnreadChange}
                     onSearch={handleSearch}
+                    hasUnreadMessages={hasUnreadMessages}
+                    disableUnreadCheckbox={!hasUnreadMessages}
                 />
                 <div className={`${styles.bulletinContent} customMenu`}>
                     <Row justify='space-between' gutter={16}>
@@ -375,7 +786,10 @@ export default function BulletinCenter() {
                                     {showDetail && currentMessage ? (
                                         <Col flex={1}>
                                             <MessageItemDetail
-                                                message={currentMessage}
+                                                message={{
+                                                    ...currentMessage,
+                                                    content: currentMessageContent || currentMessage.content
+                                                }}
                                                 onBack={handleBack}
                                                 currentDetailLabel={selectedLabel === '公告中心' ? '最新动态' : selectedLabel} // 传递当前选中的标签
                                                 currentDetailKey={detailSelectedKey} // 传递当前选中的 key
@@ -385,7 +799,15 @@ export default function BulletinCenter() {
                                         </Col>
                                     ) : (
                                         <Col flex={1}>
-                                            {filteredAndSortedMessages.length > 0 ? (
+                                            {isLoading ? (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    padding: '40px 0'
+                                                }}>
+                                                    正在加载...
+                                                </div>
+                                            ) : filteredAndSortedMessages.length > 0 ? (
                                                 filteredAndSortedMessages.map((message) => (
                                                     <MessageItem
                                                         key={message.id}
@@ -419,6 +841,6 @@ export default function BulletinCenter() {
                     </Row>
                 </div>
             </div>
-        </ConfigProvider >
+        </ConfigProvider>
     );
 }
