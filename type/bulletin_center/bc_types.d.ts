@@ -32,4 +32,6 @@ export interface RenderBulletinTopProps {
     onReadAll?: () => void; // 添加全部已读处理函数
     onUnreadChange?: (checked: boolean) => void; // 添加未读筛选回调
     onSearch?: (value: string) => void; // 添加搜索处理函数
+    hasUnreadMessages?: boolean; // 是否有未读消息，用于禁用全部已读按钮
+    disableUnreadCheckbox?: boolean; // 是否禁用"只看未读"复选框
 }

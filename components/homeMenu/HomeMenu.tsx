@@ -2,7 +2,7 @@ import styles from '@/styles/components/HomeMenu.module.css';
 // import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
 // import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
 // import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
-import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, } from 'antd';
+import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, Badge } from 'antd';
 import { MenuProps } from 'antd';
 import MenuItem from './HomeMenuItems'; // 顶部菜单
 import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
@@ -22,6 +22,7 @@ import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引�
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 import { useLogoImage } from '@/hooks/useKv'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
+import { useThemeMode } from '@/hooks/useThemeMode'; // 导入 useThemeMode 获取当前主题状态
 import { getBulletinMessage } from '@/services/bulletinCenter';
 import ThemeIcon from './ThemeIcon';
 import { useNavigation } from '@/context/NavigationContext';
@@ -46,6 +47,7 @@ export default function HomeMenu() {
         languageList = [],
         rateData = [],
         currentLang = '',
+        unreadCount = 0,
         changeLanguage = () => { }
     } = useNavigation() || {};
 
@@ -54,6 +56,9 @@ export default function HomeMenu() {
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
+
+    // 获取主题状态
+    const { isDayMode } = useThemeMode();
 
     // 持久化菜单数据
     useEffect(() => {
@@ -95,7 +100,7 @@ export default function HomeMenu() {
             // 检查是否刚刚切换了语言
             const languageChanged = sessionStorage.getItem('languageChanged');
             if (languageChanged === 'true') {
-                console.log('检测到语言已切换，跳过使用缓存数据');
+                // console.log('检测到语言已切换，跳过使用缓存数据');
                 sessionStorage.removeItem('languageChanged'); // 清除标志
                 return {
                     cachedMenus: [],
@@ -147,7 +152,7 @@ export default function HomeMenu() {
         const checkLocalToken = () => {
             const token = localStorage.getItem('userToken');
             if (token && !isLogin) {
-                console.log('从本地存储检测到 token，设置登录状态为 true');
+                // console.log('从本地存储检测到 token，设置登录状态为 true');
                 setIsLogin(true);
             }
         };
@@ -168,7 +173,7 @@ export default function HomeMenu() {
 
     // 监听登录状态变化并打印日志
     useEffect(() => {
-        console.log('登录状态已更新:', isLogin);
+        // console.log('登录状态已更新:', isLogin);
     }, [isLogin]);
 
     // 切换语言
@@ -213,25 +218,49 @@ export default function HomeMenu() {
         {
             key: '1',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_coin_line.png" h5Text="我的资产" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_coin_line.png" 
+                        : "/images/home_menu/icon_coin_line_dark.png"} 
+                    h5Text="我的资产" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '2',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_deposit.png" h5Text="充币" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_deposit.png" 
+                        : "/images/home_menu/icon_deposit_dark.png"} 
+                    h5Text="充币" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '3',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_cash.png" h5Text="提币" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_cash.png" 
+                        : "/images/home_menu/icon_cash_dark.png"} 
+                    h5Text="提币" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '4',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_bill_line.png" h5Text="账单明细" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_bill_line.png" 
+                        : "/images/home_menu/icon_bill_line_dark.png"} 
+                    h5Text="账单明细" 
+                    spanText="" 
+                />
             ),
         }
     ];
@@ -285,76 +314,122 @@ export default function HomeMenu() {
             key: '1',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_layout_line.png' h5Text="总览"
-                onClick={()=>{
-                    router.push('/userCenter')
-                }} />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_layout_line.png' 
+                        : '/images/home_menu/icon_layout_line_dark.png'} 
+                    h5Text="总览"
+                    onClick={()=>{
+                        router.push('/userCenter')
+                    }} 
+                />
             ),
         },
         {
             key: '2',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_user.png' h5Text="个人中心" 
-                onClick={()=>{
-                    router.push('/userCenter/userSettings')
-                }}/>
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_user.png' 
+                        : '/images/home_menu/icon_user_dark.png'} 
+                    h5Text="个人中心" 
+                    onClick={()=>{
+                        router.push('/userCenter/userSettings')
+                    }}
+                />
             ),
         },
         {
             key: '3',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_safety_certificate_line.png' h5Text="安全中心"  onClick={()=>{
-                    router.push('/userCenter/safeCenter')
-                }}/>
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_safety_certificate_line.png' 
+                        : '/images/home_menu/icon_safety_certificate_line_dark.png'} 
+                    h5Text="安全中心" 
+                    onClick={()=>{
+                        router.push('/userCenter/safeCenter')
+                    }}
+                />
             ),
         },
         {
             key: '4',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_IDcard_line.png' h5Text="身份认证" 
-                onClick={()=>{
-                    router.push('/userCenter/identity')
-                }}/>
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_IDcard_line.png' 
+                        : '/images/home_menu/icon_IDcard_line_dark.png'} 
+                    h5Text="身份认证" 
+                    onClick={()=>{
+                        router.push('/userCenter/identity')
+                    }}
+                />
             ),
         },
-        {
-            key: '5',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_world.png' h5Text="国家/地区" />
-            ),
-        },
-        {
-            key: '6',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_settings.png' h5Text="偏好设置" />
-            ),
-        },
-        {
-            key: '7',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_sub-account.png' h5Text="子账户" />
-            ),
-        },
-        {
-            key: '8',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_API.png' h5Text="API" />
-            ),
-        },
-        {
-            key: '9',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_Third party authorization.png' h5Text="第三方授权管理" />
-            ),
-        },
+        // {
+        //     key: '5',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_world.png' 
+        //                 : '/images/home_menu/icon_world_dark.png'} 
+        //             h5Text="国家/地区" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '6',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_settings.png' 
+        //                 : '/images/home_menu/icon_settings_dark.png'} 
+        //             h5Text="偏好设置" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '7',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_sub-account.png' 
+        //                 : '/images/home_menu/icon_sub-account_dark.png'} 
+        //             h5Text="子账户" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '8',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_API.png' 
+        //                 : '/images/home_menu/icon_API_dark.png'} 
+        //             h5Text="API" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '9',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_Third party authorization.png' 
+        //                 : '/images/home_menu/icon_Third party authorization_dark.png'} 
+        //             h5Text="第三方授权管理" 
+        //         />
+        //     ),
+        // },
         {
             key: '10',
             type: 'divider',
@@ -364,7 +439,14 @@ export default function HomeMenu() {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClick={() => handleLogout()} />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_exit.png' 
+                        // : '/images/home_menu/icon_exit_dark.png'} 
+                        : '/images/home_menu/icon_exit.png'} 
+                    h5Text="退出登录" 
+                    onClick={() => handleLogout()} 
+                />
             ),
         },
     ];
@@ -474,7 +556,7 @@ export default function HomeMenu() {
 
         try {
             // 强制清除所有缓存 - 使用更彻底的方式
-            console.log('开始清除缓存数据...');
+            // console.log('开始清除缓存数据...');
             
             // 方法1: 直接删除指定的缓存项
             const keysToRemove = [
@@ -487,7 +569,7 @@ export default function HomeMenu() {
             
             keysToRemove.forEach(key => {
                 localStorage.removeItem(key);
-                console.log(`已删除缓存: ${key}`);
+                // console.log(`已删除缓存: ${key}`);
             });
             
             // 方法2: 添加时间戳使缓存失效
@@ -497,11 +579,11 @@ export default function HomeMenu() {
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('cached')) {
                     localStorage.removeItem(key);
-                    console.log(`已删除额外缓存: ${key}`);
+                    // console.log(`已删除额外缓存: ${key}`);
                 }
             });
             
-            console.log('缓存清除完成');
+            // console.log('缓存清除完成');
         } catch (error) {
             console.error('清除缓存时出错:', error);
         }
@@ -510,7 +592,7 @@ export default function HomeMenu() {
         if (typeof i18n.changeLanguage === 'function') {
             i18n.changeLanguage(langEncode.split('-')[0]);
         } else {
-            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
+            // console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
             // 使用替代方法
             localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
         }
@@ -530,7 +612,7 @@ export default function HomeMenu() {
         window.dispatchEvent(event);
 
         // 添加调试信息
-        console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}, 数据缓存已清除`);
+        // console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}, 数据缓存已清除`);
 
         // 使用硬刷新确保语言切换生效并保持路径
         const currentPath = router.asPath;
@@ -701,7 +783,11 @@ export default function HomeMenu() {
     const iconMenusLogin = useMemo(() => [
         {
             key: '1',
-            title: <IconHtml icon="img_horn" />,
+            title: (
+                <Badge count={isLoggedIn ? unreadCount : 0} size="small" offset={[2, -4]}>
+                    <IconHtml icon="img_horn" />
+                </Badge>
+            ),
             widthSet: 'bell',
             items: [
                 {
@@ -894,6 +980,7 @@ export default function HomeMenu() {
                     Menu: {
                         itemBg: 'var(--background-menu)',
                         itemColor: 'var(--text-color5)',
+                        colorSplit: 'var(--border-color4)'
                     },
                     Input: {
                         inputFontSize: 12,
@@ -1067,6 +1154,7 @@ export default function HomeMenu() {
                                                         placement="bottomLeft"
                                                         trigger={['click']}
                                                         overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                        overlayClassName='customUserAllMenu'
                                                     >
                                                         <Space>
                                                             <Image
