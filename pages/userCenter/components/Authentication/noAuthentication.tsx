@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 // import { identityInfoType } from '@/config/apiConfig';
 import { getBenefitValue } from '@/utils/encrypt';
-
+import { Skeleton } from 'antd';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;

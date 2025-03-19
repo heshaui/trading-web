@@ -61,6 +61,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
     const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
     const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -337,21 +339,31 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     };
     // 过滤输入，只允许数字和字母
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
         const { value } = e.target;
         // 只保留数字和字母
         const filteredValue = value.replace(/[^0-9]/g, '');
-        setEmailCodeInputValue(filteredValue);
-        form.setFieldsValue({ code: filteredValue });
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
     };
      // 过滤输入，只允许数字和字母
-     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        // 只保留数字和字母
-        const filteredValue = value.replace(/[^0-9]/g, '');
-        setPhoneCodeInputValue(filteredValue);
-        form.setFieldsValue({ phoneCode: filteredValue });
-    };
+    //  const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { value } = e.target;
+    //     // 只保留数字和字母
+    //     const filteredValue = value.replace(/[^0-9]/g, '');
+    //     setPhoneCodeInputValue(filteredValue);
+    //     form.setFieldsValue({ phoneCode: filteredValue });
+    // };
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -459,7 +471,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
-                                onChange={handleInputChange}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
                                 value={emailCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
@@ -473,6 +486,9 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                             粘贴
                                         </button>
                                     }
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
@@ -496,7 +512,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
-                                    onChange={handleInputChange2}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
                                     value={phoneCodeInputValue}
                                 />
                             </Form.Item>

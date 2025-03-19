@@ -41,12 +41,12 @@
 }
 
 .tip_box{
-    width: 78px;
+    min-width: 68px;
     border: 1px solid var(--btncolor5);
     color: var(--btncolor5);
     background-color: var(--bgc-color);
     border-radius: 4px;
-    padding: 2px 6px;
+    padding: 2px 4px;
     box-sizing: border-box;
 }
 /* .table_box{

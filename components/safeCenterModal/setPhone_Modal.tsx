@@ -47,6 +47,8 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
     const [loading, setLoading] = useState(false); // 按钮loading
     const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
     const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
 
     const [form] = Form.useForm();
 
@@ -195,12 +197,20 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
         return () => clearInterval(timer);
     };
        // 过滤输入，只允许数字和字母
-       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
         const { value } = e.target;
         // 只保留数字和字母
         const filteredValue = value.replace(/[^0-9]/g, '');
-        setEmailCodeInputValue(filteredValue);
-        form.setFieldsValue({ emailCode: filteredValue });
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
     };
      // 过滤输入，只允许数字和字母
      const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,7 +321,8 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
-                                onChange={handleInputChange2}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
                                     value={phoneCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
@@ -319,7 +330,12 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                         {( type === 'set'&&acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
                             <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
-                                <Input placeholder="请输入谷歌验证码" allowClear={true} className={`${styles.input_box} modal-input`} />
+                                <Input placeholder="请输入谷歌验证码" allowClear={true} 
+                                className={`${styles.input_box} modal-input`} 
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                value={googleCodeInputValue}
+                                />
                             </Form.Item>
                         </>}
                         {( type === 'set'&&acountInfo?.email&& !acountInfo?.googleCode) && <>
@@ -341,7 +357,8 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
-                                    onChange={handleInputChange}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
                                     value={emailCodeInputValue}
                                 />
                             </Form.Item>

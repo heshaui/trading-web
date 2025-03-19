@@ -52,6 +52,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [loading, setLoading] = useState(false); // 按钮loading
     const [qrCodeLoading, setQrCodeLoading] = useState('loading');// 二维码loading
     const [current, setCurrent] = useState(0);
+    const [codeInputValue, setCodeInputValue] = useState('');
     const [secretKey, setSecretKey] = useState({
         secretKey: '',
         codeUri: ''
@@ -77,7 +78,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 setLoading(true)
                 try {
                     const params = {
-                        code: values.googleCode || ''
+                        googleCode: values.googleCode || ''
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await bindGoogle(dataEncrypt)
@@ -98,6 +99,14 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             })
 
     };
+        // 过滤输入，只允许数字和字母
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            // 只保留数字和字母
+            const filteredValue = value.replace(/[^0-9]/g, '');
+            setCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        };
 
     const getGoogleKeyData = async () => {
         try {
@@ -179,7 +188,11 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         <Form.Item name="googleCode" rules={[{ required: true, message: '请输入谷歌验证码' }]}>
                             <Input placeholder="请输入谷歌验证码"
                                 style={{width:'90%'}}
-                                className={`${styles.authcode_input} ${styles.input_box} modal-input2`} />
+                                className={`${styles.authcode_input} ${styles.input_box} modal-input2`} 
+                                maxLength={6}
+                                value={codeInputValue}
+                                onChange={handleInputChange}
+                                />
                         </Form.Item>
                     </Form>
                 </ConfigProvider>

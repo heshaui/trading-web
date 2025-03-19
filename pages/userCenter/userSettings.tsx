@@ -10,6 +10,7 @@ import NeckNameModal from '@/components/userCenterModal/nickname_Modal';
 import AvatarUrlModal from "@/components/userCenterModal/avatarUrl_Modal";
 import BirthdayModal from "@/components/userCenterModal/birthday_Modal";
 import dayjs from 'dayjs';
+import { Skeleton } from 'antd'
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -36,6 +37,7 @@ interface UserCenterData {
 }
 
 const UserSettingsPage: React.FC = () => {
+  const [loadingSkeleton, setLoadingSkeleton] = useState(true)
   const userInfoList: SafeListItem[] = [
     {
       title: "昵称",
@@ -94,29 +96,30 @@ const UserSettingsPage: React.FC = () => {
   ]
   const [userCenterData, setUserCenterData] = useState<SafeListItem[]>(userInfoList);
   const [userInfo, setUserInfo] = useState({
-    userId:0,
+    userId: 0,
     nickname: "",
     avatarUrl: "",
     birthday: "",
   });
   const [necknameOpen, setNecknameOpen] = useState(false);
-  const [avatarUrlOpen,setAvatarUrlOpen]=useState(false);
-  const [birthdayOpen,setBirthdayOpen]=useState(false);
+  const [avatarUrlOpen, setAvatarUrlOpen] = useState(false);
+  const [birthdayOpen, setBirthdayOpen] = useState(false);
   // const [withdrawData, setWithdrawData] = useState<SafeListItem[]>(withdrawList);
   const getUserCenterData = async () => {
     try {
       const res = await getUserCenter();
       const { code, data } = res;
       if (code === '0') {
+        setLoadingSkeleton(false)
         setUserInfo(data);
         // 遍历 userInfoList
         const updatedUserInfoList = userInfoList.map(item => {
           if (data.hasOwnProperty(item.type)) {
-            if(item.type === 'birthday'){
+            if (item.type === 'birthday') {
               const value = data[item.type];
               return {
                 ...item,
-                bindValue: value?dayjs(value).format('YYYY/MM/DD'):'',
+                bindValue: value ? dayjs(value).format('YYYY/MM/DD') : '',
                 isBind: Boolean(value),
               };
             }
@@ -139,12 +142,12 @@ const UserSettingsPage: React.FC = () => {
   };
   const handOk = async (bool: boolean) => {
     console.log(bool);
-    
+
     // if (bool) {
-      await getUserCenterData();
+    await getUserCenterData();
     // }
   }
- 
+
   useEffect(() => {
     getUserCenterData();
   }, [])
@@ -154,64 +157,74 @@ const UserSettingsPage: React.FC = () => {
     </div>
     {/* userInfo box*/}
     <div className={`${styles.card_bgc} mt-6 `}>
-      <ul className={`${styles.content_ul}`} >
+      {/* {loadingSkeleton ? <div className={`px-6 `}>
         {userCenterData.map((item: SafeListItem) => (
-          <li className={`flex-row align-center justify-between px-4`} key={item.type}>
-            {/* 绑定类型 bind type*/}
-            <div className={`flex-row align-center`}>
-              <Image src={item.icon}
-                alt="safe_device" width={28} height={28}
-                className={`${styles.svgIcon}`}
-              />
-              <p className='flex-y font-16 font-w-500'>
-                {item.title}
-                <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
-                  {item.desc}
-                </span>
-              </p>
+          <Skeleton active key={item.type} />
+        ))}
+      </div> : */}
+        <ul className={`${styles.content_ul}`} >
+          {userCenterData.map((item: SafeListItem) => (
+        <Skeleton active title={false} loading={loadingSkeleton} key={item.type} className='px-6 py-6'>
 
-            </div>
-            {/* 绑定状态 bind status*/}
-            <div className={`flex-row align-center justify-between ${styles.log_box}`}>
+            <li className={`flex-row align-center justify-between px-4`} key={item.type}>
+              {/* 绑定类型 bind type*/}
+              <div className={`flex-row align-center`}>
+                <Image src={item.icon}
+                  alt="safe_device" width={28} height={28}
+                  className={`${styles.svgIcon}`}
+                />
+                <p className='flex-y font-16 font-w-500'>
+                  {item.title}
+                  <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
+                    {item.desc}
+                  </span>
+                </p>
 
-              <div className='flex-y font-16 font-w-500'>
+              </div>
+              {/* 绑定状态 bind status*/}
+              <div className={`flex-row align-center justify-between ${styles.log_box}`}>
 
-                <div className={`flex-row align-center`}>
-                  {/* <Image src="/images/userCenter/safe/check.svg"
+                <div className='flex-y font-16 font-w-500'>
+
+                  <div className={`flex-row align-center`}>
+                    {/* <Image src="/images/userCenter/safe/check.svg"
                     alt="safe_device" width={20} height={20}
                     className={`${styles.svgIcon}`}
                   /> */}
-                  {item.type === "avatarUrl" ?
-                    item.isBind ?
-                      <Image src={item.bindValue} className={styles.avatar_icon} alt="avatar" width={20} height={20} />
-                      :
-                      <Iconify icon="teenyicons:user-circle-outline" className={styles.avatar_icon}/>
+                    {item.type === "avatarUrl" ?
+                      item.isBind ?
+                        <Image src={item.bindValue} className={styles.avatar_icon} alt="avatar" width={20} height={20} />
+                        :
+                        <Iconify icon="teenyicons:user-circle-outline" className={styles.avatar_icon} />
                       // <Image src="/images/userCenter/userSettings/icon_user.svg" alt="avatar"
                       //   className={styles.avatar_icon}  width={20} height={20} />
-                    :
-                    <span>{item.bindValue||'-'}</span>
-                  }
+                      :
+                      <span>{item.bindValue || '-'}</span>
+                    }
+
+                  </div>
+
 
                 </div>
+                {/* 按钮 button */}
+                <div className={`flex-row align-center justify-end flex-1`}>
 
+                  {item.bindBtn?.map((btn: ButtonConfig, index: number) => (
+                    <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
+                  ))}
+                  {item.type === "birthday" && !item.isBind && item.noBindBtn?.map((btn: ButtonConfig, index: number) => (
+                    <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
+                  ))}
 
+                </div>
               </div>
-              {/* 按钮 button */}
-              <div className={`flex-row align-center justify-end flex-1`}>
 
-                {item.bindBtn?.map((btn: ButtonConfig, index: number) => (
-                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
-                ))}
-                {item.type === "birthday" && !item.isBind && item.noBindBtn?.map((btn: ButtonConfig, index: number) => (
-                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index} onClick={btn.onok}>{btn.title}</button>
-                ))}
+            </li>
+            </Skeleton>
 
-              </div>
-            </div>
-
-          </li>
-        ))}
-      </ul>
+          ))}
+        </ul>
+      {/* } */}
 
     </div>
     {/* withdraw box*/}
@@ -282,9 +295,9 @@ const UserSettingsPage: React.FC = () => {
 
     {/* 修改生日 */}
     <BirthdayModal open={birthdayOpen} userId={userInfo.userId}
-      onCancel={() => setBirthdayOpen(false)} 
+      onCancel={() => setBirthdayOpen(false)}
       onOk={handOk}
-      />
+    />
 
   </div>);
 };

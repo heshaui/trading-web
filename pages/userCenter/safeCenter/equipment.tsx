@@ -68,7 +68,9 @@ function Equipment() {
             key: "deviceNo",
             width: 158,
             render:  (text, record) => {
-                return (<div className='flex-row align-start '>{`${text} (${record.platformType || '--'})`}
+                return (<div className='flex-row align-start '>
+                    <span>{`${text} (${record.platformType || '--'})`}
+                    </span>
                     <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
                         : "icon-park-solid:down-one"}
                         style={{ color: "#FF5F1F" }}
@@ -76,6 +78,7 @@ function Equipment() {
                     size={20}
                 />
                 {fingerprint === record.fingerprinting && <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>当前设备</p>}
+                 {/* <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>当前设备</p> */}
             </div>)},
         },
         {

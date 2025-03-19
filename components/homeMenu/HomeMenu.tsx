@@ -687,7 +687,7 @@ export default function HomeMenu() {
     // 根据登录状态创建不同的Tabs内容
     const loginAwareBulletinItems = useMemo(() => {
         // 添加调试日志
-        console.log('重新计算标签内容，当前登录状态:', isLogin);
+        // console.log('重新计算标签内容，当前登录状态:', isLogin);
         
         // 如果已登录，返回所有标签页；否则只返回公告标签页
         if (isLogin) {

@@ -29,6 +29,7 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
   const [showLengthCheck, setShowLengthCheck] = useState(false);
   const [showCharCheck, setShowCharCheck] = useState(false);
 
+
   const [form] = Form.useForm();
 
   const handCancel = () => {
@@ -200,7 +201,7 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
     >
       <Modal
         open={open}
-        title={<p className={`${styles.title}`} >修改密码</p>}
+        title={<p className={`${styles.title}`} >{type==='5'?'设置密码':'修改密码'}</p>}
         centered
         onCancel={handCancel}
         footer={ModalFooter}

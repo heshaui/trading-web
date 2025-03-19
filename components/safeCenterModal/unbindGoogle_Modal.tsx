@@ -57,9 +57,11 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
     const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
     const [questionModalOpen, setQuestionModalOpen] = useState(false);
     const [form] = Form.useForm();
-    console.log(acountInfo, 123);
+    // console.log(acountInfo, 123);
 
     const handCancel = () => {
         form.resetFields();
@@ -199,21 +201,22 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setQuestionModalOpen(false)
     }
     // 过滤输入，只允许数字和字母
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
         const { value } = e.target;
         // 只保留数字和字母
         const filteredValue = value.replace(/[^0-9]/g, '');
-        setEmailCodeInputValue(filteredValue);
-        form.setFieldsValue({ emailCode: filteredValue });
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
     };
-     // 过滤输入，只允许数字和字母
-     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        // 只保留数字和字母
-        const filteredValue = value.replace(/[^0-9]/g, '');
-        setPhoneCodeInputValue(filteredValue);
-        form.setFieldsValue({ phoneCode: filteredValue });
-    };
+
 
     const handlePaste = async () => {
         try {
@@ -341,7 +344,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
-                                    onChange={handleInputChange}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
                                     value={emailCodeInputValue}
                                 />
                                 {/* <button className='text-color mt-1'>粘贴</button> */}
@@ -368,7 +371,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
-                                    onChange={handleInputChange2}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
                                     value={phoneCodeInputValue}
                                 />
                             </Form.Item>
@@ -385,6 +388,9 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                         粘贴
                                     </button>
                                 }
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                value={googleCodeInputValue}
                             />
                         </Form.Item>
                     </Form>
