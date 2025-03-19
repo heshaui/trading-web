@@ -324,7 +324,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                                 <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
 
                             </div>
-                            <div className={`font-16 font-w-500 ${styles.title_color}`}>证件反面</div>
+                            <div className={`font-16 font-w-500 ${styles.title_color}`}>手持证件照</div>
                         </div>
                         {/* )} */}
                     </Upload>

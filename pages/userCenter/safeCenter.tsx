@@ -119,6 +119,11 @@ const SafeCenter: React.FC = () => {
                     setCheckType('4')
                 },
                 key: 'close'
+            },
+            {
+                title: "已启用",
+                onok: () => {},
+                key: 'open'
             }
             ],
             noBindBtn: [{
@@ -384,12 +389,15 @@ const SafeCenter: React.FC = () => {
                 const securityMethodsCount = checkMethodsCount(data);
                 const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
                     if (data.hasOwnProperty(item.type)) {
+                        // 判断是否有足够的安全验证方式允许解绑
+                        // 只有当安全验证方式数量大于2时才允许解绑
+                        const canUnbind = securityMethodsCount > 2;
                         if (item.type === 'googleCode') {
                             const value = data[item.type];
                             // 如果只有一种安全验证方式，且当前是googleCode，则过滤掉close按钮
-                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                            const filteredBindBtn = !canUnbind ?
                                 item.bindBtn.filter(btn => btn.key !== 'close') :
-                                item.bindBtn;
+                                item.bindBtn.filter(btn =>  btn.key !== 'open');
                             return {
                                 ...item,
                                 bindValue: '启用',
@@ -407,8 +415,8 @@ const SafeCenter: React.FC = () => {
                         }
                         if (item.type === 'phone' || item.type === 'email') {
                             const value = data[item.type];
-                            // 如果只有一种安全验证方式，且当前是phone或email，则过滤掉close按钮
-                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                            // 如果只有2种安全验证方式，且当前是phone或email，则过滤掉close按钮
+                            const filteredBindBtn = !canUnbind ?
                                 item.bindBtn.filter(btn => btn.key !== 'close') :
                                 item.bindBtn;
                             return {
