@@ -94,7 +94,7 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                     const dataEncrypt = await encryptData(params)
                     const res = await bindPhone(dataEncrypt)
                     if (res.code === '0') {
-                        toast.success(res.data)
+                        toast.success(res.message)
                         handCancel()
                     } else {
                         toast.error(res.message)
