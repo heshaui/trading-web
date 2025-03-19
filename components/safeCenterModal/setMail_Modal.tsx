@@ -25,6 +25,7 @@ interface SafeDataType {
     recentIp?: string;
     userId?: string;
     type?: string;
+    areaCode?: string;
 }
 type Props = {
     open: boolean;
@@ -72,21 +73,24 @@ function SetPhoneModal({ open, onCancel, type, acountInfo }: Props) {
                     if (type === 'set') {
                         params = {
                             isPhoneAuth: 1,
-                            email: values.email,
+                            newEmail: values.email,
                             code: values.code || '',
                             googleCode: values.googleCode || '',
                             userId: userInfo.userId || '',
                             phoneCode: values.phoneCode || '',
+                            countryCode: values.phoneCode?acountInfo?.areaCode?.replace("+", ""): '',
+                            phone: values.phoneCode?acountInfo?.phone: '',
                             type: 2
                         }
 
                     } else if (type === 'change') {
                         params = {
                             phoneStatus: 1,
-                            email: values.email,
+                            newEmail: values.email,
                             code: values.code || '',
                             userId: userInfo.userId || '',
-                            phoneCode: values.phoneCode || '',
+                            // phoneCode: values.phoneCode || '',
+                            // countryCode: values.areaCode.replace("+", ""),
                             type: 1
                         }
 

@@ -375,7 +375,9 @@ const OverviewPage: React.FC = () => {
                                         </span>
                                     </p>
                                     <p className='font-14 font-w-500 flex-col align-end'>
-                                        <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
+                                        <span className={`font-w-500 ${styles.warning_color} pointer`}
+                                        onClick={() => router.push(`/userCenter/safeCenter/equipment?deviceId=${item.id}`)}
+                                        >管理</span>
                                         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
                                             {/* 223.168.123.111 */}
                                             {item.ip || '--'}

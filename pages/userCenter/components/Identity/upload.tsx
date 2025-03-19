@@ -56,7 +56,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
 
 
     const beforeUpload = (file: File) => {
-        const allowedTypes = ['image/jpg', 'image/png', 'image/gif']
+        const allowedTypes = ['image/jpg','image/jpeg', 'image/png', 'image/gif']
         const isPNG = allowedTypes.includes(file.type);
         if (!isPNG) {
             toast.error(`${file.name} 不是正确的图片格式！`);

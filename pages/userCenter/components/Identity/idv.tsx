@@ -71,6 +71,10 @@ function ResetPassword({ onNext }: IDVProps) {
     // const goNext = () => {
     //     router.push('/login');
     // }
+   // 保存表单数据到localStorage
+   const saveFormData = (values: any) => {
+    sessionStorage.setItem('idvFormData', JSON.stringify(values));
+};
 
     const onSubmit = () => {
         form
@@ -81,12 +85,27 @@ function ResetPassword({ onNext }: IDVProps) {
                     ...values,
                     birthday: dayjs(values.birthday).format('YYYY-MM-DD')
                 }
+                saveFormData(param)
                 onNext(param)
             })
             .catch((info) => {
                 console.log("Validate Failed:", info);
             });
     }
+      // 从localStorage加载表单数据
+      const loadFormData = () => {
+        const savedData = sessionStorage.getItem('idvFormData');
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            // 如果有生日字段，需要转换为dayjs对象
+            if (parsedData.birthday) {
+                parsedData.birthday = dayjs(parsedData.birthday);
+            }
+            form.setFieldsValue(parsedData);
+            // 检查表单是否完整，更新下一步按钮状态
+            setIsNext(checkFormComplete(parsedData));
+        }
+    };
     const onValuesChange = (changedValues: any, allValues: any) => {
         // console.log(changedValues);
         const isFormComplete = checkFormComplete(allValues);
@@ -114,6 +133,7 @@ function ResetPassword({ onNext }: IDVProps) {
 
     useEffect(() => {
         getCountryCodeData();
+        loadFormData();
     }, [])
 
     return (
@@ -172,7 +192,7 @@ function ResetPassword({ onNext }: IDVProps) {
                             <Select allowClear
                                 placeholder="请选择"
                                 options={countryData}
-                                className={`custom-sleect`}
+                                className={`custom-select`}
                             />
                         </Form.Item>
                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>证件类型</div>
@@ -180,7 +200,7 @@ function ResetPassword({ onNext }: IDVProps) {
                             <Select allowClear
                                 placeholder="请选择"
                                 options={cardTypeSeelect}
-                                className={`custom-sleect`}
+                                className={`custom-select`}
                             />
                         </Form.Item>
                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>证件号码</div>

@@ -306,7 +306,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     <div className="flex-col flex-ai-center">
-                        <Image src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
+                        <Image src="/images/login/change_google.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
 
                         <p className={`${styles.msg_color}`}>确定解绑谷歌验证？</p>
                         <div className={`mb-6 mt-7 ${styles.warning_box} font-12 font-w-400`} >
