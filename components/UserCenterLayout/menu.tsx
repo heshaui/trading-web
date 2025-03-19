@@ -12,6 +12,8 @@ type MenuItem = Required<MenuProps>['items'][number];
 const UserCenterSidebar = () => {
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
+    // 添加一个状态来记录是否已经初始化了collapsed状态
+    const [initialized, setInitialized] = useState(false);
     const items: MenuItem[] = [
         {
             key: '/userCenter',
@@ -68,13 +70,31 @@ const UserCenterSidebar = () => {
         const currentPath = router.pathname;
         // console.log(currentPath,1234);
 
+        // if (path === '/userCenter') {
+        //     router.push(path);
+        // } else if (currentPath === path || currentPath.startsWith(path)) {
+        //     // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
+        //     return;
+        // }
+        // router.push(path);
+        // 特殊处理根路径 /userCenter
         if (path === '/userCenter') {
-            router.push(path);
-        } else if (currentPath === path || currentPath.startsWith(path)) {
+            // 只有当当前不在 /userCenter 精确路径时才跳转
+            if (currentPath !== '/userCenter') {
+                router.push(path, undefined, { shallow: true })
+                    .catch(err => console.error('Navigation failed:', err));
+            }
+            return;
+        }
+        // 处理其他路径
+        if (currentPath === path || currentPath.startsWith(path + '/')) {
             // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
             return;
         }
-        router.push(path);
+
+        // 使用 router.push 的回调确保导航完成
+        router.push(path, undefined, { shallow: true })
+            .catch(err => console.error('Navigation failed:', err));
     };
     // 使用 useCallback 来记忆防抖函数
     const debouncedCheckWidth = useCallback(
@@ -86,7 +106,12 @@ const UserCenterSidebar = () => {
 
     useEffect(() => {
         // 初始检查
-        debouncedCheckWidth();
+        // debouncedCheckWidth();
+        // 初始检查 - 只在组件首次加载时设置一次
+        if (!initialized) {
+            setCollapsed(window.innerWidth < 1208);
+            setInitialized(true);
+        }
 
         // 添加监听器
         window.addEventListener('resize', debouncedCheckWidth);
@@ -96,7 +121,12 @@ const UserCenterSidebar = () => {
             window.removeEventListener('resize', debouncedCheckWidth);
             debouncedCheckWidth.cancel();  // 取消未执行的防抖函数
         };
-    }, [debouncedCheckWidth]);
+    }, [debouncedCheckWidth, initialized]);
+    // 添加一个新的useEffect来处理路由变化，但不改变collapsed状态
+    useEffect(() => {
+        // 路由变化时不重置collapsed状态
+    }, [router.pathname]);
+
     return (<>
         {/* <nav className="sidebar">
             <ul>

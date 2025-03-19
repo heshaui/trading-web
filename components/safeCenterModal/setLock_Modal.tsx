@@ -19,7 +19,7 @@ type Props = {
   type: string;
 };
 
-function LockModal({ open, onCancel, type ,onOk}: Props) {
+function LockModal({ open, onCancel, type, onOk }: Props) {
   // const router = useRouter();
   const [verifyPasswordVisible, setverifyPasswordVisible] = useState(false);
 
@@ -33,6 +33,10 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
   const [form] = Form.useForm();
 
   const handCancel = () => {
+    setShowLengthCheck(false);
+    setShowCharCheck(false);
+    setLengthValid(false);
+    setCharValid(false);
     form.resetFields();
     onCancel()
   };
@@ -57,7 +61,7 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
         } catch (error) {
           toast.error(String(error))
         }
-      
+
       });
   };
 
@@ -128,16 +132,16 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
       }, 1000);
     }
   };
-  // 重置状态
-  useEffect(() => {
-    if (!open) {
-      setShowLengthCheck(false);
-      setShowCharCheck(false);
-      setLengthValid(false);
-      setCharValid(false);
-      form.resetFields();
-    }
-  }, [open, form]);
+  // // 重置状态
+  // useEffect(() => {
+  //   if (!open) {
+  //     setShowLengthCheck(false);
+  //     setShowCharCheck(false);
+  //     setLengthValid(false);
+  //     setCharValid(false);
+  //     form.resetFields();
+  //   }
+  // }, [open, form]);
   const ModalFooter: ModalProps["footer"] = () => {
 
     return (
@@ -201,7 +205,7 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
     >
       <Modal
         open={open}
-        title={<p className={`${styles.title}`} >{type==='5'?'设置密码':'修改密码'}</p>}
+        title={<p className={`${styles.title}`} >{type === '5' ? '设置密码' : '修改密码'}</p>}
         centered
         onCancel={handCancel}
         footer={ModalFooter}
@@ -227,36 +231,36 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
                 placeholder="请输入新密码"
                 allowClear={true}
                 className={`${styles.input_box} modal-input `}
-              onChange={handlePasswordChange} 
+                onChange={handlePasswordChange}
               />
             </Form.Item>
             <div className={`mt-1`}>
-                {showLengthCheck && (
-                  <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
-                    <Iconify
-                      icon="iconoir:check-circle-solid"
-                      size={16}
-                      className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
-                    />
-                    8-100个字符
-                  </div>
-                )}
+              {showLengthCheck && (
+                <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
+                  <Iconify
+                    icon="iconoir:check-circle-solid"
+                    size={16}
+                    className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
+                  />
+                  8-100个字符
+                </div>
+              )}
 
-                {showCharCheck && (
-                  <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
-                    <Iconify
-                      icon="iconoir:check-circle-solid"
-                      size={16}
-                      className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
-                    />
-                    至少一个数字和一个大写字母
-                  </div>
-                )}
-                {/* <div className="font-12 font-w-400">
+              {showCharCheck && (
+                <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+                  <Iconify
+                    icon="iconoir:check-circle-solid"
+                    size={16}
+                    className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
+                  />
+                  至少一个数字和一个大写字母
+                </div>
+              )}
+              {/* <div className="font-12 font-w-400">
                      <Iconify icon="iconoir:check-circle-solid" size={16} className="mr-1"/>
                        至少一个大写字母
                   </div> */}
-              </div>
+            </div>
             <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>确认密码</div>
             <Form.Item name="checkPassword"
               rules={[
@@ -264,7 +268,7 @@ function LockModal({ open, onCancel, type ,onOk}: Props) {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
-                      
+
                       return Promise.resolve();
                     }
 

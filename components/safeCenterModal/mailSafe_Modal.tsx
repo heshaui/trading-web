@@ -106,7 +106,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         // phone: acountInfo?.phone,
                         code: values.code|| '',
                         googleCode: values.googleCode || '',
-                        phoneCode: values.code
+                        phoneCode: values.phoneCode||''
                     }
                     checkEmailSafe(dataInfo)
                 // }

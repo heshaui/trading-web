@@ -356,7 +356,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {(!acountInfo.phone && (!acountInfo.googleCode || !acountInfo.email)) && (<>
+                        {(acountInfo.phone && (!acountInfo.googleCode || !acountInfo.email)) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
