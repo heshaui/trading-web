@@ -14,6 +14,8 @@ import { getUserDeviceNoList, delectUserDeviceNo } from "@/services/safeCenter";
 import { toast } from "sonner";
 import dayjs from 'dayjs';
 import DelectModal from "@/components/safeCenterModal/delect_Modal";
+import { getFingerprint } from "@/hooks/user-fingerprint";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 interface DataLogsType {
     id: number,
@@ -27,6 +29,7 @@ interface DataLogsType {
     createTime: number,
     updateTime: number,
     tenantId: string,
+    fingerprinting: string,
 }
 interface DataType {
     id: number,
@@ -40,6 +43,7 @@ interface DataType {
     createTime: number,
     updateTime: number,
     tenantId: string,
+    fingerprinting: string,
     userLoginLogs: DataLogsType[]
 }
 function Equipment() {
@@ -47,25 +51,40 @@ function Equipment() {
     const [current, setCurrent] = useState(0);
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [deviceNoData, setDeviceNoData] = useState<DataType[]>([]);
-    const [childDeviceNoData, setChildDeviceNoData] = useState<DataType[]>([]);
+    const [childDeviceNoData, setChildDeviceNoData] = useState<DataLogsType[]>([]);
     const [deviceNo, setDeviceNo] = useState<string>('');
-    const { userId } = router.query;
+    const [fingerprint, setFingerprint] = useState<string>('');
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const { userId, deviceId } = router.query;
 
+    // 标记是否已经处理过URL参数
+    const [initialUrlProcessed, setInitialUrlProcessed] = useState(false);
+
+    // 获取浏览器指纹
+    const getFingerprintData = async () => {
+        const fp = await getFingerprint();
+        setFingerprint(fp);
+    };
     const columns: ColumnsType<DataType> = [
         {
             title: "设备管理",
             dataIndex: "deviceNo",
             key: "deviceNo",
             width: 158,
-            render: (text, record) => <div>{`${text} (${record.platformType || '--'})`}
-                <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
-                    : "icon-park-solid:down-one"}
-                    style={{ color: "#FF5F1F" }}
-                    className='ml-2'
-                    size={20}
-                />
-            </div>,
+            render: (text, record) => {
+                return (<div className='flex-row align-start '>
+                    <span>{`${text} (${record.platformType || '--'})`}
+                    </span>
+                    <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
+                        : "icon-park-solid:down-one"}
+                        style={{ color: "#FF5F1F" }}
+                        className='ml-2'
+                        size={20}
+                    />
+                    {fingerprint === record.fingerprinting && <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>当前设备</p>}
+                </div>)
+            },
         },
         {
             title: "登录时间",
@@ -158,6 +177,7 @@ function Equipment() {
             });
             if (res.code === '0') {
                 toast.success(res.message)
+                await getDeviceNoData()
             } else {
                 toast.error(res.message)
             }
@@ -168,30 +188,85 @@ function Equipment() {
     const getDeviceNoData = async () => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
         const isuserId = userId ? userId?.toString() : ''
+        setLoading(true)
+        try {
         const res = await getUserDeviceNoList({
             userId: userInfo?.userId || isuserId || ''
         });
         if (res.code === '0') {
             setDeviceNoData(res.data.list)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        } finally {
+            setLoading(false)
         }
     }
 
-    // 处理展开/折叠行的函数
-    const handleExpand = (expanded: boolean, record: any) => {
+    // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
+    const handleExpand = (expanded: boolean, record: DataType) => {
         if (expanded) {
-            // 如果是展开操作，只设置当前行的key
+            // 设置展开的行
             setExpandedRowKeys([record.id]);
-            setChildDeviceNoData(record.userLoginLogs)
+
+            // 设置子数据
+            if (record.userLoginLogs && record.userLoginLogs.length > 0) {
+                setChildDeviceNoData(record.userLoginLogs);
+            } else {
+                setChildDeviceNoData([]);
+            }
+
+            // 如果URL中有deviceId参数，则清除它
+            if (router.query.deviceId) {
+                const { deviceId, ...restQuery } = router.query;
+                router.replace({
+                    pathname: router.pathname,
+                    query: restQuery
+                }, undefined, { shallow: true });
+            }
         } else {
-            // 如果是折叠操作，清空展开行
+            // 清空展开行
             setExpandedRowKeys([]);
-            setChildDeviceNoData([])
+            setChildDeviceNoData([]);
         }
     };
 
+    // 只在初始加载时处理URL参数
     useEffect(() => {
-        getDeviceNoData()
-    }, [])
+        // 如果已经处理过URL参数或者数据还没加载，则不处理
+        if (initialUrlProcessed || deviceNoData.length === 0) {
+            return;
+        }
+
+        // 只有当存在deviceId参数时才处理
+        if (deviceId) {
+            const deviceIdKey = Number(deviceId);
+
+            // 查找对应的设备数据
+            const targetDevice = deviceNoData.find(item => item.id === deviceIdKey);
+
+            if (targetDevice) {
+                // 设置展开的行
+                setExpandedRowKeys([deviceIdKey]);
+
+                // 设置子数据
+                if (targetDevice.userLoginLogs && targetDevice.userLoginLogs.length > 0) {
+                    setChildDeviceNoData(targetDevice.userLoginLogs);
+                } else {
+                    setChildDeviceNoData([]);
+                }
+            }
+        }
+
+        // 标记已处理URL参数
+        setInitialUrlProcessed(true);
+    }, [deviceId, deviceNoData, initialUrlProcessed, router]);
+
+    // 初始加载数据
+    useEffect(() => {
+        getFingerprintData();
+        getDeviceNoData();
+    }, []);
 
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >
@@ -204,60 +279,58 @@ function Equipment() {
                         theme={{
                             components: {
                                 Table: {
-                                    // bodySortBg: "pink",
                                     headerBg: "var(--background)",
                                     headerColor: "var(--text-color6)",
-                                    headerSplitColor: "transparent", // 表头分割线颜色
-                                    rowExpandedBg: "var(--background10)", // 表格行展开背景色
+                                    headerSplitColor: "transparent",
+                                    rowExpandedBg: "var(--background10)",
                                     borderColor: "transparent",
                                 },
                             },
                         }}
                     >
                         <Table
+                            loading={loading}
                             columns={columns}
                             dataSource={deviceNoData}
                             size="large"
                             scroll={{ x: "max-content" }}
                             className={`${styles.table_box} table-box`}
                             expandable={{
-                                expandedRowRender: (record, expanded) => {
-                                    if (!expandedRowKeys.includes(record.id)) {
-                                        return null;
-                                    }
-                                    // 确保有数据并且是数组
-                                    return <div style={{ margin:' 16px' }} key={record.id}>
-                                        {record.userLoginLogs.length > 0 ? (
-                                            <Table
-                                                columns={columns2}
-                                                dataSource={record.userLoginLogs}
-                                                size="large"
-                                                scroll={{ x: "max-content" }}
-                                                showHeader={false}
-                                                pagination={false}
-                                                className='table-box2'
-                                                style={{ paddingLeft: 0 }}
-                                            />
-                                        ) : (
-                                            <Empty description={<span className={styles.tip_color}>暂无数据</span>} />
-                                        )}
-                                    </div>
+                                expandedRowRender: (record) => {
+                                    // 使用当前展开行的ID来确定是否显示子数据
+                                    const isCurrentExpanded = expandedRowKeys.includes(record.id);
+
+                                    return (
+                                        <div style={{ margin: '16px' }} key={record.id}>
+                                            {isCurrentExpanded && record.userLoginLogs && record.userLoginLogs.length > 0 ? (
+                                                <Table
+                                                    columns={columns2}
+                                                    dataSource={record.userLoginLogs}
+                                                    size="large"
+                                                    scroll={{ x: "max-content" }}
+                                                    showHeader={false}
+                                                    pagination={false}
+                                                    className='table-box2'
+                                                    style={{ paddingLeft: 0 }}
+                                                    rowKey="id"
+                                                />
+                                            ) : (
+                                                <Empty
+                                                    description={<span className={styles.tip_color}>暂无数据</span>}
+                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                />
+                                            )}
+                                        </div>
+                                    );
                                 },
-                                // expandIcon: ({ expanded, onExpand, record }) => <Iconify
-                                //     icon={expanded ? "icon-park-solid:up-one" : "icon-park-solid:down-one"}
-                                //     style={{ color: "#FF5F1F" }}
-                                //     onClick={(e) => {
-                                //         e.stopPropagation();
-                                //         onExpand(record,e);
-                                //     }}
-                                // />,
                                 fixed: 'right',
                                 expandRowByClick: true,
                                 showExpandColumn: false,
                                 onExpand: handleExpand,
-                                // expandedRowKeys: expandedRowKeys
+                                expandedRowKeys: expandedRowKeys
                             }}
                             pagination={false}
+                            rowKey="id"
                         />
                     </ConfigProvider>
                 </div>

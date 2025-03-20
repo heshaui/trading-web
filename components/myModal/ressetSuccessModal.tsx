@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Modal, ConfigProvider } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
 // import store from "@/store"
@@ -19,12 +19,12 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
         onCancel()
     };
 
-    const handOk =  () => {
+    const handOk = () => {
         onOk()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
     };
     const ModalFooter: ModalProps["footer"] = () => {
-      
+
         return (
             <div className="flex-x-cc mt-10 mb-8">
                 {/* <button
@@ -46,21 +46,44 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
     };
 
     return (
-        <Modal
-            open={open}
-            // title={}
-            centered
-            onCancel={handCancel}
-            footer={ModalFooter}
-            width={400}
-            className={`${styles.modal_box} `}
+        <ConfigProvider
+            theme={{
+                components: {
+                    Form: {
+                        // itemMarginBottom: 0, // 去除表单项之间的间距
+                    },
+                    Input: {
+                        activeBorderColor: '#FF5F1F',
+                        hoverBorderColor: '#FF5F1F',
+                        controlHeightLG: 50,
+                        activeBg: 'var(--background5)',
+                        hoverBg: 'var(--background5)',
+                    },
+                    Modal: {
+                        contentBg: "var(--background5)",
+                        footerBg: "var(--background5)",
+                        headerBg: "var(--background5)",
+                    },
+
+                },
+            }}
         >
-            <div className="flex-col flex-ai-center">
-                <Image src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
-                <p className={`${styles.title} `}>修改成功</p>
-                <p className={`${styles.msg_color} mt-4`}>您的密码已修改成功，请使用新密码重新登录。</p>
-            </div>
-        </Modal>
+            <Modal
+                open={open}
+                // title={}
+                centered
+                onCancel={handCancel}
+                footer={ModalFooter}
+                width={400}
+                className={`${styles.modal_box} `}
+            >
+                <div className="flex-col flex-ai-center">
+                    <Image src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
+                    <p className={`${styles.title} `}>修改成功</p>
+                    <p className={`${styles.msg_color} mt-4`}>您的密码已修改成功，请使用新密码重新登录。</p>
+                </div>
+            </Modal>
+        </ConfigProvider>
     );
 }
 

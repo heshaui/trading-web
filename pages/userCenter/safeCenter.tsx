@@ -8,16 +8,18 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
 import store from "@/store/index"
+import { Skeleton } from 'antd'
 import { encryptString, encryptData } from '@/utils/encrypt'
 import SetPhoneModal from '@/components/safeCenterModal/setPhone_Modal'
 import SetMailModal from '@/components/safeCenterModal/setMail_Modal'
 import CheckModal from '@/components/safeCenterModal/change_check'
-import SafeModal from '@/components/safeCenterModal/safe_Modal';
+// import SafeModal from '@/components/safeCenterModal/safe_Modal';
 import SetLockModal from '@/components/safeCenterModal/setLock_Modal';
 import MailSafeModal from '@/components/safeCenterModal/mailSafe_Modal';
 import PhoneSafeModal from '@/components/safeCenterModal/phoneSafe_Modal';
 import LockSafeModal from '@/components/safeCenterModal/lockSafe_Modal';
 import UnbindGoogleModal from '@/components/safeCenterModal/unbindGoogle_Modal';
+import BindGoogleModal from '@/components/safeCenterModal/bindGoogle_Modal';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -91,11 +93,13 @@ const SafeCenter: React.FC = () => {
     const [safeType, setSafeType] = useState('')
     const [lockSafeModalOpen, setLockSafeModalOpen] = useState(false) // 密码修改-安全验证
     const [lockSafeType, setLockSafeType] = useState('')
-    const [safeAccount, setSafeAccount] = useState<SafeDataType>({})
+    // const [safeAccount, setSafeAccount] = useState<SafeDataType>({})
     const [mailSafeModalOpen, setMailSafeModalOpen] = useState(false)
     const [phoneSafeModalOpen, setPhoneSafeModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [loadingSkeleton, setLoadingSkeleton] = useState(true)
     const [unbindGoogleModalOpen, setUnbindGoogleModalOpen] = useState(false)
+    const [BindGoogleModalOpen, setBindGoogleModalOpen] = useState(false)
     const router = useRouter();
 
     const initBaseSafeList: SafeListItem[] = [
@@ -103,7 +107,7 @@ const SafeCenter: React.FC = () => {
             title: "谷歌验证器(推荐)",
             type: "googleCode",
             desc: "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。",
-            isBind: true,
+            isBind: false,
             bindValue: "启用",
             noBindValue: "未绑定",
             icon: "/images/userCenter/safe/icon_google.svg",
@@ -115,11 +119,22 @@ const SafeCenter: React.FC = () => {
                     setCheckType('4')
                 },
                 key: 'close'
+            },
+            {
+                title: "已启用",
+                onok: () => {},
+                key: 'open'
             }
             ],
             noBindBtn: [{
                 title: "绑定",
-                onbind: () => { },
+                onbind: () => {
+                    setBindGoogleModalOpen(true)
+                    // setSafeAccount({
+                    //     ...safeData,
+                    //     type: safeData?.email ? 'email' : 'phone',
+                    // })
+                },
                 key: 'bind'
             }]
         },
@@ -157,6 +172,10 @@ const SafeCenter: React.FC = () => {
                 onbind: () => {
                     setPhoneModalOpen(true)
                     setPhoneType('set')
+                    // setSafeAccount({
+                    //     ...safeData,
+                    //     type: safeData?.email ? 'email' : 'phone',
+                    // })
                 },
                 key: 'bind'
             }]
@@ -187,8 +206,10 @@ const SafeCenter: React.FC = () => {
                     // 绑定-添加/修改邮箱弹窗
                     setMailModalOpen(true)
                     setMailType('set')
-                    // setCheckModalOpen(true)
-                    // setCheckType('5')
+                    // setSafeAccount({
+                    //     ...safeData,
+                    //     type: safeData?.email ? 'email' : 'phone',
+                    // })
                 },
                 key: 'bind'
             }]
@@ -214,7 +235,11 @@ const SafeCenter: React.FC = () => {
                 title: "设置",
                 onbind: () => {
                     setCheckModalOpen(true)
-                    setCheckType('3')
+                    setCheckType('5')
+                    // setSafeAccount({
+                    //     ...safeData,
+                    //     type: safeData?.email ? 'email' : 'phone',
+                    // })
                 },
                 key: 'bind'
             }]
@@ -251,54 +276,58 @@ const SafeCenter: React.FC = () => {
     const [securityLogList, setSecurityLogList] = useState<SecurityLogItem[]>(initSecurityLogList)
     // 确认弹窗后续操作
     const handCheckModal = async (type: string) => {
-        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:设置/修改密码 4:关闭谷歌验证 5:绑定邮箱
+        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:设置/修改密码 4:关闭谷歌验证 5:设置密码
         if (type.toString() === '0') {
             // 手机修改-2验证安全弹窗
             // setSafeModalOpen(true)
             setPhoneSafeModalOpen(true)
             setSafeType('0')
-            setSafeAccount({
-                ...safeData,
-                type: safeData?.phone ? 'phone' : 'email',
-                // phone: safeData?.phone || '',
-                // countryCode: safeData?.countryCode || ''
-            })
+            // setSafeAccount({
+            //     ...safeData,
+            //     type: safeData?.phone ? 'phone' : 'email',
+            //     // phone: safeData?.phone || '',
+            //     // countryCode: safeData?.countryCode || ''
+            // })
         } else if (type.toString() === '1') {
             // 关闭手机-2安全验证弹窗
             // setSafeModalOpen(true)
             setPhoneSafeModalOpen(true)
             setSafeType('1')
-            setSafeAccount({
-                ...safeData,
-                type: safeData?.phone ? 'phone' : 'email',
-                // phone: safeData?.phone || '',
-                // countryCode: safeData?.countryCode || ''
-            })
+            // setSafeAccount({
+            //     ...safeData,
+            //     type: safeData?.phone ? 'phone' : 'email',
+            //     // phone: safeData?.phone || '',
+            //     // countryCode: safeData?.countryCode || ''
+            // })
         }
         else if (type.toString() === '2') {
             // 修改邮箱-2验证安全弹窗
             // setSafeModalOpen(true)
             setMailSafeModalOpen(true)
             setSafeType('2')
-            setSafeAccount({
-                ...safeData,
-                type: safeData?.email ? 'email' : safeData?.phone ? 'phone' : '',
-            })
+            // setSafeAccount({
+            //     ...safeData,
+            //     type: safeData?.email ? 'email' : safeData?.phone ? 'phone' : '',
+            // })
             // setMailModalOpen(true)
             // setMailType('change')
 
-        } else if (type.toString() === '3') {
+        } else if (type.toString() === '3'||type.toString() === '5') {
             // 修改密码-2验证安全弹窗
             // setSafeModalOpen(true)
             setLockSafeModalOpen(true)
             setSafeType('3')
-            setSafeAccount({
-                ...safeData,
-                type: safeData?.email ? 'email' : 'phone',
-            })
+            // setSafeAccount({
+            //     ...safeData,
+            //     type: safeData?.email ? 'email' : 'phone',
+            // })
 
         } else if (type.toString() === '4') {
             setUnbindGoogleModalOpen(true)
+            // setSafeAccount({
+            //     ...safeData,
+            //     type: safeData?.email ? 'email' : 'phone',
+            // })
         }
     }
     // 安全校验完毕
@@ -321,11 +350,6 @@ const SafeCenter: React.FC = () => {
             setLockModalOpen(true)
             setLockType('change')
         }
-        // else if (type === '5') {
-        //     // 绑定邮箱-3添加邮箱弹窗
-        //     setMailModalOpen(true)
-        //     setMailType('set')
-        // }
     }
     // 关闭手机
     const handPhoneClose = async () => {
@@ -360,16 +384,20 @@ const SafeCenter: React.FC = () => {
             const res = await getSafeCenter()
             const { code, data } = res
             if (code === '0') {
+                setLoadingSkeleton(false)
                 setSafeData(data)
                 const securityMethodsCount = checkMethodsCount(data);
                 const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
                     if (data.hasOwnProperty(item.type)) {
+                        // 判断是否有足够的安全验证方式允许解绑
+                        // 只有当安全验证方式数量大于2时才允许解绑
+                        const canUnbind = securityMethodsCount > 2;
                         if (item.type === 'googleCode') {
                             const value = data[item.type];
                             // 如果只有一种安全验证方式，且当前是googleCode，则过滤掉close按钮
-                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                            const filteredBindBtn = !canUnbind ?
                                 item.bindBtn.filter(btn => btn.key !== 'close') :
-                                item.bindBtn;
+                                item.bindBtn.filter(btn =>  btn.key !== 'open');
                             return {
                                 ...item,
                                 bindValue: '启用',
@@ -387,8 +415,8 @@ const SafeCenter: React.FC = () => {
                         }
                         if (item.type === 'phone' || item.type === 'email') {
                             const value = data[item.type];
-                            // 如果只有一种安全验证方式，且当前是phone或email，则过滤掉close按钮
-                            const filteredBindBtn = securityMethodsCount <= 1 ?
+                            // 如果只有2种安全验证方式，且当前是phone或email，则过滤掉close按钮
+                            const filteredBindBtn = !canUnbind ?
                                 item.bindBtn.filter(btn => btn.key !== 'close') :
                                 item.bindBtn;
                             return {
@@ -460,107 +488,113 @@ const SafeCenter: React.FC = () => {
             </div>
             <ul className={`${styles.content_ul} ${styles.border_bottom} mt-4 `} >
                 {baseSafeList.map((item: SafeListItem) => (
-                    <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
-                        {/* 绑定类型 bind type*/}
-                        <div className={`flex-row align-center`}>
-                            <Image src={item.icon}
-                                alt="safe_device" width={28} height={28}
-                                className={`${styles.svgIcon}`}
-                            />
-                            <p className='flex-y font-16 font-w-500'>
-                                {item.title}
-                                <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
-                                    {item.desc}
-                                </span>
-                            </p>
+                    <Skeleton active title={false} loading={loadingSkeleton} key={item.type} className='px-6 py-6'>
 
-                        </div>
-                        {/* 绑定状态 bind status*/}
-                        <div className={`flex-row align-center justify-between ${styles.log_box} `}>
+                        <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
+                            {/* 绑定类型 bind type*/}
+                            <div className={`flex-row align-center`}>
+                                <Image src={item.icon}
+                                    alt="safe_device" width={28} height={28}
+                                    className={`${styles.svgIcon}`}
+                                />
+                                <p className='flex-y font-16 font-w-500'>
+                                    {item.title}
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
+                                        {item.desc}
+                                    </span>
+                                </p>
 
-                            <div className='flex-y font-16 font-w-500 flex-1'>
-                                {item.isBind ? (
-                                    <div className={`flex-row align-center`}>
-                                        <Image src="/images/userCenter/safe/check.svg"
-                                            alt="safe_device" width={20} height={20}
-                                            className={`${styles.svgIcon}`}
-                                        />
-                                        <span>{item.bindValue}</span>
-                                    </div>
+                            </div>
+                            {/* 绑定状态 bind status*/}
+                            <div className={`flex-row align-center justify-between ${styles.log_box} `}>
 
-                                )
-                                    :
-                                    (
+                                <div className='flex-y font-16 font-w-500 flex-1'>
+                                    {item.isBind ? (
                                         <div className={`flex-row align-center`}>
-                                            <Image src="/images/userCenter/safe/close.svg"
+                                            <Image src="/images/userCenter/safe/check.svg"
                                                 alt="safe_device" width={20} height={20}
                                                 className={`${styles.svgIcon}`}
                                             />
-                                            <span>{item.noBindValue}</span>
+                                            <span>{item.bindValue}</span>
                                         </div>
-                                    )}
-                            </div>
-                            {/* 按钮 button */}
-                            <div className={`flex-row align-center justify-end flex-1 ml-6`} >
-                                {item.isBind && Array.isArray(item.bindBtn) && item.bindBtn.length > 0 && (
-                                    item.bindBtn.map((btn: ButtonConfig, index: number) => (
-                                        <button
-                                            className={`${styles.btn_style} btn-color-default ml-2`}
-                                            key={index}
-                                            onClick={btn.onok}
-                                        >
-                                            {btn.title}
-                                        </button>
-                                    ))
-                                )}
-                                {!item.isBind && Array.isArray(item.noBindBtn) && item.noBindBtn.length > 0 && !item.isBind && (
-                                    item.noBindBtn.map((btn: ButtonConfig, index: number) => (
-                                        <button
-                                            className={`${styles.btn_style} btn-color-default ml-2`}
-                                            key={index}
-                                            onClick={btn.onbind}
-                                        >
-                                            {btn.title}
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-                        </div>
 
-                    </li>
+                                    )
+                                        :
+                                        (
+                                            <div className={`flex-row align-center`}>
+                                                <Image src="/images/userCenter/safe/close.svg"
+                                                    alt="safe_device" width={20} height={20}
+                                                    className={`${styles.svgIcon}`}
+                                                />
+                                                <span>{item.noBindValue}</span>
+                                            </div>
+                                        )}
+                                </div>
+                                {/* 按钮 button */}
+                                <div className={`flex-row align-center justify-end flex-1 ml-6`} >
+                                    {item.isBind && Array.isArray(item.bindBtn) && item.bindBtn.length > 0 && (
+                                        item.bindBtn.map((btn: ButtonConfig, index: number) => (
+                                            <button
+                                                className={`${styles.btn_style} btn-color-default ml-2`}
+                                                key={index}
+                                                onClick={btn.onok}
+                                            >
+                                                {btn.title}
+                                            </button>
+                                        ))
+                                    )}
+                                    {!item.isBind && Array.isArray(item.noBindBtn) && item.noBindBtn.length > 0 && !item.isBind && (
+                                        item.noBindBtn.map((btn: ButtonConfig, index: number) => (
+                                            <button
+                                                className={`${styles.btn_style} btn-color-default ml-2`}
+                                                key={index}
+                                                onClick={btn.onbind}
+                                            >
+                                                {btn.title}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                        </li>
+                    </Skeleton>
                 ))}
+
             </ul>
-            <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >安全日志
-            </div>
+            {/* } */}
+            <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >安全日志</div>
             <ul className={`${styles.content_ul}`}>
                 {securityLogList.map((item: SecurityLogItem) => (
-                    <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
-                        <div className={`flex-row align-center`}>
-                            <Image src={item.icon}
-                                alt="safe_device" width={28} height={28}
-                                className={`${styles.svgIcon}`}
-                            />
-                            <p className='flex-y font-16 font-w-500'>
-                                {item.title}
-                                <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
-                                    {item.desc}
-                                </span>
-                            </p>
+                    <Skeleton active title={false} loading={loadingSkeleton} key={item.type} className='px-6 py-6'>
+                        <li className={`flex-row align-center justify-between flex-wrap`} key={item.type}>
+                            <div className={`flex-row align-center`}>
+                                <Image src={item.icon}
+                                    alt="safe_device" width={28} height={28}
+                                    className={`${styles.svgIcon}`}
+                                />
+                                <p className='flex-y font-16 font-w-500'>
+                                    {item.title}
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-1`}>
+                                        {item.desc}
+                                    </span>
+                                </p>
 
-                        </div>
-                        <div className={`flex-row align-center justify-between ${styles.log_box}`}>
+                            </div>
+                            <div className={`flex-row align-center justify-between ${styles.log_box}`}>
 
-                            <p className={`flex-y font-16 font-w-500 ${styles.log_tip}`}>
-                                {item.tip}
-                                <span className={`${styles.tip_color} font-12 font-w-400 mt-1 `}>
-                                    {item.value}
-                                </span>
-                            </p>
+                                <p className={`flex-y font-16 font-w-500 ${styles.log_tip}`}>
+                                    {item.tip}
+                                    <span className={`${styles.tip_color} font-12 font-w-400 mt-1 `}>
+                                        {item.value}
+                                    </span>
+                                </p>
 
-                            <button className={`${styles.btn_style} btn-color-default`} onClick={item.button}>{item.btntext}</button>
-                        </div>
+                                <button className={`${styles.btn_style} btn-color-default`} onClick={item.button}>{item.btntext}</button>
+                            </div>
 
-                    </li>
+                        </li>
+                    </Skeleton>
                 ))}
             </ul>
             {/* 修改确认弹窗 */}
@@ -580,33 +614,33 @@ const SafeCenter: React.FC = () => {
                 open={mailSafeModalOpen}
                 type={safeType}
                 onOk={handsvcOk}
-                acountInfo={safeAccount}
+                acountInfo={safeData}
                 onCancel={() => setMailSafeModalOpen(false)} />
             <PhoneSafeModal
                 open={phoneSafeModalOpen}
                 type={safeType}
                 onOk={handsvcOk}
-                acountInfo={safeAccount}
+                acountInfo={safeData}
                 onCancel={() => setPhoneSafeModalOpen(false)} />
             {/* 安全验证-设置/修改密码 */}
             <LockSafeModal
                 open={lockSafeModalOpen}
                 type={safeType}
                 onOk={handsvcOk}
-                acountInfo={safeAccount}
+                acountInfo={safeData}
                 onCancel={() => setLockSafeModalOpen(false)} />
             {/* 设置/修改手机号 */}
             <SetPhoneModal
                 open={phoneModalOpen}
                 type={phoneType}
-                acountInfo={safeAccount}
+                acountInfo={safeData}
                 onOk={() => handOk()}
                 onCancel={() => setPhoneModalOpen(false)} />
             {/* 设置/修改邮箱 */}
             <SetMailModal
                 open={mailModalOpen}
                 type={mailType}
-                acountInfo={safeAccount}
+                acountInfo={safeData}
                 onOk={() => handOk()}
                 onCancel={() => setMailModalOpen(false)} />
             {/* 设置/修改密码 */}
@@ -621,6 +655,12 @@ const SafeCenter: React.FC = () => {
                 acountInfo={safeData}
                 onOk={() => handOk()}
                 onCancel={() => setUnbindGoogleModalOpen(false)} />
+            {/* 绑定谷歌 */}
+            <BindGoogleModal
+                open={BindGoogleModalOpen}
+                acountInfo={safeData}
+                onOk={() => handOk()}
+                onCancel={() => setBindGoogleModalOpen(false)} />
         </div>
 
     </div>);

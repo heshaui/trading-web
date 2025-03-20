@@ -51,6 +51,7 @@ export type LabelComponentProps = {
     isLanguage?: boolean;
     onInputChange?: (value: string) => void;  // 输入框
     onClickLogout?: () => void;  // 点击
+    onClick?: () => void;  // 点击
     nickName?: string; // 我的 - 昵称
     level?: string; // 我的 - 等级
     myWords_1?: string; // 我的 - 交易量

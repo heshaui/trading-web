@@ -1,4 +1,4 @@
-import { Modal, ConfigProvider, Form, Input, InputNumber } from "antd";
+import { Modal, ConfigProvider, Form, Input, Button } from "antd";
 // import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -57,10 +57,12 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [firstCheck2, setFirstCheck2] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
-    const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [pointout, setPointout] = useState(false);
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
 
     const [form] = Form.useForm();
 
@@ -79,8 +81,15 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 const dataInfo = {
                     code: values.emailCode || '',
                     googleCode: values.googleCode || '',
-                    phoneCode: values.phoneCode || ''
+                    phoneCode: values.phoneCode || '',
+                    email: values.emailCode?acountInfo.email : '',
+                    phone: values.phoneCode?acountInfo.phone : '',
+                    countryCode: values.phoneCode?acountInfo.countryCode : '',
                 }
+                // let dataInfo={}
+                // if(values.emailCode){
+
+                // }
                 checkPasswordSafe(dataInfo)
 
             })
@@ -157,10 +166,14 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setCodeLoading(true)
         try {
             const dataInfo = {
-                number: acountInfo?.phone,
+                number: acountInfo?.email,
                 deviceType: "web"
             };
+            console.log(dataInfo, 11);
+            
             const dataEncrypt = await encryptData(dataInfo)
+            console.log(dataEncrypt, 111);
+
             const res = await getPasswordEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
@@ -212,6 +225,25 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ emailCode: filteredValue });
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
+
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -233,8 +265,14 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
+                {/* <Button type="primary" onClick={handOk}
+                className={`${styles.modal_footerBtn} default_btn`}
+                loading={loading}
+                >
+                    确认
+                </Button> */}
                 <button
                     type="button"
                     className={`text-color mt-5`}
@@ -312,7 +350,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                             </p>
                             <Form.Item name="emailCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
                                 <Input
-                                    // allowClear
+                                    allowClear
                                     placeholder="请输入验证码"
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
@@ -325,10 +363,12 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
-                        {(acountInfo.phone && (!acountInfo.googleCode || !acountInfo.googleCode)) && (<>
+                        {(acountInfo.phone && (!acountInfo.googleCode || !acountInfo.email)) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
@@ -349,6 +389,8 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
                                     maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
@@ -361,6 +403,9 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                             粘贴
                                         </button>
                                     }
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

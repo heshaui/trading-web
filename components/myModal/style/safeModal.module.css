@@ -37,3 +37,11 @@
     bottom: -20px;
     left: 0;
 }
+.input_box{
+    background: var(--background5);
+    color: var(--text-color6);
+}
+.input_box:focus:not(:hover) {
+    background-color: var(--homeground5) !important;
+    color: var(--text-color6) !important;
+}

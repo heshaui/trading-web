@@ -24,13 +24,19 @@ export default function RegisterMail() {
     // const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [isOpen, setIsOpen] = useState(true); //是否展开
-    // const [checkType, setCheckType] = useState<string>(""); //二次验证的类型
     const { setLoginState } = useLoginStateContext();
     // const { registerType, setRegisterType } = useRegisterTypeContext();
     const { registerType } = useRegisterTypeContext();
     // const signIn = useSignIn();
     const [form] = Form.useForm();
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
+
+    // 密码校验状态
+    const [lengthValid, setLengthValid] = useState(false);
+    const [charValid, setCharValid] = useState(false)
+    const [showLengthCheck, setShowLengthCheck] = useState(false);
+    const [showCharCheck, setShowCharCheck] = useState(false);
+
 
     // 当注册状态不为 EMAIL 时不渲染组件
 
@@ -99,7 +105,7 @@ export default function RegisterMail() {
         }
         // 检查长度是否在 8 - 30 位之间
         if (value.length < 8 || value.length > 30) {
-            return Promise.reject(new Error("密码长度必须在 8 - 30 位之间！"));
+            return Promise.reject();
         }
         // 检查是否包含字母和数字
         // const hasLetter = /[a-zA-Z]/.test(value);
@@ -107,11 +113,49 @@ export default function RegisterMail() {
         const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
         // console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
         if (!hasRegex.test(value)) {
-            return Promise.reject(new Error("密码必须包含字母和数字，且长度在 8 - 30 位之间！"));
+            return Promise.reject();
         }
 
         return Promise.resolve();
     };
+    // 监听密码输入变化
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // 检查长度
+        const isLengthValid = value.length >= 8 && value.length <= 30;
+
+        // 检查是否包含字母和数字
+        const hasUpperLetter = /[a-zA-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        const isCharValid = hasUpperLetter && hasNumber;
+
+        // 更新状态
+        setLengthValid(isLengthValid);
+        setCharValid(isCharValid);
+
+        // 显示长度校验，隐藏字符校验
+        setShowLengthCheck(true);
+        setShowCharCheck(false);
+
+        // 如果长度校验通过，1秒后切换到字符校验
+        if (isLengthValid) {
+            setTimeout(() => {
+                setShowLengthCheck(false);
+                setShowCharCheck(true);
+
+                // 如果字符校验也通过，1秒后隐藏
+                if (isCharValid) {
+                    setTimeout(() => {
+                        setShowCharCheck(false);
+                    }, 1000);
+                }
+            }, 1000);
+        }
+    };
+
+
+
     if (registerType !== RegisterTypeEnum.EMAIL) return null;
     return (
         <div className="flex-y-cc mt-7" >
@@ -119,7 +163,7 @@ export default function RegisterMail() {
                 theme={{
                     components: {
                         Form: {
-                            itemMarginBottom: 20, // 去除表单项之间的间距
+                            itemMarginBottom: 0, // 去除表单项之间的间距
                         },
                         Input: {
                             controlHeightLG: 50,
@@ -148,7 +192,7 @@ export default function RegisterMail() {
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>邮箱</div>
+                    <div className={`${styles.title_color} mb-5  font-16 font-w-500`}>邮箱</div>
 
                     <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
                         <AutoComplete
@@ -161,13 +205,39 @@ export default function RegisterMail() {
                             className={`${styles.auto_complete_input} auto-complete-input custom-sleect`}
                         />
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>密码</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>密码</div>
                     <Form.Item name="password" rules={[{ validator: validatePassword }]}>
-                        <Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
-
+                        <Input.Password type="password" 
+                        placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" 
+                        className={`${styles.mail_input} modal-input`}
+                        onChange={handlePasswordChange} 
                         />
+                       
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
+                    <div className={`mt-1`}>
+                            {showLengthCheck && (
+                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
+                                    <Iconify
+                                        icon="iconoir:check-circle-solid"
+                                        size={16}
+                                        className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
+                                    />
+                                    8-30个字符
+                                </div>
+                            )}
+
+                            {showCharCheck && (
+                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+                                    <Iconify
+                                        icon="iconoir:check-circle-solid"
+                                        size={16}
+                                        className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
+                                    />
+                                    必须包含字母和数字
+                                </div>
+                            )}
+                        </div>
+                    <div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
                         onClick={() => { setIsOpen(!isOpen) }}>推荐人的邀请码(选填)
                         <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
                             className={`${styles.tip_icon} ml-1 `} size={20} />
@@ -189,7 +259,7 @@ export default function RegisterMail() {
                         }}
                     >
                         <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-                            <Checkbox className="custom-checkbox text-color-default" >
+                            <Checkbox className="custom-checkbox text-color-default mt-5" >
                                 <p className={`${styles.title_color}`}> 我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></p>
                             </Checkbox>
                         </Form.Item>

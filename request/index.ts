@@ -6,6 +6,10 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
  * @param options 请求选项，支持 method、body、headers 等
  * @returns 返回 Promise
  */
+
+interface RequestHeaders {
+  [key: string]: string;
+}
 export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -14,13 +18,16 @@ export async function request<T>(
   const url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
   // console.log('请求 URL:', url);
   
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
+  const defaultHeaders:RequestHeaders = {
+    // 'Content-Type': '',
     'Authorization': `${getToken()}`, // 获取 token（可选）
     'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||'',
     'sa-token': `${getToken()}`
   };
-
+ // 发送 FormData 时才添加 Content-Type: application/json
+ if (!(options.body instanceof FormData)) {
+  defaultHeaders['Content-Type'] = 'application/json';
+}
   const config: RequestInit = {
     ...options,
     headers: {

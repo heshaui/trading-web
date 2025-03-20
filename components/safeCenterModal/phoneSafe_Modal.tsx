@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -56,9 +56,13 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [firstCheck2, setFirstCheck2] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
-    const [loading2, setLoading2] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -79,12 +83,16 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     code: values.emailCode || '',
                     googleCode: values.googleCode || '',
                     phoneCode: values.code || '',
+                    email: values.emailCode?acountInfo.email : '',
+                    phone: values.code?acountInfo.phone : '',
+                    countryCode: values.code?acountInfo.countryCode : '',
                 }
                 checkPhoneSafe(dataInfo)
             })
 
     };
     const checkPhoneSafe = async (data: acountType) => {
+        setLoading(true)
         try {
             const dataEncrypt = await encryptData(data)
             const res = await getPhoneSafe(dataEncrypt)
@@ -194,6 +202,23 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
+ 
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -215,7 +240,7 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
             </div>
         );
@@ -304,6 +329,9 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -316,6 +344,9 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                             粘贴
                                         </button>
                                     }
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
@@ -339,6 +370,9 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

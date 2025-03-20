@@ -13,6 +13,18 @@
 .customUserMenu .ant-menu .ant-menu-item {
     padding-left: 0 !important;
 }
+.customUserMenu .ant-menu-light.ant-menu-root.ant-menu-inline {
+    border-inline-end: none;
+}
+.customUserMenu .ant-menu .ant-menu-item.ant-menu-item-selected {
+    background-color: var(--background-menu-item);
+}
+.customUserMenu .ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):active {
+    background-color: var(--background-menu-item);
+}
+.customUserMenu .ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover {
+    background-color: var(--background-menu-item);
+}
 .customMenu .ant-card-bordered {
     border: none;
 }
@@ -108,3 +120,7 @@
 .customTopMenu .ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover {
     background-color: var(--background-menu-item) !important;
 } */
+ /* 用户下拉菜单 */
+ .customUserAllMenu .ant-dropdown-menu-item-divider {
+    background-color: var(--border-color4) !important;
+}

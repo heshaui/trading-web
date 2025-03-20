@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./styles/setPhone.module.css";
 // import Image from 'next/image'
-// import { Iconify } from "@/components/icon/index";
+import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
 import {
@@ -58,6 +58,11 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [loading, setLoading] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -97,13 +102,16 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 //     }
                 //     checkEmailSafe(dataInfo)
                 // } else {
-                    const dataInfo = {
-                        // phone: acountInfo?.phone,
-                        code: values.code|| '',
-                        googleCode: values.googleCode || '',
-                        phoneCode: values.code
-                    }
-                    checkEmailSafe(dataInfo)
+                const dataInfo = {
+                    // phone: acountInfo?.phone,
+                    code: values.code || '',
+                    googleCode: values.googleCode || '',
+                    phoneCode: values.phoneCode || '',
+                    email: values.code?acountInfo.email : '',
+                    phone: values.phoneCode?acountInfo.phone : '',
+                    countryCode: values.phoneCode?acountInfo.countryCode : '',
+                }
+                checkEmailSafe(dataInfo)
                 // }
 
 
@@ -333,20 +341,32 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         }
     };
-    const getCode = async () => {
-        // if (['1', '0'].includes(type)) {
-        //     await getPhoneCode();
-        // } else if (type === '2') {
-        //     await getMailCode();
-        // } else 
-        if (type === '2') {
-            await getMailCode();
-        } else if (type === '5' && acountInfo.type === 'phone') {
-            await getPhoneCode();
-        } else if (type === '5' && acountInfo.type === 'email') {
-            await getMailCode();
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        if (type === 'email') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        } else if (type === 'phone') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        } else if (type === 'google') {
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
         }
-    }
+    };
+    // 过滤输入，只允许数字和字母
+    //  const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { value } = e.target;
+    //     // 只保留数字和字母
+    //     const filteredValue = value.replace(/[^0-9]/g, '');
+    //     setPhoneCodeInputValue(filteredValue);
+    //     form.setFieldsValue({ phoneCode: filteredValue });
+    // };
     const handlePaste = async () => {
         try {
             // 获取剪贴板中的文本内容
@@ -368,7 +388,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
                 </button>
             </div>
         );
@@ -434,7 +454,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         style={{ width: '100%' }}
                     >
                         <div className={`font-16 font-w-400  ${styles.tip_title}`}>{
-                            '邮箱验证' 
+                            '邮箱验证'
                         }</div>
                         <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck ? '验证码发送至' : '验证码已发送至'}
                             <span>&nbsp;{encryptEmail(acountInfo.email)
@@ -454,6 +474,9 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                value={emailCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
@@ -466,10 +489,13 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                             粘贴
                                         </button>
                                     }
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
-                        {(acountInfo.phone && !acountInfo.googleCode ) && (<>
+                        {(acountInfo.phone && !acountInfo.googleCode) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
@@ -489,6 +515,9 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}

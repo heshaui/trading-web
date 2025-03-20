@@ -54,6 +54,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [firstCheck, setFirstCheck] = useState(true);
     const [loading, setLoading] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
+    const [codeInputValue, setCodeInputValue] = useState('');
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -274,7 +275,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setCodeLoading(true)
         try {
             const dataInfo = {
-                number: acountInfo?.phone,
+                number: acountInfo?.email,
                 deviceType: "web"
             };
             const dataEncrypt = await encryptData(dataInfo)
@@ -320,6 +321,14 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             console.error('Failed to read clipboard:', error);
         }
     }
+        // 过滤输入，只允许数字和字母
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            // 只保留数字和字母
+            const filteredValue = value.replace(/[^0-9]/g, '');
+            setCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -329,7 +338,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    确认
                 </button>
             </div>
         );
@@ -418,6 +427,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                onChange={handleInputChange}
+                                value={codeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>

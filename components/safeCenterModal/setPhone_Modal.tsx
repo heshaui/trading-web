@@ -45,6 +45,11 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
 
     const [loading, setLoading] = useState(false); // 按钮loading
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
+
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -66,28 +71,30 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                         // 设置手机号
                         params = {
                             isPhoneAuth: 1,
-                            phone: values.phoneNumber,
-                            code: values.code,
-                            googleCode: values.googleCode,
+                            newPhone: values.phoneNumber,
+                            phoneCode: values.code||'',
                             countryCode: values.areaCode.replace("+", ""),
-                            type:2
+                            type:2,
+                            googleCode: values.googleCode||'',
+                            code:values.emailCode||'',
+                            email:values.emailCode?acountInfo?.email:''
                         }
 
                     } else if (type === 'change') {
                         // 修改手机号
                         params = {
                             phoneStatus: 1,
-                            phone: values.phoneNumber,
-                            code: values.code,
+                            newPhone: values.phoneNumber,
+                            phoneCode: values.code,
                             countryCode: values.areaCode.replace("+", ""),
-                            type:2
+                            type:1,
                         }
 
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await bindPhone(dataEncrypt)
                     if (res.code === '0') {
-                        toast.success(res.data)
+                        toast.success(res.message)
                         handCancel()
                     } else {
                         toast.error(res.message)
@@ -190,6 +197,30 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+       // 过滤输入，只允许数字和字母
+       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
+     // 过滤输入，只允许数字和字母
+     const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setPhoneCodeInputValue(filteredValue);
+        form.setFieldsValue({ code: filteredValue });
+    };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -206,7 +237,7 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    确认
                 </button>
             </div>
         );
@@ -291,13 +322,21 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
                         {( type === 'set'&&acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
                             <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
-                                <Input placeholder="请输入谷歌验证码" allowClear={true} className={`${styles.input_box} modal-input`} />
+                                <Input placeholder="请输入谷歌验证码" allowClear={true} 
+                                className={`${styles.input_box} modal-input`} 
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                value={googleCodeInputValue}
+                                />
                             </Form.Item>
                         </>}
                         {( type === 'set'&&acountInfo?.email&& !acountInfo?.googleCode) && <>
@@ -319,6 +358,9 @@ function SetMailModal({ open, onCancel, type,acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                    value={emailCodeInputValue}
                                 />
                             </Form.Item>
                         </>}

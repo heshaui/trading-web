@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
-import { bindEmail, getEmailCode ,getSmsCode} from '@/services/safeCenter'
+import { bindEmail, getEmailCode, getSmsCode } from '@/services/safeCenter'
 import { toast } from "sonner";
 import type { AutoCompleteProps } from 'antd';
 import { emailSuffixes } from "@/utils/enum";
@@ -25,6 +25,7 @@ interface SafeDataType {
     recentIp?: string;
     userId?: string;
     type?: string;
+    areaCode?: string;
 }
 type Props = {
     open: boolean;
@@ -32,10 +33,10 @@ type Props = {
     onOk?: () => void;
     onCancel: () => void;
     type: string;
-    acountInfo:SafeDataType;
+    acountInfo: SafeDataType;
 };
 
-function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
+function SetPhoneModal({ open, onCancel, type, acountInfo }: Props) {
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -47,7 +48,9 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
-
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
     const [form] = Form.useForm();
 
     const handCancel = () => {
@@ -70,31 +73,34 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                     if (type === 'set') {
                         params = {
                             isPhoneAuth: 1,
-                            email: values.email,
-                            code: values.code||'',
-                            googleCode: values.googleCode||'',
-                            userId: userInfo.userId||'',
-                            phoneCode: values.phoneCode||'',
-                            type:2
+                            newEmail: values.email,
+                            code: values.code || '',
+                            googleCode: values.googleCode || '',
+                            userId: userInfo.userId || '',
+                            phoneCode: values.phoneCode || '',
+                            countryCode: values.phoneCode?acountInfo?.areaCode?.replace("+", ""): '',
+                            phone: values.phoneCode?acountInfo?.phone: '',
+                            type: 2
                         }
 
                     } else if (type === 'change') {
                         params = {
                             phoneStatus: 1,
-                            email: values.email,
-                            code: values.code||'',
-                            userId: userInfo.userId||'',
-                            phoneCode: values.phoneCode||'',
-                            type:1
+                            newEmail: values.email,
+                            code: values.code || '',
+                            userId: userInfo.userId || '',
+                            // phoneCode: values.phoneCode || '',
+                            // countryCode: values.areaCode.replace("+", ""),
+                            type: 1
                         }
 
                     }
-                    console.log(params, 11);
+                    // console.log(params, 11);
 
                     const dataEncrypt = await encryptData(params)
                     const res = await bindEmail(dataEncrypt)
                     if (res.code === '0') {
-                        toast.success(res.data)
+                        toast.success(res.message)
                         handCancel()
                     } else {
                         toast.error(res.message)
@@ -209,6 +215,30 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
             }));
         });
     };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        if (type === 'email') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        } else if (type === 'phone') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        } else if (type === 'google') {
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
+    // // 过滤输入，只允许数字和字母
+    // const handleInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { value } = e.target;
+    //     // 只保留数字和字母
+    //     const filteredValue = value.replace(/[^0-9]/g, '');
+    //     setPhoneCodeInputValue(filteredValue);
+    //     form.setFieldsValue({ phoneCode: filteredValue });
+    // };
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -225,7 +255,7 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
                     onClick={handOk}
                 >
-                    保存
+                    确认
                 </button>
             </div>
         );
@@ -319,16 +349,23 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                value={emailCodeInputValue}
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
                         {(type === 'set' && acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>谷歌验证码</div>
                             <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
-                                <Input placeholder="请输入谷歌验证码" allowClear={true} className={`${styles.input_box} modal-input`} />
+                                <Input placeholder="请输入谷歌验证码"
+                                    allowClear={true} className={`${styles.input_box} modal-input`}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue} />
                             </Form.Item>
                         </>}
-                        {(type === 'set' && acountInfo?.phone&& !acountInfo?.googleCode) && <>
+                        {(type === 'set' && acountInfo?.phone && !acountInfo?.googleCode) && <>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
@@ -347,6 +384,9 @@ function SetPhoneModal({ open, onCancel, type,acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>}

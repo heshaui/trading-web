@@ -1,4 +1,4 @@
-import { Modal, ConfigProvider, Form, Input } from "antd";
+import { Modal, ConfigProvider, Form, Input,DatePicker } from "antd";
 // import { type CSSProperties, useState, useEffect } from "react";;
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
@@ -10,6 +10,8 @@ import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter';
 import dayjs from 'dayjs';
 import { toast } from "sonner";
+import {encryptData} from '@/utils/encrypt'
+
 type Props = {
     open: boolean;
     userId: number;
@@ -36,9 +38,9 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                     userId: userId,
                     birthday: dayjs(values.birthday).valueOf() + '' 
                 }
-
                 try {
-                    const res = await updateUserCenter(params);
+                    const encrypt=await encryptData(params)
+                    const res = await updateUserCenter(encrypt);
                     if(res.code === '0'){
                         toast.success('生日修改成功');
                         onOk(true)
@@ -159,11 +161,22 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                         <Form.Item name="birthday" rules={[
                             { validator: validatePassword }
                         ]}>
-                            <Input placeholder="年/月/日"
+                            {/* <Input placeholder="年/月/日"
                                 className={`${styles.input_box} modal-input`}
                                 maxLength={13}
                                 suffix={
                                     <Iconify icon="cuida:calendar-outline" className={`${styles.suffix_icon} mr-1`} />
+                                }
+                            /> */}
+                            <DatePicker
+                                className={`custom-input ${styles.input_box} modal-input2`}
+                                style={{ width: '100%', height: '50px' }}
+                                placeholder="年/月/日"
+                                allowClear
+                                suffixIcon={
+                                    <Iconify icon="cuida:calendar-outline"
+                                        className={`${styles.suffix_icon} mr-1`}
+                                        size={20} />
                                 }
                             />
                         </Form.Item>

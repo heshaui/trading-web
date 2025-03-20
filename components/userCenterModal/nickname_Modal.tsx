@@ -9,6 +9,8 @@ import styles from "./styles/nickname.module.css";
 import { Iconify } from "@/components/icon/index";
 import {updateUserCenter} from '@/services/userCenter'
 import { toast } from "sonner";
+import { useState } from "react";
+import {encryptData} from '@/utils/encrypt'
 type Props = {
     open: boolean;
     nickname: string|null;
@@ -20,7 +22,7 @@ type Props = {
 function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
     // const router = useRouter();
     const [form] = Form.useForm();
-
+    const [inputValue, setInputValue] = useState(nickname || '');
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -36,9 +38,9 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         userId:localStorage.getItem('userId')||'',
                         nickname:values.nickname
                     }
-                    // console.log(param);
-                    
-                    const res=await updateUserCenter(param)
+                console.log(values);
+                    const encrypt=await encryptData(param)
+                    const res=await updateUserCenter(encrypt)
                     if(res.code==='0'){
                         onOk(true)
                         handCancel()
@@ -50,6 +52,15 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                 }
             });
     };
+      // 过滤输入，只允许数字和字母
+      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
+        setInputValue(filteredValue);
+        form.setFieldsValue({ nickname: filteredValue });
+    };
+
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -131,7 +142,10 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         initialValues={{ nickname: nickname||'' }}
                     >
                         <Form.Item name="nickname" rules={[{ required: true,message: '请输入昵称!' }]}>
-                            <Input maxLength={24} className={`${styles.input_box} modal-input`}/>
+                            <Input  className={`${styles.input_box} modal-input`}
+                            onChange={handleInputChange}
+                            value={inputValue}
+                            maxLength={25}/>
                         </Form.Item>
                         <ul className={`${styles.msg_color} mt-2_5 font-12 font-w-400`}>
                             <li className="flex align-base ">
@@ -140,7 +154,7 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                             </li>
                             <li className="flex align-base mt-1">
                                 <Iconify icon="emojione-monotone:small-orange-diamond" className="theme_color mr-1"/>
-                                昵称内容上限纯英数24字符或中文12字符，不支持特殊字符。
+                                昵称仅支持数字、字母，不得超出25字符。
                             </li>
                             <li className="flex align-base mt-1">
                                 <Iconify icon="emojione-monotone:small-orange-diamond" className="theme_color mr-1"/>

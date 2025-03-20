@@ -41,8 +41,11 @@
   color: #FF5F1F;
 }
 
-.pointer {
+.pointer ,.cursor-pointer{
   cursor: pointer;
+}
+.cursor-not-allowed{
+  cursor: not-allowed;
 }
 
 .flex {
@@ -53,6 +56,7 @@
 .flex-1 {
   flex: 1;
 }
+
 
 /* 主轴横向 */
 .flex,.flex-row, .row, .row-x, .x,.flex-x{
@@ -465,7 +469,25 @@
   overflow: hidden; /* 隐藏溢出内容 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
+/* tabler:loader-quarter */
+.loading{
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  /* border: 2px solid currentColor; */
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: loading-spin 2.25s linear infinite;
+}
 
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 @media (max-width: 680px) {
   .isHidden {

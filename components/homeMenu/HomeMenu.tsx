@@ -2,7 +2,7 @@ import styles from '@/styles/components/HomeMenu.module.css';
 // import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
 // import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
 // import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
-import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, } from 'antd';
+import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, Badge } from 'antd';
 import { MenuProps } from 'antd';
 import MenuItem from './HomeMenuItems'; // 顶部菜单
 import MenuAdaptiveItem from './HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
@@ -10,7 +10,7 @@ import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
@@ -22,7 +22,11 @@ import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引�
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 import { useLogoImage } from '@/hooks/useKv'; // 获取logo
 import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
+import { useThemeMode } from '@/hooks/useThemeMode'; // 导入 useThemeMode 获取当前主题状态
 import { getBulletinMessage } from '@/services/bulletinCenter';
+import ThemeIcon from './ThemeIcon';
+import { useNavigation } from '@/context/NavigationContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function HomeMenu() {
     // 路由
@@ -33,20 +37,165 @@ export default function HomeMenu() {
     // 添加调试日志
     // console.log('Current language:', i18n.language);
     // console.log('Router locale:', router.locale);
-    console.log('Translation test:', t('title_1_1_h5'));
+    // console.log('Translation test:', t('title_1_1_h5'));
+
+    // 使用全局导航数据
+    const {
+        menus = [],
+        adaptiveMenuData = [],
+        bulletinData = [],
+        languageList = [],
+        rateData = [],
+        currentLang = '',
+        unreadCount = 0,
+        changeLanguage = () => { }
+    } = useNavigation() || {};
+
+    // 使用 useAuth 钩子获取登录状态
+    const { isLoggedIn, logout } = useAuth();
 
     // 是否登录
     const [isLogin, setIsLogin] = useState<boolean>(false);
+
+    // 获取主题状态
+    const { isDayMode } = useThemeMode();
+
+    // 持久化菜单数据
+    useEffect(() => {
+        // 只在客户端执行
+        if (typeof window === 'undefined') return;
+        
+        // 如果有数据，存储到localStorage
+        if (menus.length > 0) {
+            localStorage.setItem('cachedMenus', JSON.stringify(menus));
+        }
+        if (adaptiveMenuData.length > 0) {
+            localStorage.setItem('cachedAdaptiveMenuData', JSON.stringify(adaptiveMenuData));
+        }
+        if (bulletinData.length > 0) {
+            localStorage.setItem('cachedBulletinData', JSON.stringify(bulletinData));
+        }
+        if (languageList.length > 0) {
+            localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
+        }
+        if (rateData.length > 0) {
+            localStorage.setItem('cachedRateData', JSON.stringify(rateData));
+        }
+    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData]);
+
+    // 从本地存储获取缓存的菜单数据
+    const getCachedMenuData = useMemo(() => {
+        // 只在客户端执行
+        if (typeof window === 'undefined') {
+            return {
+                cachedMenus: [],
+                cachedAdaptiveMenuData: [],
+                cachedBulletinData: [],
+                cachedLanguageList: [],
+                cachedRateData: []
+            };
+        }
+        
+        try {
+            // 检查是否刚刚切换了语言
+            const languageChanged = sessionStorage.getItem('languageChanged');
+            if (languageChanged === 'true') {
+                // console.log('检测到语言已切换，跳过使用缓存数据');
+                sessionStorage.removeItem('languageChanged'); // 清除标志
+                return {
+                    cachedMenus: [],
+                    cachedAdaptiveMenuData: [],
+                    cachedBulletinData: [],
+                    cachedLanguageList: [],
+                    cachedRateData: []
+                };
+            }
+            
+            const cachedMenus = JSON.parse(localStorage.getItem('cachedMenus') || '[]');
+            const cachedAdaptiveMenuData = JSON.parse(localStorage.getItem('cachedAdaptiveMenuData') || '[]');
+            const cachedBulletinData = JSON.parse(localStorage.getItem('cachedBulletinData') || '[]');
+            const cachedLanguageList = JSON.parse(localStorage.getItem('cachedLanguageList') || '[]');
+            const cachedRateData = JSON.parse(localStorage.getItem('cachedRateData') || '[]');
+            
+            return {
+                cachedMenus,
+                cachedAdaptiveMenuData,
+                cachedBulletinData,
+                cachedLanguageList,
+                cachedRateData
+            };
+        } catch (error) {
+            console.error('从缓存读取菜单数据失败:', error);
+            return {
+                cachedMenus: [],
+                cachedAdaptiveMenuData: [],
+                cachedBulletinData: [],
+                cachedLanguageList: [],
+                cachedRateData: []
+            };
+        }
+    }, []);
+
+    // 合并API数据和缓存数据
+    const mergedMenus = useMemo(() => menus.length > 0 ? menus : getCachedMenuData.cachedMenus, [menus, getCachedMenuData.cachedMenus]);
+    const mergedAdaptiveMenuData = useMemo(() => adaptiveMenuData.length > 0 ? adaptiveMenuData : getCachedMenuData.cachedAdaptiveMenuData, [adaptiveMenuData, getCachedMenuData.cachedAdaptiveMenuData]);
+    const mergedBulletinData = useMemo(() => bulletinData.length > 0 ? bulletinData : getCachedMenuData.cachedBulletinData, [bulletinData, getCachedMenuData.cachedBulletinData]);
+    const mergedLanguageList = useMemo(() => languageList.length > 0 ? languageList : getCachedMenuData.cachedLanguageList, [languageList, getCachedMenuData.cachedLanguageList]);
+    const mergedRateData = useMemo(() => rateData.length > 0 ? rateData : getCachedMenuData.cachedRateData, [rateData, getCachedMenuData.cachedRateData]);
+
+    // 初始化和同步登录状态
+    useEffect(() => {
+        // 从 AuthContext 获取登录状态
+        setIsLogin(isLoggedIn);
+
+        // 同时也检查本地存储中的 token
+        const checkLocalToken = () => {
+            const token = localStorage.getItem('userToken');
+            if (token && !isLogin) {
+                // console.log('从本地存储检测到 token，设置登录状态为 true');
+                setIsLogin(true);
+            }
+        };
+        
+        checkLocalToken();
+        
+        // 监听登录状态变化的事件
+        const handleLoginChange = () => {
+            checkLocalToken();
+        };
+        
+        window.addEventListener('loginStatusChanged', handleLoginChange);
+        
+        return () => {
+            window.removeEventListener('loginStatusChanged', handleLoginChange);
+        };
+    }, [isLoggedIn]);
+
+    // 监听登录状态变化并打印日志
+    useEffect(() => {
+        // console.log('登录状态已更新:', isLogin);
+    }, [isLogin]);
+
+    // 切换语言
+    const handleLanguageChange = (lang: string) => {
+        localStorage.setItem('lang', lang);
+        localStorage.setItem('selectedLanguage', lang);
+        changeLanguage(lang);
+    };
+
+    // 退出登录
+    const handleLogout = () => {
+        // store.clearUserToken();  // 清除 token
+        // setIsLogin(false);
+        // // 触发自定义事件
+        // window.dispatchEvent(new Event('loginStatusChanged'));
+        // router.push('/login');
+        logout();
+    };
     // 获取logo
     const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
     // 请求导航栏数据
-    const [menuData, setMenuData] = useState<any>(null); // 用于存储请求到的菜单数据
-    const [menus, setMenus] = useState<MenuListItem[]>([]); // 用于存储菜单项
-    const [adaptiveMenuData, setAdaptiveMenuData] = useState<MenuListItem[]>([]); // 用于 HomeMenuAdaptiveItems 的数据
-    // 语言
-    const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
-    // 汇率菜单
-    const [rateData, setRateData] = useState<any[]>([]); // 用于存储汇率数据
+    const [menuData, setMenuData] = useState<any>(null);
     // 语言
     const [selectedLanguage, setSelectedLanguage] = useState(() => {
         // 检查是否在浏览器环境
@@ -63,303 +212,55 @@ export default function HomeMenu() {
         // 服务器端渲染时的默认值
         return '简体中文';
     });
-    // 使用 hook
-    const { isDayMode, toggleTheme } = useDayModeChange(); // 使用 hook
-    // 渲染主题切换图标
-    const renderThemeIcon = () => {
-        return (
-            <Col onClick={toggleTheme} style={{ cursor: 'pointer' }}>
-                <Image
-                    src={
-                        isDayMode
-                            ? "/images/home_menu/icon_sun_fill.png"
-                            : "/images/home_menu/icon_moon_line.png"
-                    }
-                    alt={isDayMode ? '日间模式' : '夜间模式'}
-                    width={20}
-                    height={20}
-                />
-            </Col>
-        );
-    };
-    // 添加公告数据状态
-    const [bulletinData, setBulletinData] = useState<any[]>([]);
 
-    // 统一初始化数据
-    const initializeData = async (currentLang: string) => {
-        try {
-            // 检查登录状态
-            const token = localStorage.getItem('userToken');
-            setIsLogin(!!token);
-
-            // 获取菜单数据
-            const menuResponse = await homeMenu({ lang: currentLang }) as { data: any[] };
-            if (menuResponse?.data) {
-                setMenuData(menuResponse);
-                setMenus(formatMenus(menuResponse.data.slice(0, 6)));
-                setAdaptiveMenuData(formatAdaptiveMenus(menuResponse.data));
-            }
-
-            // 获取公告数据
-            const bulletinResponse = await getBulletinMessage({
-                languageCode: currentLang
-            }) as ApiResponse<any>;
-
-            if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
-                // 格式化公告数据
-                const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
-                    h5Text: item.title,
-                    spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
-                }));
-                setBulletinData(formattedBulletinData);
-            }
-
-            // 获取语言数据
-            const languageResponse = await getLanguage({
-                lang: '',
-            }) as ApiResponse<LanguageParams[]>;
-
-            if (languageResponse?.code === '0' && languageResponse.data) {
-                const formattedLanguageData = languageResponse.data.map(item => ({
-                    span: `${item.lang}`,
-                    key: `${item.langEncode}`
-                }));
-                setLanguageList(formattedLanguageData);
-            }
-
-            // 获取汇率数据
-            const rateResponse = await exchangeRate({
-                id: 0,
-                shortName: "",
-                status: 1
-            }) as { data: any[] };
-            if (rateResponse?.data) {
-                const formattedRateData = rateResponse.data.map(item => ({
-                    span: `${item.shortName} - ${item.symbol}`
-                }));
-                setRateData(formattedRateData);
-            }
-        } catch (error) {
-            console.error('数据初始化失败:', error);
-        }
-    };
-    // 首次加载时初始化数据
-    useEffect(() => {
-        const lang = localStorage.getItem('lang') || 'zh_CN';
-        initializeData(lang);
-    }, []);
-
-    // 格式化菜单
-    function formatMenus(menuData: any[]): MenuListItem[] {
-        return menuData.map(menu => {
-            // 检查图片 URL 是否为本地路径
-            const getImagePath = (url: string, isDay: boolean) => {
-                // 如果没有URL，返回默认图片
-                if (!url) return '/images/home_menu/Avatar.png';
-
-                try {
-                    // 如果是完整的 URL，直接返回
-                    if (url.startsWith('http')) {
-                        return url;
-                    }
-
-                    // 如果已经是本地路径，检查格式是否正确
-                    if (!url.startsWith('/')) {
-                        // 如果不是以/开头，添加/
-                        return `/${url}`;
-                    }
-
-                    // 返回有效的本地路径
-                    return url;
-                } catch (error) {
-                    console.error('处理图片路径时出错:', error);
-                    return '/images/home_menu/Avatar.png'; // 出错时返回默认图片
-                }
-            };
-
-            // 基本菜单项结构
-            const menuItem = {
-                key: String(menu.id),
-                title: menu.menuName,
-                linkHref: menu.accessPath,
-                items: [] as any[]
-            };
-
-            // 处理二级菜单
-            if (menu.children && menu.children.length > 0) {
-                menuItem.items = menu.children.map((child: any) => {
-                    // 二级菜单项
-                    const secondLevelItem: {
-                        key: string;
-                        type: string;
-                        label: React.ReactNode;
-                        children?: any[]
-                    } = {
-                        key: String(child.id),
-                        type: child.typeId === 1 ? 'group' : (child.typeId === 2 ? 'item' : 'divider'),
-                        label: (
-                            <MenuItemLabel
-                                src={getImagePath(isDayMode ? child.iconUrlDay : child.iconUrlNight, isDayMode)}
-                                h5Text={child.menuName || ''}
-                                spanText={child.menuViceName || ''}
-                                isNew={child.cornerMarkOne === '新' || child.cornerMarkTwo === '新'}
-                            />
-                        )
-                    };
-
-                    // 处理三级菜单
-                    if (child.children && child.children.length > 0) {
-                        secondLevelItem.children = child.children.map((grandChild: any) => ({
-                            key: String(grandChild.id),
-                            type: grandChild.typeId === 1 ? 'group' : (grandChild.typeId === 2 ? 'item' : 'divider'),
-                            label: (
-                                <MenuItemLabel
-                                    src={getImagePath(isDayMode ? grandChild.iconUrlDay : grandChild.iconUrlNight, isDayMode)}
-                                    h5Text={grandChild.menuName || ''}
-                                    spanText={grandChild.menuViceName || ''}
-                                />
-                            )
-                        }));
-                    }
-
-                    return secondLevelItem;
-                });
-            } else {
-                // 如果没有子菜单，创建一个默认项
-                menuItem.items = [{
-                    key: String(menu.id),
-                    type: menu.typeId === 1 ? 'group' : (menu.typeId === 2 ? 'item' : 'divider'),
-                    label: (
-                        <MenuItemLabel
-                            src={getImagePath(isDayMode ? menu.iconUrlDay : menu.iconUrlNight, isDayMode)}
-                            h5Text={menu.menuName || ''}
-                            spanText={menu.menuViceName || ''}
-                            isNew={menu.cornerMarkOne === '新' || menu.cornerMarkTwo === '新'}
-                        />
-                    ),
-                }];
-            }
-
-            return menuItem;
-        });
-    }
-
-    // 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
-    function formatAdaptiveMenus(menuData: any[]): MenuListItem[] {
-        return menuData.map(menu => {
-            return {
-                key: String(menu.id),
-                title: menu.menuName || menu.menuDescription, // 根据实际需求选择字段
-                linkHref: menu.accessPath,
-                items: (menu.children || []).length > 0
-                    ? menu.children.map((child: any) => ({
-                        key: String(child.id),
-                        type: 'item',
-                        label: (
-                            <MenuItemLabel
-                                src={child.iconUrlDay || "/images/home_menu/Avatar.png"}
-                                h5Text={child.menuName || child.menuDescription}
-                                spanText={child.menuViceName || ''}
-                            />
-                        )
-                    }))
-                    : [{
-                        key: String(menu.id),
-                        type: 'item',
-                        label: (
-                            <MenuItemLabel
-                                // src={menu.iconUrlDay || "/images/home_menu/Avatar.png"}
-                                src="/images/home_menu/Avatar.png"
-                                h5Text={menu.menuName || menu.menuDescription}
-                                spanText={menu.menuViceName || ''}
-                            />
-                        )
-                    }]
-            };
-        });
-    }
-
-    // 退出登录
-    const handleLogout = () => {
-        setIsLogin(false);
-        store.clearUserToken();  // 清除 token
-        router.push('/login');
-    };
-
-    // const items = [
-    //     {
-    //         key: '1',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/Group (3).png" h5Text="我的资产" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '2',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon-Make up money.png" h5Text="充币" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '3',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon-Withdraw currency.png" h5Text="提币" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '4',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon_refresh.png" h5Text="资金划转" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '5',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon_presentation.png" h5Text="资产分析" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '6',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon_Order for goods.png" h5Text="订单中心" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '7',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon_sale.png" h5Text="我的手续费" spanText="" />
-    //         ),
-    //     },
-    //     {
-    //         key: '8',
-    //         label: (
-    //             <MenuItemLabel src="/images/home_menu/icon_Certificate.png" h5Text="储备金证明报告" spanText="" />
-    //         ),
-    //     }
-    // ];
     // 资产 - 2版
     const itemsFunding = [
         {
             key: '1',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_coin_line.png" h5Text="我的资产" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_coin_line.png" 
+                        : "/images/home_menu/icon_coin_line_dark.png"} 
+                    h5Text="我的资产" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '2',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_deposit.png" h5Text="充币" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_deposit.png" 
+                        : "/images/home_menu/icon_deposit_dark.png"} 
+                    h5Text="充币" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '3',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_cash.png" h5Text="提币" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_cash.png" 
+                        : "/images/home_menu/icon_cash_dark.png"} 
+                    h5Text="提币" 
+                    spanText="" 
+                />
             ),
         },
         {
             key: '4',
             label: (
-                <MenuItemLabel src="/images/home_menu/icon_bill_line.png" h5Text="账单明细" spanText="" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? "/images/home_menu/icon_bill_line.png" 
+                        : "/images/home_menu/icon_bill_line_dark.png"} 
+                    h5Text="账单明细" 
+                    spanText="" 
+                />
             ),
         }
     ];
@@ -413,65 +314,122 @@ export default function HomeMenu() {
             key: '1',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_layout_line.png' h5Text="总览" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_layout_line.png' 
+                        : '/images/home_menu/icon_layout_line_dark.png'} 
+                    h5Text="总览"
+                    onClick={()=>{
+                        router.push('/userCenter')
+                    }} 
+                />
             ),
         },
         {
             key: '2',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_user.png' h5Text="个人资料" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_user.png' 
+                        : '/images/home_menu/icon_user_dark.png'} 
+                    h5Text="个人中心" 
+                    onClick={()=>{
+                        router.push('/userCenter/userSettings')
+                    }}
+                />
             ),
         },
         {
             key: '3',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_safety_certificate_line.png' h5Text="安全中心" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_safety_certificate_line.png' 
+                        : '/images/home_menu/icon_safety_certificate_line_dark.png'} 
+                    h5Text="安全中心" 
+                    onClick={()=>{
+                        router.push('/userCenter/safeCenter')
+                    }}
+                />
             ),
         },
         {
             key: '4',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_IDcard_line.png' h5Text="身份认证" />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_IDcard_line.png' 
+                        : '/images/home_menu/icon_IDcard_line_dark.png'} 
+                    h5Text="身份认证" 
+                    onClick={()=>{
+                        router.push('/userCenter/identity')
+                    }}
+                />
             ),
         },
-        {
-            key: '5',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_world.png' h5Text="国家/地区" />
-            ),
-        },
-        {
-            key: '6',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_settings.png' h5Text="偏好设置" />
-            ),
-        },
-        {
-            key: '7',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_sub-account.png' h5Text="子账户" />
-            ),
-        },
-        {
-            key: '8',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_API.png' h5Text="API" />
-            ),
-        },
-        {
-            key: '9',
-            type: 'item',
-            label: (
-                <MenuItemLabel src='/images/home_menu/icon_Third party authorization.png' h5Text="第三方授权管理" />
-            ),
-        },
+        // {
+        //     key: '5',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_world.png' 
+        //                 : '/images/home_menu/icon_world_dark.png'} 
+        //             h5Text="国家/地区" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '6',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_settings.png' 
+        //                 : '/images/home_menu/icon_settings_dark.png'} 
+        //             h5Text="偏好设置" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '7',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_sub-account.png' 
+        //                 : '/images/home_menu/icon_sub-account_dark.png'} 
+        //             h5Text="子账户" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '8',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_API.png' 
+        //                 : '/images/home_menu/icon_API_dark.png'} 
+        //             h5Text="API" 
+        //         />
+        //     ),
+        // },
+        // {
+        //     key: '9',
+        //     type: 'item',
+        //     label: (
+        //         <MenuItemLabel 
+        //             src={isDayMode 
+        //                 ? '/images/home_menu/icon_Third party authorization.png' 
+        //                 : '/images/home_menu/icon_Third party authorization_dark.png'} 
+        //             h5Text="第三方授权管理" 
+        //         />
+        //     ),
+        // },
         {
             key: '10',
             type: 'divider',
@@ -481,7 +439,14 @@ export default function HomeMenu() {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel src='/images/home_menu/icon_exit.png' h5Text="退出登录" onClickLogout={() => handleLogout()} />
+                <MenuItemLabel 
+                    src={isDayMode 
+                        ? '/images/home_menu/icon_exit.png' 
+                        // : '/images/home_menu/icon_exit_dark.png'} 
+                        : '/images/home_menu/icon_exit.png'} 
+                    h5Text="退出登录" 
+                    onClick={() => handleLogout()} 
+                />
             ),
         },
     ];
@@ -535,72 +500,6 @@ export default function HomeMenu() {
         );
     };
 
-    // 搜索数据
-    // let coinPairs: TabsItemData[] = [
-    //     {
-    //         src: '/images/home_menu/BTC.png',
-    //         h5Text: 'BTC/USDT',
-    //         spanText: '/images/home_menu/fire_fill 1.png',
-    //         incNum: '63,719.9',
-    //         normalNum: '+0.62%',
-    //         isFire: true,
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: 'ETH/USDT',
-    //         spanText: '/images/home_menu/fire_fill 1.png',
-    //         incNum: '23,719.9',
-    //         normalNum: '-0.22%',
-    //         isFire: true,
-    //     },
-    //     {
-    //         src: '/images/home_menu/BCH.png',
-    //         h5Text: 'LTC/USDT',
-    //         spanText: '/images/home_menu/fire_fill 1.png',
-    //         incNum: '13,719.9',
-    //         normalNum: '-1.12%',
-    //         isFire: true,
-    //     },
-    //     {
-    //         src: '/images/home_menu/BCH.png',
-    //         h5Text: 'LTC/USDT',
-    //         spanText: '',
-    //         incNum: '13,719.9',
-    //         normalNum: '-1.12%',
-    //     },
-    // ];
-    // coinPairs = mapArray(coinPairs, addIsPositiveProperty);
-    // // 添加用于存储搜索框输入值的状态
-    // const [searchValue, setSearchValue] = useState('');
-    // // 根据搜索框的值过滤coinPairs数据
-    // const filteredCoinPairs = React.useMemo(() => filterData(coinPairs, searchValue), [coinPairs, searchValue]);
-    // const inputItems = [
-    //     {
-    //         key: '1',
-    //         type: 'group',
-    //         label: (
-    //             <h5 style={{ color: filteredCoinPairs.length > 0 ? '#0C0D0C' : 'inherit', fontSize: '16px', fontWeight: '500' }}>{filteredCoinPairs.length > 0 ? '热门搜索' : '暂无数据'}</h5>
-    //         ),
-    //         children: filteredCoinPairs.map((coinPair, index) => ({
-    //             key: `1-${index + 1}`, // 使用inputItems中的key和map的index生成key
-    //             type: 'item',
-    //             label: (
-    //                 <TabsItem
-    //                     needNumber
-    //                     haveNumber
-    //                     isHover={false}
-    //                     index={index + 1}
-    //                     isFire={coinPair.isFire}
-    //                     src={coinPair.src}
-    //                     h5Text={coinPair.h5Text}
-    //                     spanText={coinPair.spanText}
-    //                     incNum={coinPair.incNum}
-    //                     normalNum={coinPair.normalNum} isPositive={coinPair.isPositive} />
-    //             )
-    //         }))
-    //     }
-    // ];
-
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
@@ -609,8 +508,8 @@ export default function HomeMenu() {
                     <Image
                         src="/images/home_menu/icon_horn_hover.png"
                         alt=""
-                        width={20}  // 必须指定宽度
-                        height={20} // 必须指定高度
+                        width={20}
+                        height={20}
                     />
                 </Col>;
             case 'img_download':
@@ -618,19 +517,20 @@ export default function HomeMenu() {
                     <Image
                         src="/images/home_menu/icon_download_line.png"
                         alt=""
-                        width={20}  // 必须指定宽度
-                        height={20} // 必须指定高度
+                        width={20}
+                        height={20}
                     />
                 </Col>;
             case 'img_change':
-                return renderThemeIcon();
+                // 使用记忆化的主题图标组件
+                return <ThemeIcon />;
             case 'img_global':
                 return <Col>
                     <Image
                         src="/images/home_menu/icon_earth_line.png"
                         alt=""
-                        width={20}  // 必须指定宽度
-                        height={20} // 必须指定高度
+                        width={20}
+                        height={20}
                     />
                 </Col>;
             default:
@@ -642,10 +542,10 @@ export default function HomeMenu() {
     };
 
     // 语言菜单
-    const spanArr = languageList.length > 0 ? languageList : []
+    const spanArr = mergedLanguageList.length > 0 ? mergedLanguageList : []
 
     // 使用实际数据替换静态数据
-    const spanRateArr = rateData.length > 0 ? rateData : [];
+    const spanRateArr = mergedRateData.length > 0 ? mergedRateData : [];
     // 语言点击
     const [selectedRate, setSelectedRate] = useState<string>('');
     const handleLanguageClick = async (language: string, langEncode: string) => {
@@ -654,11 +554,45 @@ export default function HomeMenu() {
         localStorage.setItem('lang', langEncode);
         localStorage.setItem('selectedLanguage', language);
 
+        try {
+            // 强制清除所有缓存 - 使用更彻底的方式
+            // console.log('开始清除缓存数据...');
+            
+            // 方法1: 直接删除指定的缓存项
+            const keysToRemove = [
+                'cachedMenus',
+                'cachedAdaptiveMenuData', 
+                'cachedBulletinData', 
+                'cachedLanguageList', 
+                'cachedRateData'
+            ];
+            
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+                // console.log(`已删除缓存: ${key}`);
+            });
+            
+            // 方法2: 添加时间戳使缓存失效
+            localStorage.setItem('cacheInvalidationTimestamp', Date.now().toString());
+            
+            // 方法3: 如果有必要，也可以考虑清除所有以'cached'开头的项
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('cached')) {
+                    localStorage.removeItem(key);
+                    // console.log(`已删除额外缓存: ${key}`);
+                }
+            });
+            
+            // console.log('缓存清除完成');
+        } catch (error) {
+            console.error('清除缓存时出错:', error);
+        }
+
         // 直接设置i18n实例的语言
         if (typeof i18n.changeLanguage === 'function') {
             i18n.changeLanguage(langEncode.split('-')[0]);
         } else {
-            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
+            // console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
             // 使用替代方法
             localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
         }
@@ -678,7 +612,7 @@ export default function HomeMenu() {
         window.dispatchEvent(event);
 
         // 添加调试信息
-        console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}`);
+        // console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}, 数据缓存已清除`);
 
         // 使用硬刷新确保语言切换生效并保持路径
         const currentPath = router.asPath;
@@ -686,9 +620,13 @@ export default function HomeMenu() {
 
         // 保存当前路径到会话存储，以便在重定向后恢复
         sessionStorage.setItem('lastPath', currentPath);
+        
+        // 添加标志表明这是一个语言切换，需要刷新数据
+        sessionStorage.setItem('languageChanged', 'true');
 
-        // 构建新URL时保留查询参数和哈希
+        // 构建新URL时保留查询参数和哈希，并添加时间戳以防止缓存
         const url = new URL(`${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`);
+        url.searchParams.append('t', Date.now().toString()); // 添加时间戳参数
         window.location.href = url.toString();
     };
     // 汇率点击
@@ -697,7 +635,7 @@ export default function HomeMenu() {
         // 可以在这里添加其他逻辑，例如更新语言设置
     };
     // 定义语言菜单项
-    const languageItems = spanArr.length > 0 ? spanArr.map((item, index) => ({
+    const languageItems = spanArr.length > 0 ? spanArr.map((item: { span: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; key: any; }, index: number) => ({
         key: `1-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -709,7 +647,7 @@ export default function HomeMenu() {
                 width: '100%',
                 height: '100%'
             }}
-                onClick={() => handleLanguageClick(item.span || '', item.key || '')}
+                onClick={() => handleLanguageClick(item.span as string, item.key as string)}
             >
                 {item.span}
             </span> // 动态赋值
@@ -722,7 +660,7 @@ export default function HomeMenu() {
         }
     ];
     // 定义汇率菜单项
-    const rateItems = spanRateArr.length > 0 ? spanRateArr.map((item, index) => ({
+    const rateItems = spanRateArr.length > 0 ? spanRateArr.map((item: { span: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; key: any; }, index: number) => ({
         key: `3-${index + 1}`, // 动态生成 key
         type: 'item',
         title: `${item.span}`,
@@ -734,7 +672,7 @@ export default function HomeMenu() {
                 width: '100%',
                 height: '100%'
             }}
-                onClick={() => handleRateClick(item.span)}>{item.span}
+                onClick={() => handleRateClick(item.span as string)}>{item.span}
             </span> // 动态赋值
         ),
     })) : [
@@ -807,13 +745,10 @@ export default function HomeMenu() {
             label: '公告',
             children:
                 // 如果有公告数据则使用，否则使用默认数据
-                bulletinData.length > 0
-                    ? bulletinData.map((item, index) => (
+                mergedBulletinData.length > 0
+                    ? mergedBulletinData.map((item: any, index: number) => (
                         <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
                     ))
-                    // : bulletinArr.map((item, index) => (
-                    //     <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
-                    // ))
                     : (
                         <div style={{
                             display: 'flex',
@@ -830,26 +765,29 @@ export default function HomeMenu() {
             children: 'Content of Tab Pane 2',
         },
     ];
-    // 右侧菜单
-    const iconMenusLogin: MenuListItem[] = [
-        // {
-        //     key: '1',
-        //     title: <IconHtml icon="img_download" />,
-        //     widthSet: 'download',
-        //     items: [
-        //         {
-        //             key: '1',
-        //             type: 'group',
-        //             label: (
-        //                 <MenuItemLabel src="/images/home_menu/QR_code.png" h5Text="扫码下载APP" isOtherItem />
-        //             ),
-        //         },
-        //     ],
-        // },
 
+    // 根据登录状态创建不同的Tabs内容
+    const loginAwareBulletinItems = useMemo(() => {
+        // 添加调试日志
+        // console.log('重新计算标签内容，当前登录状态:', isLogin);
+        
+        // 如果已登录，返回所有标签页；否则只返回公告标签页
+        if (isLogin) {
+            return bulletinItems;
+        } else {
+            return [bulletinItems[0]];
+        }
+    }, [isLogin, bulletinItems]);
+
+    // 使用 useMemo 缓存菜单项配置
+    const iconMenusLogin = useMemo(() => [
         {
             key: '1',
-            title: <IconHtml icon="img_horn" />,
+            title: (
+                <Badge count={isLoggedIn ? unreadCount : 0} size="small" offset={[2, -4]}>
+                    <IconHtml icon="img_horn" />
+                </Badge>
+            ),
             widthSet: 'bell',
             items: [
                 {
@@ -901,10 +839,10 @@ export default function HomeMenu() {
                                 >
                                     <Tabs
                                         defaultActiveKey="1"
-                                        items={isLogin ? bulletinItems : bulletinItems.filter(item => item.key === '1')}
+                                        items={loginAwareBulletinItems}
+                                        key={`tabs-${isLogin ? 'logged-in' : 'logged-out'}`}
                                     />
                                 </ConfigProvider>
-
                             ),
                         }
                     ]
@@ -959,628 +897,25 @@ export default function HomeMenu() {
 
             ],
         },
-    ];
-    const iconItemsLogin = iconMenusLogin.map(iconMenu =>
-        <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
+    ], [isLogin, loginAwareBulletinItems, languageItems, searchLanguageValue, rateItems, searchRateValue]); // 添加所有需要的依赖
+    
+    // 使用 useMemo 缓存渲染结果
+    const iconItemsLogin = useMemo(() =>
+        iconMenusLogin.map(iconMenu =>
+            <MenuItem key={iconMenu.key} menuList={iconMenu} haveArrow={true} />
+        ),
+        [iconMenusLogin]
     );
 
-    // TabsItem组件的数据
-    // let tabsItemsData1: TabsItemData[] = [
-    //     {
-    //         src: '/images/home_menu/BTC.png',
-    //         h5Text: "BTC/USDT",
-    //         spanText: "10X",
-    //         incNum: '63,719.9',
-    //         normalNum: '+0.35%',
-    //         colorSpan: 'orange'
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: "ETH/USDT",
-    //         spanText: "10X",
-    //         incNum: '2,617.00',
-    //         normalNum: '+0.62%',
-    //         colorSpan: 'orange'
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: "ETH/USDT",
-    //         spanText: "10X",
-    //         incNum: '2,617.00',
-    //         normalNum: '-0.62%',
-    //         colorSpan: 'orange'
-    //     },
-    // ];
-    // tabsItemsData1 = mapArray(tabsItemsData1, addIsPositiveProperty);
-    // let tabsItemsData2: TabsItemData[] = [
-    //     {
-    //         src: '/images/home_menu/BTC.png',
-    //         h5Text: "BTC/USDT",
-    //         spanText: "永续",
-    //         incNum: '63,719.9',
-    //         normalNum: '+0.35%',
-    //         colorSpan: 'blue'
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: "ETH/USDT",
-    //         spanText: "永续",
-    //         incNum: '2,617.00',
-    //         normalNum: '+0.62%',
-    //         colorSpan: 'blue'
-    //     },
-    // ];
-    // tabsItemsData2 = mapArray(tabsItemsData2, addIsPositiveProperty);
-    // const tabsItemsData3: TabsItemData[] = [
-    //     {
-    //         src: '/images/home_menu/BTC.png',
-    //         h5Text: "BTCUSD",
-    //         spanText: "T型报价",
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: "ETHUSD",
-    //         spanText: "T型报价",
-    //     },
-    // ];
-    // let tabsItemsData4: TabsItemData[] = [
-    //     {
-    //         src: '/images/home_menu/BTC.png',
-    //         h5Text: "BTCUSD",
-    //         incNum: '63,719.9',
-    //         normalNum: '+0.35%',
-    //         spanText: "交割",
-    //     },
-    //     {
-    //         src: '/images/home_menu/ETC.png',
-    //         h5Text: "ETHUSD",
-    //         incNum: '2,617.00',
-    //         normalNum: '+0.62%',
-    //         spanText: "交割",
-    //     },
-    // ];
-    // tabsItemsData4 = mapArray(tabsItemsData4, addIsPositiveProperty);
-    // // TabsItem组件过滤后的数据
-    // const [searchValue1, setSearchValue1] = useState('');
-    // const handleInputChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setSearchValue1(event.target.value);
-    // };
-    // const [searchValue2, setSearchValue2] = useState('');
-    // const handleInputChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setSearchValue2(event.target.value);
-    // };
-    // // const [searchValue3, setSearchValue3] = useState('');
-    // // const handleInputChange3 = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // //     setSearchValue3(event.target.value);
-    // // };
-    // const [searchValue4, setSearchValue4] = useState('');
-    // // const handleInputChange4 = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // //     setSearchValue4(event.target.value);
-    // // };
-    // const filteredData1 = React.useMemo(() => filterData(tabsItemsData1, searchValue1), [tabsItemsData1, searchValue1]);
-    // const filteredData2 = React.useMemo(() => filterData(tabsItemsData2, searchValue2), [tabsItemsData2, searchValue2]);
-    // // const filteredData3 = React.useMemo(() => filterData(tabsItemsData3, searchValue3), [tabsItemsData3, searchValue3]);
-    // // const filteredData4 = React.useMemo(() => filterData(tabsItemsData4, searchValue4), [tabsItemsData4, searchValue4]);
+    // 解决服务端渲染和客户端渲染不一致的问题
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-    // // 子项标签页
-    // // const tabsItems1 = [
-    // //     {
-    // //         key: '1',
-    // //         label: 'USDT',
-    // //         children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData1} onInputChange={handleInputChange1} />,
-    // //     },
-    // //     {
-    // //         key: '2',
-    // //         label: 'USDC',
-    // //         children: 'Content of Tab Pane 2',
-    // //     },
-    // //     {
-    // //         key: '3',
-    // //         label: '稳定币',
-    // //         children: 'Content of Tab Pane 3',
-    // //     },
-    // //     {
-    // //         key: '4',
-    // //         label: 'Crypto',
-    // //         children: 'Content of Tab Pane 4',
-    // //     },
-    // // ];
-    // // const tabsItems2 = [
-    // //     {
-    // //         key: '1',
-    // //         label: 'USDT本位',
-    // //         children: <MenuItemChildrenLabel isSearch needNumber tabsItemsData={filteredData2} onInputChange={handleInputChange2} />,
-    // //     },
-    // //     {
-    // //         key: '2',
-    // //         label: 'USDC本位',
-    // //         children: 'Content of Tab Pane 2',
-    // //     },
-    // //     {
-    // //         key: '3',
-    // //         label: '币本位',
-    // //         children: 'Content of Tab Pane 3',
-    // //     },
-    // // ];
-    // // const tabsItems3 = [
-    // //     {
-    // //         key: '1',
-    // //         label: 'T型报价',
-    // //         children: <MenuItemChildrenLabel tabsItemsData={tabsItemsData3} />,
-    // //     },
-    // //     {
-    // //         key: '2',
-    // //         label: '期权简选',
-    // //         children: 'Content of Tab Pane 2',
-    // //     },
-    // // ];
-
-    // // 菜单中的子项
-    // // const ulItems = [
-    // //     {
-    // //         liContent: '简单赚币'
-    // //     },
-    // //     {
-    // //         liContent: '结构化产品'
-    // //     },
-    // //     {
-    // //         liContent: '链上赚币'
-    // //     },
-    // // ];
-
-    // // 左侧菜单
-    // // const menus: MenuListItem[] = [
-    // //     // {
-    // //     //     key: '0',
-    // //     //     title: <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px' }} />,
-    // //     //     items: []
-    // //     // },
-    // //     {
-    // //         key: '1',
-    // //         // title: t('home_menu_title_1'),
-    // //         // title: '买币',
-    // //         title: '行情',
-    // //         // title: <IconHtml icon="bell" />,
-    // //         items: [
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon-c2c.png" h5Text="C2C 买币" spanText="灵活选择，0交易费" />
-    // //                 ),
-    // //             },
-    // //         ],
-    // //     },
-    // //     {
-    // //         key: '2',
-    // //         // title: '发现',
-    // //         title: '交易',
-    // //         items: [
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_chart_line.png" h5Text="市场" spanText="查看最新行情和交易大数据" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '2',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_target_line.png" h5Text="机会" spanText="发掘最热、最新币种，及时捕捉市场机会" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '3',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_task.png" h5Text="跟单" spanText="与全球顶级交易员一起赚钱" />
-    // //                 ),
-    // //             },
-    // //         ],
-    // //     },
-    // //     {
-    // //         key: '3',
-    // //         // title: '交易',
-    // //         title: '合约',
-    // //         items: [
-    // //             {
-    // //                 key: '0',
-    // //                 type: 'group',
-    // //                 label: '交易类型',
-    // //             },
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_shandui.png" h5Text="闪兑" spanText="币币兑换，0 费率，无滑点" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '2',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_exchange_baht_line.png" h5Text="现货" spanText="轻松买卖数字货币" />
-    // //                 ),
-    // // children: [
-    // //     {
-    // //         key: '2-1',
-    // //         type: 'group',
-    // //         label: (
-    // //             <MenuItemChildrenLabel isTabs tabsItems={tabsItems1} />
-    // //         ),
-    // //     },
-    // // ],
-    // //             },
-    // //             {
-    // //                 key: '3',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_pact.png" h5Text="合约" spanText="交易永续和交割合约，灵活使用杠杆" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '3-1',
-    // //                         type: 'group',
-    // //                         label: (
-    // //                             <MenuItemChildrenLabel isTabs tabsItems={tabsItems2} />
-    // //                         ),
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '4',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_option.png" h5Text="期权" spanText="利用市场波动，赚取收益，降低交易风险" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '4-1',
-    // //                         type: 'group',
-    // //                         label: (
-    // //                             <MenuItemChildrenLabel isTabs tabsItems={tabsItems3} />
-    // //                         ),
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '5',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel isNew src="/images/home_menu/Group.png" h5Text="盘前交易" spanText="在币种未上线阶段，提前交易其交割合约" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '5-1',
-    // //                         type: 'group',
-    // //                         label: (
-    // //                             <MenuItemChildrenLabel isSearch needNumber isMargin tabsItemsData={filteredData4} onInputChange={handleInputChange4} />
-    // //                         ),
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '6',
-    // //                 type: 'divider',
-    // //                 label: '',
-    // //             },
-    // //             {
-    // //                 key: '7',
-    // //                 type: 'group',
-    // //                 label: '交易工具',
-    // //             },
-    // //             {
-    // //                 key: '8',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_dengpao.png" h5Text="策略交易" spanText="多种智能策略，助您轻松交易" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '8-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_target_line.png" h5Text="策略广场" spanText="" />
-    // //                         ),
-    // //                     },
-    // //                     {
-    // //                         key: '8-2',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/chuangjianrenwu 1.png" h5Text="创建策略" spanText="" />
-    // //                         )
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '9',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_jiaoyiyuan.png" h5Text="交易广场" spanText="与全球顶级交易员一起赚钱" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '9-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel isNew src="/images/home_menu/icon_award.png" h5Text="精选策略" spanText="" />
-    // //                         ),
-    // //                     },
-    // //                     {
-    // //                         key: '9-2',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_contract.png" h5Text="合约跟单" spanText="" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '9-3',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_task (1).png" h5Text="现货跟单" spanText="" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '9-4',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_Recruitment.png" h5Text="精英交易员招募" spanText="" />
-    // //                         )
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '10',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_flow.png" h5Text="流动性市场" spanText="为交割价差、自定义多腿策略和大宗交易 带来深度流动性" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '10-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_safe_flash.png" h5Text="价格速递" spanText="" />
-    // //                         ),
-    // //                     },
-    // //                     {
-    // //                         key: '10-2',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_Inquiry sheet.png" h5Text="询价单" spanText="" />
-    // //                         )
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '11',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_simulate.png" h5Text="模拟交易" spanText="使用虚拟资金，零风险体验交易环境" />
-    // //                 ),
-    // //             },
-    // //         ],
-    // //     },
-    // //     {
-    // //         key: '4',
-    // //         // title: '金融',
-    // //         title: '跟单',
-    // //         items: [
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'group',
-    // //                 // children: [
-    // //                 //     {
-    // //                 //         key: '1-1',
-    // //                 //         type: 'item',
-    // //                 //         label: '1st menu item',
-    // //                 //     },
-    // //                 //     {
-    // //                 //         key: '1-2',
-    // //                 //         type: 'item',
-    // //                 //         label: '2nd menu item',
-    // //                 //     },
-    // //                 // ],
-    // //                 label: (
-    // //                     <MenuItemLabel ulItems={ulItems} haveItemChildren src="/images/home_menu/icon_currency.png" h5Text="赚币" spanText="持币生币，赚取收益" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '2',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_Debit and credit.png" h5Text="借贷" spanText="质押数字资产，满足您的投资和消费需求" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '3',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_compass.png" h5Text="Jumpstart" spanText="抢先发现全国优质新项目" />
-    // //                 ),
-    // //             },
-    // //         ],
-    // //     },
-    // //     {
-    // //         key: '5',
-    // //         // title: '公链',
-    // //         title: '策略',
-    // //         items: [
-    // //             {
-    // //                 key: '0',
-    // //                 type: 'group',
-    // //                 label: 'X Layer',
-    // //             },
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_tansuo.png" h5Text="X Layer" spanText="点燃创意、引领创新" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '1-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_X Layer.png" h5Text="主网浏览器" spanText="主网链上数据" />
-    // //                         ),
-    // //                     },
-    // //                     {
-    // //                         key: '1-2',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_compass (1).png" h5Text="测试网浏览器" spanText="测试网链上数据" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '1-3',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_Test net.png" h5Text="X Layer 生态" spanText="探索 X Layer DApp" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '1-4',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_webhook.png" h5Text="精英交易员招募" spanText="" />
-    // //                         )
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '2',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_code.png" h5Text="开发者" spanText="无限扩容" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '2-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_file_code.png" h5Text="开发者文档" spanText="查看技术文档" />
-    // //                         ),
-    // //                     },
-    // //                     {
-    // //                         key: '2-2',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_faucet.png" h5Text="测试网水龙头" spanText="获取测试网 IMBT" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '2-3',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_link.png" h5Text="测试网跨链桥" spanText=" Layer 测试网跨链桥" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '2-4',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_settings.png" h5Text="预言机" spanText="获取价格数据" />
-    // //                         )
-    // //                     },
-    // //                     {
-    // //                         key: '2-5',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_github.png" h5Text="GitHub" spanText="探索 X Layer 仓库" />
-    // //                         )
-    // //                     },
-    // //                 ],
-    // //             },
-    // //             {
-    // //                 key: '3',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_Official application.png" h5Text="官方应用" spanText="基础建设产品" />
-    // //                 ),
-    // //                 children: [
-    // //                     {
-    // //                         key: '3-1',
-    // //                         type: 'item',
-    // //                         label: (
-    // //                             <MenuItemLabel src="/images/home_menu/icon_link.png" h5Text="跨链桥" spanText="以太坊与 X Layer 资产跨链" />
-    // //                         ),
-    // //                     },
-    // //                 ],
-    // //             },
-    // //         ],
-    // //     },
-    // //     {
-    // //         key: '6',
-    // //         // title: '机构客户',
-    // //         title: '理财',
-    // //         items: [
-    // //             {
-    // //                 key: '1',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_building.png" h5Text="机构首页" spanText="为机构客户提供最强劲、最完整的数字货币交易解决方案" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '2',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_flow (1).png" h5Text="流动性市场" spanText="支持场外交易，为专业交易员和机构用户提供流动性" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '3',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_API.png" h5Text="API" spanText="超低延迟的 API 无缝连接您的数据和操作" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '4',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_VIP.png" h5Text="尊享借币" spanText="提高资金利用率" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '5',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_Broker's office.png" h5Text="经济商项目" spanText="享受世界一流的市场深度，获得高额的佣金回赠" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '6',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon_manage.png" h5Text="资金子账户" spanText="统一管理子账户，让交易变得更轻松、更安全、更实惠" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '7',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon-market.png" h5Text="历史行情数据" spanText="K线图、交易汇总、订单表数据等信息尽在掌握" />
-    // //                 ),
-    // //             },
-    // //             {
-    // //                 key: '8',
-    // //                 type: 'item',
-    // //                 label: (
-    // //                     <MenuItemLabel src="/images/home_menu/icon-news.png" h5Text="机构交易资讯" spanText="洞悉最前沿的机构交易研究、新闻及更多" />
-    // //                 ),
-    // //             },
-    // //         ],
-    // //     },
-    // // ];
-
-    const listItems = menus.map(menuList => {
-        // console.log('menuList', menuList);
+    const listItems = mergedMenus.map((menuList: MenuListItem) => {
         return <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
-    }
-    );
+    });
 
     // 左侧菜单展开
     const [open, setOpen] = React.useState<boolean>(false);
@@ -1596,6 +931,44 @@ export default function HomeMenu() {
         }, 2000);
     };
 
+    // 使用两种不同的渲染策略来避免水合错误
+    const ServerContent = () => (
+        <div className={styles.container}>
+            <div className={styles.logo}>
+                {/* 简化的静态内容 */}
+                <div style={{ width: 126, height: 30 }}></div>
+            </div>
+            <div className={styles.menuContainer}>
+                {/* 简化的静态内容 */}
+                <div className={styles.menuListContainer}></div>
+                <div className={styles.rightListContainer}></div>
+            </div>
+        </div>
+    );
+
+    // 如果在服务器端，或者客户端组件尚未挂载，返回简化版本
+    if (typeof window === 'undefined' || !isMounted) {
+        return (
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Dropdown: {
+                            colorBgElevated: 'var(--background-menu)',
+                            colorText: 'var(--text-color5)'
+                        },
+                        Menu: {
+                            itemBg: 'var(--background-menu)',
+                            itemColor: 'var(--text-color5)',
+                        }
+                    }
+                }}
+            >
+                <ServerContent />
+            </ConfigProvider>
+        );
+    }
+
+    // 客户端已挂载的完整内容
     return (
         <ConfigProvider
             theme={{
@@ -1607,6 +980,7 @@ export default function HomeMenu() {
                     Menu: {
                         itemBg: 'var(--background-menu)',
                         itemColor: 'var(--text-color5)',
+                        colorSplit: 'var(--border-color4)'
                     },
                     Input: {
                         inputFontSize: 12,
@@ -1780,6 +1154,7 @@ export default function HomeMenu() {
                                                         placement="bottomLeft"
                                                         trigger={['click']}
                                                         overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
+                                                        overlayClassName='customUserAllMenu'
                                                     >
                                                         <Space>
                                                             <Image

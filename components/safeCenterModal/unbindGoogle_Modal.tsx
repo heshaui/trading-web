@@ -16,6 +16,7 @@ import {
 } from '@/services/safeCenter'
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
+import  QuestionModal  from "@/components/myModal/questionModal";
 interface acountType {
     countryCode?: string;
     email?: string;
@@ -54,8 +55,13 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const [loading, setLoading] = useState(false); // 按钮loading
     const [codeLoading, setCodeLoading] = useState(false); // 验证码loading
     const [codeLoading2, setCodeLoading2] = useState(false); // 验证码loading
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+
+    const [questionModalOpen, setQuestionModalOpen] = useState(false);
     const [form] = Form.useForm();
-    console.log(acountInfo, 123);
+    // console.log(acountInfo, 123);
 
     const handCancel = () => {
         form.resetFields();
@@ -76,7 +82,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         isGoogleAuth: 0,
                         code: values.emailCode || '',
                         googleCode: values.googleCode || '',
-                        phoneCode: values.phoneCode || ''
+                        phoneCode: values.phoneCode || '',
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await unbindGoogle(dataEncrypt)
@@ -186,6 +192,30 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
+    const handQuestionOk = (type: string) => {
+        if(type === 'phone'){
+            getPhoneCode()
+        }else if(type === 'email'){
+            getMailCode()
+        }
+        setQuestionModalOpen(false)
+    }
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>,type:string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        if(type === 'email'){
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if(type === 'phone'){
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        }else if(type === 'google'){
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
 
 
     const handlePaste = async () => {
@@ -228,7 +258,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             theme={{
                 components: {
                     Form: {
-                        itemMarginBottom: 20, // 去除表单项之间的间距
+                        itemMarginBottom: 10, // 去除表单项之间的间距
                     },
                     Input: {
                         // color: '#FF5F1F',
@@ -276,7 +306,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     <div className="flex-col flex-ai-center">
-                        <Image src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
+                        <Image src="/images/userCenter/safe/change_google.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
 
                         <p className={`${styles.msg_color}`}>确定解绑谷歌验证？</p>
                         <div className={`mb-6 mt-7 ${styles.warning_box} font-12 font-w-400`} >
@@ -313,6 +343,9 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
+                                    value={emailCodeInputValue}
                                 />
                                 {/* <button className='text-color mt-1'>粘贴</button> */}
                             </Form.Item>
@@ -323,7 +356,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
                             </p>
-                            <Form.Item name="phoneCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                            <Form.Item name="phoneCode" rules={[{ required: true, message: "验证码不能为空！" }]} >
                                 <Input
                                     allowClear
                                     placeholder="请输入验证码"
@@ -337,10 +370,17 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                                     style={{ borderRadius: "8px" }}
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
+                                    value={phoneCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
+                        {(acountInfo.phone ||acountInfo.email) &&<div 
+                        className={`error_icon font-14 font-w-500 mt-1 mb-2_5 cursor-pointer`}
+                        onClick={() => setQuestionModalOpen(true)}
+                         >没有收到验证码？</div>}
+                        {/* <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div> */}
                         <Form.Item name="googleCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
                             <Input placeholder="请输入谷歌验证码" allowClear className={`${styles.input_box} modal-input`}
                                 suffix={
@@ -348,14 +388,21 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                         粘贴
                                     </button>
                                 }
+                                maxLength={6}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                value={googleCodeInputValue}
                             />
                         </Form.Item>
-
-
-
                     </Form>
 
                 </div>
+                <QuestionModal
+                    open={questionModalOpen}
+                    onAgain={handQuestionOk}
+                    onCancel={() => setQuestionModalOpen(false)}
+                    type={acountInfo.phone ? 'phone' : 'email'}
+                    acount={acountInfo.phone ? acountInfo.phone : acountInfo.email?acountInfo.email:''}
+                />
             </Modal>
         </ConfigProvider>
     );

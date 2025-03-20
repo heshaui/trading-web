@@ -18,11 +18,16 @@
     padding-top: 0;
 }
 
-.userInfo_pic {
+.userInfo_pic_box {
     width: 68px;
     height: 68px;
     border-radius: 50%;
     background-color: var(--background6);
+}
+.userInfo_pic{
+    width:100%;
+    height:100%;
+    border-radius: 50%;
 }
 
 .userInfo_uid {

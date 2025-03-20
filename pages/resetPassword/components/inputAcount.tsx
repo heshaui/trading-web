@@ -1,6 +1,6 @@
 // import { Button, Form, Input,Tabs } from "antd";
 "use client";
-import { Input, AutoComplete, Form, Segmented } from 'antd';
+import { Input, AutoComplete, Form, Segmented ,ConfigProvider} from 'antd';
 import type { AutoCompleteProps } from 'antd';
 import { useState ,useEffect} from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
@@ -24,7 +24,7 @@ function ResetPassword() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [tabsProps, setTabsProps] = useState('email');
     const { acount, type, areaCode } = router.query;
-    console.log(acount, type, areaCode, 123);
+    // console.log(acount, type, areaCode, 123);
 
     // 定义粘贴功能的处理函数
     // const handlePaste = async () => {
@@ -111,6 +111,28 @@ function ResetPassword() {
     if (resetState !== ResetStateEnum.INPUT) return null;
 
     return (<>
+    			<ConfigProvider
+				theme={{
+					components: {
+						Form: {
+							itemMarginBottom: 0, // 去除表单项之间的间距
+						},
+						Input: {
+							controlHeightLG: 50,
+							activeBorderColor: '#FF5F1F',
+							hoverBorderColor: '#FF5F1F',
+							activeBg: 'var(--background11)',
+							hoverBg: 'var(--background11)',
+						},
+						Select: {
+							selectorBg: 'var(--background11)',
+						}
+					},
+					token: {
+						// colorBgContainerDisabled: '#fff',
+					}
+				}}
+			>
         <Segmented
             className={`${styles.custom_segmented} custom-segmented`}
             options={[
@@ -158,7 +180,7 @@ function ResetPassword() {
                         options={options}
                         allowClear={true}
                         backfill={true}
-                        className={`${styles.acount_input} autoComplete-custom`}
+                        className={`${styles.acount_input} auto-complete-input  autoComplete-custom custom-sleect`}
                     // onChange={getValue}
                     />
 
@@ -168,7 +190,7 @@ function ResetPassword() {
                         <div className={`flex ${styles.acount_input}`}>
                             <PhoneCodeSelector />
                             <Form.Item noStyle name="acountNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-                                <Input placeholder="请输入手机号" allowClear={true} className={` ml-2 custom-input`} />
+                                <Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 custom-input modal-input`} />
                             </Form.Item>
                         </div>
                     </Form.Item>
@@ -182,6 +204,7 @@ function ResetPassword() {
             </div>
 
         </div>
+        </ConfigProvider>
     </>
 
     );

@@ -53,17 +53,23 @@
     border-color: var(--text-color3) !important;
 }
 /* modal输入框placeholder颜色 */
-.modal-input input::placeholder{
+.modal-input input::placeholder,.modal-input2::placeholder{
     color: var(--text-color6) !important;
 }
 .modal-input2 input::placeholder{
+    color: var(--text-color4) !important;
+}
+/* 输入框清除图标底色 */
+.modal-input .ant-input-clear-icon,.modal-input2 .ant-input-clear-icon{
     color: var(--text-color4) !important;
 }
 /* modal选择框placeholder颜色 */
 .custom-sleect .ant-select-selection-placeholder{
     color: var(--text-color4) !important;
 }
-
+.custom-select .ant-select-selection-item{
+    color: var(--text-color6) !important;
+}
 .autoComplete-custom .ant-input::placeholder{
     color: var(--text-color4) !important;
 }
@@ -292,4 +298,8 @@
 .table-box .ant-table-placeholder,
 .table-box .ant-table-placeholder:hover>td{
     background: transparent !important;
+}
+
+.custom-tabs .ant-tabs-nav::before{
+    border-color: transparent !important;
 }

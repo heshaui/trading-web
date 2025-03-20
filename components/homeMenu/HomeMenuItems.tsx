@@ -8,8 +8,9 @@ import styles from '@/styles/components/HomeMenu.module.css';
 import { Props, IconName } from '@/type/types';
 // import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React from 'react';
 
-const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
+const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
     const hasChildren = menuList.items.some(item => {
         return item.children && item.children.length > 0;
     })
@@ -96,6 +97,9 @@ const MenuItem: React.FC<Props> = ({ menuList, haveArrow, }) => {
             )}
         </>
     );
-};
+});
+
+// 设置组件名称
+MenuItem.displayName = 'MenuItem';
 
 export default MenuItem;

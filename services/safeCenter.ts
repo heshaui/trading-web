@@ -116,14 +116,14 @@ export function getEmailSafe(data: codeType | encryptType): Promise<any> {
 }
 // 短信验证码
 export function getSmsCode(data: codeType | encryptType): Promise<any> {
-  return request(`${fixUrl2}/sms/send/not/updateSmsVerify`, {
+  return request(`${fixUrl}/sms/send/not/updateSmsVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 //邮件验证码 
 export function getEmailCode(data: codeType | encryptType): Promise<any> {
-  return request(`${fixUrl2}/email/send/not/updateEmailVerify`, {
+  return request(`${fixUrl}/email/send/not/updateEmailVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -151,14 +151,14 @@ export function setPassword(data: encryptType): Promise<any> {
 }
 // 密码-短信验证码
 export function getPasswordSmsCode(data:  encryptType): Promise<any> {
-  return request(`${fixUrl2}/sms/send/not/updatePwdVerify`, {
+  return request(`${fixUrl}/sms/send/not/updatePwdVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 //密码-邮件验证码 
 export function getPasswordEmailCode(data:  encryptType): Promise<any> {
-  return request(`${fixUrl2}/email/send/not/updatePwdVerify`, {
+  return request(`${fixUrl}/email/send/not/updatePwdVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -170,3 +170,18 @@ export function unbindGoogle(data: encryptType): Promise<any> {
     body: JSON.stringify(data),
   });
 }
+// 获取谷歌key
+export function getGoogleKey(): Promise<any> {
+  return request(`${fixUrl}/user-web/v1/google/sendGoogleKey`, {
+    method: 'GET',
+    // body: JSON.stringify(data),
+  });
+}
+// 绑定谷歌验证
+export function bindGoogle(data: encryptType): Promise<any> {
+  return request(`${fixUrl}/user-web/v1/google/bindGoogleKey`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
