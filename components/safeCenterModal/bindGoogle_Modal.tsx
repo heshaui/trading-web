@@ -204,9 +204,9 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     const onNextSetup = () => {
         setCurrent(current + 1);
     }
-    const onPrevSetup = () => {
-        setCurrent(current - 1);
-    }
+    // const onPrevSetup = () => {
+    //     setCurrent(current - 1);
+    // }
     useEffect(() => {
         if (open) {
             getGoogleKeyData()
