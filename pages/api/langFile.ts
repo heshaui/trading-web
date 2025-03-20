@@ -15,7 +15,7 @@ const langCodeMapping: Record<string, string> = {
 // 从外部API获取语言包数据 - 修改为POST请求
 async function fetchLangPackageFromAPI() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE;
+    const baseUrl = 'https://ljx.imsaas.work';
     const headers = {
       'Content-Type': 'application/json',
       'ambit-saas': '2e5bbf22907d4a31992e9641079af195'
