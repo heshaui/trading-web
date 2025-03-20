@@ -189,7 +189,7 @@ const OverviewPage: React.FC = () => {
                     {loginInfo && loginInfo?.realnessStatus === 3 && (
                         <div className='font-14 mt-2 flex-x align-center'>
                             <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
-                            <span className={`${styles.tip_color} font-14 font-w-500`}>认证中</span>
+                            <span className={`${styles.tip_color} font-14 font-w-500`}>审核中</span>
                         </div>
                     )}
                     {loginInfo && loginInfo?.realnessStatus === 2 && (
@@ -265,7 +265,7 @@ const OverviewPage: React.FC = () => {
                         <p className={`font-14 mt-3`}>启用双重认证提高账户安全性</p>
                         <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => router.push('/userCenter/safeCenter')}
-                        >去绑定</button>
+                        >{loginInfo?.securityIntensity === 3 ? '去查看' : '去绑定'}</button>
                         {/* <Image
                                 src="/images/userCenter/overview/icon_safe.png"
                                 width={58}
