@@ -12,6 +12,8 @@ export const themeVariables = {
         '--background9': '#FFFFFF',
         '--background10': '#F5F5F5',
         '--background11': '#ffffff',
+        '--background12': '#ffffff',
+        '--background13': '#0C0D0C',
         '--foreground': '#171717',
         '--homeground': '#000000',
         '--homeground2': '#FFFFFF',
@@ -61,6 +63,7 @@ export const themeVariables = {
         '--segmented-item-bgc': '#F6F7FB',
         '--background-menu': '#FFFFFF',
         '--background-menu-item': '#F4F4F4',
+        '--card-shadow': '#A5A5A533',
     },
     dark: {
         '--background': '#0a0a0a',
@@ -74,6 +77,8 @@ export const themeVariables = {
         '--background9': '#0C0D0C',
         '--background10': '#202020',
         '--background11': '#111212',
+        '--background12': '#232328',
+        '--background13': '#232328',
         '--foreground': '#ededed',
         '--homeground': '#000000',
         '--homeground2': '#000000',
@@ -123,5 +128,6 @@ export const themeVariables = {
         '--segmented-item-bgc': '#141414',
         '--background-menu': '#232328',
         '--background-menu-item': '#0C0D0C',
+        '--card-shadow': '#01367433',
     }
 };

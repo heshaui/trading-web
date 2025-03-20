@@ -30,13 +30,13 @@ interface SafeDataType {
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
-    onOk?: () => void;
+    onOk: () => void;
     onCancel: () => void;
     type: string;
     acountInfo: SafeDataType;
 };
 
-function SetPhoneModal({ open, onCancel, type, acountInfo }: Props) {
+function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -101,6 +101,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo }: Props) {
                     const res = await bindEmail(dataEncrypt)
                     if (res.code === '0') {
                         toast.success(res.message)
+                        onOk()
                         handCancel()
                     } else {
                         toast.error(res.message)

@@ -3,14 +3,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from 'next/router';
 import styles from "../../styles/identityAuth.module.css";
-import { encryptData } from "@/utils/encrypt";
+// import { encryptData } from "@/utils/encrypt";
 import { Iconify } from "@/components/icon/index";
 import type { UploadFile, UploadProps } from 'antd';
 import Image from 'next/image';
 import type { CSSProperties } from "react";
 import { fileImg } from "@/services/open";
 import { postSaveIdentity } from "@/services/userCenter";
-
+import dayjs from 'dayjs';
+import {encryptData} from '@/hooks/user-encrypt'
 interface eventType {
     surname: string;
     firstName: string;
@@ -77,17 +78,23 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
             try {
                 const params = {
                     ...userInfo,
+                    birthday: dayjs(userInfo.birthday).valueOf() + '',
                     frontUrl: frontFileUrl,
                     backUrl: backFileUrl,
                     selfieUrl: selfieFileUrl
                 }
+
                 const encrypt = await encryptData(params)
+                console.log(params,111,encrypt,222);
+                
                 const res = await postSaveIdentity(encrypt)
                 setIsLoading(true)
                 if (res.code === '0') {
                     toast.success('提交成功');
+                    sessionStorage.removeItem('idvFormData');
                     onNext();
                     localStorage.setItem('identity_authStatus','3')
+                    
                 } else {
                     toast.error(res.message);
                 }
@@ -136,7 +143,6 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     // onSuccess(res.data);
                     console.log(res.data);
                     setFrontFileUrl(res.data.data);
-
                 } else {
                     toast.error(res.message);
                 }
@@ -165,7 +171,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 const res = await fileImg(file);
                 if (res.code === '0') {
                     // onSuccess(res.data);
-                    console.log(res.data);
+                    // console.log(res.data);
                     setBackFileUrl(res.data.data);
 
                 } else {

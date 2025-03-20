@@ -1,0 +1,134 @@
+
+import React from 'react';
+import styles from '../styles/invite.module.css';
+import { useThemeMode } from '@/hooks/useThemeMode';
+import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
+// import type { CSSProperties } from 'react';
+import { ConfigProvider,  Tabs } from 'antd';
+import { Iconify } from "@/components/icon"
+import Image from 'next/image';
+import type { TabsProps } from 'antd';
+import InvitationDetails from './tables/invitation_details';
+import InvitationReward from './tables/invitation_reward';
+
+type InviteContentProps = {
+    onReturn: () => void;
+}
+const InviteContent = ({ onReturn }: InviteContentProps) => {
+    const { isDayMode } = useThemeMode(); // 使用 hook
+    const { copyFn } = useCopyToClipboard();
+    const inviteContentList = [
+        {
+            key: 1,
+            title: '推荐好友',
+            desc: '将您的邀请链接分享给好友',
+            icon: '/images/invite/icon_recommend1.png'
+        },
+        {
+            key: 2,
+            title: '邀请激活',
+            desc: '好友注册且累计充值至少50USDT',
+            icon: '/images/invite/icon_Invitation2.png'
+        },
+        {
+            key: 3,
+            title: '完成认证',
+            desc: '好友完成身份认证',
+            icon: '/images/invite/icon_complete3.png'
+        },
+        {
+            title: '发放奖励',
+            desc: '满足奖励条件后，系统自动发放',
+            icon: '/images/invite/icon_issue4.png'
+        }
+    ]
+    const items: TabsProps['items'] = [
+        {
+            key: '1',
+            label: '我的邀请',
+            children: <InvitationDetails onReturn={onReturn}/> ,
+        },
+        {
+            key: '2',
+            label: '奖励发放',
+            children: <InvitationReward onReturn={onReturn}/> ,
+        },
+    ];
+
+    return (<>
+        <div className={`${styles.header_banner}`}>
+            <div className={`${styles.main_page}`}>
+                <div className={`${styles.content_box}`}>
+                    <h3 className={`font-32 font-w-500 mb-10 ${styles.mt8}`}>如何获得佣金？</h3>
+                    <ul className={`flex-x  flex-wrap`}>
+                        {inviteContentList.map((item) => (
+                            <li key={item.key} className={`${styles.auto_item} flex-y align-center mt-5`}>
+                                <Image src={item.icon} alt={item.title} width={68} height={68} />
+                                <p className={`font-18 font-w-500 mt-5`}>{item.title}</p>
+                                <p className={`font-14 font-w-400 mt-2_5 ${styles.tip_color}`}>{item.desc}</p>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className={`${styles.content_box} ${styles.title_color}`}>
+                    <h3 className={`font-32 font-w-500 mb-10 `}>奖励规则</h3>
+                    <ul className={`${styles.content_list} font-16 font-w-400 `}>
+                        <li className="flex align-base ">
+                            <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />
+                            邀请好友加入Metawave，您可获得平台奖励</li>
+                        <li className="flex align-base mt-3">
+                            <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
+                            第一步：进入“邀请好友”页面，将您的邀请链接或邀请码分享给好友。</li>
+                        <li className="flex align-base mt-2_5">
+                            <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
+                            第二步：好友成功注册后，在注册 14 天内累计充值不低于 100 USDT且完成实名认证。您就可以获取好友现货交易20%手续费返佣。您可在此页面追踪邀请进度和任务完成情况。</li>
+                        <li className="flex align-base mt-6">
+                            <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />
+                            奖励发放时间：我们将在每日02:00（UTC+8）发放前一日邀请奖励至您的现货账户，若未收到请及时与我们的客服联系。</li>
+                    </ul>
+                </div>
+                <div className={`${styles.content_box}`}>
+                    <h3 className={`font-32 font-w-500 mb-10`}>我的邀请</h3>
+                    <ul className={`${styles.content_list}  font-16 font-w-400  flex-x flex-wrap`}>
+                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                            <p className={`font-14 font-w-400`}>邀请总数</p>
+                            <p className={`font-32 font-w-700 ${styles.title_color}`}>0</p>
+                        </li>
+                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                            <p className={`font-14 font-w-400`}>邀请成功</p>
+                            <p className={`font-32 font-w-700 ${styles.title_color}`}>0</p>
+                        </li>
+                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                            <p className={`font-14 font-w-400`}>{`累计返佣（USDT）`}</p>
+                            <p className={`font-32 font-w-700 ${styles.title_color}`}>440.00</p>
+                        </li>
+                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                            <p className={`font-14 font-w-400`}>{`累计返佣（TRX）`}</p>
+                            <p className={`font-32 font-w-700 ${styles.title_color}`}>440.00
+                                <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>≈  100.02 USDT</span></p>
+                        </li>
+
+                    </ul>
+                </div>
+                <div className={`${styles.content_box}`}>
+                    <h3 className={`font-32 font-w-500 mb-10`}>邀请详情</h3>
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Tabs: {
+                                    horizontalMargin:"0 0 0 0",
+                                    itemColor:"var(--text-color6)",
+                                },
+                            },
+                        }}>
+                        <Tabs items={items} className="custom-tabs"/>
+                    </ConfigProvider>
+                </div>
+            </div>
+
+        </div>
+    </>
+    );
+};
+
+export default InviteContent;

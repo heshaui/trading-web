@@ -14,6 +14,8 @@
   --background9: #FFFFFF;
   --background10: #F5F5F5;
   --background11: #ffffff;
+  --background12: #ffffff;
+  --background13: #0C0D0C;
   --foreground: #171717;
   --homeground: #000000;
   --homeground2: #FFFFFF;
@@ -57,6 +59,7 @@
   --help-center-input-text: #9E9E9E;
   --segmented-item-active-bg: #FFFFFF;
   --segmented-item-bgc: #F6F7FB;
+  --card-shadow: #A5A5A533;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,6 +75,8 @@
     --background9: #0C0D0C;
     --background10: #202020;
     --background11: #111212;
+    --background12: #232328;
+    --background13: #232328;
     --foreground: #ededed;
     --homeground: #000000;
     --homeground2: #000000;
@@ -115,6 +120,8 @@
     --help-center-input-text: #979897;
     --segmented-item-active-bg: #272727;
     --segmented-item-bgc: #141414;
+  --card-shadow: #01367433;
+
   }
 }
 

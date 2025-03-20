@@ -14,6 +14,17 @@ interface codeEncrypt {
   time: string|number,
   reqNo: string|number
 }
+interface identityEncrypt {
+  surname: string;
+  firstName: string;
+  countryId: string;
+  cardType: string;
+  cardCode: string;
+  birthday: string;
+  frontUrl?: string;
+  backUrl?: string;
+  selfieUrl?: string;
+}
 
 //用户信息
 export function getLoginUserInfo(): Promise<any> {
@@ -43,7 +54,8 @@ export function getSafeCenter(): Promise<any> {
   }
 
   // 身份认证
-  export function postSaveIdentity(data:codeEncrypt): Promise<any> {
+  // codeEncrypt|
+  export function postSaveIdentity(data:identityEncrypt|codeEncrypt): Promise<any> {
     return request(`${fixUrl}/user-web/v1/user/saveIdentityVerification`, {
       method: 'POST',
       body:JSON.stringify(data)

@@ -81,8 +81,13 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     const params = {
                         isGoogleAuth: 0,
                         code: values.emailCode || '',
+                        email: values.emailCode?acountInfo.email:"",
+
                         googleCode: values.googleCode || '',
+                        
                         phoneCode: values.phoneCode || '',
+                        phone: values.phoneCode?acountInfo.phone:"",
+                        countryCode: values.phoneCode?acountInfo.countryCode:"",
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await unbindGoogle(dataEncrypt)

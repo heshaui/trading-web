@@ -112,7 +112,7 @@ function ResetPassword({ onNext }: IDVProps) {
         setIsNext(isFormComplete)
     };
     const checkFormComplete = (values: any) => {
-        const requiredFields = ['countryId', 'cardType', 'cardCode', 'surname', 'firstName', 'birthday'];
+        const requiredFields = ['areaCode', 'cardType', 'cardCode', 'surname', 'firstName', 'birthday'];
         return requiredFields.every(field => {
             const value = values[field];
             return value !== undefined && value !== null && value !== '';
@@ -188,7 +188,7 @@ function ResetPassword({ onNext }: IDVProps) {
                         onValuesChange={onValuesChange}
                     >
                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>国家名称</div>
-                        <Form.Item name="countryId">
+                        <Form.Item name="areaCode">
                             <Select allowClear
                                 placeholder="请选择"
                                 options={countryData}

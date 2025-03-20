@@ -355,7 +355,8 @@ const SafeCenter: React.FC = () => {
     const handPhoneClose = async () => {
         try {
             const dataInfo = {
-                isPhoneAuth: 0
+                isPhoneAuth: 0,
+                type:3
             }
             const dataEncrypt = await encryptData(dataInfo)
             const res = await getPhoneClose(dataEncrypt)

@@ -38,7 +38,7 @@ export function encryptString(input: string | null): string {
 }
 export function encryptIdCard(idCard: string): string {
     // 检查传入的参数是否为有效的字符串
-    if (typeof idCard!=='string' || idCard.length < 5) {
+    if (typeof idCard !== 'string' || idCard.length < 5) {
         return idCard;
     }
     // 提取身份证号的前两位
@@ -50,23 +50,23 @@ export function encryptIdCard(idCard: string): string {
     // 拼接前两位、* 字符串和后三位
     return start + encryptedPart + end;
 }
-export const encryptData=async (data:any)=>{
-    const dataInfo=await encryptWithPublicKey(JSON.stringify(data)) || ""
-    const dataEncrypt = {
-        data: dataInfo,
-        time: dayjs(new Date().getTime()).valueOf(),
-        reqNo: uuidv4()
-    }
-    return await dataEncrypt
+export const encryptData = async (data: any) => {
+        const dataInfo = await encryptWithPublicKey(JSON.stringify(data)) || ""
+        const dataEncrypt = {
+            data: dataInfo,
+            time: dayjs(new Date().getTime()).valueOf(),
+            reqNo: uuidv4()
+        }
+        return await dataEncrypt
 }
-export  const getBenefitValue = (text: string) => {
+export const getBenefitValue = (text: string) => {
     let text1 = JSON.parse(text);
     const amount = Number(text1.amountLimit);
     let amountRes = '';
     if (!isNaN(amount) && amount > 1000) {
         // 去掉末尾三个 0 并添加 'K' 后缀
-        amountRes=(amount / 1000).toString() + 'K';
-    }else{
+        amountRes = (amount / 1000).toString() + 'K';
+    } else {
         amountRes = amount.toString();
     }
     return `${amountRes} ${text1.coin} ${text1.time}h`
