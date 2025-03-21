@@ -4,13 +4,15 @@
     border-radius: 36px;
     color: #ffffff;
 }
+
 .button-color-disable,
 .btn-disable {
     background: var(--cancel-btn);
     border-radius: 36px;
     color: var(--cancel-color);
 }
-.btn-color-default{
+
+.btn-color-default {
     border-radius: 36px;
     color: var(--btncolor5);
     border: 1px solid var(--btncolor5);
@@ -52,61 +54,68 @@
 .custom-input:hover {
     border-color: var(--text-color3) !important;
 }
+
 /* modal输入框placeholder颜色 */
-.modal-input input::placeholder,.modal-input2::placeholder{
+.modal-input input::placeholder,
+.modal-input2::placeholder {
     color: var(--text-color6) !important;
 }
-.modal-input2 input::placeholder{
+
+.modal-input2 input::placeholder {
     color: var(--text-color4) !important;
 }
+
 /* 输入框清除图标底色 */
-.modal-input .ant-input-clear-icon,.modal-input2 .ant-input-clear-icon{
+.modal-input .ant-input-clear-icon,
+.modal-input2 .ant-input-clear-icon {
     color: var(--text-color4) !important;
 }
+
 /* modal选择框placeholder颜色 */
-.custom-sleect .ant-select-selection-placeholder{
+.custom-sleect .ant-select-selection-placeholder,.custom-select .ant-select-selection-placeholder  {
     color: var(--text-color4) !important;
 }
-.custom-select .ant-select-selection-item{
+
+
+.custom-select .ant-select-selection-item {
     color: var(--text-color6) !important;
 }
-.autoComplete-custom .ant-input::placeholder{
+
+.autoComplete-custom .ant-input::placeholder {
     color: var(--text-color4) !important;
 }
+/* 自定义步骤条 */
+/* 步骤条选中状态 */
+/* .custom-steps .ant-steps-item-process .ant-steps-item-icon{
+    background-color:transparent !important;
+    border-color: var(--theme-color) !important;
+} */
+.custom-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon{
+    color: var(--cancel-btn) !important;
+}
+/* 标题-已完成 正在进行 */
+.custom-steps .ant-steps-item-finish .ant-steps-item-title,
+.custom-steps .ant-steps-item-process .ant-steps-item-title
+{
+    color: var(--text-color5) !important;
+}
+/* 步骤条等待状态 */
+.custom-steps .ant-steps-item-wait .ant-steps-item-icon{
+    background-color:transparent !important;
+    border-color: var(--theme-color) !important;
+}
+.custom-steps .ant-steps-item-wait .ant-steps-icon{
+    color: var(--theme-color) !important;
+}
+/* 标题 */
+.custom-steps .ant-steps-item-wait .ant-steps-item-title{
+    color: #A4A5AC !important;
+}
+/* 步骤条连接线 */
+.custom-steps .ant-steps-item-process .ant-steps-item-tail::after{
+    background-color: var(--text-color4) !important;
+}
 
-
-/* 
-  输入框组件覆盖 
-  .custom-input:focus,
-  .custom-input:focus-within {
-    border-color: var(--text-color3) !important;
-    box-shadow: none !important;
-  }
-  
-   鼠标聚焦且移出样式 
-  .custom-input:focus:not(:hover) {
-    color: var(--textcolor); 
-  }
-  
-   鼠标滑过 
-  .custom-input:hover {
-    background-color: var(--background);
-    border-color: var(--text-color3);
-  }
-  聚焦背景色
-  .custom-input.ant-input.status-error:not(.ant-input-disabled) {
-    background-color: var(--background) !important;
-  }
-  
-  .custom-input .ant-input::placeholder {
-    color: var(--textcolor);
-  }
-  
-  .custom-input {
-    background-color: var(--background);
-    color: var(--textcolor) !important;
-  }
-  */
 
 /* AutoComplete组件样式 */
 .autoComplete-custom .ant-select-selection-search-input {
@@ -136,7 +145,7 @@
 /* AutoComplete 组件样式 */
 .auto-complete-input .ant-select-selection-search-input {
     height: 100% !important;
-    color:var(--text-color5) !important;
+    color: var(--text-color5) !important;
 }
 
 .auto-complete-input .ant-select-selector:hover
@@ -223,14 +232,16 @@
 }
 
 /* menu菜单自定义样式 */
-.custom-menu .ant-menu-item{
+.custom-menu .ant-menu-item {
     border-radius: 0 50px 50px 0 !important;
 }
+
 .custom-menu .ant-menu-item-selected {
     background: linear-gradient(90deg, rgba(255, 95, 31, 0) 0%, rgba(255, 95, 31, 0.5) 100%) !important;
     /* border-radius: 0 50px 50px 0 !important; */
 }
-.custom-menu .ant-menu-item:hover{
+
+.custom-menu .ant-menu-item:hover {
     color: var(--text-color3) !important;
 }
 
@@ -247,59 +258,108 @@
 
 /*table 表格组件 */
 /* 背景色/各行背景色 */
-.table-box .ant-table{
+.table-box .ant-table {
     background: transparent !important;
     color: var(--text-color5) !important;
     font-size: 14px !important;
     font-weight: 500 !important;
 }
+
 /* 表头文字*/
-.table-box .ant-table-thead{
+.table-box .ant-table-thead {
     font-weight: 400 !important;
     font-size: 12px !important;
 }
+
 /* 展开行margin及padding */
 .table-box .ant-table-expanded-row-fixed,
-.table-box2 .ant-table-expanded-row-fixed{
+.table-box2 .ant-table-expanded-row-fixed {
     margin: 0 !important;
     padding: 0 !important;
 }
+
 /* 展开行hover背景色 */
-.table-box .ant-table-cell-row-hover{
+.table-box .ant-table-cell-row-hover {
     background: var(--bgc-color) !important;
     color: var(--text-color5) !important;
 }
-.table-box2 .ant-table-cell-row-hover{
+
+.table-box2 .ant-table-cell-row-hover {
     background: transparent !important;
 }
+
 /* 不显示展开图标时展开列表位置 */
-.table-box2 .ant-table{
+.table-box2 .ant-table {
     margin-left: 0 !important;
 }
-.table-box .ant-table-cell{
+
+.table-box .ant-table-cell {
     padding: 16px 0 !important;
     padding-left: 16px !important;
     /* padding:0 !important; */
 }
+
 /* 展开列表间距 */
-.table-box .ant-table-expanded-row>.ant-table-cell{
+.table-box .ant-table-expanded-row>.ant-table-cell {
     padding: 0 !important;
 }
+
 /* 展开行边框 */
-.table-box2 .ant-table-tbody >tr >td {
+.table-box2 .ant-table-tbody>tr>td {
     border-color: transparent !important;
 }
+
 /* 表头边框 */
-.table-box .ant-table-thead >tr >th{
+.table-box .ant-table-thead>tr>th {
     border-bottom: 1px solid var(--border-color4) !important;
     border-top: 1px solid var(--border-color4) !important;
 }
+
 /* 空数据 */
 .table-box .ant-table-placeholder,
-.table-box .ant-table-placeholder:hover>td{
+.table-box .ant-table-placeholder:hover>td {
     background: transparent !important;
 }
 
-.custom-tabs .ant-tabs-nav::before{
+/* 表格分页项按钮颜色 选中页码和未选中*/
+.table-box .ant-pagination-item>a,
+.table-box .ant-pagination-item-ellipsis {
+    color: var(--text-color5) !important;
+}
+
+.table-box .ant-pagination-next button,
+.table-box .ant-pagination-prev button {
+    color: var(--text-color5) !important;
+}
+
+/* 表格分页选择框背景色及颜色 */
+.table-box .ant-select-selector {
+    /* background: transparent !important; */
+    color: var(--text-color5) !important;
+    /* border-color: var(--border-color4) !important; */
+}
+
+/* 表格分页选择框 激活时背景色及颜色 */
+.table-box .ant-select-open .ant-select-selection-item {
+    color: var(--text-color4) !important;
+}
+/* 表格隐藏滚动条 */
+.table-box .ant-table-body {
+    /* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari, Edge) */
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+    }
+
+    /* 隐藏滚动条 - Firefox */
+    scrollbar-width: none;
+
+    /* 隐藏滚动条 - IE/Edge */
+    -ms-overflow-style: none;
+
+}
+
+.custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
 }

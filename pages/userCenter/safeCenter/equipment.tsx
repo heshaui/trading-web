@@ -285,6 +285,16 @@ function Equipment() {
                                     rowExpandedBg: "var(--background10)",
                                     borderColor: "transparent",
                                 },
+                                Pagination: {
+                                    itemActiveBg: "transparent",
+                                    itemBg: "transparent",
+                                },
+        
+                                Select: {
+                                    activeBorderColor:"var(--border-color4)",
+                                    optionActiveBg:"transparent",
+                                    selectorBg:"transparent", //选框背景色
+                                }
                             },
                         }}
                     >
@@ -293,7 +303,7 @@ function Equipment() {
                             columns={columns}
                             dataSource={deviceNoData}
                             size="large"
-                            scroll={{ x: "max-content" }}
+                            scroll={{ x: "max-content" ,y: 600}}
                             className={`${styles.table_box} table-box`}
                             expandable={{
                                 expandedRowRender: (record) => {

@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Menu, ConfigProvider } from 'antd';
 import type { MenuProps } from 'antd';
 import { Iconify } from '@/components/icon'
@@ -15,11 +14,13 @@ const getWidthBasedCollapsedState = (): boolean => {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 1208;
 };
+interface SidebarProps {
+    menuItems: MenuItem[];
+}
 
-const UserCenterSidebar = (menuItems: MenuItem[]) => {
+const UserCenterSidebar = ({menuItems}: SidebarProps) => {
     const router = useRouter();
     const { isDayMode } = useThemeMode(); // 使用 hook
-
 
     // 记录当前路径，用于检测路由变化
     const currentPathRef = useRef(router.pathname);
@@ -39,50 +40,77 @@ const UserCenterSidebar = (menuItems: MenuItem[]) => {
         return getWidthBasedCollapsedState();
     });
 
-    // 菜单项定义
-    const items: MenuItem[] = [
-        {
-            key: '/userCenter',
-            icon: <Iconify icon="pixelarticons:dashboard" size={24} className={`mr-2`} />,
-            label: '总览',
-            onClick: () => handleMenuClick('/userCenter')
-        },
-        {
-            key: '/userCenter/safeCenter',
-            icon: <Iconify icon="mingcute:safety-certificate-line" size={24} className={`mr-2`} />,
-            label: '安全中心',
-            onClick: () => handleMenuClick('/userCenter/safeCenter')
-        },
-        {
-            key: '/userCenter/identity',
-            icon: <Iconify icon="mingcute:idcard-line" size={24} className={`mr-2`} />,
-            label: '身份认证',
-            onClick: () => handleMenuClick('/userCenter/identity')
-        },
-        {
-            key: '/userCenter/userSettings',
-            icon: <Iconify icon="icon-park-outline:setting-two" size={24} className={`mr-2`} />,
-            label: '用户设置',
-            onClick: () => handleMenuClick('/userCenter/userSettings')
-        },
-        // mingcute:invite-line //邀请
-        // icon-park:api-app //api
-        // mingcute:location-line //地址
-    ];
+    // 处理菜单项，为每个项添加onClick事件
+    const processedMenuItems = useMemo(() => {
+        if (!menuItems || !Array.isArray(menuItems)) return [];
+        
+        return menuItems.map(item => {
+            if (!item) return item;
+            
+            const key = item.key?.toString();
+            if (!key) return item;
+            
+            // 添加onClick事件，使用key作为参数
+            return {
+                ...item,
+                onClick: () => handleMenuClick(key)
+            };
+        });
+    }, [menuItems]); // 依赖项中不包含handleMenuClick，因为它会导致循环依赖
 
     // 处理选中状态的逻辑
     const getSelectedKey = () => {
         const currentPath = router.pathname;
-        const parentPaths = [
-            '/userCenter/safeCenter',
-            '/userCenter/identity',
-            '/userCenter/userSettings'
-        ];
-        for (const path of parentPaths) {
-            if (currentPath.startsWith(path)) {
+        
+        // 获取所有菜单项的路径
+        const allPaths = menuItems
+            .map(item => item?.key?.toString())
+            .filter(Boolean) as string[];
+        
+        if (allPaths.length === 0) return currentPath;
+        
+        // 找出共同的前缀路径
+        let prefixPath = '';
+        
+        // 检查是否存在共同前缀
+        if (allPaths.length > 1) {
+            // 获取第一个路径的各部分
+            const parts = allPaths[0].split('/').filter(Boolean);
+            
+            // 逐级检查是否所有路径都有相同的前缀
+            for (let i = 1; i <= parts.length; i++) {
+                const potentialPrefix = '/' + parts.slice(0, i).join('/');
+                
+                // 检查所有路径是否都以这个前缀开头
+                const allHavePrefix = allPaths.every(path => 
+                    path === potentialPrefix || path.startsWith(potentialPrefix + '/')
+                );
+                
+                if (allHavePrefix) {
+                    prefixPath = potentialPrefix;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // 检查当前路径是否匹配任何菜单项
+        for (const path of allPaths) {
+            // 跳过前缀路径
+            if (path === prefixPath) continue;
+            
+            // 检查当前路径是否匹配或是子路径
+            if (currentPath === path || currentPath.startsWith(path + '/')) {
                 return path;
             }
         }
+        
+        // 如果没有匹配的菜单项，但匹配前缀路径，则返回前缀路径
+        if (prefixPath && (currentPath === prefixPath || currentPath.startsWith(prefixPath + '/'))) {
+            return prefixPath;
+        }
+        
+        // 如果都不匹配，返回当前路径
         return currentPath;
     };
 
@@ -106,44 +134,40 @@ const UserCenterSidebar = (menuItems: MenuItem[]) => {
         // 在路由切换前保存当前折叠状态
         saveCollapsedState(collapsed);
 
-        // 特殊处理根路径 /userCenter
-        if (path === '/userCenter') {
-            // 只有当当前不在 /userCenter 精确路径时才跳转
-            if (currentPath !== '/userCenter') {
-                router.push(path, undefined, { shallow: true })
-                    .catch(err => console.error('Navigation failed:', err));
+        // 特殊处理根路径
+        if (path === router.basePath) {
+            // 只有当当前不在根路径精确路径时才跳转
+            if (currentPath !== router.basePath) {
+                router.push(path);
             }
             return;
         }
 
-        // 处理其他路径
-        if (currentPath === path || currentPath.startsWith(path + '/')) {
-            // 如果当前路径和要跳转的路径相同或者是其子路径，则不进行跳转
+        // 如果当前路径已经是目标路径，不进行跳转
+        if (currentPath === path) {
             return;
         }
 
-        // 使用 router.push 的回调确保导航完成
-        router.push(path, undefined, { shallow: true })
-            .catch(err => console.error('Navigation failed:', err));
+        // 执行路由跳转
+        router.push(path);
     };
 
-    // 检查窗口宽度并更新collapsed状态
+    // 检查窗口宽度并更新折叠状态
     const checkWindowWidth = useCallback(() => {
-        // 只有在不是刚刚完成路由切换的情况下，才根据窗口宽度自动调整
-        if (!justCompletedRouteChangeRef.current) {
-            const shouldCollapse = getWidthBasedCollapsedState();
-            if (collapsed !== shouldCollapse) {
-                console.log('Window width changed, updating collapsed state:', shouldCollapse);
-                updateCollapsed(shouldCollapse);
-            }
+        // 如果刚刚完成路由切换，不进行自动调整
+        if (justCompletedRouteChangeRef.current) {
+            return;
+        }
+
+        const shouldCollapse = getWidthBasedCollapsedState();
+        if (collapsed !== shouldCollapse) {
+            updateCollapsed(shouldCollapse);
         }
     }, [collapsed, updateCollapsed]);
 
-    // 使用防抖函数来减少不必要的更新
+    // 创建防抖版本的检查函数
     const debouncedCheckWidth = useCallback(
-        debounce(() => {
-            checkWindowWidth();
-        }, 100),
+        debounce(checkWindowWidth, 200),
         [checkWindowWidth]
     );
 
@@ -256,7 +280,7 @@ const UserCenterSidebar = (menuItems: MenuItem[]) => {
                 <Menu
                     selectedKeys={[getSelectedKey()]}
                     mode="inline"
-                    items={items}
+                    items={processedMenuItems}
                     className={`${styles.custom_menu} custom-menu`}
                     inlineCollapsed={collapsed}
                     theme="dark"
