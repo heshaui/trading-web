@@ -1,4 +1,4 @@
 
-import Iconify from "./iconify-icon";
-
-export { Iconify};
+import Iconify from "./iconify-icon";;
+import SvgIcon from "./svg-icon";
+export { Iconify,SvgIcon};

@@ -2,6 +2,7 @@
 export const themeVariables = {
     light: {
         '--background': '#ffffff',
+        '--theme-color': '#FF5F1F',
         '--background2': 'rgb(245, 245, 245)',
         '--background3': '#ffffff',
         '--background4': '#0a0a0a',
@@ -14,6 +15,7 @@ export const themeVariables = {
         '--background11': '#ffffff',
         '--background12': '#ffffff',
         '--background13': '#0C0D0C',
+        '--background14': '#F5F5F5',
         '--foreground': '#171717',
         '--homeground': '#000000',
         '--homeground2': '#FFFFFF',
@@ -33,6 +35,7 @@ export const themeVariables = {
         '--btncolor5': '#FF5F1F',
         '--btncolor6': '#F3F3F3',
         '--btncolor7': '#FFFFFF',
+        '--btncolor8': '#E6E6E6',
         '--tip-color1': '#6D6F7A',
         '--tip-color2': '#A4A5AC',
         '--text-color': '#1F40FF',
@@ -67,6 +70,7 @@ export const themeVariables = {
     },
     dark: {
         '--background': '#0a0a0a',
+        '--theme-color': '#FF5F1F',
         '--background2': '#0C0B19',
         '--background3': '#333333',
         '--background4': '#0a0a0a',
@@ -79,6 +83,7 @@ export const themeVariables = {
         '--background11': '#111212',
         '--background12': '#232328',
         '--background13': '#232328',
+        '--background14': '#333333',
         '--foreground': '#ededed',
         '--homeground': '#000000',
         '--homeground2': '#000000',
@@ -98,6 +103,7 @@ export const themeVariables = {
         '--btncolor5': '#FF5F1F',
         '--btncolor6': '#333333',
         '--btncolor7': '#272727',
+        '--btncolor8': '#333333',
         '--tip-color1': '#FFFFFFB2',
         '--tip-color2': '#979897',
         '--text-color': '#1F40FF',
