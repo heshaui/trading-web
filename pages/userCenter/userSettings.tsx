@@ -1,5 +1,5 @@
 import React from 'react';
-import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLayout';
+import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout';
 import styles from './styles/userSettings.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';

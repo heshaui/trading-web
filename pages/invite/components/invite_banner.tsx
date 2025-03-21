@@ -20,6 +20,10 @@ const InviteBanner = ({onReturn}:InviteBannerProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [form] = Form.useForm();
+    let userInfo={}
+    if(typeof window !== 'undefined'){
+        userInfo=JSON.parse(localStorage.getItem('userInfo')||'{}')
+    }
 
     return (<>
                 <div className={`${styles.header_banner} flex-y-cc`}

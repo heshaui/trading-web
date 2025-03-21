@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { encryptString } from "@/utils/encrypt";
 import Image from 'next/image';
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { getInviteList } from "@/services/invite";
 
 interface DataType {
     id: number,
@@ -50,15 +51,15 @@ function InvitationDetails({onReturn}:InviteProps) {
     const columns: ColumnsType<DataType> = [
         {
             title: "好友ID",
-            dataIndex: "inviteId",
-            key: "inviteId",
+            dataIndex: "userId",
+            key: "userId",
             align: "left",
             render: (text, record) => <span>{`${text}`} </span>,
         },
         {
             title: "注册账号",
-            dataIndex: "acount",
-            key: "acount",
+            dataIndex: "account",
+            key: "account",
             align: "center",
             render: (_text) => <span>{_text ? encryptString(_text) : '--'}</span>,
         },
@@ -68,13 +69,13 @@ function InvitationDetails({onReturn}:InviteProps) {
             dataIndex: "status",
             align: "center",
             render: (_text) => {
-                return <span >{_text || '--'}</span>;
+                return <span >{_text.toString()==='1'?'成功':'失败'}</span>;
             },
         },
         {
             title: "注册日期",
-            key: "time",
-            dataIndex: "time",
+            key: "regeistTime",
+            dataIndex: "regeistTime",
             align: "right",
             render: (_text) => {
                 return <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>;

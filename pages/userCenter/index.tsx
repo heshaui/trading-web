@@ -2,7 +2,7 @@
 import React from 'react';
 // import { useRouter } from 'next/router';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
-import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLayout';
+import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout';
 import OverviewPage from './components/overview';
 // import SafeCenterPage from './safeCenter';
 // import IdentityPage from './identity';

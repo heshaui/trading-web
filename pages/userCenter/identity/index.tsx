@@ -1,10 +1,10 @@
 import React from 'react';
-import { withUserCenterLayout } from '@/components/UserCenterLayout/UserCenterLayout';
-import styles from './styles/identity.module.css';
+import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout';
+import styles from '../styles/identity.module.css';
 // import { Iconify } from "@/components/icon"
 // import Image from 'next/image';
-import NoAuthentication from './components/Authentication/noAuthentication';
-import Certified from './components/Authentication/Certified';
+import NoAuthentication from '../components/Authentication/noAuthentication';
+import Certified from '../components/Authentication/Certified';
 import { Collapse, theme, ConfigProvider } from 'antd';
 import type { CollapseProps } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';

@@ -56,7 +56,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
     ];
 
     return (<>
-        <div className={`${styles.header_banner}`}>
+        <div className={`${styles.header_banner} flex-y align-center`}>
             <div className={`${styles.main_page}`}>
                 <div className={`${styles.content_box}`}>
                     <h3 className={`font-32 font-w-500 mb-10 ${styles.mt8}`}>如何获得佣金？</h3>
