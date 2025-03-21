@@ -126,6 +126,16 @@ function LoginRecord() {
                             rowExpandedBg: "var(--background10)", // 表格行展开背景色
                             borderColor: "transparent",
                         },
+                        Pagination: {
+                            itemActiveBg: "transparent",
+                            itemBg: "transparent",
+                        },
+
+                        Select: {
+                            activeBorderColor:"var(--border-color4)",
+                            optionActiveBg:"transparent",
+                            selectorBg:"transparent", //选框背景色
+                        }
                     },
                 }}
             >

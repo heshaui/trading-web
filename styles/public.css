@@ -1,11 +1,13 @@
 .default_btn{
-  background-color: #FF5F1F;
+  background-color: var(--theme-color);
   color: #fff;
+  border: 1px solid var(--theme-color);
+  box-sizing: border-box;
 }
 .cancel_btn{
   background-color: #fff;
-  color: #FF5F1F;
-  border: 1px solid #FF5F1F;
+  color: var(--theme-color);
+  border: 1px solid var(--theme-color);
   box-sizing: border-box;
 }
 .disabled_btn{
@@ -20,6 +22,15 @@
 .cancel_btn3{
   color: var(--cancel-color);
   border: 1px solid var(--border-color4);
+}
+
+.cancel_btn4{
+  color: var( --text-color5);
+  background-color: var(--border-color4);
+}
+.cancel_btn5{
+  color: var( --text-color5);
+  background-color: var(--background14);
 }
 .success_icon {
   color: #00C788;
@@ -38,7 +49,7 @@
   color: #A4A5AC;
 }
 .theme_color {
-  color: #FF5F1F;
+  color: var(--theme-color);
 }
 
 .pointer ,.cursor-pointer{
@@ -487,6 +498,10 @@
   border-right-color: transparent;
   animation: loading-spin 2.25s linear infinite;
 }
+::-webkit-scrollbar{
+  display: none;
+}
+
 
 @keyframes loading-spin {
   0% {
