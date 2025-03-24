@@ -207,13 +207,13 @@ const AssetsMainPage = () => {
                         size="large"
                         scroll={{ x: "max-content", y: 500 }}
                         className={` table-box`}
-                        // pagination={{
-                        //     position: ["bottomRight"],
-                        //     showSizeChanger: true,
-                        //     total: total,
-                        //     size: "default",
-                        //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                        // }}
+                        pagination={{
+                            position: ["bottomRight"],
+                            showSizeChanger: true,
+                            total: total,
+                            size: "default",
+                            onChange: (page, pageSize) => pageChange(page, pageSize),
+                        }}
                     // loading={loading}
                     />
                 </ConfigProvider>

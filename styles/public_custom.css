@@ -80,6 +80,10 @@
 .custom-select .ant-select-selection-item {
     color: var(--text-color6) !important;
 }
+/* 选择框右侧角标按钮颜色 */
+.custom-select .ant-select-arrow{
+color: var(--text-color6) !important;
+}
 
 .autoComplete-custom .ant-input::placeholder {
     color: var(--text-color4) !important;
