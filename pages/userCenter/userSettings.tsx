@@ -33,7 +33,9 @@ interface UserCenterData {
   userId: number,
   nickname: string,
   avatarUrl: string,
-  birthday: string
+  birthday: string,
+  isNicknameUpdate:boolean,
+  nicknameUpdateTime: number,
 }
 
 const UserSettingsPage: React.FC = () => {
@@ -284,7 +286,7 @@ const UserSettingsPage: React.FC = () => {
     <NeckNameModal
       open={necknameOpen}
       onCancel={() => setNecknameOpen(false)}
-      nickname={userInfo.nickname}
+      nicknameInfo={userInfo}
       onOk={handOk} />
 
     {/* 修改头像 */}
