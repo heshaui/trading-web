@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { UserOutlined } from '@ant-design/icons';
-import { AutoComplete, Flex, Input, Form } from 'antd';
+import { AutoComplete, Flex, Input, Form, ConfigProvider } from 'antd';
 import { Iconify } from "@/components/icon/index";
 // import { areaCodeList } from "@/utils/country"; //地区代码
 import { getCountryCode } from "@/services/open";
@@ -38,7 +38,7 @@ interface CountryCodeItem {
 // ];
 
 
-const App: React.FC = () => {
+const App: React.FC<{ className?: string }> = ({ className }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
     const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
@@ -88,67 +88,88 @@ const App: React.FC = () => {
         return options;
     };
 
-    const handleFocus = async() => {
+    const handleFocus = async () => {
         setIsFocused(true);
-        if(countryCodeList.length===0){
-        await getCountryCodeList()
+        if (countryCodeList.length === 0) {
+            await getCountryCodeList()
         }
     };
-    const handleBlur = async() => {
+    const handleBlur = async () => {
         setIsFocused(false);
-       
-       
+
+
     };
 
     const getCountryCodeList = async () => {
         try {
             const res = await getCountryCode()
-            console.log(res, 11);
-            if(res.code==='0'){
-                const data=res.data.map((item:any)=>{
+            // console.log(res, 11);
+            if (res.code === '0') {
+                const data = res.data.map((item: any) => {
                     return {
-                        areaCode:"+"+item.areaCode,
-                        countryName:item.countryName,
-                        countryCode:item.countryCode,
-                        id:item.id,
-                        status:item.status
+                        areaCode: "+" + item.areaCode,
+                        countryName: item.countryName,
+                        countryCode: item.countryCode,
+                        id: item.id,
+                        status: item.status
                     }
                 })
                 setCountryCodeList(data)
             }
         } catch (error) {
             console.log(error);
-            
+
         }
     };
 
     useEffect(() => {
-        
+
         getCountryCodeList()
     }, [])
     return (
-        <Form.Item name="areaCode" noStyle>
-            <AutoComplete
-                popupClassName="certain-category-search-dropdown"
-                popupMatchSelectWidth={380}
-                style={{ width: 150, height: "100%" }}
-                options={getoptionsList()}
-                size="large"
-                className="autoComplete-custom"
-                onFocus={handleFocus}
-                onBlur={handleBlur}
+        <ConfigProvider
+            theme={{
+                components: {
+                    Input: {
+                        controlHeightLG: 50,
+                        activeBorderColor: '#FF5F1F',
+                        hoverBorderColor: '#FF5F1F',
+                        activeBg: 'var(--background11)',
+                        hoverBg: 'var(--background11)',
+                    },
+                    Select: {
+                        selectorBg: 'var(--background11)',
+                    }
+                },
+                token: {
+                    // colorBgContainerDisabled: '#fff',
+                }
+            }}
+        >
+            <Form.Item name="areaCode" noStyle>
+                <AutoComplete
+                    popupClassName="certain-category-search-dropdown"
+                    popupMatchSelectWidth={380}
+                    style={{ width: 150, height: "100%" ,color:"pink"}}
+                    options={getoptionsList()}
+                    size="large"
+                    className="autoComplete-custom"
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                 // />
-             >
-                 <Input
-                     size="large"
-                     placeholder="input here"
-                     className='custom-input'
-                     suffix={
-                         <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
-                     }
-                 />
-             </AutoComplete>
-        </Form.Item>
+                >
+                    <Input
+                        size="large"
+                        placeholder="input here"
+                        className={`modal-input ${className}`}
+                        style={{backgroundColor:"var(--background11)",color:" var(--text-color4)"}}
+                        suffix={
+                            <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
+                        }
+                    />
+                </AutoComplete>
+            </Form.Item>
+        </ConfigProvider>
     );
 };
 

@@ -1,23 +1,502 @@
-// pages/userCenter/pages/index.tsx
 import React from 'react';
-// import { useRouter } from 'next/router';
-// import UserCenterLayout from '@/components/UserCenterLayout/Layout';
-import  {withAssetsLayout}  from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
-import styles from '../styles/spotAccount.module.css'
+import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
+import styles from '../styles/billDetails.module.css'
+import { Input, Radio, ConfigProvider, Table, Select } from 'antd';
+import { Iconify } from "@/components/icon"
+import type { ColumnsType } from "antd/es/table";
+import dayjs from 'dayjs';
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from 'next/router';
+
+interface DataType {
+  id: number,
+  userId: number,
+  platformType: number,
+  deviceNo: string,
+  ip: string,
+  address: string,
+  token: number,
+  tokenTime: number,
+  createTime: number,
+  updateTime: number,
+  tenantId: string,
+}
+const AssetsMainPage = () => {
+  const [tableData, setTableData] = useState<DataType[]>([
+    {
+      id: 1,
+      userId: 1,
+      platformType: 1,
+      deviceNo: 'BTC',
+      ip: '123.45.67.89',
+      address: '123.45.67.89',
+      token: 23.3,
+      tokenTime: 123,
+      createTime: 1234567890,
+      updateTime: 1234567890,
+      tenantId: '1234567890'
+    }, {
+      id: 2,
+      userId: 1,
+      platformType: 1,
+      deviceNo: 'POINT',
+      ip: '123.45.67.89',
+      address: '123.45.67.89',
+      token: 1234567890,
+      tokenTime: 23.0,
+      createTime: 1234567892,
+      updateTime: 1234567889,
+      tenantId: '1234567890'
+    }
+  ]);
+  const router = useRouter();
+  const [paramInfo,sePparamInfo]=useState({
+    type:'',
+    selsect:''
+  });
+  const [total, setTotal] = useState(0);
+  const [pageParam, setPageParam] = useState({
+    page: 1,
+    pageSize: 10,
+  })
+  const paramdataRef = useRef(pageParam);
 
 
-const BillDetailsPage = () => {
+  const [paramInfo2,sePparamInfo2]=useState({
+    type:'',
+    selsect:''
+  });
+  const [total2, setTotal2] = useState(0);
+  const [pageParam2, setPageParam2] = useState({
+    page: 1,
+    pageSize: 10,
+  })
+  const paramdataRef2 = useRef(pageParam2);
 
 
-  return (<div>
-    <div >
-     <h2 className={`font-w-500 font-20`}>账单明细</h2>
-   </div>
-   <div className={`${styles.card_bgc} ${styles.pt0} mt-3 flex-row justify-between `}>
-       
-   </div>
-   </div>
+  const [paramInfo3,sePparamInfo3]=useState({
+    type:'',
+    selsect:''
+  });
+  const [total3, setTotal3] = useState(0);
+  const [pageParam3, setPageParam3] = useState({
+    page: 1,
+    pageSize: 10,
+    total:0
+  })
+  const paramdataRef3 = useRef(pageParam3);
+
+  
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "时间",
+      dataIndex: "deviceNo",
+      key: "deviceNo",
+      width: 158,
+      align: "left",
+      render: (text, record) => <div>{`${text}`} </div>,
+    },
+    {
+      title: "类型",
+      dataIndex: "token",
+      key: "token",
+      align: "center",
+      width: 128,
+      render: (_text) => <span>{_text || '--'}</span>,
+    },
+    {
+      title: "币种",
+      dataIndex: "tokenTime",
+      key: "tokenTime",
+      align: "center",
+      width: 158,
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+
+      },
+    },
+    {
+      title: "数量",
+      key: "createTime",
+      dataIndex: "createTime",
+      width: 128,
+      align: "center",
+      render: (_ip) => {
+        return <span >{_ip || '--'}</span>;
+      },
+    },
+    {
+      title: "地址",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "TxID",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "状态",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    // {
+    //   title: "操作",
+    //   key: "action",
+    //   dataIndex: "action",
+    //   width: 128,
+    //   align: "center",
+    //   render: (_status) => {
+    //     return <>
+    //       <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
+    //       <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
+    //       <button className={`${styles.theme_color} font-12 font-w-500`}>交易</button>
+    //     </>
+    //   },
+    // },
+
+
+  ];
+  const columns2: ColumnsType<DataType> = [
+    {
+      title: "时间",
+      dataIndex: "deviceNo",
+      key: "deviceNo",
+      width: 158,
+      align: "left",
+      render: (text, record) => <div>{`${text}`} </div>,
+    },
+    {
+      title: "类型",
+      dataIndex: "token",
+      key: "token",
+      align: "center",
+      width: 128,
+      render: (_text) => <span>{_text || '--'}</span>,
+    },
+    {
+      title: "币种",
+      dataIndex: "tokenTime",
+      key: "tokenTime",
+      align: "center",
+      width: 158,
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+
+      },
+    },
+    {
+      title: "数量",
+      key: "createTime",
+      dataIndex: "createTime",
+      width: 128,
+      align: "center",
+      render: (_ip) => {
+        return <span >{_ip || '--'}</span>;
+      },
+    },
+    {
+      title: "手续费",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "地址",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "TxID",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "状态",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: "操作",
+      key: "action",
+      dataIndex: "action",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <>
+          <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
+          <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
+          <button className={`${styles.theme_color} font-12 font-w-500`}>交易</button>
+        </>
+      },
+    },
+
+
+  ];
+  const columns3: ColumnsType<DataType> = [
+    {
+      title: "时间",
+      dataIndex: "deviceNo",
+      key: "deviceNo",
+      width: 158,
+      align: "left",
+      render: (text, record) => <div>{`${text}`} </div>,
+    },
+    {
+      title: "类型",
+      dataIndex: "token",
+      key: "token",
+      align: "center",
+      width: 128,
+      render: (_text) => <span>{_text || '--'}</span>,
+    },
+    {
+      title: "币种",
+      dataIndex: "tokenTime",
+      key: "tokenTime",
+      align: "center",
+      width: 158,
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+
+      },
+    },
+    {
+      title: "数量",
+      key: "createTime",
+      dataIndex: "createTime",
+      width: 128,
+      align: "center",
+      render: (_ip) => {
+        return <span >{_ip || '--'}</span>;
+      },
+    },
+    {
+      title: "状态",
+      key: "updateTime",
+      dataIndex: "updateTime",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+
+  ];
+  const cardTypeSeelect: { label: string, value: string }[] = [
+    {
+      label: '居民身份证',
+      value: '1'
+    },
+    {
+      label: '普通护照',
+      value: '2'
+    },
+    {
+      label: '港澳通行证',
+      value: '3'
+    },
+    {
+      label: '台湾通行证',
+      value: '4'
+    },
+    {
+      label: '台湾身份证',
+      value: '5'
+    },
+    {
+      label: '外国人永久居住身份证',
+      value: '6'
+    }
+  ]
+  const pageChange = async (page: number, pageSize: number) => {
+    const pageData = {
+      page: page,
+      pageSize: pageSize
+    }
+    setPageParam(pageData)
+    paramdataRef.current = pageData;
+  }
+  const topUpTypeChange=(value:any,options:any)=>{
+    console.log(value,123,options);
+    
+
+  }
+  return (<>
+    <ConfigProvider
+      theme={{
+        components: {
+          Table: {
+            // bodySortBg: "pink",
+            headerBg: "transparent",
+            headerColor: "var(--text-color6)",
+            headerSplitColor: "transparent", // 表头分割线颜色
+            rowExpandedBg: "var(--background10)", // 表格行展开背景色
+            borderColor: "transparent",
+            // stickyScrollBarBg:"transparent",
+          },
+          Pagination: {
+            itemActiveBg: "transparent",
+            itemBg: "transparent",
+          },
+
+          Select: {
+            activeBorderColor: "var(--border-color4)",
+            optionActiveBg: "transparent",
+            selectorBg: "transparent", //选框背景色
+          }
+        },
+      }}
+    >
+      <div className='flex justify-between align-center'>
+        <h2 className={`font-w-500 font-20`}>账单明细</h2>
+      </div>
+      <div className={`${styles.card_bgc}  mt-3 `}>
+        {/* 充值 */}
+        <div className={`${styles.table_box} w-full `}>
+          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+            <Input className={`${styles.input_box} modal-input mr-7`}
+              maxLength={25}
+              placeholder='币种'
+              allowClear
+              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
+            />
+            <Select allowClear
+              placeholder="请选择类型"
+              options={cardTypeSeelect}
+              className={`${styles.select_box} custom-select`}
+              onChange={topUpTypeChange}
+            />
+          </div>
+          <div className={`${styles.table_content} w-full `}>
+
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              size="large"
+              scroll={{ x: "max-content", y: 300 }}
+              className={` table-box`}
+              pagination={{
+                position: ["bottomRight"],
+                showSizeChanger: true,
+                total: total,
+                size: "default",
+                onChange: (page, pageSize) => pageChange(page, pageSize),
+              }}
+            // loading={loading}
+            />
+
+          </div>
+        </div>
+        {/* 提现 */}
+        <div className={`${styles.table_box} w-full `}>
+          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+            <Input className={`${styles.input_box} modal-input mr-7`}
+              maxLength={25}
+              placeholder='币种'
+              allowClear
+              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
+            />
+            <Select allowClear
+              placeholder="请选择类型"
+              options={cardTypeSeelect}
+              className={`${styles.select_box} custom-select`}
+            />
+          </div>
+          <div className={`${styles.table_content} w-full `}>
+
+            <Table
+              columns={columns2}
+              dataSource={tableData}
+              size="large"
+              scroll={{ x: "max-content", y: 300 }}
+              className={` table-box`}
+              pagination={{
+                position: ["bottomRight"],
+                showSizeChanger: true,
+                total: total,
+                size: "default",
+                onChange: (page, pageSize) => pageChange(page, pageSize),
+              }}
+            // loading={loading}
+            />
+
+          </div>
+        </div>
+        {/* 邀请奖励 */}
+        <div className={`${styles.table_box} w-full `}>
+          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+            <Input className={`${styles.input_box} modal-input mr-7`}
+              maxLength={25}
+              placeholder='币种'
+              allowClear
+              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
+            />
+            <Select allowClear
+              placeholder="请选择类型"
+              options={cardTypeSeelect}
+              className={`${styles.select_box} custom-select`}
+            />
+          </div>
+          <div className={`${styles.table_content} w-full `}>
+
+            <Table
+              columns={columns3}
+              dataSource={tableData}
+              size="large"
+              scroll={{ x: "max-content", y: 300 }}
+              className={` table-box`}
+              pagination={{
+                position: ["bottomRight"],
+                showSizeChanger: true,
+                total: total3,
+                size: "default",
+                onChange: (page, pageSize) => pageChange(page, pageSize),
+              }}
+            // loading={loading}
+            />
+
+          </div>
+        </div>
+      </div>
+    </ConfigProvider>
+  </>
   );
 };
 
-export default withAssetsLayout(BillDetailsPage);
+export default withAssetsLayout(AssetsMainPage);

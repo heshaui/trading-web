@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from 'react';
-// import { UserOutlined } from '@ant-design/icons';
-import { AutoComplete, Flex, Input, Form, ConfigProvider } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { AutoComplete, Flex, Input, Form, ConfigProvider, Select } from 'antd';
 import { Iconify } from "@/components/icon/index";
-// import { areaCodeList } from "@/utils/country"; //地区代码
 import { getCountryCode } from "@/services/open";
 
 interface OptionItem {
     label: React.ReactNode;
     value: string | number;
-}
-
-interface OptionGroup {
-    label: React.ReactNode;
-    options: OptionItem[];
+    countryName?: string;
+    areaCode?: string;
 }
 
 interface CountryCodeItem {
@@ -22,88 +17,102 @@ interface CountryCodeItem {
     id: number;
     status: number;
 }
-// const options = [
-//     {
-//         label: <Title title="A" />,
-//         options: [renderItem('AntDesign', 10000), renderItem('AntDesign UI', 10600)],
-//     },
-//     {
-//         label: <Title title="B" />,
-//         options: [renderItem('AntDesign UI FAQ', 60100), renderItem('AntDesign FAQ', 30010)],
-//     },
-//     {
-//         label: <Title title="C" />,
-//         options: [renderItem('AntDesign design language', 100000)],
-//     },
-// ];
-
 
 const App: React.FC<{ className?: string }> = ({ className }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
-    const Title: React.FC<Readonly<{ title?: string }>> = (props) => (
-        <Flex align="center" justify="space-between">
-            {props.title}
-            {/* <a href="https://www.google.com/search?q=antd" target="_blank" rel="noopener noreferrer">
-          more
-        </a> */}
-        </Flex>
-    );
+    const [searchValue, setSearchValue] = useState('');
 
-    const renderItem = (country: string, value: number | string) => ({
-        value: value,
-        label: (
-            <Flex align="center" justify="space-between">
-                {country}
-                <span>
-                    {value}
-                </span>
-            </Flex>
-        ),
-    });
+    // 按字母分组的选项
+    const groupedOptions = useMemo(() => {
+        if (!countryCodeList.length) return [];
 
-    const getoptionsList = () => {
-        const sortedAreaCodeList = [...countryCodeList].sort((a, b) => a.countryCode.localeCompare(b.countryCode));
-        const groupedData: { [key: string]: OptionItem[] } = {};
+        // 按国家代码首字母排序
+        const sortedList = [...countryCodeList].sort((a, b) => 
+            a.countryCode.localeCompare(b.countryCode)
+        );
 
-        sortedAreaCodeList.forEach(item => {
+        // 按首字母分组
+        const groups: { [key: string]: CountryCodeItem[] } = {};
+        
+        sortedList.forEach(item => {
             const firstLetter = item.countryCode[0].toUpperCase();
-            if (!groupedData[firstLetter]) {
-                groupedData[firstLetter] = [];
+            if (!groups[firstLetter]) {
+                groups[firstLetter] = [];
             }
-            groupedData[firstLetter].push(renderItem(item.countryName, item.areaCode));
+            groups[firstLetter].push(item);
         });
 
-        const options: OptionGroup[] = [];
-
-        Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)).forEach(letter => {
-            if (groupedData[letter]) {
-                options.push({
-                    label: <Title title={letter} />,
-                    options: groupedData[letter]
+        // 转换为Select需要的格式
+        const result: any[] = [];
+        
+        // 按字母顺序添加分组
+        for (let i = 65; i <= 90; i++) {
+            const letter = String.fromCharCode(i);
+            if (groups[letter] && groups[letter].length > 0) {
+                // 添加字母标题
+                result.push({
+                    type: 'group',
+                    label: <div className="letter-title">{letter}</div>,
+                    key: `group-${letter}`
+                });
+                
+                // 添加该字母下的国家
+                groups[letter].forEach(item => {
+                    result.push({
+                        label: `${item.countryName} ${item.areaCode}`,
+                        value: item.areaCode,
+                        countryName: item.countryName,
+                        areaCode: item.areaCode,
+                        countryCode: item.countryCode
+                    });
                 });
             }
-        });
-        // setOptionsListBefore(options);
-        return options;
-    };
+        }
+        
+        return result;
+    }, [countryCodeList]);
 
-    const handleFocus = async () => {
+    // 过滤选项
+    const filteredOptions = useMemo(() => {
+        if (!searchValue) return groupedOptions;
+        
+        const filtered: any[] = [];
+        let currentGroup: any = null;
+        
+        groupedOptions.forEach(option => {
+            if (option.type === 'group') {
+                currentGroup = option;
+                // 暂时不添加组标题，等确认有匹配项再添加
+            } else if (
+                option.countryName?.toLowerCase().includes(searchValue.toLowerCase()) ||
+                option.areaCode?.includes(searchValue)
+            ) {
+                // 如果还没添加当前组的标题，先添加
+                if (currentGroup && !filtered.some(item => item.key === currentGroup.key)) {
+                    filtered.push(currentGroup);
+                }
+                filtered.push(option);
+            }
+        });
+        
+        return filtered;
+    }, [groupedOptions, searchValue]);
+
+    const handleFocus = () => {
         setIsFocused(true);
         if (countryCodeList.length === 0) {
-            await getCountryCodeList()
+            getCountryCodeList();
         }
     };
-    const handleBlur = async () => {
+
+    const handleBlur = () => {
         setIsFocused(false);
-
-
     };
 
     const getCountryCodeList = async () => {
         try {
-            const res = await getCountryCode()
-            // console.log(res, 11);
+            const res = await getCountryCode();
             if (res.code === '0') {
                 const data = res.data.map((item: any) => {
                     return {
@@ -112,20 +121,23 @@ const App: React.FC<{ className?: string }> = ({ className }) => {
                         countryCode: item.countryCode,
                         id: item.id,
                         status: item.status
-                    }
-                })
-                setCountryCodeList(data)
+                    };
+                });
+                setCountryCodeList(data);
             }
         } catch (error) {
             console.log(error);
-
         }
     };
 
     useEffect(() => {
+        getCountryCodeList();
+    }, []);
 
-        getCountryCodeList()
-    }, [])
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
+    };
+
     return (
         <ConfigProvider
             theme={{
@@ -134,11 +146,14 @@ const App: React.FC<{ className?: string }> = ({ className }) => {
                         controlHeightLG: 50,
                         activeBorderColor: '#FF5F1F',
                         hoverBorderColor: '#FF5F1F',
-                        activeBg: 'var(--background11)',
-                        hoverBg: 'var(--background11)',
+                        activeBg: 'transparent',
+                        hoverBg: 'transparent',
                     },
                     Select: {
-                        selectorBg: 'var(--background11)',
+                        activeBorderColor: "var(--border-color4)",
+                        optionActiveBg: "transparent",
+                        selectorBg: "transparent", //选框背景色
+                        optionHeight: 40,
                     }
                 },
                 token: {
@@ -147,27 +162,53 @@ const App: React.FC<{ className?: string }> = ({ className }) => {
             }}
         >
             <Form.Item name="areaCode" noStyle>
-                <AutoComplete
-                    popupClassName="certain-category-search-dropdown"
-                    popupMatchSelectWidth={380}
-                    style={{ width: 150, height: "100%" ,color:"pink"}}
-                    options={getoptionsList()}
-                    size="large"
-                    className="autoComplete-custom"
+                <Select
+                    allowClear
+                    placeholder="请选择区号"
+                    className={`custom-select `}
+                    style={{height:"50px",maxWidth:"115px"}}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                // />
-                >
-                    <Input
-                        size="large"
-                        placeholder="input here"
-                        className={`modal-input ${className}`}
-                        style={{backgroundColor:"var(--background11)",color:" var(--text-color4)"}}
-                        suffix={
-                            <Iconify icon="mingcute:down-fill" size={14} className={`icon-color ${isFocused ? 'icon-rotate' : ''}`} />
+                    options={filteredOptions}
+                    optionLabelProp="value"
+                    dropdownStyle={{ width: '280px' }}  // 设置下拉框宽度
+                    optionRender={(option) => {
+                        // 如果是分组标题
+                        if (option.data.type === 'group') {
+                            return (
+                                <div className="group-title font-w-500 py-1 sticky top-0 bg-background11 z-10 default_icon">
+                                    {option.data.label}
+                                </div>
+                            );
                         }
-                    />
-                </AutoComplete>
+                        
+                        // 如果是常规选项
+                        return (
+                            <div className="flex justify-between items-center py-1">
+                                <span>{`${option.data.countryName}(${option.data.countryCode})`}</span>
+                                <span className="text-text-color7">{option.data.areaCode}</span>
+                            </div>
+                        );
+                    }}
+                    dropdownRender={(menu) => (
+                        <>
+                            <div className="font-14 font-w-400 mb-2_5 px-2 mt-2_5">
+                                <Input 
+                                    placeholder='搜索'
+                                    value={searchValue}
+
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    prefix={<Iconify icon="eva:search-fill" size={16} />}
+                                />
+                            </div>
+                            <div className="custom-select-dropdown">
+                                {menu}
+                            </div>
+                        </>
+                    )}
+                    listHeight={320}
+                    virtual={true}
+                />
             </Form.Item>
         </ConfigProvider>
     );
