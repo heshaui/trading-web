@@ -73,8 +73,8 @@ function LoginRecord() {
     const columns: ColumnsType<DataType> = [
         {
             title: "类型",
-            dataIndex: "deviceNo",
-            key: "deviceNo",
+            dataIndex: "platformType",
+            key: "platformType",
             width: 158,
             align: "left",
             render: (text, record) => <div>{`${text}`} </div>,

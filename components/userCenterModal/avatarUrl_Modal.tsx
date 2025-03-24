@@ -155,7 +155,6 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                     avatarUrl: selectedAvatar
                 }
             }
-        console.log(params,111);
 
             const encrypt=await encryptData(params)
             await updateUserCenterApi(encrypt)
@@ -172,6 +171,8 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 toast.success('头像修改成功');
                 onOk(true)
                 onCancel()
+            }else{
+                toast.error(res.message)
             }
         } catch (error) {
             toast.error(String(error));

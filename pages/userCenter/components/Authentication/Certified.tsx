@@ -114,7 +114,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 </div>
                 {/* 按钮 */}
                 <div className={`${styles.btn_box} flex-col align-end justify-end`}>
-                    <button type='button' className={`${styles.btn_style} default_btn`}>去认证</button>
+                    {/* <button type='button' className={`${styles.btn_style} default_btn`}>去认证</button> */}
                     {/* <button type='button' className={`${styles.btn_style} default_btn`}>审核中</button>
             <button type='button' className={`${styles.btn_style} disabled_btn`}>重新认证</button> */}
                 </div>

@@ -46,7 +46,7 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                         onOk(true)
                         onCancel()
                     }else{
-                        toast.error(res.msg);
+                        toast.error(res.message);
                     }
 
                 } catch (error) {
