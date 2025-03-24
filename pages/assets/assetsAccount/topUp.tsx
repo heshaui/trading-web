@@ -1,12 +1,14 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from '../styles/spotAccount.module.css'
-import { Input, Steps, Radio, ConfigProvider, Table, Select } from 'antd';
+import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
-
+import { useThemeMode } from '@/hooks/useThemeMode';
+import Image from 'next/image'
+import Link from 'next/link'
 
 interface DataType {
     id: number,
@@ -23,35 +25,37 @@ interface DataType {
 }
 const AssetsMainPage = () => {
     const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        }, {
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
+        // {
+        //     id: 1,
+        //     userId: 1,
+        //     platformType: 1,
+        //     deviceNo: 'BTC',
+        //     ip: '123.45.67.89',
+        //     address: '123.45.67.89',
+        //     token: 23.3,
+        //     tokenTime: 123,
+        //     createTime: 1234567890,
+        //     updateTime: 1234567890,
+        //     tenantId: '1234567890'
+        // }, {
+        //     id: 2,
+        //     userId: 1,
+        //     platformType: 1,
+        //     deviceNo: 'POINT',
+        //     ip: '123.45.67.89',
+        //     address: '123.45.67.89',
+        //     token: 1234567890,
+        //     tokenTime: 23.0,
+        //     createTime: 1234567892,
+        //     updateTime: 1234567889,
+        //     tenantId: '1234567890'
+        // }
     ]);
+    const { isDayMode } = useThemeMode(); // 使用 hook
+
     const [searchHistory, setSearchHistory] = useState<string[]>(['BTC', 'ETH', 'FIL', 'USDT']);
 
-    // const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(0);
     const [current, setCurrent] = useState(1);
 
     const [pageParam, setPageParam] = useState({
@@ -166,6 +170,17 @@ const AssetsMainPage = () => {
                         placeholder="请选择币种"
                         options={cardTypeSeelect}
                         className={`${styles.select_box} custom-select`}
+                        // optionLabelProp="children"
+                        optionRender={(option) => {
+                            return (
+                                <div className="flex items-center py-1">
+                                    <Image src={`/images/assets/assets_account/icon_money.png`} 
+                                    alt={option.data.label} width={20} height={20}
+                                     className={` mr-2`} />
+                                    <span className="text-text-color7">{option.data.label}</span>
+                                </div>
+                            );
+                        }}
                         dropdownRender={(menu) => (<>
                             <div className={` font-14 font-w-400 mb-2_5 `}>
                                 <p className={`${styles.tip_color2}`}>搜索历史</p>
@@ -178,8 +193,14 @@ const AssetsMainPage = () => {
                             </div>
                             {menu}
                         </>
-    
+
                         )}
+                        notFoundContent={<div className='flex-y-cc'>
+                            <Image src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
+                            alt="empty" width={160} height={160} />
+                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
+                        </div>}
+                        
                     />
                     <div className='mt-2_5'>
                         <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
@@ -207,6 +228,13 @@ const AssetsMainPage = () => {
                     placeholder="请选择币种"
                     options={cardTypeSeelect}
                     className={`${styles.select_box} custom-select`}
+                    optionRender={(option) => {
+                        return (
+                            <div className="flex items-center py-1">
+                                <span className="text-text-color7">{option.data.label}</span>
+                            </div>
+                        );
+                    }}
                     dropdownRender={(menu) => (<>
                         <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
@@ -216,6 +244,11 @@ const AssetsMainPage = () => {
                     </>
 
                     )}
+                    notFoundContent={<div className='flex-y-cc'>
+                        <Image src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
+                        alt="empty" width={160} height={160} />
+                        <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
+                    </div>}
                 />}
             </div>,
 
@@ -245,11 +278,29 @@ const AssetsMainPage = () => {
     return (<div className={` page-h w-full page-box flex-y align-center`}>
         <div className={`${styles.spot_auth_box}`} >
             <div className='flex justify-between align-center'>
-                <h2 className={`font-w-500 font-20`}>现货账户</h2>
+            <Breadcrumb items={[
+                    {
+                        title: <Link href="/assets/assetsAccount">现货账户</Link>,
+                    },
+                    {
+                        title: '提现',
+                    },
+                ]} style={{ fontSize: 14 }} />
 
             </div>
-            <div className={`${styles.card_bgc}  mt-3 `}>
-                <div className={` w-full flex-x`}>
+            <div className={`${styles.card_box}  mt-6  `}>
+                <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
+                   <div className={`flex-x align-center ${styles.card_content}`}>
+                    <Image src={isDayMode ? '/images/assets/assets_account/icon_nosm_day.png' : '/images/assets/assets_account/icon_nosm_night.png' }
+                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`}/>
+                    <p className='flex-y'>
+                        <span className={` font-w-500 font-18`}>未完成身份认证</span>
+                        <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>完成身份认证，解锁全部功能</span>
+                    </p>
+                   </div>
+                   <button className={`default_btn ${styles.btn_style}`}>立即认证</button>
+                </div>
+                <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
                     <div className={`${styles.step_box}`}>
                         <ConfigProvider
                             theme={{
@@ -259,7 +310,8 @@ const AssetsMainPage = () => {
                                         selectorBg: 'var(--background7)',
                                         singleItemHeightLG: 50,
                                         paddingXXS: 10, // 下拉框选项最小内边距
-                                        // optionLineHeight:40, // 下拉框选项高度
+                                        optionHeight: 40, //选项高度
+                                        optionLineHeight: 2, //选项行高
                                     },
                                     Steps: {
                                         navArrowColor: "var(--text-color6)",
@@ -276,8 +328,25 @@ const AssetsMainPage = () => {
                                 className='custom-steps' />
                         </ConfigProvider>
                     </div>
-                    <div>
-
+                    <div className={`${styles.notice_box}`}>
+                        <div>
+                            <h5 className={`font-w-500 font-16 mb-4`}>常见问题</h5>
+                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                <li className={`mb-2_5`}>如何在IMBIT上充值和提现？</li>
+                                <li className={`mb-2_5`}>充值步骤指南</li>
+                                <li className={`mb-2_5`}>充值常见问题</li>
+                                <li className={`mb-2_5`}>为何我的充值尚未到账</li>
+                                <li className={`mb-2_5`}>如何提交充错币找回申请</li>
+                            </ul>
+                        </div>
+                        <div className=''>
+                            <h5 className={`font-w-500 font-16 mb-4`}>充值须知</h5>
+                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                <li className={`mb-2_5`}>1. 请通过客户端或在线钱包将您需要充值的相应币种数目发送到该地址</li>
+                                <li className={`mb-2_5`}>2. 发送完成后，系统会自动在此交易获得相应数量，确认后将该笔数字货币充值到您在本站的账户,相应数量的确认需要大约 30分钟 到 1 小时间，请耐心等待。</li>
+                                <li className={`mb-2_5`}>3. 同一个地址可多次充值，不影响到账</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div className={`${styles.table_box} w-full `}>
@@ -317,14 +386,20 @@ const AssetsMainPage = () => {
                             size="large"
                             scroll={{ x: "max-content", y: 500 }}
                             className={` table-box`}
-                        // pagination={{
-                        //     position: ["bottomRight"],
-                        //     showSizeChanger: true,
-                        //     total: total,
-                        //     size: "default",
-                        //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                        // }}
+                            pagination={{
+                                position: ["bottomRight"],
+                                showSizeChanger: true,
+                                total: total,
+                                size: "default",
+                                onChange: (page, pageSize) => pageChange(page, pageSize),
+                            }}
                         // loading={loading}
+                        locale={{ emptyText: <div className='flex-y-cc'>
+                            <Image 
+                            src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
+                            alt="empty" width={160} height={160} />
+                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
+                        </div>  }}
                         />
                     </ConfigProvider>
                 </div>

@@ -151,7 +151,7 @@ function InvitationDetails({onReturn}:InviteProps) {
                     // loading={loading}
                     locale={{ emptyText: <div className='flex-y-cc'>
                         <Image 
-                        src={isDayMode?"/images/invite/icon_nodata.png":"/images/invite/icon_nodata_night.png"} 
+                        src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
                         alt="empty" width={100} height={100} />
                         <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
                         <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`}

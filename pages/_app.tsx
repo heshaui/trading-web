@@ -21,13 +21,34 @@ import store from '@/store';
 import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
 
-
+// 定义公开路径（不需要登录即可访问的页面）
+const publicPaths = [
+  '/',
+  '/login',
+  '/register',
+  '/resetPassword',
+  // '/invite',
+];
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
   const { theme } = useThemeConfig();
   // 是否登录
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // console.log('theme:', theme);
+  const [isAuthChecking, setIsAuthChecking] = useState(true); // 添加认证检查状态
+  // 检查路径是否匹配公开路径
+  const isPublicPath = (path: string): boolean => {
+    // 精确匹配
+    if (publicPaths.includes(path)) return true;
+
+    // 前缀匹配（例如 /news/ 开头的所有路径）
+    for (const publicPath of publicPaths) {
+      if (publicPath.endsWith('/*') && path.startsWith(publicPath.slice(0, -2))) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   // 动态主题
   // const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
@@ -71,6 +92,7 @@ function App({ Component, pageProps }: AppProps) {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('userToken');
       setIsLoggedIn(!!token);
+      setIsAuthChecking(false); // 认证检查完成
     };
 
     checkLoginStatus();
@@ -86,6 +108,24 @@ function App({ Component, pageProps }: AppProps) {
       window.removeEventListener('loginStatusChanged', handleLoginChange);
     };
   }, []);
+  // 模拟路由守卫逻辑
+  useEffect(() => {
+    // 等待认证状态检查完成
+    if (isAuthChecking) return;
+
+    // 如果用户未登录且当前路径不是公开路径，重定向到登录页
+    if (!isLoggedIn && !isPublicPath(router.pathname)) {
+      console.log('未登录访问受保护页面，重定向到登录页');
+
+      // 保存当前URL，以便登录后可以重定向回来
+      const returnUrl = encodeURIComponent(router.asPath);
+
+      router.push({
+        pathname: '/login',
+        query: { returnUrl }
+      });
+    }
+  }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
@@ -95,7 +135,7 @@ function App({ Component, pageProps }: AppProps) {
     });
   };
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
-  const excludePaths = [ '/resetPassword'];
+  const excludePaths = ['/resetPassword'];
 
   const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
 
