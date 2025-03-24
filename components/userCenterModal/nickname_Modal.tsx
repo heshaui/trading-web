@@ -11,18 +11,28 @@ import {updateUserCenter} from '@/services/userCenter'
 import { toast } from "sonner";
 import { useState } from "react";
 import {encryptData} from '@/utils/encrypt'
+import dayjs from "dayjs";
+
+interface UserCenterData {
+    userId: number,
+    nickname?: string,
+    avatarUrl?: string,
+    birthday?: string,
+    isNicknameUpdate?:boolean,
+    nicknameUpdateTime?: number,
+  }
 type Props = {
     open: boolean;
-    nickname: string|null;
+    nicknameInfo: UserCenterData;
     // onOk?: (event: boolean) => void;
     onOk: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
+function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
     // const router = useRouter();
     const [form] = Form.useForm();
-    const [inputValue, setInputValue] = useState(nickname || '');
+    const [inputValue, setInputValue] = useState(nicknameInfo.nickname || '');
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -38,14 +48,14 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         userId:localStorage.getItem('userId')||'',
                         nickname:values.nickname
                     }
-                console.log(values);
                     const encrypt=await encryptData(param)
                     const res=await updateUserCenter(encrypt)
                     if(res.code==='0'){
                         onOk(true)
                         handCancel()
+                        toast.success('昵称修改成功')
                     }else{
-                        toast.error(res.msg)
+                        toast.error(res.message)
                     }
                 } catch (error) {
                     toast.error(String(error))
@@ -139,7 +149,7 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                         form={form}
                         size="large"
                         style={{ width: "100%" }}
-                        initialValues={{ nickname: nickname||'' }}
+                        initialValues={{ nickname: nicknameInfo.nickname||'' }}
                     >
                         <Form.Item name="nickname" rules={[{ required: true,message: '请输入昵称!' }]}>
                             <Input  className={`${styles.input_box} modal-input`}
@@ -147,6 +157,9 @@ function NicknameModal({ open, onCancel ,nickname,onOk}: Props) {
                             value={inputValue}
                             maxLength={25}/>
                         </Form.Item>
+                        {nicknameInfo&&!nicknameInfo?.isNicknameUpdate&& <p className="error_icon font-12 font-w-400 mt-1">
+                            {dayjs(nicknameInfo?.nicknameUpdateTime).format('YYYY-MM-DD HH:mm:ss')}可修改昵称
+                            </p>}
                         <ul className={`${styles.msg_color} mt-2_5 font-12 font-w-400`}>
                             <li className="flex align-base ">
                                 <Iconify icon="emojione-monotone:small-orange-diamond" className="theme_color mr-1"/>

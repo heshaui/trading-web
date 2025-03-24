@@ -116,14 +116,14 @@ export function getEmailSafe(data: codeType | encryptType): Promise<any> {
 }
 // 短信验证码
 export function getSmsCode(data: codeType | encryptType): Promise<any> {
-  return request(`${fixUrl}/sms/send/updateSmsVerify`, {
+  return request(`${fixUrl}/v1/sms/send/updateSmsVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 //邮件验证码 
 export function getEmailCode(data: codeType | encryptType): Promise<any> {
-  return request(`${fixUrl}/email/send/updateEmailVerify`, {
+  return request(`${fixUrl}/v1/email/send/updateEmailVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -151,14 +151,14 @@ export function setPassword(data: encryptType): Promise<any> {
 }
 // 密码-短信验证码
 export function getPasswordSmsCode(data:  encryptType): Promise<any> {
-  return request(`${fixUrl}/sms/send/updatePwdVerify`, {
+  return request(`${fixUrl}/v1/sms/send/updatePwdVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 //密码-邮件验证码 
 export function getPasswordEmailCode(data:  encryptType): Promise<any> {
-  return request(`${fixUrl}/email/send/updatePwdVerify`, {
+  return request(`${fixUrl}/v1/email/send/updatePwdVerify`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
