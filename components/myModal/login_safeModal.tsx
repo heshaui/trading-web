@@ -242,6 +242,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 onCancel={handCancel}
                 footer={ModalFooter}
                 width={400}
+                className={`modal_box`}
             >
                 <h4 className={`${styles.title_color} mt-7`}>{acountInfo.type == 'm' ? '邮箱验证码' : "手机验证码"}</h4>
                 <p className={`${styles.tip_color} mt-1`}>验证码已发送至

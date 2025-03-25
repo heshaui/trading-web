@@ -6,6 +6,9 @@ import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
 import type { CSSProperties } from 'react';
 import { ConfigProvider, Form, Input } from 'antd';
 import { Iconify } from "@/components/icon"
+import { getLoginInfo } from '@/services/overview';
+import { useEffect, useState } from 'react';
+
 const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
 
 const mainBgcStyle: CSSProperties = {
@@ -18,15 +21,46 @@ const mainBgcStyle: CSSProperties = {
 type InviteBannerProps = {
     onReturn: () => void;
 }
+// interface LoginInfoType {
+//     userId: number,
+//     registerAccount: string,
+//     status: number,
+//     email: string,
+//     inviteCode: string,
+// }
+interface InviteInfoType {
+    inviteCode: string,
+    inviteLink: string,
+}
 const InviteBanner = ({ onReturn }: InviteBannerProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [form] = Form.useForm();
-    let userInfo = {}
-    if (typeof window !== 'undefined') {
-        userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
+    // let userInfo = {}
+    // if (typeof window !== 'undefined') {
+    //     userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    // }
+    const onSubmit = () => {
+        form.validateFields()
+        .then(async (values) => {
+            console.log(values);
+            onReturn();
+        });
     }
-
+    const getLoginInfoData = async () => {
+        const res = await getLoginInfo();
+        if (res.code === '0') {
+            setInviteInfo(res.data);
+            form.setFieldsValue({
+                inviteCode: res.data.inviteCode,
+                inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode}`
+            });
+        }
+    }
+    useEffect(() => {
+        getLoginInfoData();
+    }, [])
     return (<>
         <div className={`${styles.header_banner} flex-y-cc`}
             style={{
@@ -62,7 +96,7 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
                             form={form}
                             size="large"
                             style={{ width: "100%" }}
-                            initialValues={{ inviteCode: '1121313', inviteLink: BASE_URL }}
+                            // initialValues={{ inviteCode: loginInfo.inviteCode, inviteLink: BASE_URL }}
                         >
                             <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>邀请码</p>
                             <Form.Item name="inviteCode" rules={[{ required: true, message: '请输入邀请码!' }]}>
@@ -73,7 +107,9 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
                                     suffix={
                                         <Iconify icon="icon-park-outline:copy"
                                             className='ml-1 cursor-pointer' size={18}
-                                        // onClick={ ''}
+                                        onClick={() => {
+                                            copyFn(inviteInfo.inviteCode)
+                                        }}
                                         />
                                     }
                                 />
@@ -87,14 +123,16 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
                                     suffix={
                                         <Iconify icon="icon-park-outline:copy"
                                             className='ml-1 cursor-pointer' size={18}
-                                        // onClick={ ''}
+                                        onClick={() => {
+                                            copyFn(inviteInfo.inviteLink)
+                                        }}
                                         />
                                     }
                                 />
                             </Form.Item>
                             <Form.Item name="inviteLink" rules={[{ required: true, message: '请输入邀请链接!' }]}>
                                 <button type='submit' className={`default_btn w-full ${styles.invite_btn}`}
-                                    onClick={onReturn}
+                                    onClick={onSubmit}
                                 >立即邀请</button>
                             </Form.Item>
                         </Form>

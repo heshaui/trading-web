@@ -57,6 +57,7 @@ function QuestionModal({ open, onOk, acount, acount2, type, onCancel, onAgain }:
             onCancel={handCancel}
             footer={ModalFooter}
             width={400}
+            className={`modal_box`}
         >
             <h4 className={`${styles.title_color} mt-7`}>若长时间没有收到验证码，请检查以下事项：</h4>
             <ul>
