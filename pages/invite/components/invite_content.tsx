@@ -4,17 +4,25 @@ import styles from '../styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
 // import type { CSSProperties } from 'react';
-import { ConfigProvider,  Tabs } from 'antd';
+import { ConfigProvider, Tabs, Skeleton } from 'antd';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
 import type { TabsProps } from 'antd';
 import InvitationDetails from './tables/invitation_details';
 import InvitationReward from './tables/invitation_reward';
-
+import { getInviteCount } from '@/services/invite'
+import { useEffect, useState } from 'react'
 type InviteContentProps = {
     onReturn: () => void;
 }
+interface InviteCountType {
+    userInviteCount?: number,
+    userInviteSuccessCount?: number,
+    accumulateMoney?: number,
+}
 const InviteContent = ({ onReturn }: InviteContentProps) => {
+    const [inviteCount, setInviteCount] = useState<InviteCountType>({})
+    const [inviteCountLoading, setInviteCountLoading] = useState(true)
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const inviteContentList = [
@@ -46,15 +54,32 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
         {
             key: '1',
             label: '我的邀请',
-            children: <InvitationDetails onReturn={onReturn}/> ,
+            children: <InvitationDetails onReturn={onReturn} />,
         },
         {
             key: '2',
             label: '奖励发放',
-            children: <InvitationReward onReturn={onReturn}/> ,
+            children: <InvitationReward onReturn={onReturn} />,
         },
     ];
+    const getInviteCountData = async () => {
+        setInviteCountLoading(true)
+        try {
+            const res = await getInviteCount()
+            if (res.code === '0') {
 
+                setInviteCount(res.data)
+            }
+        } catch (error) {
+
+        } finally {
+            setInviteCountLoading(false)
+        }
+
+    }
+    useEffect(() => {
+        getInviteCountData()
+    }, [])
     return (<>
         <div className={`${styles.header_banner} flex-y align-center`}>
             <div className={`${styles.main_page}`}>
@@ -89,26 +114,32 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                 </div>
                 <div className={`${styles.content_box}`}>
                     <h3 className={`font-32 font-w-500 mb-10`}>我的邀请</h3>
-                    <ul className={`${styles.content_list}  font-16 font-w-400  flex-x flex-wrap`}>
-                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                            <p className={`font-14 font-w-400`}>邀请总数</p>
-                            <p className={`font-32 font-w-700 ${styles.title_color}`}>0</p>
-                        </li>
-                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                            <p className={`font-14 font-w-400`}>邀请成功</p>
-                            <p className={`font-32 font-w-700 ${styles.title_color}`}>0</p>
-                        </li>
-                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                            <p className={`font-14 font-w-400`}>{`累计返佣（USDT）`}</p>
-                            <p className={`font-32 font-w-700 ${styles.title_color}`}>440.00</p>
-                        </li>
-                        <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                            <p className={`font-14 font-w-400`}>{`累计返佣（TRX）`}</p>
-                            <p className={`font-32 font-w-700 ${styles.title_color}`}>440.00
-                                <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>≈  100.02 USDT</span></p>
-                        </li>
+                    <Skeleton active loading={inviteCountLoading} title={false} 
+                    paragraph={{rows:3}}
+                    className={`${styles.content_list}`} >
 
-                    </ul>
+                        <ul className={`${styles.content_list}  font-16 font-w-400  flex-x flex-wrap`}>
+                            <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                                <p className={`font-14 font-w-400`}>邀请总数</p>
+                                <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.userInviteCount || 0}</p>
+                            </li>
+                            <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                                <p className={`font-14 font-w-400`}>邀请成功</p>
+                                <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.userInviteSuccessCount || 0}</p>
+                            </li>
+                            <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                                <p className={`font-14 font-w-400`}>{`累计返佣（USDT）`}</p>
+                                <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.accumulateMoney || 0}</p>
+                            </li>
+                            <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                                <p className={`font-14 font-w-400`}>{`累计返佣（TRX）`}</p>
+                                <p className={`font-32 font-w-700 ${styles.title_color}`}>{'暂无'}
+                                    {/* <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>≈  100.02 USDT</span> */}
+                                </p>
+                            </li>
+                        </ul>
+                    </Skeleton>
+
                 </div>
                 <div className={`${styles.content_box}`}>
                     <h3 className={`font-32 font-w-500 mb-10`}>邀请详情</h3>
@@ -116,17 +147,17 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                         theme={{
                             components: {
                                 Tabs: {
-                                    horizontalMargin:"0 0 0 0",
-                                    itemColor:"var(--text-color6)",
+                                    horizontalMargin: "0 0 0 0",
+                                    itemColor: "var(--text-color6)",
                                 },
                             },
                         }}>
-                        <Tabs items={items} className="custom-tabs"/>
+                        <Tabs items={items} className="custom-tabs" />
                     </ConfigProvider>
                 </div>
             </div>
 
-        </div>
+        </div >
     </>
     );
 };

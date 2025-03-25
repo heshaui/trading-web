@@ -51,6 +51,9 @@
 .theme_color {
   color: var(--theme-color);
 }
+.tip-color {
+  color: var(--text-color6);
+}
 
 .pointer ,.cursor-pointer{
   cursor: pointer;

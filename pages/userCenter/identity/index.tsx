@@ -91,12 +91,49 @@ const IdentityPage: React.FC = () => {
         userId: userId || ''
       });
       if (res.code === '0') {
-        setLevelBenefitData(res.data);
+        const benefitData=transformData(res.data)
+        setLevelBenefitData(benefitData);
       }
     } catch (error) {
       toast.error(String(error));
     }
   }
+
+  const transformData = (data:any) => {
+    return data.map((item:any) => {
+      // 创建基础对象，包含 benefitId 和 benefitName
+      const result = {
+        benefitId: item.benefitId,
+        benefitName: item.benefitName,
+        
+        // 初始化默认值
+        status0: null,
+        value0: null,
+        params0: null,
+        status1: null,
+        value1: null,
+        params1: null
+      };
+      
+      // 遍历 levelBenefits 数组，根据 levelId 设置对应的属性
+      item.levelBenefits.forEach((benefit:any) => {
+        if (benefit.levelId === 1) {
+        // 未认证
+          result.status0 = benefit.status;
+          result.value0 = benefit.value;
+          result.params0 = benefit.params;
+        } else if (benefit.levelId === 2) {
+          // 已认证
+          result.status1 = benefit.status;
+          result.value1 = benefit.value;
+          result.params1 = benefit.params;
+        }
+      });
+      
+      return result;
+    });
+  }
+
   useEffect(() => {
     getUserIdentityInfoData();
   }, []);

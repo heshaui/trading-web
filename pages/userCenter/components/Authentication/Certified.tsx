@@ -27,6 +27,12 @@ interface levelBenefitType {
     value: string;
     benefitId: number;
     benefitName: string;
+    status0?: number;
+    value0?: string;
+    params0?: string;
+    status1?: number;
+    value1?: string;
+    params1?: string;
 }
 interface infoType {
     id: number;
@@ -48,6 +54,7 @@ interface infoType {
     createTime: number;
     updateTime: number;
     tenantId: string;
+
 }
 
 const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBenefitType[] }> = ({ identityInfo, levelBenefit }) => {
@@ -130,8 +137,8 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
                             <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
                             <div className={` font-w-500`}>{
-                                item.status === 0 ? "禁止":
-                                item.value ?getBenefitValue(item.value) :"允许"}</div>
+                                item.status1 === 0 ? "禁止":
+                                (item.value1&&item.params1)?getBenefitValue(item.value1):"允许"}</div>
                         </li>
                         // <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         //     <div className={` font-w-400 ${styles.tip_color}`}>加密货币充值</div>
