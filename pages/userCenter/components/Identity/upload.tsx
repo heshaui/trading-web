@@ -12,6 +12,8 @@ import { fileImg } from "@/services/open";
 import { postSaveIdentity } from "@/services/userCenter";
 import dayjs from 'dayjs';
 import {encryptData} from '@/hooks/user-encrypt'
+import { useThemeMode } from '@/hooks/useThemeMode';
+
 interface eventType {
     surname: string;
     firstName: string;
@@ -30,7 +32,7 @@ interface IDVProps {
     userInfo: eventType;
 }
 const uploadBgcStyle: CSSProperties = {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--background)",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     backgroundPosition: 'center',
@@ -49,6 +51,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
     const [selfieFileUrl, setSelfieFileUrl] = useState<string>('');
     // const [isNext, setIsNext] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // 提交loading
+    const { isDayMode } = useThemeMode(); // 使用 hook
 
     // Check if all required files are uploaded
     const checkFilesComplete = () => {
@@ -224,7 +227,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 <div className={`${styles.upload_content} flex-y-cc relative`}
                     style={{
                         ...uploadBgcStyle,
-                        backgroundImage: `url(${'/images/userCenter/identity/frontage_day1.png'})`,
+                        backgroundImage: `url(${isDayMode ? '/images/userCenter/identity/frontage_day1.png' : '/images/userCenter/identity/frontage_night1.png'})`,
                     }}>
                     {frontFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={frontFileUrl}
@@ -265,7 +268,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
                     style={{
                         ...uploadBgcStyle,
-                        backgroundImage: `url(${'/images/userCenter/identity/back_day2.png'})`,
+                        backgroundImage: `url(${isDayMode ? '/images/userCenter/identity/back_day2.png' : '/images/userCenter/identity/back_night2.png'})`,
                     }}>
                     {backFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={backFileUrl}
@@ -303,7 +306,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
                     style={{
                         ...uploadBgcStyle,
-                        backgroundImage: `url(${'/images/userCenter/identity/handcard_day3.png'})`,
+                        backgroundImage: `url(${isDayMode ? '/images/userCenter/identity/handcard_day3.png' : '/images/userCenter/identity/handcard_night3.png'})`,
                     }}>
                     {selfieFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={selfieFileUrl}

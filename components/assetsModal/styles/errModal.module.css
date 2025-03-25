@@ -1,0 +1,33 @@
+.modal_box{
+    background-color: var(--background5);
+}
+.errModal_btn {
+    font-weight: 500;
+    font-size: 14px;
+    width: 170px;
+    height: 36px;
+    border-radius: 36px;
+}
+
+.title {
+    color: var(--text-color5);
+    font-weight: 500;
+    font-size: 20px;
+
+}
+
+.msg_color {
+    color: #A4A5AC;
+}
+.icon_box{
+    height: 160px;
+    width: 160px;
+}
+.input_box{
+    background: var(--background5);
+    color: var(--text-color6);
+}
+.input_box:focus:not(:hover) {
+    background-color: var(--homeground5) !important;
+    color: var(--text-color6) !important;
+}

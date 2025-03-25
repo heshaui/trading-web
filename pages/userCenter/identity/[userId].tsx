@@ -82,16 +82,19 @@ function ResetPassword() {
 
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >
-            <div className={`${styles.identity_auth_box}`} style={{}}>
+            <div className={`${styles.identity_auth_box}`} >
 
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/userCenter/identity">身份认证</Link>,
+                        title: <Link href="/userCenter/identity" ><span className={`${styles.tip_color}`}>身份认证</span> </Link>,
                     },
                     {
-                        title: '认证信息',
+                        title: <span className={`${styles.title_color}`}>认证信息</span>,
                     },
-                ]} style={{ fontSize: 14 }} />
+                ]} 
+                style={{ fontSize: 14 }} 
+                separator={<span className={`${styles.tip_color}`}>/</span>}
+                />
 
                 <div className={`${styles.identity_content_box} flex-y-cc`}>
                     <div className={`${styles.content_steps_box} flex-y-cc`}>
@@ -99,7 +102,7 @@ function ResetPassword() {
                             theme={{
                                 components: {
                                     Steps: {
-                                        /* 这里是你的组件 token */
+                                        // navArrowColor: "var(--text-color6)",
                                     },
                                 },
                                 token: {
@@ -109,7 +112,8 @@ function ResetPassword() {
                             }}>
                             <Steps current={current}
                                 labelPlacement="vertical"
-                                items={items} />
+                                items={items} 
+                                className='custom-steps2'/>
                         </ConfigProvider>
                         {/* <div style={{ width: '100%', marginTop: 50 }}> */}
                             {items[current].content}

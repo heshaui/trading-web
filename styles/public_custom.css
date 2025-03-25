@@ -33,6 +33,9 @@
 .modal_box .ant-modal-content {
     background-color: var(--background5);
 }
+.modal_box .anticon-close{
+    color: var(--text-color6) !important;
+}
 
 /* 输入框组件覆盖 */
 .custom-input:focus,
@@ -72,7 +75,8 @@
 }
 
 /* modal选择框placeholder颜色 */
-.custom-sleect .ant-select-selection-placeholder,.custom-select .ant-select-selection-placeholder  {
+.custom-sleect .ant-select-selection-placeholder,
+.custom-select .ant-select-selection-placeholder {
     color: var(--text-color4) !important;
 }
 
@@ -80,44 +84,68 @@
 .custom-select .ant-select-selection-item {
     color: var(--text-color6) !important;
 }
+
 /* 选择框右侧角标按钮颜色 */
-.custom-select .ant-select-arrow{
-color: var(--text-color6) !important;
+.custom-select .ant-select-arrow {
+    color: var(--text-color6) !important;
 }
 
 .autoComplete-custom .ant-input::placeholder {
     color: var(--text-color4) !important;
 }
+
 /* 自定义步骤条 */
 /* 步骤条选中状态 */
 /* .custom-steps .ant-steps-item-process .ant-steps-item-icon{
     background-color:transparent !important;
     border-color: var(--theme-color) !important;
 } */
-.custom-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon{
+.custom-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon {
     color: var(--cancel-btn) !important;
 }
+
 /* 标题-已完成 正在进行 */
 .custom-steps .ant-steps-item-finish .ant-steps-item-title,
-.custom-steps .ant-steps-item-process .ant-steps-item-title
-{
+.custom-steps .ant-steps-item-process .ant-steps-item-title,
+
+.custom-steps2 .ant-steps-item-finish .ant-steps-item-title,
+.custom-steps2 .ant-steps-item-process .ant-steps-item-title
+ {
     color: var(--text-color5) !important;
 }
+
 /* 步骤条等待状态 */
-.custom-steps .ant-steps-item-wait .ant-steps-item-icon{
-    background-color:transparent !important;
+.custom-steps .ant-steps-item-wait .ant-steps-item-icon,
+.custom-steps2 .ant-steps-item-wait .ant-steps-item-icon {
+    background-color: transparent !important;
     border-color: var(--theme-color) !important;
 }
-.custom-steps .ant-steps-item-wait .ant-steps-icon{
+
+.custom-steps .ant-steps-item-wait .ant-steps-icon,
+.custom-steps2 .ant-steps-item-wait .ant-steps-icon {
     color: var(--theme-color) !important;
 }
+
 /* 标题 */
-.custom-steps .ant-steps-item-wait .ant-steps-item-title{
+.custom-steps .ant-steps-item-wait .ant-steps-item-title,
+.custom-steps2 .ant-steps-item-wait .ant-steps-item-title {
     color: #A4A5AC !important;
 }
+
+
 /* 步骤条连接线 */
-.custom-steps .ant-steps-item-process .ant-steps-item-tail::after{
+.custom-steps .ant-steps-item-process .ant-steps-item-tail::after,
+.custom-steps2 .ant-steps-item-process .ant-steps-item-tail::after
+ {
     background-color: var(--text-color4) !important;
+}
+/* 身份认证-已完成 */
+.custom-steps2 .ant-steps-item-finish .ant-steps-item-icon,
+.custom-steps2 .ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon
+ {
+    background-color:#00C788 !important;
+    color:#ffffff !important;
+    border-color: #00C788 !important;
 }
 
 
@@ -347,8 +375,10 @@ color: var(--text-color6) !important;
 .table-box .ant-select-open .ant-select-selection-item {
     color: var(--text-color4) !important;
 }
+
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body {
+
     /* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari, Edge) */
     &::-webkit-scrollbar {
         width: 0;

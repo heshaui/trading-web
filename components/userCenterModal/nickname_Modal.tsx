@@ -43,6 +43,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
         form.validateFields()
             .then(async(values) => {
                 // console.log(values);
+                if(!nicknameInfo?.isNicknameUpdate) return toast.error('24h内只能修改1次')
                 try {
                     const param={
                         userId:localStorage.getItem('userId')||'',
@@ -158,7 +159,8 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
                             maxLength={25}/>
                         </Form.Item>
                         {nicknameInfo&&!nicknameInfo?.isNicknameUpdate&& <p className="error_icon font-12 font-w-400 mt-1">
-                            {dayjs(nicknameInfo?.nicknameUpdateTime).format('YYYY-MM-DD HH:mm:ss')}可修改昵称
+
+                            {dayjs(Number(nicknameInfo?.nicknameUpdateTime)).format('YYYY-MM-DD HH:mm:ss')}可修改昵称
                             </p>}
                         <ul className={`${styles.msg_color} mt-2_5 font-12 font-w-400`}>
                             <li className="flex align-base ">

@@ -9,7 +9,8 @@ import { useState, useEffect, useRef } from "react";
 import { useThemeMode } from '@/hooks/useThemeMode';
 import Image from 'next/image'
 import Link from 'next/link'
-
+import {NoData,NoAddress} from '@/components/noData';
+import NoUseCom from '../compontents/noSM'
 interface DataType {
     id: number,
     userId: number,
@@ -23,7 +24,7 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const AssetsMainPage = () => {
+const TopUpPage = () => {
     const [tableData, setTableData] = useState<DataType[]>([
         // {
         //     id: 1,
@@ -195,11 +196,7 @@ const AssetsMainPage = () => {
                         </>
 
                         )}
-                        notFoundContent={<div className='flex-y-cc'>
-                            <Image src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
-                            alt="empty" width={160} height={160} />
-                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
-                        </div>}
+                        notFoundContent={<NoData title="暂无记录"/>}
                         
                     />
                     <div className='mt-2_5'>
@@ -225,7 +222,7 @@ const AssetsMainPage = () => {
             title: <p className={`${styles.tip_title} `}>网络</p>,
             description: <div className={`${styles.steps_item_content2} mt-2`}>
                 {current >= 1 && <Select allowClear
-                    placeholder="请选择币种"
+                    placeholder="请选择网络"
                     options={cardTypeSeelect}
                     className={`${styles.select_box} custom-select`}
                     optionRender={(option) => {
@@ -244,11 +241,7 @@ const AssetsMainPage = () => {
                     </>
 
                     )}
-                    notFoundContent={<div className='flex-y-cc'>
-                        <Image src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
-                        alt="empty" width={160} height={160} />
-                        <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
-                    </div>}
+                    notFoundContent={<NoData title="暂无记录"/>}
                 />}
             </div>,
 
@@ -280,26 +273,17 @@ const AssetsMainPage = () => {
             <div className='flex justify-between align-center'>
             <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount">现货账户</Link>,
+                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
                     },
                     {
-                        title: '提现',
+                        title: <span className={`${styles.title_color}`}>充值</span>,
                     },
                 ]} style={{ fontSize: 14 }} />
 
             </div>
             <div className={`${styles.card_box}  mt-6  `}>
-                <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
-                   <div className={`flex-x align-center ${styles.card_content}`}>
-                    <Image src={isDayMode ? '/images/assets/assets_account/icon_nosm_day.png' : '/images/assets/assets_account/icon_nosm_night.png' }
-                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`}/>
-                    <p className='flex-y'>
-                        <span className={` font-w-500 font-18`}>未完成身份认证</span>
-                        <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>完成身份认证，解锁全部功能</span>
-                    </p>
-                   </div>
-                   <button className={`default_btn ${styles.btn_style}`}>立即认证</button>
-                </div>
+                <NoUseCom type='1' />
+                <NoUseCom type='2' />
                 <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
                     <div className={`${styles.step_box}`}>
                         <ConfigProvider
@@ -394,12 +378,7 @@ const AssetsMainPage = () => {
                                 onChange: (page, pageSize) => pageChange(page, pageSize),
                             }}
                         // loading={loading}
-                        locale={{ emptyText: <div className='flex-y-cc'>
-                            <Image 
-                            src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
-                            alt="empty" width={160} height={160} />
-                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
-                        </div>  }}
+                        locale={{ emptyText:<NoData title="暂无记录"/> }}
                         />
                     </ConfigProvider>
                 </div>
@@ -409,4 +388,4 @@ const AssetsMainPage = () => {
     );
 };
 
-export default AssetsMainPage;
+export default TopUpPage;

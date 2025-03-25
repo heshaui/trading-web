@@ -85,6 +85,7 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
             onCancel={handCancel}
             footer={ModalFooter}
             width={400}
+            className={`modal_box`}
         >
             <div className="flex-col flex-ai-center">
                 {type === 'error' && <Image src="/images/login/icon_repeat.png"

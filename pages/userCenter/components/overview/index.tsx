@@ -3,7 +3,7 @@ import React from 'react';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
 import { CSSProperties, useState, useEffect } from "react";
-import { QRCode } from "antd";
+import { QRCode, Skeleton } from "antd";
 import Image from 'next/image';
 import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
@@ -67,13 +67,19 @@ const OverviewPage: React.FC = () => {
     const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [codeValue] = useState("https://ant.design") //, setcodeValue
+    const [loadingSkeleton, setLoadingSkeleton] = useState(true)
+
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
     const { isDayMode } = useThemeMode(); // 使用 hook
     const getLoginInfoData = async () => {
+        setLoadingSkeleton(true)
         try {
             const res = await getLoginInfo();
-            setLoginInfo(res.data);
+            if (res.code === '0') {
+                setLoginInfo(res.data);
+                setLoadingSkeleton(false)
+            }
         } catch (error) {
             toast.error(String(error));
         }
@@ -124,8 +130,12 @@ const OverviewPage: React.FC = () => {
     }
 
     const goIdentity = (status: number) => {
-        localStorage.setItem('identity_authStatus', status.toString())
-        router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${status}`)
+        if (status === 1) {
+            router.push(`/userCenter/identity`)
+        } else {
+            localStorage.setItem('identity_authStatus', status.toString())
+            router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${status}`)
+        }
     }
     useEffect(() => {
         getLoginInfoData()
@@ -135,86 +145,126 @@ const OverviewPage: React.FC = () => {
 
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
-            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || `IMUSER-${loginInfo?.userId||'--'}`}</h2>
+            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || `IMUSER-${loginInfo?.userId || '--'}`}</h2>
             <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
                 {loginInfo?.famousAphorisms || `"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
             </p>
+            {/* </Skeleton> */}
         </div>
         {/* userInfo-header*/}
         <div className={`${styles.card_bgc} ${styles.pt0} mt-3 flex-row justify-between `}>
-            <div className={`flex-row justify-between align-center flex-wrap  ${styles.userInfo_content}`}>
-                <div className={`${styles.content_header_userInfo} flex-row align-center mt-6`}>
-                    <div className={`${styles.userInfo_pic_box} flex-y-cc`}>
-                        {loginInfo?.avatarUrl?<Image src={loginInfo?.avatarUrl}
-                         alt="" width={68} height={68} 
-                         className={`${styles.userInfo_pic}`}/>
-                         :
-                        <Image src={isDayMode?"/images/userCenter/overview/icon_avatarUrl1.png"
-                            :"/images/userCenter/overview/icon_avatarUrl2.png"}
-                         alt="" width={68} height={68} 
-                         className={`${styles.userInfo_pic}`}/>}
-                    </div>
-                    <div className='ml-3 '>
-                        <div className={`${styles.userInfo_name} font-18`}>{loginInfo?.account || '--'}</div>
-                        <div className={`${styles.userInfo_uid} font-14 flex-row align-baseline`}>
-                            UID：{loginInfo?.userId || '--'}
-                            <Iconify icon="icon-park-solid:copy"
-                                className='ml-1 cursor-pointer' size={18}
-                                onClick={() => copyFn(loginInfo?.userId?.toString() || '')}
-                            />
+            {/* <Skeleton.Avatar active  shape={'circle'}  loading={loadingSkeleton} /> */}
+            <Skeleton active title={false} loading={loadingSkeleton} paragraph={{ rows: 3 }} className='mt-6' avatar={{
+                shape: 'circle',
+                size: 68,
+                // active: true
+            }}>
+                <div className={`flex-row justify-between align-center flex-wrap  ${styles.userInfo_content}`}>
+                    <div className={`${styles.content_header_userInfo} flex-row align-center mt-6`}>
+                        <div className={`${styles.userInfo_pic_box} flex-y-cc`}>
+                            {loginInfo?.avatarUrl ? <Image src={loginInfo?.avatarUrl}
+                                alt="" width={68} height={68}
+                                className={`${styles.userInfo_pic}`} />
+                                :
+                                <Image src={isDayMode ? "/images/userCenter/overview/icon_avatarUrl1.png"
+                                    : "/images/userCenter/overview/icon_avatarUrl2.png"}
+                                    alt="" width={68} height={68}
+                                    className={`${styles.userInfo_pic}`} />}
+                        </div>
+                        <div className='ml-3 '>
+                            <div className={`${styles.userInfo_name} font-18`}>{loginInfo?.account || '--'}</div>
+                            <div className={`${styles.userInfo_uid} font-14 flex-row align-baseline`}>
+                                UID：{loginInfo?.userId || '--'}
+                                <Iconify icon="icon-park-solid:copy"
+                                    className='ml-1 cursor-pointer' size={18}
+                                    onClick={() => copyFn(loginInfo?.userId?.toString() || '')}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className={`${styles.card_mt} mt-6`}>
-                    <p className={`${styles.tip_color} font-12`}>注册账号</p>
-                    <p className='font-14 mt-2'>{encryptString(loginInfo?.registerAccount)}</p>
-                </div>
-                <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
-                    <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}
-                        onClick={() => goIdentity(loginInfo?.realnessStatus)}>
-                        身份认证
-                        <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
+                    {/* <div className='flex-1 flex-wrap flex-x justify-between ml-4'> */}
+                    <div className={`${styles.card_mt} mt-6`}>
+                        <p className={`${styles.tip_color} font-12`}>注册账号</p>
+                        <p className='font-14 mt-2'>{encryptString(loginInfo?.registerAccount)}</p>
                     </div>
-                    {loginInfo && loginInfo?.realnessStatus === 1 && (
-                        <div className='font-14 mt-2 flex-x align-center'>
-                            <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
-                            <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
-                        </div>)}
-                    {loginInfo && loginInfo?.realnessStatus === 0 && (
-                        <div className='font-14 mt-2 flex-x align-center'>
-                            <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
-                            <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
+                    <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
+                        <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}
+                            onClick={() => goIdentity(loginInfo?.realnessStatus)}>
+                            身份认证
+                            <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
                         </div>
-                    )}
-                    {loginInfo && loginInfo?.realnessStatus === 3 && (
-                        <div className='font-14 mt-2 flex-x align-center'>
-                            <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
-                            <span className={`${styles.tip_color} font-14 font-w-500`}>审核中</span>
-                        </div>
-                    )}
-                    {loginInfo && loginInfo?.realnessStatus === 2 && (
-                        <div className='font-14 mt-2 flex-x align-center'>
-                            <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
-                            <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
+                        {loginInfo && loginInfo?.realnessStatus === 1 && (
+                            <div className='font-14 mt-2 flex-x align-center'>
+                                <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
+                            </div>)}
+                        {loginInfo && loginInfo?.realnessStatus === 0 && (
+                            <div className='font-14 mt-2 flex-x align-center'>
+                                <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
+                            </div>
+                        )}
+                        {loginInfo && loginInfo?.realnessStatus === 3 && (
+                            <div className='font-14 mt-2 flex-x align-center'>
+                                <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>审核中</span>
+                            </div>
+                        )}
+                        {loginInfo && loginInfo?.realnessStatus === 2 && (
+                            <div className='font-14 mt-2 flex-x align-center'>
+                                <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
+                                <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
 
-                        </div>)}
-                </div>
-                <div className={`${styles.card_mt} mt-6 `}>
-                    <p className={`${styles.tip_color} font-12`}>账号状态</p>
-                    <p className='font-14 mt-2 font-w-500 flex-y'>
-                        <span className='mr-2'>{loginInfo?.status === 1 ? '正常' : '冻结'}</span>
-                        {/* <span className='mr-2'>{loginInfo?.status === 2 ? '正常' : '交易冻结'}</span>
+                            </div>)}
+                    </div>
+                    <div className={`${styles.card_mt} mt-6 `}>
+                        <p className={`${styles.tip_color} font-12`}>账号状态</p>
+                        <p className='font-14 mt-2 font-w-500 flex-y'>
+                            <span className='mr-2'>
+                                {loginInfo?.status === 1 && loginInfo?.transactionStatus === 1 && loginInfo?.withdrawalStatus === 1 ? (
+                                    <span className='mr-2'>正常</span>
+                                ) : (
+                                    <>
+                                        {(() => {
+                                            const statusMessages = [];
+
+                                            if (loginInfo?.status === 0) {
+                                                statusMessages.push('登录冻结');
+                                            }
+
+                                            if (loginInfo?.transactionStatus === 0) {
+                                                statusMessages.push('交易冻结');
+                                            }
+
+                                            if (loginInfo?.withdrawalStatus === 0) {
+                                                statusMessages.push('提现冻结');
+                                            }
+
+                                            // 如果只有一个异常，直接显示
+                                            if (statusMessages.length === 1) {
+                                                return <span className='mr-2'>{statusMessages[0]}</span>;
+                                            }
+                                            // 如果有多个异常，用 / 分隔
+                                            else {
+                                                return <span className='mr-2'>{statusMessages.join(' / ')}</span>;
+                                            }
+                                        })()}
+                                    </>
+                                )}
+                            </span>
+                            {/* <span className='mr-2'>{loginInfo?.status === 2 ? '正常' : '交易冻结'}</span>
                         <span className='mr-2'>{loginInfo?.status === 3 ? '正常' : '提现冻结'}</span> */}
-                    </p>
+                        </p>
+                    </div>
+                    {/* </div> */}
+
                 </div>
-
-            </div>
-            <div className={`${styles.userInfo_detail} flex-row align-start justify-end flex-1 mt-6`} >
-                <button type='button' className={`${styles.userInfo_btn} font-w-500`} onClick={() => router.push('/userCenter/userSettings')}>
-                    个人资料
-                </button>
-            </div>
-
+                <div className={`${styles.userInfo_detail} flex-row align-start justify-end flex-1 mt-6`} >
+                    <button type='button' className={`${styles.userInfo_btn} font-w-500`} onClick={() => router.push('/userCenter/userSettings')}>
+                        个人资料
+                    </button>
+                </div>
+            </Skeleton>
         </div>
         {/* userInfo-content */}
         <div className={`flex flex-wrap`} >
@@ -231,12 +281,12 @@ const OverviewPage: React.FC = () => {
                             {statusText(loginInfo?.realnessStatus)}
                         </p>
                         <p className={`font-14 mt-3`}>{loginInfo?.realnessStatus === 1 ? '已完成身份认证，开始您的货币之旅吧！' : '完成身份认证后可以享受交易所完整服务'}</p>
-                        <button className={`${loginInfo?.realnessStatus === 3 ? 'disabled_btn' : 'btn-color'} font-14 font-w-500 mt-10 ${styles.btn}`}
+                        <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => goIdentity(loginInfo?.realnessStatus)}
                         >
-                            {loginInfo?.realnessStatus === 2 && '去认证'}
-                            {loginInfo?.realnessStatus === 0 && '重新认证'}
-                            {loginInfo?.realnessStatus === 3 && '审核中'}
+                            {loginInfo?.realnessStatus === 2 ? '去认证' : '查看详情'}
+                            {/* {loginInfo?.realnessStatus === 0 && '重新认证'}
+                            {loginInfo?.realnessStatus === 3 && '审核中'} */}
                         </button>
                         {/* {loginInfo?.realnessStatus === 3 && <button className={`disabled_btn font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${loginInfo?.realnessStatus}`)}
@@ -320,7 +370,7 @@ const OverviewPage: React.FC = () => {
                                     <p className='font-14 font-w-500 flex-col'>
                                         <span className='font-w-500'>
                                             {/* WEB */}
-                                            {`${item.deviceNo || '--'}(${item.platformType||'--'})`}
+                                            {`${item.deviceNo || '--'}(${item.platformType || '--'})`}
                                         </span>
                                         <span className={`${styles.tip_color} font-12 font-w-400`}>
                                             {/* 中国香港 */}
@@ -366,7 +416,7 @@ const OverviewPage: React.FC = () => {
                                     <p className='font-14 font-w-500 flex-col'>
                                         <span className='font-w-500'>
                                             {/* Chrome 12 125.0.0.0(Mac OS X) */}
-                                            {`${item.deviceNo || '--'}(${item.platformType||'--'})`}
+                                            {`${item.deviceNo || '--'}(${item.platformType || '--'})`}
                                         </span>
                                         <span className={`${styles.tip_color} font-12 font-w-400`}>
                                             {/* 2020-02-20 12:12:01 中国香港 */}
@@ -376,7 +426,7 @@ const OverviewPage: React.FC = () => {
                                     </p>
                                     <p className='font-14 font-w-500 flex-col align-end'>
                                         <span className={`font-w-500 ${styles.warning_color} pointer`}
-                                        onClick={() => router.push(`/userCenter/safeCenter/equipment?deviceId=${item.id}`)}
+                                            onClick={() => router.push(`/userCenter/safeCenter/equipment?deviceId=${item.id}`)}
                                         >管理</span>
                                         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
                                             {/* 223.168.123.111 */}

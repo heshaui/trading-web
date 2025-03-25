@@ -17,7 +17,7 @@ import { encryptString } from "@/utils/encrypt";
 import Image from 'next/image';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { getInviteList } from "@/services/invite";
-import NoData from "@/components/noData";
+import {NoData} from "@/components/noData";
 
 interface DataType {
     id: number,
