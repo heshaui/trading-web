@@ -5,10 +5,10 @@ import { Layout } from 'antd';
 // import store from "@/store";
 import styles from "../../styles/invite.module.css"
 import { Iconify } from "@/components/icon/index";
-import { Table, ConfigProvider ,Empty} from "antd";
+import { Table, ConfigProvider, Empty } from "antd";
 // import Link from 'next/link'
 import { useRouter } from 'next/router';
-import { useState, useEffect ,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ColumnsType } from "antd/es/table";
 // import { getUserSafeSettingLoginLogList, getUserLoginLogList } from "@/services/safeCenter";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import { encryptString } from "@/utils/encrypt";
 import Image from 'next/image';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { getInviteList } from "@/services/invite";
+import NoData from "@/components/noData";
 
 interface DataType {
     id: number,
@@ -34,9 +35,9 @@ interface DataType {
 type InviteProps = {
     onReturn: () => void;
 }
-function InvitationDetails({onReturn}:InviteProps) {
+function InvitationDetails({ onReturn }: InviteProps) {
     const router = useRouter();
-    const [loginData, setLoginData] = useState<DataType[]>([]);
+    const [inviteData, setInviteData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const { userId } = router.query;
@@ -69,7 +70,7 @@ function InvitationDetails({onReturn}:InviteProps) {
             dataIndex: "status",
             align: "center",
             render: (_text) => {
-                return <span >{_text.toString()==='1'?'成功':'失败'}</span>;
+                return <span >{_text.toString() === '1' ? '成功' : '失败'}</span>;
             },
         },
         {
@@ -84,31 +85,30 @@ function InvitationDetails({onReturn}:InviteProps) {
 
 
     ];
-    // const getLoginData = async () => {
-    //     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-    //     const isuserId = userId ? userId?.toString() : ''
-    //     setLoading(true)
-    //     try {
- 
-    //     const res = await getUserSafeSettingLoginLogList({
-    //         pageNo: paramdataRef.current.page,
-    //         pageSize: paramdataRef.current.pageSize,
-    //         userId: userInfo?.userId || isuserId || ''
-    //     });
-    //     if (res.code === '0') {
-    //         setLoginData(res.data.list)
-    //         setTotal(res.data.count)
-    //     }else{
-    //         toast.error(res.message)
-    //     }
-    //     } catch (error) {
-    //        toast.error(String(error))
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    // }
-    const pageChange = async(page: number, pageSize: number) => {
-        const pageData={
+    const getInviteData = async () => {
+        setLoading(true)
+        try {
+
+            const res = await getInviteList(
+                // {
+                //     pageNo: paramdataRef.current.page,
+                //     pageSize: paramdataRef.current.pageSize,
+                // }
+            );
+            if (res.code === '0') {
+                setInviteData(res.data.list)
+                // setTotal(res.data.count)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        } finally {
+            setLoading(false)
+        }
+    }
+    const pageChange = async (page: number, pageSize: number) => {
+        const pageData = {
             page: page,
             pageSize: pageSize
         }
@@ -116,9 +116,9 @@ function InvitationDetails({onReturn}:InviteProps) {
         paramdataRef.current = pageData;
         // await getLoginData()
     }
-    // useEffect(() => {
-    //     getLoginData()
-    // }, [])
+    useEffect(() => {
+        getInviteData()
+    }, [])
     return (
         <div className={`${styles.table_box}`}>
             <ConfigProvider
@@ -137,26 +137,30 @@ function InvitationDetails({onReturn}:InviteProps) {
             >
                 <Table
                     columns={columns}
-                    dataSource={loginData}
+                    dataSource={inviteData}
                     size="large"
                     scroll={{ x: "max-content" }}
                     className={`${styles.table_box} table-box`}
-                    pagination={{
-                        position: ["bottomRight"],
-                        showSizeChanger: true,
-                        total: total,
-                        size: "default",
-                        onChange: (page, pageSize) => pageChange(page, pageSize),
+                    // pagination={{
+                    //     position: ["bottomRight"],
+                    //     showSizeChanger: true,
+                    //     total: total,
+                    //     size: "default",
+                    //     onChange: (page, pageSize) => pageChange(page, pageSize),
+                    // }}
+                    loading={loading}
+                    locale={{
+                        emptyText:
+                         <div className='flex-y-cc'>
+                            {/* <Image
+                                src={isDayMode ? "/images/pubic_icon/iocn_nodata_day.png" : "/images/pubic_icon/iocn_nodata_night.png"}
+                                alt="empty" width={100} height={100} />
+                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p> */}
+                            <NoData/>
+                            <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`}
+                                onClick={onReturn}>立即邀请</button>
+                        </div>
                     }}
-                    // loading={loading}
-                    locale={{ emptyText: <div className='flex-y-cc'>
-                        <Image 
-                        src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
-                        alt="empty" width={100} height={100} />
-                        <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
-                        <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`}
-                        onClick={onReturn}>立即邀请</button>
-                    </div>  }}
                 />
             </ConfigProvider>
         </div>

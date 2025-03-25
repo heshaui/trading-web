@@ -26,10 +26,15 @@ interface levelBenefitType {
     updateTime: number;
     tenantId: string;
     status: number;
-    // value: textType;
     value: string;
     benefitId: number;
     benefitName: string;
+    status0?: number;
+    value0?: string;
+    params0?: string;
+    status1?: number;
+    value1?: string;
+    params1?: string;
 }
 interface infoType {
     id: number;
@@ -192,7 +197,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                     <Image src="/images/userCenter/identity/icon_rights.svg" alt='' width={24} height={24} className='mr-1' />
                     <span>认证权益</span>
                 </div>
-                <ul>
+                <ul className='mb-2_5'>
                     <li className={`flex align-center justify-between  mt-2_5 font-12 ${styles.rights_header}`}>
                         <div className='ml-6 '>服务</div>
                         <div className='flex-x-cc '>尚未认证</div>
@@ -202,17 +207,22 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         <li key={item.id} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
-                                {item.status === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                {item.status0 === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                    :
+                                    item.value0?
+                                   <span>{(item.value0&&item.params0)?getBenefitValue(item.value0):item.value0}</span> 
                                     :
                                     <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />}
                             </div>
                             {/* <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>50K USDT每日</div> */}
-                            <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>{
-                                item.status === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
+                            <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>
+                                {item.status1 === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
                                     :
-                                    item.value ? getBenefitValue(item.value) :
-                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
-                            }</div>
+                                    item.value1?
+                                   <span>{(item.value1&&item.params1)?getBenefitValue(item.value1):item.value1}</span> 
+                                    :
+                                    <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />}
+                            </div>
                         </li>
                         // <li className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                         //     <div className='ml-6 font-w-500'>加密货币充值</div>

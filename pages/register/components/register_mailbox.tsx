@@ -163,7 +163,7 @@ export default function RegisterMail() {
                 theme={{
                     components: {
                         Form: {
-                            itemMarginBottom: 0, // 去除表单项之间的间距
+                            itemMarginBottom: 20, // 去除表单项之间的间距
                         },
                         Input: {
                             controlHeightLG: 50,
