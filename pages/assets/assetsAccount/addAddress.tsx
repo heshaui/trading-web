@@ -283,19 +283,13 @@ const WithdrawMoneyPage = () => {
     }
     const selectRow = (selectedRowKeys: any, selectedRows: any) => {
         console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        let delectInfo = []
-        delectInfo.push(...selectedRowKeys)
-        setDelectInfo(delectInfo)
-        if (selectedRowKeys.length > 0) {
-            setSelectDelect(true)
-        } else {
-            setSelectDelect(false)
-        }
+        const delectInfo = [...selectedRowKeys];
+        setDelectInfo(delectInfo);
+        setSelectDelect(selectedRowKeys.length > 0);
     }
     const delectAddress = (id: number) => {
         setDelectOpen(true)
-        let delectInfo = []
-        delectInfo.push(id)
+        const delectInfo = [id];
         setDelectInfo(delectInfo)
     }
     const delectAllAddress = () => {
