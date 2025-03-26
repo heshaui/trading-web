@@ -1,7 +1,7 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from '../styles/spotAccount.module.css'
-import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
+import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select, Form } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -11,21 +11,50 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
-import { getWithdrawDepositList } from '@/services/assets'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
+import { getWithdrawDepositList, getuserAddressList, getCoinAll, getcoinExtList } from '@/services/assets'
+import { toast } from "sonner";
+
 interface DataType {
-    id: number,
+    withdrawalId: string,
     userId: number,
-    platformType: number,
-    deviceNo: string,
-    ip: string,
-    address: string,
-    token: number,
-    tokenTime: number,
+    coinId: number,
+    protocolId: number,
+    amount: number,
+    fee: number,
+    toAddress: string,
+    fromAddress: string,
+    txHash: string,
+    status: number,
     createTime: number,
     updateTime: number,
-    tenantId: string,
+    riskLevel: number,
+    riskExplain: string,
+    tenantId: string
+}
+interface coinSelectType {
+    coinId: string,
+    coinName: string,
+    iconUrl: string,
+    nameDefault: string,
+    value: string,
+    label: string,
+}
+interface coinExtSelectType {
+    coinId: number,
+    coinName: string,
+    protocolId: number,
+    decimals: number,
+    withdrawFee: number,
+    minWithdrawFee: number,
+    withdraw: number,
+    minWithdraw: number,
+    maxWithdraw: number,
+    minRecharge: number,
+    confirms: number,
+    value: string,
+    label: string,
 }
 const WithdrawMoneyPage = () => {
     const [tableData, setTableData] = useState<DataType[]>([
@@ -33,7 +62,6 @@ const WithdrawMoneyPage = () => {
     ]);
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
-    const [searchHistory, setSearchHistory] = useState<string[]>(['BTC', 'ETH', 'FIL', 'USDT']);
 
     const [total, setTotal] = useState(0);
     const [current, setCurrent] = useState(2);
@@ -43,48 +71,166 @@ const WithdrawMoneyPage = () => {
         pageSize: 10
     })
     const [tableLoading, setTableLoading] = useState(false);
+    const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
+    const [coinLoading, setCoinLoading] = useState(false)
+    const [coinId, setCoinId] = useState(0)
+
+
+    const [coinExtLoading, setCoinExtLoading] = useState(false)
+    const [coinExtSelect, setCoinExtSelect] = useState<coinExtSelectType[]>([])
     const paramdataRef = useRef(pageParam);
+    // 添加状态来存储历史记录
+    const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+        // 从localStorage获取历史记录，如果没有则返回空数组
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('coinSearchHistory');
+            return saved ? JSON.parse(saved) : [];
+        }
+        return [];
+    });
+    const [form] = Form.useForm();
+    const router = useRouter()
+
+    // 币种
+    const getCoinAllList = async () => {
+        if (coinSelect.length > 0 || coinLoading) return
+        await getCoinAllData()
+    }
+    const getCoinAllData = async () => {
+        setCoinLoading(true)
+        try {
+            const res = await getCoinAll()
+            if (res.code === '0') {
+                const coinList = res.data.map((item: any) => ({
+                    label: item.coinName,
+                    value: item.coinId,
+                    coinId: item.coinId,
+                    coinName: item.coinName,
+                    iconUrl: item.iconUrl,
+                    nameDefault: item.nameDefault,
+                }))
+                setCoinSelect(coinList)
+            } else {
+                toast.error(res.message)
+            }
+
+        } catch (error) {
+            toast.error(String(error))
+        } finally {
+            setCoinLoading(false)
+        }
+    }
+    // 币种筛选
+    const coinChange = (value: string) => {
+        if (value) {
+            // if (coinId === Number(value)) return
+            // setCoinId(Number(value))
+            // setCurrent(0)
+            // 更新搜索历史
+            setSearchHistory(prev => {
+                // 移除已存在的相同选项
+                const filtered = prev.filter(item => item !== value);
+                // 将新选项添加到开头
+                const newHistory = [value, ...filtered].slice(0, 4);
+                // 保存到localStorage
+                localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
+                return newHistory;
+            });
+
+        } else {
+            // setCoinId('')
+            // setCurrent(0)
+            // 重置特定字段
+            form.resetFields(['protocolId']);
+        }
+
+    }
+
+    const getCoinExtList = async () => {
+        const tenantId = form.getFieldValue('tenantId')
+        if (!tenantId) {
+            setCoinExtSelect([])
+
+            return toast.error('请先选择币种')
+        }
+        // 判断同币种不重复请求
+        if (coinId === tenantId || coinExtLoading) return
+        setCoinId(tenantId)
+        await getCoinExt(tenantId)
+    }
+    // 链名称
+    const getCoinExt = async (tenantId: number) => {
+        setCoinExtLoading(true)
+        try {
+            const res = await getcoinExtList(tenantId)
+            if (res.code === '0') {
+                const coinExtList = res.data.map((item: any) => ({
+                    ...item,
+                    label: item.coinName,
+                    value: item.protocolId,
+                }))
+                setCoinExtSelect(coinExtList)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        } finally {
+            setCoinExtLoading(false)
+        }
+    }
+
 
     const columns: ColumnsType<DataType> = [
         {
             title: "币种",
-            dataIndex: "deviceNo",
-            key: "deviceNo",
+            dataIndex: "userId",
+            key: "userId",
             width: 158,
             align: "left",
-            render: (text, record) => <div>{`${text}`} </div>,
+            render: (text, record) => <div>{text || '--'} </div>,
         },
         {
             title: "提币时间",
-            dataIndex: "token",
-            key: "token",
+            dataIndex: "createTime",
+            key: "createTime",
             align: "center",
             width: 128,
-            render: (_text) => <span>{_text || '--'}</span>,
+            render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
-            title: "提币地址",
-            dataIndex: "tokenTime",
-            key: "tokenTime",
+            title: "数量",
+            dataIndex: "amount",
+            key: "amount",
             align: "center",
             width: 158,
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
+            render: (_text) => {
+                return <span >{_text || '--'}</span>;
 
             },
         },
         {
-            title: "TxID",
-            key: "createTime",
-            dataIndex: "createTime",
+            title: "手续费",
+            key: "fee",
+            dataIndex: "fee",
             width: 128,
             align: "center",
-            render: (_ip) => {
-                return <span >{_ip || '--'}</span>;
+            render: (_text) => {
+                return <span >{_text || '--'}</span>;
             },
         },
         {
-            title: "确认次数",
+            title: "地址",
+            key: "toAddress",
+            dataIndex: "toAddress",
+            width: 128,
+            align: "center",
+            render: (_status) => {
+                return <span >{_status || '--'}</span>;
+            },
+        },
+        {
+            title: "钱包处理时间",
             key: "updateTime",
             dataIndex: "updateTime",
             width: 128,
@@ -94,9 +240,9 @@ const WithdrawMoneyPage = () => {
             },
         },
         {
-            title: "数量",
-            key: "updateTime",
-            dataIndex: "updateTime",
+            title: "TxID",
+            key: "txHash",
+            dataIndex: "txHash",
             width: 128,
             align: "center",
             render: (_status) => {
@@ -105,43 +251,30 @@ const WithdrawMoneyPage = () => {
         },
         {
             title: "状态",
-            key: "updateTime",
-            dataIndex: "updateTime",
+            key: "status",
+            dataIndex: "status",
             width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{_status || '--'}</span>;
+                return <span >{_status ? getStatus(_status) : '--'}</span>;
+            },
+        },
+        {
+            title: "操作",
+            key: "operation",
+            dataIndex: "operation",
+            width: 128,
+            align: "center",
+            render: (_status) => {
+                return < >
+                    <button className={`${styles.theme_color}`}>撤销</button>
+                </>;
             },
         },
 
 
     ];
-    const cardTypeSeelect: { label: string, value: string }[] = [
-        {
-            label: '居民身份证',
-            value: '1'
-        },
-        {
-            label: '普通护照',
-            value: '2'
-        },
-        {
-            label: '港澳通行证',
-            value: '3'
-        },
-        {
-            label: '台湾通行证',
-            value: '4'
-        },
-        {
-            label: '台湾身份证',
-            value: '5'
-        },
-        {
-            label: '外国人永久居住身份证',
-            value: '6'
-        }
-    ]
+
     const addressTypeSelect: { label: string, value: string, desc: string, network: string }[] = [
         {
             label: '这是一个地址1XXXXXXXXX',
@@ -156,72 +289,93 @@ const WithdrawMoneyPage = () => {
             network: 'BTC'
         },
     ]
-    const networkTypeSelect: { label: string, value: string, desc: string }[] = [
-        {
-            label: 'TRX',
-            value: 'Tron (TRC20)',
-            desc: '1 USDT≈$1.00',
-        },
-        {
-            label: 'ETHETH',
-            value: 'Ethereum (ERC20)',
-            desc: '1 USDT≈$1.00',
-        },
-    ]
-    const router = useRouter()
+
+
+    const getStatus = (status: number) => {
+        switch (status) {
+            case 0:
+                return '创建'
+                break
+            case 1:
+                return '待审核'
+                break
+            case 2:
+                return '完成'
+                break
+            case 3:
+                return '拒绝 '
+                break
+            case 4:
+                return '用户撤销'
+                break
+        }
+    }
     const antiFraud = () => {
-        setCheckOpen(true)
+        form.validateFields()
+            .then(async (values) => {
+                console.log(values)
+                setCheckOpen(true)
+
+            })
+            .catch(error => {
+                console.log(error)
+            })
     }
     const steps = [
         {
             title: <p className={`${styles.tip_title} `}>提现币种</p>,
             description: <div className={`${styles.steps_item_content} mt-2`}>
                 {current >= 0 && <>
-                    <Select allowClear
-                        placeholder="请选择币种"
-                        options={cardTypeSeelect}
-                        className={`${styles.select_box} custom-select`}
-                        optionRender={(option) => {
-                            return (
-                                <div className="flex items-center py-1">
-                                    <Image src={`/images/assets/assets_account/icon_money.png`}
-                                        alt={option.data.label} width={20} height={20}
-                                        className={` mr-2`} />
-                                    <span className="text-text-color7">{option.data.label}</span>
-                                </div>
-                            );
-                        }}
-                        dropdownRender={(menu) => (<>
-                            {cardTypeSeelect.length > 0 && <div className={` font-14 font-w-400 mb-2_5 `}>
-                                <p className={`${styles.tip_color2}`}>搜索历史</p>
-                                <div className='mt-2 mb-2_5'>
-                                    {searchHistory.map((item) => (
-                                        <button key={item} className={`cancel_btn5 ${styles.selsect_btn} mr-2`}>{item}</button>
-                                    ))}
-                                </div>
-                                <p className={`${styles.tip_color2} `}>币种列表</p>
+                    <Form.Item name='tenantId' >
+                        <Select allowClear
+                            placeholder="请选择币种"
+                            options={coinSelect}
+                            className={`${styles.select_box} custom-select`}
+                            optionRender={(option) => {
+                                return (
+                                    <div className="flex items-center py-1">
+                                        <Image src={`/images/assets/assets_account/icon_money.png`}
+                                            alt={option.data.label} width={20} height={20}
+                                            className={` mr-2`} />
+                                        <span className="text-text-color7">{`${option.data.coinName}(${option.data.nameDefault})`}</span>
+                                    </div>
+                                );
+                            }}
+                            dropdownRender={(menu) => (<>
+                                {coinSelect.length > 0 && <div className={` font-14 font-w-400 mb-2_5 `}>
+                                    <p className={`${styles.tip_color2}`}>搜索历史</p>
+                                    <div className='mt-2 mb-2_5'>
+                                        {searchHistory.map((item) => (
+                                            <button key={item} className={`cancel_btn5 ${styles.selsect_btn} mr-2`}>{item}</button>
+                                        ))}
+                                    </div>
+                                    <p className={`${styles.tip_color2} `}>币种列表</p>
 
-                            </div>}
-                            {menu}
-                        </>
+                                </div>}
+                                {menu}
+                            </>
 
-                        )}
-                        notFoundContent={<NoData title="暂无记录" />}
-
-                    />
+                            )}
+                            notFoundContent={<NoData title="暂无记录" />}
+                            onFocus={getCoinAllList}
+                            onChange={coinChange}
+                            loading={coinLoading}
+                        />
+                    </Form.Item>
                     <div className='mt-2_5'>
-                        <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
-                            USDT
-                        </button>
-                        <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
-                            BTC
+                        {searchHistory.map((item) => (
+                            <button key={item} className={`${styles.btn_style} cancel_btn5 mr-2`}>
+                                {item}
+                            </button>
+                        ))}
+                            {/* 
                         </button>
                         <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
                             ETH
                         </button>
                         <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
                             FIL
-                        </button>
+                        </button> */}
                     </div>
 
                 </>}
@@ -232,62 +386,69 @@ const WithdrawMoneyPage = () => {
             title: <p className={`${styles.tip_title} `}>提现网络</p>,
             description: <div className={`${styles.steps_item_content2} mt-2`}>
                 {current >= 1 && <>
-                    <Select className={`${styles.select_box} custom-select `}
-                        maxLength={25}
-                        options={addressTypeSelect}
-                        placeholder='选择提现地址'
-                        allowClear
-                        suffixIcon={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color} `} />}
-                        optionRender={(option) => {
-                            return (
-                                <div className="flex-y  py-1">
-                                    <p className={`${styles.title_color} font-14 font-w-400`}>{option.data.desc}</p>
-                                    <p className={`${styles.tip_color2} font-14 font-w-400`}>地址：{option.data.label}</p>
-                                    <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{option.data.network}</p>
-                                </div>
-                            );
-                        }}
-                        dropdownRender={(menu) => (<>
-                            {menu}
-                            {/* 添加地址 */}
-                            <button type='button' className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
-                            onClick={()=>{
-                                router.push('/assets/assetsAccount/addAddress')
+                    <Form.Item name='addressId' >
+                        <Select className={`${styles.select_box} custom-select `}
+                            // maxLength={25}
+                            options={addressTypeSelect}
+                            placeholder='选择提现地址'
+                            allowClear
+                            suffixIcon={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color} `} />}
+                            optionRender={(option) => {
+                                return (
+                                    <div className="flex-y  py-1">
+                                        <p className={`${styles.title_color} font-14 font-w-400`}>{option.data.desc}</p>
+                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>地址：{option.data.label}</p>
+                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{option.data.network}</p>
+                                    </div>
+                                );
                             }}
-                            >
-                                添加地址
-                            </button>
-                        </>
+                            dropdownRender={(menu) => (<>
+                                {menu}
+                                {/* 添加地址 */}
+                                <button type='button' className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
+                                    onClick={() => {
+                                        router.push('/assets/assetsAccount/addAddress')
+                                    }}
+                                >
+                                    添加地址
+                                </button>
+                            </>
 
-                        )}
-                        notFoundContent={<NoAddress />}
-                    />
-                    <Select allowClear
-                        placeholder="请选择网络"
-                        options={networkTypeSelect}
-                        className={`${styles.select_box} ${styles.mt_20} custom-select `}
-                        optionRender={(option) => {
-                            return (
-                                <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
-                                    <p className={`flex-y `}>
-                                        <span className={`${styles.title_color}`}>{option.data.label}</span>
-                                        <span className={`${styles.tip_color}`}>{option.data.value}</span>
-                                    </p>
-                                    <p className={`${styles.tip_color2} `}>手续费{option.data.desc}</p>
-                                </div>
-                            );
-                        }}
-                        dropdownRender={(menu) => (<>
-                            <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
-                                <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                                <span>请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
-                            </p>
-                            {menu}
-                        </>
+                            )}
+                            notFoundContent={<NoAddress />}
 
-                        )}
-                        notFoundContent={<NoData title="暂无记录" />}
-                    />
+                        />
+                    </Form.Item>
+                    <Form.Item name='protocolId' >
+                        <Select allowClear
+                            placeholder="请选择网络"
+                            options={coinExtSelect}
+                            className={`${styles.select_box}  custom-select `}
+                            optionRender={(option) => {
+                                return (
+                                    <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
+                                        <p className={`flex-y `}>
+                                            <span className={`${styles.title_color}`}>{option.data.label}</span>
+                                            <span className={`${styles.tip_color}`}>{option.data.value}</span>
+                                        </p>
+                                        <p className={`${styles.tip_color2} `}>手续费{option.data.withdrawFee}</p>
+                                    </div>
+                                );
+                            }}
+                            dropdownRender={(menu) => (<>
+                                <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
+                                    <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
+                                    <span>请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
+                                </p>
+                                {menu}
+                            </>
+
+                            )}
+                            notFoundContent={<NoData title="暂无记录" />}
+                            onFocus={getCoinExtList}
+                            loading={coinExtLoading}
+                        />
+                    </Form.Item>
                 </>}
             </div>,
 
@@ -296,15 +457,17 @@ const WithdrawMoneyPage = () => {
             title: <p className={`${styles.tip_title} `}>提现信息</p>,
             description: <div className={`${styles.steps_item_content3} mt-2`}>
                 {current >= 2 && <>
-                    <Input className={`${styles.input_box3} modal-input mr-7`}
-                        maxLength={25}
-                        placeholder='20'
-                        allowClear
-                        suffix={<div className='flex-x align-center  font-14 font-w-400'>
-                            <p className={`${styles.tip_color2} pr-2`}>USDT</p><span className={`${styles.tip_color2}`}>|</span>
-                            <button className={` theme_color pl-2`}>最大</button>
-                        </div>}
-                    />
+                    <Form.Item name='amount' >
+                        <Input className={`${styles.input_box3} modal-input mr-7`}
+                            // maxLength={25}
+                            placeholder='20'
+                            allowClear
+                            suffix={<div className='flex-x align-center  font-14 font-w-400'>
+                                <p className={`${styles.tip_color2} pr-2`}>USDT</p><span className={`${styles.tip_color2}`}>|</span>
+                                <button className={` theme_color pl-2`}>最大</button>
+                            </div>}
+                        />
+                    </Form.Item>
                     <div className={`${styles.card_bgc3} mt-5  font-14 font-w-400`}>
                         <ul className={`${styles.tip_color} ${styles.icon_btn_bottom} w-full mb-5`}>
                             <li className={`flex-x justify-between mb-5`}>
@@ -327,7 +490,7 @@ const WithdrawMoneyPage = () => {
                                 <p className={`${styles.tip_color} mb-3`}>手续费 <span className={`${styles.title_color}`}>1 USDT</span></p>
                             </div>
                             {/* default_btn */}
-                            <button className={`${styles.withdraw_btn} disabled_btn mr-2`}
+                            <button type='submit' className={`${styles.withdraw_btn} disabled_btn mr-2`}
                                 onClick={antiFraud}>
                                 提现
                             </button>
@@ -346,6 +509,7 @@ const WithdrawMoneyPage = () => {
         }
         setPageParam(pageData)
         paramdataRef.current = pageData;
+        await getWithdrawDepositListData()
     }
     const getWithdrawDepositListData = async () => {
         const pageParam = {
@@ -356,7 +520,7 @@ const WithdrawMoneyPage = () => {
         try {
             const res = await getWithdrawDepositList(pageParam)
             setTableData(res.data.list)
-            setTotal(res.data.total)
+            setTotal(res.data.count)
         } finally {
             setTableLoading(false)
         }
@@ -404,12 +568,14 @@ const WithdrawMoneyPage = () => {
                                 }
                             }}
                         >
-                            <Steps
-                                direction="vertical"
-                                current={current}
-                                labelPlacement="vertical"
-                                items={steps}
-                                className='custom-steps' />
+                            <Form form={form}>
+                                <Steps
+                                    direction="vertical"
+                                    current={current}
+                                    labelPlacement="vertical"
+                                    items={steps}
+                                    className='custom-steps' />
+                            </Form>
                         </ConfigProvider>
                     </div>
                     <div className={`${styles.notice_box}`}>
@@ -450,6 +616,7 @@ const WithdrawMoneyPage = () => {
                                     headerSplitColor: "transparent", // 表头分割线颜色
                                     rowExpandedBg: "var(--background10)", // 表格行展开背景色
                                     borderColor: "transparent",
+                                    headerBorderRadius: 0, // 表头圆角
                                 },
                                 Pagination: {
                                     itemActiveBg: "transparent",

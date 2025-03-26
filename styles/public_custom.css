@@ -319,7 +319,10 @@
 .table-box2 .ant-table-cell-row-hover {
     background: transparent !important;
 }
-
+/* 选中行 颜色 */
+.table-box .ant-table-row-selected>.ant-table-cell{
+    background: var(--bgc-color) !important;
+}
 /* 不显示展开图标时展开列表位置 */
 .table-box2 .ant-table {
     margin-left: 0 !important;
@@ -335,6 +338,7 @@
 .table-box .ant-table-expanded-row>.ant-table-cell {
     padding: 0 !important;
 }
+
 
 /* 展开行边框 */
 .table-box2 .ant-table-tbody>tr>td {

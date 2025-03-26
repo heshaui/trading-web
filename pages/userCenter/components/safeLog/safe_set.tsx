@@ -125,6 +125,7 @@ function LoginRecord() {
                             headerSplitColor: "transparent", // 表头分割线颜色
                             rowExpandedBg: "var(--background10)", // 表格行展开背景色
                             borderColor: "transparent",
+                            headerBorderRadius:0, // 表头圆角
                         },
                         Pagination: {
                             itemActiveBg: "transparent",

@@ -284,6 +284,7 @@ function Equipment() {
                                     headerSplitColor: "transparent",
                                     rowExpandedBg: "var(--background10)",
                                     borderColor: "transparent",
+                                    headerBorderRadius:0, // 表头圆角
                                 },
                                 Pagination: {
                                     itemActiveBg: "transparent",

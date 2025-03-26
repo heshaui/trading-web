@@ -2,7 +2,7 @@ import { request } from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
 
 const fixUrl = `/${API_MODULE_NAME.AMBIT_USER_WEB}`
-// const fixUrl2 = `/${API_MODULE_NAME.AMBIT_AUTH}`
+const fixUrl2 = `/${API_MODULE_NAME.AMBIT_ASSETS_WEB}`
 
 interface paramsType {
     pageNo: number
@@ -15,3 +15,53 @@ export function getWithdrawDepositList(data: paramsType): Promise<any> {
     body: JSON.stringify(data)
   });
 }
+interface saveUserAddressType {
+    id?: number;
+    protocolId?: number;
+    addressName?: string;
+    userId?: number;
+    tenantId?: string;
+}
+// 新增提现地址
+export function saveUserAddress(data: saveUserAddressType): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/user-address/saveUserAddress`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+interface paramsType {
+    pageNo: number;
+    pageSize: number;
+}
+// 用户提现地址查询
+export function getuserAddressList(data: paramsType): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/user-address/userAddressList`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+// 删除提现地址（批量）
+export function deleteByIds(data: number[]): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/user-address/deleteByIds`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+// 币种查询
+export function getCoinAll(): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/currency-coin/tenantCurrencyCoinAll`, {
+    method: 'POST',
+    // body: JSON.stringify(data)
+  });
+}
+
+// 币种协议
+export function getcoinExtList(tenantId: number): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/withdraw-deposit/coinExtList?coinId=${tenantId}`, {
+      method: 'POST',
+    //   body: JSON.stringify({coinId:tenantId})
+    });
+  }

@@ -48,7 +48,7 @@ type Props = {
     acountInfo: SafeDataType;
 };
 
-function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
+function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -407,4 +407,4 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     );
 }
 
-export default LockSafeModal;
+export default AntiSafeModal;
