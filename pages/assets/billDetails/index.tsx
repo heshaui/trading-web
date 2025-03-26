@@ -369,6 +369,7 @@ const AssetsMainPage = () => {
             rowExpandedBg: "var(--background10)", // 表格行展开背景色
             borderColor: "transparent",
             // stickyScrollBarBg:"transparent",
+            headerBorderRadius:0, // 表头圆角
           },
           Pagination: {
             itemActiveBg: "transparent",

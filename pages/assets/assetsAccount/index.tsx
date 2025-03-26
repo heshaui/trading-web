@@ -140,8 +140,8 @@ const AssetsMainPage = () => {
             <h2 className={`font-w-500 font-20`}>现货账户</h2>
             <div className='flex-row'>
                 <button className={`default_btn ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/topUp')}>充值</button>
-                <button className={`cancel_btn4 ${styles.btn_style} mr-4`}>提现</button>
-                <button className={`cancel_btn4 ${styles.btn_style}`}>现货账单</button>
+                <button className={`cancel_btn4 ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/withdrawMoney')}>提现</button>
+                <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push('/assets/billDetails')}>现货账单</button>
             </div>
         </div>
         <div className={`${styles.card_bgc}  mt-3 `}>
@@ -187,6 +187,7 @@ const AssetsMainPage = () => {
                                 rowExpandedBg: "var(--background10)", // 表格行展开背景色
                                 borderColor: "transparent",
                                 // stickyScrollBarBg:"transparent",
+                                headerBorderRadius:0, // 表头圆角
                             },
                             Pagination: {
                                 itemActiveBg: "transparent",

@@ -71,7 +71,11 @@
     border-radius: 36px;
     min-width: 128px;
 }
-
+.delect_btn{
+    padding: 6px 20px;
+    border-radius: 36px;
+    min-width: 80px;
+}
 
 
 
