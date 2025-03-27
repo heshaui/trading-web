@@ -1,3 +1,4 @@
+"use client"; // 让 Next.js 知道这个文件只会在客户端运行
 export default (function myStorage() {
     const ms: string = 'myStorage';
     const storage = window.localStorage;

@@ -1,54 +1,55 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from '../styles/spotAccount.module.css'
-import { Input, Radio, ConfigProvider, Table } from 'antd';
+import { Input, Radio, ConfigProvider, Table,Form ,Checkbox} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
+import { getUserBalanceAll } from '@/services/assets';
+import { toast } from "sonner";
+import { add, cut, nul } from '@/utils'
+
 
 interface DataType {
-    id: number,
-    userId: number,
-    platformType: number,
-    deviceNo: string,
-    ip: string,
-    address: string,
-    token: number,
-    tokenTime: number,
-    createTime: number,
-    updateTime: number,
-    tenantId: string,
+    balance: number,
+    frozenBalance: number,
+    releaseBalance: number,
+    isLock: number,
+    coinId: string,
+    coinName: string
 }
 const AssetsMainPage = () => {
+    const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        },{
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
+        // {
+        //     id: 1,
+        //     userId: 1,
+        //     platformType: 1,
+        //     deviceNo: 'BTC',
+        //     ip: '123.45.67.89',
+        //     address: '123.45.67.89',
+        //     token: 23.3,
+        //     tokenTime: 123,
+        //     createTime: 1234567890,
+        //     updateTime: 1234567890,
+        //     tenantId: '1234567890'
+        // }, {
+        //     id: 2,
+        //     userId: 1,
+        //     platformType: 1,
+        //     deviceNo: 'POINT',
+        //     ip: '123.45.67.89',
+        //     address: '123.45.67.89',
+        //     token: 1234567890,
+        //     tokenTime: 23.0,
+        //     createTime: 1234567892,
+        //     updateTime: 1234567889,
+        //     tenantId: '1234567890'
+        // }
     ]);
+    const [tableLoading, setTableLoading] = useState(false);
     const router = useRouter();
     const [total, setTotal] = useState(0);
     const [pageParam, setPageParam] = useState({
@@ -56,67 +57,76 @@ const AssetsMainPage = () => {
         pageSize: 10
     })
     const paramdataRef = useRef(pageParam);
-
+    const [hideZero, setHideZero] = useState(false);
+    const [form] = Form.useForm();
     const columns: ColumnsType<DataType> = [
         {
             title: "币种",
-            dataIndex: "deviceNo",
-            key: "deviceNo",
-            width: 158,
+            dataIndex: "coinName",
+            key: "coinName",
+            // width: 158,
             align: "left",
             render: (text, record) => <div>{`${text}`} </div>,
-            sorter: (a, b) => a.deviceNo.localeCompare(b.deviceNo),
+            sorter: (a, b) => a.coinName.localeCompare(b.coinName),
         },
         {
             title: "持仓",
-            dataIndex: "token",
-            key: "token",
+            dataIndex: "balance",
+            key: "balance",
             align: "center",
-            width: 128,
-            render: (_text) => <span>{_text|| '--'}</span>,
-            sorter: (a, b) => a.token - b.token,
+            // width: 128,
+            render: (_text, record) => {
+                const text = add(record.balance||0, record.releaseBalance||0);
+                const text2 = add(text, record.frozenBalance||0);
+            return<span>{text2 || '0'}</span>
+        },
+            sorter: (a, b) => {
+                const totalA = add(add(a.balance||0, a.releaseBalance||0), a.frozenBalance||0);
+                const totalB = add(add(b.balance||0, b.releaseBalance||0), b.frozenBalance||0);
+                return totalA -totalB
+            },
         },
         {
             title: "可用",
-            dataIndex: "tokenTime",
-            key: "tokenTime",
+            dataIndex: "balance",
+            key: "balance",
             align: "center",
-            width: 158,
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-                
+            // width: 158,
+            render: (_text) => {
+                return <span >{_text || '0'}</span>;
+
             },
-            sorter: (a, b) => a.tokenTime - b.tokenTime,
+            sorter: (a, b) => a.balance - b.balance,
         },
         {
             title: "冻结",
-            key: "createTime",
-            dataIndex: "createTime",
-            width: 128,
+            key: "releaseBalance",
+            dataIndex: "releaseBalance",
+            // width: 128,
             align: "center",
-            render: (_ip) => {
-                return <span >{_ip || '--'}</span>;
+            render: (_text) => {
+                return <span >{_text || '--'}</span>;
             },
-            sorter: (a, b) => a.createTime - b.createTime,
+            sorter: (a, b) => a.releaseBalance - b.releaseBalance,
         },
         {
             title: "下单锁定",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
+            key: "frozenBalance",
+            dataIndex: "frozenBalance",
+            // width: 128,
             align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
+            render: (_text) => {
+                return <span >{_text || '--'}</span>;
             },
-            sorter: (a, b) => a.updateTime - b.updateTime,
+            sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
         {
             title: "操作",
             key: "action",
             dataIndex: "action",
-            width: 128,
+            // width: 128,
             align: "center",
-            render: (_status) => {
+            render: (_text) => {
                 return <>
                     <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
                     <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
@@ -135,6 +145,43 @@ const AssetsMainPage = () => {
         setPageParam(pageData)
         paramdataRef.current = pageData;
     }
+    const searchInputChange = (e: any) => {
+        const value = e.target.value;
+        if(value){
+            const newData = initTableData.filter(item => item.coinName.includes(value));
+            setTableData(newData);
+        }else{
+            setTableData(initTableData);
+        }
+    }
+    const hideZeroChange = (e: any) => {
+        // setHideZero(!hideZero)
+        const value = e.target.checked
+        if(value&&initTableData.length>0){
+            const newData = initTableData.filter(item => item.balance !== 0);
+            setTableData(newData);
+        }else{
+            setTableData(initTableData);
+        }
+    }
+    const getUserBalanceAllData = async () => {
+        setTableLoading(true);
+        try {
+            const res = await getUserBalanceAll();
+            if (res.code === '0') {
+                setInitTableData(res.data.list||[]);
+                setTableData(res.data.list||[]);
+                setTotal(res.data.total);
+            }
+        } catch (error) {
+            toast.error(String(error));
+        } finally {
+            setTableLoading(false);
+        }
+    }
+    useEffect(() => {
+        getUserBalanceAllData();
+    }, [])
     return (<div>
         <div className='flex justify-between align-center'>
             <h2 className={`font-w-500 font-20`}>现货账户</h2>
@@ -165,59 +212,69 @@ const AssetsMainPage = () => {
             </div>
             <div className={`${styles.table_box} w-full `}>
                 <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-                    <Input className={`${styles.input_box} modal-input mr-7`}
-                        maxLength={25}
-                        placeholder='搜索'
-                        allowClear
-                        prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
-                    />
-                    <Radio
-                        // defaultChecked
-                    ><span className={`${styles.title_color}`}>隐藏0资产</span></Radio>
+                    {/* <Form form={form} layout="inline">
+                        <Form.Item name="search"> */}
+                            <Input className={`${styles.input_box} modal-input mr-7`}
+                                maxLength={25}
+                                placeholder='搜索'
+                                allowClear
+                                prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
+                                onChange={searchInputChange}
+                            />
+                        {/* </Form.Item>
+                        <Form.Item name="hideZero"> */}
+                            <Checkbox
+                                // checked={hideZero}
+                                onChange={hideZeroChange}
+                                >
+                                    <span className={`${styles.title_color}`}>隐藏0资产</span>
+                            </Checkbox>
+                        {/* </Form.Item>
+                    </Form> */}
                 </div>
                 <div className={`${styles.table_content} w-full `}>
-                <ConfigProvider
-                    theme={{
-                        components: {
-                            Table: {
-                                // bodySortBg: "pink",
-                                headerBg: "transparent",
-                                headerColor: "var(--text-color6)",
-                                headerSplitColor: "transparent", // 表头分割线颜色
-                                rowExpandedBg: "var(--background10)", // 表格行展开背景色
-                                borderColor: "transparent",
-                                // stickyScrollBarBg:"transparent",
-                                headerBorderRadius:0, // 表头圆角
-                            },
-                            Pagination: {
-                                itemActiveBg: "transparent",
-                                itemBg: "transparent",
-                            },
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Table: {
+                                    // bodySortBg: "pink",
+                                    headerBg: "transparent",
+                                    headerColor: "var(--text-color6)",
+                                    headerSplitColor: "transparent", // 表头分割线颜色
+                                    rowExpandedBg: "var(--background10)", // 表格行展开背景色
+                                    borderColor: "transparent",
+                                    // stickyScrollBarBg:"transparent",
+                                    headerBorderRadius: 0, // 表头圆角
+                                },
+                                Pagination: {
+                                    itemActiveBg: "transparent",
+                                    itemBg: "transparent",
+                                },
 
-                            Select: {
-                                activeBorderColor: "var(--border-color4)",
-                                optionActiveBg: "transparent",
-                                selectorBg: "transparent", //选框背景色
-                            }
-                        },
-                    }}
-                >
-                    <Table
-                        columns={columns}
-                        dataSource={tableData}
-                        size="large"
-                        scroll={{ x: "max-content", y: 500 }}
-                        className={` table-box`}
-                        pagination={{
-                            position: ["bottomRight"],
-                            showSizeChanger: true,
-                            total: total,
-                            size: "default",
-                            onChange: (page, pageSize) => pageChange(page, pageSize),
+                                Select: {
+                                    activeBorderColor: "var(--border-color4)",
+                                    optionActiveBg: "transparent",
+                                    selectorBg: "transparent", //选框背景色
+                                }
+                            },
                         }}
-                    // loading={loading}
-                    />
-                </ConfigProvider>
+                    >
+                        <Table
+                            columns={columns}
+                            dataSource={tableData}
+                            size="large"
+                            scroll={{ x: "max-content", y: 500 }}
+                            className={` table-box`}
+                            // pagination={{
+                            //     position: ["bottomRight"],
+                            //     showSizeChanger: true,
+                            //     total: total,
+                            //     size: "default",
+                            //     onChange: (page, pageSize) => pageChange(page, pageSize),
+                            // }}
+                            loading={tableLoading}
+                        />
+                    </ConfigProvider>
                 </div>
             </div>
         </div>

@@ -10,39 +10,53 @@ import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 import { useState } from "react";
-import { encryptData } from '@/utils/encrypt'
 import dayjs from "dayjs";
 import ErrModal from "./totastModal";
+import { creatWithdraw } from '@/services/assets'
+import { encryptData } from "@/utils/encrypt";
 
 
-interface UserCenterData {
-    userId: number,
-    nickname?: string,
-    avatarUrl?: string,
-    birthday?: string,
-    isNicknameUpdate?: boolean,
-    nicknameUpdateTime?: number,
+interface withdrawType {
+    coinId: number;
+    protocolId: number;
+    amount: string;
+    toAddress: string;
+    smsCode: string;
+    emailCode: string;
+    googleCode: string;
 }
 type Props = {
     open: boolean;
-    withdrawMoneyInfo?: UserCenterData;
+    withdrawInfo?: withdrawType;
     onOk: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function WithdrawMoneyCheck({ open, onCancel, withdrawMoneyInfo, onOk }: Props) {
+function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
     // const router = useRouter();
-    const [form] = Form.useForm();
     // const [inputValue, setInputValue] = useState(nicknameInfo.nickname || '');
     const handCancel = () => {
-        form.resetFields();
         onCancel()
     };
-    const [errOpen,setErrOpen]=useState(false)
+    const [errOpen, setErrOpen] = useState(false)
 
     const handOk = async () => {
         setErrOpen(true)
     };
+    const createWithdraw = async () => {
+        const params = {
+            ...withdrawInfo,
+        }
+        const encrypt = await encryptData(params)
+        try {
+            // const res=await creatWithdraw(encrypt)
+            // console.log(res);
+
+        } catch (error) {
+
+        }
+
+    }
 
 
     const ModalFooter: ModalProps["footer"] = () => {

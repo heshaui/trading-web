@@ -8,6 +8,11 @@ interface paramsType {
     pageNo: number
     pageSize: number
 }
+interface encryptType {
+  data: string,
+  time: string | number,
+  reqNo: string | number
+}
 //提现订单查询
 export function getWithdrawDepositList(data: paramsType): Promise<any> {
   return request(`${fixUrl}/user-web/v1/withdraw-deposit/withdrawDepositList`, {
@@ -58,10 +63,30 @@ export function getCoinAll(): Promise<any> {
   });
 }
 
-// 币种协议
+// 币种协议(网络)
 export function getcoinExtList(tenantId: number): Promise<any> {
     return request(`${fixUrl}/user-web/v1/withdraw-deposit/coinExtList?coinId=${tenantId}`, {
       method: 'POST',
     //   body: JSON.stringify({coinId:tenantId})
+    });
+  }
+// 币种余额（单个）
+export function getUserBalance(coinId: string|number): Promise<any> {
+    return request(`${fixUrl2}/assets-web/v1/user-wallet/userBalance?coinId=${coinId}`, {
+      method: 'POST',
+    });
+  }
+  // 币种余额（全部）
+  export function getUserBalanceAll(): Promise<any> {
+    return request(`${fixUrl2}/assets-web/v1/user-wallet/userBalanceAll`, {
+      method: 'POST',
+    });
+  }
+  
+  // 提现
+  export function creatWithdraw(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/withdraw-deposit/createWithdrawDeposit`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   }

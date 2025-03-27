@@ -5,7 +5,7 @@ import {
     division,
     lastD
     } from './math';
-import myStorage from './myStorage'
+// import myStorage from './myStorage'
 import { diffTime,formatTime } from './time'
 
 
@@ -17,5 +17,5 @@ export {
     lastD, // 删除小数点最后面的0
     diffTime,
     formatTime,
-    myStorage
+    // myStorage
 }

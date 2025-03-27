@@ -13,8 +13,9 @@ import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
-import { getWithdrawDepositList, getuserAddressList, getCoinAll, getcoinExtList } from '@/services/assets'
+import { getWithdrawDepositList, getuserAddressList, getCoinAll, getcoinExtList, getUserBalance } from '@/services/assets'
 import { toast } from "sonner";
+import { cut, nul } from '@/utils'
 
 interface DataType {
     withdrawalId: string,
@@ -56,6 +57,62 @@ interface coinExtSelectType {
     value: string,
     label: string,
 }
+interface addressSelectType {
+    id: number,
+    protocolId: number,
+    addressTitle: string,
+    protocolName: string,
+    symbol: string,
+    addressName: string,
+    userId: number,
+    tenantId: string,
+    createTime: number,
+    updateTime: number,
+    label: string,
+    value: string,
+}
+
+interface SearchHistoryItem {
+    label: string,
+    value: string,
+    desc?: string,
+    network?: string
+}
+interface userBalanceType {
+    balance: number,
+    frozenBalance: number,
+    isLock: number,
+    coinId: string,
+    coinName: string
+}
+interface coinInfoType {
+    balance: number,
+    frozenBalance: number,
+    isLock: number,
+    coinId: string,
+    coinName: string,
+    iconUrl: string,
+    canRecharge: number,
+    canTransfer: number,
+    canWithdraw: number,
+    minWithdrawAmount: number,
+    nameDefault: string,
+    sort: number,
+    status: number,
+    unit: string,
+    unitScale: number,
+    maxWithdrawAmount: number,
+    minTopUp: number,
+    protocolId: number,
+    decimals: number,
+    withdrawFee: number,
+    minWithdrawFee: number,
+    withdraw: number,
+    minWithdraw: number,
+    maxWithdraw: number,
+    minRecharge: number,
+    confirms: number
+}
 const WithdrawMoneyPage = () => {
     const [tableData, setTableData] = useState<DataType[]>([
 
@@ -71,23 +128,26 @@ const WithdrawMoneyPage = () => {
         pageSize: 10
     })
     const [tableLoading, setTableLoading] = useState(false);
+    // 币种
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [coinLoading, setCoinLoading] = useState(false)
     const [coinId, setCoinId] = useState(0)
+    const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
+    // 币种余额信息
+    // const [userBalance, setUserBalance] = useState<userBalanceType>({} as userBalanceType)
+    const [coninInfo, setConinInfo] = useState<coinInfoType>({} as coinInfoType)
 
-
+    // 币种协议(网络)
     const [coinExtLoading, setCoinExtLoading] = useState(false)
     const [coinExtSelect, setCoinExtSelect] = useState<coinExtSelectType[]>([])
+
+    // 提现地址
+    const [addressSelect, setAddressSelect] = useState<addressSelectType[]>([])
+    const [addressLoading, setAddressLoading] = useState(false)
+
+    const [amountNum, setAmountNum] = useState(0)
+
     const paramdataRef = useRef(pageParam);
-    // 添加状态来存储历史记录
-    const [searchHistory, setSearchHistory] = useState<string[]>(() => {
-        // 从localStorage获取历史记录，如果没有则返回空数组
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('coinSearchHistory');
-            return saved ? JSON.parse(saved) : [];
-        }
-        return [];
-    });
     const [form] = Form.useForm();
     const router = useRouter()
 
@@ -102,12 +162,9 @@ const WithdrawMoneyPage = () => {
             const res = await getCoinAll()
             if (res.code === '0') {
                 const coinList = res.data.map((item: any) => ({
+                    ...item,
                     label: item.coinName,
                     value: item.coinId,
-                    coinId: item.coinId,
-                    coinName: item.coinName,
-                    iconUrl: item.iconUrl,
-                    nameDefault: item.nameDefault,
                 }))
                 setCoinSelect(coinList)
             } else {
@@ -120,32 +177,80 @@ const WithdrawMoneyPage = () => {
             setCoinLoading(false)
         }
     }
-    // 币种筛选
-    const coinChange = (value: string) => {
-        if (value) {
-            // if (coinId === Number(value)) return
-            // setCoinId(Number(value))
-            // setCurrent(0)
-            // 更新搜索历史
-            setSearchHistory(prev => {
-                // 移除已存在的相同选项
-                const filtered = prev.filter(item => item !== value);
-                // 将新选项添加到开头
-                const newHistory = [value, ...filtered].slice(0, 4);
-                // 保存到localStorage
-                localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
-                return newHistory;
-            });
-
-        } else {
-            // setCoinId('')
-            // setCurrent(0)
-            // 重置特定字段
+    // 币种选中更改-筛选历史选中/获取币种余额
+    const coinChange = async (value: string, option: any) => {
+        if (!value) {
             form.resetFields(['protocolId']);
+            return;
         }
+        // console.log(123, option);
+
+        // 获取当前选中项的完整信息
+        const selectedCoin = coinSelect.find(coin => coin.coinId === value);
+        if (!selectedCoin) return;
+
+        setSearchHistory(prev => {
+            // 移除已存在的相同选项
+            const filtered = prev.filter(item => item.value !== value);
+            // 将新选项添加到开头
+            const newHistory = [{
+                value: value,
+                label: selectedCoin.coinName
+            }, ...filtered].slice(0, 4);
+            // 保存到localStorage
+            localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
+            return newHistory;
+        });
+        // 获取币种余额
+        const balance = await getUserBalanceData()
+        setConinInfo(Object.assign(balance, option))
+        console.log(Object.assign(balance, option), 1234);
 
     }
+    // 币种余额
+    const getUserBalanceData = async () => {
+        const tenantId = form.getFieldValue('tenantId')
+        if (!tenantId) {
+            return toast.error('请先选择币种')
+        }
+        try {
+            const res = await getUserBalance(tenantId)
+            if (res.code === '0') {
+                // setUserBalance(res.data)
+                return res.data
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+    // 历史币种快捷键
+    const setFormCoin = async (coinId: string | number) => {
+        if (coinLoading) return;
 
+        try {
+            // 如果没有币种列表数据，先获取数据
+            if (coinSelect.length === 0) {
+                await getCoinAllData();
+            }
+
+            // 设置表单值
+            form.setFieldValue('tenantId', coinId);
+
+            // 获取选中币种的信息并更新余额
+            const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
+            if (selectedCoin) {
+                const balance = await getUserBalanceData();
+                if (balance) {
+                    setConinInfo({ ...balance, ...selectedCoin });
+                }
+            }
+        } catch (error) {
+            toast.error('设置币种失败');
+        }
+    }
+    // 链名称(网络名称)
     const getCoinExtList = async () => {
         const tenantId = form.getFieldValue('tenantId')
         if (!tenantId) {
@@ -158,7 +263,7 @@ const WithdrawMoneyPage = () => {
         setCoinId(tenantId)
         await getCoinExt(tenantId)
     }
-    // 链名称
+
     const getCoinExt = async (tenantId: number) => {
         setCoinExtLoading(true)
         try {
@@ -180,12 +285,65 @@ const WithdrawMoneyPage = () => {
         }
     }
 
+    const coinExtChange = (value: string, option: any) => {
+        if (value) {
+            setConinInfo(Object.assign(coninInfo, option))
+            form.setFieldValue('amount', coninInfo.minWithdrawAmount)
+            console.log(Object.assign(coninInfo, option), 1235);
+        } else {
+            // form.setFieldValue('amount',coninInfo.minWithdrawAmount)
+            // setCurrent(1)
+        }
+
+    }
+
+    // 地址
+    const getUserAddressList = async () => {
+        if (addressSelect.length > 0 || addressLoading) return
+        await getUserAddressListData()
+    }
+    const getUserAddressListData = async () => {
+        const pageParam = {
+            pageNo: 1,
+            pageSize: 100,
+        }
+        setAddressLoading(true)
+        try {
+            const res = await getuserAddressList(pageParam)
+            if (res.code === '0') {
+                const addressList = res.data.list.map((item: any) => ({
+                    ...item,
+                    label: item.addressName,
+                    value: item.id
+                }))
+                setAddressSelect(addressList)
+            } else {
+                toast.error(res.message)
+            }
+        } finally {
+            setAddressLoading(false)
+        }
+
+    }
+    const amountChange = (e: any) => {
+        if (e.target.value) {
+            setAmountNum(e.target.value)
+        } else {
+            setAmountNum(0)
+        }
+    }
+    const handleFormChange = (changedValues: any, allValues: any) => {
+        console.log(changedValues, allValues, 1236);
+        
+    }
+
+
 
     const columns: ColumnsType<DataType> = [
         {
             title: "币种",
-            dataIndex: "userId",
-            key: "userId",
+            dataIndex: "coinId",
+            key: "coinId",
             width: 158,
             align: "left",
             render: (text, record) => <div>{text || '--'} </div>,
@@ -275,22 +433,6 @@ const WithdrawMoneyPage = () => {
 
     ];
 
-    const addressTypeSelect: { label: string, value: string, desc: string, network: string }[] = [
-        {
-            label: '这是一个地址1XXXXXXXXX',
-            value: '1',
-            desc: '我的地址1',
-            network: 'TRX'
-        },
-        {
-            label: '这是一个地址1XXXXXXXXX',
-            value: '2',
-            desc: '我的地址1',
-            network: 'BTC'
-        },
-    ]
-
-
     const getStatus = (status: number) => {
         switch (status) {
             case 0:
@@ -321,6 +463,37 @@ const WithdrawMoneyPage = () => {
                 console.log(error)
             })
     }
+    const pageChange = async (page: number, pageSize: number) => {
+        const pageData = {
+            page: page,
+            pageSize: pageSize
+        }
+        setPageParam(pageData)
+        paramdataRef.current = pageData;
+        await getWithdrawDepositListData()
+    }
+    const getWithdrawDepositListData = async () => {
+        const pageParam = {
+            pageNo: paramdataRef.current.page,
+            pageSize: paramdataRef.current.pageSize
+        }
+        setTableLoading(true)
+        try {
+            const res = await getWithdrawDepositList(pageParam)
+            setTableData(res.data.list)
+            setTotal(res.data.count)
+        } finally {
+            setTableLoading(false)
+        }
+
+    }
+    useEffect(() => {
+        getWithdrawDepositListData()
+    }, [])
+
+
+
+
     const steps = [
         {
             title: <p className={`${styles.tip_title} `}>提现币种</p>,
@@ -344,11 +517,17 @@ const WithdrawMoneyPage = () => {
                             dropdownRender={(menu) => (<>
                                 {coinSelect.length > 0 && <div className={` font-14 font-w-400 mb-2_5 `}>
                                     <p className={`${styles.tip_color2}`}>搜索历史</p>
-                                    <div className='mt-2 mb-2_5'>
+                                    {searchHistory.length > 0 ? <div className='mt-2 mb-2_5'>
                                         {searchHistory.map((item) => (
-                                            <button key={item} className={`cancel_btn5 ${styles.selsect_btn} mr-2`}>{item}</button>
+                                            <button
+                                                key={item.value}
+                                                className={`cancel_btn5 ${styles.selsect_btn} mr-2`}
+                                                onClick={() => form.setFieldValue('tenantId', item.value)}
+                                            >
+                                                {item.label}
+                                            </button>
                                         ))}
-                                    </div>
+                                    </div> : <p className='mt-2 mb-2_5'>暂无</p>}
                                     <p className={`${styles.tip_color2} `}>币种列表</p>
 
                                 </div>}
@@ -364,11 +543,15 @@ const WithdrawMoneyPage = () => {
                     </Form.Item>
                     <div className='mt-2_5'>
                         {searchHistory.map((item) => (
-                            <button key={item} className={`${styles.btn_style} cancel_btn5 mr-2`}>
-                                {item}
+                            <button
+                                key={item.value}
+                                className={`cancel_btn5 ${styles.selsect_btn} mr-2`}
+                                onClick={() => setFormCoin(item.value)}
+                            >
+                                {item.label}
                             </button>
                         ))}
-                            {/* 
+                        {/* 
                         </button>
                         <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
                             ETH
@@ -389,16 +572,16 @@ const WithdrawMoneyPage = () => {
                     <Form.Item name='addressId' >
                         <Select className={`${styles.select_box} custom-select `}
                             // maxLength={25}
-                            options={addressTypeSelect}
+                            options={addressSelect}
                             placeholder='选择提现地址'
                             allowClear
                             suffixIcon={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color} `} />}
                             optionRender={(option) => {
                                 return (
                                     <div className="flex-y  py-1">
-                                        <p className={`${styles.title_color} font-14 font-w-400`}>{option.data.desc}</p>
+                                        <p className={`${styles.title_color} font-14 font-w-400`}>{option.data.addressTitle}</p>
                                         <p className={`${styles.tip_color2} font-14 font-w-400`}>地址：{option.data.label}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{option.data.network}</p>
+                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{option.data.protocolName}</p>
                                     </div>
                                 );
                             }}
@@ -416,6 +599,8 @@ const WithdrawMoneyPage = () => {
 
                             )}
                             notFoundContent={<NoAddress />}
+                            onFocus={getUserAddressList}
+                            loading={addressLoading}
 
                         />
                     </Form.Item>
@@ -447,6 +632,8 @@ const WithdrawMoneyPage = () => {
                             notFoundContent={<NoData title="暂无记录" />}
                             onFocus={getCoinExtList}
                             loading={coinExtLoading}
+                            onChange={coinExtChange}
+
                         />
                     </Form.Item>
                 </>}
@@ -460,23 +647,44 @@ const WithdrawMoneyPage = () => {
                     <Form.Item name='amount' >
                         <Input className={`${styles.input_box3} modal-input mr-7`}
                             // maxLength={25}
-                            placeholder='20'
+                            placeholder='提现金额'
                             allowClear
                             suffix={<div className='flex-x align-center  font-14 font-w-400'>
-                                <p className={`${styles.tip_color2} pr-2`}>USDT</p><span className={`${styles.tip_color2}`}>|</span>
-                                <button className={` theme_color pl-2`}>最大</button>
+                                <p className={`${styles.tip_color2} pr-2`}>
+                                    {/* USDT */}
+                                    {coninInfo.coinName || '--'}
+                                </p><span className={`${styles.tip_color2}`}>|</span>
+                                <button className={` theme_color pl-2`} onClick={()=>{
+                                    if(coninInfo.balance>coninInfo.maxWithdrawAmount){
+                                        form.setFieldValue('amount',coninInfo.maxWithdrawAmount||0)
+                                        setAmountNum(coninInfo.maxWithdrawAmount||0)
+                                    }else{
+                                        form.setFieldValue('amount',coninInfo.balance||0)
+                                        setAmountNum(coninInfo.balance||0)
+                                    }
+                                }}>最大</button>
                             </div>}
+                            onChange={amountChange}
+                            value={amountNum}
                         />
                     </Form.Item>
                     <div className={`${styles.card_bgc3} mt-5  font-14 font-w-400`}>
                         <ul className={`${styles.tip_color} ${styles.icon_btn_bottom} w-full mb-5`}>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>现货可用</p>
-                                <p>50.13USDT</p>
+                                <p>
+                                    {/* 50.13USDT */}
+                                    {coninInfo.balance || '0'}
+                                    {coninInfo.coinName || '--'}
+                                </p>
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>单次限额</p>
-                                <p>10-10,000USDT</p>
+                                <p>
+                                    {/* 10-10,000USDT */}
+                                    {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
+                                    {coninInfo.minWithdrawAmount || '0'}-{coninInfo.maxWithdrawAmount || '0'}{coninInfo.coinName || '--'}
+                                </p>
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>24H限额</p>
@@ -485,9 +693,21 @@ const WithdrawMoneyPage = () => {
                         </ul>
                         <div className='flex-x justify-between align-center'>
                             <div>
-                                <p className={`${styles.tip_color} mb-3`}>实际到账</p>
-                                <p className={`${styles.title_color} mb-3 font-24 font-w-500`}>1 USDT</p>
-                                <p className={`${styles.tip_color} mb-3`}>手续费 <span className={`${styles.title_color}`}>1 USDT</span></p>
+                                <p className={`${styles.tip_color} mb-3`}>预估到账</p>
+                                <p className={`${styles.title_color} mb-3 font-24 font-w-500`}>
+                                    {/* 1 USDT */}
+                                    {cut(amountNum , coninInfo.withdrawFee ?
+                                        nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee)||0}
+                                    {coninInfo.coinName || '--'}
+
+                                </p>
+                                <p className={`${styles.tip_color} mb-3`}>手续费 <span className={`${styles.title_color}`}>
+                                    {/* 1 USDT */}
+                                    {/* {coninInfo.withdrawFee||'0'} {coninInfo.coinName||'--'} */}
+                                    {/* {nul(form.getFieldValue('amount'), coninInfo.withdrawFee ? coninInfo.withdrawFee : coninInfo.minWithdrawFee)}{coninInfo.coinName || '--'} */}
+                                    {nul(amountNum, coninInfo.withdrawFee) > coninInfo.minWithdrawFee ? nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee}
+                                    {coninInfo.coinName || '--'}
+                                </span></p>
                             </div>
                             {/* default_btn */}
                             <button type='submit' className={`${styles.withdraw_btn} disabled_btn mr-2`}
@@ -502,34 +722,16 @@ const WithdrawMoneyPage = () => {
         },
 
     ]
-    const pageChange = async (page: number, pageSize: number) => {
-        const pageData = {
-            page: page,
-            pageSize: pageSize
-        }
-        setPageParam(pageData)
-        paramdataRef.current = pageData;
-        await getWithdrawDepositListData()
-    }
-    const getWithdrawDepositListData = async () => {
-        const pageParam = {
-            pageNo: paramdataRef.current.page,
-            pageSize: paramdataRef.current.pageSize
-        }
-        setTableLoading(true)
-        try {
-            const res = await getWithdrawDepositList(pageParam)
-            setTableData(res.data.list)
-            setTotal(res.data.count)
-        } finally {
-            setTableLoading(false)
-        }
 
-    }
+    // 添加 useEffect 来加载历史记录
     useEffect(() => {
-        getWithdrawDepositListData()
-    }, [])
-
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('coinSearchHistory');
+            if (saved) {
+                setSearchHistory(JSON.parse(saved));
+            }
+        }
+    }, []); // 空依赖数组表示只在组件挂载时执行一次
 
     return (<div className={` page-h w-full page-box flex-y align-center`} style={{ paddingBottom: '10vh' }}>
         <div className={`${styles.spot_auth_box}`} >
@@ -568,7 +770,11 @@ const WithdrawMoneyPage = () => {
                                 }
                             }}
                         >
-                            <Form form={form}>
+                            <Form
+                                form={form}
+                                initialValues={{ amount: '20' }}
+                            onValuesChange={handleFormChange}
+                            >
                                 <Steps
                                     direction="vertical"
                                     current={current}
