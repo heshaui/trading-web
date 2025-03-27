@@ -43,21 +43,23 @@ function add(arg1: number, arg2: number): number {
   }
   
   function nul(arg1: number, arg2: number): number {
+    if (arg1 === undefined || arg1 === null || arg2 === undefined || arg2 === null) {
+        return 0;
+    }
+
     let m = 0;
-    const s1 = arg1.toString();
-    const s2 = arg2.toString();
+    const s1 = String(arg1);
+    const s2 = String(arg2);
   
     try {
-      m += s1.split('.')[1].length;
+      m += s1.split('.')[1]?.length || 0;
     } catch (e) {
       console.log(e);
-      // No decimal places in arg1
     }
     try {
-      m += s2.split('.')[1].length;
+      m += s2.split('.')[1]?.length || 0;
     } catch (e) {
       console.log(e);
-      // No decimal places in arg2
     }
     return (
       (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) /
