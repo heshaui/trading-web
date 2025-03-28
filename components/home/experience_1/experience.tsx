@@ -11,6 +11,7 @@ import { useTranslation } from 'next-i18next';
 import { CSSProperties } from "react";
 import { getPic2 } from "@/services/open";
 import { useEffect, useState } from "react";
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 
 const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
@@ -38,7 +39,7 @@ export default function Experience() {
     const { t } = useTranslation(['home']);
     const [homePic, setHomePic] = useState<LoginPicType | null>(null)
     // const isDayMode=localStorage.getItem('isDayMode')||''
-    // const token = localStorage.getItem('userToken')||''
+    // const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN)||''
     // const [email, setEmail] = useState('');
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
@@ -81,7 +82,7 @@ export default function Experience() {
         let token = '';
         if (typeof window !== 'undefined') {
             isDayMode = localStorage.getItem('isDayMode') || ''
-            token = localStorage.getItem('userToken') || ''
+            token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || ''
         }
 
         if (isDayMode) {

@@ -15,8 +15,8 @@ import { getLogin, getLoginMailCode, getLoginSmsCode, } from "@/services/login";
 import { encryptData } from "@/utils/encrypt";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { useAuth } from "@/context/AuthContext";
-
-
+import {getLoginUserInfo} from "@/services/userCenter"
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface acountType {
     type: string,
     email?: string,
@@ -82,6 +82,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                             deviceType: fingerprint,
                             password: acountInfo.password,
                             authCodePhone: values.code,
+                            countryCode: acountInfo.countryCode
                         }
                     }
                     const dataEncrypt = await encryptData(dataInfo)
@@ -89,10 +90,13 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     if (res.code === "0") {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
-                        store.updateUserInfo({ ...res.data })
+                        // store.updateUserInfo({ ...res.data })
                         // 添加 useAuth 的登录方法
                         login(res.data.token)
                         router.push('/')
+                        // 获取用户信息
+                        await getUserInfo()
+
                     } else {
                         toast.error(res.message)
                     }
@@ -107,6 +111,19 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 console.log("Validate Failed:", info);
             });
     };
+    // 获取用户信息
+    const getUserInfo = async () => {
+        try {
+            const res = await getLoginUserInfo()
+           if(res.code === "0"){
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO,JSON.stringify(res.data))
+           }else{
+            toast.error(res.message)
+           }
+        } catch (error) {
+            console.error('获取用户信息出错:', error);
+        }
+    }
     const getLoginCode = async () => {
         if (isCounting || loading || codeLoading) return
         setCodeLoading(true)

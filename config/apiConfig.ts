@@ -28,3 +28,8 @@ export interface identityInfoType {
     updateTime: number;
     tenantId: string;
 }
+
+export const LOCAL_STORAGE_KEY = {
+	USER_INFO:'imbit_userInfo' , 
+	USER_TOKEN:"imbit_userToken",
+};

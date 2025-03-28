@@ -4,7 +4,7 @@ import { getKvObject } from '@/services/kv';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import defaultTheme from '@/theme/themeConfig';
 import type { ThemeConfig } from 'antd';
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 // 检查图片URL是否可用
 const checkImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -102,7 +102,7 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
                 if (loading || !config.logo) return;
 
                 // 从localStorage获取登录状态
-                const isLoggedIn = !!localStorage.getItem('userToken');
+                const isLoggedIn = !!localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
                 const loginStatus = isLoggedIn ? 'after_login' : 'before_login';
 
                 // 获取logo配置

@@ -17,7 +17,7 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 import dayjs from 'dayjs';
-
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
 // import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
 import { useLogoImage } from '@/hooks/useKv'; // 获取logo
@@ -150,7 +150,7 @@ export default function HomeMenu() {
 
         // 同时也检查本地存储中的 token
         const checkLocalToken = () => {
-            const token = localStorage.getItem('userToken');
+            const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
             if (token && !isLogin) {
                 // console.log('从本地存储检测到 token，设置登录状态为 true');
                 setIsLogin(true);

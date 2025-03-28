@@ -1,5 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 /**
  * 通用请求封装
  * @param endpoint 请求的 API 路径，例如 '/user'
@@ -54,7 +54,7 @@ export async function request<T>(
 // 获取 Token（如果有鉴权）
 export function getToken() {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('userToken') || '';
+    return localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || '';
   }
   return '';
 }

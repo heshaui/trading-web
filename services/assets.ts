@@ -70,6 +70,14 @@ export function getcoinExtList(tenantId: number): Promise<any> {
     //   body: JSON.stringify({coinId:tenantId})
     });
   }
+// 获取商户所有支持的币种协议(网络)
+export function getProtocolTypeAll(): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/protocol-type/protocolTypeAll`, {
+    method: 'POST',
+  });
+}
+
+
 // 币种余额（单个）
 export function getUserBalance(coinId: string|number): Promise<any> {
     return request(`${fixUrl2}/assets-web/v1/user-wallet/userBalance?coinId=${coinId}`, {

@@ -13,10 +13,11 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import ErrModal from "./totastModal";
 import { creatWithdraw } from '@/services/assets'
-import { encryptData } from "@/utils/encrypt";
+import { encryptData } from "@/hooks/user-encrypt";
+import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal";
+import  { getUserInfo } from '@/hooks/userInfo';
 
-
-interface withdrawType {
+interface paramsType {
     coinId: number;
     protocolId: number;
     amount: string;
@@ -24,6 +25,24 @@ interface withdrawType {
     smsCode: string;
     emailCode: string;
     googleCode: string;
+}
+interface withdrawType {
+    coinId: number,
+    toAddress: string,
+    protocolId: number,
+    momo: string,
+    amount: string,
+    minWithdrawAmount: number,
+    minWithdrawFee: number,
+    withdrawFee: number,
+    maxWithdrawAmount: number,
+    minWithdraw: number,
+    maxWithdraw: number,
+    minRecharge: number,
+    coinName: string,
+    countWithdrawFee: number,
+    protocolName: string,
+    amountAfter: number,
 }
 type Props = {
     open: boolean;
@@ -33,19 +52,28 @@ type Props = {
 };
 
 function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
-    // const router = useRouter();
-    // const [inputValue, setInputValue] = useState(nicknameInfo.nickname || '');
+    const [safeModalOpen, setSafeModalOpen] = useState(false)
+    const [userInfo,setUserInfo] = useState({})
     const handCancel = () => {
         onCancel()
     };
     const [errOpen, setErrOpen] = useState(false)
 
     const handOk = async () => {
-        setErrOpen(true)
+        // setErrOpen(true)
+        const userInfo=getUserInfo()
+        setSafeModalOpen(true)
     };
-    const createWithdraw = async () => {
+    const safeModalOk = async(event: any) => {
+        console.log(event);
         const params = {
-            ...withdrawInfo,
+            coinId: withdrawInfo?.coinId,
+            protocolId: withdrawInfo?.protocolId,
+            amount: withdrawInfo?.amount,
+            toAddress: withdrawInfo?.toAddress,
+            smsCode: event.phoneCode||'',
+            emailCode: event.emailCode||'',
+            googleCode: event.googleCode||'',
         }
         const encrypt = await encryptData(params)
         try {
@@ -55,7 +83,6 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
         } catch (error) {
 
         }
-
     }
 
 
@@ -123,22 +150,24 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 }}
             >
                 <div className={`flex-col flex-ai-center  font-14 font-w-400`} style={{ width: "100%" }}>
-                    <p className={`${styles.title_color} font-24 font-w-500`}>100.00 USDT</p>
+                    <p className={`${styles.title_color} font-24 font-w-500`}>{withdrawInfo?.amount} {withdrawInfo?.coinName}</p>
                     <p className={`${styles.tip_color} mt-2`}>提现金额</p>
                     <ul className={`${styles.card_bgc3} mt-2`}>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>提现地址</p>
-                            <p >这是一个提现地址XXXXXXXXXXXX</p>
+                            <p >{withdrawInfo?.toAddress}</p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>网络</p>
-                            <p >{`TRX(TRC20)`}</p>
+                            <p >{withdrawInfo?.protocolName}</p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>数量</p>
                             <p className="flex-y">
-                                <span>到账：99.00USDT</span>
-                                <span>手续费：1.00USDT</span></p>
+                                <span>到账：{withdrawInfo?.amountAfter}
+                                    {withdrawInfo?.coinName}</span>
+                                <span>手续费：{withdrawInfo?.countWithdrawFee}
+                                    {withdrawInfo?.coinName}</span></p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>提现账户</p>
@@ -153,6 +182,11 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 {/* <ErrModal open={errOpen} message={'99USDT'} type={'loading'} onCancel={() => setErrOpen(false)}/> */}
 
             </Modal>
+            <WithdrawMoneySafe open={safeModalOpen} 
+            onCancel={() => setSafeModalOpen(false)} 
+            // type={'email'} 
+            acountInfo={userInfo}
+             onOk={safeModalOk}/>
         </ConfigProvider>
     );
 }

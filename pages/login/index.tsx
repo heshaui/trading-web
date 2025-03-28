@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
@@ -40,7 +40,7 @@ function Login() {
 
 	// // 判断是否为浏览器环境
 	if (typeof window !== 'undefined') {
-		token = localStorage.getItem('userToken');
+		token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
 	}
 	const getBgc = async () => {
 		try {

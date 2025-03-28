@@ -20,7 +20,7 @@ import { useThemeConfig } from '@/hooks/useKv';
 import store from '@/store';
 import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 // 定义公开路径（不需要登录即可访问的页面）
 const publicPaths = [
   '/',
@@ -90,7 +90,7 @@ function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // 初始检查
     const checkLoginStatus = () => {
-      const token = localStorage.getItem('userToken');
+      const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
       setIsLoggedIn(!!token);
       setIsAuthChecking(false); // 认证检查完成
     };

@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface UserInfoType {
     userId: number,
     nickname?: string,
@@ -58,11 +59,11 @@ class AppStore {
     }
     setUserToken(token: string ) {
         this.userToken = token;
-        localStorage.setItem('userToken', token);
+        localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
     }
     clearUserToken() {
         this.userToken = null;
-        localStorage.removeItem('userToken')
+        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN)
     }
 
     setAuthcodeState(state: string | number, type: string | number) {

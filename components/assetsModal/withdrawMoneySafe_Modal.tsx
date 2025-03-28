@@ -28,23 +28,43 @@ interface acountType {
     googleCode?: string;
     type?: string;
 }
-interface SafeDataType {
-    phone?: string;
-    email?: string;
+interface returnInfoType {
+    emailCode?: string,
+    phoneCode?: string,
+    googleCode?: string,
     countryCode?: string;
-    googleCode?: boolean;
-    password?: boolean;
-    deviceNos?: string;
-    recentIp?: string;
-    userId?: string;
-    type?: string;
+    email?: string;
+    phone?: string;
+}
+interface SafeDataType {
+    userId?: number,
+    registerAccount?: string,
+    account?: string,
+    status?: number,
+    email?: string,
+    phone?: string,
+    inviteCode?: string,
+    parentUserId?: number,
+    isGoogleAuth?: number,
+    isPhoneAuth?: number,
+    isEmailAuth?: number,
+    realnessStatus?: number,
+    addressStatus?: number,
+    countryCode?: string,
+    userLevel?: string,
+    createTime?: number,
+    updateTime?: number,
+    tenantId?: string,
+    transactionStatus?: number,
+    withdrawalStatus?: number,
+    famousAphorisms?: string,
+    securityIntensity?: number
 }
 type Props = {
     open: boolean;
-    // onOk?: (event: boolean) => void;
-    onOk: (type: string) => void;
+    onOk: (event: returnInfoType) => void;
     onCancel: () => void;
-    type: string;
+    type?: string;
     acountInfo: SafeDataType;
 };
 
@@ -75,49 +95,46 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     };
 
     const handOk = async () => {
-        // onOk(type)
-        // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:修改密码 4:关闭谷歌验证 5:绑定邮箱
-        // form.validateFields()
-        //     .then(async (values) => {
-        //         const dataInfo = {
-        //             code: values.emailCode || '',
-        //             googleCode: values.googleCode || '',
-        //             phoneCode: values.phoneCode || '',
-        //             email: values.emailCode?acountInfo.email : '',
-        //             phone: values.phoneCode?acountInfo.phone : '',
-        //             countryCode: values.phoneCode?acountInfo.countryCode : '',
-        //         }
-        //         // let dataInfo={}
-        //         // if(values.emailCode){
+        form.validateFields()
+            .then(async (values) => {
+                const dataInfo = {
+                    emailCode: values.emailCode||'',
+                    phoneCode: values.phoneCode||'',
+                    googleCode: values.googleCode||''
+                }
+                
+                onOk(dataInfo)
+                handCancel()
+                // checkMoneySafe(dataInfo)
 
-        //         // }
-        //         checkPasswordSafe(dataInfo)
-
-        //     })
-        setErrOpen(true)
+            })
 
     };
 
-    const checkPasswordSafe = async (data: acountType) => {
+    const checkMoneySafe = async (dataInfo: acountType) => {
         setLoading(true)
         try {
-            const dataEncrypt = await encryptData(data)
+            const dataEncrypt = await encryptData(dataInfo)
             const res = await setPasswordSafe(dataEncrypt)
             if (res.code === "0") {
-                // toast.success(res.message)
-                onOk(type)
+                toast.success(res.message)
+                onOk(dataInfo)
                 handCancel()
             } else {
+                // setErrOpen(true)
                 toast.error(res.message)
             }
-            setLoading(false)
         } catch (error) {
-            setLoading(false)
+            // setErrOpen(true)
             toast.error(String(error))
+        }finally{
+            setLoading(false)
+
         }
     }
 
     const getLockPhoneCode = async () => {
+        return toast.error('暂无接口')
         if (isCounting2 || loading || codeLoading2) return
         setCodeLoading2(true)
         try {
@@ -147,6 +164,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     };
     const getLockEmailCode = async () => {
+        return toast.error('暂无接口')
         if (isCounting || loading || codeLoading) return
         setCodeLoading(true)
         try {
@@ -353,7 +371,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {(acountInfo.phone && (!acountInfo.googleCode || !acountInfo.email)) && (<>
+                        {(acountInfo.phone && (acountInfo.isGoogleAuth===0 || !acountInfo.email)) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
@@ -379,7 +397,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {acountInfo.googleCode && (<>
+                        {acountInfo.isGoogleAuth===1 && (<>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
                             <Form.Item name="googleCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
                                 <Input placeholder="请输入谷歌验证码" allowClear className={`${styles.input_box} modal-input`}
