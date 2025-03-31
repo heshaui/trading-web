@@ -4,6 +4,9 @@ import { useRouter, NextRouter } from 'next/router';
 import styles from "../styles/layout.module.css"
 import type { MenuProps } from 'antd';
 import { Iconify, SvgIcon } from '@/components/icon'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 // 定义 UserCenterLayout 组件的属性类型
 interface UserCenterLayoutProps {
     children: React.ReactNode; // children 属性表示组件包裹的子元素，类型为 React.ReactNode
@@ -13,6 +16,7 @@ type MenuItem = Required<MenuProps>['items'][number];
 const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
     // 使用 useRouter 钩子获取路由对象，并指定其类型为 NextRouter
     const router: NextRouter = useRouter();
+    const { t } = useTranslation('assets');
     // console.log(router);
         // 菜单项定义
         const items: MenuItem[] = [
@@ -47,5 +51,11 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
         </div>
     );
 };
-
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+// 		},
+// 	};
+// };
 export default UserCenterLayout;

@@ -14,6 +14,7 @@ import { fileImg } from "@/services/open";
 import { updateUserCenter } from '@/services/userCenter';
 import { Iconify } from "../icon";
 import {encryptData} from '@/utils/encrypt'
+import { useTranslation } from 'next-i18next';
 
 type Props = {
     open: boolean;
@@ -129,7 +130,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     const [siftAvatarList, setSiftAvatarList] = useState<AvatarItem[]>(initAvatarList); // 筛选后的头像列表
     const [form] = Form.useForm();
     // const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
-
+    const { t } = useTranslation(['common']);
 
     const handCancel = () => {
         onCancel();
@@ -137,28 +138,26 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
 
     const handOk = async () => {
         if ((!fileUrl) && (!selectedAvatar)) {
-            toast.error('请选择或选择头像!');
+            toast.error(t('usersetting.selectAvatar'));
             return;
         }
         
         try {
             let params = {};
             if (fileUrl) {
-                // console.log(selectedFile);
-                 params = {
+                params = {
                     userId: userId,
                     avatarUrl: fileUrl
                 }
             } else if (selectedAvatar) {
-                 params = {
+                params = {
                     userId: userId,
                     avatarUrl: selectedAvatar
                 }
             }
 
-            const encrypt=await encryptData(params)
+            const encrypt = await encryptData(params)
             await updateUserCenterApi(encrypt)
-
 
         } catch (error) {
             toast.error(String(error));
@@ -168,7 +167,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         try {
             const res = await updateUserCenter(params);
             if (res.code === '0') {
-                toast.success('头像修改成功');
+                toast.success(t('usersetting.avatarSuccess'));
                 onOk(true)
                 onCancel()
             }else{
@@ -216,7 +215,8 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             const allowedTypes = ['image/jpg', 'image/jpeg','image/png', 'image/gif']
             const isPNG = allowedTypes.includes(file.type);
             if (!isPNG) {
-                toast.error(`${file.name} 不是正确的图片格式！`);
+                // 不是正确的图片格式
+                toast.error(`${file.name} ${t('usersetting.invalidFileType')}`);
             }
             return isPNG || Upload.LIST_IGNORE;
         },
@@ -229,7 +229,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error('无效的文件类型');
+                    toast.error(t('usersetting.invalidFileType'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -308,14 +308,14 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 className={`${styles.modal_footerBtn} cancel_btn2 mr-5 font-14 font-w-500`}
                 onClick={handCancel}
             >
-                取消
+                {t('cancel')}
             </button>
             <button
                 type="button"
                 className={`${styles.modal_footerBtn} default_btn`}
                 onClick={handOk}
             >
-                保存
+                {t('save')}
             </button>
         </div>
     );
@@ -355,7 +355,9 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`}>修改头像</p>}
+                title={<p className={`${styles.title}`}>
+                    {t('usersetting.modifyAvatar')}
+                </p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -404,26 +406,28 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                             <Form.Item name="file" noStyle> */}
                         <Upload {...props}>
                             <Button type="default" className={`${styles.modal_footerBtn}`} icon={<UploadOutlined />}>
-                                上传
+                                {t('usersetting.uploadAvatar')}
                             </Button>
                         </Upload>
                         {/* </Form.Item>
                         </Form> */}
-                        <p className={`${styles.tip_color} font-12 font-w-400 mt-2_5`}>图片头像仅支持jpg、png、gif格式</p>
+                        <p className={`${styles.tip_color} font-12 font-w-400 mt-2_5`}>
+                            {t('usersetting.avatarFormatTip')}
+                        </p>
                     </div>
                     <div className={`${styles.avatar_icon} flex-1`}>
                         <Segmented<string>
                             options={[
                                 {
-                                    label: <p style={{ minWidth: 55 }}>全部</p>,
+                                    label: <p style={{ minWidth: 55 }}>{t('usersetting.avatarFilter.all')}</p>,
                                     value: 'all'
                                 },
                                 {
-                                    label: <p style={{ minWidth: 55 }}>男</p>,
+                                    label: <p style={{ minWidth: 55 }}>{t('usersetting.avatarFilter.male')}</p>,
                                     value: 'male'
                                 },
                                 {
-                                    label: <p style={{ minWidth: 55 }}>女</p>,
+                                    label: <p style={{ minWidth: 55 }}>{t('usersetting.avatarFilter.female')}</p>,
                                     value: 'female'
                                 }
                             ]}

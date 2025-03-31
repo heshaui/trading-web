@@ -1,5 +1,5 @@
 import React from 'react';
-import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
+import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/billDetails.module.css'
 import { Input, Radio, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
@@ -7,6 +7,9 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 interface DataType {
   id: number,
@@ -85,7 +88,7 @@ const AssetsMainPage = () => {
     total:0
   })
   const paramdataRef3 = useRef(pageParam3);
-
+  const { t } = useTranslation('assets');
   
 
   const columns: ColumnsType<DataType> = [
@@ -499,5 +502,11 @@ const AssetsMainPage = () => {
   </>
   );
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+		},
+	};
+};
 export default withAssetsLayout(AssetsMainPage);

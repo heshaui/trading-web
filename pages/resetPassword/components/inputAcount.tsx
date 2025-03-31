@@ -10,6 +10,7 @@ import styles from "../style/reset.module.css"
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
+import { useTranslation } from 'next-i18next';
 
 interface acountType {
     type: string;
@@ -24,6 +25,7 @@ function ResetPassword() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [tabsProps, setTabsProps] = useState('email');
     const { acount, type, areaCode } = router.query;
+    const { t } = useTranslation('resetPassword');
     // console.log(acount, type, areaCode, 123);
 
     // 定义粘贴功能的处理函数
@@ -140,7 +142,8 @@ function ResetPassword() {
                     label: (
                         //  button-color
                         <div className={`${styles.tabs_label}`} >
-                            <div>邮箱</div>
+                            <div>
+                                {t('email')}</div>
                         </div>
 
                     ),
@@ -149,7 +152,7 @@ function ResetPassword() {
                 {
                     label: (
                         <div className={`${styles.tabs_label}`} >
-                            <div>手机</div>
+                            <div>{t('phone')}</div>
                         </div>
 
                     ),
@@ -169,14 +172,14 @@ function ResetPassword() {
                 form={form}
                 // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
             >
-                {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: "请输入邮箱！" }
+                {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: t('inputAcount') }
                     //  { validator: validateAcount }
                 ]}
                 >
                     <AutoComplete
                         onSearch={handleSearch}
                         // placeholder="请输入手机/邮箱"
-                        placeholder="请输入邮箱"
+                        placeholder={t('inputAcount')}
                         options={options}
                         allowClear={true}
                         backfill={true}
@@ -189,8 +192,8 @@ function ResetPassword() {
                     <Form.Item >
                         <div className={`flex ${styles.acount_input}`}>
                             <PhoneCodeSelector />
-                            <Form.Item noStyle name="acountNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-                                <Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 custom-input modal-input`} />
+                            <Form.Item noStyle name="acountNumber" rules={[{ required: true, message: t('smsInputNull') }]}>
+                                <Input placeholder={t('smsInput')} allowClear={true} className={`${styles.mail_input} ml-2 custom-input modal-input`} />
                             </Form.Item>
                         </div>
                     </Form.Item>
@@ -199,8 +202,11 @@ function ResetPassword() {
             <div className='flex mt-6'>
                 <button
                     className={`${styles.goBack_btn} mr-4`}
-                    onClick={() => goBackPage()}>上一步</button>
-                <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>下一步</button>
+                    onClick={() => goBackPage()}>
+                        {/* 上一步 */}
+                        {t('goBack')}
+                        </button>
+                <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>{t('next')}</button>
             </div>
 
         </div>

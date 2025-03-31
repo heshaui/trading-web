@@ -152,6 +152,8 @@ const WithdrawMoneyPage = () => {
     // 添加状态来跟踪是否显示 MEMO
     const [showMemo, setShowMemo] = useState(false);
 
+    const [allowWithdraw, setAllowWithdraw] = useState(false)
+
     // 在 useEffect 中获取用户信息
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -175,7 +177,6 @@ const WithdrawMoneyPage = () => {
                     value: item.coinId,
                 }))
                 setCoinSelect(coinList)
-                return res; // 返回响应数据
             } else {
                 toast.error(res.message)
             }
@@ -238,23 +239,27 @@ const WithdrawMoneyPage = () => {
     }
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
+        if (getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity >= 2) return toast.error('功能暂不可用')
         if (coinLoading) return;
+        
         try {
             // 如果没有币种列表数据，先获取数据
             if (coinSelect.length === 0) {
                 await getCoinAllData();
-                // 设置表单值
-                form.setFieldValue('tenantId', coinId);
-                setCurrent(1) // 下一步
-                // 获取选中币种的信息并更新余额
-                const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
-                if (selectedCoin) {
-                    const balance = await getUserBalanceData();
-                    if (balance) {
-                        setConinInfo({ ...balance, ...selectedCoin });
-                    }
-                }
+               
             }
+             // 设置表单值
+             form.setFieldValue('tenantId', coinId);
+             setCurrent(1) // 下一步
+
+             // 获取选中币种的信息并更新余额
+             const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
+             if (selectedCoin) {
+                 const balance = await getUserBalanceData();
+                 if (balance) {
+                     setConinInfo({ ...balance, ...selectedCoin });
+                 }
+             }
 
         } catch (error) {
             toast.error('设置币种失败');
@@ -420,13 +425,16 @@ const WithdrawMoneyPage = () => {
                 
             form.setFieldValue('amount', filteredValue);
             setAmountNum(filteredValue)
+            setAllowWithdraw(true)
         } else {
             setAmountNum(0)
             form.setFieldValue('amount', 0)
+            setAllowWithdraw(false)
         }
     }
 
     const antiFraud = () => {
+        if(!allowWithdraw) return toast.error('请检查提现信息')
         form.validateFields()
             .then(async (values) => {
                 console.log(values)
@@ -769,7 +777,7 @@ const WithdrawMoneyPage = () => {
                                 </span></p>
                             </div>
                             {/* default_btn */}
-                            <button type='submit' className={`${styles.withdraw_btn} disabled_btn mr-2`}
+                            <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn'}`}
                                 onClick={antiFraud}>
                                 提现
                             </button>
@@ -839,7 +847,7 @@ const WithdrawMoneyPage = () => {
                                 form={form}
                             // initialValues={}
                             // onValuesChange={handleFormChange}
-                            // disabled={getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity >= 2} //表单禁用
+                            disabled={getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity >= 2} //表单禁用
                             >
                                 <Steps
                                     direction="vertical"
@@ -876,8 +884,7 @@ const WithdrawMoneyPage = () => {
             </div>
             <WithdrawMoneyCheck open={checkOpen} 
             withdrawInfo={withdrawInfo}
-            onCancel={() => setCheckOpen(false)} onOk={() => setCheckOpen(false)} />
-
+            onCancel={() => setCheckOpen(false)}  />
         </div>
     </div>
     );

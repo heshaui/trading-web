@@ -5,6 +5,7 @@ import styles from "./style/repeatModal.module.css";
 // import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 // import { registerLogic } from "@/store/registerEnum"
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 type FormValueType = {
     // 根据实际表单字段定义类型
     [key: string]: any;
@@ -20,6 +21,7 @@ type Props = {
 
 function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: Props) {
     // const [form] = Form.useForm();
+    const { t } = useTranslation('login');
     const handCancel = () => {
         onCancel()
     };
@@ -38,14 +40,16 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
                     className={`${styles.modal_btn} btn-color`}
                     onClick={handOk}
                 >
-                    去登录
+                    {/* 去登录 */}
+                    {t('registerForm.goLogin')}
                 </button>
                 <button
                     type="button"
                     className={`${styles.modal_btn2} mt-5`}
                     onClick={handCancel}
                 >
-                    取消
+                    {/* 取消 */}
+                    {t('common.cancel')}
                 </button>
             </div>
 
@@ -93,8 +97,8 @@ function RepeatModal({ open, onOk, acount, onCancel, message, type = 'error' }: 
                     className={`${styles.icon_box}`} width={160} height={160} />
                 }
                 {type === 'error' && <p className={`${styles.title} `}>
-                    {acount} 账号已存在，
-                    是否登录该账号？
+                    {acount} {t('registerForm.repeat')}
+                    {t('registerForm.repeat2')}
                 </p>}
                 {type === 'success' && <p className={`${styles.title} `}>
                     {message}

@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
 import TotastModal from "./totastModal";
+import { getWithdrawalCheckSmsCode, getWithdrawalCheckEmailCode,checkWithdrawDeposit } from "@/services/assets";
+import {getFingerprint} from "@/hooks/user-fingerprint"
 interface acountType {
     countryCode?: string;
     email?: string;
@@ -103,9 +105,9 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     googleCode: values.googleCode||''
                 }
                 
-                onOk(dataInfo)
-                handCancel()
-                // checkMoneySafe(dataInfo)
+                // onOk(dataInfo)
+                // handCancel()
+                checkMoneySafe(dataInfo)
 
             })
 
@@ -115,13 +117,12 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         setLoading(true)
         try {
             const dataEncrypt = await encryptData(dataInfo)
-            const res = await setPasswordSafe(dataEncrypt)
+            const res = await checkWithdrawDeposit(dataEncrypt)
             if (res.code === "0") {
                 toast.success(res.message)
                 onOk(dataInfo)
                 handCancel()
             } else {
-                // setErrOpen(true)
                 toast.error(res.message)
             }
         } catch (error) {
@@ -134,17 +135,17 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     }
 
     const getLockPhoneCode = async () => {
-        return toast.error('暂无接口')
         if (isCounting2 || loading || codeLoading2) return
         setCodeLoading2(true)
+        const fingerprint = await getFingerprint()
         try {
             const dataInfo = {
                 number: acountInfo?.phone,
                 code: acountInfo?.countryCode?.replace('+', ''),
-                deviceType: "web"
+                deviceType: fingerprint
             };
             const dataEncrypt = await encryptData(dataInfo)
-            const res = await getPasswordSmsCode(dataEncrypt);
+            const res = await getWithdrawalCheckSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck2(false)
                 toast.success(res.message)
@@ -164,20 +165,19 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     };
     const getLockEmailCode = async () => {
-        return toast.error('暂无接口')
         if (isCounting || loading || codeLoading) return
         setCodeLoading(true)
+        const fingerprint = await getFingerprint()
         try {
             const dataInfo = {
                 number: acountInfo?.email,
-                deviceType: "web"
+                deviceType: fingerprint
             };
-            console.log(dataInfo, 11);
             
             const dataEncrypt = await encryptData(dataInfo)
-            console.log(dataEncrypt, 111);
+            // console.log(dataEncrypt, 111);
 
-            const res = await getPasswordEmailCode(dataEncrypt);
+            const res = await getWithdrawalCheckEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
@@ -258,6 +258,28 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         } catch (error) {
             console.error('Failed to read clipboard:', error);
         }
+    }
+    const handQuestionOk = async () => {
+        // 判断需要请求的验证码类型
+        if (acountInfo.isGoogleAuth === 1) {
+            // Google验证开启时
+            if (acountInfo.email) {
+                // 有邮箱时优先使用邮箱验证
+                await getLockEmailCode();
+            } else if (acountInfo.phone) {
+                // 没有邮箱但有手机号时使用手机验证
+                await getLockPhoneCode();
+            }
+        } else {
+            // Google验证未开启时，同时请求邮箱和手机验证码
+            if (acountInfo.email) {
+                 getLockEmailCode();
+            }
+            if (acountInfo.phone) {
+                 getLockPhoneCode();
+            }
+        }
+        setPointout(false)
     }
     const ModalFooter: ModalProps["footer"] = () => {
 
@@ -416,7 +438,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
 
                     </Form>
-                    <QuestionModal open={pointout} onOk={() => setPointout(false)} type={'safe'} acount={acountInfo.phone || ''} acount2={acountInfo.email || ''} onCancel={() => setPointout(false)} />
+                    <QuestionModal open={pointout} onOk={handQuestionOk} type={'safe'} acount={acountInfo.phone || ''} acount2={acountInfo.email || ''} onCancel={() => setPointout(false)} />
                     {/* loading success error */}
                     <TotastModal open={errOpen} message={'验证码错误'} type={'error'} onCancel={() => setErrOpen(false)}/>
                 </div>

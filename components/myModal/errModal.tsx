@@ -7,7 +7,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./style/errModal.module.css";
 import Image from "next/image";
-
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     errMsg: string;
@@ -17,7 +17,7 @@ type Props = {
 
 function ErrModal({ open,errMsg,  onCancel }: Props) {
     // const router = useRouter();
-
+    const { t } = useTranslation('common');
     useEffect(() => {
 
     }, []);
@@ -46,7 +46,8 @@ function ErrModal({ open,errMsg,  onCancel }: Props) {
                     className={`${styles.errModal_btn} btn-color`}
                     onClick={handCancel}
                 >
-                    我知道了
+                    {/* 我知道了 */}
+                    {t('beSure')}
                 </button>
             </div>
         );
@@ -63,7 +64,7 @@ function ErrModal({ open,errMsg,  onCancel }: Props) {
         >
             <div className="flex-col flex-ai-center">
                 <Image src="/images/login/icon_faild.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
-                <p className={`${styles.title} `}>操作失败</p>
+                <p className={`${styles.title} `}>{t('err')}</p>
                 <p className={`${styles.msg_color} mt-4`}>{errMsg}</p>
             </div>
         </Modal>

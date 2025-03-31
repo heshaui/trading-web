@@ -3,7 +3,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 import { Iconify } from "@/components/icon/index";
 import styles from "./style/questionModal.module.css";
 import { encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
-
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     acount: string | null;
@@ -15,6 +15,7 @@ type Props = {
 };
 
 function QuestionModal({ open, onOk, acount, acount2, type, onCancel, onAgain }: Props) {
+    const { t } = useTranslation('common');
     const handCancel = () => {
         onCancel()
     };
@@ -35,14 +36,14 @@ function QuestionModal({ open, onOk, acount, acount2, type, onCancel, onAgain }:
                     className={`${styles.modal_btn} btn-color`}
                     onClick={handCancel}
                 >
-                    我知道了
+                    {t('beSure')}
                 </button>
                 <button
                     type="button"
                     className={`${styles.modal_btn2} mt-5`}
                     onClick={handOk}
                 >
-                    重新发送验证码
+                    {t('resend')}
                 </button>
             </div>
 
@@ -52,35 +53,57 @@ function QuestionModal({ open, onOk, acount, acount2, type, onCancel, onAgain }:
     return (
         <Modal
             open={open}
-            title={<p className={`${styles.title_color}`} >无法收到验证码？</p>}
+            title={<p className={`${styles.title_color}`} >
+                {/* 无法收到验证码？ */}
+                {t('cantReceive')}
+                </p>}
             centered
             onCancel={handCancel}
             footer={ModalFooter}
             width={400}
             className={`modal_box`}
         >
-            <h4 className={`${styles.title_color} mt-7`}>若长时间没有收到验证码，请检查以下事项：</h4>
+            <h4 className={`${styles.title_color} mt-7`}>
+                {/* 若长时间没有收到验证码，请检查以下事项： */}
+                {t('check')}
+            </h4>
             <ul>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                    {(type === "m" || type === "email" || type === "mail") && (<>确保您的邮箱为<span>{acount ? encryptEmail(acount) : "-"}</span></>)}
-                    {(type === "p" || type === "phone") && (<>确保您的手机为<span>{acount ? encryptPhoneNumber(acount) : "-"}</span></>)}
+                    {(type === "m" || type === "email" || type === "mail") && (<>
+                        {/* 确保您的邮箱为 */}
+                        {t('check1')}
+                        <span>{acount ? encryptEmail(acount) : "-"}</span></>)}
+                    {(type === "p" || type === "phone") && (<>
+                        {/* 确保您的手机为 */}
+                        {t('check2')}
+                        <span>{acount ? encryptPhoneNumber(acount) : "-"}</span></>)}
                     {(type === "safe" && acount && acount2) &&(<>
-                        确保您的手机/邮箱为{encryptPhoneNumber(acount)}或{encryptEmail(acount2)}
+                        {/* 确保您的手机/邮箱为 */}
+                        {t('check3')}
+                        {encryptPhoneNumber(acount)}或{encryptEmail(acount2)}
                     </>)}
                     {(type === "safe" && acount && !acount2) &&(<>
-                        确保您的手机为{encryptPhoneNumber(acount)}
+                        {/* 确保您的手机为 */}
+                        {t('check2')}
+                        {encryptPhoneNumber(acount)}
                     </>)}
                     {(type === "safe" && !acount && acount2) &&(<>
-                        确保您的邮箱为{encryptEmail(acount2)}
+                        {/* 确保您的邮箱为 */}
+                        {t('check1')}
+                        {encryptEmail(acount2)}
                     </>)}
                 </li>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                    检查验证码是否位于垃圾箱中</li>
+                    {/* 检查验证码是否位于垃圾箱中 */}
+                    {t('check4')}
+                </li>
                 <li className={`${styles.tip_color} font-w-400`}>
                     <Iconify icon="mingcute:diamond-square-fill" className={`${styles.text_color} mr-2`} size={10} />
-                    验证码可能存在延迟，过了10分钟后再试</li>
+                    {/* 验证码可能存在延迟，过了10分钟后再试 */}
+                    {t('check5')}
+                </li>
             </ul>
         </Modal>
     );

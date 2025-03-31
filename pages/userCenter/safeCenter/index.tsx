@@ -1,5 +1,5 @@
 import React from 'react';
-import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout';
+import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout/useUserCenterLayout';
 import styles from '../styles/safe.module.css';
 // import { Iconify } from "@/components/icon"
 import Image from 'next/image';
@@ -20,6 +20,9 @@ import PhoneSafeModal from '@/components/safeCenterModal/phoneSafe_Modal';
 import LockSafeModal from '@/components/safeCenterModal/lockSafe_Modal';
 import UnbindGoogleModal from '@/components/safeCenterModal/unbindGoogle_Modal';
 import BindGoogleModal from '@/components/safeCenterModal/bindGoogle_Modal';
+
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -666,5 +669,11 @@ const SafeCenter: React.FC = () => {
 
     </div>);
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+		},
+	};
+};
 export default withUserCenterLayout(SafeCenter);

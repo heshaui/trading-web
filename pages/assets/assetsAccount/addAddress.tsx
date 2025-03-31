@@ -17,7 +17,9 @@ import DelectModal from "@/components/assetsModal/delectAddress_Modal"
 import AddAddressModal from "@/components/assetsModal/addAddress_Modal"
 import { getuserAddressList, getCoinAll } from '@/services/assets'
 import { toast } from "sonner";
-
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 interface DataType {
     id: number,
     protocolId: number,
@@ -443,5 +445,11 @@ const WithdrawMoneyPage = () => {
     </div >
     );
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+		},
+	};
+};
 export default WithdrawMoneyPage;

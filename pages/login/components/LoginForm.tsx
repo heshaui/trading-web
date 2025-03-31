@@ -8,8 +8,9 @@ import { LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/Log
 import NoteModal from "@/components/myModal/noteModal"
 // import { useTranslation } from 'next-i18next';
 import styles from '../styles/login.module.css'
+import { useTranslation } from 'next-i18next';
 function LoginForm() {
-	// const { t } = useTranslation(['login']);
+	const { t } = useTranslation(['login']);
 	const [noteModelOpen, setNoteModelOpen]=useState(false)
 
 	const [tabsProps, setTabsProps] = useState('email');
@@ -56,7 +57,11 @@ function LoginForm() {
 	return (
 		<div className="flex-col" style={{ height: "70vh" }}>
 			{/* {t('login')} */}
-			<div className="w-full mb-6"><p className={`${styles.title_box}`}>登录</p> </div>
+			<div className="w-full mb-6"><p className={`${styles.title_box}`}>
+				{/* 登录 */}
+				{t('login')}
+				</p> 
+			</div>
 			<Segmented
 				className={`${styles.custom_segmented} custom-segmented`}
 				options={[
@@ -64,7 +69,10 @@ function LoginForm() {
 						label: (
 							//  button-color
 							<div className={`${styles.tabs_label}`} >
-								<div>邮箱</div>
+								<div>
+									{/* 邮箱 */}
+									{t('email')}
+								</div>
 							</div>
 
 						),
@@ -73,7 +81,10 @@ function LoginForm() {
 					{
 						label: (
 							<div className={`${styles.tabs_label}`}>
-								<div>手机</div>
+								<div>
+									{/* 手机 */}
+									{t('phone')}
+								</div>
 							</div>
 
 						),

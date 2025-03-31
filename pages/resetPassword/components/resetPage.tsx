@@ -11,11 +11,12 @@ import ResetSuccessModal from "@/components/myModal/ressetSuccessModal"
 import { encryptData } from "@/utils/encrypt";
 import { getResetPassword } from "@/services/resetPassword"
 import { Iconify } from "@/components/icon/index";
-
+import { useTranslation } from 'next-i18next';
 function ResetPassword() {
     const router = useRouter();
     const [form] = Form.useForm();
     const { resetState, setResetState, acount } = useResetStateContext();
+    const { t } = useTranslation('resetPassword');
     // const [authCode, setAuthCode] = useState('');
     // const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -76,7 +77,7 @@ function ResetPassword() {
             value = value.trim();
         }
         if (!value) {
-            return Promise.reject(new Error("密码不能为空！"));
+            return Promise.reject(new Error(t('passwordNull')));
         }
         // 检查长度是否在 8 - 30 位之间
         if (value.length < 8 || value.length > 30) {
@@ -151,11 +152,14 @@ function ResetPassword() {
                 // onFinish={handleFinish}
                 // onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>新密码</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>
+                        {/* 新密码 */}
+                        {t('newPassword')}
+                    </div>
                     <Form.Item name="newPassword" rules={[{ validator: validatePassword }]}>
                         <Input.Password
                             className={`custom-input ${styles.acount_input} ${styles.mail_input} modal-input`}
-                            placeholder="请输入新密码"
+                            placeholder={t('newPasswordInput')}
                             allowClear
                             visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
                             onChange={handlePasswordChange}
@@ -169,7 +173,7 @@ function ResetPassword() {
                                     size={16}
                                     className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
                                 />
-                                8-30个字符
+                                {t('passwordLength')}
                             </div>
                         )}
 
@@ -180,29 +184,33 @@ function ResetPassword() {
                                     size={16}
                                     className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
                                 />
-                                必须包含字母和数字
+                                {/* 必须包含字母和数字 */}
+                                {t('passwordChar')}
                             </div>
                         )}
                     </div>
 
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>确认密码</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>
+                        {/* 确认密码 */}
+                        {t('passwordConfirm')}
+                    </div>
                     <Form.Item
                         name="checkPassword"
                         rules={[
-                            { required: true, message: "密码不能为空！" },
+                            { required: true, message: t('passwordNull') },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
                                     if (!value || getFieldValue("newPassword") === value) {
                                         return Promise.resolve();
                                     }
-                                    return Promise.reject(new Error("两次输入的密码不匹配!"));
+                                    return Promise.reject(new Error(t('passwordConfirmError')));
                                 },
                             }),
                         ]}
                     >
                         <Input.Password
                             className={`custom-input ${styles.acount_input} ${styles.mail_input} modal-input`}
-                            placeholder="请确认密码"
+                            placeholder={t('passwordConfirm')}
                             allowClear
                             visibilityToggle={{ visible: verifyPasswordVisible, onVisibleChange: setverifyPasswordVisible }}
                         />
@@ -213,8 +221,14 @@ function ResetPassword() {
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}
-                        onClick={() => goLast()}>上一步</button>
-                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={onSubmit}>确认</button>
+                        onClick={() => goLast()}>
+                            {/* 上一步 */}
+                            {t('goBack')}
+                            </button>
+                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={onSubmit}>
+                        {/* 确认 */}
+                        {t('confirm')}
+                    </button>
                 </div>
             </div>
             <ResetSuccessModal open={resetSuccess} onOk={() => goNext()} onCancel={() => handCancel()} />

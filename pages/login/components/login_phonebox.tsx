@@ -6,6 +6,7 @@ import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import SafeModal from "@/components/myModal/login_safeModal"
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
+import { useTranslation } from 'next-i18next';
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -24,6 +25,7 @@ interface useInfoType {
 }
 
 function Phonebox() {
+	const { t } = useTranslation(['login']);
 	const router = useRouter();
 	// const [loading, setLoading] = useState(false);
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
@@ -132,7 +134,10 @@ function Phonebox() {
 					initialValues={{ areaCode: "+1" }}
 				// onValuesChange={usernameChange}
 				>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>手机号</div>
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+						{/* 手机号 */}
+						{t('phoneTitle')}
+					</div>
 					<Form.Item >
 						<div className="flex">
 							{/* <Form.Item name="areaCode" noStyle> */}
@@ -161,43 +166,71 @@ function Phonebox() {
 
 							<PhoneCodeSelector />
 							{/* </Form.Item> */}
-							<Form.Item name="phoneNumber" noStyle rules={[{ required: true, message: "手机号不能为空！" }]}>
-								<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} />
+							<Form.Item 
+								name="phoneNumber" 
+								noStyle 
+								rules={[{ required: true, message: t('phoneNull') }]}
+							>
+								<Input 
+									placeholder={t('phoneInputPlaceholder')} 
+									allowClear={true} 
+									className={`${styles.mail_input} ml-2 modal-input`} 
+								/>
 							</Form.Item>
 						</div>
 					</Form.Item>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>密码</div>
-					<Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-						<Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" 
-						className={`${styles.mail_input} modal-input`}
-						// prefix={
-						// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
-						// }
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+						{/* 密码 */}
+						{t('passwordTitle')}
+					</div>
+					<Form.Item 
+						name="password" 
+						rules={[{ required: true, message: t('passwordNull') }]}
+					>
+						<Input.Password 
+							type="password" 
+							placeholder={t('passwordPlaceholder')} 
+							maxLength={30} 
+							allowClear={true} 
+							size="large" 
+							className={`${styles.mail_input} modal-input`}
 						/>
 					</Form.Item>
 					<Form.Item noStyle>
-						<button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()}>
-							{"忘记密码"}
+						<button 
+							type="button" 
+							className={`${styles.forget_password_button}`} 
+							onClick={() => goResetPassword()}
+						>
+							{/* 忘记密码 */}
+							{t('forgetPassword')}
 						</button>
 					</Form.Item>
 				</Form>
-				<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
-					onClick={onFinish}>
-					{"登录"}
+				<button 
+					type="submit" 
+					className={`${styles.login_button} w-full button-color mt-8`}
+					onClick={onFinish}
+				>
+					{/* 登录 */}
+					{t('loginButton')}
 				</button>
 				<div className="flex-cc mt-4">
 					<p>
-						{"没有账号？"}
+						{/* 没有账号？ */}
+						{t('noAcount')}
 						<button
 							type="button"
 							className="text-color"
 							onClick={() => goRegister()}
 						>
-							{"注册"}
+							{/* 注册 */}
+							{t('register')}
 						</button>
 					</p>
 				</div>
-				<SafeModal open={codeModelOpen}
+				<SafeModal 
+					open={codeModelOpen}
 					acountInfo={loginInfo}
 					onCancel={handCodeCancel}
 				/>

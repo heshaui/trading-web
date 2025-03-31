@@ -17,6 +17,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { useAuth } from "@/context/AuthContext";
 import {getLoginUserInfo} from "@/services/userCenter"
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import { useTranslation } from 'next-i18next';
 interface acountType {
     type: string,
     email?: string,
@@ -45,6 +46,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
+    const { t } = useTranslation('login');
     // 添加 useAuth 钩子
     const { login } = useAuth();
 
@@ -121,7 +123,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
             toast.error(res.message)
            }
         } catch (error) {
-            console.error('获取用户信息出错:', error);
+            console.error(t('safeModal.getUserInfoError'), error);
         }
     }
     const getLoginCode = async () => {
@@ -142,7 +144,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     toast.success(res.message)
                     startCountdown();
                 } else if (res.code === "10044") {
-                    toast.error('验证码还在有效期内')
+                    toast.error(t('safeModal.codeValid'))
                 } else {
                     toast.error(res.message)
                 }
@@ -159,7 +161,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     toast.success(res.message)
                     startCountdown();
                 } else if (res.code === "10044") {
-                    toast.error('验证码还在有效期内')
+                    toast.error(t('safeModal.codeValid'))
                 } else {
                     toast.error(res.message)
                 }
@@ -168,7 +170,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
         } catch (error) {
             setCodeLoading(false)
             toast.error(String(error))
-            console.error('获取验证码出错:', error);
+            console.error(t('safeModal.getLoginCodeError'), error);
 
         }
     };
@@ -197,32 +199,35 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
         }
     }, [open])
     const ModalFooter: ModalProps["footer"] = () => {
-
         return (
             <div className="flex-col flex-ai-start mt-10 mb-3">
-                {/* <button
-                    type="submit"
-                    className={`${styles.modal_btn} btn-color`}
-                    onClick={handOk}
-                >
-                    确认
-                </button> */}
-                {!loading ? (<button type="submit" className={`${styles.modal_btn} btn-color`}
-                    onClick={handOk}>
-                    确认
-                </button>) : (<button type="button" className={`${styles.modal_btn} btn-disable login-loading`}>
-                    确认
-                </button>
+                {!loading ? (
+                    <button 
+                        type="submit" 
+                        className={`${styles.modal_btn} btn-color`}
+                        onClick={handOk}
+                    >
+                        {/* 确认 */}
+                        {t('safeModal.confirm')}
+                    </button>
+                ) : (
+                    <button 
+                        type="button" 
+                        className={`${styles.modal_btn} btn-disable login-loading`}
+                    >
+                        {/* 确认 */}
+                        {t('safeModal.confirm')}
+                    </button>
                 )}
                 <button
                     type="button"
                     className={`${styles.text_color} mt-5`}
                     onClick={() => setPointout(true)}
                 >
-                    收不到验证码？
+                    {/* 收不到验证码？ */}
+                    {t('safeModal.cantReceive')}
                 </button>
             </div>
-
         );
     };
 
@@ -254,32 +259,60 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title_color}`}>安全验证</p>}
+                title={
+                    <p className={`${styles.title_color}`}>
+                        {/* 安全验证 */}
+                        {t('safeModal.title')}
+                    </p>
+                }
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
                 width={400}
                 className={`modal_box`}
             >
-                <h4 className={`${styles.title_color} mt-7`}>{acountInfo.type == 'm' ? '邮箱验证码' : "手机验证码"}</h4>
-                <p className={`${styles.tip_color} mt-1`}>验证码已发送至
-                    <span>&nbsp;{acountInfo.type == 'm' ? encryptEmail(acountInfo.email) : encryptPhoneNumber(acountInfo.phone)}</span>
+                <h4 className={`${styles.title_color} mt-7`}>
+                    {/* 邮箱验证码/手机验证码 */}
+                    {acountInfo.type === 'm' 
+                        ? t('safeModal.emailCodeTitle') 
+                        : t('safeModal.phoneCodeTitle')
+                    }
+                </h4>
+                <p className={`${styles.tip_color} mt-1`}>
+                    {/* 验证码已发送至 */}
+                    {t('safeModal.codeSent')}
+                    <span>&nbsp;
+                        {acountInfo.type === 'm' 
+                            ? encryptEmail(acountInfo.email) 
+                            : encryptPhoneNumber(acountInfo.phone)
+                        }
+                    </span>
                 </p>
                 <Form form={form} style={{ margin: "10px 0" }} colon={false}>
-                    <Form.Item name="code" rules={[{ required: true, message: "不能为空！" }]} className="position-relative">
+                    <Form.Item 
+                        name="code" 
+                        rules={[{ required: true, message: t('safeModal.codeNull') }]} 
+                        className="position-relative"
+                    >
                         <Input
                             className={`${styles.input_box} modal-input`}
                             style={{ width: "100%", height: "40px" }}
-                            placeholder="请输入"
+                            placeholder={t('safeModal.inputPlaceholder')}
                             allowClear
                             suffix={
-                                <button type="button" onClick={getLoginCode} className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`} >
-                                    {isCounting ? `${countdown}s 重发` : "重新发送"}
-                                    {/* {isCounting ? t("sys.login.sendSmsText", { second: countdown }) : t("sys.getcode")} */}
+                                <button 
+                                    type="button" 
+                                    onClick={getLoginCode} 
+                                    className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
+                                >
+                                    {/* 重新发送/60s 重发 */}
+                                    {isCounting 
+                                        ? t('safeModal.resendCountdown', { count: countdown })
+                                        : t('safeModal.resend')
+                                    }
                                 </button>
                             }
                         />
-                        {/* <span className={`${styles.text_color} ${styles.code_err}`}>验证码错误</span> */}
                     </Form.Item>
                 </Form>
                 <QuestionModal
@@ -287,10 +320,14 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     onOk={handleOk}
                     type={acountInfo.type}
                     acount={
-                        acountInfo.type === "m" ? (acountInfo.email || "") :
-                            acountInfo.type === "p" ? (acountInfo.phone || "") : ""
+                        acountInfo.type === "m" 
+                            ? (acountInfo.email || "") 
+                            : acountInfo.type === "p" 
+                                ? (acountInfo.phone || "") 
+                                : ""
                     }
-                    onCancel={() => setPointout(false)} />
+                    onCancel={() => setPointout(false)} 
+                />
             </Modal>
         </ConfigProvider>
     );

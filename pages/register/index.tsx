@@ -15,6 +15,8 @@ import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // const HOMEPAGE = '/';
 import {  getPic2 } from "@/services/open";
 import { useEffect, useState } from "react";
+import type { GetStaticProps } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
 	backgroundColor: "#ffffff",
@@ -66,6 +68,11 @@ function Register() {
 
 		}
 	}
+	const picClick = () => {
+		if(loginPic?.register.url){
+			window.open(loginPic?.register.url, '_blank','noopener')
+		}
+	}
 	useEffect(() => {
 		getBgc()
 	}, []);
@@ -75,6 +82,7 @@ function Register() {
 				className="isHidden flex-1"
 				// style={loginBgcStyle}
 				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.register.image})`}}
+				onClick={picClick}
 			>
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}
 			</div>
@@ -97,4 +105,12 @@ function Register() {
 		</div>
 	);
 }
+// 添加此导出函数以支持服务端翻译加载
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['login','common'])),
+		},
+	};
+};
 export default Register;

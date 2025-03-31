@@ -91,9 +91,33 @@ export function getUserBalance(coinId: string|number): Promise<any> {
     });
   }
   
-  // 提现
+  // 提现订单
   export function creatWithdraw(data: encryptType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/withdraw-deposit/createWithdrawDeposit`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // 提现校验
+  export function checkWithdrawDeposit(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/withdraw-deposit/checkWithdrawDeposit`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // 提现安全验证-短信验证码
+  export function getWithdrawalCheckSmsCode(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/sms/send/withdrawalCheckSms`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // 提现安全验证-邮箱验证码
+  export function getWithdrawalCheckEmailCode(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/email/send/withdrawalCheckEmail`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

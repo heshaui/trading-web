@@ -73,6 +73,11 @@ function Login() {
 
 		}
 	}
+	const picClick = () => {
+		if(loginPic?.login.url){
+			window.open(loginPic?.login.url, '_blank','noopener')
+		}
+	}
 
 	// 如果有授权，则跳转到首页
 	useEffect(() => {
@@ -92,6 +97,7 @@ function Login() {
 				// style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
 				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
 				// style={loginBgcStyle}'
+				onClick={picClick}
 			>
 				{/* {loginPic?.login.url} */}
 				{/* <Image className="" src='https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png' alt="" width={1920} height={1080}/> */}
@@ -117,7 +123,7 @@ function Login() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
 	return {
 		props: {
-			...(await serverSideTranslations(locale || 'en', ['login'])),
+			...(await serverSideTranslations(locale || 'en', ['login','common'])),
 		},
 	};
 };

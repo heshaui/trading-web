@@ -5,6 +5,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./style/errModal.module.css";
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 
 type Props = {
     open: boolean;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 function ResetSuccessModal({ open, onOk, onCancel }: Props) {
-
+    const { t } = useTranslation('resetPassword');
 
     const handCancel = () => {
         onCancel()
@@ -39,7 +40,8 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
                     className={`${styles.errModal_btn} btn-color`}
                     onClick={handOk}
                 >
-                    登录
+                    {/* 登录 */}
+                    {t('gologin')}
                 </button>
             </div>
         );
@@ -79,8 +81,8 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
             >
                 <div className="flex-col flex-ai-center">
                     <Image src="/images/login/icon_success.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                    <p className={`${styles.title} `}>修改成功</p>
-                    <p className={`${styles.msg_color} mt-4`}>您的密码已修改成功，请使用新密码重新登录。</p>
+                    <p className={`${styles.title} `}>{t('resetSuccess')}</p>
+                    <p className={`${styles.msg_color} mt-4`}>{t('resetSuccessMsg')}</p>
                 </div>
             </Modal>
         </ConfigProvider>

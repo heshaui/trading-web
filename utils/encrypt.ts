@@ -5,10 +5,17 @@ import { v4 as uuidv4 } from 'uuid';
 export function encryptPhoneNumber(phoneNumber?: string | null): string {
     if (!phoneNumber) return "-"
     const length = phoneNumber.length;
-    if (length < 7) {
-        return '*'.repeat(length - 4) + phoneNumber.slice(-4);
+    
+    // 长度为5位，只显示末尾3位
+    if (length === 5) {
+        return '**' + phoneNumber.slice(-3);
     }
-    return phoneNumber.slice(0, 3) + '*'.repeat(length - 7) + phoneNumber.slice(-4);
+    // 长度小于7但大于5，显示首2末尾3位
+    else if (length < 7) {
+        return phoneNumber.slice(0, 2) + '*'.repeat(length - 5) + phoneNumber.slice(-3);
+    }
+    // 长度大于等于7，显示首3末尾3位
+    return phoneNumber.slice(0, 3) + '*'.repeat(length - 6) + phoneNumber.slice(-3);
 }
 
 // 加密邮箱号的函数

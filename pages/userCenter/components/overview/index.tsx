@@ -14,6 +14,9 @@ import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
 import dayjs from 'dayjs';
 import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 const identityStyle: CSSProperties = {
     position: 'relative',
     // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
@@ -48,6 +51,7 @@ interface LoginInfoType {
     registerAccount: string,
     securityIntensity: number,
     avatarUrl: string,
+    remark: string
 }
 interface LoginLogListType {
     id: number,
@@ -68,7 +72,7 @@ const OverviewPage: React.FC = () => {
     const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [codeValue] = useState("https://ant.design") //, setcodeValue
     const [loadingSkeleton, setLoadingSkeleton] = useState(true)
-
+    const { t } = useTranslation('userCenter');
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
     const { isDayMode } = useThemeMode(); // 使用 hook
@@ -117,13 +121,17 @@ const OverviewPage: React.FC = () => {
     const statusText = (status: number) => {
         switch (status) {
             case 1:
-                return '已认证';
+                // 已认证
+                return t('overview.auth');
             case 0:
-                return '已驳回';
+                // 已驳回
+                return t('overview.reject');
             case 2:
-                return '未认证';
+                // 未认证
+                return t('overview.unAuth');
             case 3:
-                return '审核中';
+                // 审核中
+                return t('overview.audit');
             default:
                 return '--';
         }
@@ -145,9 +153,12 @@ const OverviewPage: React.FC = () => {
 
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
-            <h2 className={`${styles.header_userName} font-20`}>欢迎回来，{loginInfo?.account || `IMUSER-${loginInfo?.userId || '--'}`}</h2>
+            <h2 className={`${styles.header_userName} font-20`}>
+                {/* 欢迎回来， */}
+                {t('overview.welcome')} {loginInfo?.account || `IMUSER-${loginInfo?.userId || '--'}`}
+            </h2>
             <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
-                {loginInfo?.famousAphorisms || `"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复" — 安德烈•科斯托兰尼`}
+                {loginInfo?.famousAphorisms || `"${t('overview.famousAphorisms')}"`}
             </p>
             {/* </Skeleton> */}
         </div>
@@ -184,84 +195,95 @@ const OverviewPage: React.FC = () => {
                     </div>
                     {/* <div className='flex-1 flex-wrap flex-x justify-between ml-4'> */}
                     <div className={`${styles.card_mt} mt-6`}>
-                        <p className={`${styles.tip_color} font-12`}>注册账号</p>
+                        <p className={`${styles.tip_color} font-12`}>
+                            {/* 注册账号 */}
+                            {t('overview.registerAccount')}
+                        </p>
                         <p className='font-14 mt-2'>{encryptString(loginInfo?.registerAccount)}</p>
                     </div>
                     <div className={`${styles.tip_color} font-12 ${styles.card_mt} mt-6`}>
                         <div className={`${styles.tip_color} font-12 flex-x-cc cursor-pointer`}
                             onClick={() => goIdentity(loginInfo?.realnessStatus)}>
-                            身份认证
+                            {/* 身份认证 */}
+                            {t('overview.identityAuth.title')}
                             <Iconify icon="mingcute:right-line" className={`${styles.tip_color} ml-1`} size={18} />
                         </div>
                         {loginInfo && loginInfo?.realnessStatus === 1 && (
                             <div className='font-14 mt-2 flex-x align-center'>
                                 <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
-                                <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>
+                                    {/* 已认证 */}
+                                    {t('overview.auth')}
+                                </span>
                             </div>)}
                         {loginInfo && loginInfo?.realnessStatus === 0 && (
                             <div className='font-14 mt-2 flex-x align-center'>
                                 <Iconify icon="lets-icons:close-ring" className={`${styles.error_icon} mr-1`} size={20} />
-                                <span className={`${styles.tip_color} font-14 font-w-500`}>已驳回</span>
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>
+                                    {/* 已驳回 */}
+                                    {t('overview.reject')}
+                                </span>
                             </div>
                         )}
                         {loginInfo && loginInfo?.realnessStatus === 3 && (
                             <div className='font-14 mt-2 flex-x align-center'>
                                 <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
-                                <span className={`${styles.tip_color} font-14 font-w-500`}>审核中</span>
+                                <span className={`${styles.tip_color} font-14 font-w-500`}>
+                                    {/* 审核中 */}
+                                    {t('overview.audit')}
+                                </span>
                             </div>
                         )}
                         {loginInfo && loginInfo?.realnessStatus === 2 && (
                             <div className='font-14 mt-2 flex-x align-center'>
                                 <Iconify icon="mingcute:safe-alert-line" className={`${styles.default_icon} mr-1`} size={20} />
-                                <span className={`${styles.default_icon} font-14 font-w-500`}>未认证</span>
+                                <span className={`${styles.default_icon} font-14 font-w-500`}>
+                                    {/* 未认证 */}
+                                    {t('overview.unAuth')}
+                                </span>
 
                             </div>)}
                     </div>
                     <div className={`${styles.card_mt} mt-6 `}>
-                        <p className={`${styles.tip_color} font-12`}>账号状态</p>
-                        <p className='font-14 mt-2 font-w-500 flex-y'>
+                        <p className={`${styles.tip_color} font-12`}>
+                            {/* 账号状态 */}
+                            {t('overview.accountStatus')}
+                        </p>
+                        <div className='font-14 mt-2 font-w-500 flex-y'>
                             <span className='mr-2'>
                                 {loginInfo?.status === 1 && loginInfo?.transactionStatus === 1 && loginInfo?.withdrawalStatus === 1 ? (
-                                    <span className='mr-2'>正常</span>
+                                    <span className='mr-2'>{t('overview.normal')}</span>
                                 ) : (
                                     <>
                                         {(() => {
                                             const statusMessages = [];
 
                                             if (loginInfo?.status === 0) {
-                                                statusMessages.push('登录冻结');
+                                                statusMessages.push(t('overview.loginFrozen'));
                                             }
 
                                             if (loginInfo?.transactionStatus === 0) {
-                                                statusMessages.push('交易冻结');
+                                                statusMessages.push(t('overview.tradeFrozen'));
                                             }
 
                                             if (loginInfo?.withdrawalStatus === 0) {
-                                                statusMessages.push('提现冻结');
+                                                statusMessages.push(t('overview.withdrawFrozen'));
                                             }
 
-                                            // 如果只有一个异常，直接显示
-                                            if (statusMessages.length === 1) {
-                                                return <span className='mr-2'>{statusMessages[0]}</span>;
-                                            }
-                                            // 如果有多个异常，用 / 分隔
-                                            else {
-                                                return <span className='mr-2'>{statusMessages.join(' / ')}</span>;
-                                            }
+                                            return <span className='mr-2'>{statusMessages.join(' / ')}</span>;
                                         })()}
                                     </>
                                 )}
                             </span>
-                            {/* <span className='mr-2'>{loginInfo?.status === 2 ? '正常' : '交易冻结'}</span>
-                        <span className='mr-2'>{loginInfo?.status === 3 ? '正常' : '提现冻结'}</span> */}
-                        </p>
+                        </div>
                     </div>
                     {/* </div> */}
 
                 </div>
                 <div className={`${styles.userInfo_detail} flex-row align-start justify-end flex-1 mt-6`} >
                     <button type='button' className={`${styles.userInfo_btn} font-w-500`} onClick={() => router.push('/userCenter/userSettings')}>
-                        个人资料
+                        {/* 个人资料 */}
+                        {t('overview.personalInfo')}
                     </button>
                 </div>
             </Skeleton>
@@ -275,16 +297,35 @@ const OverviewPage: React.FC = () => {
                     {/* 身份认证 */}
                     <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6`}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_identity.png')", }}>
-                        <div className={`flex-row justify-between font-18 font-w-500`} >身份认证
+                        <div className={`flex-row justify-between font-18 font-w-500`} >
+                            {/* 身份认证 */}
+                            {t('overview.identityAuth.title')}
                         </div>
                         <p className={`font-14 mt-2 ${styles.tip_color}`}>
                             {statusText(loginInfo?.realnessStatus)}
                         </p>
-                        <p className={`font-14 mt-3`}>{loginInfo?.realnessStatus === 1 ? '已完成身份认证，开始您的货币之旅吧！' : '完成身份认证后可以享受交易所完整服务'}</p>
+                        {loginInfo?.realnessStatus === 0 ? <div className={`font-14 mt-3`}>
+                            {loginInfo?.remark && (
+                                <div className="mb-2">
+                                    {loginInfo.remark.includes('&')
+                                        ? loginInfo.remark.split('&').map((item, index) => (
+                                            <div key={index} className={`${index > 0 ? 'mt-1' : ''}`}>
+                                                {item.trim()}
+                                            </div>
+                                        ))
+                                        : loginInfo.remark
+                                    }
+                                </div>
+                            )}
+                        </div>
+                            : <p className={`font-14 mt-3 mb-2`}>
+                                {/* 已完成身份认证，开始您的货币之旅吧！ */}
+                                {loginInfo?.realnessStatus === 1 ? t('overview.identityAuth.verified') : t('overview.identityAuth.unverified')}
+                            </p>}
                         <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => goIdentity(loginInfo?.realnessStatus)}
                         >
-                            {loginInfo?.realnessStatus === 2 ? '去认证' : '查看详情'}
+                            {loginInfo?.realnessStatus === 2 ? t('overview.identityAuth.goVerify') : t('overview.identityAuth.viewDetails')}
                             {/* {loginInfo?.realnessStatus === 0 && '重新认证'}
                             {loginInfo?.realnessStatus === 3 && '审核中'} */}
                         </button>
@@ -293,12 +334,16 @@ const OverviewPage: React.FC = () => {
                         >审核中</button>} */}
                     </div>
                     {/* 安全认证 */}
-                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-6`}
+                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-4`}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_safe.png')", }}>
-                        <div className={`flex-row justify-between font-18 font-w-500`} >安全认证
+                        <div className={`flex-row justify-between font-18 font-w-500`} >
+                            {/* 安全认证 */}
+                            {t('overview.securityAuth.title')}
                         </div>
                         <div className={`font-14 mt-2 ${styles.tip_color} flex align-center`}>
-                            <span className='mr-2_5' >安全强度({loginInfo?.securityIntensity === 1 ? '低' : loginInfo?.securityIntensity === 2 ? '中' : '高'})</span>
+                            <span className='mr-2_5' >
+                                {/* 安全强度 */}
+                                {t('overview.securityAuth.securityLevel')}({loginInfo?.securityIntensity === 1 ? t('overview.securityAuth.low') : loginInfo?.securityIntensity === 2 ? t('overview.securityAuth.medium') : t('overview.securityAuth.high')})</span>
                             {loginInfo?.securityIntensity === 1 && <Image src="/images/userCenter/safe/icon_safe1.svg"
                                 width={71}
                                 height={4}
@@ -312,10 +357,13 @@ const OverviewPage: React.FC = () => {
                                 height={4}
                                 alt="" />}
                         </div>
-                        <p className={`font-14 mt-3`}>启用双重认证提高账户安全性</p>
+                        <p className={`font-14 mt-3`}>
+                            {/* 启用双重认证提高账户安全性 */}
+                            {t('overview.securityAuth.tip')}
+                        </p>
                         <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => router.push('/userCenter/safeCenter')}
-                        >{loginInfo?.securityIntensity === 3 ? '去查看' : '去绑定'}</button>
+                        >{loginInfo?.securityIntensity === 3 ? t('overview.securityAuth.view') : t('overview.securityAuth.bind')}</button>
                         {/* <Image
                                 src="/images/userCenter/overview/icon_safe.png"
                                 width={58}
@@ -331,24 +379,35 @@ const OverviewPage: React.FC = () => {
                 </div>
                 {/* 资产 */}
                 <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >资产
+                    <div className={`flex-row justify-between font-18 font-w-500`} >
+                        {/* 资产 */}
+                        {t('overview.assets.title')}
                         <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
                     </div>
                     <div className={`flex-row justify-between align-center`}>
                         <div className={`${styles.assets_main}`} >
                             <div className={`${styles.tip_color} mt-2`} >
-                                总资产折合
+                                {/* 总资产折合 */}
+                                {t('overview.assets.totalAssets')}
                                 <Iconify icon="clarity:eye-show-line" className='cursor-pointer ml-1' size={20} />
                             </div>
                             <p className='font-32 font-w-700'>0.00 USDT</p>
                             <p className={`${styles.tip_color} font-14`}>≈￥0.00</p>
-                            <div className='font-14 mt-4'>今日盈亏
+                            <div className='font-14 mt-4'>
+                                {/* 今日盈亏 */}
+                                {t('overview.assets.todayProfitLoss')}
                                 <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
                                 <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
                             </div>
                             <div className='mt-5'>
-                                <button className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} >充值</button>
-                                <button className={`btn-disable font-14 font-w-500  ${styles.btn}`} >提现</button>
+                                <button className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} >
+                                    {/* 充值 */}
+                                    {t('overview.assets.deposit')}
+                                </button>
+                                <button className={`btn-disable font-14 font-w-500  ${styles.btn}`} >
+                                    {/* 提现 */}
+                                    {t('overview.assets.withdraw')}
+                                </button>
                             </div>
                         </div>
                         <div className={`${styles.assets_chart}`} >
@@ -358,7 +417,9 @@ const OverviewPage: React.FC = () => {
                 </div>
                 {/* 最近登录 */}
                 <div className={`${styles.card_bgc} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >最近登录
+                    <div className={`flex-row justify-between font-18 font-w-500`} >
+                        {/* 最近登录 */}
+                        {t('overview.recentLogin.title')}
                         <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
                             onClick={() => router.push('/userCenter/safeCenter/safe_log')}
                         />
@@ -404,7 +465,9 @@ const OverviewPage: React.FC = () => {
                 </div>
                 {/* 授权设备 */}
                 <div className={`${styles.card_bgc} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >授权设备
+                    <div className={`flex-row justify-between font-18 font-w-500`} >
+                        {/* 授权设备 */}
+                        {t('overview.authorizedDevices.title')}
                         <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
                             onClick={() => router.push('/userCenter/safeCenter/equipment')}
                         />
@@ -427,7 +490,10 @@ const OverviewPage: React.FC = () => {
                                     <p className='font-14 font-w-500 flex-col align-end'>
                                         <span className={`font-w-500 ${styles.warning_color} pointer`}
                                             onClick={() => router.push(`/userCenter/safeCenter/equipment?deviceId=${item.id}`)}
-                                        >管理</span>
+                                        >
+                                            {/* 管理 */}
+                                            {t('overview.authorizedDevices.manage')}
+                                        </span>
                                         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
                                             {/* 223.168.123.111 */}
                                             {item.ip || '--'}
@@ -453,18 +519,24 @@ const OverviewPage: React.FC = () => {
             {/* content-aside */}
             {/* <div className={`${styles.aside_box} ml-6 mt-6`}>
                 <div className={`${styles.aside_invite_box} flex-1`}>
-                    <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >为你推荐
+                    <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >
+                       
+                        {t('overview.recommend.title')}
                     </div>
                     <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}>
-                        <div className={`flex-row justify-between font-18 font-w-500`} >邀请新用户
+                        <div className={`flex-row justify-between font-18 font-w-500`} >
+                            
+                            {t('overview.recommend.invite')}
                         </div>
-                        <p style={{ width: '60%' }} className='font-14'>邀请加入我们一起开启数字货币之旅吧 ！</p>
+                        <p style={{ width: '60%' }} className='font-14'>{t('overview.recommend.inviteNewUser')}</p>
                     </div>
                 </div>
 
                 <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
-                    <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >邀请好友获得
+                    <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
+
+                        {t('overview.recommend.inviteFriend')}
                     </div>
                     <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
                         <QRCode
@@ -474,7 +546,7 @@ const OverviewPage: React.FC = () => {
                         />
                         <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between`}>
                             <div>
-                                <p className='font-14 font-w-400'>邀请码</p>
+                                <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
                                 <div className={`${styles.invite_code} font-12`}>
                                     <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
                                     <Iconify icon="bx:copy" className='cursor-pointer' size={20}
@@ -483,7 +555,7 @@ const OverviewPage: React.FC = () => {
                                 </div>
                             </div>
                             <div style={{maxWidth:"230px"}}>
-                                <p className='font-14 font-w-400'>链接</p>
+                                <p className='font-14 font-w-400'>{t('overview.recommend.inviteLink')}</p>
                                 <div className={`${styles.invite_code} font-12 `}>
                                     <span className={`${styles.tip_color} mr-1`}>{`${codeValue}?inviteCode=${loginInfo?.inviteCode || '--'}`}</span>
                                     <Iconify icon="bx:copy" className='cursor-pointer' size={20}
@@ -498,5 +570,11 @@ const OverviewPage: React.FC = () => {
         </div>
     </div>);
 };
-
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+// 		},
+// 	};
+// };
 export default OverviewPage;

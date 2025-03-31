@@ -17,7 +17,7 @@ type Props = {
     onCancel: () => void;
 };
 
-function ErrModal({ open, message, type, onCancel }: Props) {
+function TotastModal({ open, message, type, onCancel }: Props) {
     // const router = useRouter();
     const { isDayMode } = useThemeMode();
     useEffect(() => {
@@ -97,4 +97,4 @@ function ErrModal({ open, message, type, onCancel }: Props) {
     );
 }
 
-export default ErrModal;
+export default TotastModal;

@@ -15,7 +15,8 @@ import ErrModal from "./totastModal";
 import { creatWithdraw } from '@/services/assets'
 import { encryptData } from "@/hooks/user-encrypt";
 import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal";
-import  { getUserInfo } from '@/hooks/userInfo';
+import TotastModal from "./totastModal";
+import { getUserInfo } from '@/hooks/userInfo';
 
 interface paramsType {
     coinId: number;
@@ -47,41 +48,65 @@ interface withdrawType {
 type Props = {
     open: boolean;
     withdrawInfo?: withdrawType;
-    onOk: (event: boolean) => void;
+    onOk?: () => void;
     onCancel: () => void;
 };
 
 function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
     const [safeModalOpen, setSafeModalOpen] = useState(false)
-    const [userInfo,setUserInfo] = useState({})
+    const [userInfo, setUserInfo] = useState({})
+    const [totastOpen, setTotastOpen] = useState(false)
+    const [totastMessage, setTotastMessage] = useState('')
+    const [totastType, setTotastType] = useState('')
     const handCancel = () => {
         onCancel()
     };
-    const [errOpen, setErrOpen] = useState(false)
 
     const handOk = async () => {
         // setErrOpen(true)
-        const userInfo=getUserInfo()
+        const userInfo = getUserInfo()
+        setUserInfo(userInfo)
         setSafeModalOpen(true)
+        onCancel()
     };
-    const safeModalOk = async(event: any) => {
+    const safeModalOk = async (event: any) => {
         console.log(event);
         const params = {
             coinId: withdrawInfo?.coinId,
             protocolId: withdrawInfo?.protocolId,
             amount: withdrawInfo?.amount,
             toAddress: withdrawInfo?.toAddress,
-            smsCode: event.phoneCode||'',
-            emailCode: event.emailCode||'',
-            googleCode: event.googleCode||'',
+            smsCode: event.phoneCode || '',
+            emailCode: event.emailCode || '',
+            googleCode: event.googleCode || '',
         }
         const encrypt = await encryptData(params)
         try {
-            // const res=await creatWithdraw(encrypt)
+            const res = await creatWithdraw(encrypt)
             // console.log(res);
+            if (res.code === '0') {
+                // toast.success(res.message)
+                // onOk(true)
+                setTotastOpen(true)
+                setTotastMessage(`${withdrawInfo?.amount} ${withdrawInfo?.coinName}`)
+                setTotastType('success')
+                handCancel()
+            } else if(res.code==='1'){
+                setTotastOpen(true)
+                setTotastType('loading')
+                handCancel()
+            }
+            else {
+                setTotastOpen(true)
+                setTotastMessage(res.message||'操作失败')
+                setTotastType('error')
+                toast.error(res.message)
+            }
 
         } catch (error) {
-
+            setTotastOpen(true)
+            setTotastMessage(String(error)||'操作失败')
+            setTotastType('error')
         }
     }
 
@@ -182,11 +207,12 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 {/* <ErrModal open={errOpen} message={'99USDT'} type={'loading'} onCancel={() => setErrOpen(false)}/> */}
 
             </Modal>
-            <WithdrawMoneySafe open={safeModalOpen} 
-            onCancel={() => setSafeModalOpen(false)} 
-            // type={'email'} 
-            acountInfo={userInfo}
-             onOk={safeModalOk}/>
+            <WithdrawMoneySafe open={safeModalOpen}
+                onCancel={() => setSafeModalOpen(false)}
+                // type={'email'} 
+                acountInfo={userInfo}
+                onOk={safeModalOk} />
+            <TotastModal open={totastOpen} message={totastMessage} type={totastType} onCancel={() => setTotastOpen(false)}/>
         </ConfigProvider>
     );
 }

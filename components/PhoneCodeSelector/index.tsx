@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { AutoComplete, Flex, Input, Form, ConfigProvider, Select } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { getCountryCode } from "@/services/open";
+import { useTranslation } from 'next-i18next';
+
 
 interface OptionItem {
     label: React.ReactNode;
@@ -18,11 +20,11 @@ interface CountryCodeItem {
     status: number;
 }
 
-const App: React.FC<{ className?: string }> = ({ className }) => {
+const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
     const [searchValue, setSearchValue] = useState('');
-
+    const { t } = useTranslation(['common']);
     // 按字母分组的选项
     const groupedOptions = useMemo(() => {
         if (!countryCodeList.length) return [];
@@ -194,7 +196,7 @@ const App: React.FC<{ className?: string }> = ({ className }) => {
                         <>
                             <div className="font-14 font-w-400 mb-2_5 px-2 mt-2_5">
                                 <Input 
-                                    placeholder='搜索'
+                                    placeholder={t('search')}
                                     value={searchValue}
 
                                     onChange={(e) => handleSearch(e.target.value)}
@@ -213,5 +215,12 @@ const App: React.FC<{ className?: string }> = ({ className }) => {
         </ConfigProvider>
     );
 };
-
-export default App;
+// 添加此导出函数以支持服务端翻译加载
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['common'])),
+// 		},
+// 	};
+// };
+export default PhoneCodeSelect;

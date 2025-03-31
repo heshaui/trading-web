@@ -1,5 +1,5 @@
 import React from 'react';
-import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
+import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/spotAccount.module.css'
 import { Input, Radio, ConfigProvider, Table,Form ,Checkbox} from 'antd';
 import { Iconify } from "@/components/icon"
@@ -10,7 +10,9 @@ import { useRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
 import { toast } from "sonner";
 import { add, cut, nul } from '@/utils'
-
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 
 interface DataType {
     balance: number,
@@ -281,5 +283,11 @@ const AssetsMainPage = () => {
     </div>
     );
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+		},
+	};
+};
 export default withAssetsLayout(AssetsMainPage);

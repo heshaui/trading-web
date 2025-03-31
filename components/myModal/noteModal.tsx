@@ -6,7 +6,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import { useRouter } from 'next/router';
 import styles from "./style/noteModal.module.css";
 import Image from 'next/image'
-
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     onOk?: (event: boolean) => void;
@@ -15,7 +15,7 @@ type Props = {
 
 function NoteModal({ open, onCancel }: Props) {
     // const router = useRouter();
-
+    const { t } = useTranslation('login');
     const handCancel = () => {
         onCancel()
     };
@@ -71,12 +71,9 @@ function NoteModal({ open, onCancel }: Props) {
             <div className="flex-col flex-ai-center">
                 <Image src="/images/login/icon_note.png" alt="" className={`${styles.icon_box}`} width={160} height={160}/>
                 {/* t() */}
-                <p className={`${styles.title} `}>重要提示</p> 
+                <p className={`${styles.title} `}>{t('errModal.title')}</p> 
                 <p className={`${styles.msg_color} mt-4`}>
-                检测到您当前IP所在地区来自服务受限区域，因相关法律及政策要求，
-                您所在的国家地区无法注册及使用我们的服务，抱歉为您带来不便。如您并非服务受限区域
-                ，请在非服务受限区域使用我们的平台。
-                感谢您的理解与配置，如有任何问题，请及时与我们沟通！
+                    {t('errModal.msg')}
                 </p>
             </div>
         </Modal>

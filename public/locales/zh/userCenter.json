@@ -1,0 +1,181 @@
+{
+    "safeCenter":{
+        "overView":"全栈概览",
+        "account":"用户设置",
+        "identity":"身份认证",
+        "security":"安全中心"
+    },
+    "overview":{
+         "title":"全栈概览",
+         "auth":"已认证",
+         "unAuth":"未认证",
+         "audit":"审核中",
+         "reject":"已驳回",
+         "nickname":"昵称",
+         "welcome":"欢迎回来,",
+         "famousAphorisms":"崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复 — 安德烈•科斯托兰尼",
+         "registerAccount":"注册账号",
+         "uid": "UID",
+         "accountStatus": "账号状态",
+         "normal": "正常",
+         "loginFrozen": "登录冻结",
+         "tradeFrozen": "交易冻结",
+         "withdrawFrozen": "提现冻结",
+         "personalInfo": "个人资料",
+         "identityAuth": {
+             "title": "身份认证",
+             "verified": "已完成身份认证，开始您的货币之旅吧！",
+             "unverified": "完成身份认证后可以享受交易所完整服务",
+             "goVerify": "去认证",
+             "viewDetails": "查看详情"
+         },
+         "securityAuth": {
+             "title": "安全认证",
+             "securityLevel": "安全强度",
+             "low": "低",
+             "medium": "中",
+             "high": "高",
+             "tip": "启用双重认证提高账户安全性",
+             "view": "去查看",
+             "bind": "去绑定"
+         },
+         "assets": {
+             "title": "资产",
+             "totalAssets": "总资产折合",
+             "todayProfitLoss": "今日盈亏",
+             "deposit": "充值",
+             "withdraw": "提现"
+         },
+         "recentLogin": {
+             "title": "最近登录",
+             "web": "WEB",
+             "android": "ANDROID",
+             "manage": "管理"
+         },
+         "authorizedDevices": {
+             "title": "授权设备",
+             "manage": "管理"
+         },
+         "recommend": {
+             "title": "为你推荐",
+             "manage": "管理",
+             "invite": "邀请新用户",
+             "inviteNewUser": "邀请加入我们一起开启数字货币之旅吧！",
+             "inviteCode": "邀请码",
+             "inviteFriend": "邀请好友获得奖励",
+             "inviteLink": "链接"
+         }
+    },
+    "identity":{
+        "title":"身份认证",
+        "title1":"什么是KYC验证？",
+        "content1":"KYC (Know Your Customer)是一种身份验证和调查过程，旨在核实客户的身份信息和背景，以确保金融机构或服务提供商遵守反洗(AML) 和反恐怖融资(CFT) 法规。它有助于保证账户安全，减少欺诈和非法活勤的风险。",
+        "title2":"为什么我需要进行KYC 验证？",
+        "content2":"KYC 是了保您的赈户安全和权益。保障您的身份信息和背景，防止他人冒用您的身份谁行欺菲或非法活勤。",
+        "title3":"身份验证遇到问题，如何获取帮助？",
+        "content3":"如果您在 KYC 程中遇到任何问题，请向我们的客服寻求帮助。我们的客服团队将竭诚为您提供支持和解答。请提供具体问题和相关信息，以便我们能够更快速地帮助您完成认证。",
+        "title4":"常见问题",
+        "standardAuth": {
+            "title": "标准身份认证",
+            "unverifiedTip": "仅需3-5分钟，完成标准身份认证保护您免受欺诈和非法风险",
+            "requiredInfo": "身份认证需要提供一下信息：",
+            "basicInfo": "基本信息",
+            "idVerification": "身份认证"
+        },
+        "status": {
+            "verified": "已认证",
+            "reviewing": "审核中",
+            "rejected": "已驳回",
+            "unverified": "未认证"
+        },
+        "button": {
+            "goVerify": "去认证",
+            "reviewing": "审核中",
+            "reVerify": "重新认证"
+        },
+        "benefits": {
+            "title": "认证权益",
+            "service": "服务",
+            "unverified": "尚未认证",
+            "afterVerification": "完成标准身份认证后"
+        },
+        "certified": {
+            "accountBenefits": "账户权益",
+            "personalInfo": "个人信息",
+            "allow": "允许",
+            "forbidden": "禁止",
+            "info": {
+                "realName": "真实姓名",
+                "idType": "证件类型",
+                "country": "国家",
+                "idNumber": "证件号",
+                "countries": {
+                    "mainland": "中国大陆",
+                    "hongkong": "中国香港"
+                }
+            },
+            "idTypes": {
+                "idCard": "居民身份证",
+                "passport": "普通护照",
+                "hkMacauPass": "港澳通行证",
+                "taiwanPass": "台湾通行证",
+                "taiwanId": "台湾身份证",
+                "foreignerId": "外国人永久居住身份证"
+            }
+        },
+        "realName": {
+            "title": "认证信息",
+            "setUPTitle1": "基本信息",
+            "setUPTitle2": "上传照片",
+            "setUPTitle3": "已提交",
+            "identityAuth": "身份认证"
+        },
+        "idv": {
+            "title": "证件验证",
+            "inputTip": "请务必确保输入信息与证件信息一致",
+            "country": {
+                "title": "国家名称",
+                "placeholder": "请选择"
+            },
+            "idType": {
+                "title": "证件类型",
+                "placeholder": "请选择"
+            },
+            "idNumber": {
+                "title": "证件号码",
+                "placeholder": "请输入"
+            },
+            "name": {
+                "surname": "姓",
+                "firstName": "名",
+                "placeholder": "请输入"
+            },
+            "birthday": {
+                "title": "出生日期",
+                "placeholder": "年/月/日"
+            },
+            "button": {
+                "next": "下一步"
+            }
+        }
+    },
+    "security":{
+        "title":"安全中心"
+    },
+
+    "account":{
+        "title":"用户设置",
+        "userCenter":"个人中心",
+        "nickname":"昵称",
+        "nicknameDesc":"为你的个人资料设置自定义昵称",
+        "avatar":"头像",
+        "avatarDesc":"设置头像为你的账户增添个人化元素，可在 NFT 市场购买属于自己的 NFT 头像",
+        "birthday":"生日",
+        "birthdayDesc":"破壳日",
+        "modify":"修改",
+        "add":"添加",
+        "address":"提现地址",
+        "addressDesc":"添加并信任提币地址后，提币时将不再验证邮箱/短信/谷歌",
+        "manage":"管理"
+       }
+}

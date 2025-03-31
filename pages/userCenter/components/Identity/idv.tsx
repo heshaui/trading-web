@@ -1,4 +1,3 @@
-
 import { Input, Form, ConfigProvider, DatePicker, Select, Calendar } from 'antd';
 // import type { AutoCompleteProps } from 'antd';
 import { useState, useEffect } from "react";
@@ -14,6 +13,7 @@ import dayjs from 'dayjs';
 import { getCountryCode } from "@/services/open";
 import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 interface IDVProps {
     onNext: (event: eventType) => void;
@@ -40,29 +40,30 @@ function ResetPassword({ onNext }: IDVProps) {
     const [isNext, setIsNext] = useState(false);
     const router = useRouter();
     const [form] = Form.useForm();
+    const { t } = useTranslation(['userCenter']);
     const cardTypeSeelect: { label: string, value: string }[] = [
         {
-            label: '居民身份证',
+            label: t('identity.certified.idTypes.idCard'), // 居民身份证
             value: '1'
         },
         {
-            label: '普通护照',
+            label: t('identity.certified.idTypes.passport'), // 普通护照
             value: '2'
         },
         {
-            label: '港澳通行证',
+            label: t('identity.certified.idTypes.hkMacauPass'), // 港澳通行证
             value: '3'
         },
         {
-            label: '台湾通行证',
+            label: t('identity.certified.idTypes.taiwanPass'), // 台湾通行证
             value: '4'
         },
         {
-            label: '台湾身份证',
+            label: t('identity.certified.idTypes.taiwanId'), // 台湾身份证
             value: '5'
         },
         {
-            label: '外国人永久居住身份证',
+            label: t('identity.certified.idTypes.foreignerId'), // 外国人永久居住身份证
             value: '6'
         }
     ]
@@ -139,8 +140,12 @@ function ResetPassword({ onNext }: IDVProps) {
     return (
         <div className="flex-col " style={{ width: "60%", marginTop: 50 }}>
             <div className="mb-2 font-w-500 flex-y-cc font-24" >
-                证件验证
-                <p className={`${styles.tip_color} font-14 font-w-400 mt-2_5`}>请务必确保输入信息与证件信息一致</p>
+                {/* 证件验证 */}
+                {t('identity.idv.title')}
+                <p className={`${styles.tip_color} font-14 font-w-400 mt-2_5`}>
+                    {/* 请务必确保输入信息与证件信息一致 */}
+                    {t('identity.idv.inputTip')}
+                </p>
             </div>
             <div className='mt-7'>
                 <ConfigProvider
@@ -187,58 +192,76 @@ function ResetPassword({ onNext }: IDVProps) {
                         // onValuesChange={usernameChange}
                         onValuesChange={onValuesChange}
                     >
-                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>国家名称</div>
+                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
+                            {/* 国家名称 */}
+                            {t('identity.idv.country.title')}
+                        </div>
                         <Form.Item name="areaCode">
                             <Select allowClear
-                                placeholder="请选择"
+                                placeholder={t('identity.idv.country.placeholder')}
                                 options={countryData}
                                 className={`custom-select`}
                             />
                         </Form.Item>
-                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>证件类型</div>
+                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
+                            {/* 证件类型 */}
+                            {t('identity.idv.idType.title')}
+                        </div>
                         <Form.Item name="cardType">
                             <Select allowClear
-                                placeholder="请选择"
+                                placeholder={t('identity.idv.idType.placeholder')}
                                 options={cardTypeSeelect}
                                 className={`custom-select`}
                             />
                         </Form.Item>
-                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>证件号码</div>
+                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
+                            {/* 证件号码 */}
+                            {t('identity.idv.idNumber.title')}
+                        </div>
                         <Form.Item name="cardCode" >
                             <Input
                                 className={`custom-input ${styles.input_box} modal-input2`}
-                                placeholder="请输入"
+                                placeholder={t('identity.idv.idNumber.placeholder')}
                                 allowClear
                             />
                         </Form.Item>
                         <div className="flex">
                             <div className='flex-1 mr-2_5'>
-                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>姓</div>
+                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
+                                    {/* 姓 */}
+                                    {t('identity.idv.name.surname')}
+                                </div>
                                 <Form.Item
                                     name="surname"
                                 >
                                     <Input
                                         className={`custom-input ${styles.input_box} modal-input2`}
-                                        placeholder="请输入"
+                                        placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
                                     />
                                 </Form.Item>
                             </div>
                             <div className='flex-1'>
-                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>名</div>
+                                <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
+                                    {/* 名 */}
+                                    {t('identity.idv.name.firstName')}
+                                </div>
                                 <Form.Item
                                     name="firstName"
                                 >
                                     <Input
                                         className={`custom-input ${styles.input_box} modal-input2`}
-                                        placeholder="请输入"
+                                        placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
                                     />
 
                                 </Form.Item>
                             </div>
                         </div>
-                        <div className="mb-2 font-16 font-w-400">出生日期</div>
+                        <div className="mb-2 font-16 font-w-400">
+                            {/* 出生日期 */}
+                            {t('identity.idv.birthday.title')}
+                        </div>
                         <Form.Item name="birthday"
                         // rules={[{ validator: validatePassword }]}
                         >
@@ -252,7 +275,7 @@ function ResetPassword({ onNext }: IDVProps) {
                             <DatePicker
                                 className={`custom-input ${styles.input_box} modal-input2`}
                                 style={{ width: '100%', height: '50px' }}
-                                placeholder="年/月/日"
+                                placeholder={t('identity.idv.birthday.placeholder')}
                                 allowClear
                                 suffixIcon={
                                     <Iconify icon="cuida:calendar-outline"
@@ -270,13 +293,19 @@ function ResetPassword({ onNext }: IDVProps) {
                         <button
                             className={`${styles.btn_style} disabled_btn cursor-not-allowed`}
                             disabled
-                        >下一步</button>
+                        >
+                            {/* 下一步 */}
+                            {t('identity.idv.button.next')}
+                        </button>
                     ) : (
                         <button
                             type='submit'
                             className={`default_btn ${styles.btn_style} flex-1 cursor-pointer`}
                             onClick={onSubmit}
-                        >下一步</button>
+                        >
+                            {/* 下一步 */}
+                            {t('identity.idv.button.next')}
+                        </button>
                     )}
                 </div>
             </div>

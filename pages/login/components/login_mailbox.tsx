@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import SafeModal from "@/components/myModal/login_safeModal"
 import styles from '../styles/login.module.css'
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
-
+import { useTranslation } from 'next-i18next';
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -28,6 +28,7 @@ interface useInfoType {
 
 function Mailbox() {
     const router = useRouter();
+    const { t } = useTranslation(['login']);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
     const { loginType } = useLoginTypeContext();
@@ -192,13 +193,18 @@ function Mailbox() {
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>邮箱</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                        {/* 邮箱 */}
+                        {t('emailTitle')}
+                    </div>
 
-                    <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
+                    <Form.Item name="email" rules={[
+                        { required: true, message: t('emailNull') }, 
+                        { type: "email", message: t('emailErr') }
+                    ]}>
                         <AutoComplete
-                            // style={{ width: 200 }}
                             onSearch={handleSearch}
-                            placeholder="请输入邮箱号"
+                            placeholder={t('emailPlaceholder')}
                             options={options}
                             allowClear={true}
                             backfill={true}
@@ -207,31 +213,45 @@ function Mailbox() {
                             style={{height:"50px"}}
                         />
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>密码</div>
-                    <Form.Item name="password" rules={[{ required: true, message: "密码不能为空！" }]}>
-                        <Input.Password type="password" placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
-                        // prefix={<Iconify icon="solar:lock-password-linear" className="icon-color" />}
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                        {/* 密码 */}
+                        {t('passwordTitle')}
+                    </div>
+                    <Form.Item name="password" rules={[
+                        { required: true, message: t('passwordNull') }
+                    ]}>
+                        <Input.Password 
+                            type="password" 
+                            placeholder={t('passwordPlaceholder')} 
+                            maxLength={30} 
+                            allowClear={true} 
+                            size="large" 
+                            className={`${styles.mail_input} modal-input`}
                         />
                     </Form.Item>
                     <Form.Item noStyle>
                         <button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()} >
-                            {"忘记密码"}
+                            {/* 忘记密码 */}
+                            {t('forgetPassword')}
                         </button>
                     </Form.Item>
                 </Form>
                 <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
                     onClick={handleFinish}>
-                    {"登录"}
+                    {/* 登录 */}
+                    {t('loginButton')}
                 </button>
                 <div className="flex-cc mt-4">
                     <p>
-                        {"没有账号？"}
+                        {/* 没有账号？ */}
+                        {t('noAcount')}
                         <button
                             type="button"
                             className="text-color"
                             onClick={() => goRegister()}
                         >
-                            {"注册"}
+                            {/* 注册 */}
+                            {t('register')}
                         </button>
                     </p>
                 </div>

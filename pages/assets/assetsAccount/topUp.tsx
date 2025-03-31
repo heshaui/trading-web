@@ -9,8 +9,12 @@ import { useState, useEffect, useRef } from "react";
 import { useThemeMode } from '@/hooks/useThemeMode';
 import Image from 'next/image'
 import Link from 'next/link'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 import {NoData,NoAddress} from '@/components/noData';
 import NoUseCom from '../compontents/noSM'
+
 interface DataType {
     id: number,
     userId: number,
@@ -387,6 +391,13 @@ const TopUpPage = () => {
         </div>
     </div>
     );
+};
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+		},
+	};
 };
 
 export default TopUpPage;

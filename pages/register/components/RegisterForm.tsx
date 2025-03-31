@@ -11,8 +11,11 @@ import Mailbox from "./register_mailbox"
 import Phonebox from "./register_phonebox"
 // import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 import styles from '../styles/login.module.css'
+import { useTranslation } from 'next-i18next';
+
 function RegisterForm() {
-	// const { t } = useTranslation();
+	const { t } = useTranslation(['login']);
+
 	const { loginState } = useLoginStateContext();
 
 	const [tabsProps, setTabsProps] = useState('email');
@@ -71,7 +74,10 @@ function RegisterForm() {
 							label: (
 								//  button-color
 								<div className={`${styles.tabs_label}`} >
-									<div>邮箱</div>
+									<div>
+										{/* 邮箱 */}
+									{t('email')}
+									</div>
 								</div>
 
 							),
@@ -80,7 +86,10 @@ function RegisterForm() {
 						{
 							label: (
 								<div className={`${styles.tabs_label}`} >
-									<div>手机</div>
+									<div>
+										{/* 手机 */}
+									{t('phone')}
+									</div>
 								</div>
 
 							),

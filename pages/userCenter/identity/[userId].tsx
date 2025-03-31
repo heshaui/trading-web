@@ -12,6 +12,9 @@ import { useState,useEffect } from "react";
 import IDV from "../components/Identity/idv";
 import Upload from "../components/Identity/upload";
 import Sumbit from "../components/Identity/sumbit";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 interface eventType{
     surname:string;
     firstName:string;
@@ -26,14 +29,15 @@ function ResetPassword() {
     const { userId, authStatus } = router.query;
     const parsedAuthStatus = typeof authStatus === 'string' && !isNaN(Number(authStatus)) ? Number(authStatus) : undefined;
     const [current, setCurrent] = useState(0);
+    const { t } = useTranslation(['userCenter']);
     const items = [
         {
-            title: '基本信息',
+            title: t('identity.realName.setUPTitle1'),//基本信息
             content: <IDV onNext={(event:eventType)=>handleNext(event)}/>,
 
         },
         {
-            title: '上传照片',
+            title: t('identity.realName.setUPTitle2'),//上传照片
             content: <Upload 
             onNext={()=>onNextSetup()}
              onPrev={()=>onPrevSetup()}
@@ -42,7 +46,7 @@ function ResetPassword() {
 
         },
         {
-            title: '已提交',
+            title: t('identity.realName.setUPTitle3'),//已提交
             content: <Sumbit />,
 
         },
@@ -86,10 +90,10 @@ function ResetPassword() {
 
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/userCenter/identity" ><span className={`${styles.tip_color}`}>身份认证</span> </Link>,
+                        title: <Link href="/userCenter/identity" ><span className={`${styles.tip_color}`}>{t('identity.title')}</span> </Link>,
                     },
                     {
-                        title: <span className={`${styles.title_color}`}>认证信息</span>,
+                        title: <span className={`${styles.title_color}`}>{t('identity.realName.title')}</span>,
                     },
                 ]} 
                 style={{ fontSize: 14 }} 
@@ -125,5 +129,11 @@ function ResetPassword() {
 
     );
 }
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+		},
+	};
+};
 export default ResetPassword;

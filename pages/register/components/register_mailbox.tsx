@@ -2,7 +2,8 @@ import { Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
 import { type CSSProperties, useState, } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
-import type { AutoCompleteProps } from 'antd';;
+import type { AutoCompleteProps } from 'antd';
+import { useTranslation } from 'next-i18next';
 import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
@@ -20,6 +21,7 @@ const fromStyle: CSSProperties = {
 
 
 export default function RegisterMail() {
+    const { t } = useTranslation(['login']);
     const router = useRouter();
     // const [loading, setLoading] = useState(false);
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
@@ -192,12 +194,21 @@ export default function RegisterMail() {
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5  font-16 font-w-500`}>邮箱</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                        {/* 邮箱 */}
+                        {t('registerForm.emailTitle')}
+                    </div>
 
-                    <Form.Item name="email" rules={[{ required: true, message: "邮箱号不能为空！" }, { type: "email", message: "邮箱格式不正确！" }]}>
+                    <Form.Item 
+                        name="email" 
+                        rules={[
+                            { required: true, message: t('emailNull') }, 
+                            { type: "email", message: t('emailErr') }
+                        ]}
+                    >
                         <AutoComplete
                             onSearch={handleSearch}
-                            placeholder="请输入邮箱号"
+                            placeholder={t('registerForm.emailPlaceholder')}
                             options={options}
                             allowClear={true}
                             backfill={true}
@@ -205,70 +216,86 @@ export default function RegisterMail() {
                             className={`${styles.auto_complete_input} auto-complete-input custom-sleect`}
                         />
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>密码</div>
+                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>
+                        {/* 密码 */}
+                        {t('registerForm.passwordTitle')}
+                    </div>
                     <Form.Item name="password" rules={[{ validator: validatePassword }]}>
-                        <Input.Password type="password" 
-                        placeholder="请输入8-30位密码" maxLength={30} allowClear={true} size="large" 
-                        className={`${styles.mail_input} modal-input`}
-                        onChange={handlePasswordChange} 
+                        <Input.Password 
+                            type="password" 
+                            placeholder={t('registerForm.passwordPlaceholder')}
+                            maxLength={30} 
+                            allowClear={true} 
+                            size="large" 
+                            className={`${styles.mail_input} modal-input`}
+                            onChange={handlePasswordChange} 
                         />
-                       
                     </Form.Item>
                     <div className={`mt-1`}>
-                            {showLengthCheck && (
-                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
-                                    <Iconify
-                                        icon="iconoir:check-circle-solid"
-                                        size={16}
-                                        className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
-                                    />
-                                    8-30个字符
-                                </div>
-                            )}
+                        {showLengthCheck && (
+                            <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
+                                <Iconify
+                                    icon="iconoir:check-circle-solid"
+                                    size={16}
+                                    className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
+                                />
+                                {/* 8-30个字符 */}
+                                {t('registerForm.passwordRule1')}
+                            </div>
+                        )}
 
-                            {showCharCheck && (
-                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
-                                    <Iconify
-                                        icon="iconoir:check-circle-solid"
-                                        size={16}
-                                        className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
-                                    />
-                                    必须包含字母和数字
-                                </div>
-                            )}
-                        </div>
-                    <div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
-                        onClick={() => { setIsOpen(!isOpen) }}>推荐人的邀请码(选填)
-                        <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
-                            className={`${styles.tip_icon} ml-1 `} size={20} />
-                        {/* icon-park:down */}
-
+                        {showCharCheck && (
+                            <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+                                <Iconify
+                                    icon="iconoir:check-circle-solid"
+                                    size={16}
+                                    className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
+                                />
+                                {/* 必须包含字母和数字 */}
+                                {t('registerForm.passwordRule2')}
+                            </div>
+                        )}
+                    </div>
+                    <div 
+                        className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
+                        onClick={() => { setIsOpen(!isOpen) }}
+                    >
+                        {/* 推荐人的邀请码(选填) */}
+                        {t('registerForm.refereeTitle')}
+                        <Iconify 
+                            icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
+                            className={`${styles.tip_icon} ml-1 `} 
+                            size={20} 
+                        />
                     </div>
                     {isOpen && (
-                        <Form.Item name="referee" rules={[{ required: false }]}>
-                            <Input type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
+                        <Form.Item name="referee">
+                            <Input 
+                                type="referee" 
+                                placeholder={t('registerForm.refereePlaceholder')}
+                                allowClear={true} 
+                                size="large" 
+                                className={`${styles.mail_input} modal-input`}
                             />
                         </Form.Item>
                     )}
 
-                    <ConfigProvider
-                        theme={{
-                            token: {
-                                colorPrimary: "#FF5F1F"
-                            },
-                        }}
-                    >
-                        <Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-                            <Checkbox className="custom-checkbox text-color-default mt-5" >
-                                <p className={`${styles.title_color}`}> 我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span></p>
-                            </Checkbox>
-                        </Form.Item>
-
-                    </ConfigProvider>
+                    <Form.Item noStyle name="agree" valuePropName="checked">
+                        <Checkbox className="custom-checkbox text-color-default mt-5" >
+                            <p className={`${styles.title_color}`}>
+                                {/* 我已阅读并同意 */}
+                                {t('agree')} <span className="text-color">{t('protocol')}</span> {t('and')} <span className="text-color">{t('policy')}</span>
+                            </p>
+                        </Checkbox>
+                    </Form.Item>
                 </Form>
-                <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
-                    onClick={handleFinish}>
-                    {"注册"}
+                <button 
+                    type="submit" 
+                    className={`${styles.login_button} w-full button-color mt-8`}
+                    onClick={handleFinish}
+                >
+                    {/* 注册 */}
+                    {t('registerForm.registerButton')}
                 </button>
                 {/* <p className="tip-color2 mt-5">或者</p>
             <Button className="w-full google-btn mt-5"
@@ -279,19 +306,20 @@ export default function RegisterMail() {
             </Button> */}
                 <div className="flex-cc mt-4">
                     <p>
-                        {"已有账号？"}
+                        {/* 已有账号？ */}
+                        {t('registerForm.hasAccount')}
                         <button
                             type="button"
                             className="text-color"
                             onClick={goLogin}
                         >
-                            {"登录"}
+                            {/* 登录 */}
+                            {t('login')}
                         </button>
                     </p>
                 </div>
             </ConfigProvider>
         </div>
-
     );
 }
 

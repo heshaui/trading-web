@@ -11,6 +11,7 @@ import { encryptString } from "@/utils/encrypt"
 import QuestionModal from "@/components/myModal/questionModal";
 import { getResetMailCode, getResetSmsCode, getResetPasswordCheck } from "@/services/resetPassword"
 import { encryptData } from "@/utils/encrypt";
+import { useTranslation } from 'next-i18next';
 function ResetPassword() {
     const [form] = Form.useForm();
     const { resetState, setResetState, acount } = useResetStateContext();
@@ -21,7 +22,7 @@ function ResetPassword() {
     const [isCounting, setIsCounting] = useState(false);
     const [isLoding, setIsLoding] = useState(false);
     const [isCodeLoding, setIsCodeLoding] = useState(false);
-
+    const { t } = useTranslation('resetPassword');
 
 
     const goNext = () => {
@@ -132,7 +133,9 @@ function ResetPassword() {
 
     return (
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
-            <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>已发送验证码至
+            <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>
+                {/* 已发送验证码至 */}
+                {t('sent')}
                 <span className={`${styles.text_color} font-w-400 mt-2`}>{encryptString(acount.acount.toString()) || '-'}</span>
             </div>
             <div className='mt-1'>
@@ -159,16 +162,16 @@ function ResetPassword() {
                     name="aount"
                     form={form}
                 >
-                    <Form.Item noStyle name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                    <Form.Item noStyle name="code" rules={[{ required: true, message: t('codeNull') }]}>
                         <Input
-                            placeholder="请输入"
+                            placeholder={t('inputCode')}
                             style={{ borderRadius: "8px", height: "50px" }}
                             // value={authCode}
                             allowClear
                             size='large'
                             suffix={
                                 <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
-                                    {isCounting ? `${countdown}s 重发` : "重新发送"}
+                                    {isCounting ? t('resendCountdown', { count: countdown }) : t('resend')}
                                 </button>
                             }
                             className={`${styles.mail_input} modal-input`}
@@ -180,8 +183,8 @@ function ResetPassword() {
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}
-                        onClick={() => goLast()}>上一步</button>
-                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>下一步</button>
+                        onClick={() => goLast()}>{t('prevStep')}</button>
+                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>{t('next')}</button>
                 </div>
                 <div>
                     <button
@@ -189,7 +192,7 @@ function ResetPassword() {
                         className={`text-color mt-5`}
                         onClick={() => setPointout(true)}
                     >
-                        收不到验证码？
+                        {t('cantReceive')}
                     </button>
                 </div>
             </div>

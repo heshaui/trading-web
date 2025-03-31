@@ -1,5 +1,5 @@
 import React from 'react';
-import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout';
+import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout/useUserCenterLayout';
 import styles from './styles/userSettings.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
@@ -11,6 +11,9 @@ import AvatarUrlModal from "@/components/userCenterModal/avatarUrl_Modal";
 import BirthdayModal from "@/components/userCenterModal/birthday_Modal";
 import dayjs from 'dayjs';
 import { Skeleton } from 'antd'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -39,43 +42,44 @@ interface UserCenterData {
 }
 
 const UserSettingsPage: React.FC = () => {
+  const { t } = useTranslation('userCenter');
   const [loadingSkeleton, setLoadingSkeleton] = useState(true)
   const userInfoList: SafeListItem[] = [
     {
-      title: "昵称",
+      title: t('account.nickname'),
       type: "nickname",
-      desc: "为你的个人资料设置自定义昵称",
+      desc: t('account.nicknameDesc'),
       isBind: true,
       bindValue: "",
       icon: "/images/userCenter/userSettings/icon_nickname.svg",
       bindBtn: [{
-        title: "修改",
+        title: t('account.modify'),
         onok: () => setNecknameOpen(true)
       }
       ]
     },
     {
-      title: "头像",
+      title: t('account.avatar'),
       type: "avatarUrl",
-      desc: "设置头像为你的账户增添个人化元素，可在 NFT 市场购买属于自己的 NFT 头像",
+      desc: t('account.avatarDesc'),
       isBind: false,
       bindValue: "/images/userCenter/userSettings/icon_user.svg",
       icon: "/images/userCenter/userSettings/icon_avatar.svg",
       bindBtn: [{
-        title: "修改",
+        title: t('account.modify'),
         onok: () => setAvatarUrlOpen(true)
       },
       ],
     },
     {
-      title: "生日",
+      title: t('account.birthday'),
       type: "birthday",
-      desc: "破壳日",
+      desc: t('account.birthdayDesc'),
       isBind: true,
       bindValue: "",
       icon: "/images/userCenter/userSettings/icon_brithday.svg",
       noBindBtn: [{
-        title: "添加",
+        title: t('account.add'),
         onok: () => setBirthdayOpen(true)
       }
       ]
@@ -83,14 +87,14 @@ const UserSettingsPage: React.FC = () => {
   ]
   const withdrawList: SafeListItem[] = [
     {
-      title: "提现地址",
+      title: t('account.address'),
       type: "address",
-      desc: "添加并信任提币地址后，提币时将不再验证邮箱/短信/谷歌",
+      desc: t('account.addressDesc'),
       isBind: true,
       bindValue: "",
       icon: "/images/userCenter/userSettings/icon_location.svg",
       bindBtn: [{
-        title: "管理",
+        title: t('account.manage'),
         onok: () => { }
       }
       ]
@@ -155,7 +159,10 @@ const UserSettingsPage: React.FC = () => {
   }, [])
   return (<div className={`${styles.safe_page}`} >
     <div >
-      <h2 className={`font-w-500 font-20`}>个人中心</h2>
+      <h2 className={`font-w-500 font-20`}>
+        {/* 个人中心 */}
+        {t('account.userCenter')}
+        </h2>
     </div>
     {/* userInfo box*/}
     <div className={`${styles.card_bgc} mt-6 `}>
@@ -303,5 +310,11 @@ const UserSettingsPage: React.FC = () => {
 
   </div>);
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+		},
+	};
+};
 export default withUserCenterLayout(UserSettingsPage);

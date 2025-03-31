@@ -4,6 +4,7 @@ import styles from '../../styles/identity.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
 import { encryptIdCard,getBenefitValue } from '@/utils/encrypt';
+import { useTranslation } from 'react-i18next';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -58,29 +59,31 @@ interface infoType {
 }
 
 const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBenefitType[] }> = ({ identityInfo, levelBenefit }) => {
+    const { t } = useTranslation(['userCenter']);
+
     const cardTypeSeelect: { label: string, value: string }[] = [
         {
-            label: '居民身份证',
+            label: t('identity.certified.idTypes.idCard'), // 居民身份证
             value: '1'
         },
         {
-            label: '普通护照',
+            label: t('identity.certified.idTypes.passport'), // 普通护照
             value: '2'
         },
         {
-            label: '港澳通行证',
+            label: t('identity.certified.idTypes.hkMacauPass'), // 港澳通行证
             value: '3'
         },
         {
-            label: '台湾通行证',
+            label: t('identity.certified.idTypes.taiwanPass'), // 台湾通行证
             value: '4'
         },
         {
-            label: '台湾身份证',
+            label: t('identity.certified.idTypes.taiwanId'), // 台湾身份证
             value: '5'
         },
         {
-            label: '外国人永久居住身份证',
+            label: t('identity.certified.idTypes.foreignerId'), // 外国人永久居住身份证
             value: '6'
         }
     ]
@@ -107,16 +110,23 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 <div className='flex-1 flex-col justify-center'>
                     {/* 认证状态 */}
                     <div className={`font-18 font-w-500 flex align-center`} >
-                        <p>标准身份认证</p>
+                        <p>
+                            {/* 标准身份认证 */}
+                            {t('identity.standardAuth.title')}
+                        </p>
                         <div className='font-14  ml-2 flex-x align-center'>
                             <Iconify icon="mingcute:safety-certificate-line" className={`${styles.success_icon} mr-1`} size={20} />
-                            <span className={`${styles.tip_color} font-14 font-w-500`}>已认证</span>
+                            <span className={`${styles.tip_color} font-14 font-w-500`}>
+                                {/* 已认证 */}
+                                {t('identity.status.verified')}
+                            </span>
                         </div>
                     </div>
                     {/* 认证提示 */}
                     <div className={`font-14 font-w-400 mt-3 ${styles.tip_color}`} >
                         <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
-                        已完成身份认证，开始您的货币之旅吧！
+                        {/* 已完成身份认证，开始您的货币之旅吧！ */}
+                        {t('overview.identityAuth.verified')}
                     </div>
                 </div>
                 {/* 按钮 */}
@@ -130,15 +140,20 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
             <div className='mt-6'>
                 <div className={`font-18 font-w-500 flex align-center `} >
                     <Image src="/images/userCenter/identity/icon_account.svg" alt='' width={24} height={24} className='mr-1' />
-                    <span>账户权益</span>
+                    <span>
+                        {/* 账户权益 */}
+                        {t('identity.certified.accountBenefits')}
+                    </span>
                 </div>
                 <ul className={`${styles.border_btm} mt-3`}>
                     {levelBenefit&&levelBenefit.map((item: levelBenefitType) => (
                         <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
                             <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
                             <div className={` font-w-500`}>{
-                                item.status1 === 0 ? "禁止":
-                                (item.value1&&item.params1)?getBenefitValue(item.value1):"允许"}</div>
+                                item.status1 === 0 ? 
+                                    t('identity.certified.forbidden') : // 禁止
+                                    (item.value1&&item.params1)?getBenefitValue(item.value1):t('identity.certified.allow') // 允许
+                            }</div>
                         </li>
                         // <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         //     <div className={` font-w-400 ${styles.tip_color}`}>加密货币充值</div>
@@ -155,23 +170,40 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
             <div className='mt-6'>
                 <div className={`font-18 font-w-500 flex align-center `} >
                     <Image src="/images/userCenter/identity/icon_IDcard.svg" alt='' width={24} height={24} className='mr-1' />
-                    <span>个人信息</span>
+                    <span>
+                        {/* 个人信息 */}
+                        {t('identity.certified.personalInfo')}
+                    </span>
                 </div>
                 <ul className={`mt-3`}>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>真实姓名</div>
+                        <div className={` font-w-400 ${styles.tip_color}`}>
+                            {/* 真实姓名 */}
+                            {t('identity.certified.info.realName')}
+                        </div>
                         <div className={` font-w-500`}>{identityInfo?.surname} {identityInfo?.firstName}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>证件类型</div>
+                        <div className={` font-w-400 ${styles.tip_color}`}>
+                            {/* 证件类型 */}
+                            {t('identity.certified.info.idType')}
+                        </div>
                         <div className={` font-w-500`}>{cardTypeSeelect.find(item => item.value === identityInfo?.cardType.toString())?.label}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>国家</div>
-                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ? '中国大陆' : '中国香港'}</div>
+                        <div className={` font-w-400 ${styles.tip_color}`}>
+                            {/* 国家 */}
+                            {t('identity.certified.info.country')}
+                        </div>
+                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ? 
+                            t('identity.certified.info.countries.mainland') : 
+                            t('identity.certified.info.countries.hongkong')}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
-                        <div className={` font-w-400 ${styles.tip_color}`}>证件号</div>
+                        <div className={` font-w-400 ${styles.tip_color}`}>
+                            {/* 证件号 */}
+                            {t('identity.certified.info.idNumber')}
+                        </div>
                         <div className={` font-w-500`}>{encryptIdCard(identityInfo?.cardCode)}</div>
                     </li>
                 </ul>

@@ -22,11 +22,13 @@ import RepeatModal from "@/components/myModal/register_repeatModal";
 import { encryptData } from "@/utils/encrypt";
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
+import { useTranslation } from 'next-i18next';
 // interface ApiResponse {
 //     code: number;
 //     message?: string;
 // }
 function AuthCode() {
+    const { t } = useTranslation('login');
     const [pointout, setPointout] = useState(false);
 
     const { setLoginType } = useLoginTypeContext();
@@ -210,10 +212,14 @@ function AuthCode() {
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
             {/* <div className="mb-6 authcode-header font-w-500" style={{ width: "300px" }}>邮箱/手机号验证</div> */}
             <div className='mb-2'>
-                <p className='font-16 font-w-500 mb-1'>已发送验证码至</p>
+                <p className='font-16 font-w-500 mb-1'>
+                    {/* 已发送验证码至 */}
+                    {t('authCodeForm.title')}
+                </p>
                 <p className={`${styles.tip_color1}`}>
                     {registerInfo.type === 'm' && encryptEmail(registerInfo.email)}
-                    {registerInfo.type === 'p' && (<><span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
+                    {registerInfo.type === 'p' && (<>
+                        <span>{registerInfo.countryCode}&nbsp;&nbsp;</span>
                         {encryptPhoneNumber(registerInfo.phone)}
                     </>)}
                 </p>
@@ -248,14 +254,25 @@ function AuthCode() {
                 //     remember: true,
                 // }}
                 >
-                    <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                    <Form.Item 
+                        name="code" 
+                        rules={[{ required: true, message: t('authCodeForm.codeNull') }]}
+                    >
                         <Input
                             allowClear
-                            placeholder="邮箱/手机号验证"
+                            placeholder={t('authCodeForm.placeholder')}
                             // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                             suffix={
-                                <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getRegisterCode}>
-                                    {isCounting ? `${countdown}s 重发` : "重新发送"}
+                                <button 
+                                    type='button' 
+                                    className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} 
+                                    onClick={getRegisterCode}
+                                >
+                                    {/* 重新发送/60s 重发 */}
+                                    {isCounting 
+                                        ? t('authCodeForm.resendCountdown', { count: countdown })
+                                        : t('authCodeForm.resend')
+                                    }
                                 </button>
                             }
                             className={`${styles.authcode_input} ${styles.mail_input} modal-input`}
@@ -270,8 +287,18 @@ function AuthCode() {
                     type='button'
                     className={`${styles.goback_btn}`}
                     onClick={() => goBackPage()}
-                >上一步</button>
-                <button type='submit' className={`btn-color ${styles.submit_btn}`} onClick={onSubmit}>提交</button>
+                >
+                    {/* 上一步 */}
+                    {t('authCodeForm.prevStep')}
+                </button>
+                <button 
+                    type='submit' 
+                    className={`btn-color ${styles.submit_btn}`} 
+                    onClick={onSubmit}
+                >
+                    {/* 提交 */}
+                    {t('authCodeForm.submit')}
+                </button>
             </div>
             <div>
                 <button
@@ -279,25 +306,32 @@ function AuthCode() {
                     className={`${styles.text_color} mt-5`}
                     onClick={() => setPointout(true)}
                 >
-                    收不到验证码？
+                    {/* 收不到验证码？ */}
+                    {t('authCodeForm.cantReceive')}
                 </button>
             </div>
 
-            <QuestionModal open={pointout} type={registerInfo.type}
+            <QuestionModal 
+                open={pointout} 
+                type={registerInfo.type}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
-                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 } 
-                onOk={() => setPointout(false)} onCancel={handCodeOk} />
-            <RepeatModal open={repeatModalOPen}
+                onOk={() => setPointout(false)} 
+                onCancel={handCodeOk} 
+            />
+            <RepeatModal 
+                open={repeatModalOPen}
                 type={toastType}
                 message={requestMsg}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
-                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 }
                 onCancel={handCancel}
-                onOk={() => goLoginPage()} />
+                onOk={() => goLoginPage()} 
+            />
         </div>
     );
 }

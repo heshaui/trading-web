@@ -1,0 +1,16 @@
+{
+    "assets":{
+        "assetsAccount":"现货账户",
+        "futureAccount":"合约账户",
+        "billDetails":"账单明细"
+    },
+    "assetsAccount":{
+         "title":"现货账户"
+    },
+    "futureAccount":{
+        "title":"合约账户"
+    },
+    "billDetails":{
+        "title":"账单明细"
+    }
+}
