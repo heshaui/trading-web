@@ -14,7 +14,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 function ResetPassword() {
-    const { t } = useTranslation(['resetPassword', 'common']);
+    const { t } = useTranslation('resetPassword');
 
     // const [tabsProps, setTabsProps] = useState('email');
     // const signIn = useSignIn();
@@ -35,7 +35,7 @@ function ResetPassword() {
                         {t('reset')}
                     </h2>
                     <div className={`mb-6 flex flex-ai-center  ${styles.warning_box}`} >
-                        <Iconify icon="ep:warning-filled" className="mr-2" size={20} aria-hidden="true"/>
+                        <Iconify icon="ep:warning-filled" className="mr-2" size={20}/>
                         {/* 为确保您的账户安全，在您更改密码后48小时内禁出金。 */}
                         {t('resetTip')}
                     </div>
@@ -54,10 +54,7 @@ function ResetPassword() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
 	return {
 		props: {
-			...(await serverSideTranslations(locale || 'en', [
-				'resetPassword',  // 重置密码相关翻译
-				'common',        // 通用翻译
-			])),
+			...(await serverSideTranslations(locale || 'en', ['resetPassword','common'])),
 		},
 	};
 };
