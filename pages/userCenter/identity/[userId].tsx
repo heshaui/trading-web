@@ -23,11 +23,11 @@ interface eventType{
     cardCode:string;
     birthday:string;
 }
-function ResetPassword() {
+function RealName() {
     const [userInfo,setUserInfo] = useState<eventType>({} as eventType);
     const router = useRouter();
     const { userId, authStatus } = router.query;
-    const parsedAuthStatus = typeof authStatus === 'string' && !isNaN(Number(authStatus)) ? Number(authStatus) : undefined;
+    // const parsedAuthStatus = typeof authStatus === 'string' && !isNaN(Number(authStatus)) ? Number(authStatus) : undefined;
     const [current, setCurrent] = useState(0);
     const { t } = useTranslation(['userCenter']);
     const items = [
@@ -129,11 +129,23 @@ function ResetPassword() {
 
     );
 }
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
-		},
-	};
+
+// 添加 getStaticPaths
+export const getStaticPaths = async () => {
+    return {
+        // 设置为 fallback: 'blocking' 表示如果路径不存在，将在服务器端进行渲染
+        paths: [],
+        fallback: 'blocking'
+    };
 };
-export default ResetPassword;
+
+// 修改 getStaticProps，添加 params 参数
+export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['userCenter', 'common'])),
+        },
+    };
+};
+
+export default RealName;
