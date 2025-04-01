@@ -35,3 +35,16 @@ export function fileImg(file:File): Promise<any> {
     // },
   });
 }
+interface HomeImageType{
+  key: string,
+  languageCode: string,
+  dayType: string,
+  loginType: string
+}
+// 首页图片
+export function getHomeImage(data:HomeImageType): Promise<any> {
+  return request<HomeImageType>(`${fixUrl}/home-web/v1/open/home-image/homeImage`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}

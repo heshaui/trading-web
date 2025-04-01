@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { encryptData } from "@/utils/encrypt";
 import type { AutoCompleteProps } from 'antd';
 import { setPassword } from "@/services/safeCenter";
+import { useTranslation } from 'next-i18next';
 type Props = {
   open: boolean;
   // onOk?: (event: boolean) => void;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 function LockModal({ open, onCancel, type, onOk }: Props) {
+  const { t } = useTranslation(['userCenter']);
   // const router = useRouter();
   const [verifyPasswordVisible, setverifyPasswordVisible] = useState(false);
 
@@ -71,7 +73,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
       value = value.trim();
     }
     if (!value) {
-      return Promise.reject(new Error("密码不能为空！"));
+      return Promise.reject(new Error(t('security.lockSafe.lockError')));
     }
     // 检查长度是否在 8 - 100 位之间
     const isLengthValid = value.length >= 8 && value.length <= 100;
@@ -158,7 +160,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
           className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
           onClick={handOk}
         >
-          确认
+          {t('security.confirm')}
         </button>
       </div>
     );
@@ -205,7 +207,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
     >
       <Modal
         open={open}
-        title={<p className={`${styles.title}`} >{type === '5' ? '设置密码' : '修改密码'}</p>}
+        title={<p className={`${styles.title}`} >{type === '5' ? t('security.lockSafe.setPassword') : t('security.lockSafe.modifyPassword')}</p>}
         centered
         onCancel={handCancel}
         footer={ModalFooter}
@@ -225,10 +227,10 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
             size="large"
             style={{ width: "100%" }}
           >
-            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>新密码</div>
+            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.lockSafe.newPassword')}</div>
             <Form.Item name="password" rules={[{ validator: validatePassword }]}>
               <Input.Password maxLength={100}
-                placeholder="请输入新密码"
+                placeholder={t('security.lockSafe.inputPassword')}
                 allowClear={true}
                 className={`${styles.input_box} modal-input `}
                 onChange={handlePasswordChange}
@@ -242,7 +244,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
                     size={16}
                     className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
                   />
-                  8-100个字符
+                  {t('security.lockSafe.error3')}
                 </div>
               )}
 
@@ -253,7 +255,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
                     size={16}
                     className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
                   />
-                  至少一个数字和一个大写字母
+                  {t('security.lockSafe.error4')}
                 </div>
               )}
               {/* <div className="font-12 font-w-400">
@@ -261,10 +263,10 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
                        至少一个大写字母
                   </div> */}
             </div>
-            <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>确认密码</div>
+            <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>{t('security.lockSafe.checkPassword')}</div>
             <Form.Item name="checkPassword"
               rules={[
-                { required: true, message: "密码不能为空！" },
+                { required: true, message: t('security.lockSafe.lockError') },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
@@ -272,13 +274,13 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
                       return Promise.resolve();
                     }
 
-                    return Promise.reject(new Error("两次输入的密码不匹配!"));
+                    return Promise.reject(new Error(t('security.lockSafe.lockError2')));
                   },
                 }),
               ]}>
               <Input.Password
                 allowClear
-                placeholder="请确认密码"
+                placeholder={t('security.lockSafe.checkPassword')}
                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
                 style={{ borderRadius: "8px" }}
                 visibilityToggle={{ visible: verifyPasswordVisible, onVisibleChange: setverifyPasswordVisible }}

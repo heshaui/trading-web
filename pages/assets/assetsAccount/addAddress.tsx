@@ -42,7 +42,8 @@ interface coinSelectType {
     value: string,
     label: string,
 }
-const WithdrawMoneyPage = () => {
+const AddAdressPage = () => {
+    const { t } = useTranslation('assets');
     const [total, setTotal] = useState(0);
     const [delectOpen, setDelectOpen] = useState(false);
     const [delectInfo, setDelectInfo] = useState<number[]>([]);
@@ -97,7 +98,7 @@ const WithdrawMoneyPage = () => {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "币种",
+            title: t('assetsAccount.coin'), //"币种",
             dataIndex: "coinName",
             key: "coinName",
             // width: 158,
@@ -105,7 +106,7 @@ const WithdrawMoneyPage = () => {
             render: (_text) => <div>{_text || '--'} </div>,
         },
         {
-            title: "所属网络",
+            title: t('assetsAccount.protocol'), //"所属网络",
             dataIndex: "protocolName",
             key: "protocolName",
             align: "center",
@@ -113,7 +114,7 @@ const WithdrawMoneyPage = () => {
             render: (_text) => <span>{_text || '--'}</span>,
         },
         {
-            title: "地址",
+            title: t('assetsAccount.address'), //"地址",
             dataIndex: "addressName",
             key: "addressName",
             align: "center",
@@ -124,7 +125,7 @@ const WithdrawMoneyPage = () => {
             },
         },
         {
-            title: "备注",
+            title: t('assetsAccount.remark'), //"备注",
             key: "addressTitle",
             dataIndex: "addressTitle",
             // width: 128,
@@ -134,7 +135,7 @@ const WithdrawMoneyPage = () => {
             },
         },
         {
-            title: "添加时间",
+            title: t('assetsAccount.addTime'), //"添加时间",
             key: "createTime",
             dataIndex: "createTime",
             // width: 128,
@@ -145,14 +146,15 @@ const WithdrawMoneyPage = () => {
         },
 
         {
-            title: "操作",
+            title: t('assetsAccount.operation'), //"操作",
             key: "operation",
             dataIndex: "operation",
             // width: 128,
             align: "center",
             render: (_status, record) => {
                 return <>
-                    <button className={`${styles.theme_color} mr-3 font-12 font-w-500`} onClick={() => delectAddress(record.id)}>删除</button>
+                    <button className={`${styles.theme_color} mr-3 font-12 font-w-500`} onClick={() => delectAddress(record.id)}>
+                        {t('assetsAccount.delete')}</button>
                 </>
             },
         },
@@ -320,13 +322,22 @@ const WithdrawMoneyPage = () => {
             <div className='flex justify-between align-center'>
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
+                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                            {/* 现货账户 */}
+                            {t('assets.assetsAccount')}
+                            </span></Link>,
                     },
                     {
-                        title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>提现</span></Link>,
+                        title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>
+                            {/* 提现 */}
+                            {t('assets.withdrawMoney')}
+                            </span></Link>,
                     },
                     {
-                        title: <span className={`${styles.title_color}`}>地址管理</span>,
+                        title: <span className={`${styles.title_color}`}>
+                            {/* 地址管理 */}
+                            {t('assetsAccount.address')}
+                            </span>,
                     },
                 ]} style={{ fontSize: 14 }} />
 
@@ -378,13 +389,13 @@ const WithdrawMoneyPage = () => {
                                 }}
                                 onFocus={getCoinAllList}
                                 loading={coinLoading}
-                                notFoundContent={<NoData title="暂无记录" />}
+                                notFoundContent={<NoData title={t('assetsAccount.nodata')} />}
                                 onChange={coinChange}
                             // onSearch={onSearch}
                             />
                             <Input className={`${styles.input_box} modal-input2 ml-5`}
                                 // maxLength={25}
-                                placeholder='搜索地址/备注'
+                                placeholder={t('assetsAccount.addAddress.search')}
                                 allowClear
                                 prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.tip_color} `} />}
                                 onChange={addressChange}
@@ -394,7 +405,9 @@ const WithdrawMoneyPage = () => {
                         <button type='button' className={`default_btn font-16 font-w-500 ${styles.btn_style} flex-x-cc`}
                             onClick={() => setAddAddressOpen(true)}>
                             <Iconify icon="mingcute:add-line" size={20} className={` mr-2`} style={{ color: '#fff' }} />
-                            添加地址</button>
+                            {/* 添加地址 */}
+                            {t('assetsAccount.addAddress.add')}
+                        </button>
                     </div>
                     <div className={`${styles.table_content} w-full `}>
 
@@ -421,9 +434,16 @@ const WithdrawMoneyPage = () => {
                             }}
                         />
                         {selectDelect && <div className={` w-full flex-x align-center justify-between`}>
-                            <p>已选中{delectInfo.length}个地址</p>
+                            <p>
+                                {/* 已选中{delectInfo.length}个地址 */}
+                                {/* {t('assetsAccount.addAddress.isSelect', { count: delectInfo.length })} */}
+                                {t('assetsAccount.addAddress.selected')}{delectInfo.length}{t('assetsAccount.addAddress.selected2')}
+                                </p>
                             <button type='button' className={`default_btn font-16 font-w-500 ${styles.delect_btn} flex-x-cc`}
-                                onClick={delectAllAddress}>删除</button>
+                                onClick={delectAllAddress}>
+                                {/* 删除 */}
+                                {t('assetsAccount.delect')}
+                                </button>
                         </div>}
 
                     </div>
@@ -452,4 +472,4 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 		},
 	};
 };
-export default WithdrawMoneyPage;
+export default AddAdressPage;

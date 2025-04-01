@@ -39,7 +39,7 @@ function AuthCode() {
     const [sentCodeFlag, setSentCodeFlag] = useState(false);
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const [loading, setLoading] = useState(false);
-    const [requestMsg, setRequestMsg] = useState('注册成功!'); //'success' 
+    const [requestMsg, setRequestMsg] = useState(t('authCodeForm.registerSuccess')); //'success' 
     const [toastType, setToastType] = useState('success');
     const registerInfo = store.registerInfo;
 
@@ -316,7 +316,7 @@ function AuthCode() {
                 type={registerInfo.type}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
-                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 } 
                 onOk={() => setPointout(false)} 
                 onCancel={handCodeOk} 
@@ -327,7 +327,7 @@ function AuthCode() {
                 message={requestMsg}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
-                    registerInfo.type === "p" ? (registerInfo.phone || "") : ""
+                        registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 }
                 onCancel={handCancel}
                 onOk={() => goLoginPage()} 

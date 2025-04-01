@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { NoData, NoAddress } from '@/components/noData';
 import { getWithdrawDepositList} from '@/services/assets'
-
+import { useTranslation } from 'next-i18next';
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -25,6 +25,7 @@ interface DataType {
     tenantId: string
 }
 const WithdrawMoneyTable = () => {
+    const { t } = useTranslation(['assets']);
     const [tableData, setTableData] = useState<DataType[]>([
 
     ]);
@@ -45,7 +46,7 @@ const WithdrawMoneyTable = () => {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "币种",
+            title: t('assetsAccount.coin'), //"币种",
             dataIndex: "coinId",
             key: "coinId",
             width: 158,
@@ -53,7 +54,7 @@ const WithdrawMoneyTable = () => {
             render: (text, record) => <div>{text || '--'} </div>,
         },
         {
-            title: "提币时间",
+            title: t('assetsAccount.withdrawTime'), //"提币时间",
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
@@ -61,7 +62,7 @@ const WithdrawMoneyTable = () => {
             render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
-            title: "数量",
+            title: t('assetsAccount.number'), //"数量",
             dataIndex: "amount",
             key: "amount",
             align: "center",
@@ -72,7 +73,7 @@ const WithdrawMoneyTable = () => {
             },
         },
         {
-            title: "手续费",
+            title: t('assetsAccount.fee'), //"手续费",
             key: "fee",
             dataIndex: "fee",
             width: 128,
@@ -82,7 +83,7 @@ const WithdrawMoneyTable = () => {
             },
         },
         {
-            title: "地址",
+            title: t('assetsAccount.address'), //"地址",
             key: "toAddress",
             dataIndex: "toAddress",
             width: 128,
@@ -92,7 +93,7 @@ const WithdrawMoneyTable = () => {
             },
         },
         {
-            title: "钱包处理时间",
+            title: t('assetsAccount.walletProcessingTime'), //"钱包处理时间",
             key: "updateTime",
             dataIndex: "updateTime",
             width: 128,
@@ -112,7 +113,7 @@ const WithdrawMoneyTable = () => {
             },
         },
         {
-            title: "状态",
+            title: t('assetsAccount.status'), //"状态",
             key: "status",
             dataIndex: "status",
             width: 128,
@@ -122,14 +123,14 @@ const WithdrawMoneyTable = () => {
             },
         },
         {
-            title: "操作",
+            title: t('assetsAccount.operation'), //"操作",
             key: "operation",
             dataIndex: "operation",
             width: 128,
             align: "center",
             render: (_status) => {
                 return < >
-                    <button className={`${styles.theme_color}`}>撤销</button>
+                    <button className={`${styles.theme_color}`}>{t('assetsAccount.button.cancel')}</button>
                 </>;
             },
         },
@@ -140,15 +141,15 @@ const WithdrawMoneyTable = () => {
     const getStatus = (status: number) => {
         switch (status) {
             case 0:
-                return '创建';
+                return t('assetsAccount.withdrawTable.create') //'创建';
             case 1:
-                return '待审核'
+                return t('assetsAccount.withdrawTable.pending') //'待审核'
             case 2:
-                return '完成'
+                return t('assetsAccount.withdrawTable.completed') //'完成'
             case 3:
-                return '拒绝 '
+                return t('assetsAccount.withdrawTable.rejected') //'拒绝 '
             case 4:
-                return '用户撤销'
+                return t('assetsAccount.withdrawTable.canceled') //'用户撤销'
             default:
                 return '--'
         }
@@ -186,7 +187,10 @@ const WithdrawMoneyTable = () => {
     return (
         <div className={`${styles.table_box} w-full `}>
             <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-                <h5 className={`font-w-500 font-18`}>最近提现记录</h5>
+                <h5 className={`font-w-500 font-18`}>
+                    {/* 最近提现记录 */}
+                    {t('withdrawTable.title')}
+                </h5>
                 {/* <Radio
                         defaultChecked
                     ><span className={`${styles.title_color}`}>隐藏0资产</span></Radio> */}
@@ -230,7 +234,7 @@ const WithdrawMoneyTable = () => {
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     loading={tableLoading}
-                    locale={{ emptyText: <NoData title="暂无记录" /> }}
+                    locale={{ emptyText: <NoData title={t('withdrawMoney.noRecord')} /> }}
                 />
             </ConfigProvider>
         </div>

@@ -996,7 +996,7 @@ export default function HomeMenu() {
                 }
             }}
         >
-            <div style={{ position: 'relative',borderBottom: '0.5px solid var(--background8)' }}>
+            <div style={{ position: 'relative',borderBottom: '0.5px solid #37373A' }}>
                 <div className={styles.container}>
                     <div className={styles.logo}>
                         <Image

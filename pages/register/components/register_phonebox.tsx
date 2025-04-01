@@ -3,7 +3,6 @@ import { Form, Input, Checkbox, ConfigProvider } from "antd";
 import { type CSSProperties, useState } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
-import { useTranslation } from 'next-i18next';
 // import "@/styles/components/login/login.css"
 // import type { TabsProps } from 'antd';
 import { Iconify } from "@/components/icon/index";
@@ -24,7 +23,6 @@ const fromStyle: CSSProperties = {
 
 
 function RegisterPhone() {
-    const { t } = useTranslation('login');
     const [isOpen, setIsOpen] = useState(true); //是否展开
 
 	  // 密码校验状态
@@ -90,7 +88,7 @@ function RegisterPhone() {
 			value = value.trim();
 		}
 		if (!value) {
-			return Promise.reject(new Error(t('passwordNull')));
+			return Promise.reject(new Error("密码不能为空！"));
 		}
 		// 检查长度是否在 8 - 30 位之间
 		if (value.length < 8 || value.length > 30) {
@@ -182,39 +180,24 @@ function RegisterPhone() {
 					initialValues={{ areaCode: "+1" }}
 				// onValuesChange={usernameChange}
 				>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
-						{/* 手机号 */}
-						{t('registerForm.phoneTitle')}
-					</div>
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>手机号</div>
 					<Form.Item >
 						<div className="flex">
 							<PhoneCodeSelector />
-							<Form.Item 
-								noStyle 
-								name="phoneNumber" 
-								rules={[{ required: true, message: t('phoneNull') }]}
-							>
-								<Input 
-									placeholder={t('registerForm.phoneInputPlaceholder')} 
-									allowClear={true} 
-									className={`${styles.mail_input} ml-2 modal-input`} 
-								/>
+							<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
+								<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} />
 							</Form.Item>
 						</div>
 					</Form.Item>
-					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>
-						{/* 密码 */}
-						{t('registerForm.passwordTitle')}
-					</div>
-					<Form.Item name="password" rules={[{ validator: validatePassword }]}>
-						<Input.Password 
-							type="password" 
-							placeholder={t('registerForm.passwordPlaceholder')}
-							maxLength={30} 
-							allowClear={true} 
-							size="large" 
-							className={`${styles.mail_input} modal-input`}
-							onChange={handlePasswordChange} 
+					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>密码</div>
+					<Form.Item name="password"
+						rules={[{ validator: validatePassword }]}
+					>
+						<Input.Password type="password" 
+						placeholder="请输入8-30位密码"
+						 maxLength={30} allowClear={true} 
+						 size="large" className={`${styles.mail_input} modal-input`}
+						 onChange={handlePasswordChange} 
 						// prefix={
 						// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 						// }
@@ -228,8 +211,7 @@ function RegisterPhone() {
                                         size={16}
                                         className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
                                     />
-                                    {/* 8-30个字符 */}
-                                    {t('registerForm.passwordRule1')}
+                                    8-30个字符
                                 </div>
                             )}
 
@@ -240,23 +222,20 @@ function RegisterPhone() {
                                         size={16}
                                         className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
                                     />
-                                    {/* 必须包含字母和数字 */}
-                                    {t('registerForm.passwordRule2')}
+                                    必须包含字母和数字
                                 </div>
                             )}
                         </div>
 
 					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
-					onClick={()=>{setIsOpen(!isOpen)}}>
-                        {/* 推荐人的邀请码(选填) */}
-                        {t('registerForm.refereeTitle')}
+					onClick={()=>{setIsOpen(!isOpen)}}>推荐人的邀请码(选填)
                         <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"} 
 						className={`${styles.tip_icon} ml-1`} size={20} />
 
                     </div>
 					{isOpen && (
                         <Form.Item name="referee" rules={[{ required: false }]}>
-                            <Input type="referee" placeholder={t('registerForm.refereePlaceholder')} allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
+                            <Input type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
                         />
                         </Form.Item>
                     )}
@@ -270,8 +249,7 @@ function RegisterPhone() {
 						<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
 							<Checkbox className="custom-checkbox  text-color-default mt-5">
 							<p className={`${styles.title_color}`}>
-									{/* 我已阅读并同意 */}
-									{t('registerForm.agreeText')} <span className="text-color">{t('protocol')}</span> {t('and')} <span className="text-color">{t('policy')}</span>
+								我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span>
 								</p>
 								</Checkbox>
 						</Form.Item>
@@ -283,8 +261,7 @@ function RegisterPhone() {
 			</Button> */}
 				<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
 					onClick={onFinish}>
-					{/* 注册 */}
-					{t('registerForm.registerButton')}
+					{"注册"}
 				</button>
 				{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
@@ -295,15 +272,13 @@ function RegisterPhone() {
 			</Button> */}
 				<div className="flex-cc mt-4">
 					<p>
-						{/* 已有账号？ */}
-						{t('registerForm.hasAccount')}
+						{"已有账号？"}
 						<button
 							type="button"
 							className="text-color"
 							onClick={goLogin}
 						>
-							{/* 登录 */}
-							{t('login')}
+							{"登录"}
 						</button>
 					</p>
 				</div>

@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     type: string;
@@ -18,7 +19,7 @@ type Props = {
 };
 // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:修改密码 4:关闭谷歌验证
 function CheckModal({ open, onCancel, type, onOk }: Props) {
-
+    const { t } = useTranslation(['userCenter']);
     const handCancel = () => {
         onCancel()
     };
@@ -36,14 +37,14 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                     className={`${styles.modal_footerBtn} cancel_btn2 mr-5 font-14 font-w-500`}
                     onClick={handCancel}
                 >
-                    取消
+                    {t('security.changeCheck.cancel')}
                 </button>
                 <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    继续
+                    {t('security.changeCheck.continue')}
                 </button>
             </div>
         );
@@ -99,39 +100,64 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                 }}
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
+                    {/* 修改手机号 */}
                     {type == "0" && (
                         <>
                             <Image src="/images/userCenter/safe/change_phone.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                            <p className={`${styles.title} `}>您确认修改手机号吗？</p>
-                            <p className={`${styles.msg_color} mt-4 text-center` }>为保障您的资产安全，修改手机号后，24H将禁止出金。</p>
+                            <p className={`${styles.title} `}>
+                                {t('security.changeCheck.title')}
+                            </p>
+                            <p className={`${styles.msg_color} mt-4 text-center` }>
+                                {t('security.changeCheck.msg')}
+                            </p>
                         </>
                     )}
+                    {/* 关闭手机验证 */}
                     {type === "1" && (
                         <>
                             <Image src="/images/userCenter/safe/change_phone.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                            <p className={`${styles.title} `}>您确认关闭手机验证吗？</p>
-                            <p className={`${styles.msg_color} mt-4 text-center` }>确认后，您将无法使用手机获取到验证码。</p>
+                            <p className={`${styles.title} `}>
+                                {t('security.changeCheck.title1')}
+                            </p>
+                            <p className={`${styles.msg_color} mt-4 text-center` }>
+                                {t('security.changeCheck.msg1')}
+                            </p>
                         </>
                     )}
+                    {/* 修改邮箱 */}
                      {(type === "2") && (
                         < >
                             <Image src="/images/userCenter/safe/change_email.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                            <p className={`${styles.title} `}>您确认修改邮箱吗？</p>
-                            <p className={`${styles.msg_color} mt-4 text-center` } style={{width: '70%'}}>为保障您的资产安全，修改邮箱后，24H将禁止出金。</p>
+                            <p className={`${styles.title} `}>
+                                {t('security.changeCheck.title2')}
+                            </p>
+                            <p className={`${styles.msg_color} mt-4 text-center` } style={{width: '70%'}}>
+                                {t('security.changeCheck.msg2')}
+                            </p>
                         </>
                     )}
+                    {/* 修改密码 */}
                      {(type === "3"||type==='5') && (
                         <>
                             <Image src="/images/userCenter/safe/change_lock.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                            <p className={`${styles.title} `}>您确认修改密码吗？</p>
-                            <p className={`${styles.msg_color} mt-4 text-center` }>为保障您的资产安全，修改密码后，24H将禁止出金。</p>
+                            <p className={`${styles.title} `}>
+                                {t('security.changeCheck.title3')}
+                            </p>
+                            <p className={`${styles.msg_color} mt-4 text-center` }>
+                                {t('security.changeCheck.msg3')}
+                            </p>
                         </>
                     )}
+                    {/* 解绑谷歌验证 */}
                      {type === "4" && (
                         <>
                             <Image src="/images/userCenter/safe/change_google.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                            <p className={`${styles.title} `}>您确认解绑谷歌验证器吗？</p>
-                            <p className={`${styles.msg_color} mt-4 text-center` }>为保障您的资产安全，解绑谷歌身份验证器后，24H将禁止出金。</p>
+                            <p className={`${styles.title} `}>
+                                {t('security.changeCheck.title4')}
+                            </p>
+                            <p className={`${styles.msg_color} mt-4 text-center` }>
+                                {t('security.changeCheck.msg4')}
+                            </p>
                         </>
                     )}
                 </div>

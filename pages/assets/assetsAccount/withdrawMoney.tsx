@@ -13,11 +13,15 @@ import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
-import {  getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll } from '@/services/assets'
+import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll } from '@/services/assets'
 import { toast } from "sonner";
-import { cut, nul } from '@/utils'
+import { cut, nul, division, countNum, withdrawFee } from '@/utils'
 import { getUserInfo } from '@/hooks/userInfo';
 import TableBox from "../compontents/withDrawTable"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
+import { getLoginUserInfo } from "@/services/userCenter"
 
 interface coinSelectType {
     coinId: string,
@@ -114,7 +118,7 @@ interface coinInfoType {
 }
 
 const WithdrawMoneyPage = () => {
-
+    const { t } = useTranslation('assets');
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
 
@@ -125,7 +129,7 @@ const WithdrawMoneyPage = () => {
     // 币种
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [coinLoading, setCoinLoading] = useState(false)
-    const [coinId, setCoinId] = useState(0)
+    const [coinIdHistory, setCoinIdHistory] = useState(0)
     const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
     // 币种余额信息
     // const [userBalance, setUserBalance] = useState<userBalanceType>({} as userBalanceType)
@@ -156,11 +160,24 @@ const WithdrawMoneyPage = () => {
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setUserInfo(getUserInfo());
-        }
+        // if (typeof window !== 'undefined') {
+        //     setUserInfo(getUserInfo());
+        // }
+        getUserData()
     }, []);
+    const getUserData = async () => {
+        try {
+            const res = await getLoginUserInfo()
+            if (res.code === "0") {
+                setUserInfo(res.data)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            console.error(t('safeModal.getUserInfoError'), error);
+        }
 
+    }
     // 币种
     const getCoinAllList = async () => {
         if (coinSelect.length > 0 || coinLoading) return
@@ -190,6 +207,11 @@ const WithdrawMoneyPage = () => {
     // 币种选中更改-筛选历史选中/获取币种余额
     const coinChange = async (value: string, option: any) => {
         const coinId = form.getFieldValue('tenantId')
+        // 判断同币种不重复请求
+        if (coinId !== coinIdHistory) {
+            // 重置表单字段
+            form.resetFields(['protocolId']);
+        }
         if (!value && !coinId) {
             setCurrent(0)
             form.resetFields(['protocolId']);
@@ -216,14 +238,13 @@ const WithdrawMoneyPage = () => {
         // 获取币种余额
         const balance = await getUserBalanceData()
         setConinInfo(Object.assign(balance, option))
-        console.log(Object.assign(balance, option), 1234);
 
     }
     // 币种余额
     const getUserBalanceData = async () => {
         const tenantId = form.getFieldValue('tenantId')
         if (!tenantId) {
-            return toast.error('请先选择币种')
+            return toast.error(t('assetsAccount.selectCoin'))
         }
         try {
             const res = await getUserBalance(tenantId)
@@ -239,31 +260,32 @@ const WithdrawMoneyPage = () => {
     }
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
-        if (getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity >= 2) return toast.error('功能暂不可用')
-        if (coinLoading) return;
-        
-        try {
-            // 如果没有币种列表数据，先获取数据
-            if (coinSelect.length === 0) {
-                await getCoinAllData();
-               
-            }
-             // 设置表单值
-             form.setFieldValue('tenantId', coinId);
-             setCurrent(1) // 下一步
-
-             // 获取选中币种的信息并更新余额
-             const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
-             if (selectedCoin) {
-                 const balance = await getUserBalanceData();
-                 if (balance) {
-                     setConinInfo({ ...balance, ...selectedCoin });
-                 }
-             }
-
-        } catch (error) {
-            toast.error('设置币种失败');
+        // 1. 检查用户权限
+        if (getUserInfo()?.realnessStatus !== 1 && getUserInfo()?.securityIntensity < 2) {
+            return toast.error(t('withdrawMoney.function'))
         }
+
+        // 3. 判断是否需要重置表单字段（移到数据获取后）
+        if (coinId !== coinIdHistory) {
+            form.resetFields(['protocolId']);
+        }
+        if (coinSelect.length === 0) {
+            await getCoinAllData();
+
+        }
+        // 设置表单值
+        form.setFieldValue('tenantId', coinId);
+        setCurrent(1) // 下一步
+
+        // 获取选中币种的信息并更新余额
+        const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
+        if (selectedCoin) {
+            const balance = await getUserBalanceData();
+            if (balance) {
+                setConinInfo({ ...balance, ...selectedCoin });
+            }
+        }
+
     }
     // 链名称(网络名称)
     const getCoinExtList = async () => {
@@ -271,12 +293,12 @@ const WithdrawMoneyPage = () => {
         if (!tenantId) {
             setCoinExtSelect([])
 
-            return toast.error('请先选择币种')
+            return toast.error(t('assetsAccount.selectCoin'))
         }
         // 判断同币种不重复请求
-        if (coinId === tenantId || coinExtLoading) return
+        if (coinIdHistory === tenantId || coinExtLoading) return
         setCoinExtSelect([]) //初始化
-        setCoinId(tenantId)
+        setCoinIdHistory(tenantId)
         // await getAllProtocolTypeList()
         await getCoinExt(tenantId)
     }
@@ -422,10 +444,14 @@ const WithdrawMoneyPage = () => {
                 .replace(/^0+$/, '0')  // 如果全是0，则保留一个0
                 .replace(/^\./, '0.')  // 如果以小数点开头，则在前面加0
                 .replace(/^(\d+\.\d{8}).*$/, '$1'); // 限制小数位数为8位
-                
+
             form.setFieldValue('amount', filteredValue);
             setAmountNum(filteredValue)
-            setAllowWithdraw(true)
+            if (filteredValue > coninInfo.minWithdraw) {
+                setAllowWithdraw(true)
+            } else {
+                setAllowWithdraw(false)
+            }
         } else {
             setAmountNum(0)
             form.setFieldValue('amount', 0)
@@ -434,7 +460,7 @@ const WithdrawMoneyPage = () => {
     }
 
     const antiFraud = () => {
-        if(!allowWithdraw) return toast.error('请检查提现信息')
+        if (!allowWithdraw) return toast.error(t('assetsAccount.check'))
         form.validateFields()
             .then(async (values) => {
                 console.log(values)
@@ -452,12 +478,13 @@ const WithdrawMoneyPage = () => {
                     maxWithdraw: coninInfo.maxWithdraw,
                     minRecharge: coninInfo.minRecharge,
 
-                    amountAfter:cut(amountNum, coninInfo.withdrawFee ?
-                        nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee) || 0,
+                    // amountAfter:cut(amountNum, coninInfo.withdrawFee ?
+                    //     nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee) || 0,
+                    amountAfter: countNum(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
                     protocolName: coinExtSelect.find(item => item.value === values.protocolId)?.protocolName,
                     coinName: coninInfo.coinName,
-                    countWithdrawFee: nul(amountNum, coninInfo.withdrawFee) > coninInfo.minWithdrawFee ? nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee,
-
+                    // countWithdrawFee: nul(amountNum, coninInfo.withdrawFee) > coninInfo.minWithdrawFee ? nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee,
+                    countWithdrawFee: withdrawFee(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
 
                 }
                 setWithdrawInfo(params)
@@ -499,12 +526,15 @@ const WithdrawMoneyPage = () => {
 
     const steps = [
         {
-            title: <p className={`${styles.tip_title} `}>提现币种</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* 提现币种 */}
+                {t('withdrawMoney.withdrawCoin')}
+            </p>,
             description: <div className={`${styles.steps_item_content} mt-2`}>
                 {current >= 0 && <>
-                    <Form.Item name='tenantId' rules={[{ required: true, message: '请选择币种' }]}>
+                    <Form.Item name='tenantId' rules={[{ required: true, message: t('withdrawMoney.select') }]}>
                         <Select allowClear
-                            placeholder="请选择币种"
+                            placeholder={t('withdrawMoney.select')}
                             options={coinSelect}
                             className={`${styles.select_box} custom-select`}
                             optionRender={(option) => {
@@ -518,8 +548,11 @@ const WithdrawMoneyPage = () => {
                                 );
                             }}
                             dropdownRender={(menu) => (<>
-                                {coinSelect.length > 0 && <div className={` font-14 font-w-400 mb-2_5 `}>
-                                    <p className={`${styles.tip_color2}`}>搜索历史</p>
+                                {coinSelect.length > 0 && <div className={`font-14 font-w-400 mb-2_5`}>
+                                    <p className={`${styles.tip_color2}`}>
+                                        {/* 搜索历史 */}
+                                        {t('withdrawMoney.searchHistory')}
+                                    </p>
                                     {searchHistory.length > 0 ? <div className='mt-2 mb-2_5'>
                                         {searchHistory.map((item) => (
                                             <button
@@ -531,15 +564,18 @@ const WithdrawMoneyPage = () => {
                                                 {item.label}
                                             </button>
                                         ))}
-                                    </div> : <p className='mt-2 mb-2_5'>暂无</p>}
-                                    <p className={`${styles.tip_color2} `}>币种列表</p>
-
+                                    </div> : <p className='mt-2 mb-2_5'>
+                                        {/* 暂无 */}
+                                        {t('withdrawMoney.noRecord')}
+                                    </p>}
+                                    <p className={`${styles.tip_color2}`}>
+                                        {/* 币种列表 */}
+                                        {t('withdrawMoney.coinList')}
+                                    </p>
                                 </div>}
                                 {menu}
-                            </>
-
-                            )}
-                            notFoundContent={<NoData title="暂无记录" />}
+                            </>)}
+                            notFoundContent={<NoData title={t('withdrawMoney.noRecord')} />}
                             onFocus={getCoinAllList}
                             onChange={coinChange}
                             loading={coinLoading}
@@ -571,7 +607,10 @@ const WithdrawMoneyPage = () => {
 
         },
         {
-            title: <p className={`${styles.tip_title} `}>提现网络</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* 提现网络/选择网络 */}
+                {t('withdrawMoney.selectNetwork')}
+            </p>,
             description: <div className={`${styles.steps_item_content2} mt-2`}>
                 {current >= 1 && <>
                     {/* <Form.Item name='addressId' >
@@ -610,7 +649,7 @@ const WithdrawMoneyPage = () => {
                         />
 
                     </Form.Item> */}
-                    <Form.Item name='addressId' rules={[{ required: true, message: '请选择提现地址' }]} >
+                    <Form.Item name='addressId' rules={[{ required: true, message: t('withdrawMoney.selectAddress') }]} >
                         <AutoComplete
                             // options={addressSelect}
                             style={{ height: 50 }}
@@ -620,8 +659,12 @@ const WithdrawMoneyPage = () => {
                                 label: (
                                     <div className="flex-y py-1" key={item.id}>
                                         <p className={`${styles.title_color} font-14 font-w-400`}>{item.addressTitle}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>地址：{item.addressName}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{item.protocolName}</p>
+                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>
+                                            {`${t('withdrawMoney.address')}：${item.addressName}`}
+                                        </p>
+                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>
+                                            {`${t('withdrawMoney.network')}：${item.protocolName || '--'}`}
+                                        </p>
                                     </div>
                                 ),
                                 value: item.addressName
@@ -637,25 +680,25 @@ const WithdrawMoneyPage = () => {
                                         className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
                                         onClick={() => router.push('/assets/assetsAccount/addAddress')}
                                     >
-                                        添加地址
+                                        {t('withdrawMoney.addAddress')}
                                     </button>
                                 </>
                             )}
                             onChange={addressChange}
                         >
-                            <Input type="text"
+                            <Input
+                                type="text"
                                 className={`${styles.input_box3} modal-input2`}
-                                placeholder='请输入地址'
+                                placeholder={t('withdrawMoney.inputAddress')}
                                 allowClear
-
-                                suffix={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color} `} />}
+                                suffix={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color}`} />}
                             />
                         </AutoComplete>
                     </Form.Item>
                     <Form.Item >
-                        <Form.Item name='protocolId' rules={[{ required: true, message: '请选择网络' }]} noStyle>
+                        <Form.Item name='protocolId' rules={[{ required: true, message: t('withdrawMoney.selectNetwork2') }]} noStyle>
                             <Select allowClear
-                                placeholder="请选择网络"
+                                placeholder={t('withdrawMoney.selectNetwork2')}
                                 options={coinExtSelect}
                                 className={`${styles.select_box}  custom-select `}
                                 optionRender={(option) => {
@@ -665,19 +708,24 @@ const WithdrawMoneyPage = () => {
                                                 <span className={`${styles.title_color}`}>{option.data.label}</span>
                                                 <span className={`${styles.tip_color}`}>{option.data.protocolName}</span>
                                             </p>
-                                            <p className={`${styles.tip_color2} `}>手续费{option.data.withdrawFee}</p>
+                                            <p className={`${styles.tip_color2} `}>
+                                                {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`}
+                                            </p>
                                         </div>
                                     );
                                 }}
                                 dropdownRender={(menu) => (<>
-                                    <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
+                                    <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5`}>
                                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                                        <span>请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
+                                        <span>
+                                            {/* 请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。 */}
+                                            {t('withdrawMoney.networkWarning')}
+                                        </span>
                                     </p>
                                     {menu}
                                 </>
                                 )}
-                                notFoundContent={<NoData title="暂无记录" />}
+                                notFoundContent={<NoData title={t('withdrawMoney.noRecord')} />}
                                 onFocus={getCoinExtList}
                                 loading={coinExtLoading}
                                 onChange={coinExtChange}
@@ -686,20 +734,26 @@ const WithdrawMoneyPage = () => {
                         </Form.Item>
                         {showMemo && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                            <span>提币至其他交易所时需要填写标签，否则提币将失败</span>
+                            <span>
+                                {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
+                                {t('withdrawMoney.memoWarning')}
+                            </span>
                         </p>}
                     </Form.Item>
                     {showMemo && <Form.Item>
                         <Form.Item name='momo' noStyle>
                             <Input className={`${styles.input_box3} modal-input2`}
-                                placeholder='MEMO(选填）'
+                                placeholder={t('withdrawMoney.memoPlaceholder')}
                                 allowClear
                             />
 
                         </Form.Item>
                         <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                            <span>请确认收币地址是否要求填写MEMO</span>
+                            <span>
+                                {/* 请确认收币地址是否要求填写MEMO */}
+                                {t('withdrawMoney.memoConfirm')}
+                            </span>
                         </p>
                     </Form.Item>}
                 </>
@@ -708,13 +762,15 @@ const WithdrawMoneyPage = () => {
 
         },
         {
-            title: <p className={`${styles.tip_title} `}>提现信息</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* 提现信息 */}
+                {t('withdrawMoney.withdrawInfo')}
+            </p>,
             description: <div className={`${styles.steps_item_content3} mt-2`}>
                 {current >= 2 && <>
                     <Form.Item name='amount' >
                         <Input className={`${styles.input_box3} modal-input mr-7`}
-                            // maxLength={25}
-                            placeholder='提现金额'
+                            placeholder={t('withdrawMoney.withdrawAmount')}
                             allowClear
                             suffix={<div className='flex-x align-center  font-14 font-w-400'>
                                 <p className={`${styles.tip_color2} pr-2`}>
@@ -729,7 +785,7 @@ const WithdrawMoneyPage = () => {
                                         form.setFieldValue('amount', coninInfo.balance || 0)
                                         setAmountNum(coninInfo.balance || 0)
                                     }
-                                }}>最大</button>
+                                }}>{t('withdrawMoney.max')}</button>
                             </div>}
                             onChange={amountChange}
                             value={amountNum}
@@ -738,7 +794,7 @@ const WithdrawMoneyPage = () => {
                     <div className={`${styles.card_bgc3} mt-5  font-14 font-w-400`}>
                         <ul className={`${styles.tip_color} ${styles.icon_btn_bottom} w-full mb-5`}>
                             <li className={`flex-x justify-between mb-5`}>
-                                <p>现货可用</p>
+                                <p>{t('withdrawMoney.spotAvailable')}</p>
                                 <p>
                                     {/* 50.13USDT */}
                                     {coninInfo.balance || '0'}
@@ -746,7 +802,7 @@ const WithdrawMoneyPage = () => {
                                 </p>
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
-                                <p>单次限额</p>
+                                <p>{t('withdrawMoney.singleLimit')}</p>
                                 <p>
                                     {/* 10-10,000USDT */}
                                     {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
@@ -754,32 +810,33 @@ const WithdrawMoneyPage = () => {
                                 </p>
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
-                                <p>24H限额</p>
+                                <p>{t('withdrawMoney.dayLimit')}</p>
                                 <p>50,000 <span>/ 50,000USDT</span></p>
                             </li>
                         </ul>
                         <div className='flex-x justify-between align-center'>
                             <div>
-                                <p className={`${styles.tip_color} mb-3`}>预估到账</p>
+                                <p className={`${styles.tip_color} mb-3`}>{t('withdrawMoney.estimatedArrival')}</p>
                                 <p className={`${styles.title_color} mb-3 font-24 font-w-500`}>
                                     {/* 1 USDT */}
-                                    {cut(amountNum, coninInfo.withdrawFee ?
-                                        nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee) || 0}
+                                    {/* {cut(amountNum, coninInfo.withdrawFee ?
+                                        nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee) || 0} */}
+                                    {countNum(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
                                     {coninInfo.coinName || '--'}
 
                                 </p>
-                                <p className={`${styles.tip_color} mb-3`}>手续费 <span className={`${styles.title_color}`}>
+                                <p className={`${styles.tip_color} mb-3`}>{t('withdrawMoney.fee')} <span className={`${styles.title_color}`}>
                                     {/* 1 USDT */}
-                                    {/* {coninInfo.withdrawFee||'0'} {coninInfo.coinName||'--'} */}
-                                    {/* {nul(form.getFieldValue('amount'), coninInfo.withdrawFee ? coninInfo.withdrawFee : coninInfo.minWithdrawFee)}{coninInfo.coinName || '--'} */}
-                                    {nul(amountNum, coninInfo.withdrawFee) > coninInfo.minWithdrawFee ? nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee}
+
+                                    {/* {nul(amountNum, division(coninInfo.withdrawFee,100)) > coninInfo.minWithdrawFee ? nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee} */}
+                                    {withdrawFee(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
                                     {coninInfo.coinName || '--'}
                                 </span></p>
                             </div>
                             {/* default_btn */}
                             <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn'}`}
                                 onClick={antiFraud}>
-                                提现
+                                {t('withdrawMoney.withdraw')}
                             </button>
                         </div>
                     </div>
@@ -787,7 +844,6 @@ const WithdrawMoneyPage = () => {
             </div>,
 
         },
-
     ]
 
     // 添加 useEffect 来加载历史记录
@@ -805,10 +861,16 @@ const WithdrawMoneyPage = () => {
             <div className='flex justify-between align-center'>
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
+                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                            {/* 现货账户 */}
+                            {t('assets.assetsAccount')}
+                        </span></Link>,
                     },
                     {
-                        title: <span className={`${styles.title_color}`}>提现</span>,
+                        title: <span className={`${styles.title_color}`}>
+                            {/* 提现 */}
+                            {t('assets.withdraw')}
+                        </span>,
                     },
                 ]} style={{ fontSize: 14 }} />
 
@@ -816,7 +878,7 @@ const WithdrawMoneyPage = () => {
             <div className={`${styles.card_box}  mt-6  `}>
                 {!userInfo ? null : (
                     userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
-                        userInfo.securityIntensity >= 2 ? <NoUseCom type='2' /> : null
+                        userInfo.securityIntensity < 2 ? <NoUseCom type='2' /> : null
                 )}
                 <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
 
@@ -845,9 +907,7 @@ const WithdrawMoneyPage = () => {
                         >
                             <Form
                                 form={form}
-                            // initialValues={}
-                            // onValuesChange={handleFormChange}
-                            disabled={getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity >= 2} //表单禁用
+                                disabled={(getUserInfo()?.realnessStatus !== 1 && getUserInfo()?.securityIntensity < 2)}
                             >
                                 <Steps
                                     direction="vertical"
@@ -860,21 +920,27 @@ const WithdrawMoneyPage = () => {
                     </div>
                     <div className={`${styles.notice_box}`}>
                         <div>
-                            <h5 className={`font-w-500 font-16 mb-4`}>常见问题</h5>
+                            <h5 className={`font-w-500 font-16 mb-4`}>
+                                {/* 常见问题 */}
+                                {t('withdrawMoney.faq')}
+                            </h5>
                             <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>如何在IMBIT上充值和提现？</li>
-                                <li className={`mb-2_5`}>提现步骤指南</li>
-                                <li className={`mb-2_5`}>提现常见问题</li>
-                                <li className={`mb-2_5`}>为何我的提现尚未到账</li>
-                                <li className={`mb-2_5`}>如何提交充错币找回申请</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item2')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item3')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item4')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li>
                             </ul>
                         </div>
                         <div className=''>
-                            <h5 className={`font-w-500 font-16 mb-4`}>提现须知</h5>
+                            <h5 className={`font-w-500 font-16 mb-4`}>
+                                {/* 提现须知 */}
+                                {t('withdrawMoney.notice')}
+                            </h5>
                             <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>1. 请通过客户端或在线钱包将您需要提现的相应币种数目发送到该地址</li>
-                                <li className={`mb-2_5`}>2. 发送完成后，系统会自动在此交易获得相应数量，确认后将该笔数字货币提现到您在本站的账户,相应数量的确认需要大约 30分钟 到 1 小时间，请耐心等待。</li>
-                                <li className={`mb-2_5`}>3. 同一个地址可多次提现，不影响到账</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item1')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item2')}</li>
+                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item3')}</li>
                             </ul>
                         </div>
                     </div>
@@ -882,12 +948,18 @@ const WithdrawMoneyPage = () => {
                 <TableBox />
 
             </div>
-            <WithdrawMoneyCheck open={checkOpen} 
-            withdrawInfo={withdrawInfo}
-            onCancel={() => setCheckOpen(false)}  />
+            <WithdrawMoneyCheck open={checkOpen}
+                withdrawInfo={withdrawInfo}
+                onCancel={() => setCheckOpen(false)} />
         </div>
     </div>
     );
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['assets', 'common'])),
+        },
+    };
+};
 export default WithdrawMoneyPage;

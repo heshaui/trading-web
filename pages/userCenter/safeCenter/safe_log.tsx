@@ -11,6 +11,8 @@ import { useState, useEffect } from "react";
 import LoginRecord from "../components/safeLog/login_record";
 import SafeSet from "../components/safeLog/safe_set";
 import type { TabsProps } from 'antd';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 function SafeLog() {
     const router = useRouter();
     const items: TabsProps['items'] = [
@@ -52,5 +54,11 @@ function SafeLog() {
         </div>
     );
 }
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+		},
+	};
+};
 export default SafeLog;

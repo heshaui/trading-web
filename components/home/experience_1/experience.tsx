@@ -9,7 +9,7 @@ import { Input, Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
 import { CSSProperties } from "react";
-import { getPic2 } from "@/services/open";
+import { getPic2, getHomeImage } from "@/services/open";
 import { useEffect, useState } from "react";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 
@@ -38,8 +38,7 @@ export default function Experience() {
     // const { t } = useTranslation('common');
     const { t } = useTranslation(['home']);
     const [homePic, setHomePic] = useState<LoginPicType | null>(null)
-    // const isDayMode=localStorage.getItem('isDayMode')||''
-    // const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN)||''
+   const [homeImage,setHomeImage]=useState<string>('')
     // const [email, setEmail] = useState('');
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
@@ -99,8 +98,25 @@ export default function Experience() {
             }
         }
     }
+    // const getHommePic=async()=>{
+    //     const params={
+    //         key:'HomeBanner',
+    //         languageCode:'zh-CN',
+    //         dayType:'1', //1:日间 2:夜间
+    //         loginType:'1' //1:未登录 2:登录
+    //     }
+    //     try {
+    //      const res=await getHomeImage(params)
+    //     if(res.code==='0'){
+    //         setHomeImage(res.data)
+    //     }   
+    //     } catch (error) {
+            
+    //     }  
+    // }
     useEffect(() => {
         getBgc()
+        // getHommePic()
     }, []);
 
     return (

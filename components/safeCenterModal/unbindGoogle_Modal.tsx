@@ -17,6 +17,8 @@ import {
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import  QuestionModal  from "@/components/myModal/questionModal";
+import { useTranslation } from 'next-i18next';
+
 interface acountType {
     countryCode?: string;
     email?: string;
@@ -45,6 +47,7 @@ type Props = {
 };
 
 function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
+    const { t } = useTranslation(['userCenter']);
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -124,7 +127,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 toast.success(res.message)
                 startCountdown2();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -152,7 +155,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 toast.success(res.message)
                 startCountdown();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -236,24 +239,22 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         }
     }
     const ModalFooter: ModalProps["footer"] = () => {
-
         return (
             <div className="flex-x align-center justify-end" >
-                 <button
+                <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn mt-4 mb-6 mr-5`}
                     onClick={handOk}
                 >
-                    解绑
+                    {t('security.unbindGoogle.unbind')}
                 </button>
                 <button
                     type="submit"
-                    className={`${styles.modal_footerBtn}  cancel_btn2 mt-4 mb-6`}
+                    className={`${styles.modal_footerBtn} cancel_btn2 mt-4 mb-6`}
                     onClick={handCancel}
                 >
-                    取消
+                    {t('security.unbindGoogle.cancel')}
                 </button>
-               
             </div>
         );
     };
@@ -295,8 +296,8 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >安全验证
-                    {/* {type}{acountInfo.type}  */}
+                title={<p className={`${styles.title}`}>
+                    {t('security.unbindGoogle.title')}
                 </p>}
                 centered
                 onCancel={handCancel}
@@ -313,13 +314,18 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     <div className="flex-col flex-ai-center">
                         <Image src="/images/userCenter/safe/change_google.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
 
-                        <p className={`${styles.msg_color}`}>确定解绑谷歌验证？</p>
-                        <div className={`mb-6 mt-7 ${styles.warning_box} font-12 font-w-400`} >
-                            <p>温馨提示：</p>
-                            <p>为了保护账户安全，在解绑谷歌双重身份验证后，24小时内无法提币。</p>
+                        <p className={`${styles.msg_color}`}>
+                            {t('security.unbindGoogle.confirmUnbind')}
+                        </p>
+                        <div className={`mb-6 mt-7 ${styles.warning_box} font-12 font-w-400`}>
+                            <p>
+                                {t('security.unbindGoogle.warmTip')}
+                            </p>
+                            <p>
+                                {t('security.unbindGoogle.tipContent')}
+                            </p>
                         </div>
                     </div>
-                    {/* t() */}
                     <Form
                         name="nickname"
                         form={form}
@@ -327,23 +333,26 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         style={{ width: '100%' }}
                     >
                         {(acountInfo.email) && (<>
-                            <div className={`font-16 font-w-400  ${styles.tip_title}`}>{
-                                '邮箱验证'
-                            }</div>
-                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck ? '验证码发送至' : '验证码已发送至'}
-                                <span>&nbsp;{encryptEmail(acountInfo.email)
-                                }</span>
+                            <div className={`font-16 font-w-400 ${styles.tip_title}`}>
+                                {t('security.email')}
+                            </div>
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>
+                                {firstCheck ? t('security.sent2') : t('security.resend2')}
+                                <span>&nbsp;{encryptEmail(acountInfo.email)}</span>
                             </p>
-                            <Form.Item name="emailCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                            <Form.Item name="emailCode" rules={[{ required: true, message: t('security.codeError') }]}>
                                 <Input
                                     allowClear
-                                    placeholder="请输入验证码"
-                                    // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                    placeholder={t('security.inputEmailCode')}
                                     suffix={
                                         <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                             onClick={getMailCode}
                                         >
-                                            {isCounting ? `${countdown}s 重发` : firstCheck ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                            {isCounting ? 
+                                                `${countdown}${t('security.countdown')}` : 
+                                                firstCheck ? 
+                                                    <span className={`${styles.default_color}`}>{t('security.sent')}</span> : 
+                                                    t('security.resend')}
                                         </button>
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
@@ -352,25 +361,24 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'email')}
                                     value={emailCodeInputValue}
                                 />
-                                {/* <button className='text-color mt-1'>粘贴</button> */}
                             </Form.Item>
                         </>)}
                         {(acountInfo.phone && !acountInfo.email) && (<>
 
-                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
-                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.phone')}</div>
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? t('security.sent2') : t('security.resend2')}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
                             </p>
-                            <Form.Item name="phoneCode" rules={[{ required: true, message: "验证码不能为空！" }]} >
+                            <Form.Item name="phoneCode" rules={[{ required: true, message: t('security.codeError') }]} >
                                 <Input
                                     allowClear
-                                    placeholder="请输入验证码"
+                                    placeholder={t('security.inputPhoneCode')}
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
                                         <button type='button' className={isCounting2 ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                             onClick={getPhoneCode}
                                         >
-                                            {isCounting2 ? `${countdown2}s 重发` : firstCheck2 ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                            {isCounting2 ? `${countdown2}${t('security.countdown')}` : firstCheck2 ? <span className={`${styles.default_color}`}>{t('security.sent')}</span> : t('security.resend')}
                                         </button>
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}
@@ -384,13 +392,15 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         {(acountInfo.phone ||acountInfo.email) &&<div 
                         className={`error_icon font-14 font-w-500 mt-1 mb-2_5 cursor-pointer`}
                         onClick={() => setQuestionModalOpen(true)}
-                         >没有收到验证码？</div>}
-                        {/* <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div> */}
-                        <Form.Item name="googleCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
-                            <Input placeholder="请输入谷歌验证码" allowClear className={`${styles.input_box} modal-input`}
+                         >{t('security.error3')}</div>}
+                        <Form.Item name="googleCode" rules={[{ required: true, message: t('security.codeError') }]}>
+                            <Input 
+                                placeholder={t('security.inputGoogleCode')}
+                                allowClear 
+                                className={`${styles.input_box} modal-input`}
                                 suffix={
                                     <button type='button' className={`${styles.default_color}`} onClick={handlePaste}>
-                                        粘贴
+                                        {t('security.paste')}
                                     </button>
                                 }
                                 maxLength={6}

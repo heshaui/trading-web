@@ -5,10 +5,11 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import store from "@/store"
 // import { useRouter } from 'next/router';
 import styles from "./styles/delect.module.css";
-import Image from 'next/image'
-import { Iconify } from "@/components/icon/index";
-import { updateUserCenter } from '@/services/userCenter'
-import { toast } from "sonner";
+// import Image from 'next/image'
+// import { Iconify } from "@/components/icon/index";
+// import { updateUserCenter } from '@/services/userCenter'
+// import { toast } from "sonner";
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     onOk: () => void;
@@ -16,7 +17,7 @@ type Props = {
 };
 
 function NicknameModal({ open, onCancel, onOk }: Props) {
-
+    const { t } = useTranslation(['userCenter']);
     const handCancel = () => {
         onCancel()
     };
@@ -34,14 +35,16 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                     className={`${styles.modal_footerBtn} cancel_btn2 mr-5 font-14 font-w-500`}
                     onClick={handCancel}
                 >
-                    取消
+                    {/* 取消 */}
+                    {t('security.cancel')}
                 </button>
                 <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    确认
+                    {/* 确认 */}
+                    {t('security.confirm')}
                 </button>
             </div>
         );
@@ -84,7 +87,10 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >确认删除这台设备吗？</p>}
+                title={<p className={`${styles.title}`} >
+                    {/* 确认删除这台设备吗？ */}
+                    {t('security.delect.title')}
+                </p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -97,8 +103,8 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                 }}
             >
                 <div className={`flex-col  ${styles.msg_color}`} style={{ width: "100%" }}>
-                    移除后，该设备将退出登录态！
-
+                    {/* 移除后，该设备将退出登录态！ */}
+                    {t('security.delect.msg')}
                 </div>
             </Modal>
         </ConfigProvider>

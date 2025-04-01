@@ -18,6 +18,7 @@ import { getGoogleKey,bindGoogle } from '@/services/safeCenter'
 // } from '@/services/safeCenter'
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
+import { useTranslation } from 'next-i18next';
 interface acountType {
     countryCode?: string;
     email?: string;
@@ -57,6 +58,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         secretKey: '',
         codeUri: ''
     })
+    const { t } = useTranslation(['userCenter']);
     const [codeValue] = useState("https://ant.design") //, setcodeValue
     const { copyFn } = useCopyToClipboard();
 
@@ -128,20 +130,26 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
     const steps = [
         {
-            title: <p className={`${styles.tip_title}`}>Android/iOS 谷歌验证器下载</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* Android/iOS 谷歌验证器下载 */}
+                {t('security.bindGoogle.title1')}
+                </p>,
             description: <div>
-                <p className={`${styles.tip_color} font-12 font-w-400`}>{`i0S用户在App Store搜索"Authenticator"下载`}</p>
-                <p className={`${styles.tip_color} font-12 font-w-400 mt-1`}>{`Andriod用户在应用商店或手机浏览器搜索"谷歌验证器"下载`}</p>
+                <p className={`${styles.tip_color} font-12 font-w-400`}>{t('security.bindGoogle.tip1')}</p>
+                <p className={`${styles.tip_color} font-12 font-w-400 mt-1`}>{t('security.bindGoogle.tip2')}</p>
             </div>,
 
         },
         {
-            title: <p className={`${styles.tip_title}`}>在谷歌验证器中添加密钥并备份</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* 在谷歌验证器中添加密钥并备份 */}
+                {t('security.bindGoogle.title2')}
+            </p>,
             description: <div>
-                <p className={`${styles.tip_color} font-12 font-w-400`}>打开谷歌验证器，扫描下方二维码或手动输入下述密钥添加验证令牌</p>
+                <p className={`${styles.tip_color} font-12 font-w-400`}>{t('security.bindGoogle.tip3')}</p>
                 <p className={`error_icon font-12 font-w-400 mt-1`}>
                     <Iconify icon="mingcute:warning-fill" size={12} />
-                    密钥用于手机更换或丢失时找回谷歌验证器，绑定前请务必将下述密钥备份保存。
+                    {t('security.bindGoogle.tip4')}
                 </p>
                 <div className={`flex-x align-end mt-1`}>
                     <QRCode
@@ -149,7 +157,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         value={`${secretKey.codeUri || ''}`} size={68}
                     />
                     <div className={`${styles.tip_title} ml-4`}>
-                        <p className={`${styles.tip_title} font-12 font-w-400`}>复制密钥</p>
+                        <p className={`${styles.tip_title} font-12 font-w-400`}>{t('security.bindGoogle.copyKey')}</p>
                         <div className={`${styles.invite_code} font-12 mt-1`}>
                             <span className={`${styles.tip_color} mr-2`}>{secretKey.secretKey || '--'}</span>
                             <Iconify icon="bx:copy" className={`${styles.tip_title} cursor-pointer`} size={20}
@@ -163,7 +171,10 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         },
         {
-            title: <p className={`${styles.tip_title}`}>验证谷歌验证码</p>,
+            title: <p className={`${styles.tip_title}`}>
+                {/* 验证谷歌验证码 */}
+                {t('security.bindGoogle.title3')}
+            </p>,
             description: <div>
                 <ConfigProvider
                     theme={{
@@ -185,8 +196,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     }}
                 >
                     <Form form={form} layout="vertical" className="mt-2_5">
-                        <Form.Item name="googleCode" rules={[{ required: true, message: '请输入谷歌验证码' }]}>
-                            <Input placeholder="请输入谷歌验证码"
+                        <Form.Item name="googleCode" rules={[{ required: true, message: t('security.bindGoogle.googleCodeNull') }]}>
+                            <Input placeholder={t('security.bindGoogle.googleCodeNull')}
                                 style={{width:'90%'}}
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input2`} 
                                 maxLength={6}
@@ -225,7 +236,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         className={`${styles.modal_footerBtn2} default_btn mt-4 mb-6 mr-5`}
                         onClick={onNextSetup}
                     >
-                        下一步
+                        {/* 下一步 */}
+                        {t('security.bindGoogle.next')}
                     </button>
                 )}
                 {current === steps.length - 1 && (
@@ -234,7 +246,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         className={`${styles.modal_footerBtn2} default_btn mt-4 mb-6 mr-5`}
                         onClick={handOk}
                     >
-                        绑定
+                        {/* 绑定 */}
+                        {t('security.bindGoogle.bind')}
                     </button>
                 )}
                 <button
@@ -242,7 +255,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn2}  cancel_btn2 mt-4 mb-6`}
                     onClick={handCancel}
                 >
-                    取消
+                    {/* 取消 */}
+                    {t('security.bindGoogle.cancel')}
                 </button>
                 </div>
             </div>
@@ -286,8 +300,9 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >输入验证码开启谷歌验证器
-                    {/* {type}{acountInfo.type}  */}
+                title={<p className={`${styles.title}`} >
+                    {/* 输入验证码开启谷歌验证器 */}
+                    {t('security.bindGoogle.modalTitle')}
                 </p>}
                 centered
                 onCancel={handCancel}

@@ -13,6 +13,7 @@ import type { ColumnsType } from "antd/es/table";
 import { getUserDeviceNoList, getUserLoginLogList } from "@/services/safeCenter";
 import { toast } from "sonner";
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 interface DataType {
     id: number,
     userId: number,
@@ -28,6 +29,7 @@ interface DataType {
 }
 function LoginRecord() {
     const router = useRouter();
+    const { t } = useTranslation(['userCenter']);
     const [loginData, setLoginData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -38,41 +40,11 @@ function LoginRecord() {
         pageSize: 10
     })
     const paramdataRef = useRef(pageParam);
-    const [dataList, setDataList] = useState([
-        {
-            id: 10012,
-            userId: 10012,
-            key: 10012,
-            platformType: 1,
-            deviceNo: "1234567890",
-            ip: "123.123.123.123",
-            address: "北京市海淀区",
-            token: "1234567890",
-            tokenTime: "2024-01-01 12:00:00",
-            createTime: 1715424000,
-            updateTime: 1715424000,
-            tenantId: "1234567890",
-        },
-        {
-            id: 10013,
-            userId: 10013,
-            key: 10013,
-            platformType: 1,
-            deviceNo: "1234567899",
-            ip: "123.123.123.123",
-            address: "北京市海淀区",
-            token: "1234567890",
-            tokenTime: "2024-01-01 12:00:00",
-            createTime: 1715424000,
-            updateTime: 1715424000,
-            tenantId: "1234567890",
-        }
-    ]);
 
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "类型",
+            title: t('security.loginRecord.type'), //"类型",
             dataIndex: "platformType",
             key: "platformType",
             width: 158,
@@ -80,7 +52,7 @@ function LoginRecord() {
             render: (text, record) => <div>{`${text}`} </div>,
         },
         {
-            title: "时间",
+            title: t('security.loginRecord.time'), //"时间",
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
@@ -88,13 +60,13 @@ function LoginRecord() {
             render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
-            title: "状态",
+            title: t('security.loginRecord.status'), //"状态",
             dataIndex: "status",
             key: "status",
             align: "center",
             width: 158,
             render: (_status) => {
-                return <span >{_status ? _status == '1' ? '登录成功' : '登录失败' : '--'}</span>;
+                return <span >{_status ? _status == '1' ? t('security.loginRecord.loginSuccess') : t('security.loginRecord.loginFailed') : '--'}</span>;
             },
         },
         {
@@ -108,7 +80,7 @@ function LoginRecord() {
             },
         },
         {
-            title: "登录所在地",
+            title: t('security.loginRecord.address'), //"登录所在地",
             key: "address",
             dataIndex: "address",
             width: 128,

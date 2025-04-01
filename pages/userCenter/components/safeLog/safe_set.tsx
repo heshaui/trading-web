@@ -13,6 +13,7 @@ import type { ColumnsType } from "antd/es/table";
 import { getUserSafeSettingLoginLogList, getUserLoginLogList } from "@/services/safeCenter";
 import { toast } from "sonner";
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 interface DataType {
     id: number,
     userId: number,
@@ -27,6 +28,7 @@ interface DataType {
     tenantId: string,
 }
 function LoginRecord() {
+    const { t } = useTranslation(['userCenter']);
     const router = useRouter();
     const [loginData, setLoginData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
@@ -40,7 +42,7 @@ function LoginRecord() {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "类型",
+            title: t('security.safeSet.type'), //"类型",
             dataIndex: "platformType",
             key: "platformType",
             // width: 120,
@@ -48,7 +50,7 @@ function LoginRecord() {
             render: (text, record) => <span>{`${text}`} </span>,
         },
         {
-            title: "时间",
+            title: t('security.safeSet.time'), //"时间",
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
@@ -66,7 +68,7 @@ function LoginRecord() {
             },
         },
         {
-            title: "操作",
+            title: t('security.safeSet.operation'), //"操作",
             key: "settingType",
             dataIndex: "settingType",
             // width: 128,
@@ -154,7 +156,9 @@ function LoginRecord() {
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     loading={loading}
-                    locale={{ emptyText: <Empty description={<span className={styles.tip_color}>暂无数据</span>} /> }}
+                    locale={{ emptyText: <Empty description={<span className={styles.tip_color}>
+                        {t('security.safeSet.nodata')}
+                        </span>} /> }}
                 />
             </ConfigProvider>
         </div>

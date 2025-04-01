@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import type { AutoCompleteProps } from 'antd';
 import { emailSuffixes } from "@/utils/enum";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
-
+import { useTranslation } from 'next-i18next';
 interface SafeDataType {
     phone?: string;
     email?: string;
@@ -37,6 +37,7 @@ type Props = {
 };
 
 function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
+    const { t } = useTranslation(['userCenter']);
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -116,7 +117,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
     const getMailCode = async () => {
         if (isCounting || loading || codeLoading) return
         const number = form.getFieldValue('email')
-        if (!number) return toast.error('请先输入邮箱！')
+        if (!number) return toast.error(t('security.mailSafe.inputEmail2'))
         setCodeLoading(true)
         try {
             const dataInfo = {
@@ -130,7 +131,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                 toast.success(res.message)
                 startCountdown();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -159,7 +160,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                 toast.success(res.message)
                 startCountdown2();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -256,7 +257,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
                     onClick={handOk}
                 >
-                    确认
+                    {t('security.confirm')}
                 </button>
             </div>
         );
@@ -303,7 +304,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >{type === 'set' ? '设置邮箱' : '修改邮箱'}</p>}
+                title={<p className={`${styles.title}`} >{type === 'set' ? t('security.mailSafe.setMail') : t('security.mailSafe.modifyMail')}</p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -323,13 +324,13 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                         size="large"
                         style={{ width: "100%" }}
                     >
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>邮箱</div>
-                        <Form.Item name="email" rules={[{ required: true, message: "邮箱不能为空！" }]}>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.mailSafe.email')}</div>
+                        <Form.Item name="email" rules={[{ required: true, message: t('security.mailSafe.mailNullError') }]}>
                             {/* <Input placeholder="请输入新邮箱" allowClear={true} className={`${styles.input_box} modal-input `} /> */}
                             <AutoComplete
                                 onSearch={handleSearch}
                                 // placeholder="请输入手机/邮箱"
-                                placeholder="请输入邮箱"
+                                placeholder={t('security.mailSafe.inputEmail')}
                                 options={options}
                                 allowClear={true}
                                 backfill={true}
@@ -337,15 +338,15 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                             // onChange={getValue}
                             />
                         </Form.Item>
-                        <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>新邮箱验证</div>
-                        <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                        <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>{t('security.mailSafe.checkMail')}</div>
+                        <Form.Item name="code" rules={[{ required: true, message: t('security.codeErrorr') }]}>
                             <Input
                                 allowClear
-                                placeholder="请输入验证码"
+                                placeholder={t('security.inputCode')}
                                 // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                 suffix={
                                     <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getMailCode}>
-                                        {isCounting ? `${countdown}s 重发` : firstCheck ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                        {isCounting ? `${countdown}${t('security.countdown')}` : firstCheck ? <span className={`${styles.default_color}`}>{t('security.sent')}</span> : t('security.resend')}
                                     </button>
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
@@ -357,9 +358,9 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
                         {(type === 'set' && acountInfo?.googleCode) && <>
-                            <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>谷歌验证码</div>
-                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
-                                <Input placeholder="请输入谷歌验证码"
+                            <div className={`font-16 font-w-400 mb-2_5 mt-5 ${styles.tip_title}`}>{t('security.google')}</div>
+                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('security.codeError') }]}>
+                                <Input placeholder={t('security.inputGoogleCode')}
                                     allowClear={true} className={`${styles.input_box} modal-input`}
                                     maxLength={6}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
@@ -367,20 +368,20 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                             </Form.Item>
                         </>}
                         {(type === 'set' && acountInfo?.phone && !acountInfo?.googleCode) && <>
-                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>手机号验证</div>
-                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.phone')}</div>
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? t('security.sent2') : t('security.resend2')}
                                 <span>&nbsp;{encryptPhoneNumber(acountInfo.phone)}</span>
                             </p>
-                            <Form.Item name="phoneCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                            <Form.Item name="phoneCode" rules={[{ required: true, message: t('security.codeError') }]}>
                                 <Input
                                     allowClear
-                                    placeholder="请输入验证码"
+                                    placeholder={t('security.inputCode')}
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
                                         <button type='button' className={isCounting2 ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                             onClick={getPhoneCode}
                                         >
-                                            {isCounting2 ? `${countdown}s 重发` : firstCheck2 ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                            {isCounting2 ? `${countdown}${t('security.countdown')}` : firstCheck2 ? <span className={`${styles.default_color}`}>{t('security.sent')}</span> : t('security.resend')}
                                         </button>
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}

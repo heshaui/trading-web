@@ -13,6 +13,7 @@ import { postSaveIdentity } from "@/services/userCenter";
 import dayjs from 'dayjs';
 import {encryptData} from '@/hooks/user-encrypt'
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { useTranslation } from 'next-i18next';
 
 interface eventType {
     surname: string;
@@ -43,6 +44,7 @@ const uploadBgcStyle: CSSProperties = {
 function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
     const router = useRouter();
     const [form] = Form.useForm();
+    const { t } = useTranslation(['userCenter']);
     const [frontFileLoading, setFrontFileLoading] = useState<boolean>(false);
     const [frontFileUrl, setFrontFileUrl] = useState<string>('');
     const [backFileLoading, setBackFileLoading] = useState<boolean>(false);
@@ -63,11 +65,11 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
         const allowedTypes = ['image/jpg','image/jpeg', 'image/png', 'image/gif']
         const isPNG = allowedTypes.includes(file.type);
         if (!isPNG) {
-            toast.error(`${file.name} 不是正确的图片格式！`);
+            toast.error(`${file.name} ${t('upload.error1')}`);
         }
         const isLt8M = file.size / 1024 / 1024 < 8;
         if (!isLt8M) {
-            toast.error('图片必须小于8MB!');
+            toast.error(t('upload.error2'));
             return false;
         }
         return isPNG && isLt8M;
@@ -77,7 +79,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
         if(isLoading) return
         if (checkFilesComplete()) {
             const isNext = checkFilesComplete()
-            if (!isNext) return toast.error('请上传所有必要的证件照片');
+            if (!isNext) return toast.error(t('upload.error3'));
             try {
                 const params = {
                     ...userInfo,
@@ -93,7 +95,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 const res = await postSaveIdentity(encrypt)
                 setIsLoading(true)
                 if (res.code === '0') {
-                    toast.success('提交成功');
+                    toast.success(t('upload.success'));
                     sessionStorage.removeItem('idvFormData');
                     onNext();
                     localStorage.setItem('identity_authStatus','3')
@@ -108,7 +110,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
             }
 
         } else {
-            toast.error('请上传所有必要的证件照片');
+            toast.error(t('upload.error3'));
         }
     };
     // const uploadHandler = async (file: File) => {
@@ -138,7 +140,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error('无效的文件类型');
+                    toast.error(t('upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -168,7 +170,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error('无效的文件类型');
+                    toast.error(t('upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -199,7 +201,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error('无效的文件类型');
+                    toast.error(t('upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -231,7 +233,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     }}>
                     {frontFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={frontFileUrl}
-                            alt="证件正面"
+                            alt={t('upload.frontFile')}
                             width={350} height={225}
                             style={{ width: '99%', height: '99%', borderRadius: '10px' }}
                         />
@@ -252,10 +254,16 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                         >
                             <div className={`${styles.upload_icon} flex-x algin-center`}>
                                 <Iconify icon={frontFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
-                                <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
+                                <p className={`font-14 font-w-400 ml-1`}>
+                                    {/* 上传文件 */}
+                                    {t('upload.uploadFile')}
+                                </p>
 
                             </div>
-                            <div className={`font-16 font-w-500 ${styles.title_color}`}>证件正面</div>
+                            <div className={`font-16 font-w-500 ${styles.title_color}`}>
+                                {/* 证件正面 */}
+                                {t('upload.frontFile')}
+                            </div>
                         </div>
                         {/* )} */}
                     </Upload>
@@ -272,7 +280,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     }}>
                     {backFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={backFileUrl}
-                            alt="证件反面"
+                            alt={t('upload.backFile')}
                             width={350} height={225}
                             style={{ width: '99%', height: '99%', borderRadius: '10px' }}
                         />
@@ -291,10 +299,16 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                         <div className={` flex-y-cc`}>
                             <div className={`${styles.upload_icon} flex-x algin-center`}>
                                 <Iconify icon={backFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
-                                <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
+                                <p className={`font-14 font-w-400 ml-1`}>
+                                    {/* 上传文件 */}
+                                    {t('upload.uploadFile')}
+                                </p>
 
                             </div>
-                            <div className={`font-16 font-w-500 ${styles.title_color}`}>证件反面</div>
+                            <div className={`font-16 font-w-500 ${styles.title_color}`}>
+                                {/* 证件反面 */}
+                                {t('upload.backFile')}
+                            </div>
                         </div>
                         {/* )} */}
                     </Upload>
@@ -310,7 +324,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     }}>
                     {selfieFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={selfieFileUrl}
-                            alt="手持证件照"
+                            alt={t('upload.selfieFile')}
                             width={350} height={225}
                             style={{ width: '99%', height: '99%', borderRadius: '10px' }}
                         />
@@ -330,10 +344,16 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                         <div className={` flex-y-cc`}>
                             <div className={`${styles.upload_icon} flex-x algin-center`}>
                                 <Iconify icon={selfieFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
-                                <p className={`font-14 font-w-400 ml-1`}>上传文件</p>
+                                <p className={`font-14 font-w-400 ml-1`}>
+                                    {/* 上传文件 */}
+                                    {t('upload.uploadFile')}
+                                </p>
 
                             </div>
-                            <div className={`font-16 font-w-500 ${styles.title_color}`}>手持证件照</div>
+                            <div className={`font-16 font-w-500 ${styles.title_color}`}>
+                                {/* 手持证件照 */}
+                                {t('upload.selfieFile')}
+                            </div>
                         </div>
                         {/* )} */}
                     </Upload>
@@ -343,15 +363,18 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
             <ul className={`font-14 font-w-400 mt-5 ${styles.tip_color}`}>
                 <li className="flex items-center mb-1">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
-                    支持小于8M的JPG、JPEG或PNG格式图片。
+                    {/* 支持小于8M的JPG、JPEG或PNG格式图片。 */}
+                    {t('upload.tip1')}
                 </li>
                 <li className="flex items-center mb-1">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
-                    证件照片要求清晰，不允许任何修改和遮挡，必须能看清人像、证件号和姓名。
+                    {/* 证件照片要求清晰，不允许任何修改和遮挡，必须能看清人像、证件号和姓名。 */}
+                    {t('upload.tip2')}
                 </li>
                 <li className="flex items-center">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
-                    照片需免冠，建议未化妆，手持证件人的五官清晰可鉴，完整漏出手臂。
+                    {/* 照片需免冠，建议未化妆，手持证件人的五官清晰可鉴，完整漏出手臂。 */}
+                    {t('upload.tip3')}
                 </li>
             </ul>
 
@@ -359,12 +382,18 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 <button
                     className={`${styles.btn_style_prev} cancel_btn3`}
                     onClick={onPrev}
-                >上一步</button>
+                >
+                    {/* 上一步 */}
+                    {t('upload.prev')}
+                </button>
                 {!checkFilesComplete() ? (
                     <button
                         className={`${styles.btn_style_next} disabled_btn`}
                         disabled
-                    >下一步</button>
+                    >
+                        {/* 下一步 */}
+                        {t('upload.next')}
+                    </button>
                 ) : (
                     <button
                         type='submit'
@@ -372,7 +401,8 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                         onClick={onSubmit}
                     >
                         {isLoading && <Iconify icon="eos-icons:bubble-loading" size={20} />}
-                        {'下一步'}
+                        {/* 下一步 */}
+                        {t('upload.next')}
                     </button>
                 )}
             </div>

@@ -23,6 +23,7 @@ import BindGoogleModal from '@/components/safeCenterModal/bindGoogle_Modal';
 
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -104,109 +105,107 @@ const SafeCenter: React.FC = () => {
     const [unbindGoogleModalOpen, setUnbindGoogleModalOpen] = useState(false)
     const [BindGoogleModalOpen, setBindGoogleModalOpen] = useState(false)
     const router = useRouter();
+    const { t } = useTranslation(['userCenter']);
 
     const initBaseSafeList: SafeListItem[] = [
         {
-            title: "谷歌验证器(推荐)",
+            title: t('security.googleAuth'),
             type: "googleCode",
-            desc: "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。",
+            /* 用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。 */
+            desc: t('security.googleAuthDesc'),
             isBind: false,
-            bindValue: "启用",
-            noBindValue: "未绑定",
+            /* 启用 */
+            bindValue: t('security.enabled'),
+            /* 未绑定 */
+            noBindValue: t('security.notBound'),
             icon: "/images/userCenter/safe/icon_google.svg",
             bindBtn: [{
-                title: "解绑",
+                /* 解绑 */
+                title: t('security.unbind'),
                 onok: () => {
-                    // 解绑-确认弹窗
                     setCheckModalOpen(true)
                     setCheckType('4')
                 },
                 key: 'close'
             },
             {
-                title: "已启用",
+                /* 已启用 */
+                title: t('security.enabled_status'),
                 onok: () => {},
                 key: 'open'
-            }
-            ],
+            }],
             noBindBtn: [{
-                title: "绑定",
+                /* 绑定 */
+                title: t('security.bind'),
                 onbind: () => {
                     setBindGoogleModalOpen(true)
-                    // setSafeAccount({
-                    //     ...safeData,
-                    //     type: safeData?.email ? 'email' : 'phone',
-                    // })
                 },
                 key: 'bind'
             }]
         },
         {
-            title: "手机验证",
+            /* 手机验证 */
+            title: t('security.phoneAuth'),
             type: "phone",
-            desc: "短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。",
+            /* 短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。 */
+            desc: t('security.phoneAuthDesc'),
             isBind: false,
             bindValue: "--",
-            noBindValue: "未绑定",
+            /* 未绑定 */
+            noBindValue: t('security.notBound'),
             icon: "/images/userCenter/safe/icon_phone.svg",
             bindBtn: [{
-                title: "修改",
+                /* 修改 */
+                title: t('security.modify'),
                 onok: () => {
-                    // setPhoneModalOpen(true)
-                    // setPhoneType('change')
-                    // 手机修改-1确认弹窗
                     setCheckModalOpen(true)
                     setCheckType('0')
                 },
                 key: 'change'
             },
             {
-                title: "关闭验证",
+                /* 关闭验证 */
+                title: t('security.closeVerify'),
                 onok: () => {
-                    // 关闭-确认弹窗
                     setCheckModalOpen(true)
                     setCheckType('1')
                 },
                 key: 'close'
-            }
-            ],
+            }],
             noBindBtn: [{
-                title: "绑定",
+                /* 绑定 */
+                title: t('security.bind'),
                 onbind: () => {
                     setPhoneModalOpen(true)
                     setPhoneType('set')
-                    // setSafeAccount({
-                    //     ...safeData,
-                    //     type: safeData?.email ? 'email' : 'phone',
-                    // })
                 },
                 key: 'bind'
             }]
         },
         {
-            title: "邮箱验证",
+            /* 邮箱验证 */
+            title: t('security.emailAuth'),
             type: "email",
-            desc: "邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。",
+            /* 邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。 */
+            desc: t('security.emailAuthDesc'),
             isBind: false,
             bindValue: "--",
-            noBindValue: "未绑定",
+            /* 未绑定 */
+            noBindValue: t('security.notBound'),
             icon: "/images/userCenter/safe/icon_email.svg",
             bindBtn: [{
-                title: "修改",
+                /* 修改 */
+                title: t('security.modify'),
                 onok: () => {
-                    // setMailModalOpen(true)
-                    // setMailType('change')
-                    // 邮箱修改-1确认弹窗
                     setCheckModalOpen(true)
                     setCheckType('2')
                 },
                 key: 'change'
-            }
-            ],
+            }],
             noBindBtn: [{
-                title: "绑定",
+                /* 绑定 */
+                title: t('security.bind'),
                 onbind: () => {
-                    // 绑定-添加/修改邮箱弹窗
                     setMailModalOpen(true)
                     setMailType('set')
                     // setSafeAccount({
@@ -218,24 +217,29 @@ const SafeCenter: React.FC = () => {
             }]
         },
         {
-            title: "登录密码",
+            /* 登录密码 */
+            title: t('security.loginPassword'),
             type: "password",
-            desc: "重置时自动退出当前账号",
+            /* 重置时自动退出当前账号 */
+            desc: t('security.loginPasswordDesc'),
             isBind: false,
-            bindValue: "已设置",
-            noBindValue: "未设置",
+            /* 已设置 */
+            bindValue: t('security.set'),
+            /* 未设置 */
+            noBindValue: t('security.notSet'),
             icon: "/images/userCenter/safe/icon_password.svg",
             bindBtn: [{
-                title: "修改",
+                /* 修改 */
+                title: t('security.modify'),
                 onok: () => {
                     setCheckModalOpen(true)
                     setCheckType('3')
                 },
                 key: 'change'
-            }
-            ],
+            }],
             noBindBtn: [{
-                title: "设置",
+                /* 设置 */
+                title: t('security.setAction'),
                 onbind: () => {
                     setCheckModalOpen(true)
                     setCheckType('5')
@@ -246,15 +250,19 @@ const SafeCenter: React.FC = () => {
                 },
                 key: 'bind'
             }]
-        },
+        }
     ]
     const initSecurityLogList: SecurityLogItem[] = [
         {
-            title: "安全设备",
-            desc: "管理已授权允许登录的设备。",
-            tip: "授权设备数：",
+            /* 安全设备 */
+            title: t('security.securityDevice'),
+            /* 管理已授权允许登录的设备。 */
+            desc: t('security.securityDeviceDesc'),
+            /* 授权设备数： */
+            tip: t('security.deviceCount'),
             value: "--",
-            btntext: "管理",
+            /* 管理 */
+            btntext: t('security.manage'),
             icon: "/images/userCenter/safe/equipment.svg",
             type: "deviceNos",
             button: () => {
@@ -262,11 +270,15 @@ const SafeCenter: React.FC = () => {
             }
         },
         {
-            title: "安全日志",
-            desc: "用于登录等IP地址安全。",
-            tip: "最近登录IP地址：",
+            /* 安全日志 */
+            title: t('security.securityLog'),
+            /* 用于登录等IP地址安全。 */
+            desc: t('security.securityLogDesc'),
+            /* 最近登录IP地址： */
+            tip: t('security.lastLoginIp'),
             value: "--",
-            btntext: "查看",
+            /* 查看 */
+            btntext: t('security.view'),
             icon: "/images/userCenter/safe/icon_security_og.svg",
             type: "recentIp",
             button: () => {
@@ -404,7 +416,7 @@ const SafeCenter: React.FC = () => {
                                 item.bindBtn.filter(btn =>  btn.key !== 'open');
                             return {
                                 ...item,
-                                bindValue: '启用',
+                                bindValue: t('security.enabled'), //'启用',
                                 isBind: Boolean(value),
                                 bindBtn: filteredBindBtn
                             };
@@ -413,7 +425,7 @@ const SafeCenter: React.FC = () => {
                             const value = data[item.type];
                             return {
                                 ...item,
-                                bindValue: '已设置',
+                                bindValue: t('security.set'), //'已设置',
                                 isBind: Boolean(value),
                             };
                         }
@@ -484,11 +496,14 @@ const SafeCenter: React.FC = () => {
     return (<div className={`${styles.safe_page}`} >
         {/* <Spin size="large" spinning={loading} /> */}
         <div >
-            <h2 className={`font-w-500 font-20`}>安全中心</h2>
+            <h2 className={`font-w-500 font-20`}>
+                {/* 安全中心 */}
+                {t('security.title')}
+            </h2>
         </div>
         {/* safe box*/}
         <div className={`${styles.card_bgc} mt-3 `}>
-            <div className={`flex-row justify-between font-18 font-w-500 pl-6 mb-4`} >基础安全
+            <div className={`flex-row justify-between font-18 font-w-500 pl-6 mb-4`} >{t('security.basicSecurity')}
             </div>
             <ul className={`${styles.content_ul} ${styles.border_bottom} mt-4 `} >
                 {baseSafeList.map((item: SafeListItem) => (
@@ -567,7 +582,7 @@ const SafeCenter: React.FC = () => {
 
             </ul>
             {/* } */}
-            <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >安全日志</div>
+            <div className={`flex-row justify-between font-18 font-w-500 pl-6 pt-6 mb-4`} >{t('security.securityLog')}</div>
             <ul className={`${styles.content_ul}`}>
                 {securityLogList.map((item: SecurityLogItem) => (
                     <Skeleton active title={false} loading={loadingSkeleton} key={item.type} className='px-6 py-6'>

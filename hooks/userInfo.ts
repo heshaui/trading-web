@@ -1,6 +1,8 @@
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 // 安全地从 localStorage 获取用户信息
 // 安全地从 localStorage 获取用户信息
+import {getLoginUserInfo} from "@/services/userCenter"
+import { toast } from "sonner";
 export const getUserInfo = (): any => {
     if (typeof window !== 'undefined') {
         const userInfoString = window.localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO);

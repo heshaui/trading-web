@@ -23,6 +23,7 @@ interface DataType {
     coinName: string
 }
 const AssetsMainPage = () => {
+    const { t } = useTranslation(['assets']);
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([
         // {
@@ -63,7 +64,7 @@ const AssetsMainPage = () => {
     const [form] = Form.useForm();
     const columns: ColumnsType<DataType> = [
         {
-            title: "币种",
+            title: t('assetsAccount.currency'), //"币种",
             dataIndex: "coinName",
             key: "coinName",
             // width: 158,
@@ -72,7 +73,7 @@ const AssetsMainPage = () => {
             sorter: (a, b) => a.coinName.localeCompare(b.coinName),
         },
         {
-            title: "持仓",
+            title: t('assetsAccount.balance'), //"持仓",
             dataIndex: "balance",
             key: "balance",
             align: "center",
@@ -89,7 +90,7 @@ const AssetsMainPage = () => {
             },
         },
         {
-            title: "可用",
+            title: t('assetsAccount.available'), //"可用",
             dataIndex: "balance",
             key: "balance",
             align: "center",
@@ -101,7 +102,7 @@ const AssetsMainPage = () => {
             sorter: (a, b) => a.balance - b.balance,
         },
         {
-            title: "冻结",
+            title: t('assetsAccount.frozen'), //"冻结",
             key: "releaseBalance",
             dataIndex: "releaseBalance",
             // width: 128,
@@ -112,7 +113,7 @@ const AssetsMainPage = () => {
             sorter: (a, b) => a.releaseBalance - b.releaseBalance,
         },
         {
-            title: "下单锁定",
+            title: t('assetsAccount.order'), //"下单锁定",
             key: "frozenBalance",
             dataIndex: "frozenBalance",
             // width: 128,
@@ -123,16 +124,16 @@ const AssetsMainPage = () => {
             sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
         {
-            title: "操作",
+            title: t('assetsAccount.operation'), //"操作",
             key: "action",
             dataIndex: "action",
             // width: 128,
             align: "center",
             render: (_text) => {
                 return <>
-                    <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
-                    <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
-                    <button className={`${styles.theme_color} font-12 font-w-500`}>交易</button>
+                    <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>{t('assetsAccount.button.withdraw')}</button>
+                    <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>{t('assetsAccount.button.deposit')}</button>
+                    <button className={`${styles.theme_color} font-12 font-w-500`}>{t('assetsAccount.button.trade')}</button>
                 </>
             },
         },
@@ -188,23 +189,38 @@ const AssetsMainPage = () => {
         <div className='flex justify-between align-center'>
             <h2 className={`font-w-500 font-20`}>现货账户</h2>
             <div className='flex-row'>
-                <button className={`default_btn ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/topUp')}>充值</button>
-                <button className={`cancel_btn4 ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/withdrawMoney')}>提现</button>
-                <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push('/assets/billDetails')}>现货账单</button>
+                <button className={`default_btn ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/topUp')}>
+                    {/* 充值 */}
+                    {t('assetsAccount.button.deposit')}
+                    </button>
+                <button className={`cancel_btn4 ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/withdrawMoney')}>
+                    {/* 提现 */}
+                    {t('assetsAccount.button.withdraw')}
+                    </button>
+                <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push('/assets/billDetails')}>
+                    {/* 现货账单 */}
+                    {t('assetsAccount.button.bill')}
+                    </button>
             </div>
         </div>
         <div className={`${styles.card_bgc}  mt-3 `}>
             <div className={`${styles.card_bgc2} w-full`}>
                 <ul className='flex-row'>
                     <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
-                        <p className={`${styles.tip_color} font-w-400 font-14`}>现货资产</p>
+                        <p className={`${styles.tip_color} font-w-400 font-14`}>
+                            {/* 现货资产 */}
+                            {t('assetsAccount.assets')}
+                            </p>
                         <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                             <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
                             <span>≈  1.12 CNY</span>
                         </p>
                     </li>
                     <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
-                        <p className={`${styles.tip_color} font-w-400 font-14`}>今日盈亏</p>
+                        <p className={`${styles.tip_color} font-w-400 font-14`}>
+                            {/* 今日盈亏 */}
+                            {t('assetsAccount.todayProfit')}
+                            </p>
                         <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                             <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
                             <span>≈  1.12 CNY</span>
@@ -218,7 +234,7 @@ const AssetsMainPage = () => {
                         <Form.Item name="search"> */}
                             <Input className={`${styles.input_box} modal-input mr-7`}
                                 maxLength={25}
-                                placeholder='搜索'
+                                placeholder={t('assetsAccount.search')}
                                 allowClear
                                 prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
                                 onChange={searchInputChange}
@@ -229,7 +245,7 @@ const AssetsMainPage = () => {
                                 // checked={hideZero}
                                 onChange={hideZeroChange}
                                 >
-                                    <span className={`${styles.title_color}`}>隐藏0资产</span>
+                                    <span className={`${styles.title_color}`}>{t('assetsAccount.hideZero')}</span>
                             </Checkbox>
                         {/* </Form.Item>
                     </Form> */}

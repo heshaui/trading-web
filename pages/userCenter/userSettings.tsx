@@ -118,6 +118,7 @@ const UserSettingsPage: React.FC = () => {
       if (code === '0') {
         setLoadingSkeleton(false)
         setUserInfo(data);
+        
         // 遍历 userInfoList
         const updatedUserInfoList = userInfoList.map(item => {
           if (data.hasOwnProperty(item.type)) {

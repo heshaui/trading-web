@@ -12,7 +12,7 @@ import { useState } from "react";
 import { bindPhone, getSmsCode,getEmailCode } from '@/services/safeCenter'
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
-
+import { useTranslation } from 'next-i18next';
 interface SafeDataType {
     phone?: string;
     email?: string;
@@ -34,6 +34,7 @@ type Props = {
 };
 
 function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
+    const { t } = useTranslation(['userCenter']);
     // const router = useRouter();
     const [isCounting, setIsCounting] = useState(false);
     const [isCounting2, setIsCounting2] = useState(false);
@@ -109,7 +110,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
         if (isCounting || loading || codeLoading) return
         const number = form.getFieldValue('phoneNumber')
         const code = form.getFieldValue('areaCode')
-        if (!number) return toast.error('请先输入手机号')
+        if (!number) return toast.error(t('security.phoneSafe.inputPhone2'))
         setCodeLoading(true)
         try {
             const dataInfo = {
@@ -124,7 +125,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                 toast.success(res.message)
                 startCountdown();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -152,7 +153,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                 toast.success(res.message)
                 startCountdown2();
             } else if (res.code === "10044") {
-                toast.error('验证码还在有效期内')
+                toast.error(t('security.error1'))
             } else {
                 toast.error(res.message)
             }
@@ -238,7 +239,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                     className={`${styles.modal_footerBtn} default_btn mt-8 mb-6`}
                     onClick={handOk}
                 >
-                    确认
+                    {t('security.confirm')}
                 </button>
             </div>
         );
@@ -281,7 +282,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >{type === 'set' ? '设置手机号' : '修改手机号'}</p>}
+                title={<p className={`${styles.title}`} >{type === 'set' ? t('security.phoneSafe.setPhone') : t('security.phoneSafe.modifyPhone')}</p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -301,24 +302,30 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                         size="large"
                         initialValues={{ areaCode: "+1" }}
                     >
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>国家/地区</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>
+                            {/* 国家/地区 */}
+                            {t('security.phoneSafe.country')}
+                        </div>
                         <Form.Item >
                             <div className="flex">
                                 <PhoneCodeSelector className={`${styles.input_box}`} />
-                                <Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-                                    <Input placeholder="请输入新手机号" allowClear={true} className={`${styles.input_box} modal-input ml-2`} />
+                                <Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: t('security.phoneSafe.phoneNullError') }]}>
+                                    <Input placeholder={t('security.phoneSafe.inputNewPhone')} allowClear={true} className={`${styles.input_box} modal-input ml-2`} />
                                 </Form.Item>
                             </div>
                         </Form.Item>
-                        <div className={`font-16 font-w-400 mb-2_5  ${styles.tip_title}`}>新手机号验证</div>
-                        <Form.Item name="code" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                        <div className={`font-16 font-w-400 mb-2_5  ${styles.tip_title}`}>
+                            {/* 新手机号验证 */}
+                            {t('security.phoneSafe.newPhoneCheck')}
+                        </div>
+                        <Form.Item name="code" rules={[{ required: true, message: t('security.codeError') }]}>
                             <Input
                                 allowClear
-                                placeholder="请输入验证码"
+                                placeholder={t('security.inputCode')}
                                 // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                 suffix={
                                     <button type='button' className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} onClick={getPhoneCode}>
-                                        {isCounting ? `${countdown}s 重发` : firstCheck ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                        {isCounting ? `${countdown} ${t('security.countdown')}` : firstCheck ? <span className={`${styles.default_color}`}>{t('security.sent')}</span> : t('security.resend')}
                                     </button>
                                 }
                                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}
@@ -330,9 +337,12 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
                         {( type === 'set'&&acountInfo?.googleCode) && <>
-                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>谷歌验证码</div>
-                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: "谷歌验证码不能为空！" }]}>
-                                <Input placeholder="请输入谷歌验证码" allowClear={true} 
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>
+                                {/* 谷歌验证码 */}
+                                {t('security.google')}
+                            </div>
+                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('security.codeError') }]}>
+                                <Input placeholder={t('security.inputCode')} allowClear={true} 
                                 className={`${styles.input_box} modal-input`} 
                                 maxLength={6}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
@@ -341,20 +351,23 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                             </Form.Item>
                         </>}
                         {( type === 'set'&&acountInfo?.email&& !acountInfo?.googleCode) && <>
-                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>邮箱验证</div>
-                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? '验证码发送至' : '验证码已发送至'}
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>
+                                {/* 邮箱验证 */}
+                                {t('security.email')}
+                            </div>
+                            <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? t('security.sent2') : t('security.resend2')}
                                 <span>&nbsp;{encryptEmail(acountInfo.email)}</span>
                             </p>
-                            <Form.Item name="emailCode" rules={[{ required: true, message: "验证码不能为空！" }]}>
+                            <Form.Item name="emailCode" rules={[{ required: true, message: t('security.codeError') }]}>
                                 <Input
                                     allowClear
-                                    placeholder="请输入验证码"
+                                    placeholder={t('security.inputCode')}
                                     // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     suffix={
                                         <button type='button' className={isCounting2 ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                             onClick={getMailCode}
                                         >
-                                            {isCounting2 ? `${countdown2}s 重发` : firstCheck2 ? <span className={`${styles.default_color}`}>发送验证码</span> : "重新发送"}
+                                            {isCounting2 ? `${countdown2} ${t('security.countdown')}` : firstCheck2 ? <span className={`${styles.default_color}`}>{t('security.sent')}</span> : t('security.resend')}
                                         </button>
                                     }
                                     className={`${styles.authcode_input} ${styles.input_box} modal-input`}

@@ -17,7 +17,7 @@ import { encryptData } from "@/hooks/user-encrypt";
 import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal";
 import TotastModal from "./totastModal";
 import { getUserInfo } from '@/hooks/userInfo';
-
+import { useTranslation } from "react-i18next";
 interface paramsType {
     coinId: number;
     protocolId: number;
@@ -53,6 +53,7 @@ type Props = {
 };
 
 function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
+    const { t } = useTranslation(['assets']);
     const [safeModalOpen, setSafeModalOpen] = useState(false)
     const [userInfo, setUserInfo] = useState({})
     const [totastOpen, setTotastOpen] = useState(false)
@@ -98,14 +99,14 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
             }
             else {
                 setTotastOpen(true)
-                setTotastMessage(res.message||'操作失败')
+                setTotastMessage(res.message||t('withdrawMoneyCheck.operationFailed'))
                 setTotastType('error')
                 toast.error(res.message)
             }
 
         } catch (error) {
             setTotastOpen(true)
-            setTotastMessage(String(error)||'操作失败')
+            setTotastMessage(String(error)||t('withdrawMoneyCheck.operationFailed'))
             setTotastType('error')
         }
     }
@@ -127,7 +128,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    确认
+                    {t('assetsAccount.button.confirm')}
                 </button>
             </div>
         );
@@ -162,7 +163,10 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >提现确认</p>}
+                title={<p className={`${styles.title}`} >
+                    {/* 提现确认 */}
+                    {t('withdrawMoneyCheck.withdrawConfirm')}
+                </p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -176,32 +180,60 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
             >
                 <div className={`flex-col flex-ai-center  font-14 font-w-400`} style={{ width: "100%" }}>
                     <p className={`${styles.title_color} font-24 font-w-500`}>{withdrawInfo?.amount} {withdrawInfo?.coinName}</p>
-                    <p className={`${styles.tip_color} mt-2`}>提现金额</p>
+                    <p className={`${styles.tip_color} mt-2`}>
+                        {/* 提现金额 */}
+                        {t('withdrawMoneyCheck.withdrawAmount')}
+                    </p>
                     <ul className={`${styles.card_bgc3} mt-2`}>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
-                            <p className={`${styles.tip_color}`}>提现地址</p>
+                            <p className={`${styles.tip_color}`}>
+                                {/* 提现地址 */}
+                                {t('withdrawMoneyCheck.withdrawAddress')}
+                            </p>
                             <p >{withdrawInfo?.toAddress}</p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
-                            <p className={`${styles.tip_color}`}>网络</p>
+                            <p className={`${styles.tip_color}`}>
+                                {/* 网络 */}
+                                {t('withdrawMoneyCheck.network')}
+                            </p>
                             <p >{withdrawInfo?.protocolName}</p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
-                            <p className={`${styles.tip_color}`}>数量</p>
+                            <p className={`${styles.tip_color}`}>
+                                {/* 数量 */}
+                                {t('withdrawMoneyCheck.amountAfter')}
+                            </p>
                             <p className="flex-y">
-                                <span>到账：{withdrawInfo?.amountAfter}
-                                    {withdrawInfo?.coinName}</span>
-                                <span>手续费：{withdrawInfo?.countWithdrawFee}
+                                <span>
+                                    {/* 到账： */}
+                                    {t('withdrawMoneyCheck.toAccount')}
+                                    {withdrawInfo?.amountAfter}
+                                    {withdrawInfo?.coinName}
+                                </span>
+                                <span>
+                                    {/* 手续费： */}
+                                    {t('withdrawMoneyCheck.withdrawFee')}
+                                    {withdrawInfo?.countWithdrawFee}
                                     {withdrawInfo?.coinName}</span></p>
                         </li>
                         <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
-                            <p className={`${styles.tip_color}`}>提现账户</p>
-                            <p >现货账户</p>
+                            <p className={`${styles.tip_color}`}>
+                                {/* 提现账户 */}
+                                {t('withdrawMoneyCheck.withdrawAccount')}
+                            </p>
+                            <p >
+                                {/* 现货账户 */}
+                                {t('withdrawMoneyCheck.spotAccount')}
+                            </p>
                         </li>
                     </ul>
                     <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 mt-4 `}>
                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                        <span>请确保您输入了正确的提现地址并且您选择的转账网络与地址相匹配</span>
+                        <span>
+                            {/* 请确保您输入了正确的提现地址并且您选择的转账网络与地址相匹配 */}
+                            {t('withdrawMoneyCheck.warning')}
+                        </span>
                     </p>
                 </div>
                 {/* <ErrModal open={errOpen} message={'99USDT'} type={'loading'} onCancel={() => setErrOpen(false)}/> */}

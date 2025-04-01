@@ -10,7 +10,6 @@ import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-
 interface DataType {
   id: number,
   userId: number,
@@ -25,6 +24,7 @@ interface DataType {
   tenantId: string,
 }
 const AssetsMainPage = () => {
+  const { t } = useTranslation(['assets']);
   const [tableData, setTableData] = useState<DataType[]>([
     {
       id: 1,
@@ -88,12 +88,11 @@ const AssetsMainPage = () => {
     total:0
   })
   const paramdataRef3 = useRef(pageParam3);
-  const { t } = useTranslation('assets');
   
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "时间",
+      title: t('assetsAccount.time'), //"时间",
       dataIndex: "deviceNo",
       key: "deviceNo",
       width: 158,
@@ -101,7 +100,7 @@ const AssetsMainPage = () => {
       render: (text, record) => <div>{`${text}`} </div>,
     },
     {
-      title: "类型",
+      title: t('assetsAccount.type'), //"类型",
       dataIndex: "token",
       key: "token",
       align: "center",
@@ -109,7 +108,7 @@ const AssetsMainPage = () => {
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
-      title: "币种",
+      title: t('assetsAccount.currency'), //"币种",
       dataIndex: "tokenTime",
       key: "tokenTime",
       align: "center",
@@ -120,7 +119,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "数量",
+      title: t('assetsAccount.number'), //"数量",
       key: "createTime",
       dataIndex: "createTime",
       width: 128,
@@ -130,7 +129,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "地址",
+      title: t('assetsAccount.address'), //"地址",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -150,7 +149,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "状态",
+      title: t('assetsAccount.status'), //"状态",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -178,7 +177,7 @@ const AssetsMainPage = () => {
   ];
   const columns2: ColumnsType<DataType> = [
     {
-      title: "时间",
+      title: t('assetsAccount.time'), //"时间",
       dataIndex: "deviceNo",
       key: "deviceNo",
       width: 158,
@@ -186,7 +185,7 @@ const AssetsMainPage = () => {
       render: (text, record) => <div>{`${text}`} </div>,
     },
     {
-      title: "类型",
+      title: t('assetsAccount.type'), //"类型",
       dataIndex: "token",
       key: "token",
       align: "center",
@@ -194,7 +193,7 @@ const AssetsMainPage = () => {
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
-      title: "币种",
+      title: t('assetsAccount.currency'), //"币种",
       dataIndex: "tokenTime",
       key: "tokenTime",
       align: "center",
@@ -205,7 +204,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "数量",
+      title: t('assetsAccount.number'), //"数量",
       key: "createTime",
       dataIndex: "createTime",
       width: 128,
@@ -215,7 +214,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "手续费",
+      title: t('assetsAccount.fee'), //"手续费",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -225,7 +224,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "地址",
+      title: t('assetsAccount.address'), //"地址",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -245,7 +244,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "状态",
+      title: t('assetsAccount.status'), //"状态",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -255,16 +254,25 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "操作",
+      title: t('assetsAccount.operation'), //"操作",
       key: "action",
       dataIndex: "action",
       width: 128,
       align: "center",
       render: (_status) => {
         return <>
-          <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
-          <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
-          <button className={`${styles.theme_color} font-12 font-w-500`}>交易</button>
+          <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>
+            {/* 提现 */}
+            {t('assetsAccount.button.withdraw')}
+            </button>
+          <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>
+            {/* 充值 */}
+            {t('assetsAccount.button.deposit')}
+            </button>
+          <button className={`${styles.theme_color} font-12 font-w-500`}>
+            {/* 交易 */}
+            {t('assetsAccount.button.trade')}
+            </button>
         </>
       },
     },
@@ -273,7 +281,7 @@ const AssetsMainPage = () => {
   ];
   const columns3: ColumnsType<DataType> = [
     {
-      title: "时间",
+      title: t('assetsAccount.time'), //"时间",
       dataIndex: "deviceNo",
       key: "deviceNo",
       width: 158,
@@ -281,7 +289,7 @@ const AssetsMainPage = () => {
       render: (text, record) => <div>{`${text}`} </div>,
     },
     {
-      title: "类型",
+      title: t('assetsAccount.type'), //"类型",
       dataIndex: "token",
       key: "token",
       align: "center",
@@ -289,7 +297,7 @@ const AssetsMainPage = () => {
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
-      title: "币种",
+      title: t('assetsAccount.currency'), //"币种",
       dataIndex: "tokenTime",
       key: "tokenTime",
       align: "center",
@@ -300,7 +308,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "数量",
+      title: t('assetsAccount.number'), //"数量",
       key: "createTime",
       dataIndex: "createTime",
       width: 128,
@@ -310,7 +318,7 @@ const AssetsMainPage = () => {
       },
     },
     {
-      title: "状态",
+      title: t('assetsAccount.status'), //"状态",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -388,7 +396,9 @@ const AssetsMainPage = () => {
       }}
     >
       <div className='flex justify-between align-center'>
-        <h2 className={`font-w-500 font-20`}>账单明细</h2>
+        <h2 className={`font-w-500 font-20`}>
+          {t('billDetails.title')}
+          </h2>
       </div>
       <div className={`${styles.card_bgc}  mt-3 `}>
         {/* 充值 */}
@@ -396,12 +406,12 @@ const AssetsMainPage = () => {
           <div className={`${styles.table_header} w-full my-4 flex align-center`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
               maxLength={25}
-              placeholder='币种'
+              placeholder={t('assetsAccount.currency')}
               allowClear
               prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
             />
             <Select allowClear
-              placeholder="请选择类型"
+              placeholder={t('assetsAccount.select')}
               options={cardTypeSeelect}
               className={`${styles.select_box} custom-select`}
               onChange={topUpTypeChange}
@@ -432,12 +442,12 @@ const AssetsMainPage = () => {
           <div className={`${styles.table_header} w-full my-4 flex align-center`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
               maxLength={25}
-              placeholder='币种'
+              placeholder={t('assetsAccount.currency')}
               allowClear
               prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
             />
             <Select allowClear
-              placeholder="请选择类型"
+              placeholder={t('assetsAccount.select')}
               options={cardTypeSeelect}
               className={`${styles.select_box} custom-select`}
             />
@@ -467,12 +477,12 @@ const AssetsMainPage = () => {
           <div className={`${styles.table_header} w-full my-4 flex align-center`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
               maxLength={25}
-              placeholder='币种'
+              placeholder={t('assetsAccount.currency')}
               allowClear
               prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
             />
             <Select allowClear
-              placeholder="请选择类型"
+              placeholder={t('assetsAccount.select')}
               options={cardTypeSeelect}
               className={`${styles.select_box} custom-select`}
             />

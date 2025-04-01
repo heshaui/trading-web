@@ -16,7 +16,8 @@ import dayjs from 'dayjs';
 import DelectModal from "@/components/safeCenterModal/delect_Modal";
 import { getFingerprint } from "@/hooks/user-fingerprint";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 interface DataLogsType {
     id: number,
     userId: number,
@@ -350,5 +351,11 @@ function Equipment() {
         </div>
     );
 }
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
+		},
+	};
+};
 export default Equipment;

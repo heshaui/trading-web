@@ -8,7 +8,7 @@ import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/errModal.module.css";
 import Image from "next/image";
 import { useThemeMode } from "@/hooks/useThemeMode";
-
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     message?: string;
@@ -19,6 +19,7 @@ type Props = {
 
 function TotastModal({ open, message, type, onCancel }: Props) {
     // const router = useRouter();
+    const { t } = useTranslation(['assets']);
     const { isDayMode } = useThemeMode();
     useEffect(() => {
 
@@ -41,7 +42,8 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                     className={`${styles.errModal_btn} btn-color`}
                     onClick={handCancel}
                 >
-                    我知道了
+                    {/* 我知道了 */}
+                    {t('modal.confirm')}
                 </button>}
                 {(type === 'success' || type === 'loading') && <div className="flex-y-cc">
                     <button
@@ -49,14 +51,16 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                         className={`${styles.errModal_btn} btn-color`}
                         onClick={handCancel}
                     >
-                        去交易
+                        {/* 去交易 */}
+                        {t('modal.goTrade')}
                     </button>
                     <button
                         type="button"
                         className={`${styles.errModal_btn} cancel_btn3 mt-5`}
                         onClick={handCancel}
                     >
-                        查看资产
+                        {/* 查看资产 */}
+                        {t('modal.checkAsset')}
                     </button>
                 </div>}
             </div>
@@ -77,20 +81,29 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                 {type === 'error' && <>
                     <Image src={isDayMode ? "/images/pubic_icon/icon_anti_err_day.png" : "/images/pubic_icon/icon_anti_err_night.png"}
                         alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                    <p className={`${styles.title} `}>操作失败</p>
+                    <p className={`${styles.title} `}>
+                        {/* 操作失败 */}
+                        {t('modal.operationFailed')}
+                    </p>
                     <p className={`${styles.msg_color} mt-4`}>{message}</p>
                 </>}
                 {type === 'success' && <>
                     <Image src={isDayMode ? "/images/pubic_icon/icon_anti_fishing_day.png" : "/images/pubic_icon/icon_anti_fishing_night.png"}
                         alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                    <p className={`${styles.title} `}>{message}</p>
-                    <p className={`${styles.msg_color} mt-4`}>提现成功</p>
+                    <p className={`${styles.title} `}>
+                        {/* 提现成功 */}
+                        {t('modal.success')}
+                    </p>
+                    <p className={`${styles.msg_color} mt-4`}>{message}</p>
                 </>}
                 {type === 'loading' && <>
                     <Image src={isDayMode ? "/images/pubic_icon/icon_anti_loading_day.png" : "/images/pubic_icon/icon_anti_loading_night.png"}
                         alt="" className={`${styles.icon_box}`} width={160} height={160} />
                     {/* <p className={`${styles.title} `}>{message}</p> */}
-                    <p className={`${styles.msg_color} mt-4`}>提现审核已提交，请耐心等待审核</p>
+                    <p className={`${styles.msg_color} mt-4`}>
+                        {/* 提现审核已提交，请耐心等待审核 */}
+                        {t('modal.loading')}
+                    </p>
                 </>}
             </div>
         </Modal>
