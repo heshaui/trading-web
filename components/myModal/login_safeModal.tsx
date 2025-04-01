@@ -307,7 +307,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                                 >
                                     {/* 重新发送/60s 重发 */}
                                     {isCounting 
-                                        ? t('safeModal.resendCountdown', { count: countdown })
+                                        ? `${countdown} ${t('safeModal.resendCountdown')}`
                                         : t('safeModal.resend')
                                     }
                                 </button>

@@ -171,7 +171,7 @@ function ResetPassword() {
                             size='large'
                             suffix={
                                 <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
-                                    {isCounting ? t('resendCountdown', { count: countdown }) : t('resend')}
+                                    {isCounting ? `${countdown} ${t('resendCountdown')}` : t('resend')}
                                 </button>
                             }
                             className={`${styles.mail_input} modal-input`}
