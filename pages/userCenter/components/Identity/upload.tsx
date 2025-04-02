@@ -65,11 +65,11 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
         const allowedTypes = ['image/jpg','image/jpeg', 'image/png', 'image/gif']
         const isPNG = allowedTypes.includes(file.type);
         if (!isPNG) {
-            toast.error(`${file.name} ${t('upload.error1')}`);
+            toast.error(`${file.name} ${t('identity.upload.error1')}`);
         }
         const isLt8M = file.size / 1024 / 1024 < 8;
         if (!isLt8M) {
-            toast.error(t('upload.error2'));
+            toast.error(t('identity.upload.error2'));
             return false;
         }
         return isPNG && isLt8M;
@@ -79,7 +79,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
         if(isLoading) return
         if (checkFilesComplete()) {
             const isNext = checkFilesComplete()
-            if (!isNext) return toast.error(t('upload.error3'));
+            if (!isNext) return toast.error(t('identity.upload.error3'));
             try {
                 const params = {
                     ...userInfo,
@@ -95,7 +95,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 const res = await postSaveIdentity(encrypt)
                 setIsLoading(true)
                 if (res.code === '0') {
-                    toast.success(t('upload.success'));
+                    toast.success(t('identity.upload.success'));
                     sessionStorage.removeItem('idvFormData');
                     onNext();
                     localStorage.setItem('identity_authStatus','3')
@@ -110,7 +110,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
             }
 
         } else {
-            toast.error(t('upload.error3'));
+            toast.error(t('identity.upload.error3'));
         }
     };
     // const uploadHandler = async (file: File) => {
@@ -140,7 +140,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error(t('upload.error4'));
+                    toast.error(t('identity.upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -170,7 +170,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error(t('upload.error4'));
+                    toast.error(t('identity.upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -201,7 +201,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 formData.append('file', file);
                 // 检查文件类型
                 if (!(file instanceof File)) {
-                    toast.error(t('upload.error4'));
+                    toast.error(t('identity.upload.error4'));
                     return;
                 }
                 const res = await fileImg(file);
@@ -256,13 +256,13 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                                 <Iconify icon={frontFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>
                                     {/* 上传文件 */}
-                                    {t('upload.uploadFile')}
+                                    {t('identity.upload.uploadFile')}
                                 </p>
 
                             </div>
                             <div className={`font-16 font-w-500 ${styles.title_color}`}>
                                 {/* 证件正面 */}
-                                {t('upload.frontFile')}
+                                {t('identity.upload.frontFile')}
                             </div>
                         </div>
                         {/* )} */}
@@ -301,13 +301,13 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                                 <Iconify icon={backFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>
                                     {/* 上传文件 */}
-                                    {t('upload.uploadFile')}
+                                    {t('identity.upload.uploadFile')}
                                 </p>
 
                             </div>
                             <div className={`font-16 font-w-500 ${styles.title_color}`}>
                                 {/* 证件反面 */}
-                                {t('upload.backFile')}
+                                {t('identity.upload.backFile')}
                             </div>
                         </div>
                         {/* )} */}
@@ -324,7 +324,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     }}>
                     {selfieFileUrl && <div className={`flex-y-cc`} style={{ width: '100%', height: '100%' }}>
                         <Image src={selfieFileUrl}
-                            alt={t('upload.selfieFile')}
+                            alt={t('identity.upload.selfieFile')}
                             width={350} height={225}
                             style={{ width: '99%', height: '99%', borderRadius: '10px' }}
                         />
@@ -346,13 +346,13 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                                 <Iconify icon={selfieFileLoading ? "eos-icons:bubble-loading" : "solar:upload-linear"} size={20} />
                                 <p className={`font-14 font-w-400 ml-1`}>
                                     {/* 上传文件 */}
-                                    {t('upload.uploadFile')}
+                                    {t('identity.upload.uploadFile')}
                                 </p>
 
                             </div>
                             <div className={`font-16 font-w-500 ${styles.title_color}`}>
                                 {/* 手持证件照 */}
-                                {t('upload.selfieFile')}
+                                {t('identity.upload.selfieFile')}
                             </div>
                         </div>
                         {/* )} */}
@@ -364,17 +364,17 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 <li className="flex items-center mb-1">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
                     {/* 支持小于8M的JPG、JPEG或PNG格式图片。 */}
-                    {t('upload.tip1')}
+                    {t('identity.upload.tip1')}
                 </li>
                 <li className="flex items-center mb-1">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
                     {/* 证件照片要求清晰，不允许任何修改和遮挡，必须能看清人像、证件号和姓名。 */}
-                    {t('upload.tip2')}
+                    {t('identity.upload.tip2')}
                 </li>
                 <li className="flex items-center">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
                     {/* 照片需免冠，建议未化妆，手持证件人的五官清晰可鉴，完整漏出手臂。 */}
-                    {t('upload.tip3')}
+                    {t('identity.upload.tip3')}
                 </li>
             </ul>
 
@@ -384,7 +384,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     onClick={onPrev}
                 >
                     {/* 上一步 */}
-                    {t('upload.prev')}
+                    {t('identity.upload.prev')}
                 </button>
                 {!checkFilesComplete() ? (
                     <button
@@ -392,7 +392,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                         disabled
                     >
                         {/* 下一步 */}
-                        {t('upload.next')}
+                        {t('identity.upload.next')}
                     </button>
                 ) : (
                     <button
@@ -402,7 +402,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     >
                         {isLoading && <Iconify icon="eos-icons:bubble-loading" size={20} />}
                         {/* 下一步 */}
-                        {t('upload.next')}
+                        {t('identity.upload.next')}
                     </button>
                 )}
             </div>

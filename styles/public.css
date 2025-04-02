@@ -491,6 +491,22 @@
   overflow: hidden; /* 隐藏溢出内容 */
   text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
+.line-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical; 
+  -webkit-line-clamp: 2; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 标准属性的兼容性补充（如果未来支持） */
+@supports (line-clamp: 2) {
+  .line-clamp-2 {
+    display: block; /* 标准属性需要块级元素 */
+    line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 /* tabler:loader-quarter */
 .loading{
   display: inline-block;

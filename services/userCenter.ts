@@ -61,5 +61,11 @@ export function getSafeCenter(): Promise<any> {
       body:JSON.stringify(data)
     });
   }
-  
+
+  // 个人中心总览
+  export function getCarouselImageList(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/user/carouselImageList`, {
+      method: 'POST',
+    });
+  }
 

@@ -106,25 +106,37 @@
     width: 100%;
     padding: 24px;
 }
-
+.bannerImg_box{
+    width: 100%;
+    border-radius: 8px;
+    max-height: 255px;
+    height: 100%;
+    overflow: hidden;
+}
 .invite_code_box {
     height: 100%;
+    width: 100%;
+    margin-left: 1vw;
 }
 
 .invite_code {
     margin-top: 6px;
-    /* width: 80%; */
-    max-width: 230px;
+    /* 移除固定宽度限制 */
+    /* min-width: 180px; */
+    /* max-width: 230px; */
     flex: 1;
     height: 37px;
     border-radius: 4px;
     border: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 0 10px;
 }
-
+.line1 {
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    /* white-space: nowrap; */
+    /* flex: 1; */
+    /* min-width: 0; */
+}
 .aside_box {
     width: 30%;
 }

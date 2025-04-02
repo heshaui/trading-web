@@ -44,17 +44,17 @@ function SumbitPage() {
                 <Image src="/images/userCenter/identity/icon_checking.png" alt='' width={120} height={120} className='mr-2' />
                 <p className={`${styles.tip_title}  font-20 font-w-500`}>
                     {/* 审核中 */}
-                    {t('sumbit.title')}
+                    {t('identity.sumbit.title')}
                 </p>
                 <p className={`${styles.tip_color} font-14 font-w-400 mt-4`}>
                     {/* 我们正在审核您的申请。通过审核之后，我们会发送邮件通知您。 等候期间，欢迎浏览我们的网页/App */}
-                    {t('sumbit.content')}
+                    {t('identity.sumbit.content')}
                 </p>
 
                 <div className='mt-10 flex justify-between' style={{width:'60%'}}>
                     <button type='submit' className={`default_btn ${styles.btn_style}`} onClick={onNext}>
                         {/* 下一步 */}
-                        {t('sumbit.next')}
+                        {t('identity.sumbit.next')}
                     </button>
                 </div>
             </div>

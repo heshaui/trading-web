@@ -3,11 +3,10 @@ import React from 'react';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
 import { CSSProperties, useState, useEffect } from "react";
-import { QRCode, Skeleton } from "antd";
+import { QRCode, Skeleton, Carousel } from "antd";
 import Image from 'next/image';
 import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
-import { getLoginInfo } from '@/services/overview';
 import { toast } from "sonner";
 import { encryptString } from '@/utils/encrypt';
 import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
@@ -15,8 +14,11 @@ import dayjs from 'dayjs';
 import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import type { GetStaticProps } from 'next';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+// import type { GetStaticProps } from 'next';
+import { getCarouselImageList } from '@/services/userCenter';
+import { getLoginInfo } from '@/services/overview';
+
 const identityStyle: CSSProperties = {
     position: 'relative',
     // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
@@ -66,15 +68,39 @@ interface LoginLogListType {
     updateTime: number,
     tenantId: string
 }
+interface carouselImageContentsType {
+    id: number,
+    languageCode: string,
+    title: string,
+    carouselImageId: number,
+    createTime: number,
+    updateTime: number,
+    tenantId: string,
+    accessType: number,
+    accessUrl: string,
+    imageUrl: string
+}
+interface CarouselPicType {
+    id: number,
+    isShow: number,
+    sort: number,
+    createTime: number,
+    updateTime: number,
+    tenantId: string,
+    carouselImageContents: carouselImageContentsType[]
+}
 const OverviewPage: React.FC = () => {
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
     const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
-    const [codeValue] = useState("https://ant.design") //, setcodeValue
     const [loadingSkeleton, setLoadingSkeleton] = useState(true)
+    const [carouselPic, setCarouselPic] = useState<CarouselPicType[]>([] as CarouselPicType[]);
     const { t } = useTranslation('userCenter');
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
+    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+    const [codeValue, setcodeValue] = useState(`${BASE_URL}?inviteCode=${loginInfo?.inviteCode || '--'}`) //, setcodeValue
+
     const { isDayMode } = useThemeMode(); // 使用 hook
     const getLoginInfoData = async () => {
         setLoadingSkeleton(true)
@@ -83,6 +109,7 @@ const OverviewPage: React.FC = () => {
             if (res.code === '0') {
                 setLoginInfo(res.data);
                 setLoadingSkeleton(false)
+                setcodeValue(`${BASE_URL}?inviteCode=${res.data?.inviteCode || '--'}`)
             }
         } catch (error) {
             toast.error(String(error));
@@ -145,10 +172,29 @@ const OverviewPage: React.FC = () => {
             router.push(`/userCenter/identity/${loginInfo?.userId}?authStatus=${status}`)
         }
     }
+    const getCarouselPic = async () => {
+        const res = await getCarouselImageList()
+        if (res.code === '0') {
+            setCarouselPic(res.data)
+        }
+    }
+    const getLanguage = (carouselImageContents: carouselImageContentsType[]) => {
+        const language = localStorage.getItem('lang') || 'en_US'
+        let imgRes = carouselImageContents.filter((item: carouselImageContentsType) => item.languageCode === language)
+        // 3. 如果当前语言没有对应内容，则使用英文内容
+        if (!imgRes || imgRes.length === 0) {
+            imgRes = carouselImageContents.filter((item: carouselImageContentsType) =>
+                item.languageCode === 'en_US'
+            );
+        }
+        return imgRes[0]
+    }
+
     useEffect(() => {
         getLoginInfoData()
         getLoginLogListData()
         getUserDeviceNoListData()
+        getCarouselPic()
     }, []);
 
     return (<div className={`${styles.overview_page}`} >
@@ -517,20 +563,29 @@ const OverviewPage: React.FC = () => {
 
             </div>
             {/* content-aside */}
-            {/* <div className={`${styles.aside_box} ml-6 mt-6`}>
+            <div className={`${styles.aside_box} ml-6 mt-6`}>
                 <div className={`${styles.aside_invite_box} flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >
-                       
+
                         {t('overview.recommend.title')}
                     </div>
-                    <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
+                    {(carouselPic.length === 0) ? <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
-                            
+
                             {t('overview.recommend.invite')}
                         </div>
                         <p style={{ width: '60%' }} className='font-14'>{t('overview.recommend.inviteNewUser')}</p>
-                    </div>
+                    </div> : <div>
+                        <Carousel autoplay>
+                            {carouselPic.map((item: any) => (
+                                <div key={item.id} className={`${styles.bannerImg_box} w-full`}>
+                                    <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className='w-full'
+                                        alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260} />
+                                </div>
+                            ))}
+                        </Carousel>
+                    </div>}
                 </div>
 
                 <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
@@ -541,32 +596,32 @@ const OverviewPage: React.FC = () => {
                     <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
                         <QRCode
                             style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
-                            value={`${codeValue}?inviteCode=${loginInfo?.inviteCode || '--'}`} size={68}
-                            // className='flex-1'
+                            value={`${codeValue}`} size={68}
+                        // className='flex-1'
                         />
-                        <div className={`ml-5 flex-1 ${styles.invite_code_box} flex-col justify-between`}>
-                            <div>
+                        <div className={`flex-1 ${styles.invite_code_box} flex-col justify-between`}>
+                            <div >
                                 <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
-                                <div className={`${styles.invite_code} font-12`}>
+                                <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
                                     <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
                                     <Iconify icon="bx:copy" className='cursor-pointer' size={20}
                                         onClick={() => copyFn(loginInfo?.inviteCode || '')}
                                     />
                                 </div>
                             </div>
-                            <div style={{maxWidth:"230px"}}>
-                                <p className='font-14 font-w-400'>{t('overview.recommend.inviteLink')}</p>
-                                <div className={`${styles.invite_code} font-12 `}>
-                                    <span className={`${styles.tip_color} mr-1`}>{`${codeValue}?inviteCode=${loginInfo?.inviteCode || '--'}`}</span>
+                            <div  >
+                                <p className='font-14 font-w-400' >{t('overview.recommend.inviteLink')}</p>
+                                <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
+                                    <span className={`${styles.tip_color} ${styles.line1} line-2 mr-1`}>{`${codeValue}`}</span>
                                     <Iconify icon="bx:copy" className='cursor-pointer' size={20}
-                                        onClick={() => copyFn(`${codeValue}?inviteCode=${loginInfo?.inviteCode || ''}`)}
+                                        onClick={() => copyFn(`${codeValue}`)}
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div> */}
+            </div>
         </div>
     </div>);
 };
