@@ -10,6 +10,7 @@ import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 // import { useState } from "react";
 import { encryptData } from '@/utils/encrypt'
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
@@ -32,7 +33,7 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                 // console.log(values);
                 try {
                     const param = {
-                        userId: localStorage.getItem('userId') || '',
+                        userId: localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '',
                         nickname: values.nickname
                     }
                     console.log(values);

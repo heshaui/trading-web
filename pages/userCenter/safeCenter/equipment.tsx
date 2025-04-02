@@ -18,6 +18,7 @@ import { getFingerprint } from "@/hooks/user-fingerprint";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface DataLogsType {
     id: number,
     userId: number,
@@ -187,7 +188,7 @@ function Equipment() {
         }
     }
     const getDeviceNoData = async () => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+        const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
         const isuserId = userId ? userId?.toString() : ''
         setLoading(true)
         try {

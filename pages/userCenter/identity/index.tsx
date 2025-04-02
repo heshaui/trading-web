@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
+import {LOCAL_STORAGE_KEY} from "@/config/apiConfig"
 // import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
@@ -71,7 +72,7 @@ const IdentityPage: React.FC = () => {
     },
   ];
   const getUserIdentityInfoData = async () => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}');
     try {
       const res = await getUserIdentityInfo({
         userId: userInfo.userId || ''

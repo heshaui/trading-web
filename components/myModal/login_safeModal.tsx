@@ -92,12 +92,12 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     if (res.code === "0") {
                         toast.success(res.message)
                         store.setUserToken(res.data.token)
-                        // store.updateUserInfo({ ...res.data })
+                        store.updateUserInfo({ ...res.data })
                         // 添加 useAuth 的登录方法
                         login(res.data.token)
                         router.push('/')
                         // 获取用户信息
-                        await getUserInfo()
+                        // await getUserInfo()
 
                     } else {
                         toast.error(res.message)

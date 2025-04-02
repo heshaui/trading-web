@@ -91,7 +91,7 @@ class AppStore {
             ...this.userInfo,
             ...newUserInfo
         };
-        localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+        localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
     }
     clearUserInfo() {
         this.userInfo = {
@@ -100,7 +100,7 @@ class AppStore {
             avatarUrl: "",
             token: ""
         };
-        localStorage.removeItem('userInfo');
+        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
     }
 }
 

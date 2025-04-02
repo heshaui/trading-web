@@ -270,21 +270,21 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         <li key={item.id} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
-                                {item.status0 === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                {item.status0 === 0? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
                                     :
                                     item.value0 ?
                                         <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span>
                                         :
-                                        <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />}
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />}
                             </div>
                             {/* <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>50K USDT每日</div> */}
                             <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>
-                                {item.status1 === 1 ? <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                {item.status1 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
                                     :
                                     item.value1 ?
                                         <span>{(item.value1 && item.params1) ? getBenefitValue(item.value1) : item.value1}</span>
                                         :
-                                        <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />}
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />}
                             </div>
                         </li>
                         // <li className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>

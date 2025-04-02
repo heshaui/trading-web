@@ -15,6 +15,7 @@ import type { AutoCompleteProps } from 'antd';
 import { emailSuffixes } from "@/utils/enum";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { useTranslation } from 'next-i18next';
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface SafeDataType {
     phone?: string;
     email?: string;
@@ -69,7 +70,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                 // if (firstCheck) return toast.error('请先发送验证码')
                 setLoading(true)
                 try {
-                    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+                    const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
                     let params = {}
                     if (type === 'set') {
                         params = {

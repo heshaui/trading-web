@@ -84,7 +84,7 @@ function InvitationReward({onReturn}:InviteProps) {
 
     ];
     // const getLoginData = async () => {
-    //     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    //     const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
     //     const isuserId = userId ? userId?.toString() : ''
     //     setLoading(true)
     //     try {

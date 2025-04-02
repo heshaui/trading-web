@@ -39,7 +39,7 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
     const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
     // let userInfo = {}
     // if (typeof window !== 'undefined') {
-    //     userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    //     userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
     // }
     const onSubmit = () => {
         form.validateFields()

@@ -13,6 +13,7 @@ import { useState } from "react";
 import {encryptData} from '@/utils/encrypt'
 import dayjs from "dayjs";
 import { useTranslation } from 'next-i18next';
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface UserCenterData {
     userId: number,
     nickname?: string,
@@ -47,7 +48,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
                 if(!nicknameInfo?.isNicknameUpdate) return toast.error(t('usersetting.modifyOnce'))
                 try {
                     const param={
-                        userId:localStorage.getItem('userId')||'',
+                        userId:localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO)||'',
                         nickname:values.nickname
                     }
                     const encrypt=await encryptData(param)

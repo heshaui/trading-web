@@ -14,6 +14,7 @@ import { getUserDeviceNoList, getUserLoginLogList } from "@/services/safeCenter"
 import { toast } from "sonner";
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface DataType {
     id: number,
     userId: number,
@@ -94,7 +95,7 @@ function LoginRecord() {
     ];
 
     const getLoginData = async () => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+        const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
         const isuserId = userId ? userId?.toString() : ''
         setLoading(true)
         try {
