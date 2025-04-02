@@ -26,6 +26,7 @@
              "title": "身份认证",
              "verified": "已完成身份认证，开始您的货币之旅吧！",
              "unverified": "完成身份认证后可以享受交易所完整服务",
+             "reVerify": "请重新提交认证，完成认证后可以享受交易所完整的服务",
              "goVerify": "去认证",
              "viewDetails": "查看详情"
          },
@@ -100,6 +101,7 @@
             "afterVerification": "完成标准身份认证后"
         },
         "certified": {
+            "title": "证件验证",
             "accountBenefits": "账户权益",
             "personalInfo": "个人信息",
             "allow": "允许",
