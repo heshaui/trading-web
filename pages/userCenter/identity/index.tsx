@@ -46,7 +46,7 @@ const IdentityPage: React.FC = () => {
   const [levelBenefitData, setLevelBenefitData] = useState([]);
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
-    background: 'var(--background8)',
+    // background: 'var(--background)',
     borderRadius: token.borderRadiusLG,
     color: 'var( --cancel-color)',
     border: 'none',

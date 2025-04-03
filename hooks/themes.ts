@@ -77,7 +77,7 @@ export const themeVariables = {
         '--background5': '#29292F',
         '--background6': 'rgb(20, 20, 20)',
         '--background7': '#FFFFFF14',
-        '--background8': '#37373A',
+        '--background8': '#262626',
         '--background9': '#0C0D0C',
         '--background10': '#202020',
         '--background11': '#111212',

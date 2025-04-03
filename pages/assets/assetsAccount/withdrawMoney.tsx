@@ -261,7 +261,7 @@ const WithdrawMoneyPage = () => {
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
         // 1. 检查用户权限
-        if (getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity < 2) {
+        if (userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2) {
             return toast.error(t('withdrawMoney.function'))
         }
 
@@ -907,7 +907,7 @@ const WithdrawMoneyPage = () => {
                         >
                             <Form
                                 form={form}
-                                disabled={(getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity < 2)}
+                                disabled={(userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2)}
                             >
                                 <Steps
                                     direction="vertical"
