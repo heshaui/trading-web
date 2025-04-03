@@ -20,6 +20,7 @@ const mainBgcStyle: CSSProperties = {
 };
 type InviteBannerProps = {
     onReturn: () => void;
+    inviteInfo: InviteInfoType
 }
 // interface LoginInfoType {
 //     userId: number,
@@ -32,11 +33,11 @@ interface InviteInfoType {
     inviteCode: string,
     inviteLink: string,
 }
-const InviteBanner = ({ onReturn }: InviteBannerProps) => {
+const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [form] = Form.useForm();
-    const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
+    // const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
     // let userInfo = {}
     // if (typeof window !== 'undefined') {
     //     userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
@@ -48,19 +49,35 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
             onReturn();
         });
     }
-    const getLoginInfoData = async () => {
-        const res = await getLoginInfo();
-        if (res.code === '0') {
-            setInviteInfo(res.data);
+    // const getLoginInfoData = async () => {
+    //     const res = await getLoginInfo();
+    //     if (res.code === '0') {
+    //         setInviteInfo(res.data);
+    //         form.setFieldsValue({
+    //             inviteCode: res.data.inviteCode,
+    //             inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode}`
+    //         });
+    //     }
+    // }
+    // useEffect(() => {
+    //     getLoginInfoData();
+    // }, [])
+
+    // 监听 inviteInfo 的变化，当数据到达时更新表单
+    useEffect(() => {
+        if (inviteInfo?.inviteCode) {
             form.setFieldsValue({
-                inviteCode: res.data.inviteCode,
-                inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode}`
+                inviteCode: inviteInfo.inviteCode,
+                inviteLink: inviteInfo.inviteLink
             });
         }
-    }
-    useEffect(() => {
-        getLoginInfoData();
-    }, [])
+    }, [inviteInfo, form]);
+
+    // 如果数据还没准备好，可以显示加载状态
+    // if (!inviteInfo?.inviteCode) {
+    //     return <div>Loading...</div>;
+    // }
+
     return (<>
         <div className={`${styles.header_banner} flex-y-cc`}
             style={{
@@ -96,7 +113,7 @@ const InviteBanner = ({ onReturn }: InviteBannerProps) => {
                             form={form}
                             size="large"
                             style={{ width: "100%" }}
-                            // initialValues={{ inviteCode: loginInfo.inviteCode, inviteLink: BASE_URL }}
+                            initialValues={{ inviteCode: inviteInfo.inviteCode, inviteLink: inviteInfo.inviteLink }}
                         >
                             <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>邀请码</p>
                             <Form.Item name="inviteCode" rules={[{ required: true, message: '请输入邀请码!' }]}>

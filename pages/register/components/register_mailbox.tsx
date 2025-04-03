@@ -1,5 +1,5 @@
 import { Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
-import { type CSSProperties, useState, } from "react";
+import { type CSSProperties, useState, useEffect} from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 import type { AutoCompleteProps } from 'antd';
@@ -23,7 +23,7 @@ const fromStyle: CSSProperties = {
 export default function RegisterMail() {
     const { t } = useTranslation(['login']);
     const router = useRouter();
-    // const [loading, setLoading] = useState(false);
+    const { inviteCode } = router.query; 
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [isOpen, setIsOpen] = useState(true); //是否展开
     const { setLoginState } = useLoginStateContext();
@@ -38,8 +38,18 @@ export default function RegisterMail() {
     const [charValid, setCharValid] = useState(false)
     const [showLengthCheck, setShowLengthCheck] = useState(false);
     const [showCharCheck, setShowCharCheck] = useState(false);
+   
 
-
+    useEffect(() => {
+        // 确保路由已准备好
+        if (router.isReady) {
+            const { inviteCode } = router.query;
+            // 如果 URL 中有 inviteCode，设置到表单的 referee 字段
+            if (inviteCode) {
+                form.setFieldValue('referee', inviteCode);
+            }
+        }
+    }, [router.isReady, form]);
     // 当注册状态不为 EMAIL 时不渲染组件
 
     const handleFinish = async () => {
@@ -54,7 +64,7 @@ export default function RegisterMail() {
                     type: "m",
                     email: values.email,
                     password: values.password,
-                    parentInviteCode: values.referee,
+                    parentInviteCode: isOpen?values.referee:"",
                 }
                 store.updateRegisterInfo(data)
 
@@ -189,7 +199,8 @@ export default function RegisterMail() {
                     size="large"
                     form={form}
                     initialValues={{
-                        remember: true,
+                        // remember: true,
+                        // referee:inviteCode||''
                     }}
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}

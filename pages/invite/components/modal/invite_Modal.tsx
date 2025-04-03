@@ -14,7 +14,7 @@ import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
-    onOk: (event: boolean) => void;
+    onOk: () => void;
     onCancel: () => void;
 };
 
@@ -28,27 +28,12 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
 
     const handOk = async () => {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-        form.validateFields()
-            .then(async (values) => {
-                // console.log(values);
-                try {
-                    const param = {
-                        userId: localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '',
-                        nickname: values.nickname
-                    }
-                    console.log(values);
-                    const encrypt = await encryptData(param)
-                    const res = await updateUserCenter(encrypt)
-                    if (res.code === '0') {
-                        onOk(true)
-                        handCancel()
-                    } else {
-                        toast.error(res.msg)
-                    }
-                } catch (error) {
-                    toast.error(String(error))
-                }
-            });
+        // form.validateFields()
+        //     .then(async (values) => {
+        //         onOk
+        //         handCancel()
+        //     });
+        onOk()
     };
     // 过滤输入，只允许数字和字母
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,13 +101,13 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     <p className={`${styles.title_color2} font-32 font-w-500`}>邀请好友获得<span className={styles.strong_color}>交易奖励</span>！ </p>
                     <Image src="/images/invite/modal_icon.png" alt="invite_modal" width={267} height={321} />
-                <div className="flex-x align-center">
-                    <p className={`${styles.title_color2} font-16 font-w-400 mr-9`}>
-                        注册 14 天内累计充值不低于 100 USDT且完成实名认证，即可获得好友现货交易手续费<span className={styles.strong_color}>20%</span>返佣
+                    <div className="flex-x align-center">
+                        <p className={`${styles.title_color2} font-16 font-w-400 mr-9`}>
+                            注册 14 天内累计充值不低于 100 USDT且完成实名认证，即可获得好友现货交易手续费<span className={styles.strong_color}>20%</span>返佣
                         </p>
-                    <QRCode value="https://www.baidu.com" 
-                    style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }} size={68} />
-                </div>
+                        <QRCode value="https://www.baidu.com"
+                            style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }} size={68} />
+                    </div>
                 </div>
             </Modal>
         </ConfigProvider>

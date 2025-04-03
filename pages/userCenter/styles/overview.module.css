@@ -182,6 +182,19 @@
     .aside_invite {
         height: calc(100% - 40px);
     }
+    @media (max-width: 860px) {
+        .aside_box{
+            display: flex;
+            flex-direction: column;
+        }
+        .aside_invite_box,.aside_invite2{
+            width: 100%;
+        }
+        .aside_invite2{
+            margin-left: 0 !important;
+            margin-right: 24px;
+        }
+    }
 }
 
 @media (min-width: 1680px) {

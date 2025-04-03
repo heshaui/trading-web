@@ -567,7 +567,7 @@ const OverviewPage: React.FC = () => {
             </div>
             {/* content-aside */}
             <div className={`${styles.aside_box} ml-6 mt-6`}>
-                <div className={`${styles.aside_invite_box} flex-1`}>
+                <div className={`${styles.aside_invite_box} `}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >
 
                         {t('overview.recommend.title')}
@@ -591,7 +591,7 @@ const OverviewPage: React.FC = () => {
                     </div>}
                 </div>
 
-                <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
+                <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y `}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
 
                         {t('overview.recommend.inviteFriend')}

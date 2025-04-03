@@ -1,0 +1,29 @@
+{
+  "title": "Security Center",
+  "basic_security": "Basic Security",
+  "google_auth": {
+    "title": "Google Authenticator (Recommended)",
+    "desc": "It is used for security verification such as login, withdrawal, and modification of security settings. If you often fail to receive SMS verification codes, it is recommended to bind the Google Authenticator."
+  },
+  "phone_verify": {
+    "title": "Phone Verification",
+    "desc": "The SMS verification code will protect the security of your account and transactions. After changing the bound phone number, functions such as payment and withdrawal will be disabled for 24 hours."
+  },
+  "email_verify": {
+    "title": "Email Verification",
+    "desc": "The email verification code will protect the security of your account and transactions. After changing the bound email address, functions such as payment and withdrawal will be disabled for 24 hours."
+  },
+  "login_password": {
+    "title": "Login Password",
+    "desc": "You will be automatically logged out of the current account when resetting the password."
+  },
+  "security_log": "Security Log",
+  "security_device": {
+    "title": "Security Devices",
+    "desc": "Manage the devices that have been authorized to log in."
+  },
+  "security_log_item": {
+    "title": "Security Log",
+    "desc": "It is used for the security of IP addresses during login, etc."
+  }
+}

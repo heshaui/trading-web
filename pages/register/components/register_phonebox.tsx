@@ -1,6 +1,6 @@
 "use client";
 import { Form, Input, Checkbox, ConfigProvider } from "antd";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useState ,useEffect} from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
@@ -12,6 +12,7 @@ import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
 // import {goLogin} from "@/store/loginEnum"
+
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -44,7 +45,16 @@ function RegisterPhone() {
 	// 	console.log(visitorId.components.vendor);
 	// 	return visitorId.visitorId;
 	// };
-
+    useEffect(() => {
+        // 确保路由已准备好
+        if (router.isReady) {
+            const { inviteCode } = router.query;
+            // 如果 URL 中有 inviteCode，设置到表单的 referee 字段
+            if (inviteCode) {
+                form.setFieldValue('referee', inviteCode);
+            }
+        }
+    }, [router.isReady, form]);
 	const goLogin = () => {
 		// setLoginState(LoginStateEnum.LOGIN)
 		router.push("/login")
@@ -62,7 +72,7 @@ function RegisterPhone() {
 					type: "p",
 					phone: values.phoneNumber,
 					password: values.password,
-					parentInviteCode: values.referee,
+					parentInviteCode: isOpen?values.referee:"",
 					countryCode: values.areaCode
 				}
 				store.updateRegisterInfo(data)
