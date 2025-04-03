@@ -36,8 +36,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
         const res = await getLoginInfo();
         if (res.code === '0') {
             const param = {
-                inviteCode: res.data.inviteCode,
-                inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode}`
+                inviteCode: res.data.inviteCode||'',
+                inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode||''}`
             }
             setInviteInfo(param);
         }

@@ -67,11 +67,11 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
     useEffect(() => {
         if (inviteInfo?.inviteCode) {
             form.setFieldsValue({
-                inviteCode: inviteInfo.inviteCode,
-                inviteLink: inviteInfo.inviteLink
+                inviteCode: inviteInfo.inviteCode||'',
+                inviteLink: inviteInfo.inviteLink||''
             });
         }
-    }, [inviteInfo, form]);
+    }, [inviteInfo]);
 
     // 如果数据还没准备好，可以显示加载状态
     // if (!inviteInfo?.inviteCode) {
@@ -113,7 +113,7 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
                             form={form}
                             size="large"
                             style={{ width: "100%" }}
-                            initialValues={{ inviteCode: inviteInfo.inviteCode, inviteLink: inviteInfo.inviteLink }}
+                            // initialValues={{ inviteCode: inviteInfo.inviteCode||'', inviteLink: inviteInfo.inviteLink||'' }}
                         >
                             <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>邀请码</p>
                             <Form.Item name="inviteCode" rules={[{ required: true, message: '请输入邀请码!' }]}>
