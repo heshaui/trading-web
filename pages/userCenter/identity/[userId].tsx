@@ -111,7 +111,7 @@ function RealName() {
                                 },
                                 token: {
                                     // colorPrimary:"pink",
-                                    colorTextQuaternary: '#FF5F1F',
+                                    colorTextQuaternary: 'var(--theme-color)',
                                 },
                             }}>
                             <Steps current={current}

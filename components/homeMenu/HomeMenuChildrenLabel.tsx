@@ -33,8 +33,8 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                                         theme={{
                                             components: {
                                                 Input: {
-                                                    activeBorderColor: '#FF5F1F',
-                                                    hoverBorderColor: '#FF5F1F'
+                                                    activeBorderColor: 'var(--theme-color)',
+                                                    hoverBorderColor: 'var(--theme-color)'
                                                 },
                                             },
                                             token: {

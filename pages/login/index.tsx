@@ -16,7 +16,7 @@ import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
 	// backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png')`,
-	backgroundColor: "#ffffff",
+	backgroundColor: "var(--background11)",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
 	// height: "100%",

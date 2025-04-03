@@ -167,8 +167,8 @@ function RegisterPhone() {
 						},
 						Input: {
 							controlHeightLG: 50,
-							activeBorderColor: '#FF5F1F',
-							hoverBorderColor: '#FF5F1F',
+							activeBorderColor: 'var(--border-color4)',
+							hoverBorderColor: 'var(--border-color4)',
 							activeBg: 'var(--background11)',
 							hoverBg: 'var(--background11)',
 						},
@@ -252,7 +252,7 @@ function RegisterPhone() {
 					<ConfigProvider
 						theme={{
 							token: {
-								colorPrimary: "#FF5F1F"
+								colorPrimary: "var(--theme-color)"
 							},
 						}}
 					>

@@ -326,13 +326,13 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 components: {
                     Button: {
                         controlHeightLG: 50,
-                        defaultActiveBorderColor: '#FF5F1F',
-                        defaultActiveColor: '#FF5F1F',
+                        defaultActiveBorderColor: 'var(--theme-color)',
+                        defaultActiveColor: 'var(--theme-color)',
                         defaultBg: 'transparent',
-                        defaultHoverBorderColor: '#FF5F1F',
-                        defaultHoverColor: '#FF5F1F',
-                        defaultColor: '#FF5F1F',
-                        defaultBorderColor: '#FF5F1F',
+                        defaultHoverBorderColor: 'var(--theme-color)',
+                        defaultHoverColor: 'var(--theme-color)',
+                        defaultColor: 'var(--theme-color)',
+                        defaultBorderColor: 'var(--theme-color)',
                     },
                     Segmented: {
                         trackBg: "var(--segmented-item-bgc)",

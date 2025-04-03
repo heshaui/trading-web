@@ -79,12 +79,12 @@ const AssetsAreaChart: React.FC = (): React.JSX.Element => {
             <YAxis /> */}
             <defs>
                 <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FF5F1F" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#FF5F1F" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--theme-color)" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="var(--theme-color)" stopOpacity={0} />
                 </linearGradient>
             </defs>
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="uv" stroke="#FF5F1F"
+            <Area type="monotone" dataKey="uv" stroke="var(--theme-color)"
                 fill="url(#gradient)" />
         </AreaChart>
     );

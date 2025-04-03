@@ -19,7 +19,7 @@ import type { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
-	backgroundColor: "#ffffff",
+	backgroundColor: "var(--background11)",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
 	height: "100vh",

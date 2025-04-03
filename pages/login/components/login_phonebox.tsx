@@ -111,8 +111,8 @@ function Phonebox() {
 						},
 						Input: {
 							controlHeightLG: 50,
-							activeBorderColor: '#FF5F1F',
-							hoverBorderColor: '#FF5F1F',
+							activeBorderColor: 'var(--theme-color)',
+							hoverBorderColor: 'var(--theme-color)',
 							activeBg: 'var(--background11)',
 							hoverBg: 'var(--background11)',
 						},

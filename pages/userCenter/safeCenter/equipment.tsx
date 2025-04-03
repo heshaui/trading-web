@@ -80,7 +80,7 @@ function Equipment() {
                     </span>
                     <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
                         : "icon-park-solid:down-one"}
-                        style={{ color: "#FF5F1F" }}
+                        style={{ color: "var(--theme-color)" }}
                         className='ml-2'
                         size={20}
                     />

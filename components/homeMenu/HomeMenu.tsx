@@ -831,7 +831,7 @@ export default function HomeMenu() {
                                 <Link href='/bulletinCenter'>
                                     <span
                                         style={{
-                                            color: '#FF5F1F',
+                                            color: 'var(--theme-color)',
                                             fontSize: '14px',
                                             cursor: 'pointer'
                                         }}
@@ -1087,8 +1087,8 @@ export default function HomeMenu() {
                                             theme={{
                                                 components: {
                                                     Input: {
-                                                        activeBorderColor: '#FF5F1F',
-                                                        hoverBorderColor: '#FF5F1F'
+                                                        activeBorderColor: 'var(--theme-color)',
+                                                        hoverBorderColor: 'var(--theme-color)'
                                                     },
                                                 },
                                                 token: {

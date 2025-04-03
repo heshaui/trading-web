@@ -150,13 +150,13 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     {
                                                         isNew ? (
                                                             <div className={styles.newBox}>
-                                                                <h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5>
+                                                                <h5 style={{ color: isMore ? 'var(--theme-color)' : 'var(--text-color5)' }}>{h5Text}</h5>
                                                                 <span>NEW</span>
                                                             </div>
                                                         ) : (
                                                             isMore ?
-                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5></Link>
-                                                                : <h5 style={{ color: isMore ? '#FF5F1F' : 'var(--text-color5)' }}>{h5Text}</h5>
+                                                                <Link href='/bulletinCenter'><h5 style={{ color: isMore ? 'var(--theme-color)' : 'var(--text-color5)' }}>{h5Text}</h5></Link>
+                                                                : <h5 style={{ color: isMore ? 'var(--theme-color)' : 'var(--text-color5)' }}>{h5Text}</h5>
                                                         )
                                                     }
                                                     {

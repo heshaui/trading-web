@@ -55,8 +55,8 @@ function ResetSuccessModal({ open, onOk, onCancel }: Props) {
                         // itemMarginBottom: 0, // 去除表单项之间的间距
                     },
                     Input: {
-                        activeBorderColor: '#FF5F1F',
-                        hoverBorderColor: '#FF5F1F',
+                        activeBorderColor: 'var(--theme-color)',
+                        hoverBorderColor: 'var(--theme-color)',
                         controlHeightLG: 50,
                         activeBg: 'var(--background5)',
                         hoverBg: 'var(--background5)',

@@ -351,8 +351,8 @@ export default function BulletinCenter() {
                     },
                     Menu: {
                         itemColor: '#A4A5AC',
-                        itemHoverBg: '#FF5F1F',
-                        itemSelectedBg: '#FF5F1F',
+                        itemHoverBg: 'var(--theme-color)',
+                        itemSelectedBg: 'var(--theme-color)',
                         itemHoverColor: '#FFFFFF',
                         itemSelectedColor: '#FFFFFF',
                         itemMarginInline: 20,
@@ -360,7 +360,7 @@ export default function BulletinCenter() {
                         itemBorderRadius: 10
                     },
                     Pagination: {
-                        itemActiveBg: '#FF5F1F',
+                        itemActiveBg: 'var(--theme-color)',
                     },
                     Breadcrumb: {
                         itemColor: 'var(--text-color6)',
@@ -374,7 +374,7 @@ export default function BulletinCenter() {
                     }
                 },
                 token: {
-                    colorPrimary: '#FF5F1F',
+                    colorPrimary: 'var(--theme-color)',
                 },
             }}
         >
