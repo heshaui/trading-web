@@ -3,6 +3,13 @@
   "description": "This is the homepage-Chinese (Simplified)",
   "home1": "IMBIT cryptocurrency exchange is faster, better, and stronger",
   "home2": "More",
+  "nickname": "Nickname",
+"userCenter":{
+"overView": "Full Stack Overview",
+"account": "User Settings",
+"identity": "Identity Verification",
+"security": "Security Center"
+},
   "search": "Search",
   "filter": "Filter",
   "ok": "Confirm",

@@ -9,7 +9,7 @@ import styles from "./styles/setGoogle.module.css";
 import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState, useEffect } from "react";
-import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
+import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
 import { getGoogleKey,bindGoogle } from '@/services/safeCenter'
 // import {
 //     getSmsCode,

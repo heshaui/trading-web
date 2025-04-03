@@ -97,7 +97,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                         login(res.data.token)
                         router.push('/')
                         // 获取用户信息
-                        // await getUserInfo()
+                        await getUserInfo()
 
                     } else {
                         toast.error(res.message)
@@ -118,7 +118,8 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
         try {
             const res = await getLoginUserInfo()
            if(res.code === "0"){
-            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO,JSON.stringify(res.data))
+            const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, userInfo, res.data)))
            }else{
             toast.error(res.message)
            }

@@ -9,7 +9,7 @@ import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 import { encryptString } from '@/utils/encrypt';
-import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
+import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
 import dayjs from 'dayjs';
 import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';

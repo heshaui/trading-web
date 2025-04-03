@@ -907,7 +907,7 @@ const WithdrawMoneyPage = () => {
                         >
                             <Form
                                 form={form}
-                                disabled={(getUserInfo()?.realnessStatus !== 1 && getUserInfo()?.securityIntensity < 2)}
+                                disabled={(getUserInfo()?.realnessStatus !== 1 || getUserInfo()?.securityIntensity < 2)}
                             >
                                 <Steps
                                     direction="vertical"

@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import styles from '@/styles/components/HomeMenu.module.css';
 import { LabelComponentProps } from '@/type/types';
@@ -6,6 +7,8 @@ import { MenuProps } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import Image from 'next/image';
+// import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+// import { Iconify } from "@/components/icon";
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src = "",
@@ -31,6 +34,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     myWords_3,
     needHover = false,
 }) => {
+    // const { copyFn } = useCopyToClipboard();
     return (
         <>
             {
@@ -107,19 +111,20 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                             <div className={styles.menuListItem}>
                                                 {
                                                     level ? (
-                                                        <div className={styles.levelAndIcon}>
-                                                            <div className={styles.menuListItemIcon}>
+                                                        <div className={`${styles.levelAndIcon} flex align-center`}>
+                                                            <div >
                                                                 {/* <img src={src} alt="icon" /> */}
                                                                 <Image
                                                                     src={src}
                                                                     alt=""
-                                                                    width={28}
-                                                                    height={28}
+                                                                    width={32}
+                                                                    height={32}
+                                                                    style={{width: '36px', height: '36px',borderRadius: '50%'}}
                                                                 />
                                                             </div>
-                                                            <div className={styles.menuListItemlevel} style={{}}>
+                                                            {/* <div className={styles.menuListItemlevel} style={{}}>
                                                                 <span style={{ color: '#FFFFFF' }}>{level}</span>
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     ) : (
                                                         src ? (
@@ -131,6 +136,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                                     width={28}
                                                                     height={28}
                                                                 />
+                                                                
                                                             </div>
                                                         ) : (null)
                                                     )
@@ -156,11 +162,15 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                     {
                                                         nickName ? (
                                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                                <span>{nickName}</span>
-                                                                <span>{spanText}</span>
+                                                                {/* <span>{nickName}</span> */}
+                                                                <div className='tip-color font-14'>{spanText}
+                                                                {/* <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer' size={18} onClick={() => copyFn(spanText?spanText:'')} /> */}
+                                                                </div>
                                                             </div>
                                                         ) : (
-                                                            spanText ? (<span>{spanText}</span>) : (<></>)
+                                                            spanText ? <div className='tip-color font-14' >{spanText}
+                                                            {/* <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer' /> */}
+                                                            </div> : null
                                                         )
                                                     }
 

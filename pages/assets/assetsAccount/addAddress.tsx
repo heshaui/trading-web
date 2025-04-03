@@ -330,7 +330,7 @@ const AddAdressPage = () => {
                     {
                         title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>
                             {/* 提现 */}
-                            {t('assets.withdrawMoney')}
+                            {t('assets.withdraw')}
                             </span></Link>,
                     },
                     {

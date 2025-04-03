@@ -3,6 +3,13 @@
   "description": "This is the homepage-中文",
   "home1": "IMBIT数字货币交易所更快、更好、更强",
   "home2": "更多",
+  "nickname": "昵称",
+  "userCenter":{
+    "overView":"全栈概览",
+    "account":"用户设置",
+    "identity":"身份认证",
+    "security":"安全中心"
+},
   "search": "搜索",
   "filter": "筛选",
   "ok": "确认",

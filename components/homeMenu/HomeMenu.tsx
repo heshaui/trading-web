@@ -27,7 +27,11 @@ import { getBulletinMessage } from '@/services/bulletinCenter';
 import ThemeIcon from './ThemeIcon';
 import { useNavigation } from '@/context/NavigationContext';
 import { useAuth } from '@/context/AuthContext';
-
+import { getLoginInfo } from '@/services/overview';
+import {encryptString} from '@/utils/encrypt';
+import { toast } from 'sonner';
+import UserInfoMenu from './common/UserInfo';
+import AssetsMenu from './common/Assets';
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -443,19 +447,38 @@ export default function HomeMenu() {
                     src={isDayMode 
                         ? '/images/home_menu/icon_exit.png' 
                         // : '/images/home_menu/icon_exit_dark.png'} 
-                        : '/images/home_menu/icon_exit.png'} 
+                        : '/images/home_menu/icon_exit_dark.png'} 
                     h5Text="退出登录" 
                     onClick={() => handleLogout()} 
                 />
             ),
         },
     ];
+    const [userInfo, setUserInfo] = useState<any>({});
+    const userInfoOpenChange = async(open: boolean) => {
+        // if(open){
+        //     if(typeof window !== 'undefined'){
+        //         const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+        //         setUserInfo(userInfo)
+        //     }
+        // }
+        const res=await getLoginInfo()
+        if(res.code === "0"){
+            setUserInfo(res.data)
+        }else{
+            toast.error(res.message)
+        }
+    }
+    // nav***@gmail.com
     const userItemsAll = [
         {
             key: '1',
             type: 'group',
             label: (
-                <MenuItemLabel src='/images/home_menu/Avatar.png' h5Text="nav***@gmail.com" spanText='UID：123456789' nickName='昵称：MWUSER-12345678' level='V0' />
+                <MenuItemLabel src={userInfo.avatarUrl?userInfo.avatarUrl:isDayMode?'/images/home_menu/Avatar.png':'/images/home_menu/Avatar_night.png'} 
+                h5Text={userInfo.registerAccount?encryptString(userInfo.registerAccount):'--'} 
+                spanText={`UID：${userInfo.userId?userInfo.userId:'--'}`} 
+                nickName={`${t('overview.nickname')}：${userInfo.nickname?userInfo.nickname:`IMUSER-${userInfo.userId||'--'}`}`} level='V0' />
             ),
         },
         {
@@ -1090,7 +1113,7 @@ export default function HomeMenu() {
                                         isLogin ? (
                                             <>
                                                 <Col>
-                                                    <Dropdown
+                                                    {/* <Dropdown
                                                         menu={{
                                                             // items,
                                                             items: itemsFunding
@@ -1099,13 +1122,7 @@ export default function HomeMenu() {
                                                         className={styles.dropDownList}
                                                         overlayStyle={{ top: '80px', width: '180px' }}
                                                     >
-                                                        {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
                                                         <Space style={{ columnGap: '3px' }}>
-                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
-                                                        </Space>
-                                                    </a> */}
-                                                        <Space style={{ columnGap: '3px' }}>
-                                                            {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
                                                             <Image
                                                                 onClick={(e) => e.preventDefault()}
                                                                 src="/images/home_menu/icon_wallet_line.png"
@@ -1114,8 +1131,9 @@ export default function HomeMenu() {
                                                                 width={20}  // 必须指定宽度
                                                                 height={20} // 必须指定高度
                                                             />
-                                                        </Space>
-                                                    </Dropdown>
+                                                        </Space> */}
+                                                    {/* </Dropdown> */}
+                                                    <AssetsMenu/>
                                                 </Col>
                                                 <Col>
                                                     <Dropdown
@@ -1146,7 +1164,7 @@ export default function HomeMenu() {
                                                     </Dropdown>
                                                 </Col>
                                                 <Col>
-                                                    <Dropdown
+                                                    {/* <Dropdown
                                                         menu={{
                                                             items: userItemsAll as MenuProps['items'],
                                                             triggerSubMenuAction: 'click',
@@ -1155,6 +1173,7 @@ export default function HomeMenu() {
                                                         trigger={['click']}
                                                         overlayStyle={{ top: '80px', maxWidth: '240px', minWidth: '240px' }}
                                                         overlayClassName='customUserAllMenu'
+                                                        onOpenChange={userInfoOpenChange}
                                                     >
                                                         <Space>
                                                             <Image
@@ -1166,7 +1185,8 @@ export default function HomeMenu() {
                                                                 height={20} // 必须指定高度
                                                             />
                                                         </Space>
-                                                    </Dropdown>
+                                                    </Dropdown> */}
+                                                    <UserInfoMenu />
                                                 </Col>
                                                 {iconItemsLogin}
                                             </>

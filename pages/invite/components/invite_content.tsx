@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from '../styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
-import useCopyToClipboard from '@/hooks/use-copy-to-clipboard';
+import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
 // import type { CSSProperties } from 'react';
 import { ConfigProvider, Tabs, Skeleton } from 'antd';
 import { Iconify } from "@/components/icon"

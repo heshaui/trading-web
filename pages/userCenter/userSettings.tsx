@@ -14,6 +14,7 @@ import { Skeleton } from 'antd'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -118,7 +119,8 @@ const UserSettingsPage: React.FC = () => {
       if (code === '0') {
         setLoadingSkeleton(false)
         setUserInfo(data);
-        
+        const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+        localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, data)))
         // 遍历 userInfoList
         const updatedUserInfoList = userInfoList.map(item => {
           if (data.hasOwnProperty(item.type)) {
