@@ -109,7 +109,7 @@ const OverviewPage: React.FC = () => {
             if (res.code === '0') {
                 setLoginInfo(res.data);
                 setLoadingSkeleton(false)
-                setcodeValue(`${BASE_URL}?inviteCode=${res.data?.inviteCode || '--'}`)
+                setcodeValue(`${BASE_URL}/register?inviteCode=${res.data?.inviteCode || '--'}`)
             }
         } catch (error) {
             toast.error(String(error));
