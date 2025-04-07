@@ -960,7 +960,7 @@ const WithdrawMoneyPage = () => {
                         </div>
                     </div>
                 </div>
-                <TableBox />
+                <TableBox coinId={form.getFieldValue('tenantId')} />
 
             </div>
             <WithdrawMoneyCheck open={checkOpen}

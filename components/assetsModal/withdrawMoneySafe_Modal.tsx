@@ -61,7 +61,8 @@ interface SafeDataType {
     transactionStatus?: number,
     withdrawalStatus?: number,
     famousAphorisms?: string,
-    securityIntensity?: number
+    securityIntensity?: number,
+    googleCode?: string
 }
 type Props = {
     open: boolean;
@@ -401,7 +402,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {(acountInfo.phone && (acountInfo.isGoogleAuth===0 || !acountInfo.email)) && (<>
+                        {(acountInfo.phone && (acountInfo.isGoogleAuth===0 || !acountInfo.email||!acountInfo.googleCode)) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.phone')}</div>
                             <p className={`${styles.tip_color} font-12 font-w-400 mt-1 mb-2_5`}>{firstCheck2 ? t('modal.sent2') : t('modal.resend2')}
@@ -427,7 +428,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>)}
-                        {acountInfo.isGoogleAuth===1 && (<>
+                        {(acountInfo.isGoogleAuth===1||acountInfo.googleCode) && (<>
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.google')}</div>
                             <Form.Item name="googleCode" rules={[{ required: true, message: t('modal.codeError2') }]}>
                                 <Input placeholder={t('modal.inputGoogleCode')} allowClear className={`${styles.input_box} modal-input`}

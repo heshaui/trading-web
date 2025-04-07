@@ -1,12 +1,16 @@
 import React from 'react';
 import styles from '../styles/spotAccount.module.css'
-import {  ConfigProvider, Table } from 'antd';
+import { ConfigProvider, Table, Radio, Checkbox } from 'antd';
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { NoData, NoAddress } from '@/components/noData';
-import { getWithdrawDepositList} from '@/services/assets'
+import { getWithdrawDepositList } from '@/services/assets'
 import { useTranslation } from 'next-i18next';
+import { Iconify } from '@/components/icon'
+import { useRouter } from 'next/router';
+import type { CheckboxProps } from 'antd';
+import { toast } from "sonner";
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -24,11 +28,11 @@ interface DataType {
     riskExplain: string,
     tenantId: string
 }
-const WithdrawMoneyTable = () => {
+const WithdrawMoneyTable = (coinId:number|string|any) => {
     const { t } = useTranslation(['assets']);
-    const [tableData, setTableData] = useState<DataType[]>([
-
-    ]);
+    const router = useRouter();
+    const [tableData, setTableData] = useState<DataType[]>([]);
+    const [initTableData, setInitTableData] = useState<DataType[]>([]);
 
     const [total, setTotal] = useState(0);
 
@@ -172,6 +176,7 @@ const WithdrawMoneyTable = () => {
         setTableLoading(true)
         try {
             const res = await getWithdrawDepositList(pageParam)
+            setInitTableData(res.data.list)
             setTableData(res.data.list)
             setTotal(res.data.count)
         } finally {
@@ -179,21 +184,48 @@ const WithdrawMoneyTable = () => {
         }
 
     }
-
+    const onlyShowChange: CheckboxProps['onChange'] = (e) => {
+       if(e.target.checked){
+        if(coinId&&coinId.coinId){
+            setTableData(initTableData.filter((item)=>item.coinId ==coinId.coinId ))
+        }else{
+            setTableData(initTableData)
+            toast.error(t('withdrawTable.onlyShowError'))
+        }
+        
+       }else{
+        setTableData(initTableData)
+       }
+        
+    }
     useEffect(() => {
         getWithdrawDepositListData()
     }, [])
 
     return (
         <div className={`${styles.table_box} w-full `}>
-            <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+            <div className={`${styles.table_header} w-full my-4 flex align-center justify-between`}>
                 <h5 className={`font-w-500 font-18`}>
                     {/* 最近提现记录 */}
                     {t('withdrawTable.title')}
                 </h5>
-                {/* <Radio
-                        defaultChecked
-                    ><span className={`${styles.title_color}`}>隐藏0资产</span></Radio> */}
+                <div className='flex-x align-center'>
+                    <Checkbox
+                        defaultChecked={false}
+                        onChange={onlyShowChange}
+                    >
+                        <span className={`${styles.title_color} font-14`}>
+                            {t('withdrawTable.onlyShow')}
+                        </span>
+                    </Checkbox>
+                    <button className='flex-x align-center font-16' onClick={() => {
+                        router.push('/assets/billDetails')
+                    }}>
+                        {t('withdrawTable.more')}
+                        <Iconify icon="mingcute:right-line" size={26} />
+                    </button>
+                </div>
+
             </div>
             <ConfigProvider
                 theme={{
