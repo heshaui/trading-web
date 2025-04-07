@@ -143,11 +143,11 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                     // },
                     // Button: {
                     //     controlHeightLG: 50,
-                    //     defaultActiveBorderColor: '#FF5F1F', //默认按钮激活态边框颜色
-                    //     defaultActiveColor: '#FF5F1F', //默认按钮激活态文本颜色
-                    //     defaultBg: '#FF5F1F', //默认按钮背景颜色
-                    //     defaultHoverBorderColor: '#FF5F1F', //默认按钮悬浮态边框颜色
-                    //     defaultHoverColor: '#FF5F1F', //默认按钮悬浮态文本颜色
+                    //     defaultActiveBorderColor: 'var(--theme-color)', //默认按钮激活态边框颜色
+                    //     defaultActiveColor: 'var(--theme-color)', //默认按钮激活态文本颜色
+                    //     defaultBg: 'var(--theme-color)', //默认按钮背景颜色
+                    //     defaultHoverBorderColor: 'var(--theme-color)', //默认按钮悬浮态边框颜色
+                    //     defaultHoverColor: 'var(--theme-color)', //默认按钮悬浮态文本颜色
                     //     defaultColor: '#fff', //默认按钮文本颜色
                     // },
                     Modal: {

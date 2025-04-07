@@ -87,17 +87,16 @@ function InvitationDetails({ onReturn }: InviteProps) {
     ];
     const getInviteData = async () => {
         setLoading(true)
+        const param={
+            pageNo:paramdataRef.current.page,
+            pageSize:paramdataRef.current.pageSize,
+        }
         try {
 
-            const res = await getInviteList(
-                // {
-                //     pageNo: paramdataRef.current.page,
-                //     pageSize: paramdataRef.current.pageSize,
-                // }
-            );
+            const res = await getInviteList(param);
             if (res.code === '0') {
                 setInviteData(res.data.list)
-                // setTotal(res.data.count)
+                setTotal(res.data.count)
             } else {
                 toast.error(res.message)
             }
@@ -133,6 +132,15 @@ function InvitationDetails({ onReturn }: InviteProps) {
                             borderColor: "transparent",
                             headerBorderRadius:0, // 表头圆角
                         },
+                        Pagination: {
+                            itemActiveBg: "transparent",
+                            itemBg: "transparent",
+                        },
+                        Select: {
+                            activeBorderColor:"var(--border-color4)",
+                            optionActiveBg:"transparent",
+                            selectorBg:"transparent", //选框背景色
+                        }
                     },
                 }}
             >
@@ -142,13 +150,13 @@ function InvitationDetails({ onReturn }: InviteProps) {
                     size="large"
                     scroll={{ x: "max-content" }}
                     className={`${styles.table_box} table-box`}
-                    // pagination={{
-                    //     position: ["bottomRight"],
-                    //     showSizeChanger: true,
-                    //     total: total,
-                    //     size: "default",
-                    //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                    // }}
+                    pagination={{
+                        position: ["bottomRight"],
+                        showSizeChanger: true,
+                        total: total,
+                        size: "default",
+                        onChange: (page, pageSize) => pageChange(page, pageSize),
+                    }}
                     loading={loading}
                     locale={{
                         emptyText:

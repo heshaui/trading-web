@@ -24,6 +24,7 @@ import BindGoogleModal from '@/components/safeCenterModal/bindGoogle_Modal';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -402,6 +403,8 @@ const SafeCenter: React.FC = () => {
             if (code === '0') {
                 setLoadingSkeleton(false)
                 setSafeData(data)
+                const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+                localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, data)))
                 const securityMethodsCount = checkMethodsCount(data);
                 const baseSafeData = initBaseSafeList.map((item: SafeListItem) => {
                     if (data.hasOwnProperty(item.type)) {

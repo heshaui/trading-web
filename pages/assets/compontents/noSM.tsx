@@ -15,7 +15,7 @@ const NoUseCom = ({ type }: NoUseComProps) => {
     return <>
         {type === '1' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
             <div className={`flex-x align-center ${styles.card_content}`}>
-                <Image src={isDayMode ? '/images/assets/assets_account/icon_nosm_day.png' : '/images/assets/assets_account/icon_nosm_night.png'}
+                <Image src={ '/images/assets/assets_account/icon_nosm_1.png'}
                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
                 <p className='flex-y'>
                     <span className={` font-w-500 font-18`}>未完成身份认证</span>
@@ -30,11 +30,26 @@ const NoUseCom = ({ type }: NoUseComProps) => {
         </div>}
         {type === '2' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
             <div className={`flex-x align-center ${styles.card_content}`}>
-                <Image src={isDayMode ? '/images/assets/assets_account/icon_nosm_day.png' : '/images/assets/assets_account/icon_nosm_night.png'}
+                <Image src={ '/images/assets/assets_account/icon_nosm_night.png'}
                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
                 <p className='flex-y'>
                     <span className={` font-w-500 font-18`}>提币功能暂不可用</span>
                     <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>启用2FA以继续提现。为了您的资产安全起见，我们建议您尽快启用。</span>
+                </p>
+            </div>
+            <button className={`default_btn ${styles.btn_style}`}
+                onClick={() => {
+                    router.push('/userCenter/safeCenter')
+                }}
+            >去设置</button>
+        </div>}
+        {type === '3' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
+            <div className={`flex-x align-center ${styles.card_content}`}>
+                <Image src={ '/images/assets/assets_account/icon_nosm_2.png'}
+                    alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
+                <p className='flex-y'>
+                    <span className={` font-w-500 font-18`}>提币功能暂不可用</span>
+                    <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>交易所禁止提现，如有问题请与客服联系！</span>
                 </p>
             </div>
             <button className={`default_btn ${styles.btn_style}`}

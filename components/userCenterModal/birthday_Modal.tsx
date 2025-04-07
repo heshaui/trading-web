@@ -129,6 +129,10 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                         contentBg: "var(--background5)",
                         footerBg: "var(--background5)",
                         headerBg: "var(--background5)",
+                    },
+                    DatePicker:{
+                        activeBg: 'var(--background5)', // 激活态背景颜色
+                        hoverBg: 'var(--background5)', // hover状态背景颜色
                     }
                 },
                 token: {

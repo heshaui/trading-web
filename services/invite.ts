@@ -9,10 +9,15 @@ export function getInviteCount(): Promise<any> {
         method: 'POST',
     });
 }
+interface paramType{
+    pageNo:number,
+    pageSize:number,
+}
 // 获取邀请列表
-export function getInviteList(): Promise<any> {
+export function getInviteList(params:paramType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/user/userInviteList`, {
         method: 'POST',
+        body:JSON.stringify(params)
     });
 }
 

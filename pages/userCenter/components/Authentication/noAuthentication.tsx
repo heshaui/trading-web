@@ -179,10 +179,14 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         </div>
                     </div>
                     {/* 认证提示 */}
-                    <div className={`font-14 font-w-400 mt-3 ${styles.error_icon}`} >
-                        {identityInfo?.remark ? (<>
-                            {/* 该证件号已存在，请登录原有账号完成认证！！ */}
-                            {/* {identityInfo?.remark || '--'} */}
+                    <div className={`font-14 font-w-400 mt-3 ${styles.error_icon} flex align-center`} >
+                        <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
+                        <span>
+                        {t('overview.identityAuth.reVerify')}
+                        </span>
+                        
+
+                        {/* {identityInfo?.remark ? (<>
                             {identityInfo.remark.includes('&')
                                 ? identityInfo.remark.split('&').map((item, index) => (<>
                                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
@@ -194,7 +198,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             }
                         </>) : <div className='flex align-center'>
                             <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />--
-                        </div>}
+                        </div>} */}
                     </div>
                 </div>
                 {/* 按钮 */}
@@ -270,21 +274,31 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         <li key={item.id} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
-                                {item.status0 === 0? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
+                                {item.value0 ?
+                                    <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span> :
+                                    item.status0 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' /> :
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                }
+                                {/* {item.status0 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
                                     :
                                     item.value0 ?
                                         <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span>
                                         :
-                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />}
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />} */}
                             </div>
                             {/* <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>50K USDT每日</div> */}
                             <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>
-                                {item.status1 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
+                                {item.value1 ?
+                                    <span>{(item.value1 && item.params1) ? getBenefitValue(item.value1) : item.value1}</span> :
+                                    item.status1 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' /> :
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
+                                }
+                                {/* {item.status1 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' />
                                     :
                                     item.value1 ?
                                         <span>{(item.value1 && item.params1) ? getBenefitValue(item.value1) : item.value1}</span>
                                         :
-                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />}
+                                        <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />} */}
                             </div>
                         </li>
                         // <li className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>

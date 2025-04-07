@@ -3,7 +3,7 @@ import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayou
 import styles from '../../styles/identity.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
-import { encryptIdCard,getBenefitValue } from '@/utils/encrypt';
+import { encryptIdCard, getBenefitValue } from '@/utils/encrypt';
 import { useTranslation } from 'react-i18next';
 // 按钮配置接口
 interface ButtonConfig {
@@ -146,14 +146,19 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                     </span>
                 </div>
                 <ul className={`${styles.border_btm} mt-3`}>
-                    {levelBenefit&&levelBenefit.map((item: levelBenefitType) => (
+                    {levelBenefit && levelBenefit.map((item: levelBenefitType) => (
                         <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
                             <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
-                            <div className={` font-w-500`}>{
-                                item.status1 === 0 ? 
-                                    t('identity.certified.forbidden') : // 禁止
-                                    (item.value1&&item.params1)?getBenefitValue(item.value1):t('identity.certified.allow') // 允许
-                            }</div>
+                            <div className={` font-w-500`}>
+                                {(item.value1 && item.params1) ? getBenefitValue(item.value1) :
+                                    item.status1 === 0 ? t('identity.certified.forbidden') : t('identity.certified.allow')
+                                }
+                                {/* {
+                                    item.status1 === 0 ?
+                                        t('identity.certified.forbidden') : // 禁止
+                                        (item.value1 && item.params1) ? getBenefitValue(item.value1) : t('identity.certified.allow') // 允许
+                                } */}
+                            </div>
                         </li>
                         // <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         //     <div className={` font-w-400 ${styles.tip_color}`}>加密货币充值</div>
@@ -195,8 +200,8 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {/* 国家 */}
                             {t('identity.certified.info.country')}
                         </div>
-                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ? 
-                            t('identity.certified.info.countries.mainland') : 
+                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ?
+                            t('identity.certified.info.countries.mainland') :
                             t('identity.certified.info.countries.hongkong')}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>

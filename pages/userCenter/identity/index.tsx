@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import {LOCAL_STORAGE_KEY} from "@/config/apiConfig"
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
 // import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
@@ -79,8 +79,11 @@ const IdentityPage: React.FC = () => {
       });
       if (res.code === '0') {
         setUserIdentityInfo(res.data);
+        localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, userInfo, res.data)))
+
         if (res.data.authStatus === 1) {
           getLevelBenefitData(userInfo.userId);
+
         } else {
           getLevelBenefitData(null);
         }
@@ -95,7 +98,7 @@ const IdentityPage: React.FC = () => {
         userId: userId || ''
       });
       if (res.code === '0') {
-        const benefitData=transformData(res.data)
+        const benefitData = transformData(res.data)
         setLevelBenefitData(benefitData);
       }
     } catch (error) {
@@ -103,13 +106,13 @@ const IdentityPage: React.FC = () => {
     }
   }
 
-  const transformData = (data:any) => {
-    return data.map((item:any) => {
+  const transformData = (data: any) => {
+    return data.map((item: any) => {
       // 创建基础对象，包含 benefitId 和 benefitName
       const result = {
         benefitId: item.benefitId,
         benefitName: item.benefitName,
-        
+
         // 初始化默认值
         status0: null,
         value0: null,
@@ -118,11 +121,11 @@ const IdentityPage: React.FC = () => {
         value1: null,
         params1: null
       };
-      
+
       // 遍历 levelBenefits 数组，根据 levelId 设置对应的属性
-      item.levelBenefits.forEach((benefit:any) => {
+      item.levelBenefits.forEach((benefit: any) => {
         if (benefit.levelId === 1) {
-        // 未认证
+          // 未认证
           result.status0 = benefit.status;
           result.value0 = benefit.value;
           result.params0 = benefit.params;
@@ -133,7 +136,7 @@ const IdentityPage: React.FC = () => {
           result.params1 = benefit.params;
         }
       });
-      
+
       return result;
     });
   }
@@ -191,10 +194,10 @@ const IdentityPage: React.FC = () => {
   </div>);
 };
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
-		},
-	};
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['userCenter', 'common'])),
+    },
+  };
 };
 export default withUserCenterLayout(IdentityPage);

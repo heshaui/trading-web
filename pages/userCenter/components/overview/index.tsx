@@ -18,7 +18,7 @@ import { useTranslation } from 'next-i18next';
 // import type { GetStaticProps } from 'next';
 import { getCarouselImageList } from '@/services/userCenter';
 import { getLoginInfo } from '@/services/overview';
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 const identityStyle: CSSProperties = {
     position: 'relative',
     // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
@@ -110,6 +110,8 @@ const OverviewPage: React.FC = () => {
                 setLoginInfo(res.data);
                 setLoadingSkeleton(false)
                 setcodeValue(`${BASE_URL}/register?inviteCode=${res.data?.inviteCode || '--'}`)
+                const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+                localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, res.data)))
             }
         } catch (error) {
             toast.error(String(error));
@@ -273,7 +275,7 @@ const OverviewPage: React.FC = () => {
                         )}
                         {loginInfo && loginInfo?.realnessStatus === 3 && (
                             <div className='font-14 mt-2 flex-x align-center'>
-                                <Iconify icon="mingcute:time-line" className={`${styles.tip_color} mr-1`} size={20} />
+                                <Iconify icon="mingcute:time-line" className={`${styles.warning_color} mr-1`} size={20} />
                                 <span className={`${styles.tip_color} font-14 font-w-500`}>
                                     {/* 审核中 */}
                                     {t('overview.audit')}
@@ -354,7 +356,7 @@ const OverviewPage: React.FC = () => {
                             {/* 请重新提交认证，完成认证后可以享受
                             交易所完整的服务 */}
                             {t('overview.identityAuth.reVerify')}
-                            {loginInfo?.remark && (
+                            {/* {loginInfo?.remark && (
                                 <div className="mb-2">
                                     {loginInfo.remark.includes('&')
                                         ? loginInfo.remark.split('&').map((item, index) => (
@@ -365,7 +367,7 @@ const OverviewPage: React.FC = () => {
                                         : loginInfo.remark
                                     }
                                 </div>
-                            )}
+                            )} */}
                         </div>
                             : <p className={`font-14 mt-3 mb-2`}>
                                 {/* 已完成身份认证，开始您的货币之旅吧！ */}

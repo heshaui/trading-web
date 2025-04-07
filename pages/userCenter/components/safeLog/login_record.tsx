@@ -148,7 +148,6 @@ function LoginRecord() {
                             itemActiveBg: "transparent",
                             itemBg: "transparent",
                         },
-
                         Select: {
                             activeBorderColor:"var(--border-color4)",
                             optionActiveBg:"transparent",

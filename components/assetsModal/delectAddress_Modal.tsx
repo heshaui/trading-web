@@ -69,20 +69,20 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
                         itemMarginBottom: 0, // 去除表单项之间的间距
                     },
                     Input: {
-                        // color: '#FF5F1F',
-                        activeBorderColor: '#FF5F1F',
-                        hoverBorderColor: '#FF5F1F',
+                        // color: 'var(--then-color)',
+                        activeBorderColor: 'var(--theme-color)',
+                        hoverBorderColor: 'var(--theme-color)',
                         controlHeightLG: 50,
                         activeBg: 'var(--background5)',
                         hoverBg: 'var(--background5)',
                     },
                     Button: {
                         controlHeightLG: 50,
-                        defaultActiveBorderColor: '#FF5F1F', //默认按钮激活态边框颜色
-                        defaultActiveColor: '#FF5F1F', //默认按钮激活态文本颜色
-                        defaultBg: '#FF5F1F', //默认按钮背景颜色
-                        defaultHoverBorderColor: '#FF5F1F', //默认按钮悬浮态边框颜色
-                        defaultHoverColor: '#FF5F1F', //默认按钮悬浮态文本颜色
+                        defaultActiveBorderColor: 'var(--theme-color)', //默认按钮激活态边框颜色
+                        defaultActiveColor: 'var(--theme-color)', //默认按钮激活态文本颜色
+                        defaultBg: 'var(--theme-color)', //默认按钮背景颜色
+                        defaultHoverBorderColor: 'var(--theme-color)', //默认按钮悬浮态边框颜色
+                        defaultHoverColor: 'var(--theme-color)', //默认按钮悬浮态文本颜色
                         defaultColor: '#fff', //默认按钮文本颜色
                     },
                     Modal: {
