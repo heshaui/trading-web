@@ -27,6 +27,7 @@ const publicPaths = [
   '/login',
   '/register',
   '/resetPassword',
+  '/chart',
   // '/invite',
 ];
 function App({ Component, pageProps }: AppProps) {

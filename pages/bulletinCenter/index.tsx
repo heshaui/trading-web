@@ -3,7 +3,6 @@ import type { MenuProps } from 'antd';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
 import MessageItemDetail from './components/MessageItemDetail';
