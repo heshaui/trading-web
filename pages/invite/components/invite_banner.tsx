@@ -2,14 +2,15 @@
 import React from 'react';
 import styles from '../styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
-import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import type { CSSProperties } from 'react';
-import { ConfigProvider, Form, Input } from 'antd';
+import { ConfigProvider, Form, Input, QRCode } from 'antd';
 import { Iconify } from "@/components/icon"
 import { getLoginInfo } from '@/services/overview';
 import { useEffect, useState } from 'react';
-
-const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+import { useTranslation } from 'next-i18next';
+import Image from 'next/image';
+import InviteQRcodeModal from './modal/invite_QRcode';
 
 const mainBgcStyle: CSSProperties = {
     // backgroundImage: `url("/images/login/banner.png")`,
@@ -33,10 +34,14 @@ interface InviteInfoType {
     inviteCode: string,
     inviteLink: string,
 }
-const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
+const InviteBanner = ({ onReturn, inviteInfo }: InviteBannerProps) => {
+    const { t } = useTranslation(['invite']);
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [form] = Form.useForm();
+    const [qrcodeOpen, setQRcodeOpen] = useState(false);
+    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+
     // const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
     // let userInfo = {}
     // if (typeof window !== 'undefined') {
@@ -44,10 +49,10 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
     // }
     const onSubmit = () => {
         form.validateFields()
-        .then(async (values) => {
-            console.log(values);
-            onReturn();
-        });
+            .then(async (values) => {
+                console.log(values);
+                onReturn();
+            });
     }
     // const getLoginInfoData = async () => {
     //     const res = await getLoginInfo();
@@ -67,8 +72,8 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
     useEffect(() => {
         if (inviteInfo?.inviteCode) {
             form.setFieldsValue({
-                inviteCode: inviteInfo.inviteCode||'',
-                inviteLink: inviteInfo.inviteLink||''
+                inviteCode: inviteInfo.inviteCode || '',
+                inviteLink: inviteInfo.inviteLink || ''
             });
         }
     }, [inviteInfo]);
@@ -87,8 +92,8 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
             }}>
             <div className={`${styles.main_page} flex-x align-center justify-between`}>
                 <div className={`${styles.main_title} `} >
-                    <p className={`${styles.title_color} font-48 font-w-600`}>邀请好友，获得返佣<span className={styles.strong_color}>奖励</span> </p>
-                    <p className={`${styles.tip_color} font-28 font-w-400 mt-5`}>和好友一起赚取额外奖励</p>
+                    <p className={`${styles.title_color} font-48 font-w-600`}>{t('invite.title1')} <span className={styles.strong_color}>{t('invite.title2')}</span> </p>
+                    <p className={`${styles.tip_color} font-28 font-w-400 mt-5`}>{t('invite.tip2')}</p>
                 </div>
                 <div className={`${styles.card_bgc} flex-x-cc`}>
                     <ConfigProvider
@@ -113,44 +118,64 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
                             form={form}
                             size="large"
                             style={{ width: "100%" }}
-                            // initialValues={{ inviteCode: inviteInfo.inviteCode||'', inviteLink: inviteInfo.inviteLink||'' }}
+                        // initialValues={{ inviteCode: inviteInfo.inviteCode||'', inviteLink: inviteInfo.inviteLink||'' }}
                         >
-                            <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>邀请码</p>
-                            <Form.Item name="inviteCode" rules={[{ required: true, message: '请输入邀请码!' }]}>
+                            <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>{t('invite.inviteCode')}</p>
+                            <div className='flex-x align-center justify-between'>
+                                <Form.Item name="inviteCode" className='flex-1'
+                                    rules={[{ required: true, message: t('invite.inputInviteCode2') }]}>
+                                    <Input className={`${styles.input_box} modal-input`}
+                                        maxLength={25}
+                                        placeholder={t('invite.inputInviteCode')}
+                                        disabled={true}
+                                        suffix={
+                                            <Iconify icon="icon-park-outline:copy"
+                                                className='ml-1 cursor-pointer' size={18}
+                                                onClick={() => {
+                                                    copyFn(inviteInfo.inviteCode)
+                                                }}
+                                            />
+                                        }
+                                    />
+                                </Form.Item>
+                                <Form.Item className=''>
+                                    <button type='button' className='cursor-pointer ml-3'
+                                    onClick={()=>{
+                                        setQRcodeOpen(true)
+                                    }}
+                                    >
+                                        <Image src={isDayMode ? "/images/invite/qrcode_day.png" : "/images/invite/qrcode_dark.png"} 
+                                        alt="invite_modal" width={20} height={20} />
+                                      
+                                    </button>
+                                    {/* <QRCode value={`${BASE_URL}/register?inviteCode=${inviteInfo.inviteCode}`}
+                                        style={{ backgroundColor: "transparent", padding: "0", minWidth: "20px" }}
+                                         size={20} /> */}
+                                </Form.Item>
+                            </div>
+
+                            <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>{t('invite.inviteLink')}</p>
+                            <Form.Item name="inviteLink" rules={[{ required: true, message: t('invite.inputInviteLink2') }]}>
                                 <Input className={`${styles.input_box} modal-input`}
                                     maxLength={25}
-                                    placeholder='请输入邀请码'
+                                    placeholder={t('invite.inputInviteLink')}
                                     disabled={true}
                                     suffix={
                                         <Iconify icon="icon-park-outline:copy"
                                             className='ml-1 cursor-pointer' size={18}
-                                        onClick={() => {
-                                            copyFn(inviteInfo.inviteCode)
-                                        }}
+                                            onClick={() => {
+                                                copyFn(inviteInfo.inviteLink)
+                                            }}
                                         />
                                     }
                                 />
                             </Form.Item>
-                            <p className={`font-16 font-w-400 mb-2_5 ${styles.title_color}`}>邀请链接</p>
-                            <Form.Item name="inviteLink" rules={[{ required: true, message: '请输入邀请链接!' }]}>
-                                <Input className={`${styles.input_box} modal-input`}
-                                    maxLength={25}
-                                    placeholder='请输入邀请链接'
-                                    disabled={true}
-                                    suffix={
-                                        <Iconify icon="icon-park-outline:copy"
-                                            className='ml-1 cursor-pointer' size={18}
-                                        onClick={() => {
-                                            copyFn(inviteInfo.inviteLink)
-                                        }}
-                                        />
-                                    }
-                                />
-                            </Form.Item>
-                            <Form.Item name="inviteLink" rules={[{ required: true, message: '请输入邀请链接!' }]}>
+                            <Form.Item name="inviteLink" rules={[{ required: true, message: t('invite.inputInviteLink2') }]}>
                                 <button type='submit' className={`default_btn w-full ${styles.invite_btn}`}
                                     onClick={onSubmit}
-                                >立即邀请</button>
+                                >
+                                    {t('invite.inviteBtn')}
+                                </button>
                             </Form.Item>
                         </Form>
                     </ConfigProvider>
@@ -158,6 +183,8 @@ const InviteBanner = ({ onReturn ,inviteInfo}: InviteBannerProps) => {
             </div>
 
         </div>
+        <InviteQRcodeModal open={qrcodeOpen} qrcode={`${BASE_URL}/register?inviteCode=${inviteInfo.inviteCode}`} 
+        onCancel={()=>{setQRcodeOpen(false)}} onOk={()=>{setQRcodeOpen(false)}} />
     </>
     );
 };

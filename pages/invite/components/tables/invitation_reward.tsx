@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { encryptString } from "@/utils/encrypt";
 import Image from 'next/image';
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { useTranslation } from 'next-i18next';
 interface DataType {
     id: number,
     userId: number,
@@ -34,6 +35,7 @@ type InviteProps = {
 }
 function InvitationReward({onReturn}:InviteProps) {
     const router = useRouter();
+    const { t } = useTranslation(['invite']);
     const [loginData, setLoginData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ function InvitationReward({onReturn}:InviteProps) {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "发放时间",
+            title: t('invite.inviteRewards.time'), //"发放时间",
             dataIndex: "time",
             key: "time",
             align: "left",
@@ -56,14 +58,14 @@ function InvitationReward({onReturn}:InviteProps) {
             },
         },
         {
-            title: "注册账号",
+            title: t('invite.inviteRewards.account'), //"注册账号",
             dataIndex: "account",
             key: "account",
             align: "center",
             render: (_text) => <span>{_text ? encryptString(_text) : '--'}</span>,
         },
         {
-            title: "返佣金额",
+            title: t('invite.inviteRewards.reward'), //"返佣金额",
             key: "reward",
             dataIndex: "reward",
             align: "center",
@@ -72,7 +74,7 @@ function InvitationReward({onReturn}:InviteProps) {
             },
         },
         {
-            title: "USDT估值",
+            title: t('invite.inviteRewards.usdt'), //"USDT估值",
             key: "usdt",
             dataIndex: "usdt",
             align: "right",
@@ -153,9 +155,9 @@ function InvitationReward({onReturn}:InviteProps) {
                         <Image 
                         src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
                         alt="empty" width={100} height={100} />
-                        <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p>
+                        <p className={`font-14 font-w-400 ${styles.tip_color}`}>{t('invite.inviteRewards.noData')}</p>
                         <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`} 
-                        onClick={onReturn}>立即邀请</button>
+                        onClick={onReturn}>{t('invite.inviteRewards.inviteBtn')}</button>
                     </div> }}
                 />
             </ConfigProvider>

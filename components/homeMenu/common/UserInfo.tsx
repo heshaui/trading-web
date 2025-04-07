@@ -49,21 +49,6 @@ export default function UserInfoIcon() {
             ),
         },
         {
-            key: '2',
-            type: 'item',
-            label: (
-                <MenuItemLabel
-                    src={isDayMode
-                        ? '/images/home_menu/icon_user.png'
-                        : '/images/home_menu/icon_user_dark.png'}
-                    h5Text="个人中心"
-                    onClick={() => {
-                        router.push('/userCenter/userSettings')
-                    }}
-                />
-            ),
-        },
-        {
             key: '3',
             type: 'item',
             label: (
@@ -89,6 +74,36 @@ export default function UserInfoIcon() {
                     h5Text="身份认证"
                     onClick={() => {
                         router.push('/userCenter/identity')
+                    }}
+                />
+            ),
+        },
+        {
+            key: '5',
+            type: 'item',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_user_day.png'
+                        : '/images/home_menu/icon_user_dark2.png'}
+                    h5Text="邀请好友"
+                    onClick={() => {
+                        router.push('/invite')
+                    }}
+                />
+            ),
+        },
+        {
+            key: '2',
+            type: 'item',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_setting_day.png'
+                        : '/images/home_menu/icon_setting_dark.png'}
+                    h5Text="设置"
+                    onClick={() => {
+                        router.push('/userCenter/userSettings')
                     }}
                 />
             ),

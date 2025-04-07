@@ -11,6 +11,7 @@ import { toast } from "sonner";
 // import { useState } from "react";
 import { encryptData } from '@/utils/encrypt'
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
@@ -20,7 +21,9 @@ type Props = {
 
 function NicknameModal({ open, onCancel, onOk }: Props) {
     // const router = useRouter();
+    const { t } = useTranslation(['invite']);
     const [form] = Form.useForm();
+    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -53,7 +56,8 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                         className={`${styles.modal_footerBtn} default_btn`}
                         onClick={handOk}
                     >
-                        我知道了
+                        {/* 我知道了 */}
+                        {t('invite.inviteModal.okBtn')}
                     </button>
                 </div>
                 <button
@@ -99,13 +103,21 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                 }}
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
-                    <p className={`${styles.title_color2} font-32 font-w-500`}>邀请好友获得<span className={styles.strong_color}>交易奖励</span>！ </p>
+                    <p className={`${styles.title_color2} font-32 font-w-500`}>
+                        {/* 邀请好友获得 */}
+                        {t('invite.inviteModal.title')}
+                        <span className={styles.strong_color}>{t('invite.inviteModal.title2')}</span>
+                        </p>
                     <Image src="/images/invite/modal_icon.png" alt="invite_modal" width={267} height={321} />
                     <div className="flex-x align-center">
                         <p className={`${styles.title_color2} font-16 font-w-400 mr-9`}>
-                            注册 14 天内累计充值不低于 100 USDT且完成实名认证，即可获得好友现货交易手续费<span className={styles.strong_color}>20%</span>返佣
+                            {/* 注册 14 天内累计充值不低于 100 USDT且完成实名认证，即可获得好友现货交易手续费 */}
+                            {t('invite.inviteModal.tip1')}
+                            <span className={styles.strong_color}>20%</span>
+                            {/* 返佣 */}
+                            {t('invite.inviteModal.tip2')}
                         </p>
-                        <QRCode value="https://www.baidu.com"
+                        <QRCode value={`${BASE_URL}/register`}
                             style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }} size={68} />
                     </div>
                 </div>

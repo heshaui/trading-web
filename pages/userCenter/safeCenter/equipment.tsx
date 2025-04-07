@@ -19,6 +19,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import { useTranslation } from 'next-i18next';
 interface DataLogsType {
     id: number,
     userId: number,
@@ -50,6 +51,7 @@ interface DataType {
 }
 function Equipment() {
     const router = useRouter();
+    const { t } = useTranslation(['userCenter','common']);
     const [current, setCurrent] = useState(0);
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [deviceNoData, setDeviceNoData] = useState<DataType[]>([]);
@@ -70,7 +72,7 @@ function Equipment() {
     };
     const columns: ColumnsType<DataType> = [
         {
-            title: "设备管理",
+            title: t('security.safeSet.deviceManage'), //"设备管理",
             dataIndex: "deviceNo",
             key: "deviceNo",
             width: 158,
@@ -89,7 +91,7 @@ function Equipment() {
             },
         },
         {
-            title: "登录时间",
+            title: t('security.safeSet.loginTime'), //"登录时间",
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
@@ -97,14 +99,14 @@ function Equipment() {
             render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
-            title: "IP地址",
+            title: t('security.safeSet.ipAddress'), //"IP地址",
             dataIndex: "ip",
             key: "ip",
             align: "center",
             width: 158,
         },
         {
-            title: "登录所在地",
+            title: t('security.safeSet.loginLocation'), //"登录所在地",
             key: "address",
             dataIndex: "address",
             width: 128,
@@ -114,7 +116,7 @@ function Equipment() {
             },
         },
         {
-            title: "操作",
+            title: t('security.safeSet.operation'), //"操作",
             key: "operation",
             dataIndex: "operation",
             width: 150,
@@ -133,7 +135,7 @@ function Equipment() {
             render: (text, record) => <div></div>,
         },
         {
-            title: "登录时间",
+            title: t('security.safeSet.loginTime'), //"登录时间",
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
@@ -141,14 +143,14 @@ function Equipment() {
             render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
-            title: "IP地址",
+            title: t('security.safeSet.ipAddress'), //"IP地址",
             dataIndex: "ip",
             key: "ip",
             align: "center",
             width: 158,
         },
         {
-            title: "登录所在地",
+            title: t('security.safeSet.loginLocation'), //"登录所在地",
             key: "address",
             dataIndex: "address",
             width: 128,
@@ -158,7 +160,7 @@ function Equipment() {
             },
         },
         {
-            title: "操作",
+            title: t('security.safeSet.operation'), //"操作",
             key: "operation",
             dataIndex: "operation",
             width: 150,
@@ -273,9 +275,14 @@ function Equipment() {
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >
             <div className={`${styles.identity_auth_box}`} >
-                <h2 className={`flex-row justify-between font-18 font-w-500`} >安全设备
+                <h2 className={`flex-row justify-between font-18 font-w-500`} >
+                    {/* 安全设备 */}
+                    {t('security.safeSet.securityDevice')}
                 </h2>
-                <p className={`${styles.tip_color} font-14 font-w-400 mt-1`}>这些设备已被授权允许登录您的账户</p>
+                <p className={`${styles.tip_color} font-14 font-w-400 mt-1`}>
+                    {/* 这些设备已被授权允许登录您的账户 */}
+                    {t('security.safeSet.deviceManageDesc')}
+                </p>
                 <div className={`${styles.table_box} mt-3`}>
                     <ConfigProvider
                         theme={{
@@ -329,7 +336,10 @@ function Equipment() {
                                                 />
                                             ) : (
                                                 <Empty
-                                                    description={<span className={styles.tip_color}>暂无数据</span>}
+                                                    description={<span className={styles.tip_color}>
+                                                        {/* 暂无数据 */}
+                                                        {t('security.safeSet.nodata')}
+                                                    </span>}
                                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                                                 />
                                             )}

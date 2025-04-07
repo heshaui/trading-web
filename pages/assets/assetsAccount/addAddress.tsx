@@ -212,6 +212,8 @@ const AddAdressPage = () => {
                     iconUrl: item.iconUrl,
                     nameDefault: item.nameDefault,
                 }))
+                console.log(coinList,'coinList');
+                
                 setCoinSelect(coinList)
             } else {
                 toast.error(res.message)

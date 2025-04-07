@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { getLoginInfo } from '@/services/overview';
 import { useRouter } from 'next/router';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 interface InviteInfoType {
     inviteCode: string,
     inviteLink: string,
@@ -30,8 +32,8 @@ const InvitePage = () => {
     const inviteModalOK = () => {
         console.log(1111);
 
-        router.push(`/register?inviteCode=${inviteInfo.inviteCode}`)
-        // setOpen(false)
+        // router.push(`/register?inviteCode=${inviteInfo.inviteCode}`)
+        setOpen(false)
     }
     const getLoginInfoData = async () => {
         // const res = await getLoginInfo();
@@ -65,5 +67,11 @@ const InvitePage = () => {
     </>
     );
 };
-
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['invite','common'])),
+        },
+    };
+};
 export default InvitePage;

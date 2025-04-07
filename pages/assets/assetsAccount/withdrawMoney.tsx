@@ -22,7 +22,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -166,15 +166,19 @@ const WithdrawMoneyPage = () => {
         getUserData()
     }, []);
     const getUserData = async () => {
-        try {
-            const res = await getLoginUserInfo()
-            if (res.code === "0") {
-                setUserInfo(res.data)
-            } else {
-                toast.error(res.message)
-            }
-        } catch (error) {
-            console.error(t('safeModal.getUserInfoError'), error);
+        // try {
+        //     const res = await getLoginUserInfo()
+        //     if (res.code === "0") {
+        //         setUserInfo(res.data)
+        //     } else {
+        //         toast.error(res.message)
+        //     }
+        // } catch (error) {
+        //     console.error(t('safeModal.getUserInfoError'), error);
+        // }
+        if (typeof window !== 'undefined') {
+            const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+            setUserInfo(userInfo)
         }
 
     }
@@ -188,11 +192,15 @@ const WithdrawMoneyPage = () => {
         try {
             const res = await getCoinAll()
             if (res.code === '0') {
-                const coinList = res.data.map((item: any) => ({
-                    ...item,
-                    label: item.coinName,
-                    value: item.coinId,
-                }))
+                const coinList = res.data.map((item: any) => {
+                   if(item.status === 1){
+                    return {
+                        ...item,
+                        label: item.coinName,
+                        value: item.coinId,
+                    };
+                   }
+                })
                 setCoinSelect(coinList)
             } else {
                 toast.error(res.message)
@@ -261,7 +269,8 @@ const WithdrawMoneyPage = () => {
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
         // 1. 检查用户权限
-        if (userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2) {
+        // userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2
+        if (userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0) {
             return toast.error(t('withdrawMoney.function'))
         }
 
@@ -876,9 +885,15 @@ const WithdrawMoneyPage = () => {
 
             </div>
             <div className={`${styles.card_box}  mt-6  `}>
+                {/* {!userInfo ? null : (
+                    userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
+                        userInfo.securityIntensity < 2 ? <NoUseCom type='2' /> :
+                            userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
+                )} */}
                 {!userInfo ? null : (
                     userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
-                        userInfo.securityIntensity < 2 ? <NoUseCom type='2' /> : null
+                        !userInfo.googleCode ? <NoUseCom type='2' /> :
+                            userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )}
                 <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
 
@@ -907,7 +922,7 @@ const WithdrawMoneyPage = () => {
                         >
                             <Form
                                 form={form}
-                                disabled={(userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2)}
+                                disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode||userInfo.withdrawalStatus === 0)}
                             >
                                 <Steps
                                     direction="vertical"

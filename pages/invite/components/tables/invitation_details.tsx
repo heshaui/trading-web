@@ -18,7 +18,7 @@ import Image from 'next/image';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { getInviteList } from "@/services/invite";
 import {NoData} from "@/components/noData";
-
+import { useTranslation } from 'next-i18next';
 interface DataType {
     id: number,
     userId: number,
@@ -37,6 +37,7 @@ type InviteProps = {
 }
 function InvitationDetails({ onReturn }: InviteProps) {
     const router = useRouter();
+    const { t } = useTranslation(['invite']);
     const [inviteData, setInviteData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -51,30 +52,30 @@ function InvitationDetails({ onReturn }: InviteProps) {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "好友ID",
+            title: t('invite.inviteDetail.userId'), //"好友ID",
             dataIndex: "userId",
             key: "userId",
             align: "left",
             render: (text, record) => <span>{`${text}`} </span>,
         },
         {
-            title: "注册账号",
+            title: t('invite.inviteDetail.account'), //"注册账号",
             dataIndex: "account",
             key: "account",
             align: "center",
             render: (_text) => <span>{_text ? encryptString(_text) : '--'}</span>,
         },
         {
-            title: "邀请状态",
+            title: t('invite.inviteDetail.status'), //"邀请状态",
             key: "status",
             dataIndex: "status",
             align: "center",
             render: (_text) => {
-                return <span >{_text.toString() === '1' ? '成功' : '失败'}</span>;
+                return <span >{_text.toString() === '1' ? t('invite.inviteDetail.success') : t('invite.inviteDetail.fail')}</span>;
             },
         },
         {
-            title: "注册日期",
+            title: t('invite.inviteDetail.regeistTime'), //"注册日期",
             key: "regeistTime",
             dataIndex: "regeistTime",
             align: "right",
@@ -167,7 +168,10 @@ function InvitationDetails({ onReturn }: InviteProps) {
                             <p className={`font-14 font-w-400 ${styles.tip_color}`}>暂无数据</p> */}
                             <NoData/>
                             <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`}
-                                onClick={onReturn}>立即邀请</button>
+                                onClick={onReturn}>
+                                    {/* 立即邀请 */}
+                                    {t('invite.inviteBtn')}
+                                    </button>
                         </div>
                     }}
                 />

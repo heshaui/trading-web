@@ -329,7 +329,21 @@
             "type":"类型",
             "time":"时间",
             "operation":"操作",
-            "nodata":"暂无数据"
+            "nodata":"暂无数据",
+            "deviceManage":"设备管理",
+            "loginTime":"登录时间",
+            "ipAddress":"IP地址",
+            "loginLocation":"登录所在地",
+
+            "securityDevice":"安全设备",
+            "deviceManageDesc":"这些设备已被授权允许登录您的账户",
+            "deviceCount":"授权设备数：",
+            "manage":"管理",
+            "securityLogDesc":"用于登录等IP地址安全。",
+            "loginRecord":"登录记录",
+            "safeSetRecord":"安全设置记录",
+            "securityLog":"安全日志"
+            
         }
     },
     "account":{

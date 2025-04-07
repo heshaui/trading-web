@@ -13,24 +13,11 @@ const NoUseCom = ({ type }: NoUseComProps) => {
     const router = useRouter()
 
     return <>
-        {type === '1' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
-            <div className={`flex-x align-center ${styles.card_content}`}>
-                <Image src={ '/images/assets/assets_account/icon_nosm_1.png'}
-                    alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
-                <p className='flex-y'>
-                    <span className={` font-w-500 font-18`}>未完成身份认证</span>
-                    <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>完成身份认证，解锁全部功能</span>
-                </p>
-            </div>
-            <button className={`default_btn ${styles.btn_style}`}
-                onClick={() => {
-                    router.push('/userCenter/identity')
-                }}
-            >立即认证</button>
-        </div>}
+
+        {/* 谷歌未绑定禁止 */}
         {type === '2' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
             <div className={`flex-x align-center ${styles.card_content}`}>
-                <Image src={ '/images/assets/assets_account/icon_nosm_night.png'}
+                <Image src={'/images/assets/assets_account/icon_nosm_night.png'}
                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
                 <p className='flex-y'>
                     <span className={` font-w-500 font-18`}>提币功能暂不可用</span>
@@ -43,21 +30,34 @@ const NoUseCom = ({ type }: NoUseComProps) => {
                 }}
             >去设置</button>
         </div>}
-        {type === '3' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
+        {/* 未认证禁止 */}
+        {type === '1' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
             <div className={`flex-x align-center ${styles.card_content}`}>
-                <Image src={ '/images/assets/assets_account/icon_nosm_2.png'}
+                <Image src={'/images/assets/assets_account/icon_nosm_1.png'}
                     alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
                 <p className='flex-y'>
-                    <span className={` font-w-500 font-18`}>提币功能暂不可用</span>
-                    <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>交易所禁止提现，如有问题请与客服联系！</span>
+                    <span className={` font-w-500 font-18`}>未完成身份认证</span>
+                    <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>完成身份认证，解锁全部功能</span>
                 </p>
             </div>
             <button className={`default_btn ${styles.btn_style}`}
                 onClick={() => {
-                    router.push('/userCenter/safeCenter')
+                    router.push('/userCenter/identity')
                 }}
-            >去设置</button>
+            >立即认证</button>
         </div>}
+        {/* 提币禁止 */}
+        {type === '3' && <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
+            <div className={`flex-x align-center ${styles.card_content}`}>
+                <Image src={'/images/assets/assets_account/icon_nosm_2.png'}
+                    alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
+                <p className='flex-y'>
+                    <span className={` font-w-500 font-18`}>禁止提现</span>
+                    <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>交易所禁止提现，如有问题请与客服联系！</span>
+                </p>
+            </div>
+        </div>}
+
     </>;
 };
 
