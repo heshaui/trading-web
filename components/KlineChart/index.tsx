@@ -21,7 +21,6 @@ const KLineChart: React.FC<KLineChartProps> = ({
       chartInstance.current = init(chartRef.current);
       // 设置数据
       if (chartInstance.current) {
-     
         chartInstance.current.applyNewData(data);
       }
     }
