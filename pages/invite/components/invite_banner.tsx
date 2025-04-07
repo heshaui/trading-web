@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styles from '../styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
@@ -34,7 +33,7 @@ interface InviteInfoType {
     inviteCode: string,
     inviteLink: string,
 }
-const InviteBanner = ({ onReturn, inviteInfo }: InviteBannerProps) => {
+const InviteBanner = ({ onReturn, inviteInfo = { inviteCode: '', inviteLink: '' } }: InviteBannerProps) => {
     const { t } = useTranslation(['invite']);
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
@@ -124,15 +123,18 @@ const InviteBanner = ({ onReturn, inviteInfo }: InviteBannerProps) => {
                             <div className='flex-x align-center justify-between'>
                                 <Form.Item name="inviteCode" className='flex-1'
                                     rules={[{ required: true, message: t('invite.inputInviteCode2') }]}>
-                                    <Input className={`${styles.input_box} modal-input`}
+                                    <Input 
+                                        className={`${styles.input_box} modal-input`}
                                         maxLength={25}
                                         placeholder={t('invite.inputInviteCode')}
                                         disabled={true}
                                         suffix={
-                                            <Iconify icon="icon-park-outline:copy"
-                                                className='ml-1 cursor-pointer' size={18}
+                                            <Iconify 
+                                                icon="icon-park-outline:copy"
+                                                className='ml-1 cursor-pointer' 
+                                                size={18}
                                                 onClick={() => {
-                                                    copyFn(inviteInfo.inviteCode)
+                                                    copyFn(inviteInfo?.inviteCode || '')
                                                 }}
                                             />
                                         }
@@ -183,8 +185,12 @@ const InviteBanner = ({ onReturn, inviteInfo }: InviteBannerProps) => {
             </div>
 
         </div>
-        <InviteQRcodeModal open={qrcodeOpen} qrcode={`${BASE_URL}/register?inviteCode=${inviteInfo.inviteCode}`} 
-        onCancel={()=>{setQRcodeOpen(false)}} onOk={()=>{setQRcodeOpen(false)}} />
+        <InviteQRcodeModal 
+            open={qrcodeOpen} 
+            qrcode={`${BASE_URL}/register?inviteCode=${inviteInfo?.inviteCode || ''}`} 
+            onCancel={() => setQRcodeOpen(false)} 
+            onOk={() => setQRcodeOpen(false)} 
+        />
     </>
     );
 };

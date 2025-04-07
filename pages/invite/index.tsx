@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styles from './styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
@@ -22,7 +21,10 @@ const InvitePage = () => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     // const { copyFn } = useCopyToClipboard();
     const [open, setOpen] = useState(false);
-    const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
+    const [inviteInfo, setInviteInfo] = useState<InviteInfoType>({
+        inviteCode: '',
+        inviteLink: ''
+    });
     const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
 
     const onInviteReturn = () => {
