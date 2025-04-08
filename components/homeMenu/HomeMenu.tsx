@@ -472,18 +472,18 @@ export default function HomeMenu() {
     ];
     const [userInfo, setUserInfo] = useState<any>({});
     const userInfoOpenChange = async(open: boolean) => {
-        // if(open){
-        //     if(typeof window !== 'undefined'){
-        //         const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
-        //         setUserInfo(userInfo)
-        //     }
-        // }
-        const res=await getLoginInfo()
-        if(res.code === "0"){
-            setUserInfo(res.data)
-        }else{
-            toast.error(res.message)
+        if(open){
+            if(typeof window !== 'undefined'){
+                const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+                setUserInfo(userInfo)
+            }
         }
+        // const res=await getLoginInfo()
+        // if(res.code === "0"){
+        //     setUserInfo(res.data)
+        // }else{
+        //     toast.error(res.message)
+        // }
     }
     // nav***@gmail.com
     const userItemsAll = [
