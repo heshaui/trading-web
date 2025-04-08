@@ -879,48 +879,48 @@ export default function HomeMenu() {
             widthSet: 'question',
             items: [],
         },
-        // {
-        //     key: '3',
-        //     title: <IconHtml icon="img_global" />,
-        //     widthSet: 'global',
-        //     items: [
-        //         {
-        //             key: '0',
-        //             type: 'group',
-        //             label: (
-        //                 <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>语言</h6>
-        //             )
-        //         },
-        //         {
-        //             key: '1',
-        //             type: 'group',
-        //             label: (
-        //                 <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
-        //             ),
-        //             children: [
-        //                 ...filterLanguages(languageItems, searchLanguageValue),
-        //             ],
-        //         },
-        //         {
-        //             key: '2',
-        //             type: 'group',
-        //             label: (
-        //                 <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>汇率</h6>
-        //             )
-        //         },
-        //         {
-        //             key: '3',
-        //             type: 'group',
-        //             label: (
-        //                 <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
-        //             ),
-        //             children: [
-        //                 ...filterRates(rateItems, searchRateValue),
-        //             ],
-        //         },
+        {
+            key: '3',
+            title: <IconHtml icon="img_global" />,
+            widthSet: 'global',
+            items: [
+                {
+                    key: '0',
+                    type: 'group',
+                    label: (
+                        <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>语言</h6>
+                    )
+                },
+                {
+                    key: '1',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
+                    ),
+                    children: [
+                        ...filterLanguages(languageItems, searchLanguageValue),
+                    ],
+                },
+                {
+                    key: '2',
+                    type: 'group',
+                    label: (
+                        <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>汇率</h6>
+                    )
+                },
+                {
+                    key: '3',
+                    type: 'group',
+                    label: (
+                        <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
+                    ),
+                    children: [
+                        ...filterRates(rateItems, searchRateValue),
+                    ],
+                },
 
-        //     ],
-        // },
+            ],
+        },
     ], [isLogin, loginAwareBulletinItems, languageItems, searchLanguageValue, rateItems, searchRateValue]); // 添加所有需要的依赖
     
     // 使用 useMemo 缓存渲染结果
@@ -1191,7 +1191,7 @@ export default function HomeMenu() {
                                                 </Col>
                                                 {iconItemsLogin}
                                                 {/* <Col> */}
-                                                    <LangageMenu/>
+                                                    {/* <LangageMenu/> */}
                                                 {/* </Col> */}
                                             </>
                                         ) : (
@@ -1224,7 +1224,7 @@ export default function HomeMenu() {
                                                 {/* </Col> */}
                                                 {iconItemsLogin}
                                                 {/* <Col> */}
-                                                <LangageMenu/>
+                                                {/* <LangageMenu/> */}
                                                 {/* </Col> */}
                                             </>
                                         )
