@@ -31,6 +31,7 @@ function Phonebox() {
 	const [codeModelOpen, setCodeModelOpen] = useState(false); //验证码弹窗
 	// const { loginState,setLoginState } = useLoginStateContext(); // 
 	const { loginType } = useLoginTypeContext(); //, setLoginType
+	const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
 	const [loginInfo, setLoginInfo] = useState<useInfoType>({
 		type: "",
 		phone: "",
@@ -42,6 +43,7 @@ function Phonebox() {
 	const [form] = Form.useForm();
 	const phoneNumber = Form.useWatch('phoneNumber', form);
 	const areaCode = Form.useWatch('areaCode', form);
+
 	// 当登录类型不为 PHONE 时不渲染组件
 	// if (loginState !== LoginStateEnum.LOGIN) return null;
 	const handCodeCancel = () => {
@@ -99,6 +101,14 @@ function Phonebox() {
 		// setLoginState(LoginStateEnum.REGISTER)
 		router.push("/register")
 	}
+	// 过滤输入，只允许数字和字母
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { value } = e.target;
+		// 只保留数字和字母
+		const filteredValue = value.replace(/[^0-9]/g, '');
+		setPhoneCodeInputValue(filteredValue);
+		form.setFieldsValue({ phoneNumber: filteredValue });
+	};
 	if (loginType !== LoginTypeEnum.PHONE) return null;
 
 	return (
@@ -166,15 +176,19 @@ function Phonebox() {
 
 							<PhoneCodeSelector />
 							{/* </Form.Item> */}
-							<Form.Item 
-								name="phoneNumber" 
-								noStyle 
+							<Form.Item
+								name="phoneNumber"
+								noStyle
 								rules={[{ required: true, message: t('phoneNull') }]}
+
 							>
-								<Input 
-									placeholder={t('phoneInputPlaceholder')} 
-									allowClear={true} 
-									className={`${styles.mail_input} ml-2 modal-input`} 
+								<Input
+									placeholder={t('phoneInputPlaceholder')}
+									allowClear={true}
+									className={`${styles.mail_input} ml-2 modal-input`}
+									maxLength={20}
+									onChange={handleInputChange}
+									value={phoneCodeInputValue}
 								/>
 							</Form.Item>
 						</div>
@@ -183,23 +197,23 @@ function Phonebox() {
 						{/* 密码 */}
 						{t('passwordTitle')}
 					</div>
-					<Form.Item 
-						name="password" 
+					<Form.Item
+						name="password"
 						rules={[{ required: true, message: t('passwordNull') }]}
 					>
-						<Input.Password 
-							type="password" 
-							placeholder={t('passwordPlaceholder')} 
-							maxLength={30} 
-							allowClear={true} 
-							size="large" 
+						<Input.Password
+							type="password"
+							placeholder={t('passwordPlaceholder')}
+							maxLength={30}
+							allowClear={true}
+							size="large"
 							className={`${styles.mail_input} modal-input`}
 						/>
 					</Form.Item>
 					<Form.Item noStyle>
-						<button 
-							type="button" 
-							className={`${styles.forget_password_button}`} 
+						<button
+							type="button"
+							className={`${styles.forget_password_button}`}
 							onClick={() => goResetPassword()}
 						>
 							{/* 忘记密码 */}
@@ -207,8 +221,8 @@ function Phonebox() {
 						</button>
 					</Form.Item>
 				</Form>
-				<button 
-					type="submit" 
+				<button
+					type="submit"
 					className={`${styles.login_button} w-full button-color mt-8`}
 					onClick={onFinish}
 				>
@@ -229,7 +243,7 @@ function Phonebox() {
 						</button>
 					</p>
 				</div>
-				<SafeModal 
+				<SafeModal
 					open={codeModelOpen}
 					acountInfo={loginInfo}
 					onCancel={handCodeCancel}

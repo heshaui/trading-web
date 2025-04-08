@@ -31,6 +31,7 @@ function RegisterPhone() {
 	  const [charValid, setCharValid] = useState(false)
 	  const [showLengthCheck, setShowLengthCheck] = useState(false);
 	  const [showCharCheck, setShowCharCheck] = useState(false);
+	  const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
 	const router = useRouter();
 	const { setLoginState } = useLoginStateContext();
 	const { registerType } = useRegisterTypeContext();
@@ -152,7 +153,14 @@ function RegisterPhone() {
     };
 
 
-
+	// 过滤输入，只允许数字和字母
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { value } = e.target;
+		// 只保留数字和字母
+		const filteredValue = value.replace(/[^0-9]/g, '');
+		setPhoneCodeInputValue(filteredValue);
+		form.setFieldsValue({ phoneNumber: filteredValue });
+	};
 
 
 	if (registerType !== RegisterTypeEnum.PHONE) return null;
@@ -195,7 +203,11 @@ function RegisterPhone() {
 						<div className="flex">
 							<PhoneCodeSelector />
 							<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-								<Input placeholder="请输入手机号" allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} />
+								<Input placeholder="请输入手机号" 
+								allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} 
+								onChange={handleInputChange}
+									value={phoneCodeInputValue}
+								/>
 							</Form.Item>
 						</div>
 					</Form.Item>
