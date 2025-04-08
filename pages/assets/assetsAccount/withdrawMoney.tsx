@@ -625,6 +625,7 @@ const WithdrawMoneyPage = () => {
 
     useEffect(() => {
         getAllProtocolTypeList()
+        getCoinAllData()
     }, [])
 
     const steps = [
@@ -1060,7 +1061,7 @@ const WithdrawMoneyPage = () => {
                         </div>
                     </div>
                 </div>
-                <TableBox coinId={form.getFieldValue('coinId')} />
+                <TableBox coinId={form.getFieldValue('coinId')} coinAll={coinSelect}/>
 
             </div>
             <WithdrawMoneyCheck open={checkOpen}

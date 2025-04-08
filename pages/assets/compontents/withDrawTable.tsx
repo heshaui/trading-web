@@ -28,7 +28,19 @@ interface DataType {
     riskExplain: string,
     tenantId: string
 }
-const WithdrawMoneyTable = (coinId:number|string|any) => {
+interface coinSelectType {
+    coinId?: string,
+    coinName?: string,
+    iconUrl?: string,
+    nameDefault?: string,
+    value?: string,
+    label?: string,
+}
+type Props = {
+    coinId:number|string|any,
+    coinAll:coinSelectType[]
+};
+const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
     const { t } = useTranslation(['assets']);
     const router = useRouter();
     const [tableData, setTableData] = useState<DataType[]>([]);
@@ -55,7 +67,10 @@ const WithdrawMoneyTable = (coinId:number|string|any) => {
             key: "coinId",
             width: 158,
             align: "left",
-            render: (text, record) => <div>{text || '--'} </div>,
+            render: (text, record) => {
+                const coin = coinAll.find(coin => coin.coinId === text);
+                return <div>{coin?.coinName || '--'} </div>
+            },
         },
         {
             title: t('assetsAccount.withdrawTime'), //"提币时间",
@@ -123,7 +138,7 @@ const WithdrawMoneyTable = (coinId:number|string|any) => {
             width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{_status ? getStatus(_status) : '--'}</span>;
+                return <span >{ getStatus(_status)|| '--'}</span>;
             },
         },
         {
@@ -145,15 +160,15 @@ const WithdrawMoneyTable = (coinId:number|string|any) => {
     const getStatus = (status: number) => {
         switch (status) {
             case 0:
-                return t('assetsAccount.withdrawTable.create') //'创建';
+                return t('withdrawTable.create') //'创建';
             case 1:
-                return t('assetsAccount.withdrawTable.pending') //'待审核'
+                return t('withdrawTable.pending') //'待审核'
             case 2:
-                return t('assetsAccount.withdrawTable.completed') //'完成'
+                return t('withdrawTable.completed') //'完成'
             case 3:
-                return t('assetsAccount.withdrawTable.rejected') //'拒绝 '
+                return t('withdrawTable.rejected') //'拒绝 '
             case 4:
-                return t('assetsAccount.withdrawTable.canceled') //'用户撤销'
+                return t('withdrawTable.canceled') //'用户撤销'
             default:
                 return '--'
         }
