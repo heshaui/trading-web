@@ -143,7 +143,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -160,7 +160,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -175,8 +175,8 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
 
         }
     };
-    const startCountdown = () => {
-        setCountdown(60);
+    const startCountdown = (count:number) => {
+        setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
             setCountdown((prevCountdown) => {

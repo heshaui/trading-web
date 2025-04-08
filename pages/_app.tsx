@@ -113,17 +113,22 @@ function App({ Component, pageProps }: AppProps) {
     // 等待认证状态检查完成
     if (isAuthChecking) return;
 
-    // 如果用户未登录且当前路径不是公开路径，重定向到登录页
-    if (!isLoggedIn && !isPublicPath(router.pathname)) {
-      console.log('未登录访问受保护页面，重定向到登录页');
+    const currentPath = router.pathname;
+    const hasToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
 
-      // 保存当前URL，以便登录后可以重定向回来
-      const returnUrl = encodeURIComponent(router.asPath);
+    // 如果已登录且在登录页，重定向到首页
+    if (hasToken && currentPath === '/login') {
+        router.push('/');
+        return;
+    }
 
-      router.push({
-        pathname: '/login',
-        query: { returnUrl }
-      });
+    // 如果未登录且访问受保护页面，重定向到登录页
+    if (!hasToken && !isPublicPath(currentPath)) {
+        const returnUrl = encodeURIComponent(router.asPath);
+        router.push({
+            pathname: '/login',
+            query: { returnUrl }
+        });
     }
   }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 

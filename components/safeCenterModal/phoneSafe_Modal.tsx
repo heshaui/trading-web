@@ -126,7 +126,7 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown();
+                startCountdown(res.data);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
             } else {
@@ -157,7 +157,7 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck2(false)
                 toast.success(res.message)
-                startCountdown2();
+                startCountdown2(res.data);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
             } else {
@@ -172,8 +172,8 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         }
     };
-    const startCountdown = () => {
-        setCountdown(60);
+    const startCountdown = (count:number) => {
+        setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
             setCountdown((prevCountdown) => {
@@ -188,8 +188,8 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
-    const startCountdown2 = () => {
-        setCountdown2(60);
+    const startCountdown2 = (count:number) => {
+        setCountdown2(count);
         setIsCounting2(true);
         const timer = setInterval(() => {
             setCountdown2((prevCountdown) => {

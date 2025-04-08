@@ -109,7 +109,7 @@ async function getAllLangData() {
           
           // 保存到本地文件系统
           const localesDir = path.join(process.cwd(), 'public/locales');
-          const langDir = path.join(localesDir, langCode);
+          const langDir = path.join(localesDir, langCode || 'en');
           
           // 确保语言目录存在
           if (!fs.existsSync(langDir)) {

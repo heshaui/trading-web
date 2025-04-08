@@ -71,7 +71,7 @@ function ResetPassword() {
                 const res = await getResetMailCode(dataEncrypt)
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
@@ -87,7 +87,7 @@ function ResetPassword() {
                 const res = await getResetSmsCode(dataEncrypt)
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
@@ -102,8 +102,8 @@ function ResetPassword() {
     //     await getResetCode()
     // }
 
-    const startCountdown = () => {
-        setCountdown(60);
+    const startCountdown = (count:number) => {
+        setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
             setCountdown((prevCountdown) => {

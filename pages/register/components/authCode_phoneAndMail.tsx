@@ -143,7 +143,7 @@ function AuthCode() {
                 const res = await getRegisterMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
@@ -158,7 +158,7 @@ function AuthCode() {
                 const res = await getRegisterSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown();
+                    startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
@@ -174,8 +174,8 @@ function AuthCode() {
         setLoginState(LoginStateEnum.REGISTER);
         setRegisterType(RegisterTypeEnum.EMAIL);
     }
-    const startCountdown = () => {
-        setCountdown(60);
+    const startCountdown = (count:number) => {
+        setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
             setCountdown((prevCountdown) => {

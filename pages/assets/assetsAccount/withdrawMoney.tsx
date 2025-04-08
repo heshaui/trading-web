@@ -992,7 +992,7 @@ const WithdrawMoneyPage = () => {
                 )} */}
                 {!userInfo ? null : (
                     userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
-                        !userInfo.googleCode ? <NoUseCom type='2' /> :
+                        (!userInfo.googleCode||userInfo.isGoogleAuth===0) ? <NoUseCom type='2' /> :
                             userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )}
                 <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
@@ -1060,7 +1060,7 @@ const WithdrawMoneyPage = () => {
                         </div>
                     </div>
                 </div>
-                <TableBox coinId={'1'} />
+                <TableBox coinId={form.getFieldValue('coinId')} />
 
             </div>
             <WithdrawMoneyCheck open={checkOpen}

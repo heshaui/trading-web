@@ -80,13 +80,15 @@ function Login() {
 	}
 
 	// 如果有授权，则跳转到首页
+	// useEffect(() => {
+	// 	if (token) {
+	// 		router.push('/');
+	// 	}
+	// 	getBgc()
+	// }, [token, router]);
 	useEffect(() => {
-		if (token) {
-			router.push('/');
-		}
 		getBgc()
-	}, [token, router]);
-
+	}, []);
 
 	return (
 		<div className={`relative flex h-overmax w-full flex-row ${styles.page_box}`} >
