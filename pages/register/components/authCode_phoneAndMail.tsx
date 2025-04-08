@@ -270,7 +270,7 @@ function AuthCode() {
                                 >
                                     {/* 重新发送/60s 重发 */}
                                     {isCounting 
-                                        ? t('authCodeForm.resendCountdown', { count: countdown })
+                                        ? `${countdown}${t('authCodeForm.resendCountdown')}`
                                         : t('authCodeForm.resend')
                                     }
                                 </button>

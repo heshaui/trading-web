@@ -319,28 +319,13 @@ export default function HomeMenu() {
             key: '1',
             type: 'item',
             label: (
-                <MenuItemLabel 
-                    src={isDayMode 
-                        ? '/images/home_menu/icon_layout_line.png' 
-                        : '/images/home_menu/icon_layout_line_dark.png'} 
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_layout_line.png'
+                        : '/images/home_menu/icon_layout_line_dark.png'}
                     h5Text="总览"
-                    onClick={()=>{
+                    onClick={() => {
                         router.push('/userCenter')
-                    }} 
-                />
-            ),
-        },
-        {
-            key: '2',
-            type: 'item',
-            label: (
-                <MenuItemLabel 
-                    src={isDayMode 
-                        ? '/images/home_menu/icon_user.png' 
-                        : '/images/home_menu/icon_user_dark.png'} 
-                    h5Text="个人中心" 
-                    onClick={()=>{
-                        router.push('/userCenter/userSettings')
                     }}
                 />
             ),
@@ -349,12 +334,12 @@ export default function HomeMenu() {
             key: '3',
             type: 'item',
             label: (
-                <MenuItemLabel 
-                    src={isDayMode 
-                        ? '/images/home_menu/icon_safety_certificate_line.png' 
-                        : '/images/home_menu/icon_safety_certificate_line_dark.png'} 
-                    h5Text="安全中心" 
-                    onClick={()=>{
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_safety_certificate_line.png'
+                        : '/images/home_menu/icon_safety_certificate_line_dark.png'}
+                    h5Text="安全中心"
+                    onClick={() => {
                         router.push('/userCenter/safeCenter')
                     }}
                 />
@@ -364,13 +349,43 @@ export default function HomeMenu() {
             key: '4',
             type: 'item',
             label: (
-                <MenuItemLabel 
-                    src={isDayMode 
-                        ? '/images/home_menu/icon_IDcard_line.png' 
-                        : '/images/home_menu/icon_IDcard_line_dark.png'} 
-                    h5Text="身份认证" 
-                    onClick={()=>{
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_IDcard_line.png'
+                        : '/images/home_menu/icon_IDcard_line_dark.png'}
+                    h5Text="身份认证"
+                    onClick={() => {
                         router.push('/userCenter/identity')
+                    }}
+                />
+            ),
+        },
+        {
+            key: '5',
+            type: 'item',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_user_day.png'
+                        : '/images/home_menu/icon_user_dark2.png'}
+                    h5Text="邀请好友"
+                    onClick={() => {
+                        router.push('/invite')
+                    }}
+                />
+            ),
+        },
+        {
+            key: '2',
+            type: 'item',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_setting_day.png'
+                        : '/images/home_menu/icon_setting_dark.png'}
+                    h5Text="设置"
+                    onClick={() => {
+                        router.push('/userCenter/userSettings')
                     }}
                 />
             ),
@@ -444,13 +459,13 @@ export default function HomeMenu() {
             key: '11',
             type: 'item',
             label: (
-                <MenuItemLabel 
-                    src={isDayMode 
-                        ? '/images/home_menu/icon_exit.png' 
+                <MenuItemLabel
+                    src={isDayMode
+                        ? '/images/home_menu/icon_exit.png'
                         // : '/images/home_menu/icon_exit_dark.png'} 
-                        : '/images/home_menu/icon_exit_dark.png'} 
-                    h5Text="退出登录" 
-                    onClick={() => handleLogout()} 
+                        : '/images/home_menu/icon_exit_dark.png'}
+                    h5Text="退出登录"
+                    onClick={() => handleLogout()}
                 />
             ),
         },
@@ -1165,7 +1180,7 @@ export default function HomeMenu() {
                                                     </Dropdown>
                                                 </Col>
                                                 <Col>
-                                                    {/* <Dropdown
+                                                    <Dropdown
                                                         menu={{
                                                             items: userItemsAll as MenuProps['items'],
                                                             triggerSubMenuAction: 'click',
@@ -1186,8 +1201,8 @@ export default function HomeMenu() {
                                                                 height={20} // 必须指定高度
                                                             />
                                                         </Space>
-                                                    </Dropdown> */}
-                                                    <UserInfoMenu />
+                                                    </Dropdown>
+                                                    {/* <UserInfoMenu /> */}
                                                 </Col>
                                                 {iconItemsLogin}
                                                 {/* <Col> */}

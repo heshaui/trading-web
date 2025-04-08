@@ -19,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 初始化检查登录状态
     useEffect(() => {
         const userToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || sessionStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        console.log('userToken', userToken,123456);
         setIsLoggedIn(!!userToken);
     }, []);
 
