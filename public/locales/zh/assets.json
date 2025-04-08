@@ -81,7 +81,7 @@
         "address": "地址",
         "network": "网络",
         "faqList": {
-            "item1": "如何在IMBIT上充值和提现？",
+            "item1": "如何在IMBIT上充值和提现",
             "item2": "提现步骤指南",
             "item3": "提现常见问题",
             "item4": "为何我的提现尚未到账",
@@ -92,7 +92,15 @@
             "item1": "1. 请通过客户端或在线钱包将您需要提现的相应币种数目发送到该地址",
             "item2": "2. 发送完成后，系统会自动在此交易获得相应数量，确认后将该笔数字货币提现到您在本站的账户,相应数量的确认需要大约 30分钟 到 1 小时间，请耐心等待。",
             "item3": "3. 同一个地址可多次提现，不影响到账"
-        }
+        },
+        "inputAmount": "请输入提现金额",
+        "invalidAmount": "请输入有效金额",
+        "insufficientBalance": "现货可用余额不足",
+        "exceedMaxLimit": "超出单笔最大限额 {{max}} {{currency}}",
+        "exceedMaxLimit2": "超出单笔最大限额 ",
+        "belowMinLimit": "低于单笔最小限额 {{min}} {{currency}}",
+        "belowMinLimit2": "低于单笔最小限额"
+    
     },
     "withdrawTable":{
         "create":"创建",

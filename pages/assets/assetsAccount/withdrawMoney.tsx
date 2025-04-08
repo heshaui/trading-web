@@ -221,8 +221,10 @@ const WithdrawMoneyPage = () => {
         if (!value && !coinId) {
             setCurrent(0)
             form.resetFields(['protocolId']);
+
             return;
         }
+
         // console.log(123, option);
         setCurrent(1)
         // 获取当前选中项的完整信息
@@ -266,34 +268,79 @@ const WithdrawMoneyPage = () => {
     }
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
-        // 1. 检查用户权限
-        // userInfo?.realnessStatus !== 1 || userInfo?.securityIntensity < 2
+        // 1. 首先检查用户权限
         if (userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0) {
-            return toast.error(t('withdrawMoney.function'))
+            return toast.error(t('withdrawMoney.function'));
         }
 
-        // 3. 判断是否需要重置表单字段（移到数据获取后）
-        if (coinId !== coinIdHistory) {
-            form.resetFields(['protocolId']);
+        // 2. 检查是否是重复点击同一个币种
+        const currentCoinId = form.getFieldValue('tenantId');
+        if (currentCoinId === coinId) {
+            return; // 如果是同一个币种，直接返回，避免不必要的操作
         }
+
+        // 3. 检查并获取币种列表
+        // if (coinSelect.length === 0) {
+        //     await getCoinAllData();
+        // }
+        let currentCoinList = coinSelect;
         if (coinSelect.length === 0) {
-            await getCoinAllData();
-
-        }
-        // 设置表单值
-        form.setFieldValue('tenantId', coinId);
-        setCurrent(1) // 下一步
-
-        // 获取选中币种的信息并更新余额
-        const selectedCoin = coinSelect.find(coin => coin.coinId === coinId);
-        if (selectedCoin) {
-            const balance = await getUserBalanceData();
-            if (balance) {
-                setConinInfo({ ...balance, ...selectedCoin });
+            const res = await getCoinAll();
+            if (res.code === '0') {
+                const coinList = res.data
+                    .filter((item: any) => item.status === 1)
+                    .map((item: any) => ({
+                        ...item,
+                        label: item.coinName,
+                        value: item.coinId,
+                    }));
+                setCoinSelect(coinList);
+                currentCoinList = coinList;
+            } else {
+                throw new Error(res.message);
             }
         }
 
-    }
+        // 4. 获取选中币种的信息
+        const selectedCoin = currentCoinList.find(coin => coin.coinId === coinId);
+        if (!selectedCoin) {
+            return toast.error(t('withdrawMoney.setCoinError'));
+        }
+
+        // 5. 重置相关字段
+        if (coinId !== coinIdHistory) {
+            form.resetFields(['protocolId']);
+        }
+
+        try {
+            // 6. 设置表单值
+            form.setFieldValue('tenantId', coinId);
+
+            // 7. 如果在第一步，进入下一步
+            if (current === 0 || (coinId !== coinIdHistory)) {
+                setCurrent(1);
+            }
+
+            // 8. 获取并更新余额信息
+            const balance = await getUserBalanceData();
+            setConinInfo(Object.assign(balance, selectedCoin)) //更新币种
+            if (balance) {
+                setConinInfo({
+                    ...balance,
+                    ...selectedCoin,
+                    // 确保关键数值字段有默认值
+                    balance: balance.balance || 0,
+                    minWithdrawAmount: balance.minWithdrawAmount || 0,
+                    maxWithdrawAmount: balance.maxWithdrawAmount || 0,
+                    withdrawFee: balance.withdrawFee || 0,
+                    minWithdrawFee: balance.minWithdrawFee || 0
+                });
+            }
+        } catch (error) {
+            console.error('setFormCoin error:', error);
+            toast.error(t('withdrawMoney.setCoinError'));
+        }
+    };
     // 链名称(网络名称)
     const getCoinExtList = async () => {
         const tenantId = form.getFieldValue('tenantId')
@@ -395,6 +442,7 @@ const WithdrawMoneyPage = () => {
         checkAddressMatch(value);
         checkStep2Required()
     }
+
     // 进入第三步-添加检查函数
     const checkStep2Required = () => {
         const addressId = form.getFieldValue('addressId');
@@ -467,7 +515,7 @@ const WithdrawMoneyPage = () => {
     }
 
     const antiFraud = () => {
-        if (!allowWithdraw) return toast.error(t('assetsAccount.check'))
+        if (!allowWithdraw) return toast.error(t('withdrawMoney.function'))
         form.validateFields()
             .then(async (values) => {
                 console.log(values)
@@ -505,13 +553,13 @@ const WithdrawMoneyPage = () => {
 
 
     // 添加过滤函数
-    const filterAddressOption = (input: string, option: any) => {
-        return (
-            option.addressName?.toLowerCase().includes(input.toLowerCase()) ||
-            option.addressTitle?.toLowerCase().includes(input.toLowerCase()) ||
-            option.protocolName?.toLowerCase().includes(input.toLowerCase())
-        );
-    };
+    // const filterAddressOption = (input: string, option: any) => {
+    //     return (
+    //         option.addressName?.toLowerCase().includes(input.toLowerCase()) ||
+    //         option.addressTitle?.toLowerCase().includes(input.toLowerCase()) ||
+    //         option.protocolName?.toLowerCase().includes(input.toLowerCase())
+    //     );
+    // };
     const filterAddressOptions = (inputValue: string, option: addressSelectType | undefined): boolean => {
         if (!option) return false; // 如果 option 为 undefined，直接返回 false
         return option.addressName?.toLowerCase().includes(inputValue.toLowerCase()) ||
@@ -526,6 +574,54 @@ const WithdrawMoneyPage = () => {
         const isMatch = addressSelect.some(item => item.addressName === value);
         setShowMemo(!isMatch); // 如果地址不匹配，显示 MEMO
     };
+    //  输入金额校验
+    const checkAmount = (_: any, value: string) => {
+        if (!value) {
+            return Promise.reject(t('withdrawMoney.inputAmount')); //请输入提现金额
+        }
+        const amount = Number(value);
+
+        // 检查是否为有效数字
+        if (isNaN(amount)) {
+            return Promise.reject(t('withdrawMoney.invalidAmount'));
+        }
+
+        // 检查余额
+        if (amount > coninInfo.balance) {
+            return Promise.reject(t('withdrawMoney.insufficientBalance'));
+        }
+
+        // 检查单笔最大限额
+        if (amount > coninInfo.maxWithdrawAmount) {
+            return Promise.reject(
+                t('withdrawMoney.exceedMaxLimit2')
+            );
+        }
+
+        // 检查单笔最小限额
+        if (amount < coninInfo.minWithdrawAmount) {
+            return Promise.reject(
+                t('withdrawMoney.belowMinLimit2')
+            );
+        }
+
+        // 所有检查都通过
+        return Promise.resolve();
+    }
+    // 最大提现金额
+    const maxWithdrawAmountBtn = () => {
+
+        if (coninInfo.balance > coninInfo.maxWithdrawAmount) {
+            form.setFieldValue('amount', coninInfo.maxWithdrawAmount || 0)
+            setAmountNum(coninInfo.maxWithdrawAmount || 0)
+
+        } else {
+            form.setFieldValue('amount', coninInfo.balance || 0)
+            setAmountNum(coninInfo.balance || 0)
+        }
+        // 设置允许提现
+        setAllowWithdraw(true)
+    }
 
     useEffect(() => {
         getAllProtocolTypeList()
@@ -540,7 +636,7 @@ const WithdrawMoneyPage = () => {
             description: <div className={`${styles.steps_item_content} mt-2`}>
                 {current >= 0 && <>
                     <Form.Item name='tenantId' rules={[{ required: true, message: t('withdrawMoney.select') }]}>
-                        <Select 
+                        <Select
                             allowClear
                             placeholder={t('withdrawMoney.select')}
                             options={coinSelect || []}  // 添加默认空数组
@@ -549,12 +645,12 @@ const WithdrawMoneyPage = () => {
                                 if (!option?.data) return null;  // 添加空值检查
                                 return (
                                     <div className="flex items-center py-1">
-                                        <Image 
+                                        <Image
                                             src={`/images/assets/assets_account/icon_money.png`}
-                                            alt={option.data.label} 
-                                            width={20} 
+                                            alt={option.data.label}
+                                            width={20}
                                             height={20}
-                                            className={`mr-2`} 
+                                            className={`mr-2`}
                                         />
                                         <span className="text-text-color7">
                                             {`${option.data.coinName}(${option.data.nameDefault})`}
@@ -788,7 +884,8 @@ const WithdrawMoneyPage = () => {
             </p>,
             description: <div className={`${styles.steps_item_content3} mt-2`}>
                 {current >= 2 && <>
-                    <Form.Item name='amount' >
+                    <Form.Item name='amount'
+                        rules={[{ validator: checkAmount }]}>
                         <Input className={`${styles.input_box3} modal-input mr-7`}
                             placeholder={t('withdrawMoney.withdrawAmount')}
                             allowClear
@@ -797,15 +894,7 @@ const WithdrawMoneyPage = () => {
                                     {/* USDT */}
                                     {coninInfo.coinName || '--'}
                                 </p><span className={`${styles.tip_color2}`}>|</span>
-                                <button className={` theme_color pl-2`} onClick={() => {
-                                    if (coninInfo.balance > coninInfo.maxWithdrawAmount) {
-                                        form.setFieldValue('amount', coninInfo.maxWithdrawAmount || 0)
-                                        setAmountNum(coninInfo.maxWithdrawAmount || 0)
-                                    } else {
-                                        form.setFieldValue('amount', coninInfo.balance || 0)
-                                        setAmountNum(coninInfo.balance || 0)
-                                    }
-                                }}>{t('withdrawMoney.max')}</button>
+                                <button className={` theme_color pl-2`} onClick={() => { maxWithdrawAmountBtn() }}>{t('withdrawMoney.max')}</button>
                             </div>}
                             onChange={amountChange}
                             value={amountNum}
@@ -933,7 +1022,7 @@ const WithdrawMoneyPage = () => {
                         >
                             <Form
                                 form={form}
-                                disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode||userInfo.withdrawalStatus === 0)}
+                                disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0)}
                             >
                                 <Steps
                                     direction="vertical"
