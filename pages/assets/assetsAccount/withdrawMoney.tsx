@@ -193,13 +193,13 @@ const WithdrawMoneyPage = () => {
             const res = await getCoinAll()
             if (res.code === '0') {
                 const coinList = res.data.map((item: any) => {
-                   if(item.status === 1){
+                //    if(item.status === 1){
                     return {
                         ...item,
                         label: item.coinName,
                         value: item.coinId,
                     };
-                   }
+                //    }
                 })
                 setCoinSelect(coinList)
             } else {
@@ -542,48 +542,61 @@ const WithdrawMoneyPage = () => {
             description: <div className={`${styles.steps_item_content} mt-2`}>
                 {current >= 0 && <>
                     <Form.Item name='tenantId' rules={[{ required: true, message: t('withdrawMoney.select') }]}>
-                        <Select allowClear
+                        <Select 
+                            allowClear
                             placeholder={t('withdrawMoney.select')}
-                            options={coinSelect}
+                            options={coinSelect || []}  // 添加默认空数组
                             className={`${styles.select_box} custom-select`}
                             optionRender={(option) => {
+                                if (!option?.data) return null;  // 添加空值检查
                                 return (
                                     <div className="flex items-center py-1">
-                                        <Image src={`/images/assets/assets_account/icon_money.png`}
-                                            alt={option.data.label} width={20} height={20}
-                                            className={` mr-2`} />
-                                        <span className="text-text-color7">{`${option.data.coinName}(${option.data.nameDefault})`}</span>
+                                        <Image 
+                                            src={`/images/assets/assets_account/icon_money.png`}
+                                            alt={option.data.label} 
+                                            width={20} 
+                                            height={20}
+                                            className={`mr-2`} 
+                                        />
+                                        <span className="text-text-color7">
+                                            {`${option.data.coinName}(${option.data.nameDefault})`}
+                                        </span>
                                     </div>
                                 );
                             }}
-                            dropdownRender={(menu) => (<>
-                                {coinSelect.length > 0 && <div className={`font-14 font-w-400 mb-2_5`}>
-                                    <p className={`${styles.tip_color2}`}>
-                                        {/* 搜索历史 */}
-                                        {t('withdrawMoney.searchHistory')}
-                                    </p>
-                                    {searchHistory.length > 0 ? <div className='mt-2 mb-2_5'>
-                                        {searchHistory.map((item) => (
-                                            <button
-                                                type='button'
-                                                key={item.value}
-                                                className={`cancel_btn5 ${styles.selsect_btn} mr-2`}
-                                                onClick={() => setFormCoin(item.value)}
-                                            >
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div> : <p className='mt-2 mb-2_5'>
-                                        {/* 暂无 */}
-                                        {t('withdrawMoney.noRecord')}
-                                    </p>}
-                                    <p className={`${styles.tip_color2}`}>
-                                        {/* 币种列表 */}
-                                        {t('withdrawMoney.coinList')}
-                                    </p>
-                                </div>}
-                                {menu}
-                            </>)}
+                            dropdownRender={(menu) => (
+                                <>
+                                    {coinSelect.length > 0 && (
+                                        <div className={`font-14 font-w-400 mb-2_5`}>
+                                            <p className={`${styles.tip_color2}`}>
+                                                {t('withdrawMoney.searchHistory')}
+                                            </p>
+                                            {searchHistory.length > 0 ? (
+                                                <div className='mt-2 mb-2_5'>
+                                                    {searchHistory.map((item) => (
+                                                        <button
+                                                            type='button'
+                                                            key={item.value}
+                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2`}
+                                                            onClick={() => setFormCoin(item.value)}
+                                                        >
+                                                            {item.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className='mt-2 mb-2_5'>
+                                                    {t('withdrawMoney.noRecord')}
+                                                </p>
+                                            )}
+                                            <p className={`${styles.tip_color2}`}>
+                                                {t('withdrawMoney.coinList')}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {menu}
+                                </>
+                            )}
                             notFoundContent={<NoData title={t('withdrawMoney.noRecord')} />}
                             onFocus={getCoinAllList}
                             onChange={coinChange}
@@ -960,7 +973,7 @@ const WithdrawMoneyPage = () => {
                         </div>
                     </div>
                 </div>
-                <TableBox coinId={form.getFieldValue('tenantId')} />
+                <TableBox coinId={'1'} />
 
             </div>
             <WithdrawMoneyCheck open={checkOpen}
