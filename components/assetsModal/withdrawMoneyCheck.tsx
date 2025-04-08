@@ -128,7 +128,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    {t('assetsAccount.button.confirm')}
+                    {t('modal.confirm2')}
                 </button>
             </div>
         );

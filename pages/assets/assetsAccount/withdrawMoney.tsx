@@ -192,20 +192,18 @@ const WithdrawMoneyPage = () => {
         try {
             const res = await getCoinAll()
             if (res.code === '0') {
-                const coinList = res.data.map((item: any) => {
-                //    if(item.status === 1){
-                    return {
+                // 先筛选 status === 1 的数据，然后再进行 map 转换
+                const coinList = res.data
+                    .filter((item: any) => item.status === 1)  // 添加筛选
+                    .map((item: any) => ({
                         ...item,
                         label: item.coinName,
                         value: item.coinId,
-                    };
-                //    }
-                })
+                    }));
                 setCoinSelect(coinList)
             } else {
                 toast.error(res.message)
             }
-
         } catch (error) {
             toast.error(String(error))
         } finally {

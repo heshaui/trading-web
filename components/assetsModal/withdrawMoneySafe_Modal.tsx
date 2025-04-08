@@ -293,7 +293,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : t('modal.confirm')}
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : t('modal.confirm2')}
                 </button>
                 {/* <Button type="primary" onClick={handOk}
                 className={`${styles.modal_footerBtn} default_btn`}
