@@ -58,7 +58,7 @@ export default function RenderBulletinTop({
                         </Checkbox>
                         <span 
                             style={{ 
-                                color: hasUnreadMessages ? '#FF5F1F' : '#999', 
+                                color: hasUnreadMessages ? 'var(--theme-color)' : '#999', 
                                 cursor: hasUnreadMessages ? 'pointer' : 'not-allowed',
                                 opacity: hasUnreadMessages ? 1 : 0.6,
                                 marginLeft: '8px'

@@ -18,6 +18,7 @@ interface CountryCodeItem {
     countryCode: string;
     id: number;
     status: number;
+    areaName:string
 }
 
 const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
@@ -66,7 +67,8 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                         value: item.areaCode,
                         countryName: item.countryName,
                         areaCode: item.areaCode,
-                        countryCode: item.countryCode
+                        countryCode: item.countryCode,
+                        areaName:item.areaName
                     });
                 });
             }

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/spotAccount.module.css'
+import styles from '../../styles/cancelModal.module.css'
 import { ConfigProvider, Table, Radio, Checkbox } from 'antd';
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -11,6 +11,7 @@ import { Iconify } from '@/components/icon'
 import { useRouter } from 'next/router';
 import type { CheckboxProps } from 'antd';
 import { toast } from "sonner";
+import TableCancelModal from './modal/table_cancel';
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -45,8 +46,9 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
     const router = useRouter();
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [initTableData, setInitTableData] = useState<DataType[]>([]);
-
+    const [open, setOpen] = useState(false);
     const [total, setTotal] = useState(0);
+    const [checked, setChecked] = useState<boolean>(false);
 
     const [pageParam, setPageParam] = useState({
         page: 1,
@@ -149,7 +151,9 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
             align: "center",
             render: (_status) => {
                 return < >
-                    <button className={`${styles.theme_color}`}>{t('assetsAccount.button.cancel')}</button>
+                    <button className={`${styles.theme_color}`}
+                    onClick={() => setOpen(true)}
+                    >{t('assetsAccount.button.cancel')}</button>
                 </>;
             },
         },
@@ -192,26 +196,35 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
         try {
             const res = await getWithdrawDepositList(pageParam)
             setInitTableData(res.data.list)
-            setTableData(res.data.list)
-            setTotal(res.data.count)
+            if(coinId&&checked){
+                const tableData = res.data.list.filter((item:any) => item.coinId == coinId)
+                setTableData(tableData)
+                setTotal(tableData.length)
+            }else{
+                setTableData(res.data.list)
+                setTotal(res.data.count)
+            }
         } finally {
             setTableLoading(false)
         }
 
     }
     const onlyShowChange: CheckboxProps['onChange'] = (e) => {
-       if(e.target.checked){
-        if(coinId&&coinId.coinId){
-            setTableData(initTableData.filter((item)=>item.coinId ==coinId.coinId ))
-        }else{
+        
+        if(e.target.checked) {
+            if(coinId) {
+                setTableData(initTableData.filter((item) => item.coinId == coinId))
+                setChecked(true) // 确保选中状态更新
+            } else {
+                // 如果没有有效的 coinId，则取消选中
+                setChecked(false)
+                setTableData(initTableData)
+                toast.error(t('withdrawTable.onlyShowError'))
+            }
+        } else {
+            setChecked(false)
             setTableData(initTableData)
-            toast.error(t('withdrawTable.onlyShowError'))
         }
-        
-       }else{
-        setTableData(initTableData)
-       }
-        
     }
     useEffect(() => {
         getWithdrawDepositListData()
@@ -228,6 +241,7 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
                     <Checkbox
                         defaultChecked={false}
                         onChange={onlyShowChange}
+                        checked={checked}
                     >
                         <span className={`${styles.title_color} font-14`}>
                             {t('withdrawTable.onlyShow')}
@@ -284,6 +298,10 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
                     locale={{ emptyText: <NoData title={t('withdrawMoney.noRecord')} /> }}
                 />
             </ConfigProvider>
+            <TableCancelModal open={open} 
+
+            onCancel={() => setOpen(false)}
+             onOk={() => setOpen(false)} />
         </div>
 
     );

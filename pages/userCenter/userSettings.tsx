@@ -161,14 +161,14 @@ const UserSettingsPage: React.FC = () => {
     getUserCenterData();
   }, [])
   return (<div className={`${styles.safe_page}`} >
-    <div >
+    <div style={{width:'100%'}}>
       <h2 className={`font-w-500 font-20`}>
         {/* 个人中心 */}
         {t('account.userCenter')}
         </h2>
     </div>
     {/* userInfo box*/}
-    <div className={`${styles.card_bgc} mt-6 `}>
+    <div className={`${styles.card_bgc} ${styles.user_info_box} mt-6 `}>
       {/* {loadingSkeleton ? <div className={`px-6 `}>
         {userCenterData.map((item: SafeListItem) => (
           <Skeleton active key={item.type} />

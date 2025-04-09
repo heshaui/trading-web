@@ -1,6 +1,6 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
-import styles from '../styles/spotAccount.module.css'
+import styles from '../../styles/spotAccount.module.css'
 import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -277,7 +277,7 @@ const TopUpPage = () => {
             <div className='flex justify-between align-center'>
             <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
+                        title: <Link href="/spot/assets"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
                     },
                     {
                         title: <span className={`${styles.title_color}`}>充值</span>,
@@ -392,12 +392,12 @@ const TopUpPage = () => {
     </div>
     );
 };
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
-};
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+// 		},
+// 	};
+// };
 
 export default TopUpPage;

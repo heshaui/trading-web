@@ -1,0 +1,17 @@
+
+.modal_content{
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+.modal_body{
+    padding: 24px 20px  0 20px !important;
+}
+.modal_footer{
+    padding: 0 20px !important;
+}
+.modal_footerBtn{
+    min-width: 80px;
+    padding: 8px 28px;
+    border-radius: 53px;
+}
+

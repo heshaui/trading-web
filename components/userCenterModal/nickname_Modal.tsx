@@ -10,10 +10,11 @@ import { Iconify } from "@/components/icon/index";
 import {updateUserCenter} from '@/services/userCenter'
 import { toast } from "sonner";
 import { useState } from "react";
-import {encryptData} from '@/utils/encrypt'
+// import {encryptData} from '@/utils/encrypt'
 import dayjs from "dayjs";
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import {encryptData} from '@/hooks/user-encrypt'
 interface UserCenterData {
     userId: number,
     nickname?: string,
@@ -48,7 +49,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
                 if(!nicknameInfo?.isNicknameUpdate) return toast.error(t('usersetting.modifyOnce'))
                 try {
                     const param={
-                        userId:localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO)||'',
+                        // userId:localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO)||'',
                         nickname:values.nickname
                     }
                     const encrypt=await encryptData(param)

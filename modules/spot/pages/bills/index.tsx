@@ -1,6 +1,6 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
-import styles from '../styles/billDetails.module.css'
+import styles from '../../styles/billDetails.module.css'
 import { Input, Radio, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -512,11 +512,11 @@ const AssetsMainPage = () => {
   </>
   );
 };
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
-};
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+// 		},
+// 	};
+// };
 export default withAssetsLayout(AssetsMainPage);

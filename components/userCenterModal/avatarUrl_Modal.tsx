@@ -13,9 +13,9 @@ import { fileImg } from "@/services/open";
 
 import { updateUserCenter } from '@/services/userCenter';
 import { Iconify } from "../icon";
-import {encryptData} from '@/utils/encrypt'
+// import {encryptData} from '@/utils/encrypt'
 import { useTranslation } from 'next-i18next';
-
+import {encryptData} from '@/hooks/user-encrypt'
 type Props = {
     open: boolean;
     userId: number;
@@ -146,7 +146,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
             let params = {};
             if (fileUrl) {
                 params = {
-                    userId: userId,
+                    // userId: userId,
                     avatarUrl: fileUrl
                 }
             } else if (selectedAvatar) {

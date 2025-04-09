@@ -147,13 +147,13 @@ border-radius: 4px;
     }
 }
 
-@media (min-width: 1680px) {
-    /* .identity_box {
+/* @media (min-width: 1680px) {
+    .identity_box {
         display: flex;
         flex-direction: column;
-    } */
+    }
 
     .safe_page {
         width: 60%;
     }
-}
+} */

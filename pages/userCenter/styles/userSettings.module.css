@@ -64,8 +64,14 @@
 
 }
 
-@media (min-width: 1680px) {
+/* @media (min-width: 1680px) {
     .safe_page{
         width: 60%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-}
+    .user_info_box{
+        width: 60%;
+    }
+} */

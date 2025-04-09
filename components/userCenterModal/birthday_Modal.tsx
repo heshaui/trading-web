@@ -10,9 +10,9 @@ import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter';
 import dayjs from 'dayjs';
 import { toast } from "sonner";
-import {encryptData} from '@/utils/encrypt'
+// import {encryptData} from '@/utils/encrypt'
 import { useTranslation } from 'next-i18next';
-
+import {encryptData} from '@/hooks/user-encrypt'
 type Props = {
     open: boolean;
     userId: number;
@@ -34,7 +34,7 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
         form.validateFields()
             .then(async (values) => {
-                console.log(values);
+                console.log(values,dayjs(values.birthday).valueOf(),111);
                 const params = {
                     userId: userId,
                     birthday: dayjs(values.birthday).valueOf() + '' 

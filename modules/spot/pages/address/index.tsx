@@ -1,6 +1,6 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
-import styles from '../styles/addAddress.module.css'
+import styles from '../../styles/addAddress.module.css'
 import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -324,13 +324,13 @@ const AddAdressPage = () => {
             <div className='flex justify-between align-center'>
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                        title: <Link href="/spot/assets"><span className={`${styles.tip_color}`}>
                             {/* 现货账户 */}
                             {t('assets.assetsAccount')}
                             </span></Link>,
                     },
                     {
-                        title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>
+                        title: <Link href="/spot/assets/withdraw"><span className={`${styles.tip_color}`}>
                             {/* 提现 */}
                             {t('assets.withdraw')}
                             </span></Link>,
@@ -467,11 +467,11 @@ const AddAdressPage = () => {
     </div >
     );
 };
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
-};
+// export const getStaticProps: GetStaticProps = async ({ locale }) => {
+// 	return {
+// 		props: {
+// 			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+// 		},
+// 	};
+// };
 export default AddAdressPage;
