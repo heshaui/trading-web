@@ -33,7 +33,7 @@ export default function AssetsMenuItems() {
                     h5Text="我的资产"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount')
+                        router.push('/spot/assets')
                     }}
                 />
             ),
@@ -48,7 +48,7 @@ export default function AssetsMenuItems() {
                     h5Text="充币"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount/topUp')
+                        router.push('/spot/assets/topUp')
                     }}
                 />
             ),
@@ -63,7 +63,7 @@ export default function AssetsMenuItems() {
                     h5Text="提币"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount/withdrawMoney')
+                        router.push('/spot/assets/withdraw')
                     }}
                 />
             ),
@@ -78,7 +78,7 @@ export default function AssetsMenuItems() {
                     h5Text="账单明细"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/billDetails')
+                        router.push('/spot/bills')
                     }}
                 />
             ),
