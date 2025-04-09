@@ -1,0 +1,98 @@
+/* styles/OrderBook.module.css */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .header h1 {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .dropdown {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-weight: bold;
+    color: #666;
+  }
+  
+  .orderList {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .orderRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    position: relative;
+  }
+  
+  .orderRow span {
+    flex: 1;
+    text-align: right;
+  }
+  
+  .orderRow span:first-child {
+    text-align: left;
+  }
+  
+  .sell span:first-child {
+    color: #ff6347;
+  }
+  
+  .buy span:first-child {
+    color: #32cd32;
+  }
+  
+  .background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    z-index: -1;
+  }
+  
+  .currentPrice {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #32cd32;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .ratio {
+    display: flex;
+    margin-top: 10px;
+  }
+  
+  .buyRatio {
+    background-color: #32cd32;
+    color: white;
+    text-align: center;
+  }
+  
+  .sellRatio {
+    background-color: #ff6347;
+    color: white;
+    text-align: center;
+  }

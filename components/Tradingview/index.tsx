@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
+import { mockDatafeed } from "./mockData";
+
 const TVChartContainer: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
@@ -41,35 +43,35 @@ const TVChartContainer: React.FC = () => {
   ]);
 
   useEffect(() => {
-    // if (chartContainerRef.current) {
-    //   const widgetOptions = {
-    //     symbol: "AAPL",
-    //     datafeed: {}, // Replace with your datafeed implementation
-    //     interval: "D",
-    //     container: chartContainerRef.current,
-    //     library_path: "/charting_library/",
-    //     locale: "en",
-    //     charts_storage_url: "http://saveload.tradingview.com",
-    //     charts_storage_api_version: "1.1",
-    //     client_id: "tradingview.com",
-    //     user_id: "public_user_id",
-    //     fullscreen: false,
-    //     autosize: true,
-    //   };
+    if (chartContainerRef.current) {
+      const widgetOptions = {
+        symbol: "AAPL",
+        datafeed: mockDatafeed,
+        interval: "1D",
+        container: chartContainerRef.current,
+        library_path: "/charting_library/",
+        locale: "en",
+        charts_storage_url: "http://saveload.tradingview.com",
+        charts_storage_api_version: "1.1",
+        client_id: "tradingview.com",
+        user_id: "public_user_id",
+        fullscreen: false,
+        autosize: true,
+      };
 
-    //   const newWidget = new widget(widgetOptions);
-    //   setTvWidget(newWidget);
-    // }
+      const newWidget = new widget(widgetOptions);
+      setTvWidget(newWidget);
+    }
 
-    // return () => {
-    //   if (tvWidget) {
-    //     tvWidget.remove();
-    //     setTvWidget(null);
-    //   }
-    // };
+    return () => {
+      if (tvWidget) {
+        tvWidget.remove();
+        setTvWidget(null);
+      }
+    };
   }, []); 
 
-  // const toggleModal = () => setShowModal(!showModal);
+  const toggleModal = () => setShowModal(!showModal);
 
   const setChartInterval = (interval: string) => {
     if (tvWidget) {
