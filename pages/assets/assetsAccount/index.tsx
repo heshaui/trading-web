@@ -1,6 +1,6 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
-import styles from '../../styles/spotAccount.module.css'
+import styles from '../styles/spotAccount.module.css'
 import { Input, Radio, ConfigProvider, Table,Form ,Checkbox} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -187,20 +187,17 @@ const AssetsMainPage = () => {
     }, [])
     return (<div>
         <div className='flex justify-between align-center'>
-            <h2 className={`font-w-500 font-20`}>
-                {/* 现货账户 */}
-                {t('assets.assetsAccount')}
-                </h2>
+            <h2 className={`font-w-500 font-20`}>现货账户</h2>
             <div className='flex-row'>
-                <button className={`default_btn ${styles.btn_style} mr-4`} onClick={() => router.push('/spot/assets/topUp')}>
+                <button className={`default_btn ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/topUp')}>
                     {/* 充值 */}
                     {t('assetsAccount.button.deposit')}
                     </button>
-                <button className={`cancel_btn4 ${styles.btn_style} mr-4`} onClick={() => router.push('/spot/assets/withdraw')}>
+                <button className={`cancel_btn4 ${styles.btn_style} mr-4`} onClick={() => router.push('/assets/assetsAccount/withdrawMoney')}>
                     {/* 提现 */}
                     {t('assetsAccount.button.withdraw')}
                     </button>
-                <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push('/spot/bills')}>
+                <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push('/assets/billDetails')}>
                     {/* 现货账单 */}
                     {t('assetsAccount.button.bill')}
                     </button>
@@ -302,11 +299,11 @@ const AssetsMainPage = () => {
     </div>
     );
 };
-// export const getStaticProps: GetStaticProps = async ({ locale }) => {
-// 	return {
-// 		props: {
-// 			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-// 		},
-// 	};
-// };
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	return {
+		props: {
+			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
+		},
+	};
+};
 export default withAssetsLayout(AssetsMainPage);

@@ -1,7 +1,7 @@
 import { Modal, ConfigProvider, Form, QRCode } from "antd";
 
 import type { ModalProps } from "antd/es/modal/interface";
-import styles from "../../../styles/cancelModal.module.css";
+import styles from "../../styles/cancelModal.module.css";
 import { useTranslation } from 'next-i18next';
 import { toast } from "sonner";
 interface UserCenterData {

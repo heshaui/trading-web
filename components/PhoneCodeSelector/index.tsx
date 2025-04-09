@@ -123,6 +123,7 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                         areaCode: "+" + item.areaCode,
                         countryName: item.countryName,
                         countryCode: item.countryCode,
+                        areaName:item.areaName,
                         id: item.id,
                         status: item.status
                     };
@@ -167,15 +168,15 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
         >
             <Form.Item name="areaCode" noStyle>
                 <Select
-                    allowClear
-                    placeholder="请选择区号"
+                    allowClear={false}
+                    placeholder="Please select"
                     className={`custom-select `}
                     style={{height:"50px",maxWidth:"115px"}}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     options={filteredOptions}
                     optionLabelProp="value"
-                    dropdownStyle={{ width: '280px' }}  // 设置下拉框宽度
+                    dropdownStyle={{ width: '320px' }}  // 设置下拉框宽度
                     optionRender={(option) => {
                         // 如果是分组标题
                         if (option.data.type === 'group') {
@@ -189,7 +190,12 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                         // 如果是常规选项
                         return (
                             <div className="flex justify-between items-center py-1">
-                                <span>{`${option.data.countryName}(${option.data.countryCode})`}</span>
+                                {/* <p className='flex-y'>
+                                  <span>{`${option.data.countryName}`}</span>  
+                                  <span>{`${option.data.areaName}`}</span>  
+                                </p> */}
+                                <span>{`${option.data.countryName}(${option.data.areaName})`}</span>  
+                                
                                 <span className="text-text-color7">{option.data.areaCode}</span>
                             </div>
                         );

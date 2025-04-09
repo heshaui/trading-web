@@ -197,3 +197,13 @@ export const useThemeConfig = () => {
 
     return { theme, loading };
 };
+
+const useBankKv =async (keys: string[]) => {
+    const res=await getKvObject(keys)
+    if(res.code==='0'){
+        return res.data
+    }else{
+        return null
+    }
+    
+}

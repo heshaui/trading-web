@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/spotAccount.module.css'
+import styles from '../styles/spotAccount.module.css'
 import { useThemeMode } from '@/hooks/useThemeMode';
 import Image from 'next/image'
 import { useRouter } from 'next/router'

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/cancelModal.module.css'
+import styles from '../styles/spotAccount.module.css'
 import { ConfigProvider, Table, Radio, Checkbox } from 'antd';
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';

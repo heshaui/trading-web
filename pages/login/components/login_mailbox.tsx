@@ -37,13 +37,7 @@ function Mailbox() {
     const email = Form.useWatch('email', form);
     const [historyEmails, setHistoryEmails] = useState<string[]>([]);
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
-    const [loginInfo, setLoginInfo] = useState<useInfoType>({
-        type: "",
-        email: "",
-        password: "",
-        deviceType: "",
-        authCodeMail: "",
-    });
+    const [loginInfo, setLoginInfo] = useState<useInfoType>({} as useInfoType);
 
     useEffect(() => {
         const storedEmails = localStorage.getItem('emailHistory');
