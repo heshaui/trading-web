@@ -78,12 +78,11 @@ function Login() {
 			window.open(loginPic?.login.url, '_blank', 'noopener')
 		}
 	}
-	const useBankKv = async () => {
+	const getUseBankKv = async () => {
 		const keys=['out_money']
 
 		const res=await getKvObject(keys)
-		console.log(res,123);
-		if(res.code==='0'){;
+		if(res.code==='0'){
 			localStorage.setItem(LOCAL_STORAGE_KEY.OUT_MONEY,res.data.out_money)
 		}else{
 			console.log(res.msg,123);
@@ -99,7 +98,7 @@ function Login() {
 	// }, [token, router]);
 	useEffect(() => {
 		getBgc()
-		useBankKv()
+		getUseBankKv()
 	}, []);
 
 	return (
