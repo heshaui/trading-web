@@ -22,7 +22,7 @@ export default function MessageItem({
                 </div>
             </div>
             {isDetail && content && (
-                <div className={styles.contentContainer}>
+                <div className={`${styles.contentContainer} ${isDetail ? styles.expanded : ''}`}>
                     <p style={{ color: 'var(--text-color5)' }}>{content}</p>
                 </div>
             )}

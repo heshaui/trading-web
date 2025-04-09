@@ -46,4 +46,10 @@
 /* 公告 - 详情页 */
 .contentContainer {
     padding: 20px 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; /* 过渡效果 */
+}
+.expanded{
+    max-height: 200px;
 }
