@@ -24,11 +24,11 @@ const DepthChart = () => {
   const midPrice = (bids[0][0] + asks[0][0]) / 2;
   
   // 处理数据：计算累积量
-  const processData = (data, isBid) => {
+  const processData = (data:any, isBid:any) => {
     let total = 0;
     return data
-      .sort((a, b) => isBid ? b[0] - a[0] : a[0] - b[0])
-      .map(item => {
+      .sort((a: any, b: any) => isBid ? b[0] - a[0] : a[0] - b[0])
+      .map((item: any) => {
         total += item[1];
         return [item[0], total];
       });
@@ -45,7 +45,7 @@ const DepthChart = () => {
     },
     tooltip: {
       trigger: 'axis',
-      formatter: (params) => {
+      formatter: (params:any) => {
         const data = params[0].data;
         return `价格: ${data[0]}<br/>累积量: ${data[1]}`;
       },
@@ -63,7 +63,7 @@ const DepthChart = () => {
       type: 'value',
       name: '价格',
       axisLabel: {
-        formatter: (value) => value.toFixed(2)
+        formatter: (value: number) => value.toFixed(2)
       },
       splitLine: {
         show: true,
@@ -94,7 +94,7 @@ const DepthChart = () => {
         show: false  // 隐藏轴线
       },
       axisLabel: {
-        formatter: (value) => {
+        formatter: (value:any) => {
           if (value >= 1000) {
             return (value / 1000).toFixed(2) + 'K';
           }

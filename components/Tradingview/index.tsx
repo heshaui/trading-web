@@ -59,7 +59,7 @@ const Tradingview: React.FC = () => {
         autosize: true,
       };
 
-      const newWidget = new widget(widgetOptions);
+      const newWidget = new widget(widgetOptions as any);
       setTvWidget(newWidget);
     }
 

@@ -2,8 +2,15 @@
 import { useState, useEffect } from 'react';
 import styles from './style/OrderBook.module.css';
 
+// 定义订单类型
+interface Order {
+  price: number;
+  amount: number;
+  total: number;
+}
+
 // 随机生成订单数据的函数
-const generateRandomOrders = (count, priceBase, isSell) => {
+const generateRandomOrders = (count: number, priceBase: number, isSell: boolean) => {
   const orders = [];
   const priceRange = isSell ? [priceBase, priceBase + 100] : [priceBase - 100, priceBase];
   
@@ -22,8 +29,8 @@ const generateRandomOrders = (count, priceBase, isSell) => {
 };
 
 const OrderBook = () => {
-  const [sellOrders, setSellOrders] = useState([]);
-  const [buyOrders, setBuyOrders] = useState([]);
+  const [sellOrders, setSellOrders] = useState<Order[]>([]);
+  const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [buyRatio, setBuyRatio] = useState(0);
   const [sellRatio, setSellRatio] = useState(0);
@@ -36,8 +43,8 @@ const OrderBook = () => {
     // 生成随机买单和卖单
     const generatedSellOrders = generateRandomOrders(10, basePrice, true); // 10 条卖单
     const generatedBuyOrders = generateRandomOrders(10, basePrice, false); // 10 条买单
-      setSellOrders(generatedSellOrders);
-      setBuyOrders(generatedBuyOrders);
+    setSellOrders(generatedSellOrders as any);
+    setBuyOrders(generatedBuyOrders as any);
 
     // 计算买单和卖单比例
     const totalBuyAmount = generatedBuyOrders.reduce((sum, order) => sum + order.amount, 0);

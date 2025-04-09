@@ -108,7 +108,7 @@ export const mockDatafeed = {
     onResolve: (symbolInfo: any) => void,
     onError: (error: string) => void
   ) => {
-    const symbol = symbolsData[symbolName] || symbolsData.AAPL;
+    const symbol = symbolsData[symbolName as keyof typeof symbolsData] || symbolsData.AAPL;
     if (!symbol) {
       onError('找不到交易对');
       return;
