@@ -24,9 +24,11 @@ export function encryptEmail(email?: string | null): string {
     const [name, domain] = email.split('@');
     const nameLength = name.length;
     if (nameLength <= 4) {
-        return '*'.repeat(nameLength - 2) + name.slice(-2) + '@' + domain;
+        // 长度小于等于4时，保留后两位，前面用3个*
+        return '***' + name.slice(-2) + '@' + domain;
     }
-    return name.slice(0, 2) + '*'.repeat(nameLength - 4) + name.slice(-2) + '@' + domain;
+    // 长度大于4时，保留前两位和后两位，中间用3个*
+    return name.slice(0, 2) + '***' + name.slice(-2) + '@' + domain;
 }
 // 判断字符串是邮箱还是手机号并进行加密的函数
 export function encryptString(input: string | null): string {

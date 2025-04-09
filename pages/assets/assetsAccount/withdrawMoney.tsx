@@ -166,20 +166,20 @@ const WithdrawMoneyPage = () => {
         getUserData()
     }, []);
     const getUserData = async () => {
-        // try {
-        //     const res = await getLoginUserInfo()
-        //     if (res.code === "0") {
-        //         setUserInfo(res.data)
-        //     } else {
-        //         toast.error(res.message)
-        //     }
-        // } catch (error) {
-        //     console.error(t('safeModal.getUserInfoError'), error);
-        // }
-        if (typeof window !== 'undefined') {
-            const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
-            setUserInfo(userInfo)
+        try {
+            const res = await getLoginUserInfo()
+            if (res.code === "0") {
+                setUserInfo(res.data)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            console.error(t('safeModal.getUserInfoError'), error);
         }
+        // if (typeof window !== 'undefined') {
+        //     const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+        //     setUserInfo(userInfo)
+        // }
 
     }
     // 币种
