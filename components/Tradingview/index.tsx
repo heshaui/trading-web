@@ -3,7 +3,7 @@ import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import { mockDatafeed } from "./mockData";
 
-const TVChartContainer: React.FC = () => {
+const Tradingview: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -156,4 +156,4 @@ const TVChartContainer: React.FC = () => {
   );
 };
 
-export default TVChartContainer;
+export default Tradingview;
