@@ -6,10 +6,15 @@ import type { TabsProps, AutoCompleteProps } from 'antd';
 // import store from "@/store";
 import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
-import SafeModal from "@/components/myModal/login_safeModal"
 import styles from '../styles/login.module.css'
 // import { encryptWithPublicKey } from "@/utils/jsENcrypy"; //登录加密
 import { useTranslation } from 'next-i18next';
+// import SafeModal from "@/components/myModal/login_safeModal"
+import SafeModal from "@/components/myModal/login_safeModal2"
+import { encryptData } from "@/hooks/user-encrypt";
+import { getLoginCheck } from "@/services/login";
+import { toast } from "sonner";
+
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
     // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -38,6 +43,7 @@ function Mailbox() {
     const [historyEmails, setHistoryEmails] = useState<string[]>([]);
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [loginInfo, setLoginInfo] = useState<useInfoType>({} as useInfoType);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const storedEmails = localStorage.getItem('emailHistory');
@@ -85,27 +91,65 @@ function Mailbox() {
                 // form.resetFields(); // 重置表单
                 saveEmailToHistory(values.email)
                 // console.log(values);
-                const data = {
+
+                // const data = {
+                //     type: "m",
+                //     email: values.email,
+                //     deviceType: "web",
+                //     password: values.password,
+                //     authCodeMail: "",
+                // }
+                // setLoginInfo(data)
+                // setCodeModelOpen(true)
+                const param = {
                     type: "m",
-                    email: values.email,
-                    deviceType: "web",
-                    password: values.password,
-                    authCodeMail: "",
+                    account: values.email
                 }
-                // encryptWithPublicKey
-                // loginLogic()
-                setLoginInfo(data)
-                setCodeModelOpen(true)
-                // goAuthCode(data)
+                const dataEncrypt = await encryptData(param)
+                setLoading(true)
+                try {
+                    const res = await getLoginCheck(dataEncrypt)
+                    if (res.code === "0") {
+                        const data = {
+                            type: "m",
+                            email: values.email,
+                            deviceType: "web",
+                            password: values.password,
+                            authCodeMail: "",
+                            ...res.data
+                        }
+                        setLoginInfo(data)
+                        setCodeModelOpen(true)
+                        toast.success(res.message)
+                    } else if (res.code === "10044") {
+                        // const data = {
+                        //     ...res.data,
+                        //     type: "m",
+                        //     email: values.email,
+                        //     deviceType: "web",
+                        //     password: values.password,
+                        //     authCodeMail: "",
+                           
+                        // }
+                        // setLoginInfo(data)
+                        setCodeModelOpen(true)
+                        toast.error(t('safeModal.codeValid'))
+                    } else {
+                        toast.error(res.message)
+                    }
+                } catch (error) {
+                    toast.error(String(error))
+                } finally {
+                    setLoading(false)
+                }
 
             })
-            .catch((info) => {
-                console.log("Validate Failed:", info);
-            });
         // form.resetFields(); //重置表单
         // setLoading(true);
 
     }
+
+
     // const goAuthCode = () => {
     //     store.setAuthcodeState(LoginStateEnum.LOGIN, LoginTypeEnum.EMAIL);
     //     setLoginState(LoginStateEnum.Googlecode)
@@ -187,13 +231,13 @@ function Mailbox() {
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                    <div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
                         {/* 邮箱 */}
                         {t('emailTitle')}
                     </div>
 
                     <Form.Item name="email" rules={[
-                        { required: true, message: t('emailNull') }, 
+                        { required: true, message: t('emailNull') },
                         { type: "email", message: t('emailErr') }
                     ]}>
                         <AutoComplete
@@ -204,37 +248,44 @@ function Mailbox() {
                             backfill={true}
                             className={`${styles.auto_complete_input} auto-complete-input custom-sleect`}
                             onFocus={setHistoryOptions}
-                            style={{height:"50px"}}
+                            style={{ height: "50px" }}
                         />
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                    <div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
                         {/* 密码 */}
                         {t('passwordTitle')}
                     </div>
                     <Form.Item name="password" rules={[
                         { required: true, message: t('passwordNull') }
                     ]}>
-                        <Input.Password 
-                            type="password" 
-                            placeholder={t('passwordPlaceholder')} 
-                            maxLength={30} 
-                            allowClear={true} 
-                            size="large" 
+                        <Input.Password
+                            type="password"
+                            placeholder={t('passwordPlaceholder')}
+                            maxLength={30}
+                            allowClear={true}
+                            size="large"
                             className={`${styles.mail_input} modal-input`}
                         />
                     </Form.Item>
                     <Form.Item noStyle>
-                        <button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()} >
-                            {/* 忘记密码 */}
-                            {t('forgetPassword')}
-                        </button>
+                        <div className="w-full flex-x align-center justify-end">
+                            <button type="button" className={`${styles.forget_password_button}`} onClick={() => goResetPassword()} >
+                                {/* 忘记密码 */}
+                                {t('forgetPassword')}
+                            </button>
+                        </div>
+
                     </Form.Item>
                 </Form>
-                <button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
+                {!loading ? <button type="submit" className={`${styles.login_button} w-full button-color mt-5`}
                     onClick={handleFinish}>
                     {/* 登录 */}
                     {t('loginButton')}
-                </button>
+                </button> :
+                    <button type="submit" className={`${styles.login_loading} w-full button-color mt-5`}>
+                        {/* 登录 */}
+                        {t('loginButton')}
+                    </button>}
                 <div className="flex-cc mt-4">
                     <p>
                         {/* 没有账号？ */}

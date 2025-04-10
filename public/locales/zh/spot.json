@@ -17,6 +17,7 @@
             "amount":"成交额",
             "cancel":"全撤",
             "averagePrice":"成交均价",
+            "price2":"成交价",
             "count":"成交数量",
             "amount2":"成交金额",
             "status":"状态",

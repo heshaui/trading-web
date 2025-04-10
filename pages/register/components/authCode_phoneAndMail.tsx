@@ -303,7 +303,7 @@ function AuthCode() {
             <div>
                 <button
                     type="button"
-                    className={`${styles.text_color} mt-5`}
+                    className={`text-color  mt-5`}
                     onClick={() => setPointout(true)}
                 >
                     {/* 收不到验证码？ */}

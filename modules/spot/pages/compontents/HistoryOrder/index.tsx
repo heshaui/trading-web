@@ -273,7 +273,7 @@ const SpotMainPage = () => {
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
             // loading={loading}
-            locale={{ emptyText: <NoData /> }}
+            locale={{ emptyText: <NoData textColor='#A4A5AC'/> }}
           />
 
         </div>
