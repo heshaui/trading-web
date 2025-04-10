@@ -120,7 +120,7 @@ function Mailbox() {
                         }
                         setLoginInfo(data)
                         setCodeModelOpen(true)
-                        toast.error(res.message)
+                        toast.success(res.message)
                     } else if (res.code === "10044") {
                         // const data = {
                         //     ...res.data,
