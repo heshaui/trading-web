@@ -8,4 +8,4 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 		},
 	};
 };
-export { default } from '../../modules/spot/pages';
+export { default } from '../../modules/spot/pages/spotOrder';
