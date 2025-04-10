@@ -3,10 +3,14 @@ import { Button, Form, Input, ConfigProvider } from "antd";
 import { type CSSProperties, useState } from "react";
 import { LoginStateEnum, useLoginStateContext, LoginTypeEnum, useLoginTypeContext } from "@/config/login-providers/LoginStateProvider";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
-import SafeModal from "@/components/myModal/login_safeModal"
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
 import { useTranslation } from 'next-i18next';
+// import SafeModal from "@/components/myModal/login_safeModal"
+import SafeModal from "@/components/myModal/login_safeModal2"
+import { encryptData } from "@/hooks/user-encrypt";
+import { getLoginCheck } from "@/services/login";
+import { toast } from "sonner";
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -32,13 +36,8 @@ function Phonebox() {
 	// const { loginState,setLoginState } = useLoginStateContext(); // 
 	const { loginType } = useLoginTypeContext(); //, setLoginType
 	const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
-	const [loginInfo, setLoginInfo] = useState<useInfoType>({
-		type: "",
-		phone: "",
-		password: "",
-		deviceType: "",
-		authCodePhone: "",
-	});
+	const [loginInfo, setLoginInfo] = useState<useInfoType>({} as useInfoType);
+	const [loading, setLoading] = useState(false);
 	// const signIn = useSignIn();
 	const [form] = Form.useForm();
 	const phoneNumber = Form.useWatch('phoneNumber', form);
@@ -57,16 +56,58 @@ function Phonebox() {
 				// form.resetFields(); // 重置表单
 				// console.log(values, 111);
 				// goAuthCode()
-				const data = {
+				// const data = {
+				// 	type: "p",
+				// 	phone: values.phoneNumber,
+				// 	deviceType: "web",
+				// 	password: values.password,
+				// 	authCodePhone: "",
+				// 	countryCode: values.areaCode
+				// }
+				// setLoginInfo(data)
+				// setCodeModelOpen(true)
+				const param = {
 					type: "p",
-					phone: values.phoneNumber,
-					deviceType: "web",
-					password: values.password,
-					authCodePhone: "",
-					countryCode: values.areaCode
+					account: values.phoneNumber,
 				}
-				setLoginInfo(data)
-				setCodeModelOpen(true)
+				const dataEncrypt = await encryptData(param)
+				setLoading(true)
+				try {
+					const res = await getLoginCheck(dataEncrypt)
+					if (res.code === "0") {
+						const data = {
+							type: "p",
+							phone: values.phoneNumber,
+							deviceType: "web",
+							password: values.password,
+							authCodePhone: "",
+							countryCode: values.areaCode,
+                            ...res.data
+						}
+						setLoginInfo(data)
+						setCodeModelOpen(true)
+					} else if (res.code === "10044") {
+						// const data = {
+						//     ...res.data,
+						//     type: "m",
+						//     email: values.email,
+						//     deviceType: "web",
+						//     password: values.password,
+						//     authCodeMail: "",
+
+						// }
+						// setLoginInfo(data)
+						setCodeModelOpen(true)
+						toast.error(t('safeModal.codeValid'))
+					} else {
+						toast.error(res.message)
+					}
+				} catch (error) {
+					toast.error(String(error))
+				} finally {
+					setLoading(false)
+				}
+
 			})
 			.catch((info) => {
 				console.log("Validate Failed:", info);
@@ -144,7 +185,7 @@ function Phonebox() {
 					initialValues={{ areaCode: "+1" }}
 				// onValuesChange={usernameChange}
 				>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+					<div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
 						{/* 手机号 */}
 						{t('phoneTitle')}
 					</div>
@@ -193,7 +234,7 @@ function Phonebox() {
 							</Form.Item>
 						</div>
 					</Form.Item>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+					<div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
 						{/* 密码 */}
 						{t('passwordTitle')}
 					</div>
@@ -211,24 +252,30 @@ function Phonebox() {
 						/>
 					</Form.Item>
 					<Form.Item noStyle>
-						<button
-							type="button"
-							className={`${styles.forget_password_button}`}
-							onClick={() => goResetPassword()}
-						>
-							{/* 忘记密码 */}
-							{t('forgetPassword')}
-						</button>
+						<div className="w-full flex-x align-center justify-end">
+							<button
+								type="button"
+								className={`${styles.forget_password_button}`}
+								onClick={() => goResetPassword()}
+							>
+								{/* 忘记密码 */}
+								{t('forgetPassword')}
+							</button>
+						</div>
 					</Form.Item>
 				</Form>
-				<button
+				{!loading ? <button
 					type="submit"
-					className={`${styles.login_button} w-full button-color mt-8`}
+					className={`${styles.login_button} w-full button-color mt-5`}
 					onClick={onFinish}
 				>
 					{/* 登录 */}
 					{t('loginButton')}
-				</button>
+				</button> :
+					<button type="submit" className={`${styles.login_loading} w-full button-color mt-5`}>
+						{/* 登录 */}
+						{t('loginButton')}
+					</button>}
 				<div className="flex-cc mt-4">
 					<p>
 						{/* 没有账号？ */}
