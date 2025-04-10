@@ -422,6 +422,14 @@
   padding-left: 24px;
   padding-right: 24px;
 }
+.my-6 {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.mx-6 {
+  margin-left: 24px;
+  margin-right: 24px;
+}
 
 
 .font-12 {

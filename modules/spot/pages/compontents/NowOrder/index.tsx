@@ -210,7 +210,7 @@ const SpotMainPage = () => {
     >
         {/* 充值 */}
         <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+          <div className={`${styles.table_header} w-full my-6 flex align-center px-6`}>
           <Form
           form={form}
           layout="inline"
