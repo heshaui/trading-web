@@ -1,0 +1,37 @@
+{
+    "spot":{
+        "spotOrder":"现货订单",
+        "tabs":{
+            "now":"当前委托",
+            "history":"历史委托",
+            "historyDeal":"历史成交"
+        },
+        "columns":{
+            "uploadTime":"更新时间",
+            "symbol":"交易对",
+            "type":"类型",
+            "direction":"方向",
+            "price":"价格",
+            "quantity":"数量",
+            "completion":"完成度",
+            "amount":"成交额",
+            "cancel":"全撤",
+            "averagePrice":"成交均价",
+            "count":"成交数量",
+            "amount2":"成交金额",
+            "status":"状态",
+            "fee":"手续费",
+            "role":"角色",
+            "date":"日期"
+        },
+        "select":{
+            "all":"全部",
+            "direction":"请选择方向",
+            "symbol":"请选择交易对",
+            "type":"请选择类型",
+            "hideAllCancel":"隐藏所有已撤销",
+            "startTime":"开始时间",
+            "endTime":"结束时间"
+        }
+    }
+}
