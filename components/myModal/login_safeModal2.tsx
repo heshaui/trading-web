@@ -175,7 +175,11 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         try {
             const res = await getLoginCheck(dataEncrypt)
             if (res.code === "0") {
-                toast.success(res.message)
+                if(res.data.message){
+                    toast.success(res.data.message)
+                }else{
+                    toast.success(res.message)
+                }
                 clearTimers()
                 if (acountInfo.type === 'm') {
                     startCountdown(acountInfo?.emailTime || 0);

@@ -9,7 +9,7 @@
 .card_bgc {
     background-color: var(--background7);
     border-radius: 8px;
-    padding: 24px;
+    /* padding: 24px; */
 }
 .card_bgc2{
     background-color: var(--background14);
