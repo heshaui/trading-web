@@ -194,7 +194,7 @@ const SpotMainPage = () => {
     >
       {/* 充值 */}
       <div className={`${styles.table_box} w-full `}>
-        <div className={`${styles.table_header} w-full mb-4 flex align-center`}>
+        <div className={`${styles.table_header} w-full mb-6 flex align-center px-6`}>
           <Form
             form={form}
             layout="inline"
@@ -206,7 +206,7 @@ const SpotMainPage = () => {
           >
             <Form.Item name="time" >
               <RangePicker
-                className={`${styles.rangePicker_box} custom-range-picker mt-4`}
+                className={`${styles.rangePicker_box} custom-range-picker mt-6`}
                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
@@ -217,7 +217,7 @@ const SpotMainPage = () => {
               <Select allowClear
                 placeholder={t('spot.select.type')}
                 options={directionSelect}
-                className={`${styles.select_box} select-text-right mt-4`}
+                className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.type')}</span>}
               />
             </Form.Item>
@@ -225,7 +225,7 @@ const SpotMainPage = () => {
               <Select allowClear
                 placeholder={t('spot.select.direction')}
                 options={directionSelect}
-                className={`${styles.select_box} select-text-right mt-4`}
+                className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
               />
             </Form.Item>
@@ -233,14 +233,14 @@ const SpotMainPage = () => {
               <Select allowClear
                 placeholder={t('spot.select.symbol')}
                 options={symbolSelect}
-                className={`${styles.select_box} select-text-right mt-4`}
+                className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
               />
             </Form.Item>
             <Form.Item name="hideAllCancel" >
               <Checkbox
                 defaultChecked={false}
-                className={` mt-6`}
+                className={` mt-8`}
               >
                 <span className={`${styles.title_color} font-14`}>
                 {t('spot.select.hideAllCancel')}
