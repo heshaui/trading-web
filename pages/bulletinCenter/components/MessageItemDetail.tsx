@@ -14,6 +14,7 @@ export default function MessageItemDetail({
     onLatestClick,
     showArticle
 }: MessageItemDetailProps) {
+    const [showContent, setShowContent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5; // 每页显示的数量
     // 确保 message 存在
@@ -30,6 +31,10 @@ export default function MessageItemDetail({
         const startIndex = (currentPage - 1) * pageSize;
         return allData.slice(startIndex, startIndex + pageSize);
     };
+
+    const handleDetailClick =()=>{
+        setShowContent(prev => !prev);
+    }
 
     const items = [
         { title: '公告', onClick: onBack },
@@ -67,7 +72,9 @@ export default function MessageItemDetail({
                     title={message.title}
                     time={message.time}
                     content={message.content}
-                    isDetail
+                    isClickable
+                    onClick={handleDetailClick}
+                    isDetail={showContent}
                 />
             )}
         </>

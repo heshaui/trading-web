@@ -1,5 +1,5 @@
 import React from 'react';
-import SpotOrderPage from './spotorder';
+import SpotOrderPage from './spotOrder';
 const SpotMainPage = () => {
 
     return (<>
