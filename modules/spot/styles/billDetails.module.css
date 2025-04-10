@@ -9,12 +9,11 @@
 .card_bgc {
     background-color: var(--background7);
     border-radius: 8px;
-    /* padding: 24px; */
+    padding: 24px 0;
 }
 .card_bgc2{
     background-color: var(--background14);
     border-radius: 8px;
-    padding: 30px;
 }
 
 .success_icon {

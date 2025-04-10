@@ -210,7 +210,7 @@ const SpotMainPage = () => {
     >
         {/* 充值 */}
         <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full my-4 flex align-center px-6`}>
+          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
           <Form
           form={form}
           layout="inline"
@@ -248,9 +248,10 @@ const SpotMainPage = () => {
               className={` table-box`}
               pagination={{
                 position: ["bottomRight"],
-                showSizeChanger: true,
+                // showSizeChanger: true,
                 total: total,
                 size: "default",
+                simple:true,
                 onChange: (page, pageSize) => pageChange(page, pageSize),
               }}
             // loading={loading}
