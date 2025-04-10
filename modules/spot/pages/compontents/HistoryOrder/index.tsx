@@ -270,6 +270,7 @@ const SpotMainPage = () => {
               showSizeChanger: true,
               total: total,
               size: "default",
+              simple:true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
             // loading={loading}

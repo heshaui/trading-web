@@ -176,7 +176,7 @@ const SpotOrderPage = () => {
     const items: TabsProps['items'] = [
         {
             key: '1',
-            label: t('spot.tabs.now'), //"当前委托",
+            label:t('spot.tabs.now') , //"当前委托",
             children: <SpotOrderNow />,
         },
         {
@@ -228,8 +228,11 @@ const SpotOrderPage = () => {
                         selectorBg: "transparent", //选框背景色
                     },
                     Tabs: {
+                        itemActiveColor: "var(--tip-color)", //激活态颜色  
+                        itemSelectedColor: "var(--text-color5)", //选中态颜色
                         horizontalMargin: "0 0 0 0",
                         itemColor: "var(--text-color6)",
+                        inkBarColor: "var(--text-color5)", //指示条颜色
                     },
                 },
             }}
@@ -243,7 +246,7 @@ const SpotOrderPage = () => {
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}>
-                        <Tabs items={items} className="custom-tabs" />
+                        <Tabs items={items} className="custom-tabs2" />
                     </div>
                     {/* <div className={`${styles.table_header} w-full my-4 flex align-center`}>
                         <Form

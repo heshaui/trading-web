@@ -380,8 +380,8 @@
 
 /* 表头边框 */
 .table-box .ant-table-thead>tr>th {
-    border-bottom: 1px solid var(--border-color4) !important;
-    border-top: 1px solid var(--border-color4) !important;
+    border-bottom: 0.5px solid var(--border-color4) !important;
+    border-top: 0.5px solid var(--border-color4) !important;
 }
 
 /* 空数据 */
@@ -430,7 +430,13 @@
     -ms-overflow-style: none;
 
 }
-
+/* tabs 指示条颜色 */
 .custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
+}
+.custom-tabs2 .ant-tabs-nav::before {
+    border-color: var(--border-color4) !important;
+}
+.custom-tabs2 .ant-tabs-tab{
+    margin: 0 0 0 24px !important;
 }
