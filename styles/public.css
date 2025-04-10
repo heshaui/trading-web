@@ -51,6 +51,9 @@
 .theme_color {
   color: var(--theme-color);
 }
+.text-color {
+  color: var(--text-color5);
+}
 .tip-color {
   color: var(--text-color6);
 }

@@ -5,8 +5,9 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 import { useTranslation } from 'next-i18next';
 type NoDataProps = {
     title?: string;
+    textColor?: string;
 }
-const NoData = ({title}:NoDataProps) => {
+const NoData = ({title,textColor}:NoDataProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { t } = useTranslation('common');
 
@@ -14,7 +15,9 @@ const NoData = ({title}:NoDataProps) => {
         <Image
             src={isDayMode ? "/images/pubic_icon/iocn_nodata_day.png" : "/images/pubic_icon/iocn_nodata_night.png"}
             alt="empty" width={100} height={100} />
-        <p className={`font-14 font-w-400 tip-color`}>{title?title:t('nodata')}</p>
+        <p className={`font-14 font-w-400 tip-color`}
+        style={{color:textColor?textColor:''}}
+        >{title?title:t('nodata')}</p>
     </div>
     );
 };

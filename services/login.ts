@@ -16,6 +16,15 @@ export function getRegister(data: encryptType): Promise<any> {
     body: JSON.stringify(data),
   });
 }
+// 登录检查
+export function getLoginCheck(data: encryptType): Promise<any> {
+  return request(`${fixUrl}/auth/loginCheck`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+
 interface codeType {
   number: string,
   code?: string,

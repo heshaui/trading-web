@@ -62,10 +62,12 @@
 .modal-input input::placeholder,
 .modal-input2::placeholder {
     color: var(--text-color4) !important;
+    font-size: 16px !important;
 }
 
 .modal-input2 input::placeholder {
     color: var(--text-color4) !important;
+    font-size: 16px !important;
 }
 
 /* 输入框清除图标底色 */
@@ -100,6 +102,7 @@
 
 .autoComplete-custom .ant-input::placeholder {
     color: var(--text-color4) !important;
+    font-size: 16px !important;
 }
 /* 选择框边框颜色 */
 .custom-select .ant-select-selector{
@@ -223,6 +226,7 @@
 }
 .custom-sleect .ant-select-selector{
     border-color: var(--border-color4) !important;
+    font-size: 16px !important;
 }
 
 /* segmented 选中标签样式及动画标签 */
@@ -376,8 +380,8 @@
 
 /* 表头边框 */
 .table-box .ant-table-thead>tr>th {
-    border-bottom: 1px solid var(--border-color4) !important;
-    border-top: 1px solid var(--border-color4) !important;
+    border-bottom: 0.5px solid var(--border-color4) !important;
+    border-top: 0.5px solid var(--border-color4) !important;
 }
 
 /* 空数据 */
@@ -426,7 +430,13 @@
     -ms-overflow-style: none;
 
 }
-
+/* tabs 指示条颜色 */
 .custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
+}
+.custom-tabs2 .ant-tabs-nav::before {
+    border-color: var(--border-color4) !important;
+}
+.custom-tabs2 .ant-tabs-tab{
+    margin: 0 0 0 24px !important;
 }
