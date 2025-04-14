@@ -1,4 +1,4 @@
-import {  Segmented } from "antd";
+import { Segmented, ConfigProvider } from "antd";
 // import { useTranslation } from "react-i18next";
 
 // import type { FormInstance } from "antd/es/form";
@@ -20,7 +20,7 @@ function RegisterForm() {
 
 	const [tabsProps, setTabsProps] = useState('email');
 	// const { registerType, setRegisterType, backToRegisterType } = useRegisterTypeContext();
-	const {  setRegisterType } = useRegisterTypeContext();
+	const { setRegisterType } = useRegisterTypeContext();
 	const tabsChange = (value: string) => {
 		console.log(value);
 		setTabsProps(value)
@@ -28,7 +28,7 @@ function RegisterForm() {
 			setRegisterType(RegisterTypeEnum.EMAIL)
 		} else if (value === "phone") {
 			setRegisterType(RegisterTypeEnum.PHONE)
-		} 
+		}
 
 	};
 	// 验证码获取
@@ -67,41 +67,53 @@ function RegisterForm() {
 
 			<div className="flex-col" >
 				<div className="w-full mb-6"><p className={`${styles.title_box}`}>注册</p> </div>
-				<Segmented
-					className={`${styles.custom_segmented} custom-segmented`}
-					options={[
-						{
-							label: (
-								//  button-color
-								<div className={`${styles.tabs_label}`} >
-									<div>
-										{/* 邮箱 */}
-									{t('email')}
-									</div>
-								</div>
-
-							),
-							value: 'email',
+				<ConfigProvider
+					theme={{
+						components: {
+							Segmented: {
+								itemHoverBg: "transparent", //鼠标悬停背景色
+								itemHoverColor: "var(--text-color5)",//鼠标悬停颜色
+								itemActiveBg:"transparent", //未选中背景色
+							},
 						},
-						{
-							label: (
-								<div className={`${styles.tabs_label}`} >
-									<div>
-										{/* 手机 */}
-									{t('phone')}
+					}}
+				>
+					<Segmented
+						className={`${styles.custom_segmented} custom-segmented`}
+						options={[
+							{
+								label: (
+									//  button-color
+									<div className={`${styles.tabs_label}`} >
+										<div>
+											{/* 邮箱 */}
+											{t('email')}
+										</div>
 									</div>
-								</div>
 
-							),
-							value: 'phone',
-						},
-					]}
-					onChange={tabsChange}
-					value={tabsProps}
-				/>
+								),
+								value: 'email',
+							},
+							{
+								label: (
+									<div className={`${styles.tabs_label}`} >
+										<div>
+											{/* 手机 */}
+											{t('phone')}
+										</div>
+									</div>
+
+								),
+								value: 'phone',
+							},
+						]}
+						onChange={tabsChange}
+						value={tabsProps}
+					/>
+				</ConfigProvider>
 				<Mailbox />
 				<Phonebox />
-				
+
 			</div>
 		</>
 	);

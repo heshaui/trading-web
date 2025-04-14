@@ -1,5 +1,5 @@
 // import { Button, Form, Input,Tabs } from "antd";
-import { Segmented } from "antd";
+import { Segmented ,ConfigProvider} from "antd";
 import {  useState } from "react";
 import Mailbox from "./login_mailbox"
 import Phonebox from "./login_phonebox"
@@ -62,6 +62,17 @@ function LoginForm() {
 				{t('login')}
 				</p> 
 			</div>
+			<ConfigProvider
+					theme={{
+						components: {
+							Segmented: {
+								itemHoverBg: "transparent", //鼠标悬停背景色
+								itemHoverColor: "var(--text-color5)",//鼠标悬停颜色
+								itemActiveBg:"transparent", //未选中背景色
+							},
+						},
+					}}
+				>
 			<Segmented
 				className={`${styles.custom_segmented} custom-segmented`}
 				options={[
@@ -102,6 +113,7 @@ function LoginForm() {
 				onChange={tabsChange}
 				value={tabsProps}
 			/>
+			</ConfigProvider>
 			<Mailbox />
 			<Phonebox />
 			{/* <QRCodebox/> */}

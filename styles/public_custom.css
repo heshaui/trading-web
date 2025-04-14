@@ -228,6 +228,11 @@
     border-color: var(--border-color4) !important;
     font-size: 16px !important;
 }
+/* 数字输入框组件文本位置 */
+.spot_number_input .ant-input-number-input {
+    text-align: end !important;
+    color: var(--text-color5) !important;
+}
 
 /* segmented 选中标签样式及动画标签 */
 /* 未选中标签鼠标滑过样式 */
@@ -250,6 +255,13 @@
     color: #fff !important;
     /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
     background: var(--btncolor5) !important;
+}
+.custom-segmented2 .ant-segmented-item-selected{
+    box-shadow: 0px 4px 18px 0px var(--theme-shadow);
+}
+.spot-segmented .ant-segmented-item-selected,
+.spot-segmented .ant-segmented-thumb{
+    border-radius: 36px !important;
 }
 
 .text-color {
@@ -323,15 +335,17 @@
 
 /*table 表格组件 */
 /* 背景色/各行背景色 */
-.table-box .ant-table {
+.table-box .ant-table,
+.spot-table-box .ant-table{
     background: transparent !important;
     color: var(--text-color5) !important;
     font-size: 14px !important;
     font-weight: 500 !important;
 }
-
+ 
 /* 表头文字*/
-.table-box .ant-table-thead {
+.table-box .ant-table-thead,
+.spot-table-box .ant-table-thead {
     font-weight: 400 !important;
     font-size: 12px !important;
 }
@@ -344,7 +358,8 @@
 }
 
 /* 展开行hover背景色 */
-.table-box .ant-table-cell-row-hover {
+.table-box .ant-table-cell-row-hover,
+.spot-table-box .ant-table-cell-row-hover {
     background: var(--bgc-color) !important;
     color: var(--text-color5) !important;
 }
@@ -353,7 +368,8 @@
     background: transparent !important;
 }
 /* 选中行 颜色 */
-.table-box .ant-table-row-selected>.ant-table-cell{
+.table-box .ant-table-row-selected>.ant-table-cell,
+.spot-table-box .ant-table-row-selected>.ant-table-cell{
     background: var(--bgc-color) !important;
 }
 /* 不显示展开图标时展开列表位置 */
@@ -365,6 +381,16 @@
     padding: 16px 0 !important;
     padding-left: 16px !important;
     /* padding:0 !important; */
+}
+/* 展开行样式 */
+.spot-table-box .ant-table-cell {
+    /* padding: 16px 0 !important; */
+    padding-left: 24px !important;
+}
+
+.spot-table-box .ant-table-expanded-row>.ant-table-cell {
+    border-radius: 8px !important;
+    padding: 0px !important;
 }
 
 /* 展开列表间距 */
@@ -379,42 +405,57 @@
 }
 
 /* 表头边框 */
-.table-box .ant-table-thead>tr>th {
+.table-box .ant-table-thead>tr>th ,
+.spot-table-box .ant-table-thead>tr>th{
     border-bottom: 0.5px solid var(--border-color4) !important;
     border-top: 0.5px solid var(--border-color4) !important;
+}
+.spot-table-box2 .ant-table-thead>tr>th{
+    border-bottom: none !important;
+    border-top: none !important;
 }
 
 /* 空数据 */
 .table-box .ant-table-placeholder,
-.table-box .ant-table-placeholder:hover>td {
+.table-box .ant-table-placeholder:hover>td,
+.spot-table-box .ant-table-placeholder,
+.spot-table-box .ant-table-placeholder:hover>td {
     background: transparent !important;
 }
 
+
 /* 表格分页项按钮颜色 选中页码和未选中*/
 .table-box .ant-pagination-item>a,
-.table-box .ant-pagination-item-ellipsis {
+.table-box .ant-pagination-item-ellipsis,
+.spot-table-box .ant-pagination-item>a,
+.spot-table-box .ant-pagination-item-ellipsis {
     color: var(--text-color5) !important;
 }
 
 .table-box .ant-pagination-next button,
-.table-box .ant-pagination-prev button {
+.table-box .ant-pagination-prev button,
+.spot-table-box .ant-pagination-next button,
+.spot-table-box .ant-pagination-prev button {
     color: var(--text-color5) !important;
 }
 
 /* 表格分页选择框背景色及颜色 */
-.table-box .ant-select-selector {
+.table-box .ant-select-selector,
+.spot-table-box .ant-select-selector {
     /* background: transparent !important; */
     color: var(--text-color5) !important;
     /* border-color: var(--border-color4) !important; */
 }
 
 /* 表格分页选择框 激活时背景色及颜色 */
-.table-box .ant-select-open .ant-select-selection-item {
+.table-box .ant-select-open .ant-select-selection-item,
+.spot-table-box .ant-select-open .ant-select-selection-item {
     color: var(--text-color4) !important;
 }
 
 /* 表格隐藏滚动条 */
-.table-box .ant-table-body {
+.table-box .ant-table-body,
+.spot-table-box .ant-table-body {
 
     /* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari, Edge) */
     &::-webkit-scrollbar {

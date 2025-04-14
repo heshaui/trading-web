@@ -246,7 +246,9 @@ const SpotOrderPage = () => {
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}>
-                        <Tabs items={items} className="custom-tabs2" />
+                        <Tabs items={items} 
+                        className="custom-tabs2" 
+                        indicator={{ size: (origin) => origin - 35, align: 'center' }}/>
                     </div>
                     {/* <div className={`${styles.table_header} w-full my-4 flex align-center`}>
                         <Form

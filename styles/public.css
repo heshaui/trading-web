@@ -323,6 +323,21 @@
   margin-left: 28px;
 }
 
+.ml-8 {
+  margin-left: 32px;
+}
+
+.ml-9 {
+  margin-left: 36px;
+}
+
+.ml-10 {
+  margin-left: 40px;
+}
+.ml-12 {
+  margin-left: 48px;
+}
+
 .mr-1 {
   margin-right: 4px;
 }
@@ -421,6 +436,26 @@
 .px-4 {
   padding-left: 24px;
   padding-right: 24px;
+}
+.px-5 {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.px-6 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.py-4 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.py-5 {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.py-6 {
+  padding-top: 24px;
+  padding-bottom: 24px;
 }
 .my-6 {
   margin-top: 24px;

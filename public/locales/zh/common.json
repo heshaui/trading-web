@@ -42,6 +42,12 @@
   "nodata": "暂无数据",
   "noaddress": "暂无地址",
   "safeVerification": "安全验证",
+  "noLogin":{
+    "tip1":"开始交易",
+    "tip2":"登录",
+    "tip3":"立即注册",
+    "or":"或"
+  },
   "usersetting":{
     "modifyOnce": "24h内只能修改1次",
     "modifySuccess": "昵称修改成功",

@@ -4,7 +4,8 @@
         "tabs":{
             "now":"当前委托",
             "history":"历史委托",
-            "historyDeal":"历史成交"
+            "historyDeal":"历史成交",
+            "asset":"资产"
         },
         "columns":{
             "uploadTime":"更新时间",
@@ -23,7 +24,15 @@
             "status":"状态",
             "fee":"手续费",
             "role":"角色",
-            "date":"日期"
+            "date":"日期",
+            "coin":"币种",
+            "balance":"持仓",
+            "available":"可用",
+            "frozen":"冻结",
+            "order":"下单锁定",
+            "operation":"操作",
+            "deposit":"充值",
+            "withdraw":"提现"
         },
         "select":{
             "all":"全部",
@@ -32,7 +41,25 @@
             "type":"请选择类型",
             "hideAllCancel":"隐藏所有已撤销",
             "startTime":"开始时间",
-            "endTime":"结束时间"
+            "endTime":"结束时间",
+            "hideZero":"隐藏＜1 USD资产",
+            "hideZero2":"隐藏＜1 {coin}资产",
+            "hideOther":"隐藏其他交易对",
+            "hideCancel":"隐藏已撤销",
+            "search":"搜索",
+            "limit":"限价",
+            "market":"市价",
+            "stopLoss":"止盈止损"
+        },
+        "trade":{
+            "buy":"买入",
+            "sell":"卖出",
+            "price":"价格",
+            "amount":"数量",
+            "amount2":"成交额",
+            "fee":"手续费",
+            "available":"可用",
+            "canBuy":"可买"
         }
     }
 }

@@ -3,6 +3,7 @@ export const themeVariables = {
     light: {
         '--background': '#ffffff',
         '--theme-color': '#FF5F1F',
+        '--theme-shadow': '#FF5F1F4D',
         '--background2': 'rgb(245, 245, 245)',
         '--background3': '#ffffff',
         '--background4': '#0a0a0a',
@@ -71,6 +72,7 @@ export const themeVariables = {
     dark: {
         '--background': '#0a0a0a',
         '--theme-color': '#FF5F1F',
+        '--theme-shadow': '#FF5F1F4D',
         '--background2': '#0C0B19',
         '--background3': '#333333',
         '--background4': '#0a0a0a',

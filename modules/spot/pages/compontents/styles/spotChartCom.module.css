@@ -1,0 +1,140 @@
+.header_tip {
+    margin-top: 6px;
+}
+
+.tip_color {
+    color: var(--text-color6);
+}
+
+.card_bgc {
+    background-color: var(--background7);
+    border-radius: 8px;
+    padding: 24px 0;
+}
+
+.card_bgc2 {
+    background-color: var(--background14);
+    border-radius: 8px;
+}
+
+.success_icon {
+    color: #00C788;
+}
+
+.error_icon {
+    color: #F73710;
+}
+
+.warning_color {
+    color: #FF5F1F;
+}
+
+.default_icon {
+    color: #A4A5AC;
+}
+
+.theme_color {
+    color: var(--theme-color);
+}
+
+.warning_box {
+    color: var(--waring-color);
+    background-color: var(--waring-bg);
+    padding: 12px 10px;
+    border-radius: 8px;
+}
+
+.btn_style {
+    /* box-shadow: 0px 4px 18px 0px #FF5F1F4D; */
+    box-shadow: 0px 4px 18px 0px var(--theme-shadow);
+    border-radius: 5px;
+    padding: 4px 14px;
+}
+
+.tip_color {
+    color: var(--text-color6);
+}
+
+.tip_color2 {
+    color: var(--tip-color2);
+}
+
+.title_color {
+    color: var(--text-color5)
+}
+
+.strong_color {
+    color: var(--btncolor5)
+}
+
+.input_box {
+    width: 188px !important;
+    height: 40px;
+    background: var(--background7) !important;
+    color: var(--text-color6) !important;
+}
+
+.select_box {
+    width: 200px;
+    height: 40px !important;
+    min-width: 250px;
+    color: var(--text-color6) !important;
+    background: var(--background7) !important;
+}
+
+.header_content_item {
+    width: 30%;
+}
+
+.rowExpanded_table_box {
+    background-color: var(--background10);
+    margin: 0 20px;
+    border-radius: 8px;
+    padding: 12px 0;
+}
+
+
+
+.table_header_checkbox {
+    position: absolute;
+    /* top: -140px; */
+    top: -72px;
+    right: 24px;
+    /* width: 100%;
+    height: 100%; */
+}
+
+.table_header_checkbox2 {
+    position: absolute;
+    top: -72px;
+    right: 24px;
+}
+.table_header_checkbox3 {
+    position: absolute;
+    top: -74px;
+    right: 24px;
+}
+@media (max-width: 680px) {
+    .card_mt {
+        margin-top: 24px;
+    }
+
+    .header_content_item {
+        width: 50%;
+    }
+
+}
+
+@media (max-width: 980px) {
+    .table_header_checkbox ,
+    .table_header_checkbox2,
+    .table_header_checkbox3{
+        position: static;
+        top: auto;
+        left: auto;
+        justify-content: flex-start;
+    }
+}
+
+
+/* @media (min-width: 1680px) {} */

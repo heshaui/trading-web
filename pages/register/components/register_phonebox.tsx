@@ -269,7 +269,7 @@ function RegisterPhone() {
 						}}
 					>
 						<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
-							<Checkbox className="custom-checkbox  text-color-default mt-5" >
+							<Checkbox className="custom-checkbox  text-color-default " >
 							<p className={`${styles.title_color}`}>
 								我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span>
 								</p>
