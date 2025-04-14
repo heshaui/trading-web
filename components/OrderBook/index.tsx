@@ -9,58 +9,140 @@ interface Order {
   total: number;
 }
 
-// 随机生成订单数据的函数
-const generateRandomOrders = (count: number, priceBase: number, isSell: boolean) => {
-  const orders = [];
-  const priceRange = isSell ? [priceBase, priceBase + 100] : [priceBase - 100, priceBase];
+interface OrderBookProps {
+  data: any;
+}
+
+const OrderBook = ({ data }: OrderBookProps) => {
   
-  for (let i = 0; i < count; i++) {
-    const price = Number(
-      (Math.random() * (priceRange[1] - priceRange[0]) + priceRange[0]).toFixed(1)
-    );
-    const amount = Number((Math.random() * 10).toFixed(6)); // 数量在 0-10 之间
-    const total = Number((price * amount).toFixed(2)); // 总计 = 价格 * 数量
-
-    orders.push({ price, amount, total });
-  }
-
-  // 按价格排序：卖单升序，买单降序
-  return orders.sort((a, b) => (isSell ? a.price - b.price : b.price - a.price));
-};
-
-const OrderBook = () => {
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [buyRatio, setBuyRatio] = useState(0);
   const [sellRatio, setSellRatio] = useState(0);
+  const [activeTab, setActiveTab] = useState('orderbook');
+  const [priceScale, setPriceScale] = useState('0.1');
+  const [colorMode, setColorMode] = useState(1);
 
   useEffect(() => {
-    // 初始化当前价格（随机生成一个基准价格）
-    const basePrice = Math.random() * 1000 + 76000; // 价格在 76000-77000 之间
-    setCurrentPrice(Number(basePrice.toFixed(1)));
+    // 确保data存在且包含depth数据结构
+    if (data && data.asks && data.bids) {
+      // 处理卖单数据 - 需要合并相同价格的订单
+      const askMap = new Map<number, number>();
+      data.asks.forEach((item: [number, number]) => {
+        const price = item[0];
+        const amount = item[1];
+        
+        // 对相同价格的订单进行数量累加
+        if (askMap.has(price)) {
+          askMap.set(price, askMap.get(price)! + amount);
+        } else {
+          askMap.set(price, amount);
+        }
+      });
+      
+      // 转换为订单列表格式
+      const processedSellOrders = Array.from(askMap.entries()).map(([price, amount]) => {
+        const total = price * amount;
+        return { price, amount, total };
+      }).sort((a: Order, b: Order) => a.price - b.price); // 卖单按价格升序排列
+      
+      // 处理买单数据 - 需要合并相同价格的订单
+      const bidMap = new Map<number, number>();
+      data.bids.forEach((item: [number, number]) => {
+        const price = item[0];
+        const amount = Math.abs(item[1]); // 取绝对值，买单数量为负数
+        
+        // 对相同价格的订单进行数量累加
+        if (bidMap.has(price)) {
+          bidMap.set(price, bidMap.get(price)! + amount);
+        } else {
+          bidMap.set(price, amount);
+        }
+      });
+      
+      // 转换为订单列表格式
+      const processedBuyOrders = Array.from(bidMap.entries()).map(([price, amount]) => {
+        const total = price * amount;
+        return { price, amount, total };
+      }).sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
+      
+      // 限制显示的订单数量，只显示前10个
+      setSellOrders(processedSellOrders.slice(0, 10));
+      setBuyOrders(processedBuyOrders.slice(0, 10));
+      
+      // 更新当前价格（使用中间价格）
+      if (processedSellOrders.length > 0 && processedBuyOrders.length > 0) {
+        const lowestAsk = processedSellOrders[0].price;
+        const highestBid = processedBuyOrders[0].price;
+        setCurrentPrice((lowestAsk + highestBid) / 2);
+      }
+      
+      // 计算买单和卖单比例
+      const totalBuyAmount = processedBuyOrders.reduce((sum, order) => sum + order.amount, 0);
+      const totalSellAmount = processedSellOrders.reduce((sum, order) => sum + order.amount, 0);
+      const total = totalBuyAmount + totalSellAmount;
+      
+      if (total > 0) {
+        const buyPercentage = (totalBuyAmount / total) * 100;
+        const sellPercentage = (totalSellAmount / total) * 100;
+        setBuyRatio(Number(buyPercentage.toFixed(2)));
+        setSellRatio(Number(sellPercentage.toFixed(2)));
+      }
+    }
+  }, [data]); // 当data变化时重新处理数据
 
-    // 生成随机买单和卖单
-    const generatedSellOrders = generateRandomOrders(10, basePrice, true); // 10 条卖单
-    const generatedBuyOrders = generateRandomOrders(10, basePrice, false); // 10 条买单
-    setSellOrders(generatedSellOrders as any);
-    setBuyOrders(generatedBuyOrders as any);
+  const renderColorModeButtons = () => {
+    const colorModes = [
+      { id: 1, buyColor: '#00c788', sellColor: '#ff6347' },
+      { id: 2, buyColor: '#00c788', sellColor: '#999' },
+      { id: 3, buyColor: '#999', sellColor: '#ff6347' },
+      { id: 4, buyColor: '#00c788', sellColor: '#00c788' },
+      { id: 5, buyColor: '#ff6347', sellColor: '#ff6347' },
+      { id: 6, buyColor: '#ff6347', sellColor: '#00c788' },
+    ];
 
-    // 计算买单和卖单比例
-    const totalBuyAmount = generatedBuyOrders.reduce((sum, order) => sum + order.amount, 0);
-    const totalSellAmount = generatedSellOrders.reduce((sum, order) => sum + order.amount, 0);
-    const total = totalBuyAmount + totalSellAmount;
-    const buyPercentage = (totalBuyAmount / total) * 100;
-    const sellPercentage = (totalSellAmount / total) * 100;
-    setBuyRatio(Number(buyPercentage.toFixed(2)));
-    setSellRatio(Number(sellPercentage.toFixed(2)));
-  }, []);
+    return (
+      <div className={styles.colorModes}>
+        {colorModes.map((mode) => (
+          <div 
+            key={mode.id} 
+            className={`${styles.colorMode} ${colorMode === mode.id ? styles.active : ''}`}
+            onClick={() => setColorMode(mode.id)}
+          >
+            <div className={styles.colorTop} style={{ backgroundColor: mode.sellColor }}></div>
+            <div className={styles.colorBottom} style={{ backgroundColor: mode.buyColor }}></div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>订单簿</h1>
-        <select className={styles.dropdown}>
+      <div className={styles.tabContainer}>
+        <div 
+          className={`${styles.tab} ${activeTab === 'orderbook' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('orderbook')}
+        >
+          盘口
+        </div>
+        <div 
+          className={`${styles.tab} ${activeTab === 'trades' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('trades')}
+        >
+          最新成交
+        </div>
+      </div>
+      
+      <div className={styles.toolbar}>
+        {renderColorModeButtons()}
+        
+        <select 
+          className={styles.dropdown}
+          value={priceScale}
+          onChange={(e) => setPriceScale(e.target.value)}
+        >
           <option value="0.1">0.1</option>
           <option value="1">1</option>
           <option value="10">10</option>
@@ -68,61 +150,86 @@ const OrderBook = () => {
       </div>
 
       <div className={styles.labels}>
-        <span>价格(USDT)</span>
+        <span>价格(USDT) <span className={styles.sortIcon}>⇅</span></span>
         <span>数量(BTC)</span>
-        <span>总计(USDT)</span>
+        <span>总额(USDT) <span className={styles.sortIcon}>⇅</span></span>
       </div>
 
       {/* 卖单 */}
       <div className={styles.orderList}>
-        {sellOrders.map((order, index) => (
-          <div key={index} className={`${styles.orderRow} ${styles.sell}`}>
-            <span>{order.price.toLocaleString()}</span>
-            <span>{order.amount.toFixed(6)}</span>
-            <span>{order.total.toLocaleString()}</span>
-            <div
-              className={styles.background}
-              style={{
-                width: `${(order.total / Math.max(...sellOrders.map(o => o.total))) * 100}%`,
-                backgroundColor: 'rgba(255, 99, 71, 0.2)',
-              }}
-            />
-          </div>
-        ))}
+        {sellOrders.map((order, index) => {
+          const percentWidth = (order.total / Math.max(...sellOrders.map(o => o.total))) * 100;
+          return (
+            <div key={index} className={`${styles.orderRow} ${styles.sell}`}>
+              <span className={styles.price}>{order.price.toFixed(1)}</span>
+              <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+              <div className={styles.totalColumn}>
+                <div 
+                  className={styles.background}
+                  style={{ width: `${percentWidth}%` }}
+                />
+                <span className={styles.total}>
+                  {order.total > 10000 
+                    ? `${(order.total/10000).toFixed(2)}万` 
+                    : order.total.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* 当前价格 */}
       <div className={styles.currentPrice}>
-        <span>{currentPrice.toLocaleString()}</span>
-        <span>${currentPrice.toLocaleString()}</span>
+        <div className={styles.priceContainer}>
+          <span className={styles.priceValue}>{currentPrice.toFixed(2)}</span>
+          <span className={styles.priceChange}>↓</span>
+          <span className={styles.priceCny}>¥ {(currentPrice * 7.18).toFixed(1)}</span>
+        </div>
       </div>
 
       {/* 买单 */}
       <div className={styles.orderList}>
-        {buyOrders.map((order, index) => (
-          <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-            <span>{order.price.toLocaleString()}</span>
-            <span>{order.amount.toFixed(6)}</span>
-            <span>{order.total.toLocaleString()}</span>
-            <div
-              className={styles.background}
-              style={{
-                width: `${(order.total / Math.max(...buyOrders.map(o => o.total))) * 100}%`,
-                backgroundColor: 'rgba(50, 205, 50, 0.2)',
-              }}
-            />
-          </div>
-        ))}
+        {buyOrders.map((order, index) => {
+          const percentWidth = (order.total / Math.max(...buyOrders.map(o => o.total))) * 100;
+          return (
+            <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
+              <span className={styles.price}>{order.price.toFixed(1)}</span>
+              <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+              <div className={styles.totalColumn}>
+                <div 
+                  className={styles.background}
+                  style={{ width: `${percentWidth}%` }}
+                />
+                <span className={styles.total}>
+                  {order.total > 10000 
+                    ? `${(order.total/10000).toFixed(2)}万` 
+                    : order.total.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* 买单/卖单比例 */}
       <div className={styles.ratio}>
-        <div className={styles.buyRatio} style={{ width: `${buyRatio}%` }}>
-          B {buyRatio}%
+        <div className={styles.buyBox}>B</div>
+        <div className={styles.ratioBar}>
+          <div 
+            className={styles.buyRatio} 
+            style={{ width: `${buyRatio}%` }}
+          >
+            <span className={styles.buyPercent}>{buyRatio}%</span>
+          </div>
+          <div 
+            className={styles.sellRatio} 
+            style={{ width: `${sellRatio}%` }}
+          >
+            <span className={styles.sellPercent}>{sellRatio}%</span>
+          </div>
         </div>
-        <div className={styles.sellRatio} style={{ width: `${sellRatio}%` }}>
-          S {sellRatio}%
-        </div>
+        <div className={styles.sellBox}>S</div>
       </div>
     </div>
   );

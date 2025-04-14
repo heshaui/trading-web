@@ -2,40 +2,52 @@
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 
-const DepthChart = () => {
-  // 示例数据（买卖深度数据）
-  const bids = [
-    [10.0, 100],
-    [9.9, 200],
-    [9.8, 300],
-    [9.7, 400],
-    [9.6, 500],
-  ];
+interface DepthChartProps { 
+  data: any;
+}
 
-  const asks = [
-    [10.1, 100],
-    [10.2, 200],
-    [10.3, 300],
-    [10.4, 400],
-    [10.5, 500],
-  ];
+const DepthChart = ({ data }: DepthChartProps) => {
 
-  // 计算中间价格（买卖盘的交界处）
-  const midPrice = (bids[0][0] + asks[0][0]) / 2;
+
   
-  // 处理数据：计算累积量
-  const processData = (data:any, isBid:any) => {
+  // 检查数据是否有效
+  if (!data || !data.bids || !data.asks || !data.bids.length || !data.asks.length) {
+    return (
+      <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        等待深度数据加载...
+      </div>
+    );
+  }
+  
+  // 处理相同价格的情况：为每个价格点添加更小的偏移，使其可见但间距更小
+  const processDataWithOffset = (data: any, isBid: boolean) => {
     let total = 0;
-    return data
-      .sort((a: any, b: any) => isBid ? b[0] - a[0] : a[0] - b[0])
-      .map((item: any) => {
-        total += item[1];
-        return [item[0], total];
-      });
+    let lastPrice = 0;
+    
+    return data.map((item: any, index: number) => {
+      // 确保买单数量始终为正数用于计算
+      const quantity = isBid ? Math.abs(item[1]) : item[1];
+      total += quantity;
+      
+      // 如果价格相同，添加微小偏移，减小偏移量以使点更紧凑
+      let price = item[0];
+      if (price === lastPrice) {
+        // 买单向左偏移，卖单向右偏移，偏移量减小10倍
+        price = isBid ? price - index * 0.05 : price + index * 0.05;
+      }
+      lastPrice = item[0]; // 保存原始价格
+      
+      return [price, total];
+    }).sort((a: any, b: any) => isBid ? b[0] - a[0] : a[0] - b[0]);
   };
 
-  const processedBids = processData(bids, true);
-  const processedAsks = processData(asks, false);
+  const processedBids = processDataWithOffset(data.bids, true);
+  const processedAsks = processDataWithOffset(data.asks, false);
+  
+  // 计算基准价格和x轴显示范围
+  const basePrice = 50000;
+  const minPrice = basePrice - 20; // 控制x轴最小值
+  const maxPrice = basePrice + 20; // 控制x轴最大值
 
   // ECharts 配置项
   const option = {
@@ -47,11 +59,15 @@ const DepthChart = () => {
       trigger: 'axis',
       formatter: (params:any) => {
         const data = params[0].data;
-        return `价格: ${data[0]}<br/>累积量: ${data[1]}`;
+        return `价格: ${data[0].toFixed(2)}<br/>累积量: ${data[1].toFixed(4)}`;
       },
       axisPointer: {
         type: 'cross'
       }
+    },
+    legend: {
+      data: ['买盘', '卖盘'],
+      top: 30
     },
     grid: {
       left: '3%',
@@ -62,9 +78,11 @@ const DepthChart = () => {
     xAxis: {
       type: 'value',
       name: '价格',
-      axisLabel: {
-        formatter: (value: number) => value.toFixed(2)
-      },
+      min: minPrice, // 设置x轴最小值
+      max: maxPrice, // 设置x轴最大值
+      // axisLabel: {
+      //   formatter: (value: number) => value.toFixed(2)
+      // },
       splitLine: {
         show: true,
         lineStyle: {
@@ -78,7 +96,7 @@ const DepthChart = () => {
     },
     yAxis: {
       type: 'value',
-      name: '',
+      name: '累积量',
       position: 'right',
       splitLine: {
         show: true,
@@ -88,17 +106,17 @@ const DepthChart = () => {
         }
       },
       axisTick: {
-        show: false  // 隐藏刻度线
+        show: false
       },
       axisLine: {
-        show: false  // 隐藏轴线
+        show: false
       },
       axisLabel: {
         formatter: (value:any) => {
           if (value >= 1000) {
             return (value / 1000).toFixed(2) + 'K';
           }
-          return value;
+          return value.toFixed(2);
         }
       }
     },
@@ -107,7 +125,7 @@ const DepthChart = () => {
         name: '买盘',
         type: 'line',
         data: processedBids,
-        step: 'end',
+        step: 'start',
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(0, 255, 0, 0.5)' },
@@ -146,7 +164,7 @@ const DepthChart = () => {
           symbol: 'none',
           data: [
             {
-              xAxis: midPrice,
+              xAxis: basePrice,
               lineStyle: {
                 color: '#999',
                 type: 'dashed'
@@ -154,7 +172,7 @@ const DepthChart = () => {
             }
           ],
           label: {
-            formatter: '{c}'
+            show: false
           }
         },
         data: []

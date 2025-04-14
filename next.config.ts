@@ -97,6 +97,7 @@ const nextConfig: NextConfig = {
         source: "/ambit-assets-web/:path*", // 匹配所有 zs/xxx 请求
         destination: "http://ljx.imbit.work/ambit-assets-web/:path*" // 代理到目标服务器
       },
+      
     ];
   },
   i18n,
