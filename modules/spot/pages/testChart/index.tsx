@@ -6,7 +6,7 @@ import OrderBook from '@/components/OrderBook';
 import WebSocketService from '@/utils/websocket';
 
 // 创建 websocket 实例
-const websocket = new WebSocketService('ws://ws80.imsaas.work/ws');
+const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
 
 const TestChart = () => {
 
@@ -27,7 +27,7 @@ const TestChart = () => {
 
     // 使用fetch请求http://ws81.imsaas.work接口
     const fetchDataFromHttp = async () => {
-        const symbols = 'BTC_USDT_1';
+        const symbols = 'BTC_USDT_1m';
         try {
             const response = await fetch(`http://ws81.imsaas.work/depth/${symbols}`);
             const data = await response.json();
@@ -40,12 +40,10 @@ const TestChart = () => {
     };
 
     useEffect(() => {
-        // 先获取HTTP数据，只请求一次
-        fetchDataFromHttp();
-        
+        // fetchDataFromHttp();
         // 在获取HTTP数据后，再连接WebSocket并处理消息
         websocket.connect((message: string) => {
-            console.log("接收message",message);
+            // console.log("接收message",message);
             try {
                 // 检查是否为订阅确认消息
                 if (message.startsWith('Subscribed to')) {
@@ -55,7 +53,13 @@ const TestChart = () => {
                 
                 // 处理JSON数据
                 const data = JSON.parse(message);
-                // setDepthChartData(data);
+                // console.log("WebSocket收到的原始数据:", data);
+                
+                setKlineData(prevData => {
+                    const newData = Array.isArray(data) ? [...prevData, ...data] : [...prevData, data];
+                    // console.log("更新后的klineData将是:", newData);
+                    return newData;
+                });
             } catch (error) {
                 // 处理非JSON格式消息
                 setStatusMessage(message);
@@ -63,10 +67,7 @@ const TestChart = () => {
             }
         });
         
-        // 连接后立即发送订阅消息，使用新的格式
-        setTimeout(() => {
-            sendSubscription([["BTC_USDT", 1]], ["kline"]);
-        }, 1000);
+
 
         // 组件卸载时关闭连接
         return () => {
@@ -74,23 +75,24 @@ const TestChart = () => {
         };
     }, []);
 
+    // 添加这个useEffect来监听klineData变化
+    useEffect(() => {
+        console.log("klineData更新了:", klineData);
+    }, [klineData]);
+
     return <div>
         <button onClick={() => {
-            sendSubscription([["BTC_USDT", 1]], ["kline"]);
         }}>
             获取k线数据
         </button>
-        <KlineChart data={klineData} />
-        <Tradingview data={tradingviewData} />
-        <DepthChart data={depthChartData} />
-        <OrderBook data={depthChartData} />
+     <KlineChart socketData={klineData} />
+        {/* {klineData.length > 0 && (
+            
+        )} */}
+
+            <Tradingview data={klineData} />
         
-        {httpData && (
-            <div>
-                <h3>HTTP数据（ws81.imsaas.work）</h3>
-                <pre>{JSON.stringify(httpData, null, 2)}</pre>
-            </div>
-        )}
+       
        
     </div>;
 };
