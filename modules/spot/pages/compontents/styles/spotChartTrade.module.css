@@ -17,6 +17,13 @@
     padding: 4px 14px;
     min-width: 88px;
 }
+.sumbit_btn{
+    width: 100%;
+    height: 50px;
+    border-radius: 32px;
+    background-color: #00C788;
+    color: #fff;
+}
 
 .tip_color1 {
     color: var(--text-color4);
