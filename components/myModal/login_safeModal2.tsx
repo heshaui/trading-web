@@ -56,6 +56,10 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
+    const [codeInputValue, setCodeInputValue] = useState('');
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
     const { t } = useTranslation('login');
     // 添加 useAuth 钩子
     const { login } = useAuth();
@@ -71,8 +75,26 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         phone: ''
     });
 
+    // 清除定时器的函数
+    const clearTimers = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+        if (timer2Ref.current) {
+            clearInterval(timer2Ref.current);
+            timer2Ref.current = null;
+        }
+        // 重置状态
+        setCountdown(0);
+        setCountdown2(0);
+        setIsCounting(false);
+        setIsCounting2(false);
+    };
+
     const handCancel = () => {
-        onCancel()
+        clearTimers();
+        onCancel();
     };
     // 获取浏览器指纹
     const getFingerprint = async () => {
@@ -80,6 +102,27 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         const visitorId = await result.get();
         console.log(visitorId);
         return visitorId.visitorId;
+    };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        if (type === 'code') {
+            setCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        } else if (type === 'phoneCode') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        } else if (type === 'emailCode') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if (type === 'google') {
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
     };
     const handOk = async () => {
         form.validateFields()
@@ -97,8 +140,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             password: acountInfo.password,
                             authCodeMail: values.code,
 
-                            authCodeGoogle: values.googleCode||'',
-                            authCodePhone: values.phoneCode||''
+                            authCodeGoogle: values.googleCode || '',
+                            authCodePhone: values.phoneCode || ''
                         }
 
                     } else if (acountInfo.type === 'p') {
@@ -110,8 +153,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             authCodePhone: values.code,
                             countryCode: acountInfo.countryCode,
 
-                            authCodeMail: values.code||'',
-                            authCodeGoogle: values.googleCode||'',
+                            authCodeMail: values.emailCode || '',
+                            authCodeGoogle: values.googleCode || '',
 
                         }
                     }
@@ -175,9 +218,9 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         try {
             const res = await getLoginCheck(dataEncrypt)
             if (res.code === "0") {
-                if(res.data.message){
+                if (res.data.message) {
                     toast.success(res.data.message)
-                }else{
+                } else {
                     toast.success(res.message)
                 }
                 clearTimers()
@@ -256,17 +299,6 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const getLoginCode2 = async () => {
         getLoginCheckList()
     }
-    // 清除定时器的函数
-    const clearTimers = () => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-        if (timer2Ref.current) {
-            clearInterval(timer2Ref.current);
-            timer2Ref.current = null;
-        }
-    };
     const startCountdown = (count: number) => {
         if (count === 0) return;
 
@@ -323,55 +355,24 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         }
     }
     useEffect(() => {
-        if (!open) return;
-
-        // 检查账户信息是否发生变化
-        const accountChanged =
-            prevAccountRef.current.type !== acountInfo.type ||
-            (acountInfo.type === 'm' && prevAccountRef.current.email !== acountInfo.email) ||
-            (acountInfo.type === 'p' && prevAccountRef.current.phone !== acountInfo.phone);
-
-        // 如果账户信息发生变化
-        if (accountChanged) {
-            // 清除现有的定时器
+        if (!open) {
             clearTimers();
-
-            // 重置状态
-            setCountdown(0);
-            setCountdown2(0);
-            setIsCounting(false);
-            setIsCounting2(false);
-
-            // 使用新的时间开始倒计时
-            if (acountInfo.type === 'm') {
-                startCountdown(acountInfo?.emailTime || 0);
-                startCountdown2(acountInfo?.phoneTime || 0);
-                // startCountdown(60);
-                // startCountdown2(60);
-            } else if (acountInfo.type === 'p') {
-                startCountdown(acountInfo?.phoneTime || 0);
-                startCountdown2(acountInfo?.emailTime || 0);
-                // startCountdown(60);
-                // startCountdown2(60);
-            }
-
-            // 更新上一次的账户信息
-            prevAccountRef.current = {
-                type: acountInfo.type,
-                email: acountInfo.email || '',
-                phone: acountInfo.phone || ''
-            };
+            return;
         }
-    // }, [open]);
-}, [open, acountInfo.type, acountInfo.email, acountInfo.phone, acountInfo.emailTime, acountInfo.phoneTime]);
 
-    // 组件卸载时的清理
-    useEffect(() => {
+        // 使用新的时间开始倒计时
+        if (acountInfo.type === 'm') {
+            startCountdown(acountInfo?.emailTime || 0);
+            startCountdown2(acountInfo?.phoneTime || 0);
+        } else if (acountInfo.type === 'p') {
+            startCountdown(acountInfo?.phoneTime || 0);
+            startCountdown2(acountInfo?.emailTime || 0);
+        }
+
         return () => {
-            // 组件卸载时清除定时器，但保持状态
             clearTimers();
         };
-    }, []);
+    }, [open, acountInfo.type, acountInfo.emailTime, acountInfo.phoneTime]);
 
     const ModalFooter: ModalProps["footer"] = () => {
         return (
@@ -437,7 +438,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 title={
                     <p className={`${styles.title_color}`}>
                         {/* 安全验证 */}
-                        {t('safeModal.title')}{acountInfo.type}
+                        {t('safeModal.title')}
                     </p>
                 }
                 centered
@@ -474,6 +475,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             className={`${styles.input_box} modal-input`}
                             style={{ width: "100%", height: "40px" }}
                             placeholder={t('safeModal.inputPlaceholder')}
+                            value={codeInputValue}
+                            onChange={(e) => handleInputChange(e, 'code')}
                             allowClear
                             suffix={
                                 <button
@@ -488,9 +491,10 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                     }
                                 </button>
                             }
+                            maxLength={6}
                         />
                     </Form.Item>
-                    {acountInfo.isGoogleAuth === 1 && <>
+                    {(acountInfo.isGoogleAuth === 1 || (acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1)) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
                         <Form.Item
                             name="googleCode"
@@ -502,10 +506,13 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 style={{ width: "100%", height: "40px" }}
                                 placeholder={t('safeModal.inputPlaceholder')}
                                 allowClear
+                                maxLength={6}
+                                value={googleCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'google')}
                             />
                         </Form.Item>
                     </>}
-                    {(acountInfo.type === 'm' && acountInfo.isPhoneAuth === 1 && acountInfo.isGoogleAuth === 0) && <>
+                    {(acountInfo.type === 'm' && ((acountInfo.isPhoneAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1))) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
                         <Form.Item
                             name="phoneCode"
@@ -517,6 +524,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 style={{ width: "100%", height: "40px" }}
                                 placeholder={t('safeModal.inputPlaceholder')}
                                 allowClear
+                                value={phoneCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'phoneCode')}
                                 suffix={
                                     <button
                                         type="button"
@@ -530,13 +539,14 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                         }
                                     </button>
                                 }
+                                maxLength={6}
                             />
                         </Form.Item>
                     </>}
-                    {(acountInfo.type === 'p' && acountInfo.isEmailAuth === 1 && acountInfo.isGoogleAuth === 0) && <>
+                    {(acountInfo.type === 'p' && ((acountInfo.isEmailAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1))) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                         <Form.Item
-                            name="phoneCode"
+                            name="emailCode"
                             rules={[{ required: true, message: t('safeModal.codeNull') }]}
                             className="position-relative"
                         >
@@ -558,6 +568,9 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                         }
                                     </button>
                                 }
+                                value={emailCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'emailCode')}
+                                maxLength={6}
                             />
                         </Form.Item>
                     </>}

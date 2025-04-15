@@ -100,7 +100,7 @@ export const themeVariables = {
         '--hometext3': '#FFFFFF',
         '--btncolor': '#373949',
         '--btncolor2': '#ffffff',
-        '--btncolor3': '#1B1E30',
+        '--btncolor3': '#1E1E20',
         '--btncolor4': 'linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%)',
         '--btncolor5': '#FF5F1F',
         '--btncolor6': '#333333',

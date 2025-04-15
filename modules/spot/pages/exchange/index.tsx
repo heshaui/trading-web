@@ -84,19 +84,6 @@ const ExchangePage = () => {
     const [timeInterval, setTimeInterval] = useState('15m');
     const [fullscreen, setFullscreen] = useState(false);
 
-    const fetchDataFromHttp = async () => {
-        const symbols = 'BTC_USDT_1m';
-        try {
-            const response = await fetch(`http://ws81.imsaas.work/depth/${symbols}`);
-            const data = await response.json();
-            console.log("data", data);
-
-            console.log('HTTP数据获取成功:', data);
-        } catch (error) {
-            console.error('获取HTTP数据时出错:', error);
-        }
-    };
-
     const getKlineData = () => {
         setLoading(true);
         const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
@@ -131,7 +118,7 @@ const ExchangePage = () => {
     }
 
     const getDepthData = () => {
-        fetchDataFromHttp();
+
         const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/BTC_USDT_1@depth');
 
         websocket.connect((message: string) => {
@@ -147,7 +134,7 @@ const ExchangePage = () => {
                 const data = JSON.parse(message);
                  console.log("getDepthData收到的原始数据:", data);
 
-                setDepthChartData(prevData => {
+                setDepthChartData((prevData: any[]) => {
                     const newData = Array.isArray(data) ? [...prevData, ...data] : [...prevData, data];
                     console.log("更新后的getDepthData:", newData);
                     return newData;
@@ -321,11 +308,13 @@ const ExchangePage = () => {
                                 <Spin spinning={loading} tip="加载中...">
                                     {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} timeInterval={timeInterval} />}
                                     {activeChartType === 'tradingview' && <Tradingview data={klineData} timeInterval={timeInterval} />}
-                                    {activeChartType === 'depth' && <DepthChart data={depthChartData} />}
+                                    {activeChartType === 'depth' && <DepthChart data={klineData} />}
                                 </Spin>
                             </div>
                         </div>
 
+
+>
                                 <OrderBook data={klineData} />
 
 
