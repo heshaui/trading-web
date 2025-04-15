@@ -126,10 +126,6 @@ const DepthChart = ({ data }: DepthChartProps) => {
 
   // ECharts 配置项
   const option = {
-    title: {
-      text: '市场深度图',
-      left: 'center'
-    },
     tooltip: {
       trigger: 'axis',
       formatter: (params:any) => {
