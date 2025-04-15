@@ -243,7 +243,7 @@ const ExchangePage = () => {
                                 </Button>
 
                                 <Space size="small" style={{ marginLeft: '16px' }}>
-                                    <Tooltip title="指标">
+                                    {/* <Tooltip title="指标">
                                         <Button type="text" icon={<Iconify icon="mdi:chart-line" />} />
                                     </Tooltip>
                                     <Tooltip title="画线工具">
@@ -266,7 +266,7 @@ const ExchangePage = () => {
                                     </Tooltip>
                                     <Tooltip title="刷新">
                                         <Button type="text" icon={<Iconify icon="mdi:refresh" />} />
-                                    </Tooltip>
+                                    </Tooltip> */}
                                 </Space>
                             </div>
 
