@@ -203,7 +203,7 @@ const ExchangePage = () => {
                     <Iconify icon="mingcute:settings-5-line" size={26} className={`${styles.tip_color}`} />
                 </div>
             </div>
-            {/* <div className={`flex ${styles.grid_layout} mb-1`}>
+            <div className={`flex ${styles.grid_layout} mb-1`}>
                 <div className={`flex-1`}>
 
                     <div className={`${styles.card_bgc3} w-full mb-1`}  style={{display:'flex'}}>
@@ -351,7 +351,7 @@ const ExchangePage = () => {
                         <SpotChartAssets />
                     </div>
                 </div>
-            </div> */}
+            </div> 
             <div className='flex flex-wrap'>
                 <div className={`${styles.card_bgc3} w-full mb-1 mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
 
