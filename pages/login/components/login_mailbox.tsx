@@ -282,7 +282,7 @@ function Mailbox() {
                     {/* 登录 */}
                     {t('loginButton')}
                 </button> :
-                    <button type="submit" className={`${styles.login_loading} w-full button-color mt-5`}>
+                    <button type="button" className={`${styles.login_loading} w-full button-color mt-5`}>
                         {/* 登录 */}
                         {t('loginButton')}
                     </button>}

@@ -39,6 +39,7 @@ function AuthCode() {
     const [sentCodeFlag, setSentCodeFlag] = useState(false);
     const [repeatModalOPen, setRepeatModalOPen] = useState(false); //重复账号弹窗
     const [loading, setLoading] = useState(false);
+    const [codeInputValue, setCodeInputValue] = useState('');
     const [requestMsg, setRequestMsg] = useState(t('authCodeForm.registerSuccess')); //'success' 
     const [toastType, setToastType] = useState('success');
     const registerInfo = store.registerInfo;
@@ -174,7 +175,7 @@ function AuthCode() {
         setLoginState(LoginStateEnum.REGISTER);
         setRegisterType(RegisterTypeEnum.EMAIL);
     }
-    const startCountdown = (count:number) => {
+    const startCountdown = (count: number) => {
         setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
@@ -199,6 +200,26 @@ function AuthCode() {
         store.clearUserToken()
         router.push('/login')
     }
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        setCodeInputValue(filteredValue);
+        form.setFieldsValue({ code: filteredValue });
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        // if (type === 'email') {
+        //     setEmailCodeInputValue(filteredValue);
+        //     form.setFieldsValue({ code: filteredValue });
+        // } else if (type === 'phone') {
+        //     setPhoneCodeInputValue(filteredValue);
+        //     form.setFieldsValue({ phoneCode: filteredValue });
+        // } else if (type === 'google') {
+        //     setGoogleCodeInputValue(filteredValue);
+        //     form.setFieldsValue({ googleCode: filteredValue });
+        // }
+    };
     useEffect(() => {
         // if (loginState == LoginStateEnum.Authcode && !loading&&!isCounting) {
         if (loginState == LoginStateEnum.Authcode) {
@@ -254,8 +275,8 @@ function AuthCode() {
                 //     remember: true,
                 // }}
                 >
-                    <Form.Item 
-                        name="code" 
+                    <Form.Item
+                        name="code"
                         rules={[{ required: true, message: t('authCodeForm.codeNull') }]}
                     >
                         <Input
@@ -263,13 +284,13 @@ function AuthCode() {
                             placeholder={t('authCodeForm.placeholder')}
                             // prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                             suffix={
-                                <button 
-                                    type='button' 
-                                    className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`} 
+                                <button
+                                    type='button'
+                                    className={isCounting ? `${styles.tip_color1_input}` : `${styles.text_color}`}
                                     onClick={getRegisterCode}
                                 >
                                     {/* 重新发送/60s 重发 */}
-                                    {isCounting 
+                                    {isCounting
                                         ? `${countdown}${t('authCodeForm.resendCountdown')}`
                                         : t('authCodeForm.resend')
                                     }
@@ -277,6 +298,9 @@ function AuthCode() {
                             }
                             className={`${styles.authcode_input} ${styles.mail_input} modal-input`}
                             style={{ borderRadius: "8px" }}
+                            onChange={handleInputChange}
+                            value={codeInputValue}
+                            maxLength={6}
                         />
                         {/* <button className='text-color mt-1'>粘贴</button> */}
                     </Form.Item>
@@ -291,9 +315,9 @@ function AuthCode() {
                     {/* 上一步 */}
                     {t('authCodeForm.prevStep')}
                 </button>
-                <button 
-                    type='submit' 
-                    className={`btn-color ${styles.submit_btn}`} 
+                <button
+                    type='submit'
+                    className={`btn-color ${styles.submit_btn}`}
                     onClick={onSubmit}
                 >
                     {/* 提交 */}
@@ -311,17 +335,17 @@ function AuthCode() {
                 </button>
             </div>
 
-            <QuestionModal 
-                open={pointout} 
+            <QuestionModal
+                open={pointout}
                 type={registerInfo.type}
                 acount={
                     registerInfo.type === "m" ? (registerInfo.email || "") :
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
-                } 
-                onOk={() => setPointout(false)} 
-                onCancel={handCodeOk} 
+                }
+                onOk={() => setPointout(false)}
+                onCancel={handCodeOk}
             />
-            <RepeatModal 
+            <RepeatModal
                 open={repeatModalOPen}
                 type={toastType}
                 message={requestMsg}
@@ -330,7 +354,7 @@ function AuthCode() {
                         registerInfo.type === "p" ? (registerInfo.phone || "") : ""
                 }
                 onCancel={handCancel}
-                onOk={() => goLoginPage()} 
+                onOk={() => goLoginPage()}
             />
         </div>
     );

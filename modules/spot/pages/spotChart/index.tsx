@@ -104,14 +104,42 @@ const SpotOrderPage = () => {
                 },
             }}
         >
-            <div className={`${styles.card_bgc} w-full mb-1`}>
-                header
-
+            <div className={`${styles.card_bgc} w-full mb-1  flex-x align-center`}>
+                <Select options={[]} />
+                <ul className={`${styles.tip_color} ${styles.header_content_msg} font-14 font-w-400 flex-x align-center  ml-5 flex-1`}>
+                    <li className='mr-9'>
+                        <p className={`${styles.error_icon} font-16`}>27056.20</p>
+                        <p>¥183,982.10</p>
+                    </li>
+                    <li className='mr-9'>
+                        <p >24H  涨跌</p>
+                        <p className={`${styles.success_icon} font-14`}>+7,156.36 +7.46%</p>
+                    </li>
+                    <li className='mr-9'>
+                        <p >24H 最高价</p>
+                        <p className={`${styles.title_color}`}>27,659.60</p>
+                    </li>
+                    <li className='mr-9'>
+                        <p >24H 最低价</p>
+                        <p className={`${styles.title_color}`} >26,857.90</p>
+                    </li>
+                    <li className='mr-9'>
+                        <p >24H 成交量(BTC)</p>
+                        <p className={`${styles.title_color}`} >3,667.17</p>
+                    </li>
+                    <li className='mr-9'>
+                        <p >24H 交易额(USDT)</p>
+                        <p  className={`${styles.title_color}`}>1.00亿</p>
+                    </li>
+                </ul>
+                <div className='flex-cc'>
+                    <Iconify icon="mingcute:settings-5-line" size={26} className={`${styles.tip_color}`} />
+                </div>
             </div>
-            <div className={`flex ${styles.grid_layout} mb-1`}>
+            {/* <div className={`flex ${styles.grid_layout} mb-1`}>
                 <div className={`flex-1`}>
 
-                    <div className={`${styles.card_bgc3} w-full mb-1`} style={{ height: '45vh' }}>
+                    <div className={`${styles.card_bgc3} w-full mb-1`} style={{ minHeight: '57.5vh' }}>
 
                         图表
                     </div>
@@ -120,17 +148,32 @@ const SpotOrderPage = () => {
                     </div>
                 </div>
 
-                {/* Second row: Assets and Deposit */}
                 <div className={` ${styles.grid_item} `}>
 
 
-                    <div className={`${styles.card_bgc} mb-1`} style={{ height: '45vh' }}>
+                    <div className={`${styles.card_bgc} mb-1`} >
 
                         <SpotChartTrade />
                     </div>
-                    <div className={`${styles.card_bgc1} flex-1 `} style={{height:'calc(100% - 45vh)'}}>
+                    <div className={`${styles.card_bgc1} flex-1 `} >
                         <SpotChartAssets />
                     </div>
+                </div>
+            </div> */}
+            <div className='flex flex-wrap'>
+                <div className={`${styles.card_bgc3} w-full mb-1 mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
+
+                    图表
+                </div>
+                <div className={`${styles.card_bgc} mb-1 flex-1`} >
+
+                    <SpotChartTrade />
+                </div>
+                <div className={`${styles.card_bgc1} mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
+                    <SpotChartTables />
+                </div>
+                <div className={`${styles.card_bgc1} flex-1 `} >
+                    <SpotChartAssets />
                 </div>
             </div>
         </ConfigProvider>
