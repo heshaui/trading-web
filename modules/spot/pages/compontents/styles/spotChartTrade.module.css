@@ -43,9 +43,13 @@
     border: 1px solid #00C788;
     border-radius: 36px !important;
 }
+.segmented_box_red{
+    border: 1px solid #FF4D4F;
+    border-radius: 36px !important;
+}
 .segmented_label{
-    padding: 12px 24px;
-    min-width: 125px;
+    padding: 12px 32px;
+    min-width: 138px;
 }
 /* 输入框组件 */
 .mail_input{
@@ -76,7 +80,6 @@
 .mail_input:hover{
     border-color: var(--text-color3);
 }
-
 
 
 

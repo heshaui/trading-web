@@ -49,7 +49,8 @@
             "search":"搜索",
             "limit":"限价",
             "market":"市价",
-            "stopLoss":"止盈止损"
+            "stopLoss":"止盈止损",
+            "placeholder":"请选择"
         },
         "trade":{
             "buy":"买入",

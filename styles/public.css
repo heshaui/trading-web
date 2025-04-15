@@ -32,6 +32,11 @@
   color: var( --text-color5);
   background-color: var(--background14);
 }
+.green_btn {
+  border-radius: 32px;
+  background-color: #00C788;
+  color: #fff;
+}
 .success_icon {
   color: #00C788;
 }

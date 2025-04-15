@@ -1,5 +1,6 @@
 .page_box{
-    background: var(--background6);
+    /* background: var(--background6); */
+    background: var(--background16);
 }
 .header_tip {
     margin-top: 6px;
@@ -10,20 +11,25 @@
 }
 
 .card_bgc {
-    background-color: var(--background7);
+    background-color: var(--background9);
     /* border-radius: 8px; */
     padding: 20px;
 }
 .card_bgc1{
-    background-color: var(--background7);
+    background-color: var(--background9);
 }
 .card_bgc2{
-    background-color: var(--background14);
+    background-color: var(--background9);
     padding: 24px 16px;
 }
+
 .card_bgc3{
-    background-color: var(--background7);
+    background-color: var(--background9);
     padding: 0 20px;
+}
+.card_bgc4{
+    background-color: var( --homeground2); 
+    padding: 24px 16px;
 }
 
 .success_icon {
@@ -82,9 +88,9 @@
     color: var(--text-color6) !important;
 }
 .select_box {
-    width: 200px;
+    width: 165px;
     height: 40px !important;
-    min-width: 250px;
+    min-width:165px;
     color: var(--text-color6) !important;
     background: var(--background7) !important;
 }

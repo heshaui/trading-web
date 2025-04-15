@@ -310,7 +310,7 @@ export default function Footer() {
                 },
             }}
         >
-            <div className={styles.footerContainer}>
+            <div className={styles.footerContainer} style={{borderTop: '0.5px solid #37373A' }}>
                 <div className={styles.logoAndButton}>
                     <div className={styles.logo}>
                         <Image

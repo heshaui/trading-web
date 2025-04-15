@@ -19,6 +19,8 @@
   --background12: #ffffff;
   --background13: #0C0D0C;
   --background14: #F5F5F5;
+  --background15: #ffffff;
+  --background16: #EBEBEC;
   --foreground: #171717;
   --homeground: #000000;
   --homeground2: #FFFFFF;
@@ -84,6 +86,8 @@
     --background12: #232328;
     --background13: #232328;
     --background14: #333333;
+    --background15: #37373A;
+    --background16: #4F4F4F;
     --foreground: #ededed;
     --homeground: #000000;
     --homeground2: #000000;

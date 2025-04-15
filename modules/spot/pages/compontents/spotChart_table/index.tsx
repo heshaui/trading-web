@@ -1,15 +1,9 @@
 import React from 'react';
-import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../styles/spotChartCom.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Form ,Tabs} from 'antd';
-import { Iconify } from "@/components/icon"
-import type { ColumnsType } from "antd/es/table";
-import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { TabsProps } from 'antd';
 import SpotOrderNow from './now_table'
 import SpotOrderHistory from './pastDeals_table'

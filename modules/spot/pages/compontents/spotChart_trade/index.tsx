@@ -1,5 +1,4 @@
 import React from 'react';
-import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../styles/spotChartTrade.module.css'
 import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button } from 'antd';
 import { Iconify } from "@/components/icon"
@@ -7,6 +6,7 @@ import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
+import BuyPage from './buy_page';
 
 interface DataType {
     id: number,
@@ -24,7 +24,7 @@ interface DataType {
 const SpotTradePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
-    const [value, setValue] = useState([0, 25, 50, 75, 100]);
+    const [segmentedvalue, setSegmentedValue] = useState('buy');
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -50,6 +50,9 @@ const SpotTradePage = () => {
             console.log(values,111);
         })
     }
+    const geSegmentedChange=(value: string | number)=>{
+        setSegmentedValue(value as string)
+    }
     return (<div className='flex-y align-center'>
         <ConfigProvider
             theme={{
@@ -57,7 +60,7 @@ const SpotTradePage = () => {
                     Segmented: {
                         itemColor: "var(--text-color4)", //未选中颜色
                         itemActiveBg: "transparent", //未选中背景色
-                        itemSelectedBg: "#00C788", //选中背景色
+                        itemSelectedBg: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F", //选中背景色
                         itemSelectedColor: "#fff", //选中颜色
                         trackBg: "transparent", //轨道背景色
                         itemHoverBg: "transparent", //鼠标悬停背景色
@@ -84,17 +87,20 @@ const SpotTradePage = () => {
                     },
                     Button: {
                         controlHeightLG: 50,
+                        defaultBg:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultColor: '#fff',
                         defaultActiveBg: '#fff',
-                        defaultActiveBorderColor: '#00C788',
-                        defaultActiveColor: '#00C788',
+                        defaultActiveBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultActiveColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                         defaultHoverBg: '#fff',
-                        defaultHoverBorderColor: '#00C788',
-                        defaultHoverColor: '#00C788',
+                        defaultHoverBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultHoverColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                     },
                 },
             }}
         >
-            <div className={`${styles.card_header} flex align-center`}>
+            <div className={`${styles.card_header} flex align-center mb-6`}>
                 <Segmented options={[
                     {
                         label: (
@@ -103,7 +109,7 @@ const SpotTradePage = () => {
                                 <div>{t('spot.trade.buy')}</div>
                             </div>
                         ),
-                        value: 'user1',
+                        value: 'buy',
                     },
                     {
                         label: (
@@ -111,29 +117,25 @@ const SpotTradePage = () => {
                                 <div>{t('spot.trade.sell')}</div>
                             </div>
                         ),
-                        value: 'user2',
+                        value: 'sell',
                     },
                 ]}
-                    className={`${styles.segmented_box} spot-segmented `} />
+                    className={`spot-segmented ${segmentedvalue === 'buy' ? styles.segmented_box : styles.segmented_box_red}`} 
+                    onChange={geSegmentedChange}
+                    defaultValue={'buy'}
+                    />
             </div>
-            <div className={`mt-6 w-full`} >
+            <BuyPage segmentedType={segmentedvalue} />
+            {/* <div className={`mt-6 w-full`} >
                 <Form
                     form={form}
-                    onFinish={onSumbit}
+                    // onFinish={onSumbit}
                 // initialValues={{
                 //   type: '',
                 //   direction: '',
                 //   symbol: ''
                 // }}
                 >
-                    {/* <Form.Item name="type" >
-                        <Select allowClear
-                            placeholder={t('spot.select.type')}
-                            options={[]}
-                            className={`${styles.select_box} select-text-right mt-6`}
-                            prefix={<span className={`${styles.title_color}`}>{t('spot.columns.type')}</span>}
-                        />
-                    </Form.Item> */}
                     <Form.Item name='price'
                         // rules={[{ validator: checkAmount }]}
                         >
@@ -226,12 +228,13 @@ const SpotTradePage = () => {
                             <p>--BTC</p>
                         </li>
                     </ul>
-                    <Form.Item>
-                        <Button className={`${styles.sumbit_btn} `} htmlType="submit">{t('spot.trade.buy')}</Button>
-                    </Form.Item>
                 </Form>
+                <Button 
+                // className={`${styles.sumbit_btn} green_btn`}
+                style={{width: '100%',height: '50px',borderRadius: '32px'}}
+                 htmlType="submit" onClick={onSumbit}>{t('spot.trade.buy')}</Button>
 
-            </div>
+            </div> */}
         </ConfigProvider>
     </div>
     );

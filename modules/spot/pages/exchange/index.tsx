@@ -1,7 +1,7 @@
 import React from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../../styles/billDetails.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -14,13 +14,16 @@ import type { TabsProps } from 'antd';
 import SpotChartTables from '../compontents/spotChart_table'
 import SpotChartAssets from '../compontents/spotChart_assets'
 import SpotChartTrade from '../compontents/spotChart_trade'
+import SpotHeaderPage from '../compontents/spotChart_header'
 import KlineChart from '@/components/KlineChart'
 import Tradingview from '@/components/Tradingview'
 import DepthChart from '@/components/DepthChart'
 import OrderBook from '@/components/OrderBook'
 import WebSocketService from '@/utils/websocket';
 import { FullscreenOutlined } from '@ant-design/icons';
-
+import Image from 'next/image'
+import { NoData } from '@/components/noData';
+import type { DropdownProps, MenuProps } from 'antd'
 interface DataType {
     id: number,
     userId: number,
@@ -34,6 +37,14 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
+interface coinSelectType {
+    coinId: string,
+    coinName: string,
+    iconUrl: string,
+    nameDefault: string,
+    value: string,
+    label: string,
+}
 const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
@@ -41,6 +52,7 @@ const ExchangePage = () => {
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(true);
+    const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([
         {
             id: 1,
@@ -81,6 +93,7 @@ const ExchangePage = () => {
     const paramdataRef = useRef(pageParam);
     const [timeInterval, setTimeInterval] = useState<string>('1h');
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+    const [open, setOpen] = useState<boolean>(true);
 
     const getKlineData = () => {
         setLoading(true);
@@ -171,172 +184,143 @@ const ExchangePage = () => {
                 },
             }}
         >
-            <div className={`${styles.card_bgc} w-full mb-1  flex-x align-center`}>
-                <Select options={[]} />
-                <ul className={`${styles.tip_color} ${styles.header_content_msg} font-14 font-w-400 flex-x align-center  ml-5 flex-1`}>
-                    <li className='mr-9'>
-                        <p className={`${styles.error_icon} font-16`}>27056.20</p>
-                        <p>¥183,982.10</p>
-                    </li>
-                    <li className='mr-9'>
-                        <p >24H  涨跌</p>
-                        <p className={`${styles.success_icon} font-14`}>+7,156.36 +7.46%</p>
-                    </li>
-                    <li className='mr-9'>
-                        <p >24H 最高价</p>
-                        <p className={`${styles.title_color}`}>27,659.60</p>
-                    </li>
-                    <li className='mr-9'>
-                        <p >24H 最低价</p>
-                        <p className={`${styles.title_color}`} >26,857.90</p>
-                    </li>
-                    <li className='mr-9'>
-                        <p >24H 成交量(BTC)</p>
-                        <p className={`${styles.title_color}`} >3,667.17</p>
-                    </li>
-                    <li className='mr-9'>
-                        <p >24H 交易额(USDT)</p>
-                        <p  className={`${styles.title_color}`}>1.00亿</p>
-                    </li>
-                </ul>
-                <div className='flex-cc'>
-                    <Iconify icon="mingcute:settings-5-line" size={26} className={`${styles.tip_color}`} />
-                </div>
+            <div className={`${styles.card_bgc4} w-full`}>
+            <SpotHeaderPage />
             </div>
 
 
             <div className='flex flex-wrap'>
-                <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{  width: '75%' }}>
+                <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{ width: '75%' }}>
                     {/* <div className={`flex-1`}> */}
-                        <div id="chart-container" style={{ width: '70%', height: '548px' }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '8px 16px',
-                                borderBottom: '1px solid var(--border-color1)'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <Button
-                                        type={timeInterval === '15m' ? 'primary' : 'text'}
-                                        onClick={() => setTimeInterval('15m')}
-                                        style={{
-                                            background: timeInterval === '15m' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: timeInterval === '15m' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        15m
-                                    </Button>
-                                    <Button
-                                        type={timeInterval === '1h' ? 'primary' : 'text'}
-                                        onClick={() => setTimeInterval('1h')}
-                                        style={{
-                                            background: timeInterval === '1h' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: timeInterval === '1h' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        1h
-                                    </Button>
-                                    <Button
-                                        type={timeInterval === '4h' ? 'primary' : 'text'}
-                                        onClick={() => setTimeInterval('4h')}
-                                        style={{
-                                            background: timeInterval === '4h' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: timeInterval === '4h' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        4h
-                                    </Button>
-                                    <Button
-                                        type={timeInterval === '1D' ? 'primary' : 'text'}
-                                        onClick={() => setTimeInterval('1D')}
-                                        style={{
-                                            background: timeInterval === '1D' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: timeInterval === '1D' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        1D
-                                    </Button>
+                    <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 16px',
+                            borderBottom: '1px solid var(--border-color1)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Button
+                                    type={timeInterval === '15m' ? 'primary' : 'text'}
+                                    onClick={() => setTimeInterval('15m')}
+                                    style={{
+                                        background: timeInterval === '15m' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: timeInterval === '15m' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    15m
+                                </Button>
+                                <Button
+                                    type={timeInterval === '1h' ? 'primary' : 'text'}
+                                    onClick={() => setTimeInterval('1h')}
+                                    style={{
+                                        background: timeInterval === '1h' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: timeInterval === '1h' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    1h
+                                </Button>
+                                <Button
+                                    type={timeInterval === '4h' ? 'primary' : 'text'}
+                                    onClick={() => setTimeInterval('4h')}
+                                    style={{
+                                        background: timeInterval === '4h' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: timeInterval === '4h' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    4h
+                                </Button>
+                                <Button
+                                    type={timeInterval === '1D' ? 'primary' : 'text'}
+                                    onClick={() => setTimeInterval('1D')}
+                                    style={{
+                                        background: timeInterval === '1D' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: timeInterval === '1D' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    1D
+                                </Button>
 
-                                    <Space size="small" style={{ marginLeft: '16px' }}>
-                                        <Tooltip title="指标">
-                                            <Button type="text" icon={<Iconify icon="mdi:chart-line" />} />
-                                        </Tooltip>
-                                        <Tooltip title="画线工具">
-                                            <Button type="text" icon={<Iconify icon="mdi:pencil-ruler" />} />
-                                        </Tooltip>
-                                        <Tooltip title="模板">
-                                            <Button type="text" icon={<Iconify icon="mdi:template" />} />
-                                        </Tooltip>
-                                        <Tooltip title="撤销">
-                                            <Button type="text" icon={<Iconify icon="mdi:undo" />} />
-                                        </Tooltip>
-                                        <Tooltip title="重做">
-                                            <Button type="text" icon={<Iconify icon="mdi:redo" />} />
-                                        </Tooltip>
-                                        <Tooltip title="设置">
-                                            <Button type="text" icon={<Iconify icon="mdi:cog" />} />
-                                        </Tooltip>
-                                        <Tooltip title="截图">
-                                            <Button type="text" icon={<Iconify icon="mdi:camera" />} />
-                                        </Tooltip>
-                                        <Tooltip title="刷新">
-                                            <Button type="text" icon={<Iconify icon="mdi:refresh" />} />
-                                        </Tooltip>
-                                    </Space>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <Button
-                                        type={activeChartType === 'basic' ? 'primary' : 'text'}
-                                        onClick={() => setActiveChartType('basic')}
-                                        style={{
-                                            background: activeChartType === 'basic' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: activeChartType === 'basic' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        基本版
-                                    </Button>
-                                    <Button
-                                        type={activeChartType === 'tradingview' ? 'primary' : 'text'}
-                                        onClick={() => setActiveChartType('tradingview')}
-                                        style={{
-                                            background: activeChartType === 'tradingview' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: activeChartType === 'tradingview' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        TradingView
-                                    </Button>
-                                    <Button
-                                        type={activeChartType === 'depth' ? 'primary' : 'text'}
-                                        onClick={() => setActiveChartType('depth')}
-                                        style={{
-                                            background: activeChartType === 'depth' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: activeChartType === 'depth' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        深度图
-                                    </Button>
-                                    <Tooltip title="全屏">
-                                        <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
+                                <Space size="small" style={{ marginLeft: '16px' }}>
+                                    <Tooltip title="指标">
+                                        <Button type="text" icon={<Iconify icon="mdi:chart-line" />} />
                                     </Tooltip>
-                                </div>
+                                    <Tooltip title="画线工具">
+                                        <Button type="text" icon={<Iconify icon="mdi:pencil-ruler" />} />
+                                    </Tooltip>
+                                    <Tooltip title="模板">
+                                        <Button type="text" icon={<Iconify icon="mdi:template" />} />
+                                    </Tooltip>
+                                    <Tooltip title="撤销">
+                                        <Button type="text" icon={<Iconify icon="mdi:undo" />} />
+                                    </Tooltip>
+                                    <Tooltip title="重做">
+                                        <Button type="text" icon={<Iconify icon="mdi:redo" />} />
+                                    </Tooltip>
+                                    <Tooltip title="设置">
+                                        <Button type="text" icon={<Iconify icon="mdi:cog" />} />
+                                    </Tooltip>
+                                    <Tooltip title="截图">
+                                        <Button type="text" icon={<Iconify icon="mdi:camera" />} />
+                                    </Tooltip>
+                                    <Tooltip title="刷新">
+                                        <Button type="text" icon={<Iconify icon="mdi:refresh" />} />
+                                    </Tooltip>
+                                </Space>
                             </div>
 
-                            <Spin spinning={loading} tip="加载中...">
-                                {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} />}
-                                {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
-                                {activeChartType === 'depth' && <DepthChart data={klineData} />}
-                            </Spin>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Button
+                                    type={activeChartType === 'basic' ? 'primary' : 'text'}
+                                    onClick={() => setActiveChartType('basic')}
+                                    style={{
+                                        background: activeChartType === 'basic' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: activeChartType === 'basic' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    基本版
+                                </Button>
+                                <Button
+                                    type={activeChartType === 'tradingview' ? 'primary' : 'text'}
+                                    onClick={() => setActiveChartType('tradingview')}
+                                    style={{
+                                        background: activeChartType === 'tradingview' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: activeChartType === 'tradingview' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    TradingView
+                                </Button>
+                                <Button
+                                    type={activeChartType === 'depth' ? 'primary' : 'text'}
+                                    onClick={() => setActiveChartType('depth')}
+                                    style={{
+                                        background: activeChartType === 'depth' ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                        color: activeChartType === 'depth' ? 'var(--text-color5)' : 'var(--text-color6)'
+                                    }}
+                                >
+                                    深度图
+                                </Button>
+                                <Tooltip title="全屏">
+                                    <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
+                                </Tooltip>
+                            </div>
                         </div>
-                        <OrderBook data={klineData} />
+
+                        <Spin spinning={loading} tip="加载中...">
+                            {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} />}
+                            {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
+                            {activeChartType === 'depth' && <DepthChart data={klineData} />}
+                        </Spin>
+                    </div>
+                    <OrderBook data={klineData} />
 
                     {/* </div> */}
                 </div>
                 <div className={`${styles.card_bgc} mb-1 flex-1`} >
                     <SpotChartTrade />
                 </div>
-                <div className={`${styles.card_bgc1} mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
+                <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh', width: '75%' }}>
                     <SpotChartTables />
                 </div>
                 <div className={`${styles.card_bgc1} flex-1 `} >

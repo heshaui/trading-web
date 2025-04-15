@@ -229,16 +229,22 @@
     font-size: 16px !important;
 }
 /* 数字输入框组件文本位置 */
-.spot_number_input .ant-input-number-input {
+.spot_number_input .ant-input-number-input,
+.spot_number_input2 .ant-input-number-input {
     text-align: end !important;
     color: var(--text-color5) !important;
 }
-.spot_number_input {
+.spot_number_input,
+.spot_number_box .spot_number_input2 {
     color: var(--text-color5) !important;
-    background-color: var(--background8) !important;
-
+    background-color: var(--background9) !important;
 }
-
+.spot_number_box .ant-input-number-disabled{
+    background: var(--background6) !important;
+    color: var(--text-color4) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+}
 /* segmented 选中标签样式及动画标签 */
 /* 未选中标签鼠标滑过样式 */
 /* .custom-segmented .ant-segmented-group,.custom-segmented ant-segmented-item{
