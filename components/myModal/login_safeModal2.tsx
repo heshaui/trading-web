@@ -102,24 +102,24 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         console.log(visitorId);
         return visitorId.visitorId;
     };
-        // 过滤输入，只允许数字和字母
-        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
-            const { value } = e.target;
-            // 只保留数字和字母
-            const filteredValue = value.replace(/[^0-9]/g, '');
-            // setEmailCodeInputValue(filteredValue);
-            // form.setFieldsValue({ code: filteredValue });
-            if (type === 'email') {
-                setEmailCodeInputValue(filteredValue);
-                form.setFieldsValue({ code: filteredValue });
-            } else if (type === 'phone') {
-                setPhoneCodeInputValue(filteredValue);
-                form.setFieldsValue({ phoneCode: filteredValue });
-            } else if (type === 'google') {
-                setGoogleCodeInputValue(filteredValue);
-                form.setFieldsValue({ googleCode: filteredValue });
-            }
-        };
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        if (type === 'email') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        } else if (type === 'phone') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        } else if (type === 'google') {
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        }
+    };
     const handOk = async () => {
         form.validateFields()
             .then(async (values) => {
@@ -136,8 +136,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             password: acountInfo.password,
                             authCodeMail: values.code,
 
-                            authCodeGoogle: values.googleCode||'',
-                            authCodePhone: values.phoneCode||''
+                            authCodeGoogle: values.googleCode || '',
+                            authCodePhone: values.phoneCode || ''
                         }
 
                     } else if (acountInfo.type === 'p') {
@@ -149,8 +149,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             authCodePhone: values.code,
                             countryCode: acountInfo.countryCode,
 
-                            authCodeMail: values.code||'',
-                            authCodeGoogle: values.googleCode||'',
+                            authCodeMail: values.code || '',
+                            authCodeGoogle: values.googleCode || '',
 
                         }
                     }
@@ -214,9 +214,9 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         try {
             const res = await getLoginCheck(dataEncrypt)
             if (res.code === "0") {
-                if(res.data.message){
+                if (res.data.message) {
                     toast.success(res.data.message)
-                }else{
+                } else {
                     toast.success(res.message)
                 }
                 clearTimers()
@@ -488,7 +488,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             maxLength={6}
                         />
                     </Form.Item>
-                    {(acountInfo.isGoogleAuth === 1||(acountInfo.openAll===1&&acountInfo.isGoogleAuth===1 )) && <>
+                    {(acountInfo.isGoogleAuth === 1 || (acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1)) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
                         <Form.Item
                             name="googleCode"
@@ -504,7 +504,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             />
                         </Form.Item>
                     </>}
-                    {(acountInfo.type === 'm' && ((acountInfo.isPhoneAuth === 1 && acountInfo.isGoogleAuth === 0)||(acountInfo.openAll===1&&acountInfo.isPhoneAuth===1))) && <>
+                    {(acountInfo.type === 'm' && ((acountInfo.isPhoneAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1))) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
                         <Form.Item
                             name="phoneCode"
@@ -533,7 +533,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             />
                         </Form.Item>
                     </>}
-                    {(acountInfo.type === 'p' && ((acountInfo.isEmailAuth === 1 && acountInfo.isGoogleAuth === 0)||(acountInfo.openAll===1&&acountInfo.isEmailAuth===1))) && <>
+                    {(acountInfo.type === 'p' && ((acountInfo.isEmailAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1))) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                         <Form.Item
                             name="emailCode"

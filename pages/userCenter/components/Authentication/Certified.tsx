@@ -4,7 +4,7 @@ import styles from '../../styles/identity.module.css';
 import { Iconify } from "@/components/icon"
 import Image from 'next/image';
 import { encryptIdCard, getBenefitValue } from '@/utils/encrypt';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
