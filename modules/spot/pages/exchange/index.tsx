@@ -312,9 +312,6 @@ const ExchangePage = () => {
                                 </Spin>
                             </div>
                         </div>
-
-
->
                                 <OrderBook data={klineData} />
 
 
