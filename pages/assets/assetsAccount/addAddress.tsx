@@ -444,7 +444,7 @@ const AddAdressPage = () => {
                             <button type='button' className={`default_btn font-16 font-w-500 ${styles.delect_btn} flex-x-cc`}
                                 onClick={delectAllAddress}>
                                 {/* 删除 */}
-                                {t('assetsAccount.delect')}
+                                {t('assetsAccount.delete')}
                                 </button>
                         </div>}
 
