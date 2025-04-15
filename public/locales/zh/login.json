@@ -83,6 +83,7 @@
     "title": "安全验证",
     "emailCodeTitle": "邮箱验证码",
     "phoneCodeTitle": "手机验证码",
+    "googleCodeTitle": "Google验证码",
     "codeSent": "验证码已发送至",
     "inputPlaceholder": "请输入",
     "codeNull": "不能为空！",

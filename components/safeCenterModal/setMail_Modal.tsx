@@ -325,7 +325,7 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                         size="large"
                         style={{ width: "100%" }}
                     >
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.mailSafe.email')}</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.mailSafe.newMail')}</div>
                         <Form.Item name="email" rules={[{ required: true, message: t('security.mailSafe.mailNullError') }]}>
                             {/* <Input placeholder="请输入新邮箱" allowClear={true} className={`${styles.input_box} modal-input `} /> */}
                             <AutoComplete

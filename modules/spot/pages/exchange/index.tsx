@@ -106,7 +106,7 @@ const ExchangePage = () => {
                     // console.log("更新后的klineData将是:", newData);
                     return newData;
                 });
-                
+
                 setLoading(false);
             } catch (error) {
                 // 处理非JSON格式消息
@@ -197,21 +197,22 @@ const ExchangePage = () => {
                 header
 
             </div>
-            <div className={`flex ${styles.grid_layout} mb-1`}>
-                <div className={`flex-1`}>
 
-                    <div className={`${styles.card_bgc3} w-full mb-1`} style={{display:'flex'}}>
-                        <div id="chart-container" style={{width:'70%', height:'548px', borderRight: '1px solid var(--border-color1)'}}>
+
+            <div className='flex flex-wrap'>
+                <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{  width: '75%' }}>
+                    {/* <div className={`flex-1`}> */}
+                        <div id="chart-container" style={{ width: '70%', height: '548px' }}>
                             <div style={{
-                                display:'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center', 
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                                 padding: '8px 16px',
                                 borderBottom: '1px solid var(--border-color1)'
                             }}>
-                                <div style={{display:'flex', alignItems:'center'}}>
-                                    <Button 
-                                        type={timeInterval === '15m' ? 'primary' : 'text'} 
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Button
+                                        type={timeInterval === '15m' ? 'primary' : 'text'}
                                         onClick={() => setTimeInterval('15m')}
                                         style={{
                                             background: timeInterval === '15m' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -220,8 +221,8 @@ const ExchangePage = () => {
                                     >
                                         15m
                                     </Button>
-                                    <Button 
-                                        type={timeInterval === '1h' ? 'primary' : 'text'} 
+                                    <Button
+                                        type={timeInterval === '1h' ? 'primary' : 'text'}
                                         onClick={() => setTimeInterval('1h')}
                                         style={{
                                             background: timeInterval === '1h' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -230,8 +231,8 @@ const ExchangePage = () => {
                                     >
                                         1h
                                     </Button>
-                                    <Button 
-                                        type={timeInterval === '4h' ? 'primary' : 'text'} 
+                                    <Button
+                                        type={timeInterval === '4h' ? 'primary' : 'text'}
                                         onClick={() => setTimeInterval('4h')}
                                         style={{
                                             background: timeInterval === '4h' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -240,8 +241,8 @@ const ExchangePage = () => {
                                     >
                                         4h
                                     </Button>
-                                    <Button 
-                                        type={timeInterval === '1D' ? 'primary' : 'text'} 
+                                    <Button
+                                        type={timeInterval === '1D' ? 'primary' : 'text'}
                                         onClick={() => setTimeInterval('1D')}
                                         style={{
                                             background: timeInterval === '1D' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -250,26 +251,38 @@ const ExchangePage = () => {
                                     >
                                         1D
                                     </Button>
-                                    
-                                    <Space size="small" style={{marginLeft: '16px'}}>
+
+                                    <Space size="small" style={{ marginLeft: '16px' }}>
                                         <Tooltip title="指标">
                                             <Button type="text" icon={<Iconify icon="mdi:chart-line" />} />
                                         </Tooltip>
                                         <Tooltip title="画线工具">
                                             <Button type="text" icon={<Iconify icon="mdi:pencil-ruler" />} />
                                         </Tooltip>
+                                        <Tooltip title="模板">
+                                            <Button type="text" icon={<Iconify icon="mdi:template" />} />
+                                        </Tooltip>
+                                        <Tooltip title="撤销">
+                                            <Button type="text" icon={<Iconify icon="mdi:undo" />} />
+                                        </Tooltip>
+                                        <Tooltip title="重做">
+                                            <Button type="text" icon={<Iconify icon="mdi:redo" />} />
+                                        </Tooltip>
                                         <Tooltip title="设置">
                                             <Button type="text" icon={<Iconify icon="mdi:cog" />} />
+                                        </Tooltip>
+                                        <Tooltip title="截图">
+                                            <Button type="text" icon={<Iconify icon="mdi:camera" />} />
                                         </Tooltip>
                                         <Tooltip title="刷新">
                                             <Button type="text" icon={<Iconify icon="mdi:refresh" />} />
                                         </Tooltip>
                                     </Space>
                                 </div>
-                                
-                                <div style={{display:'flex', alignItems:'center'}}>
-                                    <Button 
-                                        type={activeChartType === 'basic' ? 'primary' : 'text'} 
+
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Button
+                                        type={activeChartType === 'basic' ? 'primary' : 'text'}
                                         onClick={() => setActiveChartType('basic')}
                                         style={{
                                             background: activeChartType === 'basic' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -278,8 +291,8 @@ const ExchangePage = () => {
                                     >
                                         基本版
                                     </Button>
-                                    <Button 
-                                        type={activeChartType === 'tradingview' ? 'primary' : 'text'} 
+                                    <Button
+                                        type={activeChartType === 'tradingview' ? 'primary' : 'text'}
                                         onClick={() => setActiveChartType('tradingview')}
                                         style={{
                                             background: activeChartType === 'tradingview' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -288,8 +301,8 @@ const ExchangePage = () => {
                                     >
                                         TradingView
                                     </Button>
-                                    <Button 
-                                        type={activeChartType === 'depth' ? 'primary' : 'text'} 
+                                    <Button
+                                        type={activeChartType === 'depth' ? 'primary' : 'text'}
                                         onClick={() => setActiveChartType('depth')}
                                         style={{
                                             background: activeChartType === 'depth' ? 'rgba(0,0,0,0.05)' : 'transparent',
@@ -303,39 +316,25 @@ const ExchangePage = () => {
                                     </Tooltip>
                                 </div>
                             </div>
-                            
-                            <div style={{height: 'calc(100% - 50px)'}}>
-                                <Spin spinning={loading} tip="加载中...">
-                                    {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} timeInterval={timeInterval} />}
-                                    {activeChartType === 'tradingview' && <Tradingview data={klineData} timeInterval={timeInterval} />}
-                                    {activeChartType === 'depth' && <DepthChart data={klineData} />}
-                                </Spin>
-                            </div>
+
+                            <Spin spinning={loading} tip="加载中...">
+                                {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} />}
+                                {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
+                                {activeChartType === 'depth' && <DepthChart data={klineData} />}
+                            </Spin>
                         </div>
+                        <OrderBook data={klineData} />
 
-
->
-                                <OrderBook data={klineData} />
-
-
-                    </div>
-
-                    <div className={`${styles.card_bgc1}  flex-1`}>
-                        <SpotChartTables />
-                    </div>
+                    {/* </div> */}
                 </div>
-
-                {/* Second row: Assets and Deposit */}
-                <div className={` ${styles.grid_item} `}>
-
-
-                    <div className={`${styles.card_bgc} mb-1`} style={{ height: '45vh' }}>
-
-                        <SpotChartTrade />
-                    </div>
-                    <div className={`${styles.card_bgc1} flex-1 `} style={{height:'calc(100% - 45vh)'}}>
-                        <SpotChartAssets />
-                    </div>
+                <div className={`${styles.card_bgc} mb-1 flex-1`} >
+                    <SpotChartTrade />
+                </div>
+                <div className={`${styles.card_bgc1} mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
+                    <SpotChartTables />
+                </div>
+                <div className={`${styles.card_bgc1} flex-1 `} >
+                    <SpotChartAssets />
                 </div>
             </div>
         </ConfigProvider>
