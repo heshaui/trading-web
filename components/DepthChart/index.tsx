@@ -8,13 +8,13 @@ interface DepthChartProps {
 
 const DepthChart = ({ data }: DepthChartProps) => {
 
-
+  console.log("DepthChartProps", data);
   
   // 检查数据是否有效
-  if (!data || !data.bids || !data.asks || !data.bids.length || !data.asks.length) {
+  if (!data) {
     return (
       <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        等待深度数据加载...
+        无数据
       </div>
     );
   }
