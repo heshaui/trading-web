@@ -48,7 +48,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
       if (chartRef.current) {
         const disposeChart = async () => {
           const klinecharts = await initKlinecharts();
-          klinecharts.dispose(chartRef.current);
+          klinecharts.dispose(chartRef.current as HTMLElement);
         };
         disposeChart();
       }
