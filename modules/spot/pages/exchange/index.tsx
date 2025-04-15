@@ -217,14 +217,14 @@ const ExchangePage = () => {
                 },
             }}
         >
-            <div className={`${styles.card_bgc4} w-full`}>
+            <div className={`${styles.card_bgc4} w-full mb-1`}>
                 <SpotHeaderPage />
             </div>
 
 
             <div className='flex flex-wrap'>
                 <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{ width: '75%' }}>
-                    <div style={{ width: '70%', height: '548px' }}>
+                    <div style={{ width: '70%', height: '548px' }} className='flex-1'>
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
