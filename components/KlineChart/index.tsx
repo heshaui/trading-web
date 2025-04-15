@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { init, Chart, KLineData, dispose } from "klinecharts";
+import dynamic from 'next/dynamic';
+
+// 动态导入 klinecharts
+const initKlinecharts = async () => {
+  const klinecharts = await import('klinecharts');
+  return klinecharts;
+};
 
 interface KLineChartProps {
   socketData?: any;
-  initialData?: KLineData[]; // 初始K线数据
+  initialData?: any[]; // 初始K线数据
   height?: number;
   theme?: "light" | "dark";
   width?: number;
@@ -17,35 +23,40 @@ const KLineChart: React.FC<KLineChartProps> = ({
   theme = "light",
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const [chart, setChart] = useState<Chart | null>(null);
+  const [chart, setChart] = useState<any>(null);
   const [lastVolume, setLastVolume] = useState<number>(0);
 
   // 初始化图表
   useEffect(() => {
-    console.log("socketData1", socketData);
-    if (chartRef.current) {
-      const klineChart = init(chartRef.current);
-      
-   
-      
-      // 加载初始数据
-      if (initialData && initialData.length > 0 && klineChart) {
-        klineChart.applyNewData(initialData);
+    const initChart = async () => {
+      if (chartRef.current) {
+        const klinecharts = await initKlinecharts();
+        const klineChart = klinecharts.init(chartRef.current);
+        
+        // 加载初始数据
+        if (initialData && initialData.length > 0 && klineChart) {
+          klineChart.applyNewData(initialData);
+        }
+        
+        setChart(klineChart);
       }
-      
-      setChart(klineChart);
-    }
+    };
+
+    initChart();
     
     return () => {
       if (chartRef.current) {
-        dispose(chartRef.current);
+        const disposeChart = async () => {
+          const klinecharts = await initKlinecharts();
+          klinecharts.dispose(chartRef.current);
+        };
+        disposeChart();
       }
     };
   }, []);  // 只在组件挂载时执行一次
 
   // 处理WebSocket数据
   useEffect(() => {
-    console.log("socketData2", socketData);
     if (!chart || !socketData || !Array.isArray(socketData)) return;
     
     try {
