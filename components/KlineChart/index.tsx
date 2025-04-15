@@ -29,7 +29,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
    
       
       // 加载初始数据
-      if (initialData && initialData.length > 0) {
+      if (initialData && initialData.length > 0 && klineChart) {
         klineChart.applyNewData(initialData);
       }
       
