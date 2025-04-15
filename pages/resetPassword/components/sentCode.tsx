@@ -2,7 +2,7 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Input, Form ,ConfigProvider} from 'antd';
 // import type { AutoCompleteProps } from 'antd';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
 import { toast } from "sonner";
 // import store from "@/store";
@@ -22,6 +22,7 @@ function ResetPassword() {
     const [isCounting, setIsCounting] = useState(false);
     const [isLoding, setIsLoding] = useState(false);
     const [isCodeLoding, setIsCodeLoding] = useState(false);
+    const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
     const { t } = useTranslation('resetPassword');
 
 
@@ -56,6 +57,11 @@ function ResetPassword() {
             });
     }
     const goLast = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            setIsCounting(false);
+            setCountdown(0);
+        }
         setResetState(ResetStateEnum.INPUT)
     }
     const getResetCode = async () => {
@@ -89,7 +95,7 @@ function ResetPassword() {
                     toast.success(res.message)
                     startCountdown(res.data);
                 } else if (res.code === "10044") {
-                    toast.error(res.message)
+                    toast.error(t('codeError')||res.message)
                 }
                 setIsCodeLoding(false)
             }
@@ -105,10 +111,10 @@ function ResetPassword() {
     const startCountdown = (count:number) => {
         setCountdown(count);
         setIsCounting(true);
-        const timer = setInterval(() => {
+        timerRef.current = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown === 1) {
-                    clearInterval(timer);
+                    clearInterval(timerRef.current);
                     setIsCounting(false);
                     return 0;
                 }
@@ -183,7 +189,7 @@ function ResetPassword() {
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}
-                        onClick={() => goLast()}>{t('prevStep')}</button>
+                        onClick={() => goLast()}>{t('goBack')}</button>
                     <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>{t('next')}</button>
                 </div>
                 <div>

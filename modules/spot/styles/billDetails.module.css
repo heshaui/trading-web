@@ -31,7 +31,7 @@
 }
 
 .error_icon {
-    color: #F73710;
+    color: #FF4D4F;
 }
 
 .warning_color {
@@ -92,10 +92,18 @@
 .header_content_item{
     width: 30%;
 }
+.header_content_msg::before{
+    content: '';
+    display: block;
+    width: 1px;
+    height: 20px;
+    background-color: var(--text-color4);
+    margin-right:20px;
+}
 
 .grid_layout {
     display: grid;
-    grid-template-columns: 6fr auto;
+    grid-template-columns:  auto 6fr;
     gap: 4px;
     margin-bottom: 4px;
     grid-template-rows:auto;
@@ -105,9 +113,10 @@
 }
 
 .grid_item {
-    min-height: 100%;
+    /* min-height: 100%; */
     min-width: 330px;
 }
+
 
 @media (max-width: 680px) {
     .card_mt {

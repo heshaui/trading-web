@@ -51,7 +51,7 @@
 .theme_color {
   color: var(--theme-color);
 }
-.text-color {
+.text-color,.text_color {
   color: var(--text-color5);
 }
 .tip-color {
@@ -429,6 +429,18 @@
 
 .pl-1{
   padding-left: 4px;
+}
+.pl-2{
+  padding-left: 8px;
+}
+.pl-3{
+  padding-left: 12px;
+}
+.pl-4{
+  padding-left: 16px;
+}
+.pl-5{
+  padding-left: 20px;
 }
 .pt-0 {
   padding-top: 0;

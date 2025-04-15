@@ -310,7 +310,8 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                             <div className="flex">
                                 <PhoneCodeSelector className={`${styles.input_box}`} />
                                 <Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: t('security.phoneSafe.phoneNullError') }]}>
-                                    <Input placeholder={t('security.phoneSafe.inputNewPhone')} allowClear={true} className={`${styles.input_box} modal-input ml-2`} />
+                                    <Input placeholder={t('security.phoneSafe.inputNewPhone')} allowClear={true} 
+                                    className={`${styles.input_box} modal-input ml-2`} />
                                 </Form.Item>
                             </div>
                         </Form.Item>
