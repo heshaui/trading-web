@@ -206,7 +206,7 @@ const ExchangePage = () => {
 
 
             <div className='flex flex-wrap'>
-                <div className={`${styles.card_bgc3} w-full mb-1 mr-1`} style={{ minHeight: '57.5vh', width: '75%' }}>
+                <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{  width: '75%' }}>
                     {/* <div className={`flex-1`}> */}
                         <div id="chart-container" style={{ width: '70%', height: '548px' }}>
                             <div style={{
