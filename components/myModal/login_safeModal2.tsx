@@ -56,6 +56,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const [pointout, setPointout] = useState(false);
     const [loading, setLoading] = useState(false);
     const [codeLoading, setCodeLoading] = useState(false);
+    const [codeInputValue, setCodeInputValue] = useState('');
     const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
     const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
     const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
@@ -109,13 +110,16 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         const filteredValue = value.replace(/[^0-9]/g, '');
         // setEmailCodeInputValue(filteredValue);
         // form.setFieldsValue({ code: filteredValue });
-        if (type === 'email') {
-            setEmailCodeInputValue(filteredValue);
+        if (type === 'code') {
+            setCodeInputValue(filteredValue);
             form.setFieldsValue({ code: filteredValue });
-        } else if (type === 'phone') {
+        } else if (type === 'phoneCode') {
             setPhoneCodeInputValue(filteredValue);
             form.setFieldsValue({ phoneCode: filteredValue });
-        } else if (type === 'google') {
+        } else if (type === 'emailCode') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        }else if (type === 'google') {
             setGoogleCodeInputValue(filteredValue);
             form.setFieldsValue({ googleCode: filteredValue });
         }
@@ -149,7 +153,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             authCodePhone: values.code,
                             countryCode: acountInfo.countryCode,
 
-                            authCodeMail: values.code || '',
+                            authCodeMail: values.emailCode || '',
                             authCodeGoogle: values.googleCode || '',
 
                         }
@@ -471,6 +475,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             className={`${styles.input_box} modal-input`}
                             style={{ width: "100%", height: "40px" }}
                             placeholder={t('safeModal.inputPlaceholder')}
+                            value={codeInputValue}
+                            onChange={(e) => handleInputChange(e, 'code')}
                             allowClear
                             suffix={
                                 <button
@@ -501,6 +507,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 placeholder={t('safeModal.inputPlaceholder')}
                                 allowClear
                                 maxLength={6}
+                                value={googleCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'google')}
                             />
                         </Form.Item>
                     </>}
@@ -516,6 +524,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 style={{ width: "100%", height: "40px" }}
                                 placeholder={t('safeModal.inputPlaceholder')}
                                 allowClear
+                                value={phoneCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'phoneCode')}
                                 suffix={
                                     <button
                                         type="button"
@@ -558,6 +568,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                         }
                                     </button>
                                 }
+                                value={emailCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'emailCode')}
                                 maxLength={6}
                             />
                         </Form.Item>
