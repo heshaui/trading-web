@@ -202,7 +202,7 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
     const subscribers: any = {};
     
     // 预处理初始数据
-    const processedInitialData = (initialData || []).map(item => {
+    const processedInitialData = (initialData || []).map((item: any) => {
       try {
         if (item.data && typeof item.data === 'string') {
           // 解析数据字符串
@@ -225,7 +225,7 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
         console.error("预处理数据错误:", error, item);
         return null;
       }
-    }).filter(item => item !== null);
+    }).filter((item: any) => item !== null);
     
     window.__tradingViewUpdateBar = (data: any) => {
       try {
@@ -381,7 +381,7 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
           });
           
           // 确保时间戳按顺序排列
-          bars.sort((a, b) => a.time - b.time);
+          bars.sort((a: any, b: any) => a.time - b.time);
           
           // 缓存最后一个bar用于实时更新
           if (bars.length > 0) {
