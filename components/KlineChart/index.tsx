@@ -6,6 +6,7 @@ interface KLineChartProps {
   initialData?: KLineData[]; // 初始K线数据
   height?: number;
   theme?: "light" | "dark";
+  width?: number;
 }
 
 const KLineChart: React.FC<KLineChartProps> = ({
