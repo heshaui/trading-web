@@ -12,6 +12,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
   socketData,
   initialData = [],
   height = 400,
+  width = 65,
   theme = "light",
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -74,7 +75,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
     }
   }, [socketData, chart]);
 
-  return <div ref={chartRef} id="chart" style={{ width: "100%", height: `${height}px` }} />;
+  return <div ref={chartRef} id="chart" style={{ width: `${width}%`, height: `${548}px` }} />;
 };
 
 export default KLineChart;

@@ -14,6 +14,9 @@ import type { TabsProps } from 'antd';
 import SpotChartTables from '../compontents/spotChart_table'
 import SpotChartAssets from '../compontents/spotChart_assets'
 import SpotChartTrade from '../compontents/spotChart_trade'
+import KlineChart from '@/components/KlineChart'
+import OrderBook from '@/components/OrderBook'
+import WebSocketService from '@/utils/websocket';
 interface DataType {
     id: number,
     userId: number,
@@ -27,9 +30,11 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const SpotOrderPage = () => {
+const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
+    const [klineData, setKlineData] = useState<any[]>([]);
+    const [statusMessage, setStatusMessage] = useState<string>('');
     const [tableData, setTableData] = useState<DataType[]>([
         {
             id: 1,
@@ -68,7 +73,40 @@ const SpotOrderPage = () => {
         pageSize: 10,
     })
     const paramdataRef = useRef(pageParam);
+    const getKlineData = () => {
+        const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
 
+        websocket.connect((message: string) => {
+            // console.log("接收message",message);
+            try {
+                // 检查是否为订阅确认消息
+                if (message.startsWith('Subscribed to')) {
+                    setStatusMessage(message);
+                    return;
+                }
+
+                // 处理JSON数据
+                const data = JSON.parse(message);
+                // console.log("WebSocket收到的原始数据:", data);
+
+                setKlineData(prevData => {
+                    const newData = Array.isArray(data) ? [...prevData, ...data] : [...prevData, data];
+                    // console.log("更新后的klineData将是:", newData);
+                    return newData;
+                });
+            } catch (error) {
+                // 处理非JSON格式消息
+                setStatusMessage(message);
+                console.error('解析 WebSocket 消息时出错:', error);
+            }
+        });
+    }
+
+    useEffect(() => {
+        getKlineData();
+
+
+    }, [])
 
     return (<div className={`${styles.page_box} w-full`}>
         <ConfigProvider
@@ -111,9 +149,19 @@ const SpotOrderPage = () => {
             <div className={`flex ${styles.grid_layout} mb-1`}>
                 <div className={`flex-1`}>
 
-                    <div className={`${styles.card_bgc3} w-full mb-1`} style={{ height: '45vh' }}>
+                    <div className={`${styles.card_bgc3} w-full mb-1`}  style={{display:'flex'}}>
+                    <div style={{width:'70%',height:'548px'}}>
+                        <div>
+                            
+                        </div>
+                    <KlineChart socketData={klineData} width={100}  />
+                    </div>
 
-                        图表
+                   
+
+                   
+                    <OrderBook data={klineData} />
+
                     </div>
                     <div className={`${styles.card_bgc1}  flex-1`}>
                         <SpotChartTables />
@@ -138,4 +186,4 @@ const SpotOrderPage = () => {
     );
 };
 
-export default SpotOrderPage
+export default ExchangePage
