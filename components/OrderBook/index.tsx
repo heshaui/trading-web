@@ -23,6 +23,10 @@ const OrderBook = ({ data }: OrderBookProps) => {
   const [activeTab, setActiveTab] = useState('orderbook');
   const [priceScale, setPriceScale] = useState('0.1');
   const [colorMode, setColorMode] = useState(1);
+  
+  // 添加最新成交数据状态
+  const [trades, setTrades] = useState<{price: number; amount: number; time: string; type: 'buy' | 'sell'}[]>([]);
+  const [lastPrice, setLastPrice] = useState(0);
 
   useEffect(() => {
     // 确保data存在且包含depth数据结构
@@ -92,6 +96,33 @@ const OrderBook = ({ data }: OrderBookProps) => {
     }
   }, [data]); // 当data变化时重新处理数据
 
+  // 添加处理交易数据的效果
+  useEffect(() => {
+    if (data && data.trades) {
+      const processedTrades = data.trades.map((trade: any) => {
+        return {
+          price: trade.price,
+          amount: trade.amount,
+          time: new Date(trade.time).toLocaleTimeString(),
+          type: trade.type // 'buy' 或 'sell'
+        };
+      });
+      
+      setTrades(processedTrades);
+      
+      // 更新最后成交价
+      if (processedTrades.length > 0) {
+        const newPrice = processedTrades[0].price;
+        setLastPrice(prevPrice => {
+          if (prevPrice > 0) {
+            processedTrades[0].direction = newPrice >= prevPrice ? 'up' : 'down';
+          }
+          return newPrice;
+        });
+      }
+    }
+  }, [data]);
+
   const renderColorModeButtons = () => {
     const colorModes = [
       { id: 1, buyColor: '#00c788', sellColor: '#ff6347' },
@@ -118,6 +149,38 @@ const OrderBook = ({ data }: OrderBookProps) => {
     );
   };
 
+  // 渲染最新成交列表
+  const renderTrades = () => {
+    return (
+      <div className={styles.tradesContainer}>
+        <div className={styles.labels}>
+          <span>成交价(USDT)</span>
+          <span>总计(USDT)</span>
+          <span>时间</span>
+        </div>
+        <div className={styles.tradesList}>
+          {trades.map((trade, index) => (
+            <div key={index} className={styles.tradeRow}>
+              <span 
+                className={`${styles.tradePrice} ${
+                  trade.type === 'buy' ? styles.buyPrice : styles.sellPrice
+                }`}
+              >
+                {trade.price.toFixed(1)}
+              </span>
+              <span className={styles.tradeAmount}>
+                {trade.amount > 1000 
+                  ? `${(trade.amount/1000).toFixed(2)}K` 
+                  : trade.amount.toFixed(2)}
+              </span>
+              <span className={styles.tradeTime}>{trade.time}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.tabContainer}>
@@ -135,102 +198,114 @@ const OrderBook = ({ data }: OrderBookProps) => {
         </div>
       </div>
       
-      <div className={styles.toolbar}>
-        {renderColorModeButtons()}
-        
-        <select 
-          className={styles.dropdown}
-          value={priceScale}
-          onChange={(e) => setPriceScale(e.target.value)}
-        >
-          <option value="0.1">0.1</option>
-          <option value="1">1</option>
-          <option value="10">10</option>
-        </select>
-      </div>
+      {
+        activeTab === 'orderbook' && (
+          <div className={styles.toolbar}>
+          {renderColorModeButtons()}
+          
+          <select 
+            className={styles.dropdown}
+            value={priceScale}
+            onChange={(e) => setPriceScale(e.target.value)}
+          >
+            <option value="0.1">0.1</option>
+            <option value="1">1</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      )}
+     
 
-      <div className={styles.labels}>
-        <span>价格(USDT) <span className={styles.sortIcon}>⇅</span></span>
-        <span>数量(BTC)</span>
-        <span>总额(USDT) <span className={styles.sortIcon}>⇅</span></span>
-      </div>
+      {/* 根据活动标签显示不同内容 */}
+      {activeTab === 'orderbook' ? (
+        <>
+          <div className={styles.labels}>
+            <span>价格(USDT) <span className={styles.sortIcon}>⇅</span></span>
+            <span>数量(BTC)</span>
+            <span>总额(USDT) <span className={styles.sortIcon}>⇅</span></span>
+          </div>
 
-      {/* 卖单 */}
-      <div className={styles.orderList}>
-        {sellOrders.map((order, index) => {
-          const percentWidth = (order.total / Math.max(...sellOrders.map(o => o.total))) * 100;
-          return (
-            <div key={index} className={`${styles.orderRow} ${styles.sell}`}>
-              <span className={styles.price}>{order.price.toFixed(1)}</span>
-              <span className={styles.amount}>{order.amount.toFixed(5)}</span>
-              <div className={styles.totalColumn}>
-                <div 
-                  className={styles.background}
-                  style={{ width: `${percentWidth}%` }}
-                />
-                <span className={styles.total}>
-                  {order.total > 10000 
-                    ? `${(order.total/10000).toFixed(2)}万` 
-                    : order.total.toFixed(2)}
-                </span>
+          {/* 卖单 */}
+          <div className={styles.orderList}>
+            {sellOrders.map((order, index) => {
+              const percentWidth = (order.total / Math.max(...sellOrders.map(o => o.total))) * 100;
+              return (
+                <div key={index} className={`${styles.orderRow} ${styles.sell}`}>
+                  <span className={styles.price}>{order.price.toFixed(1)}</span>
+                  <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+                  <div className={styles.totalColumn}>
+                    <div 
+                      className={styles.background}
+                      style={{ width: `${percentWidth}%` }}
+                    />
+                    <span className={styles.total}>
+                      {order.total > 10000 
+                        ? `${(order.total/10000).toFixed(2)}万` 
+                        : order.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 当前价格 */}
+          <div className={styles.currentPrice}>
+            <div className={styles.priceContainer}>
+              <span className={styles.priceValue}>{currentPrice.toFixed(2)}</span>
+              <span className={styles.priceChange}>↓</span>
+              <span className={styles.priceCny}>¥ {(currentPrice * 7.18).toFixed(1)}</span>
+            </div>
+          </div>
+
+          {/* 买单 */}
+          <div className={styles.orderList}>
+            {buyOrders.map((order, index) => {
+              const percentWidth = (order.total / Math.max(...buyOrders.map(o => o.total))) * 100;
+              return (
+                <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
+                  <span className={styles.price}>{order.price.toFixed(1)}</span>
+                  <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+                  <div className={styles.totalColumn}>
+                    <div 
+                      className={styles.background}
+                      style={{ width: `${percentWidth}%` }}
+                    />
+                    <span className={styles.total}>
+                      {order.total > 10000 
+                        ? `${(order.total/10000).toFixed(2)}万` 
+                        : order.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 买单/卖单比例 */}
+          <div className={styles.ratio}>
+            <div className={styles.buyBox}>B</div>
+            <div className={styles.ratioBar}>
+              <div 
+                className={styles.buyRatio} 
+                style={{ width: `${buyRatio}%` }}
+              >
+                <span className={styles.buyPercent}>{buyRatio}%</span>
+              </div>
+              <div 
+                className={styles.sellRatio} 
+                style={{ width: `${sellRatio}%` }}
+              >
+                <span className={styles.sellPercent}>{sellRatio}%</span>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* 当前价格 */}
-      <div className={styles.currentPrice}>
-        <div className={styles.priceContainer}>
-          <span className={styles.priceValue}>{currentPrice.toFixed(2)}</span>
-          <span className={styles.priceChange}>↓</span>
-          <span className={styles.priceCny}>¥ {(currentPrice * 7.18).toFixed(1)}</span>
-        </div>
-      </div>
-
-      {/* 买单 */}
-      <div className={styles.orderList}>
-        {buyOrders.map((order, index) => {
-          const percentWidth = (order.total / Math.max(...buyOrders.map(o => o.total))) * 100;
-          return (
-            <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-              <span className={styles.price}>{order.price.toFixed(1)}</span>
-              <span className={styles.amount}>{order.amount.toFixed(5)}</span>
-              <div className={styles.totalColumn}>
-                <div 
-                  className={styles.background}
-                  style={{ width: `${percentWidth}%` }}
-                />
-                <span className={styles.total}>
-                  {order.total > 10000 
-                    ? `${(order.total/10000).toFixed(2)}万` 
-                    : order.total.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 买单/卖单比例 */}
-      <div className={styles.ratio}>
-        <div className={styles.buyBox}>B</div>
-        <div className={styles.ratioBar}>
-          <div 
-            className={styles.buyRatio} 
-            style={{ width: `${buyRatio}%` }}
-          >
-            <span className={styles.buyPercent}>{buyRatio}%</span>
+            <div className={styles.sellBox}>S</div>
           </div>
-          <div 
-            className={styles.sellRatio} 
-            style={{ width: `${sellRatio}%` }}
-          >
-            <span className={styles.sellPercent}>{sellRatio}%</span>
-          </div>
-        </div>
-        <div className={styles.sellBox}>S</div>
-      </div>
+        </>
+      ) : (
+        // 最新成交列表
+        renderTrades()
+      )}
     </div>
   );
 };

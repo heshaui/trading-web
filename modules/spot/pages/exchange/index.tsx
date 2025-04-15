@@ -1,7 +1,7 @@
 import React from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../../styles/billDetails.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -15,6 +15,8 @@ import SpotChartTables from '../compontents/spotChart_table'
 import SpotChartAssets from '../compontents/spotChart_assets'
 import SpotChartTrade from '../compontents/spotChart_trade'
 import KlineChart from '@/components/KlineChart'
+import Tradingview from '@/components/Tradingview'
+import DepthChart from '@/components/DepthChart'
 import OrderBook from '@/components/OrderBook'
 import WebSocketService from '@/utils/websocket';
 interface DataType {
@@ -35,6 +37,8 @@ const ExchangePage = () => {
     const [form] = Form.useForm();
     const [klineData, setKlineData] = useState<any[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>('');
+    const [activeChartType, setActiveChartType] = useState<string>('basic');
+    const [loading, setLoading] = useState<boolean>(true);
     const [tableData, setTableData] = useState<DataType[]>([
         {
             id: 1,
@@ -74,6 +78,7 @@ const ExchangePage = () => {
     })
     const paramdataRef = useRef(pageParam);
     const getKlineData = () => {
+        setLoading(true);
         const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
 
         websocket.connect((message: string) => {
@@ -94,10 +99,13 @@ const ExchangePage = () => {
                     // console.log("更新后的klineData将是:", newData);
                     return newData;
                 });
+                
+                setLoading(false);
             } catch (error) {
                 // 处理非JSON格式消息
                 setStatusMessage(message);
                 console.error('解析 WebSocket 消息时出错:', error);
+                setLoading(false);
             }
         });
     }
@@ -151,10 +159,26 @@ const ExchangePage = () => {
 
                     <div className={`${styles.card_bgc3} w-full mb-1`}  style={{display:'flex'}}>
                     <div style={{width:'70%',height:'548px'}}>
-                        <div>
-                            
+                        <div style={{display:'flex', marginBottom:'10px'}}>
+                            <div 
+                                onClick={() => setActiveChartType('basic')} 
+                                style={{cursor:'pointer', padding:'5px 10px', marginRight:'10px', fontWeight: activeChartType === 'basic' ? 'bold' : 'normal', color: activeChartType === 'basic' ? 'var(--text-color5)' : 'var(--text-color6)'}}
+                            >基本版</div>
+                            <div 
+                                onClick={() => setActiveChartType('tradingview')} 
+                                style={{cursor:'pointer', padding:'5px 10px', marginRight:'10px', fontWeight: activeChartType === 'tradingview' ? 'bold' : 'normal', color: activeChartType === 'tradingview' ? 'var(--text-color5)' : 'var(--text-color6)'}}
+                            >Tradingview</div>
+                            <div 
+                                onClick={() => setActiveChartType('depth')} 
+                                style={{cursor:'pointer', padding:'5px 10px', fontWeight: activeChartType === 'depth' ? 'bold' : 'normal', color: activeChartType === 'depth' ? 'var(--text-color5)' : 'var(--text-color6)'}}
+                            >深度图</div>
                         </div>
-                    <KlineChart socketData={klineData} width={100}  />
+                        
+                        <Spin spinning={loading} tip="加载中...">
+                            {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} />}
+                            {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
+                            {activeChartType === 'depth' && <DepthChart data={klineData} />}
+                        </Spin>
                     </div>
 
                    
