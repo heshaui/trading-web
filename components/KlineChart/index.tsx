@@ -18,7 +18,7 @@ interface KLineChartProps {
 const KLineChart: React.FC<KLineChartProps> = ({
   socketData,
   initialData = [],
-  height = 400,
+  height = 500,
   width = 65,
   theme = "light",
 }) => {
@@ -48,7 +48,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
       if (chartRef.current) {
         const disposeChart = async () => {
           const klinecharts = await initKlinecharts();
-          klinecharts.dispose(chartRef.current);
+          klinecharts.dispose(chartRef.current as HTMLElement);
         };
         disposeChart();
       }
@@ -87,7 +87,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
     }
   }, [socketData, chart]);
 
-  return <div ref={chartRef} id="chart" style={{ width: `${width}%`, height: `${548}px` }} />;
+  return <div ref={chartRef} id="chart" style={{ width: `${width}%`, height: `${height}px` }} />;
 };
 
 export default KLineChart;

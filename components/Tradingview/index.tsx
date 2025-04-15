@@ -440,17 +440,10 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "560px", margin: "auto" }}
+        style={{ width: "100%", height: "500px", margin: "auto" }}
       ></div>
 
-      <div className="indicator-buttons">
-        <button onClick={() => addIndicator("Moving Average")}>MA</button>
-        {target.map((item, index) => (
-          <button key={index} onClick={() => addIndicator(item.text)}>
-            {item.text}
-          </button>
-        ))}
-      </div>
+
     </div>
   );
 };
