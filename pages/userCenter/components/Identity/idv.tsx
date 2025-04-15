@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
 import { getCountryCode } from "@/services/open";
 import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
 
 interface IDVProps {
     onNext: (event: eventType) => void;

@@ -21,7 +21,7 @@ const TestChart = () => {
             symbol_groups: symbols,
             categories: categories
         });
-        websocket.send(message);
+
     };
 
     // 使用fetch请求http://ws81.imsaas.work接口
@@ -84,7 +84,7 @@ const TestChart = () => {
                 const data = JSON.parse(message);
                  console.log("getDepthData收到的原始数据:", data);
 
-                setDepthChartData(prevData => {
+                setDepthChartData((prevData: any) => {
                     const newData = Array.isArray(data) ? [...prevData, ...data] : [...prevData, data];
                     console.log("更新后的getDepthData:", newData);
                     return newData;

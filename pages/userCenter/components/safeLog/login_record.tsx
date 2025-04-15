@@ -13,7 +13,7 @@ import type { ColumnsType } from "antd/es/table";
 import { getUserDeviceNoList, getUserLoginLogList } from "@/services/safeCenter";
 import { toast } from "sonner";
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 interface DataType {
     id: number,
