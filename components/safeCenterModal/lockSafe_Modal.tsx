@@ -280,7 +280,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     className={`text-color mt-5`}
                     onClick={() => setPointout(true)}
                 >
-                    {t('security.lockSafe.error3')}
+                    {t('security.error3')}
                 </button>
             </div>
         );
