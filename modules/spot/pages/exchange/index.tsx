@@ -222,7 +222,7 @@ const ExchangePage = () => {
 
 
             <div className='flex flex-wrap'>
-                <div className={`${styles.card_bgc3} w-full mb-1 mr-1 flex`} style={{ width: '75%' }}>
+                <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
                     {/* <div className={`flex-1`}> */}
                     <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
                         <div style={{
@@ -318,10 +318,10 @@ const ExchangePage = () => {
                 <div className={`${styles.card_bgc} mb-1 flex-1`} >
                     <SpotChartTrade />
                 </div>
-                <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh', width: '75%' }}>
+                <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
                     <SpotChartTables />
                 </div>
-                <div className={`${styles.card_bgc1} flex-1 `} >
+                <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
                     <SpotChartAssets />
                 </div>
             </div>
