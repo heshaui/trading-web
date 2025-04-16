@@ -9,6 +9,8 @@ import styles from "./styles/errModal.module.css";
 import Image from "next/image";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import { useTranslation } from 'next-i18next';
+import { ROUTER_KEY_ASSETS,ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useRouter } from 'next/router';
 type Props = {
     open: boolean;
     message?: string;
@@ -18,7 +20,7 @@ type Props = {
 };
 
 function TotastModal({ open, message, type, onCancel }: Props) {
-    // const router = useRouter();
+    const router = useRouter();
     const { t } = useTranslation(['assets']);
     const { isDayMode } = useThemeMode();
     useEffect(() => {
@@ -28,7 +30,9 @@ function TotastModal({ open, message, type, onCancel }: Props) {
     const handCancel = () => {
         onCancel()
     };
-
+    const handOk = () => {
+        onCancel()
+    };
     // const handOk = async (type: string) => {
     //     console.log(type);
     //     // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
@@ -40,7 +44,7 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                 {type === 'error' && <button
                     type="button"
                     className={`${styles.errModal_btn} btn-color`}
-                    onClick={handCancel}
+                    onClick={handOk}
                 >
                     {/* 我知道了 */}
                     {t('modal.confirm')}
@@ -49,7 +53,10 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                     <button
                         type="button"
                         className={`${styles.errModal_btn} btn-color`}
-                        onClick={handCancel}
+                        onClick={() => {
+                            router.push(ROUTER_KEY_SPOT.INDEX)
+                            handCancel()
+                        }}
                     >
                         {/* 去交易 */}
                         {t('modal.goTrade')}
@@ -57,7 +64,10 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                     <button
                         type="button"
                         className={`${styles.errModal_btn} cancel_btn3 mt-5`}
-                        onClick={handCancel}
+                        onClick={() => {
+                            router.push(ROUTER_KEY_ASSETS.ACCOUNT)
+                            handCancel()
+                        }}
                     >
                         {/* 查看资产 */}
                         {t('modal.checkAsset')}

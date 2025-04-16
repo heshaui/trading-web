@@ -18,6 +18,8 @@ import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal"
 import TotastModal from "./totastModal";
 import { getUserInfo } from '@/hooks/userInfo';
 import { useTranslation } from "react-i18next";
+import { useResetStateContext } from '@/hooks/useStateProvider';
+
 interface paramsType {
     coinId: number;
     protocolId: number;
@@ -59,6 +61,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
     const [totastOpen, setTotastOpen] = useState(false)
     const [totastMessage, setTotastMessage] = useState('')
     const [totastType, setTotastType] = useState('')
+    const {  setResetState } = useResetStateContext();
     const handCancel = () => {
         onCancel()
     };
@@ -71,7 +74,6 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
         onCancel()
     };
     const safeModalOk = async (event: any) => {
-        console.log(event);
         const params = {
             coinId: withdrawInfo?.coinId,
             protocolId: withdrawInfo?.protocolId,
@@ -88,6 +90,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
             if (res.code === '0') {
                 // toast.success(res.message)
                 // onOk(true)
+                setResetState(true) // 重置状态
                 setTotastOpen(true)
                 setTotastMessage(`${withdrawInfo?.amount} ${withdrawInfo?.coinName}`)
                 setTotastType('success')

@@ -12,6 +12,8 @@ import { useRouter } from 'next/router';
 import type { CheckboxProps } from 'antd';
 import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
+import { useResetStateContext } from '@/hooks/useStateProvider';
+
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -58,6 +60,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     const [orderId, setOrderId] = useState<string>('');
 
     const paramdataRef = useRef(pageParam);
+    const { resetState, setResetState } = useResetStateContext();
 
 
 
@@ -158,7 +161,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                             setOrderId(record.withdrawalId)
                         }}
                     >{t('assetsAccount.button.cancel')}</button>
-                    :  '--'}
+                    : '--'}
                 </>;
             },
         },
@@ -225,8 +228,11 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             }
         } finally {
             setTableLoading(false)
+            // 只在 resetState 为 true 时才重置状态
+            if (resetState) {
+                setResetState(false)
+            }
         }
-
     }
     const onlyShowChange: CheckboxProps['onChange'] = (e) => {
 
@@ -246,8 +252,16 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
         }
     }
     useEffect(() => {
-        getWithdrawDepositListData()
-    }, [])
+        // 只在 resetState 为 true 时发起请求
+        if (resetState) {
+            getWithdrawDepositListData();
+        }
+    }, [resetState]);
+
+    // 添加初始加载的 useEffect
+    useEffect(() => {
+        getWithdrawDepositListData();
+    }, []);
 
     return (
         <div className={`${styles.table_box} w-full `}>
