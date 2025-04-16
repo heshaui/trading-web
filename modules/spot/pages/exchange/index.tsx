@@ -99,7 +99,7 @@ const ExchangePage = () => {
     const [chartType, setChartType] = useState<any[]>([{label:'基本版',value:'basic'},{label:'TradingView',value:'tradingview'},{label:'深度图',value:'depth'}]);
     const [historyLoading, setHistoryLoading] = useState<boolean>(false);
 
-    const getKlineData = () => {
+    const getWsKlineData = () => {
         setLoading(true);
         const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
 
@@ -131,16 +131,38 @@ const ExchangePage = () => {
             }
         });
     }
-    const getHistoryData = async () => {
+
+
+    const getWsDepthData = () => {
+        const websocket = new WebSocketService('ws://ws81.imsaas.work/ws/btc_usdt_1@depth_1m');
+        websocket.connect((message: string) => {
+            console.log("WebSocket收到的原始数据:", message);
+            try {
+                const data = JSON.parse(message);
+                console.log("WebSocket收到的原始数据:", data);
+            } catch (error) {
+                console.error('解析 WebSocket 消息时出错:', error);
+            }
+        });
+    }
+
+    const getHistoryKlineData = async () => {
         const response = await fetch(`http://ws81.imsaas.work/kline/BTC_USDT_1/1m/range?start_time=1744750140000&end_time=1744750200000&limit=50`);
             const data = await response.json();
             console.log("data", data);
 
-            getKlineData();
+            getWsKlineData();
+    }
+
+    const getHistoryDepthData = async () => {
+        const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1/1m/range?start_time=1744750140000&end_time=1744750200000&limit=50`);
+        const data = await response.json();
+        console.log("data", data);
+
     }
     useEffect(() => {
-        getHistoryData();
-
+        getHistoryKlineData();
+        getHistoryDepthData();
 
     }, [])
 
