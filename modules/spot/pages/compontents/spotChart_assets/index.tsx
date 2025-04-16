@@ -20,10 +20,10 @@ const SpotAssetsPage = () => {
 
 
     return (<>
-        <div className={`${styles.card_header} flex align-center`}>
+        <div className={`${styles.card_header} flex align-center w-full`}>
             资产
         </div>
-        <div className={`px-6 py-6`}>
+        <div className={`px-6 py-6 w-full ${styles.spot_main}`}>
             <ul className={`${styles.tip_color1} font-14 font-w-400`}>
                 <li className='flex justify-between align-center mb-5'>
                     <div>BTC可用资产</div>
