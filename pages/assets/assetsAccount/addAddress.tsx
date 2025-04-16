@@ -84,9 +84,8 @@ const AddAdressPage = () => {
 
     ]);
     const [selectDelect, setSelectDelect] = useState(false)
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const { isDayMode } = useThemeMode(); // 使用 hook
-
-
 
     const [pageParam, setPageParam] = useState({
         page: 1,
@@ -95,6 +94,11 @@ const AddAdressPage = () => {
     const [tableLoading, setTableLoading] = useState(false);
     const paramdataRef = useRef(pageParam);
 
+    // 添加 useRef 来存储筛选条件
+    const filterRef = useRef({
+        coinId: '',
+        addressName: ''
+    });
 
     const columns: ColumnsType<DataType> = [
         {
@@ -141,7 +145,7 @@ const AddAdressPage = () => {
             // width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{_status || '--'}</span>;
+                return <span >{_status ? dayjs(_status).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>;
             },
         },
 
@@ -176,8 +180,8 @@ const AddAdressPage = () => {
         const pageParam = {
             pageNo: paramdataRef.current.page,
             pageSize: paramdataRef.current.pageSize,
-            addressName: addressName || "",
-            coinId: coinId || ""
+            addressName: filterRef.current.addressName,
+            coinId: filterRef.current.coinId
         }
         setTableLoading(true)
         try {
@@ -212,7 +216,6 @@ const AddAdressPage = () => {
                     iconUrl: item.iconUrl,
                     nameDefault: item.nameDefault,
                 }))
-                console.log(coinList,'coinList');
                 
                 setCoinSelect(coinList)
             } else {
@@ -237,29 +240,24 @@ const AddAdressPage = () => {
 
     // 币种筛选
     const coinChange = (value: string) => {
-        if (value) {
-            setCoinId(value)
-        } else {
-            setCoinId('')
-        }
         const newCoinId = value || '';
-
-        filterTableData(newCoinId, addressName);
-
+        setCoinId(newCoinId);
+        filterRef.current.coinId = newCoinId;
+        filterTableData();
     }
     // 地址/备注筛选
     const addressChange = (e: any) => {
-        const value = e.target.value
-        if (value) {
-            setAddressName(value)
-        } else {
-            setAddressName('')
-        }
+        const value = e.target.value;
         const newAddressName = value.toString() || '';
-        filterTableData(coinId, newAddressName);
+        setAddressName(newAddressName);
+        filterRef.current.addressName = newAddressName;
+        filterTableData();
     }
     // 筛选函数
-    const filterTableData = (coinIdValue: string, addressNameValue: string) => {
+    const filterTableData = async () => {
+        await getuserAddressListData();
+    }
+    const filterTableData2 = (coinIdValue: string, addressNameValue: string) => {
         // 如果两个筛选条件都为空，则显示所有数据
         if (!coinIdValue && !addressNameValue) {
             setTableData(inittableData);
@@ -287,12 +285,30 @@ const AddAdressPage = () => {
 
         setTableData(filteredData);
     }
-    const selectRow = (selectedRowKeys: any, selectedRows: any) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        const delectInfo = [...selectedRowKeys];
-        setDelectInfo(delectInfo);
+    // 监听表格数据变化，更新选中状态
+    useEffect(() => {
+        if (selectedRowKeys.length > 0) {
+            // 获取当前表格中存在的选中行
+            const validSelectedKeys = selectedRowKeys.filter(key => 
+                tableData.some(item => item.id === key)
+            );
+            
+            // 如果选中的行不在当前表格中，更新选中状态
+            if (validSelectedKeys.length !== selectedRowKeys.length) {
+                setSelectedRowKeys(validSelectedKeys);
+                setDelectInfo(validSelectedKeys as number[]);
+                setSelectDelect(validSelectedKeys.length > 0);
+            }
+        }
+    }, [tableData]);
+
+    // 修改 selectRow 函数
+    const selectRow = (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+        setSelectedRowKeys(selectedRowKeys);
+        setDelectInfo(selectedRowKeys as number[]);
         setSelectDelect(selectedRowKeys.length > 0);
     }
+
     const delectAddress = (id: number) => {
         setDelectOpen(true)
         const delectInfo = [id];
@@ -432,6 +448,7 @@ const AddAdressPage = () => {
                             rowKey="id"
                             rowSelection={{
                                 type: 'checkbox',
+                                selectedRowKeys,
                                 onChange: selectRow
                             }}
                         />

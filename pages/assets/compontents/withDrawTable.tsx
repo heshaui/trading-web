@@ -168,8 +168,9 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
 
     ];
+    // 撤销提现
     const cancelWithdraw = async () => {
-        const res = await getCancelWithdraw({ orderId: orderId })
+        const res = await getCancelWithdraw({ withdrawalId: orderId })
         try {
             if (res.code === '0') {
                 toast.success(res.message || 'success')

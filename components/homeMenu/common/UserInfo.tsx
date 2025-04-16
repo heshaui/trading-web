@@ -13,9 +13,16 @@ import { getLoginInfo } from '@/services/overview';
 import { encryptString } from '@/utils/encrypt';
 import { toast } from 'sonner';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { getKvObject } from '@/services/kv'
+interface UserItemsListType {
+    key: string,
+    type: string,
+    label: React.ReactNode,
+}
 export default function UserInfoIcon() {
     // 路由
     const router = useRouter();
+    const [userItemsList, setUserItemsList] = useState<UserItemsListType[]>([])
 
     // t - 多语言
     const { t, i18n } = useTranslation('home_menu');
@@ -195,6 +202,7 @@ export default function UserInfoIcon() {
                 const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
                 setUserInfo(userInfo)
             }
+            getUseBankKv()
         }
         // const res = await getLoginInfo()
         // if (res.code === "0") {
@@ -231,10 +239,31 @@ export default function UserInfoIcon() {
             key: '4',
             type: 'group',
             label: (
-                <MenuItemLabel items={userItems} isUserList />
+                <MenuItemLabel items={userItemsList} isUserList />
             ),
         },
     ];
+        const getUseBankKv = async () => {
+        const keys = ['account_configuration']
+
+        const res = await getKvObject(keys)
+        try {
+            if (res.code === '0') {
+                if(res.data.account_configuration==='1'){
+                    setUserItemsList(userItems)
+                }else{
+                    const userItemsList = userItems.filter(item=>item.key!=='5')
+                    setUserItemsList(userItemsList)
+                }
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+
+
+    }
     return (
         <>
             <Dropdown

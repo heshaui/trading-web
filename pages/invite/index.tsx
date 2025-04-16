@@ -7,7 +7,7 @@ import InviteBanner from './components/invite_banner';
 import InviteContent from './components/invite_content';
 import InviteModal from './components/modal/invite_Modal';
 import { useEffect, useState } from 'react';
-import { getLoginInfo } from '@/services/overview';
+// import { getLoginInfo } from '@/services/overview';
 import { useRouter } from 'next/router';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
