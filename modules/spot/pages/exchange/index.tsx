@@ -24,6 +24,7 @@ import { FullscreenOutlined } from '@ant-design/icons';
 import Image from 'next/image'
 import { NoData } from '@/components/noData';
 import type { DropdownProps, MenuProps } from 'antd'
+import { getExchangeGroup } from '@/services/spot';
 interface DataType {
     id: number,
     userId: number,
@@ -96,8 +97,19 @@ const ExchangePage = () => {
     const [open, setOpen] = useState<boolean>(true);
     const [historyData, setHistoryData] = useState<any[]>([]);
     const [dayData, setDayData] = useState<any[]>(['15m','1h','4h','1D']);
-    const [chartType, setChartType] = useState<any[]>([{label:'基本版',value:'basic'},{label:'TradingView',value:'tradingview'},{label:'深度图',value:'depth'}]);
+    const [chartType, setChartType] = useState<any[]>([
+        {label:'基本版',value:'basic'},
+        {label:'TradingView',value:'tradingview'},
+        {label:'深度图',value:'depth'}
+    ]);
+    const [chartDisplayType, setChartDisplayType] = useState<string>('kline');
     const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+
+
+    const getGroup = async () => {
+        const response = await getExchangeGroup();
+        console.log("response", response);
+    }
 
     const getWsKlineData = () => {
         setLoading(true);
@@ -156,11 +168,12 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1/1m/range?start_time=1744750140000&end_time=1744750200000&limit=50`);
-        const data = await response.json();
-        console.log("data", data);
+        // const data = await response.json();
+        // console.log("data", data);
 
     }
     useEffect(() => {
+        getGroup();
         getHistoryKlineData();
         getHistoryDepthData();
 
@@ -180,6 +193,28 @@ const ExchangePage = () => {
             }
             setIsFullscreen(!isFullscreen);
         }
+    };
+
+    const chartTypeItems: MenuProps['items'] = [
+        {
+            key: 'kline',
+            label: 'K线图',
+
+        },
+        {
+            key: 'americanLine',
+            label: '美国线',
+
+        },
+        {
+            key: 'area',
+            label: '面积图',
+
+        },
+    ];
+
+    const handleChartTypeChange = (e: { key: string }) => {
+        setChartDisplayType(e.key);
     };
 
     return (<div className={`${styles.page_box} w-full`}>
@@ -249,7 +284,31 @@ const ExchangePage = () => {
                                 ))}
 
                                 <Space size="small" style={{ marginLeft: '16px' }}>
-                                
+                                    <Dropdown 
+                                        menu={{ 
+                                            items: chartTypeItems, 
+                                            onClick: handleChartTypeChange,
+                                            selectedKeys: [chartDisplayType]
+                                        }} 
+                                        trigger={['hover']}
+                                        placement="bottom"
+                                    >
+
+                                            <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
+
+                                    </Dropdown>
+                                    <Tooltip title="技术指标">
+                                        <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
+                                    </Tooltip>
+                                    <Tooltip title="图表重置">
+                                        <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20} />
+                                    </Tooltip>
+                                    <Tooltip title="图表截图">
+                                        <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20} />
+                                    </Tooltip>
+                                    <Tooltip title="成交量分布">
+                                        <Image src="/images/exchange/icon_value.png" alt="exchange" width={20} height={20} />
+                                    </Tooltip>
                                 </Space>
                             </div>
 
@@ -269,36 +328,6 @@ const ExchangePage = () => {
                                     </Button>
                                 ))}
                                 
-                                {/* <Button
-                                    type={activeChartType === 'basic' ? 'primary' : 'text'}
-                                    onClick={() => setActiveChartType('basic')}
-                                    style={{
-                                        background: activeChartType === 'basic' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                        color: activeChartType === 'basic' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                    }}
-                                >
-                                    基本版
-                                </Button>
-                                <Button
-                                    type={activeChartType === 'tradingview' ? 'primary' : 'text'}
-                                    onClick={() => setActiveChartType('tradingview')}
-                                    style={{
-                                        background: activeChartType === 'tradingview' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                        color: activeChartType === 'tradingview' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                    }}
-                                >
-                                    TradingView
-                                </Button>
-                                <Button
-                                    type={activeChartType === 'depth' ? 'primary' : 'text'}
-                                    onClick={() => setActiveChartType('depth')}
-                                    style={{
-                                        background: activeChartType === 'depth' ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                        color: activeChartType === 'depth' ? 'var(--text-color5)' : 'var(--text-color6)'
-                                    }}
-                                >
-                                    深度图
-                                </Button> */}
                                 <Tooltip title="全屏">
                                     <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
                                 </Tooltip>
@@ -306,7 +335,13 @@ const ExchangePage = () => {
                         </div>
 
                         <Spin spinning={loading} tip="加载中...">
-                            {activeChartType === 'basic' && <KlineChart socketData={klineData} width={100} />}
+                            {activeChartType === 'basic' && (
+                                <KlineChart 
+                                    socketData={klineData} 
+                                    width={100} 
+                                    chartType={chartDisplayType}
+                                />
+                            )}
                             {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
                             {activeChartType === 'depth' && <DepthChart data={klineData} />}
                         </Spin>

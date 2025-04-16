@@ -21,3 +21,11 @@ export function createOrder(data: createOrderType): Promise<any> {
     });
 }
 
+
+// 获取交易所组
+export function getExchangeGroup(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/group/getExchangeGroup`, {
+        method: 'GET',
+    });
+}
+
