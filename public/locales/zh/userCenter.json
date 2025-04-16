@@ -1,12 +1,12 @@
 {
     "safeCenter":{
-        "overView":"全栈概览",
+        "overView":"总览",
         "account":"用户设置",
         "identity":"身份认证",
         "security":"安全中心"
     },
     "overview":{
-         "title":"全栈概览",
+         "title":"总览",
          "auth":"已认证",
          "unAuth":"未认证",
          "audit":"审核中",

@@ -5,7 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { NoData, NoAddress } from '@/components/noData';
-import { getWithdrawDepositList } from '@/services/assets'
+import { getWithdrawDepositList, getCancelWithdraw } from '@/services/assets'
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon'
 import { useRouter } from 'next/router';
@@ -38,10 +38,10 @@ interface coinSelectType {
     label?: string,
 }
 type Props = {
-    coinId:number|string|any,
-    coinAll:coinSelectType[]
+    coinId: number | string | any,
+    coinAll: coinSelectType[]
 };
-const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
+const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     const { t } = useTranslation(['assets']);
     const router = useRouter();
     const [tableData, setTableData] = useState<DataType[]>([]);
@@ -55,7 +55,7 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
         pageSize: 10
     })
     const [tableLoading, setTableLoading] = useState(false);
-
+    const [orderId, setOrderId] = useState<string>('');
 
     const paramdataRef = useRef(pageParam);
 
@@ -65,13 +65,14 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
     const columns: ColumnsType<DataType> = [
         {
             title: t('assetsAccount.coin'), //"币种",
-            dataIndex: "coinId",
-            key: "coinId",
+            dataIndex: "coinName",
+            key: "coinName",
             width: 158,
             align: "left",
             render: (text, record) => {
-                const coin = coinAll.find(coin => coin.coinId === text);
-                return <div>{coin?.coinName || '--'} </div>
+                return <div>{text || '--'} </div>
+                // const coin = coinAll.find(coin => coin.coinId === text);
+                // return <div>{coin?.coinName || '--'} </div>
             },
         },
         {
@@ -120,7 +121,7 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
             width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{_status || '--'}</span>;
+                return <span >{_status ? dayjs(_status).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>;
             },
         },
         {
@@ -140,7 +141,7 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
             width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{ getStatus(_status)|| '--'}</span>;
+                return <span >{getStatus(_status) || '--'}</span>;
             },
         },
         {
@@ -149,17 +150,35 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
             dataIndex: "operation",
             width: 128,
             align: "center",
-            render: (_status) => {
-                return < >
+            render: (_status, record) => {
+                return < >{record.status == 1 ?
                     <button className={`${styles.theme_color}`}
-                    onClick={() => setOpen(true)}
+                        onClick={() => {
+                            setOpen(true)
+                            setOrderId(record.withdrawalId)
+                        }}
                     >{t('assetsAccount.button.cancel')}</button>
+                    :  '--'}
                 </>;
             },
         },
 
 
     ];
+    const cancelWithdraw = async () => {
+        const res = await getCancelWithdraw({ orderId: orderId })
+        try {
+            if (res.code === '0') {
+                toast.success(res.message || 'success')
+                await getWithdrawDepositListData()
+            } else {
+                toast.error(res.message || 'error')
+            }
+        } catch (error) {
+            toast.error(String(error) || 'error')
+        }
+
+    }
 
     const getStatus = (status: number) => {
         switch (status) {
@@ -196,11 +215,11 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
         try {
             const res = await getWithdrawDepositList(pageParam)
             setInitTableData(res.data.list)
-            if(coinId&&checked){
-                const tableData = res.data.list.filter((item:any) => item.coinId == coinId)
+            if (coinId && checked) {
+                const tableData = res.data.list.filter((item: any) => item.coinId == coinId)
                 setTableData(tableData)
                 setTotal(tableData.length)
-            }else{
+            } else {
                 setTableData(res.data.list)
                 setTotal(res.data.count)
             }
@@ -210,9 +229,9 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
 
     }
     const onlyShowChange: CheckboxProps['onChange'] = (e) => {
-        
-        if(e.target.checked) {
-            if(coinId) {
+
+        if (e.target.checked) {
+            if (coinId) {
                 setTableData(initTableData.filter((item) => item.coinId == coinId))
                 setChecked(true) // 确保选中状态更新
             } else {
@@ -298,10 +317,10 @@ const WithdrawMoneyTable = ({coinId,coinAll}:Props) => {
                     locale={{ emptyText: <NoData title={t('withdrawMoney.noRecord')} /> }}
                 />
             </ConfigProvider>
-            <TableCancelModal open={open} 
+            <TableCancelModal open={open}
 
-            onCancel={() => setOpen(false)}
-             onOk={() => setOpen(false)} />
+                onCancel={() => setOpen(false)}
+                onOk={() => cancelWithdraw()} />
         </div>
 
     );

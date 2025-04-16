@@ -352,7 +352,7 @@ const OverviewPage: React.FC = () => {
                         <p className={`font-14 mt-2 ${styles.tip_color}`}>
                             {statusText(loginInfo?.realnessStatus)}
                         </p>
-                        {loginInfo?.realnessStatus === 0 ? <div className={`font-14 mt-3`}>
+                        {loginInfo?.realnessStatus === 0 ? <div className={`font-14 mt-3 ${styles.error_icon}`}>
                             {/* 请重新提交认证，完成认证后可以享受
                             交易所完整的服务 */}
                             {t('overview.identityAuth.reVerify')}
