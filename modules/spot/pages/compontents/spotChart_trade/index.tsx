@@ -1,13 +1,13 @@
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button } from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button ,Tabs} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 import BuyPage from './buy_page';
-
+import type { TabsProps } from 'antd';
 interface DataType {
     id: number,
     userId: number,
@@ -21,10 +21,14 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
+type Props = {
+    segmentedType: string
+}
 const SpotTradePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
+    const [priceDisabled, setPriceDisabled] = useState(false);
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -46,9 +50,31 @@ const SpotTradePage = () => {
     };
     const onSumbit = (values: any) => {
         form.validateFields()
-        .then((values) => {
-            console.log(values,111);
-        })
+            .then((values) => {
+                console.log(values, 111);
+            })
+    }
+    const items: TabsProps['items'] = [
+        {
+            key: '1',
+            label: t('spot.select.limit'), //"当前委托",
+            children: '', //<div>123</div>, //
+        },
+        {
+            key: '2',
+            label: t('spot.select.market'), //'历史委托',
+            children: '', //<SpotOrderHistory />,
+        }
+    ];
+    const onChange = (key: string) => {
+        if(key === '1'){
+            setPriceDisabled(false)
+        }else{
+            form.setFieldsValue({
+                price: ''
+            })
+            setPriceDisabled(true)
+        }
     }
     const geSegmentedChange=(value: string | number)=>{
         setSegmentedValue(value as string)
@@ -97,6 +123,22 @@ const SpotTradePage = () => {
                         defaultHoverBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                         defaultHoverColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                     },
+                    Tabs: {
+                        itemActiveColor: "var(--tip-color)", //激活态颜色  
+                        itemSelectedColor: "var(--text-color5)", //选中态颜色
+                        horizontalMargin: "0 0 0 0",
+                        itemColor: "var(--text-color6)",
+                        inkBarColor: "transparent", //指示条颜色
+                        horizontalItemPaddingLG:"0",
+                        horizontalItemPadding:"0",
+                        horizontalItemPaddingSM:"0",
+                        horizontalItemGutter:10,
+                        itemHoverColor:"var(--text-color5)",
+                    },
+                    Slider:{
+                        railBg: 'var(--background16)', // 滑块轨道背景色
+                        railHoverBg: 'var(--background16)', // 滑块轨道悬浮背景色
+                    }
                 },
             }}
         >
@@ -125,29 +167,38 @@ const SpotTradePage = () => {
                     defaultValue={'buy'}
                     />
             </div>
-            <BuyPage segmentedType={segmentedvalue} />
-            {/* <div className={`mt-6 w-full`} >
+            {/* <BuyPage segmentedType={segmentedvalue} /> */}
+            <div className='flex-y align-center'>
+
+            <div className={`w-full`}>
+             <Tabs items={items}
+                className="custom-tabs"
+                defaultActiveKey="1"
+                indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                onChange={onChange}/>   
+            </div>
+            
+            <div className={`mt-4`} >
                 <Form
                     form={form}
-                    // onFinish={onSumbit}
-                // initialValues={{
-                //   type: '',
-                //   direction: '',
-                //   symbol: ''
-                // }}
+                    style={{width: '100%'}}
                 >
                     <Form.Item name='price'
-                        // rules={[{ validator: checkAmount }]}
-                        >
-                        <InputNumber className={`${styles.mail_input} spot_number_input mr-7`}
-                            style={{ width: "100%" }}
-                            suffix={<div>
+                    className='spot_number_box'
+                    >
+                        <InputNumber 
+                            className={`${styles.mail_input} spot_number_input2 `}
+                            style={{ 
+                                width: "100%",
+                                boxSizing: 'border-box',
+                            }}
+                            suffix={!priceDisabled?<div>
                                 USDT
-                            </div>}
+                            </div>:t('spot.select.market')}
                             prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.price')}</span>}
                             // max={100}
                             // min={0}
-                            controls={{
+                            controls={priceDisabled?false:{
                                 upIcon: <Iconify icon="mdi:chevron-up" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
                                 downIcon: <Iconify icon="mdi:chevron-down" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
                             }}
@@ -162,13 +213,13 @@ const SpotTradePage = () => {
                                     .replace(/\.(?=.*\.)/g, '');
                                 return parsed as unknown as number;
                             }}
+                            disabled={priceDisabled}
 
                         />
                     </Form.Item>
                     <Form.Item name='amount'
-                        // rules={[{ validator: checkAmount }]}
-                        >
-                        <InputNumber className={`${styles.mail_input} spot_number_input mr-7`}
+                    >
+                        <InputNumber className={`${styles.mail_input} spot_number_input `}
                             style={{ width: "100%" }}
                             suffix={<div>
                                 BTC
@@ -193,9 +244,9 @@ const SpotTradePage = () => {
                     </Form.Item>
                     <Slider marks={marks} defaultValue={37} />
                     <Form.Item name='account'
-                        // rules={[{ validator: checkAmount }]}
-                        >
-                        <InputNumber className={`${styles.mail_input} spot_number_input mr-7`}
+                    // rules={[{ validator: checkAmount }]}
+                    >
+                        <InputNumber className={`${styles.mail_input} spot_number_input `}
                             style={{ width: "100%" }}
                             suffix={<div>
                                 USDT
@@ -224,17 +275,20 @@ const SpotTradePage = () => {
                             <p>-USDT</p>
                         </li>
                         <li className='flex justify-between align-center'>
-                            <p>可买</p>
+                            <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
                             <p>--BTC</p>
                         </li>
                     </ul>
                 </Form>
-                <Button 
-                // className={`${styles.sumbit_btn} green_btn`}
-                style={{width: '100%',height: '50px',borderRadius: '32px'}}
-                 htmlType="submit" onClick={onSumbit}>{t('spot.trade.buy')}</Button>
+                <Button
+                    // className={`${styles.sumbit_btn} green_btn`}
+                    style={{ width: '100%', height: '50px', borderRadius: '32px' }}
+                    htmlType="submit" onClick={onSumbit}>{segmentedvalue === 'buy' ?t('spot.trade.buy') : t('spot.trade.sell')}</Button>
 
-            </div> */}
+                {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
+
+            </div>
+            </div>
         </ConfigProvider>
     </div>
     );
