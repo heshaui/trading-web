@@ -25,7 +25,8 @@ function TableCancelModal({ open, onCancel ,onOk}: Props) {
     };
 
     const handOk = async () => {
-       toast.error('暂无接口')
+        onOk()
+    //    toast.error('暂无接口')
     };
 
     const ModalFooter: ModalProps["footer"] = () => {
