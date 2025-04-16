@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import UserInfoMenu from './common/UserInfo';
 import AssetsMenu from './common/Assets';
 import LangageMenu from './common/Langage';
+import { getKvObject } from '@/services/kv'
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -478,6 +479,7 @@ export default function HomeMenu() {
                 setUserInfo(userInfo)
             }
         }
+
         // const res=await getLoginInfo()
         // if(res.code === "0"){
         //     setUserInfo(res.data)
@@ -485,7 +487,7 @@ export default function HomeMenu() {
         //     toast.error(res.message)
         // }
     }
-    // nav***@gmail.com
+    // nav***@gmail.com//邮箱
     const userItemsAll = [
         {
             key: '1',
@@ -1180,7 +1182,7 @@ export default function HomeMenu() {
                                                     </Dropdown>
                                                 </Col>
                                                 <Col>
-                                                    <Dropdown
+                                                    {/* <Dropdown
                                                         menu={{
                                                             items: userItemsAll as MenuProps['items'],
                                                             triggerSubMenuAction: 'click',
@@ -1201,8 +1203,8 @@ export default function HomeMenu() {
                                                                 height={20} // 必须指定高度
                                                             />
                                                         </Space>
-                                                    </Dropdown>
-                                                    {/* <UserInfoMenu /> */}
+                                                    </Dropdown> */}
+                                                    <UserInfoMenu />
                                                 </Col>
                                                 {iconItemsLogin}
                                                 {/* <Col> */}

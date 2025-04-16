@@ -37,7 +37,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
     const [form] = Form.useForm();
     const [inputValue, setInputValue] = useState(nicknameInfo.nickname || '');
     const handCancel = () => {
-        form.resetFields();
+        // form.resetFields();
         onCancel()
     };
 

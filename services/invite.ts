@@ -20,4 +20,10 @@ export function getInviteList(params:paramType): Promise<any> {
         body:JSON.stringify(params)
     });
 }
+// 获取奖励规则
+export function getRewardConfiguration(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/user/getRewardConfiguration`, {
+        method: 'GET',
+    });
+}
 

@@ -34,3 +34,14 @@ export const LOCAL_STORAGE_KEY = {
 	USER_TOKEN:"imbit_userToken",
     OUT_MONEY:"imbit_out_money",
 };
+
+export const ROUTER_KEY_ASSETS = {
+    ACCOUNT:"/assets/assetsAccount", //资产页面/现货账户
+	WITHDRAW_MONEY:"/assets/assetsAccount/withdrawMoney", //提现页面
+	TOP_UP:"/assets/assetsAccount/topUp", //充值页面
+    BILL:"/assets/billDetails", //账单页面
+    ADDADRESS:"/assets/assetsAccount/addAddress", //添加地址页面
+};
+export const ROUTER_KEY_SPOT = {
+    INDEX:"/exchange", //首页
+};

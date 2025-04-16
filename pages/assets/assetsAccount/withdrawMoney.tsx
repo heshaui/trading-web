@@ -23,6 +23,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { ResetStateProvider} from '@/hooks/useStateProvider';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -157,6 +158,7 @@ const WithdrawMoneyPage = () => {
     const [showMemo, setShowMemo] = useState(false);
 
     const [allowWithdraw, setAllowWithdraw] = useState(false)
+    // const { resetState, setResetState } = useResetStateContext();
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -966,10 +968,11 @@ const WithdrawMoneyPage = () => {
         }
     }, []); // 空依赖数组表示只在组件挂载时执行一次
 
-    return (<div className={` page-h w-full page-box flex-y align-center`} style={{ paddingBottom: '10vh' }}>
-        <div className={`${styles.spot_auth_box}`} >
-            <div className='flex justify-between align-center'>
-                <Breadcrumb items={[
+    return (<ResetStateProvider>
+        <div className={` page-h w-full page-box flex-y align-center`} style={{ paddingBottom: '10vh' }}>
+            <div className={`${styles.spot_auth_box}`} >
+                <div className='flex justify-between align-center'>
+                    <Breadcrumb items={[
                     {
                         title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
                             {/* 现货账户 */}
@@ -1069,6 +1072,7 @@ const WithdrawMoneyPage = () => {
                 onCancel={() => setCheckOpen(false)} />
         </div>
     </div>
+    </ResetStateProvider>
     );
 };
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
