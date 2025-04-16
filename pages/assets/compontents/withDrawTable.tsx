@@ -13,7 +13,7 @@ import type { CheckboxProps } from 'antd';
 import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
 import { useResetStateContext } from '@/hooks/useStateProvider';
-
+import { encryptData } from '@/hooks/user-encrypt'
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -173,7 +173,8 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
         const param={
             withdrawalId: orderId
         }
-        const res = await getCancelWithdraw(param)
+        const encrypt = await encryptData(param)
+        const res = await getCancelWithdraw(encrypt)
         try {
             if (res.code === '0') {
                 toast.success(res.message || 'success')

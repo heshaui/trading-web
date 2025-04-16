@@ -9,6 +9,7 @@ import { useState } from 'react';
 import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
+import PlaceOrderModal from './placeOrder_modal';
 interface DataType {
     id: number,
     userId: number,
@@ -30,6 +31,7 @@ const SpotTradePage = () => {
     const [form] = Form.useForm();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
     const [priceDisabled, setPriceDisabled] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -63,7 +65,8 @@ const SpotTradePage = () => {
                     type:0,
                 }
                 try {
-                    const res = await createOrder(params)
+                    // const res = await createOrder(params)
+                    setModalOpen(true)
                 } catch (error) {
 
                 }
@@ -303,6 +306,7 @@ const SpotTradePage = () => {
                     {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
 
                 </div>
+                <PlaceOrderModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} />
             </div>
         </ConfigProvider>
     </div>

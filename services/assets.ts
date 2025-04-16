@@ -122,11 +122,9 @@ export function getUserBalance(coinId: string|number): Promise<any> {
       body: JSON.stringify(data)
     });
   }
-interface cancelWithdrawType {
-  withdrawalId:string,
-}
+
   // 取消提现/撤回提现
-  export function getCancelWithdraw(data:cancelWithdrawType): Promise<any> {
+  export function getCancelWithdraw(data:encryptType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/withdraw-deposit/undoWithdrawDeposit`, {
       method: 'POST',
       body: JSON.stringify(data)
