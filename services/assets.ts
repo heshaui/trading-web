@@ -123,12 +123,13 @@ export function getUserBalance(coinId: string|number): Promise<any> {
     });
   }
 interface cancelWithdrawType {
-  orderId:string,
+  withdrawalId:string,
 }
   // 取消提现/撤回提现
   export function getCancelWithdraw(data:cancelWithdrawType): Promise<any> {
-    return request(`${fixUrl}/user-web/v1/order/revocationOrder`, {
+    return request(`${fixUrl}/user-web/v1/withdraw-deposit/undoWithdrawDeposit`, {
       method: 'POST',
       body: JSON.stringify(data)
     });
   }
+

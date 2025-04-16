@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from '../styles/invite.module.css';
 import { useThemeMode } from '@/hooks/useThemeMode';
-import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 // import type { CSSProperties } from 'react';
 import { ConfigProvider, Tabs, Skeleton } from 'antd';
 import { Iconify } from "@/components/icon"
@@ -10,9 +10,11 @@ import Image from 'next/image';
 import type { TabsProps } from 'antd';
 import InvitationDetails from './tables/invitation_details';
 import InvitationReward from './tables/invitation_reward';
-import { getInviteCount } from '@/services/invite'
+import { getInviteCount, getRewardConfiguration } from '@/services/invite'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'next-i18next';
+import { getKvObject } from '@/services/kv'
+import { toast } from 'sonner';
 type InviteContentProps = {
     onReturn: () => void;
 }
@@ -21,12 +23,22 @@ interface InviteCountType {
     userInviteSuccessCount?: number,
     accumulateMoney?: number,
 }
+interface RewardRouterType {
+    inviteCode: string,
+    coinId: number,
+    coinName: string,
+    rebateRatio: string,
+    validTime: string,
+    rechargeLimit: number,
+    isRealname: string
+}
 const InviteContent = ({ onReturn }: InviteContentProps) => {
     const { t } = useTranslation(['invite']);
     const [inviteCount, setInviteCount] = useState<InviteCountType>({})
     const [inviteCountLoading, setInviteCountLoading] = useState(true)
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
+    const [rewardRouter, setRewardRouter] = useState<RewardRouterType>({} as RewardRouterType)
     const inviteContentList = [
         {
             key: 1,
@@ -79,7 +91,36 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
         }
 
     }
+    // const getUseBankKv = async () => {
+    //     const keys = ['account_configuration']
+
+    //     const res = await getKvObject(keys)
+    //     try {
+    //         if (res.code === '0'&&res.data.account_configuration==='1') {
+
+    //         } else {
+    //             toast.error(res.message)
+    //         }
+    //     } catch (error) {
+    //         toast.error(String(error))
+    //     }
+
+
+    // }
+    const setRewardRouterData = async () => {
+        const res = await getRewardConfiguration()
+        try {
+            if (res.code === '0') {
+                setRewardRouter(res.data)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
     useEffect(() => {
+        setRewardRouterData()
         getInviteCountData()
     }, [])
     return (<>
@@ -89,7 +130,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                     <h3 className={`font-32 font-w-500 mb-10 ${styles.mt8}`}>
                         {/* 如何获得佣金？ */}
                         {t('invite.qtitle1')}
-                        </h3>
+                    </h3>
                     <ul className={`flex-x  flex-wrap`}>
                         {inviteContentList.map((item) => (
                             <li key={item.key} className={`${styles.auto_item} flex-y align-center mt-5`}>
@@ -104,38 +145,38 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                     <h3 className={`font-32 font-w-500 mb-10 `}>
                         {/* 奖励规则 */}
                         {t('invite.ruleTitle')}
-                        </h3>
+                    </h3>
                     <ul className={`${styles.content_list} font-16 font-w-400 `}>
                         <li className="flex align-base ">
                             <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />
                             {/* 邀请好友加入Metawave，您可获得平台奖励 */}
                             {t('invite.ruleDesc1')}
-                            </li>
+                        </li>
                         <li className="flex align-base mt-3">
                             <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
                             {/* 第一步：进入“邀请好友”页面，将您的邀请链接或邀请码分享给好友。 */}
                             {t('invite.ruleDesc2')}
-                            </li>
+                        </li>
                         <li className="flex align-base mt-2_5">
                             <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
                             {/* 第二步：好友成功注册后，在注册 14 天内累计充值不低于 100 USDT且完成实名认证。您就可以获取好友现货交易20%手续费返佣。您可在此页面追踪邀请进度和任务完成情况。 */}
-                            {t('invite.ruleDesc3')}
-                            </li>
+                            {t('invite.ruleDesc31', { date: rewardRouter.validTime, count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName, rebateRatio: rewardRouter.rebateRatio })}
+                        </li>
                         <li className="flex align-base mt-6">
                             <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />
                             {/* 奖励发放时间：我们将在每日02:00（UTC+8）发放前一日邀请奖励至您的现货账户，若未收到请及时与我们的客服联系。 */}
                             {t('invite.ruleDesc4')}
-                            </li>
+                        </li>
                     </ul>
                 </div>
                 <div className={`${styles.content_box}`}>
                     <h3 className={`font-32 font-w-500 mb-10`}>
                         {/* 我的邀请 */}
                         {t('invite.myInvite2.title')}
-                        </h3>
-                    <Skeleton active loading={inviteCountLoading} title={false} 
-                    paragraph={{rows:3}}
-                    className={`${styles.content_list}`} >
+                    </h3>
+                    <Skeleton active loading={inviteCountLoading} title={false}
+                        paragraph={{ rows: 3 }}
+                        className={`${styles.content_list}`} >
 
                         <ul className={`${styles.content_list}  font-16 font-w-400  flex-x flex-wrap`}>
                             <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
@@ -164,17 +205,26 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                     <h3 className={`font-32 font-w-500 mb-10`}>
                         {/* 邀请详情 */}
                         {t('invite.inviteDetails')}
-                        </h3>
+                    </h3>
                     <ConfigProvider
                         theme={{
                             components: {
                                 Tabs: {
+                                    itemActiveColor: "var(--tip-color)", //激活态颜色  
+                                    itemSelectedColor: "var(--text-color5)", //选中态颜色
                                     horizontalMargin: "0 0 0 0",
                                     itemColor: "var(--text-color6)",
+                                    inkBarColor: "var(--text-color5)", //指示条颜色
+                                    // horizontalItemPaddingLG:"24px 8px",
+                                    // horizontalItemPadding:"24px 8px",
+                                    // horizontalItemPaddingSM:"24px 8px",
                                 },
                             },
                         }}>
-                        <Tabs items={items} className="custom-tabs" />
+                        <Tabs items={items}
+                            className="custom-tabs"
+                            indicator={{ size: (origin) => origin - 35, align: 'center' }}
+                        />
                     </ConfigProvider>
                 </div>
             </div>
