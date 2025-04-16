@@ -5,7 +5,7 @@
   "home2": "更多",
   "nickname": "昵称",
   "userCenter":{
-    "overView":"全栈概览",
+    "overView":"总览",
     "account":"用户设置",
     "identity":"身份认证",
     "security":"安全中心"

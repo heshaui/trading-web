@@ -179,7 +179,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         </div>
                     </div>
                     {/* 认证提示 */}
-                    <div className={`font-14 font-w-400 mt-3 ${styles.error_icon} flex align-center`} >
+                    <div className={`font-14 font-w-400 mt-3 ${styles.error_icon} flex align-start`} >
                         <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
                         <span>
                         {t('overview.identityAuth.reVerify')}

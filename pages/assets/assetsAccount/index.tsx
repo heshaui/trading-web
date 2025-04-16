@@ -172,8 +172,8 @@ const AssetsMainPage = () => {
         try {
             const res = await getUserBalanceAll();
             if (res.code === '0') {
-                setInitTableData(res.data.list||[]);
-                setTableData(res.data.list||[]);
+                setInitTableData(res.data||[]);
+                setTableData(res.data||[]);
                 setTotal(res.data.total);
             }
         } catch (error) {
