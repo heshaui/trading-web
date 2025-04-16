@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button ,Tabs} from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
+import { createOrder } from '@/services/spot';
 interface DataType {
     id: number,
     userId: number,
@@ -48,10 +49,24 @@ const SpotTradePage = () => {
             label: <strong></strong>,
         },
     };
-    const onSumbit = (values: any) => {
+    const onSumbit = () => {
         form.validateFields()
-            .then((values) => {
+            .then(async (values) => {
                 console.log(values, 111);
+                const params = {
+                    amount:values.amount,
+                    baseSymbol:'BTC',
+                    coinSymbol:'USDT',
+                    direction:0,
+                    price:values.price,
+                    symbol:'BTC/USDT',
+                    type:0,
+                }
+                try {
+                    const res = await createOrder(params)
+                } catch (error) {
+
+                }
             })
     }
     const items: TabsProps['items'] = [
@@ -67,16 +82,16 @@ const SpotTradePage = () => {
         }
     ];
     const onChange = (key: string) => {
-        if(key === '1'){
+        if (key === '1') {
             setPriceDisabled(false)
-        }else{
+        } else {
             form.setFieldsValue({
                 price: ''
             })
             setPriceDisabled(true)
         }
     }
-    const geSegmentedChange=(value: string | number)=>{
+    const geSegmentedChange = (value: string | number) => {
         setSegmentedValue(value as string)
     }
     return (<div className='flex-y align-center'>
@@ -113,15 +128,15 @@ const SpotTradePage = () => {
                     },
                     Button: {
                         controlHeightLG: 50,
-                        defaultBg:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
-                        defaultBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultBg: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultBorderColor: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                         defaultColor: '#fff',
                         defaultActiveBg: '#fff',
-                        defaultActiveBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
-                        defaultActiveColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultActiveBorderColor: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultActiveColor: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                         defaultHoverBg: '#fff',
-                        defaultHoverBorderColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
-                        defaultHoverColor:  segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultHoverBorderColor: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
+                        defaultHoverColor: segmentedvalue === 'buy' ? "#00C788" : "#FF4D4F",
                     },
                     Tabs: {
                         itemActiveColor: "var(--tip-color)", //激活态颜色  
@@ -129,13 +144,13 @@ const SpotTradePage = () => {
                         horizontalMargin: "0 0 0 0",
                         itemColor: "var(--text-color6)",
                         inkBarColor: "transparent", //指示条颜色
-                        horizontalItemPaddingLG:"0",
-                        horizontalItemPadding:"0",
-                        horizontalItemPaddingSM:"0",
-                        horizontalItemGutter:10,
-                        itemHoverColor:"var(--text-color5)",
+                        horizontalItemPaddingLG: "0",
+                        horizontalItemPadding: "0",
+                        horizontalItemPaddingSM: "0",
+                        horizontalItemGutter: 10,
+                        itemHoverColor: "var(--text-color5)",
                     },
-                    Slider:{
+                    Slider: {
                         railBg: 'var(--background16)', // 滑块轨道背景色
                         railHoverBg: 'var(--background16)', // 滑块轨道悬浮背景色
                     }
@@ -162,132 +177,132 @@ const SpotTradePage = () => {
                         value: 'sell',
                     },
                 ]}
-                    className={`spot-segmented ${segmentedvalue === 'buy' ? styles.segmented_box : styles.segmented_box_red}`} 
+                    className={`spot-segmented ${segmentedvalue === 'buy' ? styles.segmented_box : styles.segmented_box_red}`}
                     onChange={geSegmentedChange}
                     defaultValue={'buy'}
-                    />
+                />
             </div>
             {/* <BuyPage segmentedType={segmentedvalue} /> */}
             <div className='flex-y align-center'>
 
-            <div className={`w-full`}>
-             <Tabs items={items}
-                className="custom-tabs"
-                defaultActiveKey="1"
-                indicator={{ size: (origin) => origin - 35, align: 'center' }} 
-                onChange={onChange}/>   
-            </div>
-            
-            <div className={`mt-4`} >
-                <Form
-                    form={form}
-                    style={{width: '100%'}}
-                >
-                    <Form.Item name='price'
-                    className='spot_number_box'
+                <div className={`w-full`}>
+                    <Tabs items={items}
+                        className="custom-tabs"
+                        defaultActiveKey="1"
+                        indicator={{ size: (origin) => origin - 35, align: 'center' }}
+                        onChange={onChange} />
+                </div>
+
+                <div className={`mt-4`} >
+                    <Form
+                        form={form}
+                        style={{ width: '100%' }}
                     >
-                        <InputNumber 
-                            className={`${styles.mail_input} spot_number_input2 `}
-                            style={{ 
-                                width: "100%",
-                                boxSizing: 'border-box',
-                            }}
-                            suffix={!priceDisabled?<div>
-                                USDT
-                            </div>:t('spot.select.market')}
-                            prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.price')}</span>}
-                            // max={100}
-                            // min={0}
-                            controls={priceDisabled?false:{
-                                upIcon: <Iconify icon="mdi:chevron-up" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
-                                downIcon: <Iconify icon="mdi:chevron-down" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
-                            }}
-                            formatter={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                return `${value}`.replace(/[^\d.]/g, '');
-                            }}
-                            parser={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                // 只保留数字和第一个小数点
-                                const parsed = value.toString().replace(/[^\d.]/g, '')
-                                    .replace(/\.(?=.*\.)/g, '');
-                                return parsed as unknown as number;
-                            }}
-                            disabled={priceDisabled}
+                        <Form.Item name='price'
+                            className='spot_number_box'
+                        >
+                            <InputNumber
+                                className={`${styles.mail_input} spot_number_input2 `}
+                                style={{
+                                    width: "100%",
+                                    boxSizing: 'border-box',
+                                }}
+                                suffix={!priceDisabled ? <div>
+                                    USDT
+                                </div> : t('spot.select.market')}
+                                prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.price')}</span>}
+                                // max={100}
+                                // min={0}
+                                controls={priceDisabled ? false : {
+                                    upIcon: <Iconify icon="mdi:chevron-up" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
+                                    downIcon: <Iconify icon="mdi:chevron-down" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
+                                }}
+                                formatter={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    return `${value}`.replace(/[^\d.]/g, '');
+                                }}
+                                parser={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    // 只保留数字和第一个小数点
+                                    const parsed = value.toString().replace(/[^\d.]/g, '')
+                                        .replace(/\.(?=.*\.)/g, '');
+                                    return parsed as unknown as number;
+                                }}
+                                disabled={priceDisabled}
 
-                        />
-                    </Form.Item>
-                    <Form.Item name='amount'
-                    >
-                        <InputNumber className={`${styles.mail_input} spot_number_input `}
-                            style={{ width: "100%" }}
-                            suffix={<div>
-                                BTC
-                            </div>}
-                            prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
-                            // max={100}
-                            // min={0}
-                            controls={false}
-                            formatter={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                return `${value}`.replace(/[^\d.]/g, '');
-                            }}
-                            parser={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                // 只保留数字和第一个小数点
-                                const parsed = value.toString().replace(/[^\d.]/g, '')
-                                    .replace(/\.(?=.*\.)/g, '');
-                                return parsed as unknown as number;
-                            }}
+                            />
+                        </Form.Item>
+                        <Form.Item name='amount'
+                        >
+                            <InputNumber className={`${styles.mail_input} spot_number_input `}
+                                style={{ width: "100%" }}
+                                suffix={<div>
+                                    BTC
+                                </div>}
+                                prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
+                                // max={100}
+                                // min={0}
+                                controls={false}
+                                formatter={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    return `${value}`.replace(/[^\d.]/g, '');
+                                }}
+                                parser={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    // 只保留数字和第一个小数点
+                                    const parsed = value.toString().replace(/[^\d.]/g, '')
+                                        .replace(/\.(?=.*\.)/g, '');
+                                    return parsed as unknown as number;
+                                }}
 
-                        />
-                    </Form.Item>
-                    <Slider marks={marks} defaultValue={37} />
-                    <Form.Item name='account'
-                    // rules={[{ validator: checkAmount }]}
-                    >
-                        <InputNumber className={`${styles.mail_input} spot_number_input `}
-                            style={{ width: "100%" }}
-                            suffix={<div>
-                                USDT
-                            </div>}
-                            prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
-                            // max={100}
-                            // min={0}
-                            controls={false}
-                            formatter={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                return `${value}`.replace(/[^\d.]/g, '');
-                            }}
-                            parser={(value) => {
-                                if (value === '' || value === null || value === undefined) return '';
-                                // 只保留数字和第一个小数点
-                                const parsed = value.toString().replace(/[^\d.]/g, '')
-                                    .replace(/\.(?=.*\.)/g, '');
-                                return parsed as unknown as number;
-                            }}
+                            />
+                        </Form.Item>
+                        <Slider marks={marks} defaultValue={37} />
+                        <Form.Item name='account'
+                        // rules={[{ validator: checkAmount }]}
+                        >
+                            <InputNumber className={`${styles.mail_input} spot_number_input `}
+                                style={{ width: "100%" }}
+                                suffix={<div>
+                                    USDT
+                                </div>}
+                                prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
+                                // max={100}
+                                // min={0}
+                                controls={false}
+                                formatter={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    return `${value}`.replace(/[^\d.]/g, '');
+                                }}
+                                parser={(value) => {
+                                    if (value === '' || value === null || value === undefined) return '';
+                                    // 只保留数字和第一个小数点
+                                    const parsed = value.toString().replace(/[^\d.]/g, '')
+                                        .replace(/\.(?=.*\.)/g, '');
+                                    return parsed as unknown as number;
+                                }}
 
-                        />
-                    </Form.Item>
-                    <ul className={`font-14 ${styles.tip_color1} mb-5`}>
-                        <li className='flex justify-between align-center mb-1'>
-                            <p>可用</p>
-                            <p>-USDT</p>
-                        </li>
-                        <li className='flex justify-between align-center'>
-                            <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                            <p>--BTC</p>
-                        </li>
-                    </ul>
-                </Form>
-                <Button
-                    // className={`${styles.sumbit_btn} green_btn`}
-                    style={{ width: '100%', height: '50px', borderRadius: '32px' }}
-                    htmlType="submit" onClick={onSumbit}>{segmentedvalue === 'buy' ?t('spot.trade.buy') : t('spot.trade.sell')}</Button>
+                            />
+                        </Form.Item>
+                        <ul className={`font-14 ${styles.tip_color1} mb-5`}>
+                            <li className='flex justify-between align-center mb-1'>
+                                <p>可用</p>
+                                <p>-USDT</p>
+                            </li>
+                            <li className='flex justify-between align-center'>
+                                <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
+                                <p>--BTC</p>
+                            </li>
+                        </ul>
+                    </Form>
+                    <Button
+                        // className={`${styles.sumbit_btn} green_btn`}
+                        style={{ width: '100%', height: '50px', borderRadius: '32px' }}
+                        htmlType="submit" onClick={onSumbit}>{segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}</Button>
 
-                {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
+                    {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
 
-            </div>
+                </div>
             </div>
         </ConfigProvider>
     </div>

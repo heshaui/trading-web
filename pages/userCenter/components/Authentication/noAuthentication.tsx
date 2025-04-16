@@ -275,7 +275,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             <div className='ml-6 font-w-500'>{item.benefitName}</div>
                             <div className='flex-x-cc font-w-500'>
                                 {item.value0 ?
-                                    <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span> :
+                                   ( <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span>) :
                                     item.status0 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' /> :
                                         <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
                                 }
@@ -289,7 +289,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {/* <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>50K USDT每日</div> */}
                             <div className={`mr-6 flex-x-cc font-w-500 ${styles.row_3}`}>
                                 {item.value1 ?
-                                    <span>{(item.value1 && item.params1) ? getBenefitValue(item.value1) : item.value1}</span> :
+                                    (<span>{(item.value1 && item.params1) ? getBenefitValue(item.value1) : item.value1}</span>) :
                                     item.status1 === 0 ? <Image src="/images/userCenter/identity/fail.svg" alt='' width={20} height={20} className='' /> :
                                         <Image src="/images/userCenter/identity/success.svg" alt='' width={20} height={20} className='' />
                                 }

@@ -124,12 +124,12 @@ const IdentityPage: React.FC = () => {
 
       // 遍历 levelBenefits 数组，根据 levelId 设置对应的属性
       item.levelBenefits.forEach((benefit: any) => {
-        if (benefit.levelId === 1) {
+        if (benefit.levelValue === "L0") {
           // 未认证
           result.status0 = benefit.status;
           result.value0 = benefit.value;
           result.params0 = benefit.params;
-        } else if (benefit.levelId === 2) {
+        } else if (benefit.levelValue ==="L1") {
           // 已认证
           result.status1 = benefit.status;
           result.value1 = benefit.value;
