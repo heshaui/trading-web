@@ -313,3 +313,50 @@
     transform: translateY(0);
   }
 }
+
+.tradesContainer {
+  width: 100%;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.tradesList {
+  height: 450px;
+  overflow-y: auto;
+}
+
+.tradeRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 15px;
+  font-size: 14px;
+}
+
+.tradePrice {
+  flex: 1;
+  text-align: left;
+}
+
+.buyPrice {
+  color: #00c788;
+}
+
+.sellPrice {
+  color: #ff6347;
+}
+
+.tradeAmount {
+  flex: 1;
+  text-align: center;
+}
+
+.tradeTime {
+  flex: 1;
+  text-align: right;
+}

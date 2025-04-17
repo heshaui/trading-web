@@ -16,7 +16,7 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
-  
+  console.log("orderData",orderData);
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
@@ -100,13 +100,15 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
 
   // 添加处理交易数据的效果
   useEffect(() => {
-    if (orderData && orderData.trades) {
-      const processedTrades = orderData.trades.map((trade: any) => {
+    if (orderData && Array.isArray(orderData)) {
+      const processedTrades = orderData.map((item) => {
+        // 解析JSON字符串
+        const tradeData = JSON.parse(item.data);
         return {
-          price: trade.price,
-          amount: trade.amount,
-          time: new Date(trade.time).toLocaleTimeString(),
-          type: trade.type // 'buy' 或 'sell'
+          price: tradeData.buy_price, // 或 sell_price，它们是相同的
+          amount: tradeData.quantity,
+          time: new Date(tradeData.timestamp).toLocaleTimeString(),
+          type: tradeData.taker_side === 'Buy' ? 'buy' : 'sell'
         };
       });
       
@@ -170,11 +172,11 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     return (
       <div className={styles.tradesContainer}>
         <div className={styles.labels}>
-          <span>成交价(USDT)</span>
-          <span>总计(USDT)</span>
+          <span>价格(USDT)</span>
+          <span>数量(BTC)</span>
           <span>时间</span>
         </div>
-        <div className={styles.tradesList}>
+        <div className={styles.tradesList} style={{ height: '450px', overflowY: 'auto' }}>
           {trades.map((trade, index) => (
             <div key={index} className={styles.tradeRow}>
               <span 
@@ -182,12 +184,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                   trade.type === 'buy' ? styles.buyPrice : styles.sellPrice
                 }`}
               >
-                {trade.price.toFixed(1)}
+                {trade.price.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}
               </span>
               <span className={styles.tradeAmount}>
-                {trade.amount > 1000 
-                  ? `${(trade.amount/1000).toFixed(2)}K` 
-                  : trade.amount.toFixed(2)}
+                {trade.amount.toFixed(8)}
               </span>
               <span className={styles.tradeTime}>{trade.time}</span>
             </div>
