@@ -5,32 +5,40 @@ import { Iconify } from "@/components/icon"
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
-
+import { SearchOutlined } from '@ant-design/icons';
+import type { TabsProps } from 'antd';
+import SelfSelect from './SelfSelect';
+import SpotSelect from './SpotSelect';
 const SpotHeaderPage = () => {
     const { t } = useTranslation(['spot']);
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState<boolean>(false);
+    const [activeTab, setActiveTab] = useState('spot'); // 当前选中的tab
+    const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const items: MenuProps['items'] = [
+    const tabsItem: TabsProps['items'] = [
         {
-            key: '3',
-            label: '3rd menu item (disabled)',
+            key: 'favorites',
+            label: '自选',
+            children: <div>自选</div>
         },
         {
-            key: '4',
-            danger: true,
-            label: 'a danger item',
+            key: 'spot',
+            label: '现货',
+            children: <SpotSelect/>
         },
-    ]
+    ];
 
-    const handleMenuClick: MenuProps['onClick'] = (e) => {
-        if (e.key === '3') {
-            setOpen(false);
-        }
+    const handleTabClick = (key: string) => {
+        setActiveTab(key);
+    };
+
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
     };
 
     const handleOpenChange: DropdownProps['onOpenChange'] = (nextOpen, info) => {
@@ -42,33 +50,46 @@ const SpotHeaderPage = () => {
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
         if (!mounted) return null;
-        
+
         return (
             <Dropdown
-                menu={{
-                    items,
-                    onClick: handleMenuClick,
-                }}
                 trigger={['click']}
-                dropdownRender={(menu) => (
-                    <div style={{ backgroundColor: '#ffffff' }}>
-                        {React.cloneElement(
-                            menu as React.ReactElement<{
-                                style: React.CSSProperties;
-                            }>,
-                            { style: { color: 'pink' } },
-                        )}
-                        <Space style={{ padding: 8 }}>
-                            <Button type="primary">Click me!</Button>
-                        </Space>
+                open={open}
+                onOpenChange={handleOpenChange}
+                dropdownRender={() => (
+                    <div className={styles.dropdown_container}>
+                        <div className={styles.search_container}>
+                            <Input
+                                placeholder="搜索"
+                                prefix={<SearchOutlined />}
+                                value={searchValue}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className={styles.search_input}
+                            />
+                        </div>
+                        <div className={`${styles.tabs_container} w-full`}>
+                            <div className={`${styles.tabs_list} w-full`}>
+                                <Tabs items={tabsItem}
+                                    className="custom-tabs2 w-full"
+                                // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                                />
+                            </div>
+                            {/* <div className={styles.content_container}>
+                                <div className={styles.pair_list}>
+                                    <div className={styles.pair_header}>
+                                        <span>名称</span>
+                                        <span>最新价</span>
+                                        <span>24h涨跌</span>
+                                    </div>
+                                </div>
+                            </div> */}
+                        </div>
                     </div>
                 )}
-                onOpenChange={handleOpenChange}
-                open={open}
             >
-                <Space>
-                    {t('spot.select.placeholder')}
-                    <Iconify icon="prime:sort-down-fill" size={16} className={`${styles.tip_color2}`} />
+                <Space className={styles.dropdown_trigger}>
+                    <span>BTC/USDT</span>
+                    <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
                 </Space>
             </Dropdown>
         );
@@ -97,11 +118,11 @@ const SpotHeaderPage = () => {
                             selectorBg: "transparent",
                         },
                         Tabs: {
-                            itemActiveColor: "var(--tip-color)",
-                            itemSelectedColor: "var(--text-color5)",
+                            itemActiveColor: "var(--tip-color)", //激活态颜色  
+                            itemSelectedColor: "var(--text-color5)", //选中态颜色
                             horizontalMargin: "0 0 0 0",
                             itemColor: "var(--text-color6)",
-                            inkBarColor: "var(--text-color5)",
+                            inkBarColor: "var(--text-color5)", //指示条颜色
                         },
                     },
                 }}
