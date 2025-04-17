@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // import { Button, Form, Input,Tabs } from "antd";
-import { Input, Form ,ConfigProvider} from 'antd';
+import { Input, Form, ConfigProvider } from 'antd';
 // import type { AutoCompleteProps } from 'antd';
 import { useState, useEffect, useRef } from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
@@ -10,8 +10,11 @@ import styles from "../style/reset.module.css"
 import { encryptString } from "@/utils/encrypt"
 import QuestionModal from "@/components/myModal/questionModal";
 import { getResetMailCode, getResetSmsCode, getResetPasswordCheck } from "@/services/resetPassword"
-import { encryptData } from "@/utils/encrypt";
+// import { encryptData } from "@/utils/encrypt";
 import { useTranslation } from 'next-i18next';
+import { getCheckRule } from "@/services/resetPassword"
+import { encryptData } from "@/hooks/user-encrypt";
+import { Iconify } from "@/components/icon";
 function ResetPassword() {
     const [form] = Form.useForm();
     const { resetState, setResetState, acount } = useResetStateContext();
@@ -19,23 +22,43 @@ function ResetPassword() {
     const [pointout, setPointout] = useState(false);
     // const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [countdown, setCountdown] = useState(0);
+    const [countdown2, setCountdown2] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+    const [isCounting2, setIsCounting2] = useState(false);
     const [isLoding, setIsLoding] = useState(false);
     const [isCodeLoding, setIsCodeLoding] = useState(false);
-    const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+    const [isCodeLoding2, setIsCodeLoding2] = useState(false);
     const { t } = useTranslation('resetPassword');
-
-
+    const [codeInputValue, setCodeInputValue] = useState('');
+    const [emailCodeInputValue, setEmailCodeInputValue] = useState('');
+    const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [googleCodeInputValue, setGoogleCodeInputValue] = useState('');
+    // 添加定时器的引用
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const goNext = () => {
-        form
-            .validateFields()
+        form .validateFields()
             .then(async (values) => {
                 setIsLoding(true)
                 try {
-                    const dataInfo = {
-                        type: acount.type,
-                        account: acount.acount,
-                        code: values.code
+                    let dataInfo={}
+                    if(acount.type=='p'){
+                        dataInfo={
+                            type: acount.type,
+                            account: acount.acount,
+                            phoneCode: values.code,
+                            googleCode: values.googleCode||'',
+                            emailCode: values.elseCode||''
+                        }
+                    }else if(acount.type=='m'){
+                        dataInfo={
+                            type: acount.type,
+                            account: acount.acount,
+                            emailCode: values.code,
+
+                            phoneCode: values.elseCode||'',
+                            googleCode: values.googleCode||'',
+                        }
                     }
                     const dataEncrypt = await encryptData(dataInfo)
                     // 重置密码校验
@@ -57,15 +80,27 @@ function ResetPassword() {
             });
     }
     const goLast = () => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            setIsCounting(false);
-            setCountdown(0);
-        }
+        clearTimers()
         setResetState(ResetStateEnum.INPUT)
     }
-    const getResetCode = async () => {
-        if (isCounting || isLoding||isCodeLoding) return
+        // 清除定时器的函数
+        const clearTimers = () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            if (timer2Ref.current) {
+                clearInterval(timer2Ref.current);
+                timer2Ref.current = null;
+            }
+            // 重置状态
+            setCountdown(0);
+            setCountdown2(0);
+            setIsCounting(false);
+            setIsCounting2(false);
+        };
+    const getResetCode1 = async () => {
+        if (isCounting || isLoding || isCodeLoding) return
         setIsCodeLoding(true)
         try {
             if (acount.type == 'm' || acount.type == 'email') {
@@ -95,7 +130,7 @@ function ResetPassword() {
                     toast.success(res.message)
                     startCountdown(res.data);
                 } else if (res.code === "10044") {
-                    toast.error(t('codeError')||res.message)
+                    toast.error(t('codeError') || res.message)
                 }
                 setIsCodeLoding(false)
             }
@@ -104,17 +139,56 @@ function ResetPassword() {
             toast.error(String(error))
         }
     };
-    // const getCode = async () => {
-    //     await getResetCode()
-    // }
+    const getResetCode = async () => {
+        try {
+            const params = {
+                type: acount.type,
+                account: acount.acount
+            }
+            const encrypt = await encryptData(params)
+            const res = await getCheckRule(encrypt)
+            const { data, code } = res
+            if (code === '0') {
+                if (data.message) {
+                    toast.success(t('codeError'))
+                } else {
+                    toast.success(data.message)
+                }
+                clearTimers()
+                // 根据类型启动不同的定时器
+                if (acount.type == 'p' || acount.type == 'phone') {
+                    startCountdown(data.phoneTime)
+                    startCountdown2(data.emailTime)
+                } else if (acount.type == 'm' || acount.type == 'email') {
+                    startCountdown(data.emailTime)
+                    startCountdown2(data.phoneTime)
+                }
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
 
-    const startCountdown = (count:number) => {
+    const startCountdown = (count: number) => {
+        if (count === 0) return;
+
+        // 清除之前的定时器
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+        }
+
         setCountdown(count);
         setIsCounting(true);
+
         timerRef.current = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown === 1) {
-                    clearInterval(timerRef.current);
+                    if (timerRef.current) {
+                        clearInterval(timerRef.current);
+                        timerRef.current = null;
+                    }
                     setIsCounting(false);
                     return 0;
                 }
@@ -122,17 +196,88 @@ function ResetPassword() {
             });
         }, 1000);
     };
+
+    const startCountdown2 = (count: number) => {
+        if (count === 0) return;
+
+        // 清除之前的定时器
+        if (timer2Ref.current) {
+            clearInterval(timer2Ref.current);
+        }
+
+        setCountdown2(count);
+        setIsCounting2(true);
+
+        timer2Ref.current = setInterval(() => {
+            setCountdown2((prevCountdown) => {
+                if (prevCountdown === 1) {
+                    if (timer2Ref.current) {
+                        clearInterval(timer2Ref.current);
+                        timer2Ref.current = null;
+                    }
+                    setIsCounting2(false);
+                    return 0;
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+    };
+
+    useEffect(() => {
+        if (resetState !== ResetStateEnum.SENTCODE) {
+            clearTimers();
+            return;
+        }
+
+        // 使用新的时间开始倒计时
+        if (acount.type === 'm' || acount.type === 'email') {
+            startCountdown(acount?.emailTime || 0);
+            startCountdown2(acount?.phoneTime || 0);
+        } else if (acount.type === 'p' || acount.type === 'phone') {
+            startCountdown(acount?.phoneTime || 0);
+            startCountdown2(acount?.emailTime || 0);
+        }
+
+        return () => {
+            clearTimers();
+        };
+    }, [resetState, acount.type, acount.emailTime, acount.phoneTime]);
+
     const handleOk = (event: boolean) => {
         if (event) {
             getResetCode()
         }
     }
-    useEffect(() => {
-        // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
-        if (resetState == ResetStateEnum.SENTCODE) {
-             getResetCode() 
+    // useEffect(() => {
+    //     // if (resetState == ResetStateEnum.SENTCODE&&!isLoding&&!isCounting) {
+    //     if (resetState == ResetStateEnum.SENTCODE) {
+    //         getResetCode()
+    //     }
+    // }, [resetState])
+    // 过滤输入，只允许数字和字母
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+        const { value } = e.target;
+        // 只保留数字和字母
+        const filteredValue = value.replace(/[^0-9]/g, '');
+        // setEmailCodeInputValue(filteredValue);
+        // form.setFieldsValue({ code: filteredValue });
+        if (type === 'code') {
+            setCodeInputValue(filteredValue);
+            form.setFieldsValue({ code: filteredValue });
+        } else if (type === 'phoneCode') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
+        } else if (type === 'emailCode') {
+            setEmailCodeInputValue(filteredValue);
+            form.setFieldsValue({ emailCode: filteredValue });
+        } else if (type === 'google') {
+            setGoogleCodeInputValue(filteredValue);
+            form.setFieldsValue({ googleCode: filteredValue });
+        } else if (type === 'elseCode') {
+            setPhoneCodeInputValue(filteredValue);
+            form.setFieldsValue({ phoneCode: filteredValue });
         }
-    }, [resetState])
+    };
     // 当状态不为 INPUT 时不渲染组件
     if (resetState !== ResetStateEnum.SENTCODE) return null;
 
@@ -145,52 +290,136 @@ function ResetPassword() {
                 <span className={`${styles.text_color} font-w-400 mt-2`}>{encryptString(acount.acount.toString()) || '-'}</span>
             </div>
             <div className='mt-1'>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Form: {
-                            // itemMarginBottom: 0, // 去除表单项之间的间距
+                <ConfigProvider
+                    theme={{
+                        components: {
+                            Form: {
+                                // itemMarginBottom: 0, // 去除表单项之间的间距
+                            },
+                            Input: {
+                                controlHeightLG: 50,
+                                activeBorderColor: 'var(--theme-color)',
+                                hoverBorderColor: 'var(--theme-color)',
+                                activeBg: 'var(--background11)',
+                                hoverBg: 'var(--background11)',
+                            },
                         },
-                        Input: {
-                            controlHeightLG: 50,
-                            activeBorderColor: 'var(--theme-color)',
-                            hoverBorderColor: 'var(--theme-color)',
-                            activeBg: 'var(--background11)',
-                            hoverBg: 'var(--background11)',
-                        },
-                    },
-                    token: {
-                        // colorBgContainerDisabled: '#fff',
-                    }
-                }}
-            >
-                <Form
-                    name="aount"
-                    form={form}
+                        token: {
+                            // colorBgContainerDisabled: '#fff',
+                        }
+                    }}
                 >
-                    <Form.Item noStyle name="code" rules={[{ required: true, message: t('codeNull') }]}>
-                        <Input
-                            placeholder={t('inputCode')}
-                            style={{ borderRadius: "8px", height: "50px" }}
-                            // value={authCode}
-                            allowClear
-                            size='large'
-                            suffix={
-                                <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
-                                    {isCounting ? `${countdown} ${t('resendCountdown')}` : t('resend')}
-                                </button>
-                            }
-                            className={`${styles.mail_input} modal-input`}
+                    <Form
+                        name="aount"
+                        form={form}
+                    >
+                        <Form.Item noStyle name="code" rules={[{ required: true, message: t('codeNull') }]}>
+                            <Input
+                                placeholder={t('inputCode')}
+                                style={{ borderRadius: "8px", height: "50px" }}
+                                // value={authCode}
+                                allowClear
+                                size='large'
+                                suffix={
+                                    <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
+                                        {isCounting ? `${countdown} ${t('resendCountdown')}` : t('resend')}
+                                    </button>
+                                }
+                                className={`${styles.mail_input} modal-input`}
                             // className='custom-input'
-                        />
-                    </Form.Item>
-                </Form>
+                            maxLength={6}
+                            onChange={(e) => handleInputChange(e, 'code')}
+                            value={codeInputValue}
+                            />
+                        </Form.Item>
+                        {(acount.isGoogleAuth == 1||(acount.openAll == 1&&acount.isGoogleAuth == 1)) && <>
+                            <div className={`${styles.title_color} mb-3`}>{t('googleCodeTitle')}</div>
+                        <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
+                            <Input
+                                placeholder={t('inputCode')}
+                                style={{ borderRadius: "8px", height: "50px" }}
+                                // value={authCode}
+                                allowClear
+                                size='large'
+                                className={`${styles.mail_input} modal-input`}
+                            // className='custom-input'
+                            maxLength={6}
+                            onChange={(e) => handleInputChange(e, 'google')}
+                            value={googleCodeInputValue}
+                            />
+                        </Form.Item></>}
+                        {/* {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) &&
+                        <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>} */}
+                        {(acount.type === 'm' && ((acount.isPhoneAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isPhoneAuth === 1))) && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('phoneCodeTitle')}</div>
+                        <Form.Item
+                            name="phoneCode"
+                            rules={[{ required: true, message: t('codeNull') }]}
+                            className="position-relative"
+                        >
+                            <Input
+                                className={`${styles.input_box} modal-input`}
+                                style={{ width: "100%", height: "40px" }}
+                                placeholder={t('inputCode2')}
+                                allowClear
+                                value={phoneCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'phoneCode')}
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={getResetCode}
+                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                    >
+                                        {/* 重新发送/60s 重发 */}
+                                        {isCounting2
+                                            ? `${countdown2} ${t('resendCountdown')}`
+                                            :t('resend')
+                                        }
+                                    </button>
+                                }
+                                maxLength={6}
+                            />
+                        </Form.Item></>}
+
+                    {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>
+                        <Form.Item
+                            name="emailCode"
+                            rules={[{ required: true, message: t('codeNull') }]}
+                            className="position-relative"
+                        >
+                            <Input
+                                className={`${styles.input_box} modal-input`}
+                                style={{ width: "100%", height: "40px" }}
+                                placeholder={t('inputCode2')}
+                                allowClear
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={getResetCode}
+                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                    >
+                                        {isCounting2
+                                            ? `${countdown2} ${t('resendCountdown')}`
+                                            :t('resend')
+                                        }
+                                    </button>
+                                }
+                                value={emailCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'emailCode')}
+                                maxLength={6}
+                            />
+                        </Form.Item>
+                    </>}
+                    </Form>
                 </ConfigProvider>
                 <div className='flex mt-10'>
                     <button
                         className={`${styles.goBack_btn} mr-4`}
                         onClick={() => goLast()}>{t('goBack')}</button>
-                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>{t('next')}</button>
+                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={() => goNext()}>
+                        {isLoding ? <Iconify icon="eos-icons:bubble-loading" size={20} /> : t('next')}
+                    </button>
                 </div>
                 <div>
                     <button
