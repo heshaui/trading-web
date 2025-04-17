@@ -360,3 +360,21 @@
   flex: 1;
   text-align: right;
 }
+
+.background {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  opacity: 0.2;
+  z-index: 0;
+  transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.buy .background {
+  background-color: var(--buy-color, #00c788);
+}
+
+.sell .background {
+  background-color: var(--sell-color, #ff6347);
+}

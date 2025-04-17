@@ -46,7 +46,6 @@ type Props = {
 };
 
 function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
-    console.log(modalData,'modalData');
     const { t } = useTranslation(['spot']);
     const handCancel = () => {
         // form.resetFields();

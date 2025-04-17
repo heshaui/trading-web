@@ -93,7 +93,7 @@ const ExchangePage = () => {
         pageSize: 10,
     })
     const paramdataRef = useRef(pageParam);
-    const [timeInterval, setTimeInterval] = useState<string>('15m');
+    const [timeInterval, setTimeInterval] = useState<string>('1D');
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(true);
     const [historyData, setHistoryData] = useState<any[]>([]);
@@ -106,6 +106,7 @@ const ExchangePage = () => {
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
     const [depthData, setDepthData] = useState<any[]>([]);
     const [orderData, setOrderData] = useState<any[]>([]);
+    const [coinData, setCoinData] = useState<any>();
 
     const getCoinList = async () => {
         const response = await getExchangeCoinList();
@@ -146,44 +147,122 @@ const ExchangePage = () => {
     const getWsDepthData = () => {
         const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@depth`);
         websocket.connect((message: string) => {
-
             try {
                 const data = JSON.parse(message);
+                console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData) => {
-                    // 假设深度数据有bids和asks属性
-                    if (!prevData) return data;
+                    // 如果还没有初始数据，则不处理WebSocket更新
+                    if (!prevData || !prevData.bids) return prevData;
                     
-                    // 合并数据
-                    return {
-                        ...prevData,
-                        bids: data.bids || (prevData as any).bids || [],
-                        asks: data.asks || (prevData as any).asks || [],
-                        // 可能还有其他需要更新的字段
-                        lastUpdateId: data.lastUpdateId,
-                        timestamp: data.timestamp
+                    // 创建当前数据的副本
+                    const newData = {
+                        asks: [...(prevData.asks || [])],
+                        bids: [...(prevData.bids || [])],
+                        lastUpdateId: data.end_update_id || prevData.lastUpdateId
                     };
+                    
+                    // 处理买单(bids)更新
+                    if (data.bids && data.bids.length > 0) {
+                        data.bids.forEach(newBid => {
+                            const [price, quantity] = newBid;
+                            
+                            // 查找是否存在此价格档位
+                            const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
+                            
+                            if (quantity === 0) {
+                                // 如果数量为0，删除该价格档位
+                                if (existingIndex > -1) {
+                                    newData.bids.splice(existingIndex, 1);
+                                }
+                            } else {
+                                // 更新或添加价格档位
+                                if (existingIndex > -1) {
+                                    newData.bids[existingIndex] = newBid;
+                                } else {
+                                    // 按价格降序插入新买单
+                                    let insertIndex = 0;
+                                    while (insertIndex < newData.bids.length && 
+                                           newData.bids[insertIndex][0] > price) {
+                                        insertIndex++;
+                                    }
+                                    newData.bids.splice(insertIndex, 0, newBid);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // 处理卖单(asks)更新
+                    if (data.asks && data.asks.length > 0) {
+                        data.asks.forEach(newAsk => {
+                            const [price, quantity] = newAsk;
+                            
+                            // 查找是否存在此价格档位
+                            const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
+                            
+                            if (quantity === 0) {
+                                // 如果数量为0，删除该价格档位
+                                if (existingIndex > -1) {
+                                    newData.asks.splice(existingIndex, 1);
+                                }
+                            } else {
+                                // 更新或添加价格档位
+                                if (existingIndex > -1) {
+                                    newData.asks[existingIndex] = newAsk;
+                                } else {
+                                    // 按价格升序插入新卖单
+                                    let insertIndex = 0;
+                                    while (insertIndex < newData.asks.length && 
+                                           newData.asks[insertIndex][0] < price) {
+                                        insertIndex++;
+                                    }
+                                    newData.asks.splice(insertIndex, 0, newAsk);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // 可选：限制深度档位数量
+                    const MAX_DEPTH_LEVELS = 200;
+                    if (newData.bids.length > MAX_DEPTH_LEVELS) {
+                        newData.bids = newData.bids.slice(0, MAX_DEPTH_LEVELS);
+                    }
+                    if (newData.asks && newData.asks.length > MAX_DEPTH_LEVELS) {
+                        newData.asks = newData.asks.slice(0, MAX_DEPTH_LEVELS);
+                    }
+                    
+                    return newData;
                 });
             } catch (error) {
-
+                console.error('解析WebSocket深度数据失败:', error);
             }
         });
     }
- 
 
     const getHistoryDepthData = async () => {
-
-        const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1`);
-        
+        try {
+            const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1`);
             const data = await response.json();
-
-            setDepthData(data);
+            console.log(data, 'getHistoryDepthData');
             
-        
-        getWsDepthData();
-
+            // 格式化初始深度数据
+            const formattedData = {
+                bids: data.bids || [],
+                asks: data.asks || [],  // 确保asks字段存在，即使API返回中没有
+                lastUpdateId: data.spot_log_last_seq
+            };
+            
+            // 设置初始深度数据
+            setDepthData(formattedData);
+            
+            // 初始数据加载完成后建立WebSocket连接获取实时更新
+            getWsDepthData();
+        } catch (error) {
+            console.error('获取历史深度数据失败:', error);
+        }
     }
+
     useEffect(() => {
         getGroup();
         getOrderWsData();
@@ -230,6 +309,31 @@ const ExchangePage = () => {
         setChartDisplayType(e.key);
     };
 
+    const getKlineData = () => {
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${timeInterval.toLowerCase()}`);
+
+        websocket.connect((message: string) => {
+            // console.log(message,'message');
+            const data = JSON.parse(message);
+            if(data.type === 'kline' && Array.isArray(data.data)) {
+                setCoinData(data);
+                setKlineData(prevData => {
+                    if (!prevData) return data;
+                    
+                    // 合并新数据和旧数据
+                    return {
+                        ...data,
+                        data: [...(data.data || []), ...(prevData.data || [])]
+                    };
+                });
+            }
+        });
+    }
+
+    useEffect(() => {
+        getKlineData();
+    }, [timeInterval]);
+
     return (<div className={`${styles.page_box} w-full`}>
         <ConfigProvider
             theme={{
@@ -265,7 +369,7 @@ const ExchangePage = () => {
             }}
         >
             <div className={`${styles.card_bgc4} w-full`}>
-            <SpotHeaderPage />
+            <SpotHeaderPage coinData={coinData} />
             </div>
 
 
@@ -347,7 +451,7 @@ const ExchangePage = () => {
 
                         <Spin spinning={loading} tip="加载中...">
                             {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
-                                <Tradingview symbol="BTC_USDT_1" showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType}/>
+                                <Tradingview symbol="BTC_USDT_1" showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType} klineData={klineData} timeInterval={timeInterval}/>
                             )}
                            
                             {activeChartType === 'depth' && <DepthChart data={depthData} />}

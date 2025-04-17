@@ -30,21 +30,25 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [lastPrice, setLastPrice] = useState(0);
 
   useEffect(() => {
+    console.log('bookData updated:', bookData);
+    
     // 确保data存在且包含depth数据结构
-    if (bookData && bookData.asks && bookData.bids) {
+    if (bookData && (bookData.asks || bookData.bids)) {
       // 处理卖单数据 - 需要合并相同价格的订单
       const askMap = new Map<number, number>();
-      bookData.asks.forEach((item: [number, number]) => {
-        const price = item[0];
-        const amount = item[1];
-        
-        // 对相同价格的订单进行数量累加
-        if (askMap.has(price)) {
-          askMap.set(price, askMap.get(price)! + amount);
-        } else {
-          askMap.set(price, amount);
-        }
-      });
+      if (bookData.asks && Array.isArray(bookData.asks)) {
+        bookData.asks.forEach((item: [number, number]) => {
+          const price = item[0];
+          const amount = item[1];
+          
+          // 对相同价格的订单进行数量累加
+          if (askMap.has(price)) {
+            askMap.set(price, askMap.get(price)! + amount);
+          } else {
+            askMap.set(price, amount);
+          }
+        });
+      }
       
       // 转换为订单列表格式
       const processedSellOrders = Array.from(askMap.entries()).map(([price, amount]) => {
@@ -54,17 +58,19 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       
       // 处理买单数据 - 需要合并相同价格的订单
       const bidMap = new Map<number, number>();
-      bookData.bids.forEach((item: [number, number]) => {
-        const price = item[0];
-        const amount = Math.abs(item[1]); // 取绝对值，买单数量为负数
-        
-        // 对相同价格的订单进行数量累加
-        if (bidMap.has(price)) {
-          bidMap.set(price, bidMap.get(price)! + amount);
-        } else {
-          bidMap.set(price, amount);
-        }
-      });
+      if (bookData.bids && Array.isArray(bookData.bids)) {
+        bookData.bids.forEach((item: [number, number]) => {
+          const price = item[0];
+          const amount = Math.abs(item[1]); // 确保数量为正值
+          
+          // 对相同价格的订单进行数量累加
+          if (bidMap.has(price)) {
+            bidMap.set(price, bidMap.get(price)! + amount);
+          } else {
+            bidMap.set(price, amount);
+          }
+        });
+      }
       
       // 转换为订单列表格式
       const processedBuyOrders = Array.from(bidMap.entries()).map(([price, amount]) => {
@@ -95,7 +101,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(sellPercentage.toFixed(2)));
       }
     }
-  }, [bookData]); // 当data变化时重新处理数据
+  }, [bookData]); // 确保这里正确依赖bookData
 
   // 添加处理交易数据的效果
   useEffect(() => {
@@ -251,7 +257,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                   <div className={styles.totalColumn}>
                     <div 
                       className={styles.background}
-                      style={{ width: `${percentWidth}%` }}
+                      style={{ 
+                        width: `${percentWidth}%`,
+                        transition: 'width 0.3s ease-in-out'
+                      }}
                     />
                     <span className={styles.total}>
                       {order.total > 10000 
@@ -284,7 +293,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                   <div className={styles.totalColumn}>
                     <div 
                       className={styles.background}
-                      style={{ width: `${percentWidth}%` }}
+                      style={{ 
+                        width: `${percentWidth}%`,
+                        transition: 'width 0.3s ease-in-out'
+                      }}
                     />
                     <span className={styles.total}>
                       {order.total > 10000 

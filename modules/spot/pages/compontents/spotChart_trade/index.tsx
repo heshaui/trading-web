@@ -11,6 +11,8 @@ import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
 import PlaceOrderModal from './placeOrder_modal';
 import { encryptData } from "@/hooks/user-encrypt";
+import { getUserBalance } from '@/services/assets'
+import { toast } from 'sonner';
 interface DataType {
     id: number,
     userId: number,
@@ -130,6 +132,25 @@ const SpotTradePage = () => {
         })
         
     }
+
+        // 币种余额
+        const getUserBalanceData = async () => {
+            const tenantId = form.getFieldValue('tenantId')
+            if (!tenantId) {
+                return toast.error(t('assetsAccount.selectCoin'))
+            }
+            try {
+                const res = await getUserBalance(tenantId)
+                if (res.code === '0') {
+                    // setUserBalance(res.data)
+                    return res.data
+                } else {
+                    toast.error(res.message)
+                }
+            } catch (error) {
+                toast.error(String(error))
+            }
+        }
     return (<div className='flex-y align-center'>
         <ConfigProvider
             theme={{

@@ -7,13 +7,18 @@ interface TradingviewProps {
   symbol?: string;
   showLeftToolbar?: boolean;
   chartType?: number;
+  klineData?: any;
+  timeInterval?: string;
 }
 
 const Tradingview: React.FC<TradingviewProps> = ({ 
   symbol = "BTC_USDT_1",
   showLeftToolbar = false,
-  chartType = 9
+  chartType = 9,
+  klineData = [],
+  timeInterval = "1D"
 }) => {
+  console.log(klineData,'klineData');
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -52,26 +57,22 @@ const Tradingview: React.FC<TradingviewProps> = ({
     { text: "BOLL" },
     { text: "RSI" },
   ]);
-
- 
+  const wsDataRef = useRef(klineData);
+  const initCompletedRef = useRef(false);
 
   useEffect(() => {
-    console.log("useEffect triggered, symbol:", symbol, "tradTime:", tradTime);
-    console.log("Current data from props:", );
+    
+    // 保存初始数据但不触发重渲染
+    if (klineData && klineData.length > 0) {
+      wsDataRef.current = klineData;
+    }
+    
     let datafeed: any = null;
     
     try {
-      if (chartContainerRef.current) {
+      if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        console.log("Creating datafeed with data:", latestDataRef.current);
-        
-        // 检查数据是否有效
-        if (!latestDataRef.current || !Array.isArray(latestDataRef.current) || latestDataRef.current.length === 0) {
-          console.warn("数据无效或为空，使用空数据初始化图表");
-          datafeed = createDatafeed([]);
-        } else {
-          datafeed = createDatafeed(latestDataRef.current);
-        }
+        datafeed = createDatafeed(wsDataRef.current, tradTime);
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
@@ -112,15 +113,17 @@ const Tradingview: React.FC<TradingviewProps> = ({
           newWidget.chart().setChartType(chartType);
         });
         
-        if (!window.__tradingViewHandlersInitialized) {
-          window.__tradingViewHandlersInitialized = true;
-          
-          window.__handleTradingViewUpdate = (newData: any) => {
-            if (window.__tradingViewUpdateBar) {
-              window.__tradingViewUpdateBar(newData);
-            }
-          };
-        }
+        // 标记初始化已完成
+        initCompletedRef.current = true;
+        
+        // 设置WebSocket更新处理
+        window.__tradingViewHandlersInitialized = true;
+        
+        window.__handleTradingViewUpdate = (newData: any) => {
+          if (window.__tradingViewUpdateBar) {
+            window.__tradingViewUpdateBar(newData);
+          }
+        };
       }
     } catch (error) {
       console.error("TradingView 初始化错误:", error);
@@ -130,6 +133,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
       if (tvWidget) {
         try {
           tvWidget.remove();
+          initCompletedRef.current = false;
         } catch (e) {
           console.error("移除图表错误:", e);
         }
@@ -138,6 +142,19 @@ const Tradingview: React.FC<TradingviewProps> = ({
     };
   }, [symbol, tradTime, showLeftToolbar, chartType]);
 
+  // 单独处理WebSocket数据更新
+  useEffect(() => {
+    if (!tvWidget || !klineData || klineData.length === 0) return;
+    
+    // 更新引用但不重新初始化图表
+    wsDataRef.current = klineData;
+
+    
+    // 如果需要，这里可以手动调用更新函数
+    if (window.__handleTradingViewUpdate && klineData) {
+      window.__handleTradingViewUpdate(klineData);
+    }
+  }, [klineData, tvWidget]);
 
   const toggleModal = () => setShowModal(!showModal);
 
@@ -178,9 +195,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     }
   };
 
-  const createDatafeed = (initialData: any) => {
-    console.log("getBars 初始数据:", initialData);
-    const lastBar = null;
+  const createDatafeed = (initialData: any, timeInterval: string) => {
     const subscribers: any = {};
     
     // 先定义时间格式化函数
@@ -205,24 +220,65 @@ const Tradingview: React.FC<TradingviewProps> = ({
       }
     };
     
-    // 预处理初始数据 - 极简模式
+    // 预处理初始数据
     const bars: any[] = [];
     
-
+    // 处理初始K线数据
+    if (Array.isArray(initialData) && initialData.length > 0) {
+      // 这里可以添加对初始数据的处理
+    }
     
     // 更新实时数据处理函数
     window.__tradingViewUpdateBar = (data: any) => {
       if (!data) return;
       
       try {
-        const bar = {
-          time: formatTimeValue(data.timestamp || data.time),
-          open: Number(data.open || 0),
-          high: Number(data.high || 0),
-          low: Number(data.low || 0),
-          close: Number(data.close || 0),
-          volume: Number(data.volume || 0)
-        };
+        let bar;
+        
+        // 处理不同格式的数据
+        if (Array.isArray(data)) {
+          // 处理数组格式
+          bar = {
+            time: formatTimeValue(data[0]),
+            open: Number(data[1] || 0),
+            high: Number(data[2] || 0),
+            low: Number(data[3] || 0),
+            close: Number(data[4] || 0),
+            volume: Number(data[5] || 0)
+          };
+        } else if (data.data && Array.isArray(data.data)) {
+          // 处理{type: 'kline', data: [...]}格式
+          const klineData = data.data[data.data.length - 1];
+          if (Array.isArray(klineData)) {
+            bar = {
+              time: formatTimeValue(klineData[0]),
+              open: Number(klineData[1] || 0),
+              high: Number(klineData[2] || 0),
+              low: Number(klineData[3] || 0),
+              close: Number(klineData[4] || 0),
+              volume: Number(klineData[5] || 0)
+            };
+          } else {
+            bar = {
+              time: formatTimeValue(data.timestamp || data.time),
+              open: Number(data.open || 0),
+              high: Number(data.high || 0),
+              low: Number(data.low || 0),
+              close: Number(data.close || 0),
+              volume: Number(data.volume || 0)
+            };
+          }
+        } else {
+          // 处理对象格式
+          bar = {
+            time: formatTimeValue(data.timestamp || data.time),
+            open: Number(data.open || 0),
+            high: Number(data.high || 0),
+            low: Number(data.low || 0),
+            close: Number(data.close || 0),
+            volume: Number(data.volume || 0)
+          };
+        }
         
         // 通知所有订阅者
         Object.values(subscribers).forEach((callback: any) => {
@@ -251,46 +307,29 @@ const Tradingview: React.FC<TradingviewProps> = ({
         onRealtimeCallback: any,
         listenerGUID: any
       ) => {
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${resolution.toLowerCase()}`);
-
-        websocket.connect((message: string) => {
-            try {
-                // 检查是否为订阅确认消息
-                if (message.startsWith('Subscribed to')) {
-                    return;
-                }
-
-                // 处理JSON数据
-                const data = JSON.parse(message);
-                // console.log("WebSocket收到的原始数据:", data);
-                
-                // 处理K线数据
-                if (data.type === 'kline' && data.data && data.data.length > 0) {
-                    // 遍历所有K线数据
-                    data.data.forEach((kline: any) => {
-                        if (Array.isArray(kline) && kline.length >= 6) {
-                            // 将数组格式转换为对象格式
-                            const bar = {
-                                time: kline[0],  // 时间戳
-                                open: parseFloat(kline[1]),  // 开盘价
-                                high: parseFloat(kline[2]),  // 最高价
-                                low: parseFloat(kline[3]),   // 最低价
-                                close: parseFloat(kline[4]), // 收盘价
-                                volume: parseFloat(kline[5]) // 成交量
-                            };
-                            
-                            // 将处理后的数据传递给TradingView
-                            onRealtimeCallback(bar);
-                            
-                            // 存储到subscribers以便其他地方可以访问
-                            subscribers[listenerGUID] = onRealtimeCallback;
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error("WebSocket数据处理错误:", error);
-            }
-        });
+        console.log("订阅K线数据, 当前数据:", initialData);
+        subscribers[listenerGUID] = onRealtimeCallback;
+        
+        // 处理K线数据 
+        if (initialData && initialData.type === 'kline' && initialData.data && initialData.data.length > 0) {
+          // 遍历所有K线数据
+          initialData.data.forEach((kline: any) => {
+              if (Array.isArray(kline) && kline.length >= 6) {
+                  // 将数组格式转换为对象格式
+                  const bar = {
+                      time: kline[0],  // 时间戳
+                      open: parseFloat(kline[1]),  // 开盘价
+                      high: parseFloat(kline[2]),  // 最高价
+                      low: parseFloat(kline[3]),   // 最低价
+                      close: parseFloat(kline[4]), // 收盘价
+                      volume: parseFloat(kline[5]) // 成交量
+                  };
+                  
+                  // 将处理后的数据传递给TradingView
+                  onRealtimeCallback(bar);
+              }
+          });
+        }
       },
       
       unsubscribeBars: (listenerGUID: any) => {
