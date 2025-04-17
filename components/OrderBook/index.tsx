@@ -16,7 +16,6 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
-  console.log("orderData",orderData);
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);

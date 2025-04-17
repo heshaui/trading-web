@@ -339,7 +339,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
           const endTime = periodParams.to * 1000;
           const url = `http://ws81.imsaas.work/kline/BTC_USDT_1/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
-          console.log("获取历史数据URL:", url);
+
           const response = await fetch(url);
           const data = await response.json();
           

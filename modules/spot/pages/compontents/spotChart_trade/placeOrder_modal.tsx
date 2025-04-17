@@ -40,11 +40,13 @@ interface orderInfoType {
 type Props = {
     open: boolean;
     orderInfo?:orderInfoType;
+    modalData?:any;
     onOk: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
+function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
+    console.log(modalData,'modalData');
     const { t } = useTranslation(['spot']);
     const handCancel = () => {
         // form.resetFields();
@@ -52,6 +54,8 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
     };
 
     const handOk = async () => {
+        console.log('提交订单');
+        onOk(true)
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 
     };
@@ -137,7 +141,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
                     <p className="font-18 font-w-500">BTC/USDT</p>
                     <p className={`${styles.success_icon} font-14 font-w-400 mt-1`}>
                         {/* 买入/市价 */}
-                        {t('spot.modal.buy')} / {t('spot.modal.market')}
+                        {modalData.direction===0?t('spot.modal.buy'):t('spot.modal.sell')} / {modalData.type===0?t('spot.modal.market'):t('spot.select.limit')}
                         </p>
                     <ul className={`${styles.tip_color1} ${styles.msg_card_box} font-14 font-w-400 mt-4 mb-2_5`}>
                         <li className="flex-x align-center justify-between">
@@ -147,7 +151,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
                             </p>
                             <p className={`${styles.title_color}`}>
                                 {/* 市价 */}
-                                {t('spot.modal.market')}
+                                {modalData.type===0?t('spot.modal.market'):modalData.price}
                             </p>
                         </li>
                         <li className="flex-x align-center justify-between mt-3">
@@ -155,7 +159,14 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
                                 {/* 数量 */}
                                 {t('spot.modal.amount')}
                             </p>
-                            <p className={`${styles.title_color}`}>10000USDT</p>
+                            <p className={`${styles.title_color}`}>{modalData.amount}BTC</p>
+                        </li>
+                        <li className="flex-x align-center justify-between mt-3">
+                            <p>
+                                {/* 成交额 */}
+                                {t('spot.trade.amount2')}
+                            </p>
+                            <p className={`${styles.title_color}`}>{modalData.amount*modalData.price}USDT</p>
                         </li>
                     </ul>
                     <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>

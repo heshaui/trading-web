@@ -29,3 +29,21 @@ export function getExchangeGroup(): Promise<any> {
     });
 }
 
+
+
+export function getExchangeCoinList(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/exchange-coin/exchangeCoinList`, {
+        method: 'GET',
+    });
+}
+
+
+
+export function getExchangeOrderList(data: any): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/order/exchangeOrderList`, {
+        method: 'POST',
+        body:data
+    });
+}
+
+

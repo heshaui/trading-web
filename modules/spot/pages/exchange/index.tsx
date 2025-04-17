@@ -24,7 +24,8 @@ import { FullscreenOutlined } from '@ant-design/icons';
 import Image from 'next/image'
 import { NoData } from '@/components/noData';
 import type { DropdownProps, MenuProps } from 'antd'
-import { getExchangeGroup } from '@/services/spot';
+import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
+
 interface DataType {
     id: number,
     userId: number,
@@ -106,15 +107,19 @@ const ExchangePage = () => {
     const [depthData, setDepthData] = useState<any[]>([]);
     const [orderData, setOrderData] = useState<any[]>([]);
 
+    const getCoinList = async () => {
+        const response = await getExchangeCoinList();
+        console.log(response,'response');
+    }
 
     const getGroup = async () => {
         const response = await getExchangeGroup();
-        console.log("response", response);
+
     }
     const getOrderWsData = () => {
         const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@trade`);
         websocket.connect((message: string) => {
-            console.log("WebSocket收到的原始数据:", message);
+
             try {
                 const data = JSON.parse(message);
                 
@@ -133,7 +138,7 @@ const ExchangePage = () => {
                     return combinedData.slice(0, maxEntries);
                 });
             } catch (error) {
-                console.error('解析 WebSocket 消息时出错:', error);
+
             }
         });
     }
@@ -141,7 +146,7 @@ const ExchangePage = () => {
     const getWsDepthData = () => {
         const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@depth`);
         websocket.connect((message: string) => {
-            console.log("WebSocket收到的原始数据:", message);
+
             try {
                 const data = JSON.parse(message);
                 
@@ -161,7 +166,7 @@ const ExchangePage = () => {
                     };
                 });
             } catch (error) {
-                console.error('解析 WebSocket 消息时出错:', error);
+
             }
         });
     }
@@ -172,7 +177,7 @@ const ExchangePage = () => {
         const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1`);
         
             const data = await response.json();
-            console.log("data", data);
+
             setDepthData(data);
             
         
@@ -183,6 +188,7 @@ const ExchangePage = () => {
         getGroup();
         getOrderWsData();
         getHistoryDepthData();
+        getCoinList();
 
     }, [])
 

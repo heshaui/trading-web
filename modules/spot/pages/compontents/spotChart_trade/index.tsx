@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs } from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs,message } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
@@ -10,6 +10,7 @@ import { useState } from 'react';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
 import PlaceOrderModal from './placeOrder_modal';
+import { encryptData } from "@/hooks/user-encrypt";
 interface DataType {
     id: number,
     userId: number,
@@ -32,6 +33,7 @@ const SpotTradePage = () => {
     const [segmentedvalue, setSegmentedValue] = useState('buy');
     const [priceDisabled, setPriceDisabled] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({});
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -54,6 +56,13 @@ const SpotTradePage = () => {
     const onSumbit = () => {
         form.validateFields()
             .then(async (values) => {
+                const modalData = {
+                    amount:values.amount,
+                    price:values.price,
+                    type:priceDisabled?0:1,
+                    direction:segmentedvalue==='buy'?0:1,
+                }
+                setModalData(modalData)
                 console.log(values, 111);
                 const params = {
                     amount:values.amount,
@@ -62,10 +71,10 @@ const SpotTradePage = () => {
                     direction:0,
                     price:values.price,
                     symbol:'BTC/USDT',
-                    type:0,
+                    type:priceDisabled?0:1
                 }
                 try {
-                    // const res = await createOrder(params)
+                    // 
                     setModalOpen(true)
                 } catch (error) {
 
@@ -96,6 +105,30 @@ const SpotTradePage = () => {
     }
     const geSegmentedChange = (value: string | number) => {
         setSegmentedValue(value as string)
+    }
+
+    const handelSubmitOrder =async () => {
+        console.log('提交订单');
+        form.validateFields()
+        .then(async (values) => {
+            const params = {
+                amount:values.amount,
+                baseSymbol:'USDT',
+                coinSymbol:'BTC',
+                direction:segmentedvalue==='buy'?0:1,
+                price:values.price,
+                symbol:'BTC/USDT',
+                type:priceDisabled?0:1
+            }
+           const data = await encryptData(params)
+            const res=await createOrder(data)
+            if(res.code==='0'){
+                message.success(res.message)
+            }else{
+                message.error(res.message)
+            }
+        })
+        
     }
     return (<div className='flex-y align-center'>
         <ConfigProvider
@@ -306,7 +339,7 @@ const SpotTradePage = () => {
                     {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
 
                 </div>
-                <PlaceOrderModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} />
+                <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder()}} />
             </div>
         </ConfigProvider>
     </div>
