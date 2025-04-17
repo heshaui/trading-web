@@ -11,6 +11,8 @@ import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
 import PlaceOrderModal from './placeOrder_modal';
 import { encryptData } from "@/hooks/user-encrypt";
+import ErrorModal from '@/components/spotModal/Error_modal';
+import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 interface DataType {
     id: number,
     userId: number,
@@ -84,12 +86,12 @@ const SpotTradePage = () => {
     const items: TabsProps['items'] = [
         {
             key: '1',
-            label: t('spot.select.limit'), //"当前委托",
+            label: t('spot.select.limit'), //"限价",
             children: '', //<div>123</div>, //
         },
         {
             key: '2',
-            label: t('spot.select.market'), //'历史委托',
+            label: t('spot.select.market'), //'市价',
             children: '', //<SpotOrderHistory />,
         }
     ];
@@ -340,6 +342,9 @@ const SpotTradePage = () => {
 
                 </div>
                 <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder()}} />
+                {/* <ErrorModal open={modalOpen} onCancel={() => {  }} onOk={() => {  }}  /> */}
+                {/* <SpotBuyModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} /> */}
+
             </div>
         </ConfigProvider>
     </div>

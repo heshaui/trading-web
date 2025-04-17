@@ -12,9 +12,13 @@ interface createOrderType {
     symbol:string,
     type:number,
 }
-
+interface encryptType {
+    data: string,
+    time: string|number,
+    reqNo: string|number
+  }
 // 获取邀请列统计
-export function createOrder(data: createOrderType): Promise<any> {
+export function createOrder(data: encryptType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/order/createOrder`, {
         method: 'POST',
         body:JSON.stringify(data)
