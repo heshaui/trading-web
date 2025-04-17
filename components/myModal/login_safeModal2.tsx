@@ -119,7 +119,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         } else if (type === 'emailCode') {
             setEmailCodeInputValue(filteredValue);
             form.setFieldsValue({ emailCode: filteredValue });
-        }else if (type === 'google') {
+        } else if (type === 'google') {
             setGoogleCodeInputValue(filteredValue);
             form.setFieldsValue({ googleCode: filteredValue });
         }
@@ -138,7 +138,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             email: acountInfo.email,
                             deviceType: fingerprint,
                             password: acountInfo.password,
-                            authCodeMail: values.code,
+
+                            authCodeMail: values.code || '',
 
                             authCodeGoogle: values.googleCode || '',
                             authCodePhone: values.phoneCode || ''
@@ -150,11 +151,14 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             phone: acountInfo.phone,
                             deviceType: fingerprint,
                             password: acountInfo.password,
-                            authCodePhone: values.code,
                             countryCode: acountInfo.countryCode,
 
-                            authCodeMail: values.emailCode || '',
+                            // authCodePhone: values.code,
+                            // authCodeMail: values.emailCode || '',
+                            // authCodeGoogle: values.googleCode || '',
+                            authCodeMail: values.code|| '',
                             authCodeGoogle: values.googleCode || '',
+                            authCodePhone: values.phoneCode || ''
 
                         }
                     }
@@ -224,17 +228,19 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                     toast.success(res.message)
                 }
                 clearTimers()
-                if (acountInfo.type === 'm') {
-                    startCountdown(acountInfo?.emailTime || 0);
-                    startCountdown2(acountInfo?.phoneTime || 0);
-                    // startCountdown(60);
-                    // startCountdown2(60);
-                } else if (acountInfo.type === 'p') {
-                    startCountdown(acountInfo?.phoneTime || 0);
-                    startCountdown2(acountInfo?.emailTime || 0);
-                    // startCountdown(60);
-                    // startCountdown2(60)
-                }
+                // if (acountInfo.type === 'm') {
+                //     startCountdown(acountInfo?.emailTime || 0);
+                //     startCountdown2(acountInfo?.phoneTime || 0);
+                //     // startCountdown(60);
+                //     // startCountdown2(60);
+                // } else if (acountInfo.type === 'p') {
+                //     startCountdown(acountInfo?.phoneTime || 0);
+                //     startCountdown2(acountInfo?.emailTime || 0);
+                //     // startCountdown(60);
+                //     // startCountdown2(60)
+                // }
+                startCountdown(acountInfo?.emailTime || 0);
+                startCountdown2(acountInfo?.phoneTime || 0);
             } else if (res.code === "10044") {
                 toast.error(t('safeModal.codeValid'))
             } else {
@@ -361,14 +367,15 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         }
 
         // 使用新的时间开始倒计时
-        if (acountInfo.type === 'm') {
-            startCountdown(acountInfo?.emailTime || 0);
-            startCountdown2(acountInfo?.phoneTime || 0);
-        } else if (acountInfo.type === 'p') {
-            startCountdown(acountInfo?.phoneTime || 0);
-            startCountdown2(acountInfo?.emailTime || 0);
-        }
-
+        // if (acountInfo.type === 'm') {
+        //     startCountdown(acountInfo?.emailTime || 0);
+        //     startCountdown2(acountInfo?.phoneTime || 0);
+        // } else if (acountInfo.type === 'p') {
+        //     startCountdown(acountInfo?.phoneTime || 0);
+        //     startCountdown2(acountInfo?.emailTime || 0);
+        // }
+        startCountdown(acountInfo?.emailTime || 0);
+        startCountdown2(acountInfo?.phoneTime || 0);
         return () => {
             clearTimers();
         };
@@ -466,35 +473,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                     </span>
                 </p>
                 <Form form={form} style={{ margin: "10px 0" }} colon={false}>
-                    <Form.Item
-                        name="code"
-                        rules={[{ required: true, message: t('safeModal.codeNull') }]}
-                        className="position-relative"
-                    >
-                        <Input
-                            className={`${styles.input_box} modal-input`}
-                            style={{ width: "100%", height: "40px" }}
-                            placeholder={t('safeModal.inputPlaceholder')}
-                            value={codeInputValue}
-                            onChange={(e) => handleInputChange(e, 'code')}
-                            allowClear
-                            suffix={
-                                <button
-                                    type="button"
-                                    onClick={getLoginCode2}
-                                    className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
-                                >
-                                    {/* 重新发送/60s 重发 */}
-                                    {isCounting
-                                        ? `${countdown} ${t('safeModal.resendCountdown')}`
-                                        : t('safeModal.resend')
-                                    }
-                                </button>
-                            }
-                            maxLength={6}
-                        />
-                    </Form.Item>
-                    {(acountInfo.isGoogleAuth === 1 || (acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1)) && <>
+
+                    {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
                         <Form.Item
                             name="googleCode"
@@ -512,38 +492,72 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             />
                         </Form.Item>
                     </>}
-                    {(acountInfo.type === 'm' && ((acountInfo.isPhoneAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1))) && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
-                        <Form.Item
-                            name="phoneCode"
-                            rules={[{ required: true, message: t('safeModal.codeNull') }]}
-                            className="position-relative"
-                        >
-                            <Input
-                                className={`${styles.input_box} modal-input`}
-                                style={{ width: "100%", height: "40px" }}
-                                placeholder={t('safeModal.inputPlaceholder')}
-                                allowClear
-                                value={phoneCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'phoneCode')}
-                                suffix={
-                                    <button
-                                        type="button"
-                                        onClick={getLoginCode2}
-                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
-                                    >
-                                        {/* 重新发送/60s 重发 */}
-                                        {isCounting2
-                                            ? `${countdown2} ${t('safeModal.resendCountdown')}`
-                                            : t('safeModal.resend')
-                                        }
-                                    </button>
-                                }
-                                maxLength={6}
-                            />
-                        </Form.Item>
-                    </>}
-                    {(acountInfo.type === 'p' && ((acountInfo.isEmailAuth === 1 && acountInfo.isGoogleAuth === 0) || (acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1))) && <>
+                    {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
+                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1))
+                        && <>
+                            <Form.Item
+                                name="code"
+                                rules={[{ required: true, message: t('safeModal.codeNull') }]}
+                                className="position-relative"
+                            >
+                                <Input
+                                    className={`${styles.input_box} modal-input`}
+                                    style={{ width: "100%", height: "40px" }}
+                                    placeholder={t('safeModal.inputPlaceholder')}
+                                    value={codeInputValue}
+                                    onChange={(e) => handleInputChange(e, 'code')}
+                                    allowClear
+                                    suffix={
+                                        <button
+                                            type="button"
+                                            onClick={getLoginCode2}
+                                            className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
+                                        >
+                                            {/* 重新发送/60s 重发 */}
+                                            {isCounting
+                                                ? `${countdown} ${t('safeModal.resendCountdown')}`
+                                                : t('safeModal.resend')
+                                            }
+                                        </button>
+                                    }
+                                    maxLength={6}
+                                />
+                            </Form.Item></>}
+                    {((acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1) ||
+                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 1))
+                        && <>
+                            <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
+                            <Form.Item
+                                name="phoneCode"
+                                rules={[{ required: true, message: t('safeModal.codeNull') }]}
+                                className="position-relative"
+                            >
+                                <Input
+                                    className={`${styles.input_box} modal-input`}
+                                    style={{ width: "100%", height: "40px" }}
+                                    placeholder={t('safeModal.inputPlaceholder')}
+                                    allowClear
+                                    value={phoneCodeInputValue}
+                                    onChange={(e) => handleInputChange(e, 'phoneCode')}
+                                    suffix={
+                                        <button
+                                            type="button"
+                                            onClick={getLoginCode2}
+                                            className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                        >
+                                            {/* 重新发送/60s 重发 */}
+                                            {isCounting2
+                                                ? `${countdown2} ${t('safeModal.resendCountdown')}`
+                                                : t('safeModal.resend')
+                                            }
+                                        </button>
+                                    }
+                                    maxLength={6}
+                                />
+                            </Form.Item>
+                        </>}
+                    {/* {(acountInfo.type === 'p' &&acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) 
+                    && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                         <Form.Item
                             name="emailCode"
@@ -561,7 +575,6 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                         onClick={getLoginCode2}
                                         className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
                                     >
-                                        {/* 重新发送/60s 重发 */}
                                         {isCounting2
                                             ? `${countdown2} ${t('safeModal.resendCountdown')}`
                                             : t('safeModal.resend')
@@ -573,7 +586,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 maxLength={6}
                             />
                         </Form.Item>
-                    </>}
+                    </>} */}
                 </Form>
                 <QuestionModal
                     open={pointout}

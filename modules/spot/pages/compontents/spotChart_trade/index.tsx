@@ -6,7 +6,7 @@ import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
-import BuyPage from './buy_page';
+// import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
 import PlaceOrderModal from './placeOrder_modal';
