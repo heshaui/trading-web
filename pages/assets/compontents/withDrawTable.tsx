@@ -179,6 +179,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             if (res.code === '0') {
                 toast.success(res.message || 'success')
                 await getWithdrawDepositListData()
+                setOpen(false)
             } else {
                 toast.error(res.message || 'error')
             }

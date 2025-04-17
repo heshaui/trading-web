@@ -94,6 +94,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 setTotastOpen(true)
                 setTotastMessage(`${withdrawInfo?.amount} ${withdrawInfo?.coinName}`)
                 setTotastType('success')
+                onOk && onOk()
                 handCancel()
             } else if(res.code==='1'){
                 setTotastOpen(true)

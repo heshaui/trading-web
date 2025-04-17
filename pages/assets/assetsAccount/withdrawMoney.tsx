@@ -23,7 +23,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
-import { ResetStateProvider} from '@/hooks/useStateProvider';
+import { ResetStateProvider,useResetStateContext} from '@/hooks/useStateProvider';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -158,7 +158,7 @@ const WithdrawMoneyPage = () => {
     const [showMemo, setShowMemo] = useState(false);
 
     const [allowWithdraw, setAllowWithdraw] = useState(false)
-    // const { resetState, setResetState } = useResetStateContext();
+    const { resetState } = useResetStateContext();
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -624,7 +624,18 @@ const WithdrawMoneyPage = () => {
         // 设置允许提现
         setAllowWithdraw(true)
     }
+    // const checkOK = () => {
+    //     // resetState
+    //     form.resetFields()
+    //     setCurrent(1);
 
+    // }
+    useEffect(() => {
+        if (resetState) {
+            form.resetFields()
+            setCurrent(1);
+        }
+    }, [resetState])
     useEffect(() => {
         getAllProtocolTypeList()
         getCoinAllData()
@@ -1069,7 +1080,9 @@ const WithdrawMoneyPage = () => {
             </div>
             <WithdrawMoneyCheck open={checkOpen}
                 withdrawInfo={withdrawInfo}
-                onCancel={() => setCheckOpen(false)} />
+                onCancel={() => setCheckOpen(false)} 
+                // onOk={checkOK}
+                />
         </div>
     </div>
     </ResetStateProvider>
