@@ -1,4 +1,4 @@
-import { Modal, ConfigProvider, Form, Input } from "antd";
+import { Modal, ConfigProvider, Checkbox } from "antd";
 
 import type { ModalProps } from "antd/es/modal/interface";
 // import { Iconify } from "@/components/icon/index";
@@ -15,23 +15,37 @@ import dayjs from "dayjs";
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { encryptData } from '@/hooks/user-encrypt'
-interface UserCenterData {
-    userId: number,
-    nickname?: string,
-    avatarUrl?: string,
-    birthday?: string,
-    isNicknameUpdate?: boolean,
-    nicknameUpdateTime?: number,
+interface orderInfoType {
+    amount?: number;
+    baseSymbol?: string;
+    baseSymbolCount?: number;
+    canceledTime?: number;
+    coinSymbol?: string;
+    completedTime?: number;
+    createTime?: number;
+    direction?: number;
+    fee?: number;
+    orderId?: string;
+    orderResource?: number;
+    price?: number;
+    status?: number;
+    symbol?: string;
+    tenantId?: string;
+    tradedAmount?: number;
+    turnover?: number;
+    type?: number;
+    updateTime?: number;
+    useDiscount?: number;
 }
 type Props = {
     open: boolean;
-    // onOk?: (event: boolean) => void;
+    orderInfo?:orderInfoType;
     onOk: (event: boolean) => void;
     onCancel: () => void;
 };
 
-function NicknameModal({ open, onCancel, onOk }: Props) {
-    const { t } = useTranslation('common');
+function NicknameModal({ open, onCancel, onOk ,orderInfo}: Props) {
+    const { t } = useTranslation(['spot']);
     const handCancel = () => {
         // form.resetFields();
         onCancel()
@@ -52,15 +66,15 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                     onClick={handCancel}
                 >
                     {/* 取消 */}
-                    {t('cancel')}
+                    {t('spot.modal.cancel')}
                 </button>
                 <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn flex-1`}
                     onClick={handOk}
                 >
-                    {/* 保存 */}
-                    {t('save')}
+                    {/* 确认 */}
+                    {t('spot.modal.confirm')}
                 </button>
             </div>
         );
@@ -104,7 +118,8 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
             <Modal
                 open={open}
                 title={<p className={`${styles.title}`} >
-                    下单确认
+                    {/* 下单确认 */}
+                    {t('spot.modal.title')}
                 </p>}
                 centered
                 onCancel={handCancel}
@@ -120,24 +135,42 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                 <div className="" style={{ width: "100%" }}>
                     {/* t() */}
                     <p className="font-18 font-w-500">BTC/USDT</p>
-                    <p className={`${styles.success_icon} font-14 font-w-400`}>买入/市价</p>
-                    <ul className={`${styles.tip_color1} font-14 font-w-400`}>
+                    <p className={`${styles.success_icon} font-14 font-w-400 mt-1`}>
+                        {/* 买入/市价 */}
+                        {t('spot.modal.buy')} / {t('spot.modal.market')}
+                        </p>
+                    <ul className={`${styles.tip_color1} ${styles.msg_card_box} font-14 font-w-400 mt-4 mb-2_5`}>
                         <li className="flex-x align-center justify-between">
-                            <p>价格</p>
-                            <p className={`${styles.title_color}`}>市价</p>
+                            <p>
+                                {/* 价格 */}
+                                {t('spot.modal.price')}
+                            </p>
+                            <p className={`${styles.title_color}`}>
+                                {/* 市价 */}
+                                {t('spot.modal.market')}
+                            </p>
                         </li>
-                        <li className="flex-x align-center justify-between">
-                            <p>数量</p>
+                        <li className="flex-x align-center justify-between mt-3">
+                            <p>
+                                {/* 数量 */}
+                                {t('spot.modal.amount')}
+                            </p>
                             <p className={`${styles.title_color}`}>10000USDT</p>
                         </li>
                     </ul>
                     <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                         <span>
-                            市场行情千变万化，市价单交易伴随着滑点，其最终成交价可能低于/高于最新价，请留意市场深度及价格波动
+                            {/* 市场行情千变万化，市价单交易伴随着滑点，其最终成交价可能低于/高于最新价，请留意市场深度及价格波动 */}
+                            {t('spot.modal.warning')}
                         </span>
                     </div>
-
+                    <Checkbox className="custom-checkbox text-color-default mb-5" >
+                        <p className={`${styles.title_color}`}>
+                            {/* 不再提醒,可在交易设置中，开启或关闭提示。 */}
+                            {t('spot.modal.noRemind')}
+                        </p>
+                    </Checkbox>
                 </div>
             </Modal>
         </ConfigProvider>

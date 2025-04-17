@@ -332,7 +332,7 @@ function ResetPassword() {
                             value={codeInputValue}
                             />
                         </Form.Item>
-                        {(acount.isGoogleAuth == 1||(acount.openAll == 1&&acount.isGoogleAuth == 1)) && <>
+                        {(acount.isGoogleAuth == 1) && <>
                             <div className={`${styles.title_color} mb-3`}>{t('googleCodeTitle')}</div>
                         <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
                             <Input
@@ -348,40 +348,7 @@ function ResetPassword() {
                             value={googleCodeInputValue}
                             />
                         </Form.Item></>}
-                        {/* {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) &&
-                        <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>} */}
-                        {(acount.type === 'm' && ((acount.isPhoneAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isPhoneAuth === 1))) && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('phoneCodeTitle')}</div>
-                        <Form.Item
-                            name="phoneCode"
-                            rules={[{ required: true, message: t('codeNull') }]}
-                            className="position-relative"
-                        >
-                            <Input
-                                className={`${styles.input_box} modal-input`}
-                                style={{ width: "100%", height: "40px" }}
-                                placeholder={t('inputCode2')}
-                                allowClear
-                                value={phoneCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'phoneCode')}
-                                suffix={
-                                    <button
-                                        type="button"
-                                        onClick={getResetCode}
-                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
-                                    >
-                                        {/* 重新发送/60s 重发 */}
-                                        {isCounting2
-                                            ? `${countdown2} ${t('resendCountdown')}`
-                                            :t('resend')
-                                        }
-                                    </button>
-                                }
-                                maxLength={6}
-                            />
-                        </Form.Item></>}
-
-                    {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) && <>
+                        {(acount.type === 'p' && acount.isEmailAuth == 1&&acount.isGoogleAuth == 0) && <>
                         <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>
                         <Form.Item
                             name="emailCode"
@@ -411,6 +378,40 @@ function ResetPassword() {
                             />
                         </Form.Item>
                     </>}
+                        {/* {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) &&
+                        <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>} */}
+                        {(acount.type === 'm' && acount.isPhoneAuth == 1&&(acount.isGoogleAuth == 0||acount.isEmailAuth == 0))
+                         && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('phoneCodeTitle')}</div>
+                        <Form.Item
+                            name="phoneCode"
+                            rules={[{ required: true, message: t('codeNull') }]}
+                            className="position-relative"
+                        >
+                            <Input
+                                className={`${styles.input_box} modal-input`}
+                                style={{ width: "100%", height: "40px" }}
+                                placeholder={t('inputCode2')}
+                                allowClear
+                                value={phoneCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'phoneCode')}
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={getResetCode}
+                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                    >
+                                        {isCounting2
+                                            ? `${countdown2} ${t('resendCountdown')}`
+                                            :t('resend')
+                                        }
+                                    </button>
+                                }
+                                maxLength={6}
+                            />
+                        </Form.Item></>}
+
+
                     </Form>
                 </ConfigProvider>
                 <div className='flex mt-10'>
