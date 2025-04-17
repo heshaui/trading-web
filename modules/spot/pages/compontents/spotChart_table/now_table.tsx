@@ -10,6 +10,8 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
+import {getOrderList} from '@/services/spot'
+
 interface DataType {
   id: number,
   userId: number,

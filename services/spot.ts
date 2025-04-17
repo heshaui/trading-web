@@ -12,9 +12,13 @@ interface createOrderType {
     symbol:string,
     type:number,
 }
-
+interface encryptType {
+    data: string,
+    time: string|number,
+    reqNo: string|number
+  }
 // 获取邀请列统计
-export function createOrder(data: createOrderType): Promise<any> {
+export function createOrder(data: encryptType): Promise<any> {
     return request(`${fixUrl}/user-web/v1/order/createOrder`, {
         method: 'POST',
         body:JSON.stringify(data)
@@ -42,8 +46,22 @@ export function getExchangeCoinList(): Promise<any> {
 export function getExchangeOrderList(data: any): Promise<any> {
     return request(`${fixUrl}/user-web/v1/order/exchangeOrderList`, {
         method: 'POST',
-        body:data
+        body:JSON.stringify(data)
     });
 }
+interface getOrderListType {
+    endTime?: number|string;
+    offset?: number;
+    pageNo?: number;
+    pageSize?: number
+    startTime?: number|string;
+}
 
+// 订单查询
+export function getOrderList(data: getOrderListType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/order/exchangeOrderList`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
 
