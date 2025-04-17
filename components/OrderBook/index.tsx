@@ -117,14 +117,31 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         };
       });
       
-      setTrades(processedTrades);
+      // 确保 processedTrades 中的 type 字段是 "buy" 或 "sell"
+      const typedProcessedTrades = processedTrades.map(trade => ({
+        ...trade,
+        price: Number(trade.price),
+        amount: Number(trade.amount),
+        type: trade.type === 'buy' ? 'buy' : 'sell' as 'buy' | 'sell'
+      }));
+      
+      setTrades(typedProcessedTrades);
       
       // 更新最后成交价
-      if (processedTrades.length > 0) {
-        const newPrice = processedTrades[0].price;
+      if (typedProcessedTrades.length > 0) {
+        const newPrice = typedProcessedTrades[0].price;
         setLastPrice(prevPrice => {
           if (prevPrice > 0) {
-            processedTrades[0].direction = newPrice >= prevPrice ? 'up' : 'down';
+            // 明确指定type的类型为"buy"|"sell"
+            const tradeWithDirection = {
+              ...typedProcessedTrades[0],  // 使用已经类型化的数据
+              direction: newPrice >= prevPrice ? 'up' : 'down'
+            };
+            
+            // 更新trades数组中的第一个元素
+            setTrades(prev => {
+              return [tradeWithDirection, ...prev.slice(1)];
+            });
           }
           return newPrice;
         });

@@ -39,7 +39,6 @@ const KLineChart: React.FC<KLineChartProps> = ({
         if (initialData && initialData.length > 0 && klineChart) {
           // 传入初始数据时可能需要指定周期
           klineChart.applyNewData(initialData);
-          klineChart.setStyles({ candle: { type: 'area' }}) 
         }
        
         setChart(klineChart);

@@ -189,7 +189,7 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
 };
 
 // 辅助函数：格式化大额数字
-const formatAmount = (amount) => {
+const formatAmount = (amount: number) => {
     if (amount >= 100000000) {
         return (amount / 100000000).toFixed(2) + '亿';
     } else if (amount >= 10000) {

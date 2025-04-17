@@ -24,7 +24,6 @@ const Tradingview: React.FC<TradingviewProps> = ({
   const [showModal, setShowModal] = useState(false);
   const [showIntervalDialog, setShowIntervalDialog] = useState(false);
   const [tradTime, setTradTime] = useState("1D");
-  const latestDataRef = useRef();
   const [intervals] = useState([
     "10S",
     "30S",

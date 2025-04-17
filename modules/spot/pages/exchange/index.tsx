@@ -50,7 +50,7 @@ interface coinSelectType {
 const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
-    const [klineData, setKlineData] = useState<any[]>([]);
+    const [klineData, setKlineData] = useState<any>();
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
@@ -104,7 +104,7 @@ const ExchangePage = () => {
         {label:'深度图',value:'depth'}
     ]);
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
-    const [depthData, setDepthData] = useState<any[]>([]);
+    const [depthData, setDepthData] = useState<any>();
     const [orderData, setOrderData] = useState<any[]>([]);
     const [coinData, setCoinData] = useState<any>();
 
@@ -152,7 +152,7 @@ const ExchangePage = () => {
                 console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
-                setDepthData((prevData) => {
+                setDepthData((prevData:any) => {
                     // 如果还没有初始数据，则不处理WebSocket更新
                     if (!prevData || !prevData.bids) return prevData;
                     
@@ -165,7 +165,7 @@ const ExchangePage = () => {
                     
                     // 处理买单(bids)更新
                     if (data.bids && data.bids.length > 0) {
-                        data.bids.forEach(newBid => {
+                        data.bids.forEach((newBid:any) => {
                             const [price, quantity] = newBid;
                             
                             // 查找是否存在此价格档位
@@ -195,7 +195,7 @@ const ExchangePage = () => {
                     
                     // 处理卖单(asks)更新
                     if (data.asks && data.asks.length > 0) {
-                        data.asks.forEach(newAsk => {
+                        data.asks.forEach((newAsk:any) => {
                             const [price, quantity] = newAsk;
                             
                             // 查找是否存在此价格档位
@@ -306,7 +306,7 @@ const ExchangePage = () => {
     ];
 
     const handleChartTypeChange = (e: { key: string }) => {
-        setChartDisplayType(e.key);
+        setChartDisplayType(Number(e.key));
     };
 
     const getKlineData = () => {
@@ -317,7 +317,7 @@ const ExchangePage = () => {
             const data = JSON.parse(message);
             if(data.type === 'kline' && Array.isArray(data.data)) {
                 setCoinData(data);
-                setKlineData(prevData => {
+                setKlineData((prevData:any) => {
                     if (!prevData) return data;
                     
                     // 合并新数据和旧数据
@@ -405,7 +405,7 @@ const ExchangePage = () => {
                                         menu={{ 
                                             items: chartTypeItems, 
                                             onClick: handleChartTypeChange,
-                                            selectedKeys: [chartDisplayType]
+                                            selectedKeys: [String(chartDisplayType)]
                                         }} 
                                         trigger={['hover']}
                                         placement="bottom"
