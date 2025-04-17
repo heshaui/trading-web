@@ -10,104 +10,81 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
+import { getOrderList } from '@/services/spot'
+import { add, cut, division, lastD } from '@/utils'
+import { toast } from 'sonner';
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
+  orderId: string,
+  amount: number,
+  baseSymbol: string,
+  canceledTime: number,
+  coinSymbol: string,
+  completedTime: number,
+  direction: number,
   userId: number,
-  platformType: number,
-  deviceNo: string,
-  ip: string,
-  address: string,
-  token: string,
-  tokenTime: string,
+  price: number,
+  status: number,
+  symbol: string,
   createTime: number,
   updateTime: number,
+  tradedAmount: number,
+  turnover: number,
+  type: number,
+  useDiscount: number,
+  orderResource: number,
   tenantId: string,
-  fingerprinting: string,
+  fee: number,
+  baseSymbolCount: number
 }
 interface DataType {
   id: number,
+  orderId: string,
+  amount: number,
+  baseSymbol: string,
+  canceledTime: number,
+  coinSymbol: string,
+  completedTime: number,
+  direction: number,
   userId: number,
-  platformType: number,
-  deviceNo: string,
-  ip: string,
-  address: string,
-  token: string,
-  tokenTime: string,
+  price: number,
+  status: number,
+  symbol: string,
   createTime: number,
   updateTime: number,
+  tradedAmount: number,
+  turnover: number,
+  type: number,
+  useDiscount: number,
+  orderResource: number,
   tenantId: string,
-  fingerprinting: string,
+  fee: number,
+  baseSymbolCount: number
   userLoginLogs: DataLogsType[]
 }
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-  const [tableData, setTableData] = useState<DataType[]>([
-    {
-      id: 1,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'BTC',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: '23.3',
-      tokenTime: '123',
-      createTime: 1234567890,
-      updateTime: 1234567890,
-      tenantId: '1234567890',
-      fingerprinting: '1234567890',
-      userLoginLogs: [
-        {
-          id: 2,
-          userId: 2,
-          platformType: 1,
-          deviceNo: 'BTC111',
-          ip: '123.45.67.89',
-          address: '123.45.67.89',
-          token: '21213.3',
-          tokenTime: '123212',
-          createTime: 1234567890,
-          updateTime: 1234567890,
-          tenantId: '1234567890',
-          fingerprinting: '1234567890'
-        }
-      ]
-    }, {
-      id: 3,
-      userId: 3,
-      platformType: 1,
-      deviceNo: 'BTC2222',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: '23.3',
-      tokenTime: '123',
-      createTime: 1234567890,
-      updateTime: 1234567890,
-      tenantId: '1234567890',
-      fingerprinting: '1234567890',
-      userLoginLogs: []
-    }
-  ]);
+  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
   const [childDeviceNoData, setChildDeviceNoData] = useState<DataLogsType[]>([]);
   const router = useRouter();
-  const [paramInfo, sePparamInfo] = useState({
-    type: '',
-    selsect: ''
-  });
+
   const [total, setTotal] = useState(0);
   const [pageParam, setPageParam] = useState({
     page: 1,
     pageSize: 10,
   })
+  const [loading, setLoading] = useState(false);
   const paramdataRef = useRef(pageParam);
 
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "updateTime",
+      key: "updateTime",
       width: 158,
       align: "left",
       render: (text, record) => {
@@ -125,31 +102,29 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "token",
-      key: "token",
+      dataIndex: "symbol",
+      key: "symbol",
       align: "center",
       width: 128,
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
-      title: t('spot.columns.type'), //"类型",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.direction'), //"方向",
+      dataIndex: "direction",
+      key: "direction",
       align: "center",
       width: 158,
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        let text
+        if (_status === 0) {
+          text = t('spot.columns.buy')
+        } else if (_status === 1) {
+          text = t('spot.columns.sell')
+        } else {
+          text = ''
+        }
+        return <span >{text || '--'}</span>;
 
-      },
-    },
-    {
-      title: t('spot.columns.direction'),//"方向",
-      key: "createTime",
-      dataIndex: "createTime",
-      width: 128,
-      align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
       },
     },
     {
@@ -158,15 +133,19 @@ const SpotMainPage = () => {
       key: "tokenTime",
       align: "center",
       width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status, record) => {
+        if (record.status === 0 || record.status === 1) {
+          return <span >{_status || '--'}</span>;
+        } else {
+          return <span >--'</span>;
+        }
 
       },
     },
     {
       title: t('spot.columns.price'), //"价格",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "price",
+      dataIndex: "price",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -174,29 +153,20 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.count'),  //"成交数量",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: t('spot.columns.tradedAmount'), //'委托量/已完成',  
+      key: "tradedAmount",
+      dataIndex: "tradedAmount",
       width: 128,
       align: "center",
       render: (_status) => {
         return <span >{_status || '--'}</span>;
       },
     },
-    {
-      title: t('spot.columns.quantity'),  //"数量",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
+
     {
       title: t('spot.columns.amount2'), //"成交金额",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "turnover",
+      dataIndex: "turnover",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -205,12 +175,26 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.status'), //"状态",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "status",
+      dataIndex: "status",
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        if (_status === 0) {
+          return <span >{t('spot.select.trading') || '--'}</span>;
+        } else if (_status === 1) {
+          return <span >{t('spot.select.completed') || '--'}</span>;
+        } else if (_status === 2) {
+          return <span >{t('spot.select.failed') || '--'}</span>;
+        } else if (_status === 3) {
+          return <span >{t('spot.select.canceled') || '--'}</span>;
+        } else if (_status === 4) {
+          return <span >{t('spot.select.created') || '--'}</span>;
+        } else if (_status === 5) {
+          return <span >{t('spot.select.partial') || '--'}</span>;
+        } else if (_status === 6) {
+          return <span >{t('spot.select.canceled2') || '--'}</span>;
+        }
       },
     },
 
@@ -319,6 +303,33 @@ const SpotMainPage = () => {
 
 
   }
+  const getOrderListData = async () => {
+    const params = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      type:1
+
+    }
+    setLoading(true)
+    try {
+      const res = await getOrderList(params)
+      if (res.code === '0') {
+        setInitTableData(res.data.list)
+        setTableData(res.data.list)
+        setTotal(res.data.total)
+      } else {
+        toast.error(res.message)
+      }
+
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => {
+    getOrderListData()
+  }, [])
   return (<>
     <ConfigProvider
       theme={{
@@ -417,6 +428,7 @@ const SpotMainPage = () => {
             size="large"
             // scroll={{ x: "max-content", y: 300 }}
             className={`spot-table-box`}
+            loading={loading}
             // pagination={{
             //   position: ["bottomRight"],
             //   showSizeChanger: true,

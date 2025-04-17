@@ -32,7 +32,8 @@
             "order":"下单锁定",
             "operation":"操作",
             "deposit":"充值",
-            "withdraw":"提现"
+            "withdraw":"提现",
+            "tradedAmount":"委托量/已完成"
         },
         "select":{
             "all":"全部",
@@ -50,7 +51,15 @@
             "limit":"限价",
             "market":"市价",
             "stopLoss":"止盈止损",
-            "placeholder":"请选择"
+            "placeholder":"请选择",
+
+            "trading":"交易中",
+            "completed":"完全成交",
+            "failed":"拒绝",
+            "canceled":"已撤销",
+            "created":"创建订单",
+            "partial":"部分成交",
+            "canceled2":"订单已撤销，戳和未撤销"
         },
         "trade":{
             "buy":"买入",

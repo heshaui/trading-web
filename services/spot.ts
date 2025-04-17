@@ -46,8 +46,22 @@ export function getExchangeCoinList(): Promise<any> {
 export function getExchangeOrderList(data: any): Promise<any> {
     return request(`${fixUrl}/user-web/v1/order/exchangeOrderList`, {
         method: 'POST',
-        body:data
+        body:JSON.stringify(data)
     });
 }
+interface getOrderListType {
+    endTime?: number|string;
+    offset?: number;
+    pageNo?: number;
+    pageSize?: number
+    startTime?: number|string;
+}
 
+// 订单查询
+export function getOrderList(data: getOrderListType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/order/orderList`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
 
