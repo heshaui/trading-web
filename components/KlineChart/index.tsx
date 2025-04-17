@@ -13,6 +13,7 @@ interface KLineChartProps {
   height?: number;
   theme?: "light" | "dark";
   width?: number;
+  period?: string; // 添加时间周期属性
 }
 
 const KLineChart: React.FC<KLineChartProps> = ({
@@ -21,6 +22,7 @@ const KLineChart: React.FC<KLineChartProps> = ({
   height = 500,
   width = 65,
   theme = "light",
+  period = "1m", // 默认为1分钟，可设置为"15m"
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [chart, setChart] = useState<any>(null);
@@ -33,11 +35,13 @@ const KLineChart: React.FC<KLineChartProps> = ({
         const klinecharts = await initKlinecharts();
         const klineChart = klinecharts.init(chartRef.current);
         
-        // 加载初始数据
+        // 设置图表样式和初始数据
         if (initialData && initialData.length > 0 && klineChart) {
+          // 传入初始数据时可能需要指定周期
           klineChart.applyNewData(initialData);
+          klineChart.setStyles({ candle: { type: 'area' }}) 
         }
-        
+       
         setChart(klineChart);
       }
     };
@@ -53,35 +57,39 @@ const KLineChart: React.FC<KLineChartProps> = ({
         disposeChart();
       }
     };
-  }, []);  // 只在组件挂载时执行一次
+  }, [period]); // 保留period作为依赖项
 
   // 处理WebSocket数据
   useEffect(() => {
-    if (!chart || !socketData || !Array.isArray(socketData)) return;
+    if (!chart || !socketData) return;
     
     try {
-      // 遍历socketData数组中的每个对象
-      socketData.forEach(item => {
-        if (item.type === "kline") {
-          const parsedData = JSON.parse(item.data);
-          // 解析K线数据为正确的格式
-          const klineData = {
-            timestamp: parsedData[2],  // 时间戳
-            open: parsedData[3],       // 开盘价
-            high: parsedData[4],       // 最高价
-            low: parsedData[5],        // 最低价
-            close: parsedData[6],      // 收盘价
-            volume: parsedData[7]      // 成交量
-          };
-          
-          // 更新最新成交量
-          setLastVolume(klineData.volume);
-          
-          // 更新图表数据
-          chart.updateData(klineData);
+      // 检查socketData是否为数组格式
+      if (Array.isArray(socketData)) {
+        // 获取数组中的最后一个元素（最新数据）
+        const latestUpdate = socketData[socketData.length - 1];
+        
+        if (latestUpdate && latestUpdate.type === "kline" && Array.isArray(latestUpdate.data)) {
+          // 解析K线数据
+          const dataPoint = latestUpdate.data[0];
+          if (dataPoint && dataPoint.length >= 6) {
+            const klineData = {
+              timestamp: dataPoint[0],  // 时间戳
+              open: dataPoint[1],       // 开盘价
+              high: dataPoint[2],       // 最高价
+              low: dataPoint[3],        // 最低价
+              close: dataPoint[4],      // 收盘价
+              volume: dataPoint[5]      // 成交量
+            };
+            
+            // 更新最新成交量
+            setLastVolume(klineData.volume);
+            
+            // 更新图表数据
+            chart.updateData(klineData);
+          }
         }
-      });
-      
+      }
     } catch (error) {
       console.error("处理K线数据失败:", error);
     }

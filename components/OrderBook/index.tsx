@@ -1,7 +1,7 @@
 // components/OrderBook.js
 import { useState, useEffect } from 'react';
 import styles from './style/OrderBook.module.css';
-
+import Image from 'next/image';
 // 定义订单类型
 interface Order {
   price: number;
@@ -10,10 +10,12 @@ interface Order {
 }
 
 interface OrderBookProps {
-  data: any;
+
+  bookData: any;
+  orderData: any;
 }
 
-const OrderBook = ({ data }: OrderBookProps) => {
+const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
@@ -30,10 +32,10 @@ const OrderBook = ({ data }: OrderBookProps) => {
 
   useEffect(() => {
     // 确保data存在且包含depth数据结构
-    if (data && data.asks && data.bids) {
+    if (bookData && bookData.asks && bookData.bids) {
       // 处理卖单数据 - 需要合并相同价格的订单
       const askMap = new Map<number, number>();
-      data.asks.forEach((item: [number, number]) => {
+      bookData.asks.forEach((item: [number, number]) => {
         const price = item[0];
         const amount = item[1];
         
@@ -53,7 +55,7 @@ const OrderBook = ({ data }: OrderBookProps) => {
       
       // 处理买单数据 - 需要合并相同价格的订单
       const bidMap = new Map<number, number>();
-      data.bids.forEach((item: [number, number]) => {
+      bookData.bids.forEach((item: [number, number]) => {
         const price = item[0];
         const amount = Math.abs(item[1]); // 取绝对值，买单数量为负数
         
@@ -94,12 +96,12 @@ const OrderBook = ({ data }: OrderBookProps) => {
         setSellRatio(Number(sellPercentage.toFixed(2)));
       }
     }
-  }, [data]); // 当data变化时重新处理数据
+  }, [bookData]); // 当data变化时重新处理数据
 
   // 添加处理交易数据的效果
   useEffect(() => {
-    if (data && data.trades) {
-      const processedTrades = data.trades.map((trade: any) => {
+    if (orderData && orderData.trades) {
+      const processedTrades = orderData.trades.map((trade: any) => {
         return {
           price: trade.price,
           amount: trade.amount,
@@ -120,8 +122,29 @@ const OrderBook = ({ data }: OrderBookProps) => {
           return newPrice;
         });
       }
+      
+      // 计算最近20条交易的买卖单占比
+      const recentTrades = processedTrades.slice(0, 20);
+      let buyCount = 0;
+      let sellCount = 0;
+      
+      recentTrades.forEach(trade => {
+        if (trade.type === 'buy') {
+          buyCount++;
+        } else {
+          sellCount++;
+        }
+      });
+      
+      const totalCount = buyCount + sellCount;
+      if (totalCount > 0) {
+        const newBuyRatio = (buyCount / totalCount) * 100;
+        const newSellRatio = (sellCount / totalCount) * 100;
+        setBuyRatio(Number(newBuyRatio.toFixed(2)));
+        setSellRatio(Number(newSellRatio.toFixed(2)));
+      }
     }
-  }, [data]);
+  }, [orderData]);
 
   const renderColorModeButtons = () => {
     const colorModes = [
@@ -134,17 +157,10 @@ const OrderBook = ({ data }: OrderBookProps) => {
     ];
 
     return (
-      <div className={styles.colorModes}>
-        {colorModes.map((mode) => (
-          <div 
-            key={mode.id} 
-            className={`${styles.colorMode} ${colorMode === mode.id ? styles.active : ''}`}
-            onClick={() => setColorMode(mode.id)}
-          >
-            <div className={styles.colorTop} style={{ backgroundColor: mode.sellColor }}></div>
-            <div className={styles.colorBottom} style={{ backgroundColor: mode.buyColor }}></div>
-          </div>
-        ))}
+      <div className='flex' style={{gap:'10px'}}>
+        <Image src='/images/exchange/icon_order_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        <Image src='/images/exchange/icon_green_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        <Image src='/images/exchange/icon_red_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
       </div>
     );
   };
@@ -230,7 +246,7 @@ const OrderBook = ({ data }: OrderBookProps) => {
             {sellOrders.map((order, index) => {
               const percentWidth = (order.total / Math.max(...sellOrders.map(o => o.total))) * 100;
               return (
-                <div key={index} className={`${styles.orderRow} ${styles.sell}`}>
+                <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
                   <span className={styles.price}>{order.price.toFixed(1)}</span>
                   <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                   <div className={styles.totalColumn}>
@@ -259,7 +275,7 @@ const OrderBook = ({ data }: OrderBookProps) => {
           </div>
 
           {/* 买单 */}
-          <div className={styles.orderList}>
+          <div className={styles.orderList} style={{fontSize:'12px'}}>
             {buyOrders.map((order, index) => {
               const percentWidth = (order.total / Math.max(...buyOrders.map(o => o.total))) * 100;
               return (

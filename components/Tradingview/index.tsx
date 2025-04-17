@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
+import WebSocketService from '@/utils/websocket';
 
 interface TradingviewProps {
-  data: any;
   symbol?: string;
+  showLeftToolbar?: boolean;
+  chartType?: number;
 }
 
-const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }) => {
-  console.log("data", data);
+const Tradingview: React.FC<TradingviewProps> = ({ 
+  symbol = "BTC_USDT_1",
+  showLeftToolbar = false,
+  chartType = 9
+}) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [showIntervalDialog, setShowIntervalDialog] = useState(false);
   const [tradTime, setTradTime] = useState("1D");
-  const latestDataRef = useRef(data);
+  const latestDataRef = useRef();
   const [intervals] = useState([
     "10S",
     "30S",
@@ -48,13 +53,11 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
     { text: "RSI" },
   ]);
 
-  useEffect(() => {
-    latestDataRef.current = data;
-  }, [data]);
+ 
 
   useEffect(() => {
     console.log("useEffect triggered, symbol:", symbol, "tradTime:", tradTime);
-    console.log("Current data from props:", data);
+    console.log("Current data from props:", );
     let datafeed: any = null;
     
     try {
@@ -68,6 +71,18 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
           datafeed = createDatafeed([]);
         } else {
           datafeed = createDatafeed(latestDataRef.current);
+        }
+        
+        // 根据父组件参数决定禁用的功能
+        const disabledFeatures = [
+          "header_widget",
+          "use_localstorage_for_settings",
+          "timeframes_toolbar",
+        ];
+        
+        // 如果不显示左侧工具栏，则添加到禁用列表
+        if (!showLeftToolbar) {
+          disabledFeatures.push("left_toolbar");
         }
         
         const widgetOptions = {
@@ -86,16 +101,16 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
           enabled_features: ["study_templates"],
           timezone: "Asia/Shanghai",
           debug: false,
-          disabled_features: [
-            "header_widget",
-            "use_localstorage_for_settings",
-            "timeframes_toolbar",
-           
-          ],
+          disabled_features: disabledFeatures,
         };
 
         const newWidget = new widget(widgetOptions as any);
         setTvWidget(newWidget);
+        
+        // 设置图表类型
+        newWidget.onChartReady(() => {
+          newWidget.chart().setChartType(chartType);
+        });
         
         if (!window.__tradingViewHandlersInitialized) {
           window.__tradingViewHandlersInitialized = true;
@@ -121,41 +136,8 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
         setTvWidget(null);
       }
     };
-  }, [symbol, tradTime]);
+  }, [symbol, tradTime, showLeftToolbar, chartType]);
 
-  // 处理数据更新的useEffect
-  useEffect(() => {
-    console.log("数据已更新:", data);
-    if (tvWidget && window.__handleTradingViewUpdate && data && Array.isArray(data)) {
-      // 处理每个数据项
-      data.forEach(item => {
-        try {
-          if (item.data && typeof item.data === 'string') {
-            // 解析数据字符串 - 格式: [symbol, interval, time, open, high, low, close, volume]
-            const parsedData = JSON.parse(item.data);
-            if (Array.isArray(parsedData) && parsedData.length >= 8) {
-              const formattedData = {
-                symbol: parsedData[0],
-                interval: parsedData[1],
-                time: parsedData[2],
-                open: parseFloat(parsedData[3]),
-                high: parseFloat(parsedData[4]),
-                low: parseFloat(parsedData[5]),
-                close: parseFloat(parsedData[6]),
-                volume: parseFloat(parsedData[7])
-              };
-              
-              if (window.__handleTradingViewUpdate) {
-                window.__handleTradingViewUpdate(formattedData);
-              }
-            }
-          }
-        } catch (error) {
-          console.error("解析数据错误:", error, item);
-        }
-      });
-    }
-  }, [data, tvWidget]);
 
   const toggleModal = () => setShowModal(!showModal);
 
@@ -198,49 +180,54 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
 
   const createDatafeed = (initialData: any) => {
     console.log("getBars 初始数据:", initialData);
-    let lastBar = null;
+    const lastBar = null;
     const subscribers: any = {};
     
-    // 预处理初始数据
-    const processedInitialData = (initialData || []).map((item: any) => {
+    // 先定义时间格式化函数
+    const formatTimeValue = (timeValue: any): number => {
       try {
-        if (item.data && typeof item.data === 'string') {
-          // 解析数据字符串
-          const parsedData = JSON.parse(item.data);
-          if (Array.isArray(parsedData) && parsedData.length >= 8) {
-            return {
-              symbol: parsedData[0],
-              interval: parsedData[1],
-              time: parsedData[2],
-              open: parseFloat(parsedData[3]),
-              high: parseFloat(parsedData[4]),
-              low: parseFloat(parsedData[5]),
-              close: parseFloat(parsedData[6]),
-              volume: parseFloat(parsedData[7])
-            };
-          }
-        }
-        return null;
-      } catch (error) {
-        console.error("预处理数据错误:", error, item);
-        return null;
-      }
-    }).filter((item: any) => item !== null);
-    
-    window.__tradingViewUpdateBar = (data: any) => {
-      try {
-        // 确保数据格式正确
-        if (!data || typeof data !== 'object') {
-          console.warn('无效的数据格式:', data);
-          return;
+        if (timeValue === undefined || timeValue === null) {
+          return Date.now();
         }
         
-        Object.keys(subscribers).forEach(listenerGUID => {
-          const callback = subscribers[listenerGUID];
-          if (callback && typeof callback === 'function') {
-            // 格式化并传递数据
-            const formattedData = formatBarData(data);
-            callback(formattedData);
+        if (typeof timeValue === 'number') {
+          return timeValue < 10000000000 ? timeValue * 1000 : timeValue;
+        } 
+        
+        if (typeof timeValue === 'string') {
+          const parsedTime = new Date(timeValue).getTime();
+          return isNaN(parsedTime) ? Date.now() : parsedTime;
+        }
+        
+        return Date.now();
+      } catch (error) {
+        return Date.now();
+      }
+    };
+    
+    // 预处理初始数据 - 极简模式
+    const bars: any[] = [];
+    
+
+    
+    // 更新实时数据处理函数
+    window.__tradingViewUpdateBar = (data: any) => {
+      if (!data) return;
+      
+      try {
+        const bar = {
+          time: formatTimeValue(data.timestamp || data.time),
+          open: Number(data.open || 0),
+          high: Number(data.high || 0),
+          low: Number(data.low || 0),
+          close: Number(data.close || 0),
+          volume: Number(data.volume || 0)
+        };
+        
+        // 通知所有订阅者
+        Object.values(subscribers).forEach((callback: any) => {
+          if (typeof callback === 'function') {
+            callback(bar);
           }
         });
       } catch (error) {
@@ -248,65 +235,69 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
       }
     };
     
-    // 辅助函数：格式化K线数据
-    const formatBarData = (item: any) => {
-      let timeValue = item.time;
-      
-      if (typeof timeValue === 'number') {
-        if (timeValue < 10000000000) {
-          timeValue = timeValue * 1000;
-        }
-      } else if (typeof timeValue === 'string') {
-        timeValue = new Date(timeValue).getTime();
-      }
-      
-      return {
-        time: timeValue,
-        open: parseFloat(item.open || 0),
-        high: parseFloat(item.high || 0),
-        low: parseFloat(item.low || 0),
-        close: parseFloat(item.close || 0),
-        volume: parseFloat(item.volume || 0)
-      };
-    };
-    
     return {
       onReady: (cb: any) => {
-        setTimeout(() => {
-          cb({
-            supported_resolutions: intervals,
-            supports_marks: false,
-            supports_timescale_marks: false,
-            supports_time: true
-          });
-        }, 0);
+        setTimeout(() => cb({
+          supported_resolutions: intervals,
+          supports_marks: false,
+          supports_timescale_marks: false,
+          supports_time: true
+        }), 0);
       },
       
       subscribeBars: (
         symbolInfo: any,
         resolution: any,
         onRealtimeCallback: any,
-        listenerGUID: any,
-        onResetCacheNeededCallback: any
+        listenerGUID: any
       ) => {
-        console.log('订阅实时数据', symbolInfo, resolution);
-        subscribers[listenerGUID] = onRealtimeCallback;
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${resolution.toLowerCase()}`);
+
+        websocket.connect((message: string) => {
+            try {
+                // 检查是否为订阅确认消息
+                if (message.startsWith('Subscribed to')) {
+                    return;
+                }
+
+                // 处理JSON数据
+                const data = JSON.parse(message);
+                // console.log("WebSocket收到的原始数据:", data);
+                
+                // 处理K线数据
+                if (data.type === 'kline' && data.data && data.data.length > 0) {
+                    // 遍历所有K线数据
+                    data.data.forEach((kline: any) => {
+                        if (Array.isArray(kline) && kline.length >= 6) {
+                            // 将数组格式转换为对象格式
+                            const bar = {
+                                time: kline[0],  // 时间戳
+                                open: parseFloat(kline[1]),  // 开盘价
+                                high: parseFloat(kline[2]),  // 最高价
+                                low: parseFloat(kline[3]),   // 最低价
+                                close: parseFloat(kline[4]), // 收盘价
+                                volume: parseFloat(kline[5]) // 成交量
+                            };
+                            
+                            // 将处理后的数据传递给TradingView
+                            onRealtimeCallback(bar);
+                            
+                            // 存储到subscribers以便其他地方可以访问
+                            subscribers[listenerGUID] = onRealtimeCallback;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("WebSocket数据处理错误:", error);
+            }
+        });
       },
       
-      unsubscribeBars(listenerGUID: any) {
-        console.log('取消订阅', listenerGUID);
-        if (subscribers[listenerGUID]) {
-          delete subscribers[listenerGUID];
-        }
+      unsubscribeBars: (listenerGUID: any) => {
+        delete subscribers[listenerGUID];
       },
       
-      searchSymbols: (
-        userInput: any,
-        exchange: any,
-        symbolType: any,
-        onResultReadyCallback: any
-      ) => {
-        // 简单返回空结果
+      searchSymbols: (userInput: any, exchange: any, symbolType: any, onResultReadyCallback: any) => {
         onResultReadyCallback([]);
       },
       
@@ -315,11 +306,10 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
         onSymbolResolvedCallback: any,
         onResolveErrorCallback: any
       ) => {
-        // 解析符号的逻辑
         const symbolParts = symbolName.split('_');
         const baseSymbol = symbolParts[0] || 'BTC';
         
-        const data = {
+        setTimeout(() => onSymbolResolvedCallback({
           name: symbolName,
           description: `${baseSymbol}/USDT`,
           type: "crypto",
@@ -334,63 +324,42 @@ const Tradingview: React.FC<TradingviewProps> = ({ data, symbol = "BTC_USDT_1" }
           supported_resolutions: intervals,
           volume_precision: 8,
           data_status: "streaming",
-        };
-        
-        setTimeout(function () {
-          onSymbolResolvedCallback(data);
-        }, 0);
+        }), 0);
       },
       
-      getBars: (
+      getBars: async (
         symbolInfo: any,
         resolution: any,
         periodParams: any,
         onHistoryCallback: any,
         onErrorCallback: any
       ) => {
-        console.log('获取历史数据', symbolInfo, resolution, periodParams);
-        
-        const { from, to, firstDataRequest } = periodParams;
-        
-        // 使用处理过的初始数据
-        if (processedInitialData && processedInitialData.length > 0) {
-          // 格式化数据为TradingView所需格式
-          const bars = processedInitialData.map((item: any) => {
-            // 确保时间戳格式正确
-            let timeValue = item.time;
-            
-            // 检查时间戳长度，确定是秒还是毫秒
-            if (typeof timeValue === 'number') {
-              // 如果时间戳是10位数（秒），转换为毫秒
-              if (timeValue < 10000000000) {
-                timeValue = timeValue * 1000;
-              }
-            } else if (typeof timeValue === 'string') {
-              // 如果是字符串，尝试解析
-              timeValue = new Date(timeValue).getTime();
-            }
-            
-            return {
-              time: timeValue,
-              open: parseFloat(item.open),
-              high: parseFloat(item.high),
-              low: parseFloat(item.low),
-              close: parseFloat(item.close),
-              volume: parseFloat(item.volume || 0)
-            };
-          });
+        try {
+          const startTime = periodParams.from * 1000;
+          const endTime = periodParams.to * 1000;
+          const url = `http://ws81.imsaas.work/kline/BTC_USDT_1/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
-          // 确保时间戳按顺序排列
-          bars.sort((a: any, b: any) => a.time - b.time);
+          console.log("获取历史数据URL:", url);
+          const response = await fetch(url);
+          const data = await response.json();
           
-          // 缓存最后一个bar用于实时更新
-          if (bars.length > 0) {
-            lastBar = bars[bars.length - 1];
+          if(data.type === 'kline' && Array.isArray(data.data)) {
+            const formattedBars = data.data.map((kline: any) => ({
+              time: kline[0],
+              open: parseFloat(kline[1]),
+              high: parseFloat(kline[2]),
+              low: parseFloat(kline[3]),
+              close: parseFloat(kline[4]),
+              volume: parseFloat(kline[5])
+            }));
+            
+            onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+          } else {
+            console.error('获取历史数据格式错误:', data);
+            onHistoryCallback([], { noData: true });
           }
-          
-          console.log('处理后的数据：', bars);
-          onHistoryCallback(bars, { noData: bars.length === 0 });
-        } else {
+        } catch (error) {
+          console.error('获取历史数据错误:', error);
           onHistoryCallback([], { noData: true });
         }
       },

@@ -52,7 +52,7 @@ const ExchangePage = () => {
     const [klineData, setKlineData] = useState<any[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([
         {
@@ -102,79 +102,86 @@ const ExchangePage = () => {
         {label:'TradingView',value:'tradingview'},
         {label:'深度图',value:'depth'}
     ]);
-    const [chartDisplayType, setChartDisplayType] = useState<string>('kline');
-    const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+    const [chartDisplayType, setChartDisplayType] = useState<number>(1);
+    const [depthData, setDepthData] = useState<any[]>([]);
+    const [orderData, setOrderData] = useState<any[]>([]);
 
 
     const getGroup = async () => {
         const response = await getExchangeGroup();
         console.log("response", response);
     }
-
-    const getWsKlineData = () => {
-        setLoading(true);
-        const websocket = new WebSocketService('ws://ws80.imsaas.work/ws/btc_usdt_1@kline_1m');
-
-        websocket.connect((message: string) => {
-            // console.log("接收message",message);
-            try {
-                // 检查是否为订阅确认消息
-                if (message.startsWith('Subscribed to')) {
-                    setStatusMessage(message);
-                    return;
-                }
-
-                // 处理JSON数据
-                const data = JSON.parse(message);
-                console.log("WebSocket收到的原始数据:", data);
-
-                setKlineData(prevData => {
-                    const newData = Array.isArray(data) ? [...prevData, ...data] : [...prevData, data];
-                     console.log("更新后的klineData将是:", newData);
-                    return newData;
-                });
-
-                setLoading(false);
-            } catch (error) {
-                // 处理非JSON格式消息
-                setStatusMessage(message);
-                console.error('解析 WebSocket 消息时出错:', error);
-                setLoading(false);
-            }
-        });
-    }
-
-
-    const getWsDepthData = () => {
-        const websocket = new WebSocketService('ws://ws81.imsaas.work/ws/btc_usdt_1@depth_1m');
+    const getOrderWsData = () => {
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@trade`);
         websocket.connect((message: string) => {
             console.log("WebSocket收到的原始数据:", message);
             try {
                 const data = JSON.parse(message);
-                console.log("WebSocket收到的原始数据:", data);
+                
+                // 使用函数式更新来累积数据
+                setOrderData((prevData) => {
+                    if (!prevData) return [data];
+                    
+                    // 假设我们希望保留最新的100条数据
+                    const maxEntries = 100;
+                    const newData = Array.isArray(data) ? data : [data];
+                    
+                    // 将新数据添加到数组开头（假设最新的数据应该显示在前面）
+                    const combinedData = [...newData, ...prevData];
+                    
+                    // 限制数组长度
+                    return combinedData.slice(0, maxEntries);
+                });
             } catch (error) {
                 console.error('解析 WebSocket 消息时出错:', error);
             }
         });
     }
 
-    const getHistoryKlineData = async () => {
-        const response = await fetch(`http://ws81.imsaas.work/kline/BTC_USDT_1/1m/range?start_time=1744750140000&end_time=1744750200000&limit=50`);
-            const data = await response.json();
-            console.log("data", data);
-
-            getWsKlineData();
+    const getWsDepthData = () => {
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@depth`);
+        websocket.connect((message: string) => {
+            console.log("WebSocket收到的原始数据:", message);
+            try {
+                const data = JSON.parse(message);
+                
+                // 更新深度数据而不是直接覆盖
+                setDepthData((prevData) => {
+                    // 假设深度数据有bids和asks属性
+                    if (!prevData) return data;
+                    
+                    // 合并数据
+                    return {
+                        ...prevData,
+                        bids: data.bids || (prevData as any).bids || [],
+                        asks: data.asks || (prevData as any).asks || [],
+                        // 可能还有其他需要更新的字段
+                        lastUpdateId: data.lastUpdateId,
+                        timestamp: data.timestamp
+                    };
+                });
+            } catch (error) {
+                console.error('解析 WebSocket 消息时出错:', error);
+            }
+        });
     }
+ 
 
     const getHistoryDepthData = async () => {
-        const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1/1m/range?start_time=1744750140000&end_time=1744750200000&limit=50`);
-        // const data = await response.json();
-        // console.log("data", data);
+
+        const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1`);
+        
+            const data = await response.json();
+            console.log("data", data);
+            setDepthData(data);
+            
+        
+        getWsDepthData();
 
     }
     useEffect(() => {
         getGroup();
-        getHistoryKlineData();
+        getOrderWsData();
         getHistoryDepthData();
 
     }, [])
@@ -197,19 +204,19 @@ const ExchangePage = () => {
 
     const chartTypeItems: MenuProps['items'] = [
         {
-            key: 'kline',
+            key: 1,
             label: 'K线图',
+
 
         },
         {
-            key: 'americanLine',
+            key: 8,
             label: '美国线',
 
         },
         {
-            key: 'area',
+            key: 13,
             label: '面积图',
-
         },
     ];
 
@@ -293,9 +300,7 @@ const ExchangePage = () => {
                                         trigger={['hover']}
                                         placement="bottom"
                                     >
-
-                                            <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
-
+                                    <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                     </Dropdown>
                                     <Tooltip title="技术指标">
                                         <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
@@ -335,18 +340,14 @@ const ExchangePage = () => {
                         </div>
 
                         <Spin spinning={loading} tip="加载中...">
-                            {activeChartType === 'basic' && (
-                                <KlineChart 
-                                    socketData={klineData} 
-                                    width={100} 
-                                    chartType={chartDisplayType}
-                                />
+                            {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                <Tradingview symbol="BTC_USDT_1" showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType}/>
                             )}
-                            {activeChartType === 'tradingview' && <Tradingview data={klineData} />}
-                            {activeChartType === 'depth' && <DepthChart data={klineData} />}
+                           
+                            {activeChartType === 'depth' && <DepthChart data={depthData} />}
                         </Spin>
                     </div>
-                    <OrderBook data={klineData} />
+                    <OrderBook bookData={depthData}  orderData={orderData}/>
 
                     {/* </div> */}
                 </div>

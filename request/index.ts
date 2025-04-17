@@ -21,7 +21,7 @@ export async function request<T>(
   const defaultHeaders:RequestHeaders = {
     // 'Content-Type': '',
     'Authorization': `${getToken()}`, // 获取 token（可选）
-    'ambit-saas': '0528bb1b278d4fb590db9fec13c871ab',
+    'ambit-saas': '2e5bbf22907d4a31992e9641079af195',
     'sa-token': `${getToken()}`
   };
  // 发送 FormData 时才添加 Content-Type: application/json

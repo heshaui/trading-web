@@ -1603,6 +1603,14 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@klinecharts/pro@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.npmmirror.com/@klinecharts/pro/-/pro-0.1.1.tgz"
+  integrity sha512-ChKW0/ra183CFKevzWSn1HwrLY3YOpERA8wfso+MMTyTYKEKx8Sd7gFTr5Hfn6R4MVru7xSlUHsqjlq/WpXrVA==
+  dependencies:
+    lodash "^4.17.21"
+    solid-js "^1.6.11"
+
 "@ljharb/resumer@~0.0.1":
   version "0.0.1"
   resolved "https://registry.npmmirror.com/@ljharb/resumer/-/resumer-0.0.1.tgz"
@@ -2863,7 +2871,7 @@ cssesc@^3.0.0:
   resolved "https://registry.npmmirror.com/cssesc/-/cssesc-3.0.0.tgz"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
 
-csstype@^3.0.2, csstype@^3.0.8, csstype@^3.1.3, csstype@3.1.3:
+csstype@^3.0.2, csstype@^3.0.8, csstype@^3.1.0, csstype@^3.1.3, csstype@3.1.3:
   version "3.1.3"
   resolved "https://registry.npmmirror.com/csstype/-/csstype-3.1.3.tgz"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
@@ -4442,7 +4450,7 @@ kind-of@^3.0.2:
   dependencies:
     is-buffer "^1.1.5"
 
-klinecharts@^9.8.12:
+klinecharts@^9.8.12, klinecharts@>=9.0.0:
   version "9.8.12"
   resolved "https://registry.npmmirror.com/klinecharts/-/klinecharts-9.8.12.tgz"
   integrity sha512-yKLWMliwwIsiQsAI8geNOkE8P6SFsvaa0leX2isgB4Y1SvM3tS6Y9pe7ZbKkiLtOE0P0W9W9wb0M2wH0xAPG7w==
@@ -5832,6 +5840,16 @@ serialize-javascript@^6.0.2:
   dependencies:
     randombytes "^2.1.0"
 
+seroval-plugins@^1.1.0:
+  version "1.2.1"
+  resolved "https://registry.npmmirror.com/seroval-plugins/-/seroval-plugins-1.2.1.tgz"
+  integrity sha512-H5vs53+39+x4Udwp4J5rNZfgFuA+Lt+uU+09w1gYBVWomtAl98B+E9w7yC05Xc81/HgLvJdlyqJbU0fJCKCmdw==
+
+seroval@^1.0, seroval@^1.1.0:
+  version "1.2.1"
+  resolved "https://registry.npmmirror.com/seroval/-/seroval-1.2.1.tgz"
+  integrity sha512-yBxFFs3zmkvKNmR0pFSU//rIsYjuX418TnlDmc2weaq5XFDqDIV/NOMPBoLrbxjLH42p4UzRuXHryXh9dYcKcw==
+
 set-cookie-parser@^2.6.0:
   version "2.7.1"
   resolved "https://registry.npmmirror.com/set-cookie-parser/-/set-cookie-parser-2.7.1.tgz"
@@ -5961,6 +5979,15 @@ size-sensor@^1.0.1:
   version "1.0.2"
   resolved "https://registry.npmmirror.com/size-sensor/-/size-sensor-1.0.2.tgz"
   integrity sha512-2NCmWxY7A9pYKGXNBfteo4hy14gWu47rg5692peVMst6lQLPKrVjhY+UTEsPI5ceFRJSl3gVgMYaUi/hKuaiKw==
+
+solid-js@^1.6.11:
+  version "1.9.5"
+  resolved "https://registry.npmmirror.com/solid-js/-/solid-js-1.9.5.tgz"
+  integrity sha512-ogI3DaFcyn6UhYhrgcyRAMbu/buBJitYQASZz5WzfQVPP10RD2AbCoRZ517psnezrasyCbWzIxZ6kVqet768xw==
+  dependencies:
+    csstype "^3.1.0"
+    seroval "^1.1.0"
+    seroval-plugins "^1.1.0"
 
 sonner@^1.7.4:
   version "1.7.4"
