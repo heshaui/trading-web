@@ -59,7 +59,7 @@ interface getOrderListType {
 
 // 订单查询
 export function getOrderList(data: getOrderListType): Promise<any> {
-    return request(`${fixUrl}/user-web/v1/order/orderList`, {
+    return request(`${fixUrl}/user-web/v1/order/exchangeOrderList`, {
         method: 'POST',
         body:JSON.stringify(data)
     });
