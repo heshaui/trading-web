@@ -45,7 +45,21 @@
     background: var(--background5);
     color: var(--text-color6);
 }
-.input_box:focus:not(:hover) {
-    background-color: var(--homeground5) !important;
+/* 输入框组件覆盖 */
+.input_box:focus,
+.input_box:focus-within {
+   border-color: var(--text-color3) !important;
+   box-shadow: none;
+   /* box-shadow: 0 0 0 1px var(--text_color3) !important; */
+}
+/* 鼠标聚焦且移出样式 */
+.input_box:focus:not(:hover){
+    background-color: var(--homeground5);
+    color: #fff;
+    box-shadow: none;
     color: var(--text-color6) !important;
+}
+/* 鼠标滑过 */
+.input_box:hover{
+    border-color: var(--text-color3);
 }

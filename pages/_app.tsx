@@ -21,34 +21,36 @@ import store from '@/store';
 import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { useAuthGuard } from '@/middleware/authGuard';
 // 定义公开路径（不需要登录即可访问的页面）
-const publicPaths = [
-  '/',
-  '/login',
-  '/register',
-  '/resetPassword',
-  // '/invite',
-];
+// const publicPaths = [
+//   '/',
+//   '/login',
+//   '/register',
+//   '/resetPassword',
+//   // '/invite',
+// ];
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
   const { theme } = useThemeConfig();
   // 是否登录
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(true); // 添加认证检查状态
-  // 检查路径是否匹配公开路径
-  const isPublicPath = (path: string): boolean => {
-    // 精确匹配
-    if (publicPaths.includes(path)) return true;
 
-    // 前缀匹配（例如 /news/ 开头的所有路径）
-    for (const publicPath of publicPaths) {
-      if (publicPath.endsWith('/*') && path.startsWith(publicPath.slice(0, -2))) {
-        return true;
-      }
-    }
+  // // 检查路径是否匹配公开路径
+  // const isPublicPath = (path: string): boolean => {
+  //   // 精确匹配
+  //   if (publicPaths.includes(path)) return true;
 
-    return false;
-  };
+  //   // 前缀匹配（例如 /news/ 开头的所有路径）
+  //   for (const publicPath of publicPaths) {
+  //     if (publicPath.endsWith('/*') && path.startsWith(publicPath.slice(0, -2))) {
+  //       return true;
+  //     }
+  //   }
+
+  //   return false;
+  // };
 
   // 动态主题
   // const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
@@ -87,50 +89,56 @@ function App({ Component, pageProps }: AppProps) {
     setIsDarkMode(savedMode);
   }, []);
   // 监听登录状态变化
-  useEffect(() => {
-    // 初始检查
-    const checkLoginStatus = () => {
-      const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
-      setIsLoggedIn(!!token);
-      setIsAuthChecking(false); // 认证检查完成
-    };
+  useAuthGuard({
+    isLoggedIn,
+    setIsLoggedIn,
+    isAuthChecking,
+    setIsAuthChecking
+  });
+  // useEffect(() => {
+  //   // 初始检查
+  //   const checkLoginStatus = () => {
+  //     const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+  //     setIsLoggedIn(!!token);
+  //     setIsAuthChecking(false); // 认证检查完成
+  //   };
 
-    checkLoginStatus();
+  //   checkLoginStatus();
 
-    // 添加自定义事件监听器
-    const handleLoginChange = () => {
-      checkLoginStatus();
-    };
+  //   // 添加自定义事件监听器
+  //   const handleLoginChange = () => {
+  //     checkLoginStatus();
+  //   };
 
-    window.addEventListener('loginStatusChanged', handleLoginChange);
+  //   window.addEventListener('loginStatusChanged', handleLoginChange);
 
-    return () => {
-      window.removeEventListener('loginStatusChanged', handleLoginChange);
-    };
-  }, []);
-  // 模拟路由守卫逻辑
-  useEffect(() => {
-    // 等待认证状态检查完成
-    if (isAuthChecking) return;
+  //   return () => {
+  //     window.removeEventListener('loginStatusChanged', handleLoginChange);
+  //   };
+  // }, []);
+  // // 模拟路由守卫逻辑
+  // useEffect(() => {
+  //   // 等待认证状态检查完成
+  //   if (isAuthChecking) return;
 
-    const currentPath = router.pathname;
-    const hasToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+  //   const currentPath = router.pathname;
+  //   const hasToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
 
-    // 如果已登录且在登录页，重定向到首页
-    if (hasToken && currentPath === '/login') {
-        router.push('/');
-        return;
-    }
+  //   // 如果已登录且在登录页，重定向到首页
+  //   if (hasToken && currentPath === '/login') {
+  //       router.push('/');
+  //       return;
+  //   }
 
-    // 如果未登录且访问受保护页面，重定向到登录页
-    if (!hasToken && !isPublicPath(currentPath)) {
-        const returnUrl = encodeURIComponent(router.asPath);
-        router.push({
-            pathname: '/login',
-            query: { returnUrl }
-        });
-    }
-  }, [isLoggedIn, router.pathname, isAuthChecking, router]);
+  //   // 如果未登录且访问受保护页面，重定向到登录页
+  //   if (!hasToken && !isPublicPath(currentPath)) {
+  //       const returnUrl = encodeURIComponent(router.asPath);
+  //       router.push({
+  //           pathname: '/login',
+  //           query: { returnUrl }
+  //       });
+  //   }
+  // }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {

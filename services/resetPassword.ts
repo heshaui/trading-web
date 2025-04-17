@@ -47,8 +47,25 @@ export function getResetPasswordCheck(data: checkType|codeEncrypt): Promise<any>
   });
 }
 // 重置密码
+// 重置密码-执行修改 - 3
 export function getResetPassword(data: checkEncrypt|codeEncrypt): Promise<any> {
   return request(`${fixUrl}/auth/retrievePassword`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+// 重置密码-获取校验规则 - 1
+export function getCheckRule(data: codeEncrypt): Promise<any> {
+  return request(`${fixUrl}/auth/retrievePasswordParams`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+// 重置密码-验证码校验 - 2
+export function getCheckCode(data:codeEncrypt): Promise<any> {
+  return request(`${fixUrl}/auth/retrievePasswordCheck`, {
     method: 'POST',
     body: JSON.stringify(data),
   });

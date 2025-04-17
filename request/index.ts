@@ -1,12 +1,15 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+// import { useAuth } from '@/context/AuthContext';
+import router from 'next/router';
+import { toast } from 'sonner';
 /**
  * 通用请求封装
  * @param endpoint 请求的 API 路径，例如 '/user'
  * @param options 请求选项，支持 method、body、headers 等
  * @returns 返回 Promise
  */
-
+// const { logout } = useAuth();
 interface RequestHeaders {
   [key: string]: string;
 }
@@ -38,19 +41,33 @@ export async function request<T>(
 
   try {
     const response = await fetch(url, config);
+    const data = await response.json();
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || '请求失败');
+      throw new Error(data.message || '请求失败');
     }
 
-    return response.json();
+    // 检查响应码是否为 10005
+    if (data.code === '10005' ) {
+      toast.error(data.message);
+      logout();
+    }
+
+    return data;
   } catch (error) {
     console.error('API 请求错误:', error);
     throw error;
   }
 }
-
+    // 登出方法
+    const logout = () => {
+      localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+      sessionStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+      // setIsLoggedIn(false);
+      // 触发自定义事件
+      window.dispatchEvent(new Event('loginStatusChanged'));
+      router.push('/login');
+  };
 // 获取 Token（如果有鉴权）
 export function getToken() {
   if (typeof window !== 'undefined') {

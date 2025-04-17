@@ -15,7 +15,14 @@ export enum ResetStateEnum {
 interface acountType {
 	type: string;
 	acount: string;
-	areaCode?: string
+	areaCode?: string;
+	isGoogleAuth?: number;
+	isPhoneAuth?: number;
+	isEmailAuth?: number;
+	openAll?: number;
+	emailTime?: number;
+	phoneTime?: number;
+	message?: string;
 }
 
 interface ResetStateContextType {

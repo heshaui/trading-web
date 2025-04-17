@@ -1,8 +1,8 @@
 // import { Button, Form, Input,Tabs } from "antd";
 "use client";
-import { Input, AutoComplete, Form, Segmented ,ConfigProvider} from 'antd';
+import { Input, AutoComplete, Form, Segmented, ConfigProvider } from 'antd';
 import type { AutoCompleteProps } from 'antd';
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useResetStateContext, ResetStateEnum } from "@/config/reset-providers/ResetStateProvider";
 // import { toast } from "sonner";
 // import store from "@/store";
@@ -11,6 +11,10 @@ import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useTranslation } from 'next-i18next';
+import { getCheckRule } from "@/services/resetPassword"
+import { encryptData } from "@/hooks/user-encrypt";
+import { toast } from "sonner";
+import { Iconify } from "@/components/icon";
 
 interface acountType {
     type: string;
@@ -26,6 +30,7 @@ function ResetPassword() {
     const [tabsProps, setTabsProps] = useState('email');
     const { acount, type, areaCode } = router.query;
     const { t } = useTranslation('resetPassword');
+    const [isLoding, setIsLoding] = useState(false);
     // console.log(acount, type, areaCode, 123);
 
     // 定义粘贴功能的处理函数
@@ -70,71 +75,93 @@ function ResetPassword() {
                     }
 
                 }
+                // setAcount(data)
+                // setResetState(ResetStateEnum.SENTCODE)
+                setIsLoding(true)
+                try {
+                    const params = {
+                        type: data.type,
+                        account: data.acount
+                    }
+                    const encrypt = await encryptData(params)
+                    const res = await getCheckRule(encrypt)
+                    if (res.code === '0') {
+                        const dataInfo = Object.assign({}, data, res.data)
+                        setAcount(dataInfo)
+                        if (res.data.message) {
+                            toast.success(t('codeError'))
 
-                setAcount(data)
-                setResetState(ResetStateEnum.SENTCODE)
+                        } else {
+                            toast.success(res.data.message)
+                        }
+                        setResetState(ResetStateEnum.SENTCODE)
+
+                    } else {
+                        toast.error(res.message)
+                    }
+                } catch (error) {
+                    toast.error(String(error))
+                }
+
 
             })
-            .catch((info) => {
-                console.log("Validate Failed:", info);
-            });
 
-    }
-    const handleSearch = (value: string) => {
-        setOptions(() => {
+}
+const handleSearch = (value: string) => {
+    setOptions(() => {
 
-            if (!value || value.includes('@')) {
-                return [];
-            }
-            return emailSuffixes.map((domain) => ({
-                label: `${value}@${domain}`,
-                value: `${value}@${domain}`,
-            }));
-        });
-    };
-
-    const tabsChange = (value: string) => {
-        setTabsProps(value)
-    };
-    useEffect(() => {
-        // 初始表单内容
-        form.setFieldsValue({
-            areaCode: type === 'p'&&acount&&acount!=='undefined' ?`+${areaCode}` : "+1",
-            acount: type === 'm'&&acount&&acount!=='undefined'  ? acount : "",
-            acountNumber: type === 'p'&&acount&&acount!=='undefined' ? acount : ""
-        });
-        if (type === 'm') {
-            setTabsProps('email')
-        } else if (type === 'p') {
-            setTabsProps('phone')
+        if (!value || value.includes('@')) {
+            return [];
         }
-    }, [acount, type, areaCode, form]);
+        return emailSuffixes.map((domain) => ({
+            label: `${value}@${domain}`,
+            value: `${value}@${domain}`,
+        }));
+    });
+};
 
-    if (resetState !== ResetStateEnum.INPUT) return null;
+const tabsChange = (value: string) => {
+    setTabsProps(value)
+};
+useEffect(() => {
+    // 初始表单内容
+    form.setFieldsValue({
+        areaCode: type === 'p' && acount && acount !== 'undefined' ? `+${areaCode}` : "+1",
+        acount: type === 'm' && acount && acount !== 'undefined' ? acount : "",
+        acountNumber: type === 'p' && acount && acount !== 'undefined' ? acount : ""
+    });
+    if (type === 'm') {
+        setTabsProps('email')
+    } else if (type === 'p') {
+        setTabsProps('phone')
+    }
+}, [acount, type, areaCode, form]);
 
-    return (<>
-    			<ConfigProvider
-				theme={{
-					components: {
-						Form: {
-							itemMarginBottom: 0, // 去除表单项之间的间距
-						},
-						Input: {
-							controlHeightLG: 50,
-							activeBorderColor: 'var(--theme-color)',
-							hoverBorderColor: 'var(--theme-color)',
-							activeBg: 'var(--background11)',
-							hoverBg: 'var(--background11)',
-						},
-						Select: {
-							selectorBg: 'var(--background11)',
-						}
-					},
-					token: {
-						// colorBgContainerDisabled: '#fff',
-					}
-				}}
-			>
+if (resetState !== ResetStateEnum.INPUT) return null;
+
+return (<>
+    <ConfigProvider
+        theme={{
+            components: {
+                Form: {
+                    itemMarginBottom: 0, // 去除表单项之间的间距
+                },
+                Input: {
+                    controlHeightLG: 50,
+                    activeBorderColor: 'var(--theme-color)',
+                    hoverBorderColor: 'var(--theme-color)',
+                    activeBg: 'var(--background11)',
+                    hoverBg: 'var(--background11)',
+                },
+                Select: {
+                    selectorBg: 'var(--background11)',
+                }
+            },
+            token: {
+                // colorBgContainerDisabled: '#fff',
+            }
+        }}
+    >
         <Segmented
             className={`${styles.custom_segmented} custom-segmented`}
             options={[
@@ -170,7 +197,7 @@ function ResetPassword() {
             <Form
                 name="aount"
                 form={form}
-                // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
+            // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
             >
                 {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: t('inputAcount') }
                     //  { validator: validateAcount }
@@ -203,17 +230,19 @@ function ResetPassword() {
                 <button
                     className={`${styles.goBack_btn} mr-4`}
                     onClick={() => goBackPage()}>
-                        {/* 上一步 */}
-                        {t('goBack')}
-                        </button>
-                <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>{t('next')}</button>
+                    {/* 上一步 */}
+                    {t('goBack')}
+                </button>
+                <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>
+                    {isLoding ? <Iconify icon="eos-icons:bubble-loading" size={20} /> : t('next')}
+                    </button>
             </div>
 
         </div>
-        </ConfigProvider>
-    </>
+    </ConfigProvider>
+</>
 
-    );
+);
 }
 
 export default ResetPassword;

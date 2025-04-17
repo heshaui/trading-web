@@ -259,7 +259,7 @@ const ExchangePage = () => {
             }}
         >
             <div className={`${styles.card_bgc4} w-full`}>
-            {/* <SpotHeaderPage /> */}
+            <SpotHeaderPage />
             </div>
 
 
