@@ -106,6 +106,7 @@
         "create":"创建",
         "pending":"待审核",
         "completed":"完成",
+        "completed1":"已转出",
         "rejected":"拒绝",
         "canceled":"用户撤销",
         "status":"状态",

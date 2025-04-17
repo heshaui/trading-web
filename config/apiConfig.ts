@@ -41,6 +41,8 @@ export const ROUTER_KEY_ASSETS = {
 	TOP_UP:"/assets/assetsAccount/topUp", //充值页面
     BILL:"/assets/billDetails", //账单页面
     ADDADRESS:"/assets/assetsAccount/addAddress", //添加地址页面
+
+    FUTURE_ACCOUNT:"/assets/futureAccount", //合约账户
 };
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
 import { useResetStateContext } from '@/hooks/useStateProvider';
 import { encryptData } from '@/hooks/user-encrypt'
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -196,7 +197,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             case 1:
                 return t('withdrawTable.pending') //'待审核'
             case 2:
-                return t('withdrawTable.completed') //'完成'
+                return t('withdrawTable.completed1') //已转出 //'完成'
             case 3:
                 return t('withdrawTable.rejected') //'拒绝 '
             case 4:
@@ -287,7 +288,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                         </span>
                     </Checkbox>
                     <button className='flex-x align-center font-16' onClick={() => {
-                        router.push('/assets/billDetails')
+                        router.push(ROUTER_KEY_ASSETS.BILL)
                     }}>
                         {t('withdrawTable.more')}
                         <Iconify icon="mingcute:right-line" size={26} />

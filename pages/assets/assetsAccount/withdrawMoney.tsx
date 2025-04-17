@@ -22,7 +22,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
-import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { ResetStateProvider,useResetStateContext} from '@/hooks/useStateProvider';
 interface coinSelectType {
     coinId: string,
@@ -985,7 +985,7 @@ const WithdrawMoneyPage = () => {
                 <div className='flex justify-between align-center'>
                     <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                        title: <Link href={ROUTER_KEY_ASSETS.ACCOUNT}><span className={`${styles.tip_color}`}>
                             {/* 现货账户 */}
                             {t('assets.assetsAccount')}
                         </span></Link>,
