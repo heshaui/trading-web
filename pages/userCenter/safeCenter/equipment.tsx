@@ -313,7 +313,7 @@ function Equipment() {
                             columns={columns}
                             dataSource={deviceNoData}
                             size="large"
-                            scroll={{ x: "max-content" ,y: 600}}
+                            // scroll={{ x: "max-content" ,y: 600}}
                             className={`${styles.table_box} table-box`}
                             expandable={{
                                 expandedRowRender: (record) => {
