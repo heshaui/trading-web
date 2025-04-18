@@ -12,7 +12,7 @@ interface TradingviewProps {
 }
 
 const Tradingview: React.FC<TradingviewProps> = ({ 
-  symbol = "BTC_USDT_1",
+  symbol,
   showLeftToolbar = false,
   chartType = 9,
   klineData = [],
@@ -375,10 +375,12 @@ const Tradingview: React.FC<TradingviewProps> = ({
         try {
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
-          const url = `http://ws81.imsaas.work/kline/BTC_USDT_1/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          const url = `http://ws81.imsaas.work/kline/${symbolInfo.toUpperCase()}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
 
           const response = await fetch(url);
+          console.log(response,'response');
+          if(response.status === 200) {}
           const data = await response.json();
           
           if(data.type === 'kline' && Array.isArray(data.data)) {
