@@ -1,7 +1,9 @@
 import React from 'react';
 import styles from '../styles/spotChartAssets.module.css'
 import { useTranslation } from 'next-i18next';
-
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
+import { useRouter } from 'next/router';
+// import { getCurrentPair } from '@/store/index';
 interface DataType {
     id: number,
     userId: number,
@@ -17,7 +19,7 @@ interface DataType {
 }
 const SpotAssetsPage = () => {
     const { t } = useTranslation(['spot']);
-
+    const router = useRouter();
 
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
@@ -35,8 +37,15 @@ const SpotAssetsPage = () => {
                 </li>
             </ul>
             <div className={`flex-x-cc w-full `}>
-                <button type='button' className={`cancel_btn2 ${styles.btn_style} mr-4`} >{t('spot.columns.deposit')}</button>
-                <button type='button' className={`cancel_btn2 ${styles.btn_style}`}>{t('spot.columns.withdraw')}</button>
+                <button type='button' className={`cancel_btn2 ${styles.btn_style} mr-4`} 
+                onClick={()=>{
+                    router.push(ROUTER_KEY_ASSETS.TOP_UP)
+                }}
+                >{t('spot.columns.deposit')}</button>
+                <button type='button' className={`cancel_btn2 ${styles.btn_style}`}
+                onClick={()=>{
+                    router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)
+                }}>{t('spot.columns.withdraw')}</button>
             </div>
         </div>
     </>

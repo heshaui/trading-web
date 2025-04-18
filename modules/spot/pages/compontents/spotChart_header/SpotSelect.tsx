@@ -7,32 +7,13 @@ import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
-
-const SpotSelect = () => {
+import appStore from '@/store';
+const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
     const [searchValue, setSearchValue] = useState('');
 
-    // 模拟的交易对数据
-    const pairList = [
-        {
-            name: 'GT/USDT',
-            price: '4.9829',
-            change: '-3.05%',
-            isUp: false,
-            isFavorite: true,
-            icon: <Iconify icon="cryptocurrency-color:btc" size={16} />
-        },
-        {
-            name: 'BTC/USDT',
-            price: '270246.20',
-            change: '+3.05%',
-            isUp: true,
-            isFavorite: true,
-            icon: <Iconify icon="cryptocurrency-color:btc" size={16} />
-        }
-    ];
-
+    
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
         // { key: 'all', label: '全部' },
@@ -48,6 +29,11 @@ const SpotSelect = () => {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(e.target.value);
+    };
+
+    const handlePairClick = async (pair: any) => {
+        console.log(pair);  
+        await appStore.setCurrentPair(pair);
     };
 
     return (
@@ -127,8 +113,8 @@ const SpotSelect = () => {
 
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
-                    {pairList.map((pair, index) => (
-                        <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`}>
+                    {currencyPairs.map((pair:any, index:any) => (
+                        <div key={index} className={`${styles.base}  px-4 flex-x align-center`} style={{cursor: 'pointer'}} onClick={() => handlePairClick(pair)}>
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
@@ -139,17 +125,17 @@ const SpotSelect = () => {
                                     />
                                 </span>
                                 <span className={styles.coin_icon}>{pair.icon}</span>
-                                <span className={`font-14 ${styles.title_color}`}>{pair.name}</span>
+                                <span className={`font-14 ${styles.title_color}`}>{pair.coinSymbol}/{pair.baseSymbol}</span>
                             </div>
                             {/* 最新价 */}
                             <div className={`font-14 ${styles.title_color} flex-1`}>
-                                {pair.price}
+                                {/* {pair.price} */}
                             </div>
                             {/* 24h涨跌/24h成交量 */}
                             <div
                                 className={`${styles.pair_change} ${pair.isUp ? styles.success_icon : styles.error_icon} flex-1`}
                             >
-                                {pair.change}
+                                {/* {pair.change} */}
                             </div>
                         </div>
                     ))}

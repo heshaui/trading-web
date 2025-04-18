@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import styles from '../styles/spotHeader.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
@@ -9,14 +10,16 @@ import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import SelfSelect from './SelfSelect';
 import SpotSelect from './SpotSelect';
-import dayjs from 'dayjs';
-import WebSocketService from '@/utils/websocket';
-const SpotHeaderPage = ({coinData}:{coinData:any}) => {
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
+const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
+    
     const { t } = useTranslation(['spot']);
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('spot'); // 当前选中的tab
     const [searchValue, setSearchValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
    
     // 解析K线数据
@@ -31,20 +34,17 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
 
     useEffect(() => {
         setMounted(true);
+        // 加载数据时设置加载状态
+        setIsLoading(true);
+        appStore.loadCurrencyPairs()
+            .then(() => setIsLoading(false))
+            .catch((error) => {
+                console.error('加载货币对数据失败:', error);
+                setIsLoading(false);
+            });
     }, []);
 
-    const tabsItem: TabsProps['items'] = [
-        {
-            key: 'favorites',
-            label: '自选',
-            children: <SelfSelect />
-        },
-        {
-            key: 'spot',
-            label: '现货',
-            children: <SpotSelect/>
-        },
-    ];
+
 
     const handleTabClick = (key: string) => {
         setActiveTab(key);
@@ -60,18 +60,32 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
         }
     };
 
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+    const currencyPairsArray = appStore.currencyPairs || [];
 
 
-  
-    useEffect(() => {
 
-    }, []);
-
+    const tabsItem: TabsProps['items'] = [
+        {
+            key: 'favorites',
+            label: '自选',
+            children: <SelfSelect />
+        },
+        {
+            key: 'spot',
+            label: '现货',
+            children: <SpotSelect currencyPairs={currencyPairsArray} />
+        },
+    ];
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
         if (!mounted) return null;
 
         return (
+
+
+           
             <Dropdown
                 trigger={['click']}
                 open={open}
@@ -109,10 +123,18 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
                 )}
             >
                 <Space className={styles.dropdown_trigger}>
-                    <span>BTC/USDT</span>
+                    {isLoading ? (
+                        <Spin size="small" />
+                    ) : (
+                        <span>{currentPair.coinSymbol}/{currentPair.baseSymbol }</span>
+                    )}
                     <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
+                       
+
                 </Space>
             </Dropdown>
+           
+
         );
     };
 
@@ -156,6 +178,8 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
                     },
                 }}
             >
+                   
+ 
                 {renderDropdown()}
                 <ul className={`${styles.tip_color} ${styles.header_content_msg} font-14 font-w-400 flex-x align-center  ml-5 flex-1`}>
                     <li className='mr-9'>
@@ -179,11 +203,11 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
                         <p className={`${styles.title_color}`}>{low_price ? low_price.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 成交量(BTC)</p>
+                        <p>24H 成交量({currentPair?.coinSymbol})</p>
                         <p className={`${styles.title_color}`}>{volume ? volume.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 交易额(USDT)</p>
+                        <p>24H 交易额({currentPair?.baseSymbol})</p>
                         <p className={`${styles.title_color}`}>
                             {volume && close_price ? formatAmount(volume * close_price) : '--'}
                         </p>
@@ -195,7 +219,7 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
             </ConfigProvider>
         </div>
     );
-};
+});
 
 // 辅助函数：格式化大额数字
 const formatAmount = (amount: number) => {

@@ -15,7 +15,7 @@ import ErrorModal from '@/components/spotModal/Error_modal';
 import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import { getUserBalance,getUserBalanceAll } from '@/services/assets'
 import { toast } from 'sonner';
-
+import appStore from '@/store';
 interface DataType {
     id: number,
     userId: number,
@@ -40,6 +40,11 @@ const SpotTradePage = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
     const [userBalance, setUserBalance] = useState<any[]>([]);
+
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+
+    console.log('currentPair', currentPair);
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {

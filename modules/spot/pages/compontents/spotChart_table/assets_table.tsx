@@ -7,13 +7,13 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import { getUserBalanceAll } from '@/services/assets';
 import { toast } from "sonner";
 import { add, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { NoData } from '@/components/noData'
+import { getUserBalanceAll } from '@/services/assets';
 
 interface DataType {
     balance: number,
@@ -146,8 +146,8 @@ const AssetsMainPage = () => {
         try {
             const res = await getUserBalanceAll();
             if (res.code === '0') {
-                setInitTableData(res.data.list || []);
-                setTableData(res.data.list || []);
+                setInitTableData(res.data || []);
+                setTableData(res.data || []);
                 setTotal(res.data.total);
             }
         } catch (error) {
@@ -156,7 +156,9 @@ const AssetsMainPage = () => {
             setTableLoading(false);
         }
     }
-
+    useEffect(() => {
+        getUserBalanceAllData();
+    }, [])
     return (<>
         <div className={`${styles.table_header}  my-4 ml-6 flex align-center justify-end ${styles.table_header_checkbox}`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
@@ -215,6 +217,7 @@ const AssetsMainPage = () => {
                     //     size: "default",
                     //     onChange: (page, pageSize) => pageChange(page, pageSize),
                     // }}
+                    pagination={false}
                     loading={tableLoading}
                     locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />

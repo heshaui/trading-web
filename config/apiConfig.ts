@@ -33,6 +33,8 @@ export const LOCAL_STORAGE_KEY = {
 	USER_INFO:'imbit_userInfo' , 
 	USER_TOKEN:"imbit_userToken",
     OUT_MONEY:"imbit_out_money",
+    CURRENCY_PAIRS: 'currency_pairs',
+    CURRENT_PAIR: 'current_pair',
 };
 
 export const ROUTER_KEY_ASSETS = {
@@ -47,3 +49,5 @@ export const ROUTER_KEY_ASSETS = {
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
 };
+
+
