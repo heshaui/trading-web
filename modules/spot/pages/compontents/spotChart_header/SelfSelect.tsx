@@ -151,7 +151,7 @@ const SpotSelect = () => {
 
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
-                    <Table
+                    {/* <Table
                         dataSource={pairList}
                         rowKey="id"
                         pagination={false}
@@ -203,7 +203,33 @@ const SpotSelect = () => {
                                 ),
                             },
                         ]}
-                    />
+                    /> */}
+                    {pairList.map((pair, index) => (
+                        <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`}>
+                            {/* 币种名称 */}
+                            <div className={`${styles.pair_name} flex-1`}>
+                                <span className={styles.favorite}>
+                                    <Rate
+                                        // defaultValue={pair.isFavorite ? 1 : 0}
+                                        count={1}
+                                        style={{ fontSize: 14 }}
+                                    />
+                                </span>
+                                <span className={styles.coin_icon}>{pair.icon}</span>
+                                <span className={`font-14 ${styles.title_color}`}>{pair.name}</span>
+                            </div>
+                            {/* 最新价 */}
+                            <div className={`font-14 ${styles.title_color} flex-1`}>
+                                {pair.price}
+                            </div>
+                            {/* 24h涨跌/24h成交量 */}
+                            <div
+                                className={`${styles.pair_change} ${pair.isUp ? styles.success_icon : styles.error_icon} flex-1`}
+                            >
+                                {pair.change}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </ConfigProvider>

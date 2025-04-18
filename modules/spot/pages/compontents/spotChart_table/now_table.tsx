@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox, Tooltip } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -10,8 +10,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import {getOrderList} from '@/services/spot'
+import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
+import { add, cut, nul, division, lastD } from '@/utils'
 
 interface DataType {
   id: number,
@@ -57,32 +58,86 @@ const SpotMainPage = () => {
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "updateTime",
+      key: "updateTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "token",
-      key: "token",
+      dataIndex: "symbol",
+      key: "symbol",
       align: "center",
       width: 128,
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'),//"方向",
-      key: "tokenTime",
-      dataIndex: "tokenTime",
+      key: "direction",
+      dataIndex: "direction",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_text) => {
+        let text
+        if (_text === 0) {
+          text = t('spot.trade.buy')
+        } else if (_text === 1) {
+          text = t('spot.trade.sell')
+        } else {
+          text = ''
+        }
+        return <span >{text || '--'}</span>;
       },
     },
     {
       title: t('spot.columns.price'), //"价格",
+      key: "price",
+      dataIndex: "price",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return < >{_status ? <div className='flex-x align-center'> 
+          {_status}
+          <Tooltip title={t('spot.modal.edit')}>
+          <button >
+            <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+          </button>
+        </Tooltip>
+        </div>
+          : '--'}</>;
+      },
+    },
+    {
+      title: t('spot.columns.tradedAmount'), //"委托量/已完成",
+      key: "amount",
+      dataIndex: "amount",
+      width: 128,
+      align: "center",
+      render: (_amount, record) => {
+        // amount/tradedAmount
+        return < div className='flex-x-cc'>
+          {_amount ? <div  className='flex-x align-center'>
+            {`${_amount}/${record.tradedAmount}`}
+            <Tooltip title={t('spot.modal.edit')}>
+              <button >
+                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+              </button>
+            </Tooltip>
+            <span className={`${styles.tip_color2}`}>
+            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+            </span>
+            
+          </div>
+            : '--'
+          }
+        </div >
+
+
+      },
+    },
+    {
+      title: t('spot.columns.totalAmount'), //"总额/已成交",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -92,30 +147,17 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.completion'), //"完成度",
+      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span> , //"全撤",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.amount'), //"成交额",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-    },
-    {
-      title: t('spot.columns.cancel'), //"全撤",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return <Tooltip title={t('spot.modal.cancel')}>
+          <button >
+            <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
+          </button>
+        </Tooltip>;
       },
     },
 
@@ -151,7 +193,7 @@ const SpotMainPage = () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type:0
+      type: 0
 
     }
     setLoading(true)
@@ -210,66 +252,66 @@ const SpotMainPage = () => {
     >
       {/* 充值 */}
       {/* <div className={`${styles.table_box}`}> */}
-        <div className={`${styles.table_header} flex align-center mb-6 flex-wrap`}>
-          <div className=' mt-6  ml-6'>
-            <Segmented options={[
-              {
-                label: (
-                  // className={`default_btn ${styles.btn_style}`}
-                  <div style={{ padding: '2px 4px' }} >
-                    <div>
-                      {/* 限价 | 市价 */}
-                      {t('spot.select.limit')} | {t('spot.select.market')}
-                      </div>
+      <div className={`${styles.table_header} flex align-center mb-6 flex-wrap`}>
+        <div className=' mt-6  ml-6'>
+          <Segmented options={[
+            {
+              label: (
+                // className={`default_btn ${styles.btn_style}`}
+                <div style={{ padding: '2px 4px' }} >
+                  <div>
+                    {/* 限价 | 市价 */}
+                    {t('spot.select.limit')} | {t('spot.select.market')}
                   </div>
-                ),
-                value: 'user1',
-              },
-              {
-                label: (
-                  <div style={{ padding: '2px 4px' }} >
-                    <div>
-                      {/* 止盈止损 */}
-                      {t('spot.select.stopLoss')}
-                      </div>
+                </div>
+              ),
+              value: 'user1',
+            },
+            {
+              label: (
+                <div style={{ padding: '2px 4px' }} >
+                  <div>
+                    {/* 止盈止损 */}
+                    {t('spot.select.stopLoss')}
                   </div>
-                ),
-                value: 'user2',
-              },
-            ]}
-              className={`custom-segmented2`} />
-          </div>
-          <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
-            <Checkbox
-            // checked={hideZero}
-            // onChange={hideZeroChange}
-            >
-              <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
-            </Checkbox>
-          </div>
+                </div>
+              ),
+              value: 'user2',
+            },
+          ]}
+            className={`custom-segmented2`} />
         </div>
-        <div className={`${styles.table_content} w-full `}>
-
-          <Table
-            columns={columns}
-            dataSource={tableData}
-            size="large"
-            // scroll={{ x: 'max-content', y: 300 }}
-            // scroll={{y: true }}
-            className={`spot-table-box`}
-            pagination={{
-              position: ["bottomRight"],
-              // showSizeChanger: true,
-              total: total,
-              size: "default",
-              simple: true,
-              onChange: (page, pageSize) => pageChange(page, pageSize),
-            }}
-            loading={loading}
-            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-          />
-
+        <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
+          <Checkbox
+          // checked={hideZero}
+          // onChange={hideZeroChange}
+          >
+            <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
+          </Checkbox>
         </div>
+      </div>
+      <div className={`${styles.table_content} w-full `}>
+
+        <Table
+          columns={columns}
+          dataSource={tableData}
+          size="large"
+          // scroll={{ x: 'max-content', y: 300 }}
+          // scroll={{y: true }}
+          className={`spot-table-box`}
+          pagination={{
+            position: ["bottomRight"],
+            // showSizeChanger: true,
+            total: total,
+            size: "default",
+            simple: true,
+            onChange: (page, pageSize) => pageChange(page, pageSize),
+          }}
+          loading={loading}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+        />
+
+      </div>
       {/* </div> */}
     </ConfigProvider>
   </>
