@@ -33,7 +33,8 @@
             "operation":"操作",
             "deposit":"充值",
             "withdraw":"提现",
-            "tradedAmount":"委托量/已完成"
+            "tradedAmount":"委托量/已完成",
+            "totalAmount":"总额/已成交"
         },
         "select":{
             "all":"全部",

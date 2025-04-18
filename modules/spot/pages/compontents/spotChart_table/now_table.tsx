@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox,Tooltip } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -12,6 +12,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import {getOrderList} from '@/services/spot'
 import { toast } from 'sonner';
+import { add, cut, nul,division, lastD } from '@/utils'
 
 interface DataType {
   id: number,
@@ -101,6 +102,17 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.tradedAmount'), //"委托量/已完成",
+      key: "amount",
+      dataIndex: "amount",
+      width: 128,
+      align: "center",
+      render: (_amount,record) => {
+        // amount/tradedAmount
+        return <div >{_amount?`${_amount}/${record.tradedAmount} ${ division(_amount,record.tradedAmount)}` : '--'}</div>;
+      },
+    },
+    {
+      title: t('spot.columns.totalAmount'), //"总额/已成交",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -110,22 +122,17 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.totalAmount'), //"总额/已成交",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-    },
-    {
       title: t('spot.columns.cancel'), //"全撤",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
       align: "center",
       render: (_status) => {
-        return <button >
-          <Iconify icon="mingcute:delete-2-line" className='error_icon'/>
-        </button>;
+        return <Tooltip title={t('spot.modal.cancel')}>
+          <button >
+            <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
+          </button>
+        </Tooltip>;
       },
     },
 
