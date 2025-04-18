@@ -25,6 +25,7 @@ import Image from 'next/image'
 import { NoData } from '@/components/noData';
 import type { DropdownProps, MenuProps } from 'antd'
 import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
+import { toast } from 'sonner';
 
 interface DataType {
     id: number,
@@ -107,18 +108,41 @@ const ExchangePage = () => {
     const [depthData, setDepthData] = useState<any>();
     const [orderData, setOrderData] = useState<any[]>([]);
     const [coinData, setCoinData] = useState<any>();
+    const [groupData, setGroupData] = useState<any[]>([]);
+
+    // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
+    const websocketRef = useRef<WebSocketService | null>(null);
+    const depthWsRef = useRef<WebSocketService | null>(null);
 
     const getCoinList = async () => {
         const response = await getExchangeCoinList();
-        console.log(response,'币对');
+        if(response.code === '0'){
+           
+           await setGroupData(response.data)
+            await getGroup();
+        }
+
     }
 
     const getGroup = async () => {
         const response = await getExchangeGroup();
-
+        if(response.code === '0'){
+            groupData.forEach((item:any)=>{
+                const group = response.data.find((group:any)=>group.baseSymbol === item.baseSymbol&&group.coinSymbol === item.coinSymbol);
+                if(group){
+                    item.group = group;
+                }
+            });
+            setGroupData(groupData);
+        }
     }
     const getOrderWsData = () => {
+        // 如果已经有连接，不要重复创建
+        if (websocketRef.current) return;
+        
         const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@trade`);
+        websocketRef.current = websocket;
+        
         websocket.connect((message: string) => {
 
             try {
@@ -145,7 +169,12 @@ const ExchangePage = () => {
     }
 
     const getWsDepthData = () => {
+        // 如果已经有连接，不要重复创建
+        if (depthWsRef.current) return;
+        
         const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@depth`);
+        depthWsRef.current = websocket;
+        
         websocket.connect((message: string) => {
             try {
                 const data = JSON.parse(message);
@@ -263,13 +292,50 @@ const ExchangePage = () => {
         }
     }
 
+    // 修改K线WebSocket连接逻辑
+    const klineWsRef = useRef<WebSocketService | null>(null);
+
+    const getKlineData = () => {
+        // 先关闭已有连接
+        if (klineWsRef.current) {
+            klineWsRef.current.close();
+            klineWsRef.current = null;
+        }
+        
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${timeInterval.toLowerCase()}`);
+        klineWsRef.current = websocket;
+        
+        websocket.connect((message: string) => {
+            // console.log(message,'message');
+            const data = JSON.parse(message);
+            if(data.type === 'kline' && Array.isArray(data.data)) {
+                setCoinData(data);
+                setKlineData((prevData:any) => {
+                    if (!prevData) return data;
+                    
+                    // 合并新数据和旧数据
+                    return {
+                        ...data,
+                        data: [...(data.data || []), ...(prevData.data || [])]
+                    };
+                });
+            }
+        });
+    }
+
     useEffect(() => {
-        getGroup();
         getOrderWsData();
         getHistoryDepthData();
         getCoinList();
-
-    }, [])
+        getKlineData();
+        
+        // 组件卸载时清理所有WebSocket连接
+        return () => {
+            if (websocketRef.current) websocketRef.current.close();
+            if (depthWsRef.current) depthWsRef.current.close();
+            if (klineWsRef.current) klineWsRef.current.close();
+        };
+    }, []);
 
     const toggleFullscreen = () => {
         const chartContainer = document.getElementById('chart-container');
@@ -309,31 +375,6 @@ const ExchangePage = () => {
         setChartDisplayType(Number(e.key));
     };
 
-    const getKlineData = () => {
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${timeInterval.toLowerCase()}`);
-
-        websocket.connect((message: string) => {
-            // console.log(message,'message');
-            const data = JSON.parse(message);
-            if(data.type === 'kline' && Array.isArray(data.data)) {
-                setCoinData(data);
-                setKlineData((prevData:any) => {
-                    if (!prevData) return data;
-                    
-                    // 合并新数据和旧数据
-                    return {
-                        ...data,
-                        data: [...(data.data || []), ...(prevData.data || [])]
-                    };
-                });
-            }
-        });
-    }
-
-    useEffect(() => {
-        getKlineData();
-    }, [timeInterval]);
-
     return (<div className={`${styles.page_box} w-full`}>
         <ConfigProvider
             theme={{
@@ -369,7 +410,7 @@ const ExchangePage = () => {
             }}
         >
             <div className={`${styles.card_bgc4} w-full`}>
-            <SpotHeaderPage coinData={coinData} />
+            <SpotHeaderPage coinData={coinData}  groupData={groupData}/>
             </div>
 
 

@@ -65,3 +65,12 @@ export function getOrderList(data: getOrderListType): Promise<any> {
     });
 }
 
+
+//自选币对
+export function getUserExchangeCoinTypeList(): Promise<any> {
+    //2 自选币对
+    return request(`${fixUrl}/user-web/v1/exchange-coin/userExchangeCoinTypeList/2`, {
+        method: 'GET',
+    });
+}
+
