@@ -106,7 +106,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -118,12 +118,14 @@ const SpotMainPage = () => {
         let text
         if (_status === 0) {
           text = t('spot.trade.buy')
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
         } else if (_status === 1) {
           text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
-          text = ''
+          return '--'
         }
-        return <span >{text || '--'}</span>;
+        // return <span >{text || '--'}</span>;
 
       },
     },
@@ -137,7 +139,7 @@ const SpotMainPage = () => {
         if (record.status === 0 || record.status === 1) {
           return <span >{_status || '--'}</span>;
         } else {
-          return <span >--'</span>;
+          return <span >--</span>;
         }
 
       },
@@ -154,12 +156,22 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.tradedAmount'), //'委托量/已完成',  
-      key: "tradedAmount",
-      dataIndex: "tradedAmount",
+      key: "amount",
+      dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_amount,record) => {
+        return < div className='flex-x-cc'>
+          {_amount ? <div  className='flex-y align-center'>
+            <span>{`${_amount}/${record.tradedAmount}`}</span>
+            <span className={`${styles.tip_color2}`}>
+            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+            </span>
+            
+          </div>
+            : '0'
+          }
+        </div >
       },
     },
 
@@ -170,7 +182,7 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return <span >{_status || '0'}</span>;
       },
     },
     {
@@ -203,11 +215,11 @@ const SpotMainPage = () => {
   const columns2: ColumnsType<DataLogsType> = [
     {
       title: '成交时间',
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "completedTime",
+      key: "completedTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
+      render: (text, record) => <div>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`} </div>,
     },
     {
       title: "成交价",
@@ -406,14 +418,15 @@ const SpotMainPage = () => {
             size="large"
             className={`spot-table-box`}
             loading={loading}
-            // pagination={{
-            //   position: ["bottomRight"],
-            //   showSizeChanger: true,
-            //   total: total,
-            //   size: "default",
-            //   simple:true,
-            //   onChange: (page, pageSize) => pageChange(page, pageSize),
-            // }}
+            pagination={{
+              position: ["bottomRight"],
+              // showSizeChanger: true,
+              total: total,
+              size: "default",
+              simple:true,
+              onChange: (page, pageSize) => pageChange(page, pageSize),
+            }}
+            // pagination={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
               expandedRowRender: (record) => {
@@ -448,7 +461,6 @@ const SpotMainPage = () => {
               onExpand: handleExpand,
               expandedRowKeys: expandedRowKeys
             }}
-            pagination={false}
             rowKey="orderId"
           />
 

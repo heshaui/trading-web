@@ -70,7 +70,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -78,17 +78,18 @@ const SpotMainPage = () => {
       dataIndex: "direction",
       width: 128,
       align: "center",
-      render: (_text) => {
+      render: (_status) => {
         let text
-        if (_text === 0) {
+        if (_status === 0) {
           text = t('spot.trade.buy')
-        } else if (_text === 1) {
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
           text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
-          text = ''
+         return '--'
         }
-        return <span >{text || '--'}</span>;
-      },
+      }
     },
     {
       title: t('spot.columns.price'), //"价格",
@@ -105,7 +106,7 @@ const SpotMainPage = () => {
           </button>
         </Tooltip>
         </div>
-          : '--'}</>;
+          : '0'}</>;
       },
     },
     {
@@ -129,7 +130,7 @@ const SpotMainPage = () => {
             </span>
             
           </div>
-            : '--'
+            : '0'
           }
         </div >
 
@@ -138,22 +139,22 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.totalAmount'), //"总额/已成交",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "turnover",
+      dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_turnover,record) => {
+        const totalAmount = record.amount&&record.price?nul(record.amount,record.price):'0'
+        return <span >{`${totalAmount}/${_turnover?_turnover:'0'}` || '--'}</span>;
       },
     },
     {
       title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span> , //"全撤",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "operation",
       width: 128,
       align: "center",
       render: (_status) => {
-        return <Tooltip title={t('spot.modal.cancel')}>
+        return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
           </button>
@@ -298,7 +299,7 @@ const SpotMainPage = () => {
           size="large"
           // scroll={{ x: 'max-content', y: 300 }}
           // scroll={{y: true }}
-          className={`spot-table-box`}
+          className={`spot-table-box spot-pagination`}
           pagination={{
             position: ["bottomRight"],
             // showSizeChanger: true,
