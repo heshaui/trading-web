@@ -110,7 +110,7 @@ const ExchangePage = () => {
 
     const getCoinList = async () => {
         const response = await getExchangeCoinList();
-        console.log(response,'response');
+        console.log(response,'币对');
     }
 
     const getGroup = async () => {
