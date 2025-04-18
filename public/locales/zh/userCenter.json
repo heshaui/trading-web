@@ -337,7 +337,7 @@
             "loginTime":"登录时间",
             "ipAddress":"IP地址",
             "loginLocation":"登录所在地",
-
+            "currentDevice":"当前设备",
             "securityDevice":"安全设备",
             "deviceManageDesc":"这些设备已被授权允许登录您的账户",
             "deviceCount":"授权设备数：",

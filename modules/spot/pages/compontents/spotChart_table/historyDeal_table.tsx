@@ -10,103 +10,116 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
+import { getOrderList } from '@/services/spot'
+import { add, cut, division, lastD } from '@/utils'
+import { toast } from 'sonner';
 const { RangePicker } = DatePicker;
 interface DataType {
   id: number,
+  orderId: string,
+  amount: number,
+  baseSymbol: string,
+  canceledTime: number,
+  coinSymbol: string,
+  completedTime: number,
+  direction: number,
   userId: number,
-  platformType: number,
-  deviceNo: string,
-  ip: string,
-  address: string,
-  token: number,
-  tokenTime: number,
+  price: number,
+  status: number,
+  symbol: string,
   createTime: number,
   updateTime: number,
+  tradedAmount: number,
+  turnover: number,
+  type: number,
+  useDiscount: number,
+  orderResource: number,
   tenantId: string,
+  fee: number,
+  baseSymbolCount: number
 }
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState<DataType[]>([]);
+  const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const router = useRouter();
   const [paramInfo, sePparamInfo] = useState({
     type: '',
     selsect: ''
   });
   const [total, setTotal] = useState(0);
-  const [pageParam, setPageParam] = useState({
+  const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
-  })
-  const paramdataRef = useRef(pageParam);
+  });
+  const [loading, setLoading] = useState(false);
 
 
 
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "completedTime",
+      key: "completedTime",
       width: 200,
       align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
+      render: (text, record) => <div>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "token",
-      key: "token",
+      dataIndex: "symbol",
+      key: "symbol",
       align: "center",
       width: 158,
-      render: (_text) => <span>{_text || '--'}</span>,
+      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
     },
     {
-      title: t('spot.columns.type'), //"类型",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.direction'), //"方向",
+      dataIndex: "direction",
+      key: "direction",
       align: "center",
-      width: 100,
+      width: 158,
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
-      },
-    },
-    {
-      title: t('spot.columns.direction'),//"方向",
-      key: "createTime",
-      dataIndex: "createTime",
-      width: 128,
-      align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+        let text
+        if (_status === 0) {
+          text = t('spot.trade.buy')
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
+          text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
+        } else {
+         return '--'
+        }
       },
     },
     {
       title: t('spot.columns.price2'), //"成交价",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      dataIndex: "turnover",
+      key: "turnover",
       align: "center",
       width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        return <span >{_status&&record.direction?division(_status,record.direction):'0'}</span>;
 
       },
     },
 
     {
       title: t('spot.columns.count'),  //"成交数量",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "tradedAmount",
+      dataIndex: "tradedAmount",
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return <span >{_status || '0'}</span>;
       },
     },
 
     {
       title: t('spot.columns.amount2'), //"成交金额",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "turnover",
+      dataIndex: "turnover",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -137,24 +150,12 @@ const SpotMainPage = () => {
 
   ];
 
-  const directionSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
-  const symbolSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,
       pageSize: pageSize
     }
-    setPageParam(pageData)
+    // setPageParam(pageData)
     paramdataRef.current = pageData;
   }
   const topUpTypeChange = (value: any, options: any) => {
@@ -162,6 +163,37 @@ const SpotMainPage = () => {
 
 
   }
+  const getOrderListData = async () => {
+    const params = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      type:2
+
+    }
+    setLoading(true)
+    try {
+      const res = await getOrderList(params)
+      if (res.code === '0') {
+        const newData = res.data.list.map((item: any) => ({
+          ...item,
+          userLoginLogs: []
+        }));
+        setInitTableData(newData);
+        setTableData(newData);
+        setTotal(res.data.total);
+      } else {
+        toast.error(res.message);
+      }
+
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => {
+    getOrderListData()
+  }, [])
   return (<>
     <ConfigProvider
       theme={{
@@ -235,13 +267,13 @@ const SpotMainPage = () => {
             className={`spot-table-box`}
             pagination={{
               position: ["bottomRight"],
-              showSizeChanger: true,
+              // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
-            // loading={loading}
+            loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />
 

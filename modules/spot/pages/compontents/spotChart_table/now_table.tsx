@@ -13,6 +13,7 @@ import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, lastD } from '@/utils'
+import DelectModal from '@/components/spotModal/Delect_modal';
 
 interface DataType {
   id: number,
@@ -52,7 +53,8 @@ const SpotMainPage = () => {
     page: 1,
     pageSize: 10,
   });
-
+  const [delectId, setDelectId] = useState<number>(0);
+  const [delectModal, setDelectModal] = useState<boolean>(false);
 
 
   const columns: ColumnsType<DataType> = [
@@ -70,7 +72,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -78,17 +80,18 @@ const SpotMainPage = () => {
       dataIndex: "direction",
       width: 128,
       align: "center",
-      render: (_text) => {
+      render: (_status) => {
         let text
-        if (_text === 0) {
+        if (_status === 0) {
           text = t('spot.trade.buy')
-        } else if (_text === 1) {
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
           text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
-          text = ''
+          return '--'
         }
-        return <span >{text || '--'}</span>;
-      },
+      }
     },
     {
       title: t('spot.columns.price'), //"价格",
@@ -97,15 +100,19 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return < >{_status ? <div className='flex-x align-center'> 
+        return < >{_status ? <div className='flex-x align-center'>
           {_status}
           <Tooltip title={t('spot.modal.edit')}>
-          <button >
-            <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
-          </button>
-        </Tooltip>
+            <button 
+            onClick={()=>{
+              toast.error('接口：暂不做')
+            }}
+            >
+              <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+            </button>
+          </Tooltip>
         </div>
-          : '--'}</>;
+          : '0'}</>;
       },
     },
     {
@@ -117,19 +124,22 @@ const SpotMainPage = () => {
       render: (_amount, record) => {
         // amount/tradedAmount
         return < div className='flex-x-cc'>
-          {_amount ? <div  className='flex-x align-center'>
+          {_amount ? <div className='flex-x align-center'>
             {`${_amount}/${record.tradedAmount}`}
             <Tooltip title={t('spot.modal.edit')}>
-              <button >
+              <button 
+              onClick={()=>{
+                toast.error('接口：暂不做')
+              }}>
                 <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
             </span>
-            
+
           </div>
-            : '--'
+            : '0'
           }
         </div >
 
@@ -138,23 +148,28 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.totalAmount'), //"总额/已成交",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "turnover",
+      dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_turnover, record) => {
+        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
+        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
       },
     },
     {
-      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span> , //"全撤",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span>, //"全撤",
+      key: "operation",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <Tooltip title={t('spot.modal.cancel')}>
-          <button >
+      render: (_status, record) => {
+        return <Tooltip title={t('spot.modal.cancel')} placement="left">
+          <button
+            onClick={() => {
+              setDelectId(record.id)
+              setDelectModal(true)
+            }}
+          >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
           </button>
         </Tooltip>;
@@ -164,18 +179,6 @@ const SpotMainPage = () => {
 
   ];
 
-  const directionSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
-  const symbolSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,
@@ -216,6 +219,9 @@ const SpotMainPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+  const handleDelectOk = () => {
+    getOrderListData()
   }
   useEffect(() => {
     getOrderListData()
@@ -298,7 +304,7 @@ const SpotMainPage = () => {
           size="large"
           // scroll={{ x: 'max-content', y: 300 }}
           // scroll={{y: true }}
-          className={`spot-table-box`}
+          className={`spot-table-box spot-pagination`}
           pagination={{
             position: ["bottomRight"],
             // showSizeChanger: true,
@@ -310,7 +316,10 @@ const SpotMainPage = () => {
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
-
+        <DelectModal open={delectModal} 
+        orderId={delectId}
+        onCancel={() => setDelectModal(false)}
+        onOk={handleDelectOk}/>
       </div>
       {/* </div> */}
     </ConfigProvider>

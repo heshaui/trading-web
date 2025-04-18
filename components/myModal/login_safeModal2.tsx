@@ -137,6 +137,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             type: acountInfo.type,
                             email: acountInfo.email,
                             deviceType: fingerprint,
+                            platformType:"Web",
                             password: acountInfo.password,
 
                             authCodeMail: values.code || '',
@@ -150,6 +151,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             type: acountInfo.type,
                             phone: acountInfo.phone,
                             deviceType: fingerprint,
+                            platformType:"Web",
                             password: acountInfo.password,
                             countryCode: acountInfo.countryCode,
 
@@ -455,15 +457,13 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 className={`modal_box`}
                 maskClosable={false}
             >
-                <h4 className={`${styles.title_color} mt-7`}>
-                    {/* 邮箱验证码/手机验证码 */}
+                {/* <h4 className={`${styles.title_color} mt-7`}>
                     {acountInfo.type === 'm'
                         ? t('safeModal.emailCodeTitle')
                         : t('safeModal.phoneCodeTitle')
                     }
                 </h4>
                 <p className={`${styles.tip_color} mt-1`}>
-                    {/* 验证码已发送至 */}
                     {t('safeModal.codeSent')}
                     <span>&nbsp;
                         {acountInfo.type === 'm'
@@ -471,7 +471,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             : encryptPhoneNumber(acountInfo.phone)
                         }
                     </span>
-                </p>
+                </p> */}
                 <Form form={form} style={{ margin: "10px 0" }} colon={false}>
 
                     {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <>
@@ -495,6 +495,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                     {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
                         (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1))
                         && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                             <Form.Item
                                 name="code"
                                 rules={[{ required: true, message: t('safeModal.codeNull') }]}

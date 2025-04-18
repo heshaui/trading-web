@@ -74,3 +74,11 @@ export function getUserExchangeCoinTypeList(): Promise<any> {
     });
 }
 
+// 取消订单
+export function revocationOrder(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/order/revocationOrder`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
+
