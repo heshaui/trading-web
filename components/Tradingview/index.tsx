@@ -18,7 +18,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
   klineData = [],
   timeInterval = "1D"
 }) => {
-  console.log(klineData,'klineData');
+  // console.log(klineData,'klineData');
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);

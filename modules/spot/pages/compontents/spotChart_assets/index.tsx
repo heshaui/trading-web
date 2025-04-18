@@ -3,7 +3,14 @@ import styles from '../styles/spotChartAssets.module.css'
 import { useTranslation } from 'next-i18next';
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { useRouter } from 'next/router';
-// import { getCurrentPair } from '@/store/index';
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
+import { useEffect, useState } from 'react';
+import {getUserBalanceAll} from '@/services/assets';
+import { toast } from 'sonner';
+import { lastD } from '@/utils';
+import { Skeleton } from 'antd';
+
 interface DataType {
     id: number,
     userId: number,
@@ -17,24 +24,48 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const SpotAssetsPage = () => {
+const SpotAssetsPage = observer(() => {
     const { t } = useTranslation(['spot']);
     const router = useRouter();
-
+    const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
+    const [userBalanceAllData, setUserBalanceAllData] = useState<any>([]);
+    const [loading, setLoading] = useState(true);
+    const getUserBalanceAllData = async () => {
+        setLoading(true);
+        try {
+            const res = await getUserBalanceAll();
+            if (res.code === '0') {
+                setUserBalanceAllData(res.data || []);
+            }
+        } catch (error) {
+            toast.error(String(error));
+        } finally {
+            setLoading(false);
+        }
+    }
+    useEffect(() => {
+        getUserBalanceAllData();
+    }, [])
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
             资产
         </div>
         <div className={`px-6 py-6 w-full ${styles.spot_main}`}>
             <ul className={`${styles.tip_color1} font-14 font-w-400`}>
+                <Skeleton active 
+                loading={loading} 
+                title={false}
+                    paragraph={{ rows: 2 }}
+                    className={`mb-4`} >
                 <li className='flex justify-between align-center mb-5'>
-                    <div>BTC可用资产</div>
-                    <div>0.0000023</div>
+                    <div>{currentPair?.coinSymbol||'--'}可用资产</div>
+                    <div>{lastD(userBalanceAllData.find((item:any)=>item.coinName===currentPair?.coinSymbol)?.balance||0)||0}</div>
                 </li>
                 <li className='flex justify-between align-center mb-5' >
-                    <div>USDT可用资产</div>
-                    <div>10.010000</div>
+                    <div>{currentPair?.baseSymbol||'--'}可用资产</div>
+                    <div>{lastD(userBalanceAllData.find((item:any)=>item.coinName===currentPair?.baseSymbol)?.balance||0)||0}</div>
                 </li>
+                </Skeleton>
             </ul>
             <div className={`flex-x-cc w-full `}>
                 <button type='button' className={`cancel_btn2 ${styles.btn_style} mr-4`} 
@@ -50,6 +81,6 @@ const SpotAssetsPage = () => {
         </div>
     </>
     );
-};
+});
 
 export default SpotAssetsPage
