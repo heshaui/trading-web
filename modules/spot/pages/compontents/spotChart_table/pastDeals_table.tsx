@@ -13,6 +13,8 @@ import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
 import { add, cut, division, lastD } from '@/utils'
 import { toast } from 'sonner';
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
@@ -63,7 +65,13 @@ interface DataType {
   baseSymbolCount: number
   userLoginLogs: DataLogsType[]
 }
-const SpotMainPage = () => {
+interface SelectParamType {
+  startTime: number | null;
+  endTime: number | null;
+  hideOther: boolean;
+  hideCancel: boolean;
+}
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -79,7 +87,13 @@ const SpotMainPage = () => {
   })
   const [loading, setLoading] = useState(false);
   const paramdataRef = useRef(pageParam);
-
+  const selectParam = useRef<SelectParamType>({
+    startTime: null,
+    endTime: null,
+    hideOther: false,
+    hideCancel: false,
+  })
+  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
@@ -96,7 +110,7 @@ const SpotMainPage = () => {
             className='mr-2'
             size={16}
           />
-          <span>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`}</span>
+          <span>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`}</span>
         </div>
       },
     },
@@ -106,7 +120,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 128,
-      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
+      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -160,14 +174,14 @@ const SpotMainPage = () => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_amount,record) => {
+      render: (_amount, record) => {
         return < div className='flex-x-cc'>
-          {_amount ? <div  className='flex-y align-center'>
+          {_amount ? <div className='flex-y align-center'>
             <span>{`${_amount}/${record.tradedAmount}`}</span>
             <span className={`${styles.tip_color2}`}>
-            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
             </span>
-            
+
           </div>
             : '0'
           }
@@ -219,7 +233,7 @@ const SpotMainPage = () => {
       key: "completedTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
       title: "成交价",
@@ -277,8 +291,8 @@ const SpotMainPage = () => {
 
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = (expanded: boolean, record: DataType) => {
-    console.log(record.orderId,12345,expanded);
-    
+    console.log(record.orderId, 12345, expanded);
+
     if (expanded) {
       // 设置展开的行
       setExpandedRowKeys([record.orderId]);
@@ -318,10 +332,20 @@ const SpotMainPage = () => {
 
   }
   const getOrderListData = async () => {
+    const notStatusArr = [];
+    if (selectParam.current.hideOther) {
+        notStatusArr.push(`${currentPair?.coinSymbol}`, `${currentPair?.baseSymbol}`);
+    }
+    if (selectParam.current.hideCancel) {
+        notStatusArr.push('3');
+    }
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type:1
+      type: 1,
+      notStatus:  notStatusArr.join(','),
+      startTime: selectParam.current.startTime||'',
+      endTime: selectParam.current.endTime||'',
 
     }
     setLoading(true)
@@ -344,6 +368,26 @@ const SpotMainPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+  const selectParamChange = (type: string) => {
+    if (loading) return toast.error('loading...')
+    if (type === '1') {
+      selectParam.current.hideOther = !selectParam.current.hideOther
+    } else if (type === '2') {
+      selectParam.current.hideCancel = !selectParam.current.hideCancel
+
+    }
+    getOrderListData()
+  }
+  const dateChange = (value: any) => {
+   
+    const startTime =value? dayjs(value[0]).valueOf():null
+    const endTime = value? dayjs(value[1]).valueOf():null
+    // const startTime =value[0].value()
+    // const endTime =  value[1].value()
+    selectParam.current.startTime = startTime
+    selectParam.current.endTime = endTime
+    getOrderListData()
   }
   useEffect(() => {
     getOrderListData()
@@ -396,15 +440,26 @@ const SpotMainPage = () => {
             suffixIcon={<Iconify icon="cuida:calendar-outline"
               className={`${styles.title_color}`} size={20} />}
             placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
+            onChange={dateChange}
           />
           <div className={`${styles.table_header_checkbox2}`}>
             <Checkbox
               className='mt-7'
+              onChange={(e) => {
+
+                selectParamChange('1')
+
+              }}
+              checked={selectParam.current.hideOther}
             >
               <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
             </Checkbox>
             <Checkbox
               className='mt-7'
+              onChange={(e) => {
+                selectParamChange('2')
+              }}
+              checked={selectParam.current.hideCancel}
             >
               <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideCancel')}</span>
             </Checkbox>
@@ -423,7 +478,7 @@ const SpotMainPage = () => {
               // showSizeChanger: true,
               total: total,
               size: "default",
-              simple:true,
+              simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
             // pagination={false}
@@ -432,7 +487,7 @@ const SpotMainPage = () => {
               expandedRowRender: (record) => {
                 // 使用当前展开行的ID来确定是否显示子数据
                 const isCurrentExpanded = expandedRowKeys.includes(record.orderId);
-                
+
 
                 return (
                   <div key={record.orderId}>
@@ -469,6 +524,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;
