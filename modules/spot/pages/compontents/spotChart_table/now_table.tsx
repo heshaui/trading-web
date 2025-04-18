@@ -57,32 +57,50 @@ const SpotMainPage = () => {
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "updateTime",
+      key: "updateTime",
       width: 158,
       align: "left",
       render: (text, record) => <div>{`${text}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "token",
-      key: "token",
+      dataIndex: "symbol",
+      key: "symbol",
       align: "center",
       width: 128,
       render: (_text) => <span>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'),//"方向",
-      key: "tokenTime",
-      dataIndex: "tokenTime",
+      key: "direction",
+      dataIndex: "direction",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_text) => {
+        let text
+        if (_text === 0) {
+          text = t('spot.trade.buy')
+        } else if (_text === 1) {
+          text = t('spot.trade.sell')
+        } else {
+          text = ''
+        }
+        return <span >{text || '--'}</span>;
       },
     },
     {
       title: t('spot.columns.price'), //"价格",
+      key: "price",
+      dataIndex: "price",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status || '--'}</span>;
+      },
+    },
+    {
+      title: t('spot.columns.tradedAmount'), //"委托量/已完成",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -92,17 +110,7 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.completion'), //"完成度",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.amount'), //"成交额",
+      title: t('spot.columns.totalAmount'), //"总额/已成交",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
@@ -115,7 +123,9 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return <button >
+          <Iconify icon="mingcute:delete-2-line" className='error_icon'/>
+        </button>;
       },
     },
 
