@@ -101,7 +101,7 @@ const SpotMainPage = () => {
           {_status}
           <Tooltip title={t('spot.modal.edit')}>
           <button >
-            <Iconify icon="mingcute:edit-3-line" className='tip_icon' size={20} />
+            <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
           </button>
         </Tooltip>
         </div>
@@ -121,10 +121,13 @@ const SpotMainPage = () => {
             {`${_amount}/${record.tradedAmount}`}
             <Tooltip title={t('spot.modal.edit')}>
               <button >
-                <Iconify icon="mingcute:edit-3-line" className='tip_icon' size={20} />
+                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
             </Tooltip>
+            <span className={`${styles.tip_color2}`}>
             { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+            </span>
+            
           </div>
             : '--'
           }
@@ -144,7 +147,7 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.cancel'), //"全撤",
+      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span> , //"全撤",
       key: "updateTime",
       dataIndex: "updateTime",
       width: 128,
