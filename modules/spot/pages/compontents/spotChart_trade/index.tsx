@@ -5,7 +5,7 @@ import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 // import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
@@ -13,7 +13,7 @@ import PlaceOrderModal from './placeOrder_modal';
 import { encryptData } from "@/hooks/user-encrypt";
 import ErrorModal from '@/components/spotModal/Error_modal';
 import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
-import { getUserBalance } from '@/services/assets'
+import { getUserBalance,getUserBalanceAll } from '@/services/assets'
 import { toast } from 'sonner';
 
 interface DataType {
@@ -39,6 +39,7 @@ const SpotTradePage = () => {
     const [priceDisabled, setPriceDisabled] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
+    const [userBalance, setUserBalance] = useState<any[]>([]);
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -138,14 +139,11 @@ const SpotTradePage = () => {
 
         // 币种余额
         const getUserBalanceData = async () => {
-            const tenantId = form.getFieldValue('tenantId')
-            if (!tenantId) {
-                return toast.error(t('assetsAccount.selectCoin'))
-            }
+          
             try {
-                const res = await getUserBalance(tenantId)
+                const res = await getUserBalanceAll()
                 if (res.code === '0') {
-                    // setUserBalance(res.data)
+                    setUserBalance(res.data)
                     return res.data
                 } else {
                     toast.error(res.message)
@@ -154,6 +152,10 @@ const SpotTradePage = () => {
                 toast.error(String(error))
             }
         }
+
+        useEffect(()=>{
+            getUserBalanceData()
+        },[])
     return (<div className='flex-y align-center'>
         <ConfigProvider
             theme={{
@@ -294,7 +296,7 @@ const SpotTradePage = () => {
                         </Form.Item>
                         <Form.Item name='amount'
                         >
-                            <InputNumber className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber disabled={true} className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
                                     BTC
@@ -347,11 +349,11 @@ const SpotTradePage = () => {
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
-                                <p>-USDT</p>
+                                <p>{userBalance.find(item=>item.coinName==='USDT')?.balance} USDT</p>
                             </li>
                             <li className='flex justify-between align-center'>
                                 <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                                <p>--BTC</p>
+                                <p>{userBalance.find(item=>item.coinName==='BTC')?.balance} BTC</p>
                             </li>
                         </ul>
                     </Form>
