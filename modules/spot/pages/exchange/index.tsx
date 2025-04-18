@@ -305,39 +305,52 @@ const ExchangePage = () => {
     const klineWsRef = useRef<WebSocketService | null>(null);
 
     const getKlineData = () => {
+        // 确保只在客户端和有currentPair时执行
+        if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
+        
         // 先关闭已有连接
         if (klineWsRef.current) {
             klineWsRef.current.close();
             klineWsRef.current = null;
         }
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
-        klineWsRef.current = websocket;
-        
-        websocket.connect((message: string) => {
-            // console.log(message,'message');
-            const data = JSON.parse(message);
-            if(data.type === 'kline' && Array.isArray(data.data)) {
-                setCoinData(data);
-                setKlineData((prevData:any) => {
-                    if (!prevData) return data;
-                    
-                    // 合并新数据和旧数据
-                    return {
-                        ...data,
-                        data: [...(data.data || []), ...(prevData.data || [])]
-                    };
-                });
-            }
-        });
+        try {
+            const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
+            klineWsRef.current = websocket;
+            
+            websocket.connect((message: string) => {
+                try {
+                    const data = JSON.parse(message);
+                    if(data.type === 'kline' && Array.isArray(data.data)) {
+                        setCoinData(data);
+                        setKlineData((prevData:any) => {
+                            if (!prevData) return data;
+                            
+                            // 合并新数据和旧数据
+                            return {
+                                ...data,
+                                data: [...(data.data || []), ...(prevData.data || [])]
+                            };
+                        });
+                    }
+                } catch (err) {
+                    console.error('解析K线数据失败:', err);
+                }
+            });
+        } catch (err) {
+            console.error('创建K线WebSocket连接失败:', err);
+        }
     }
 
     useEffect(() => {
         // 设置客户端渲染标记
         setIsClient(true);
         
-        // 只获取不依赖currentPair的数据
-        getCoinList();
+        // 只在客户端执行初始化
+        if (typeof window !== 'undefined') {
+            // 只获取不依赖currentPair的数据
+            getCoinList();
+        }
         
         // 组件卸载时清理所有WebSocket连接
         return () => {
@@ -349,7 +362,7 @@ const ExchangePage = () => {
 
     useEffect(() => {
         // 只在客户端且currentPair有值时执行
-        if (!isClient || !currentPair) return;
+        if (!isClient || !currentPair || typeof window === 'undefined') return;
         
         // 现在可以安全地使用currentPair
         getOrderWsData();
@@ -359,19 +372,28 @@ const ExchangePage = () => {
 
     useEffect(() => {
         // 只在客户端执行
-        if (!isClient) return;
+        if (!isClient || typeof window === 'undefined') return;
 
-        appStore.loadCurrencyPairs()
-            .then(() =>{
-                const currentPairList = appStore.getCurrentPair() || appStore.currencyPairs[0];
-                setCurrentPair(currentPairList);
-            })
-            .catch((error) => {
-                console.error('加载货币对数据失败:', error);
-            });
+        try {
+            appStore.loadCurrencyPairs()
+                .then((result) =>{
+                    const currentPairList = appStore.getCurrentPair() || (appStore.currencyPairs && appStore.currencyPairs.length > 0 ? appStore.currencyPairs[0] : null);
+                    if (currentPairList) {
+                        setCurrentPair(currentPairList);
+                    }
+                })
+                .catch((error) => {
+                    console.error('加载货币对数据失败:', error);
+                    toast.error('加载货币对数据失败');
+                });
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
+        }
     }, [isClient]);
 
     const toggleFullscreen = () => {
+        if (typeof document === 'undefined') return;
+        
         const chartContainer = document.getElementById('chart-container');
         if (chartContainer) {
             if (!isFullscreen) {
@@ -533,7 +555,13 @@ const ExchangePage = () => {
 
                             <Spin spinning={loading} tip="加载中...">
                                 {(activeChartType === 'basic' || activeChartType === 'tradingview') && currentPair && (
-                                    <Tradingview symbol={currentPair.coinSymbol.toUpperCase() + '_' + currentPair.baseSymbol.toUpperCase() + '_' + currentPair.groupStatus} showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType} klineData={klineData} timeInterval={timeInterval} />
+                                    <Tradingview 
+                                        symbol={(currentPair.coinSymbol || '') + '_' + (currentPair.baseSymbol || '') + '_' + (currentPair.groupStatus || '')} 
+                                        showLeftToolbar={activeChartType === 'basic' ? false : true} 
+                                        chartType={chartDisplayType} 
+                                        klineData={klineData} 
+                                        timeInterval={timeInterval} 
+                                    />
                                 )}
                                
                                 {activeChartType === 'depth' && <DepthChart data={depthData} />}
