@@ -32,17 +32,21 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const isPriceUp = priceChange >= 0;
 
 
-    useEffect(() => {
-        setMounted(true);
-        // 加载数据时设置加载状态
-        setIsLoading(true);
-        appStore.loadCurrencyPairs()
-            .then(() => setIsLoading(false))
-            .catch((error) => {
-                console.error('加载货币对数据失败:', error);
-                setIsLoading(false);
-            });
-    }, []);
+    // useEffect(() => {
+    //     setMounted(true);
+    //     // 加载数据时设置加载状态
+    //     setIsLoading(true);
+    //     appStore.loadCurrencyPairs()
+    //         .then(() => setIsLoading(false))
+    //         .catch((error) => {
+    //             console.error('加载货币对数据失败:', error);
+    //             setIsLoading(false);
+    //         });
+    // }, []);
+
+    //  // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    //  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+
 
 
 
@@ -126,7 +130,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                     {isLoading ? (
                         <Spin size="small" />
                     ) : (
-                        <span>{currentPair.coinSymbol}/{currentPair.baseSymbol }</span>
+                        <span>{currentPair?.coinSymbol}/{currentPair?.baseSymbol }</span>
                     )}
                     <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
                        

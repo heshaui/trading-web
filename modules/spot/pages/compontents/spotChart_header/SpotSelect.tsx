@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import styles from '../styles/spotHeader_select.module.css'
 import { Input, Radio, ConfigProvider, Rate, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
