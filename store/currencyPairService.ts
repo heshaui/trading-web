@@ -1,4 +1,4 @@
-import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
+import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
 
 // 币对接口数据类型
 export interface CurrencyPairType {
@@ -29,8 +29,9 @@ export interface CurrencyPairType {
     priceOffset: number,
     sellFee: number,
     show: number,
-
-
+    price?: number,             // 当前价格
+    yesterdayPrice?: number,    // 昨日价格
+    priceChangePercent?: number // 价格变化百分比
 }
 
 // 获取所有币对数据
@@ -57,18 +58,25 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
         // 3. 获取用户自选币对（如果用户已登录）
         let favoriteCoins: any[] = [];
 
-            try {
-                const favoriteResponse = await getUserExchangeCoinTypeList();
-                if (favoriteResponse.code === '0') {
-                    console.log('favoriteResponse', favoriteResponse);
-                    favoriteCoins = favoriteResponse.data || [];
-                }
-            } catch (error) {
-                console.error('Error loading favorite coins:', error);
+        try {
+            const favoriteResponse = await getUserExchangeCoinTypeList();
+            if (favoriteResponse.code === '0') {
+                console.log('favoriteResponse', favoriteResponse);
+                favoriteCoins = favoriteResponse.data || [];
             }
-
+        } catch (error) {
+            console.error('Error loading favorite coins:', error);
+        }
         
-        // 4. 合并数据并转换为CurrencyPairType格式
+        // 4. 获取币对价格数据
+        const priceResponse = await getExchangeCoinAllPrice();
+        let priceData: any[] = [];
+        if (priceResponse.code === '0') {
+            priceData = priceResponse.data || [];
+            console.log('priceData', priceData);
+        }
+        
+        // 5. 合并数据并转换为CurrencyPairType格式
         const processedPairs: CurrencyPairType[] = [];
         
         coinList.forEach((coin: any) => {
@@ -85,6 +93,18 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
                 favCoin.baseSymbol === coin.baseSymbol
             );
             
+            // 查找价格数据
+            const priceInfo = priceData.find((p: any) => 
+                p.baseSymbol === coin.baseSymbol && 
+                p.coinSymbol === coin.coinSymbol
+            );
+            
+            // 计算价格变化百分比
+            let priceChangePercent = 0;
+            if (priceInfo && priceInfo.yesterdayPrice && priceInfo.yesterdayPrice > 0) {
+                priceChangePercent = ((priceInfo.price - priceInfo.yesterdayPrice) / priceInfo.yesterdayPrice) * 100;
+            }
+            
             // 转换为标准CurrencyPairType格式
             const currencyPair: CurrencyPairType = {
                 id: pairId,
@@ -92,6 +112,7 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
                 baseSymbol: coin.baseSymbol,
                 coinSymbol: coin.coinSymbol,
                 groupStatus: group?.groupStatus,
+                isFavorite,
                 baseCoinScale: coin?.baseCoinScale,
                 buyFee: coin?.buyFee,
                 classLabel: coin?.classLabel,
@@ -113,8 +134,11 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
                 priceOffset: coin?.priceOffset,
                 sellFee: coin?.sellFee,
                 show: coin?.show,
-
+                price: priceInfo?.price,
+                yesterdayPrice: priceInfo?.yesterdayPrice,
+                priceChangePercent
             };
+            
             console.log('currencyPair', currencyPair);
             processedPairs.push(currencyPair);
         });
@@ -174,4 +198,29 @@ export async function removeFromFavorites(baseCurrency: string, quoteCurrency: s
     // return await removeFavoriteApi({ baseCurrency, quoteCurrency });
     console.log('Remove from favorites', baseCurrency, quoteCurrency);
     return { success: true };
+}
+
+// 获取币对价格数据
+export async function fetchCurrencyPairPrices() {
+    try {
+        const response = await getExchangeCoinAllPrice();
+        if (response.code === '0') {
+            return {
+                success: true,
+                data: response.data || []
+            };
+        }
+        return {
+            success: false,
+            data: [],
+            error: new Error('获取币对价格失败')
+        };
+    } catch (error) {
+        console.error('获取币对价格出错:', error);
+        return {
+            success: false,
+            data: [],
+            error
+        };
+    }
 } 

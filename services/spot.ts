@@ -82,3 +82,11 @@ export function revocationOrder(data: encryptType): Promise<any> {
     });
 }
 
+
+// 获取所有币对价格
+export function getExchangeCoinAllPrice(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/exchange-coin/exchangeCoinAllPrice`, {
+        method: 'GET',
+    });
+}
+
