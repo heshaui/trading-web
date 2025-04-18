@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import styles from './style/OrderBook.module.css';
 import Image from 'next/image';
+import appStore from '@/store';
 // 定义订单类型
 interface Order {
   price: number;
@@ -24,6 +25,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [activeTab, setActiveTab] = useState('orderbook');
   const [priceScale, setPriceScale] = useState('0.1');
   const [colorMode, setColorMode] = useState(1);
+
+
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
   
   // 添加最新成交数据状态
   const [trades, setTrades] = useState<{price: number; amount: number; time: string; type: 'buy' | 'sell'}[]>([]);
@@ -194,8 +199,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     return (
       <div className={styles.tradesContainer}>
         <div className={styles.labels}>
-          <span>价格(USDT)</span>
-          <span>数量(BTC)</span>
+          <span>价格({currentPair?.baseSymbol})</span>
+          <span>数量({currentPair?.coinSymbol})</span>
           <span>时间</span>
         </div>
         <div className={styles.tradesList} style={{ height: '450px', overflowY: 'auto' }}>
@@ -258,9 +263,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       {activeTab === 'orderbook' ? (
         <>
           <div className={styles.labels}>
-            <span>价格(USDT) <span className={styles.sortIcon}>⇅</span></span>
-            <span>数量(BTC)</span>
-            <span>总额(USDT) <span className={styles.sortIcon}>⇅</span></span>
+            <span>价格({currentPair?.baseSymbol}) <span className={styles.sortIcon}>⇅</span></span>
+            <span>数量({currentPair?.coinSymbol})</span>
+            <span>总额({currentPair?.baseSymbol}) <span className={styles.sortIcon}>⇅</span></span>
           </div>
 
           {/* 卖单 */}
