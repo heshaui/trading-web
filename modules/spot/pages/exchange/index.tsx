@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../../styles/billDetails.module.css'
@@ -26,7 +27,8 @@ import { NoData } from '@/components/noData';
 import type { DropdownProps, MenuProps } from 'antd'
 import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
 import { toast } from 'sonner';
-
+import appStore from '@/store';
+import { set } from 'mobx';
 interface DataType {
     id: number,
     userId: number,
@@ -109,10 +111,14 @@ const ExchangePage = () => {
     const [orderData, setOrderData] = useState<any[]>([]);
     const [coinData, setCoinData] = useState<any>();
     const [groupData, setGroupData] = useState<any[]>([]);
+    const [currentPair, setCurrentPair] = useState<any>({coinSymbol:'BTC',baseSymbol:'USDT',groupStatus:'1'});
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
     const depthWsRef = useRef<WebSocketService | null>(null);
+
+    // 添加客户端渲染标记
+    const [isClient, setIsClient] = useState(false);
 
     const getCoinList = async () => {
         const response = await getExchangeCoinList();
@@ -140,7 +146,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@trade`);
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
         websocketRef.current = websocket;
         
         websocket.connect((message: string) => {
@@ -172,13 +178,13 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/BTC_USDT_1@depth`);
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
         
         websocket.connect((message: string) => {
             try {
                 const data = JSON.parse(message);
-                console.log(data, 'wsDepthData');
+                // console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData:any) => {
@@ -271,7 +277,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`http://ws81.imsaas.work/depth/BTC_USDT_1`);
+            const response = await fetch(`http://ws81.imsaas.work/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
             
@@ -302,7 +308,7 @@ const ExchangePage = () => {
             klineWsRef.current = null;
         }
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/btc_usdt_1@kline_${timeInterval.toLowerCase()}`);
+        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
         klineWsRef.current = websocket;
         
         websocket.connect((message: string) => {
@@ -324,6 +330,9 @@ const ExchangePage = () => {
     }
 
     useEffect(() => {
+        // 设置客户端渲染标记
+        setIsClient(true);
+        
         getOrderWsData();
         getHistoryDepthData();
         getCoinList();
@@ -336,6 +345,20 @@ const ExchangePage = () => {
             if (klineWsRef.current) klineWsRef.current.close();
         };
     }, []);
+
+    useEffect(() => {
+        // 只在客户端执行
+        if (!isClient) return;
+
+        appStore.loadCurrencyPairs()
+            .then(() =>{
+                const currentPairList = appStore.getCurrentPair() || appStore.currencyPairs[0];
+                setCurrentPair(currentPairList);
+            })
+            .catch((error) => {
+                console.error('加载货币对数据失败:', error);
+            });
+    }, [isClient]);
 
     const toggleFullscreen = () => {
         const chartContainer = document.getElementById('chart-container');
@@ -376,143 +399,151 @@ const ExchangePage = () => {
     };
 
     return (<div className={`${styles.page_box} w-full`}>
-        <ConfigProvider
-            theme={{
-                components: {
-                    Table: {
-                        // bodySortBg: "pink",
-                        headerBg: "transparent",
-                        headerColor: "var(--text-color6)",
-                        headerSplitColor: "transparent", // 表头分割线颜色
-                        rowExpandedBg: "var(--background10)", // 表格行展开背景色
-                        borderColor: "transparent",
-                        // stickyScrollBarBg:"transparent",
-                        headerBorderRadius: 0, // 表头圆角
-                    },
-                    Pagination: {
-                        itemActiveBg: "transparent",
-                        itemBg: "transparent",
-                    },
-
-                    Select: {
-                        activeBorderColor: "var(--border-color4)",
-                        optionActiveBg: "transparent",
-                        selectorBg: "transparent", //选框背景色
-                    },
-                    Tabs: {
-                        itemActiveColor: "var(--tip-color)", //激活态颜色  
-                        itemSelectedColor: "var(--text-color5)", //选中态颜色
-                        horizontalMargin: "0 0 0 0",
-                        itemColor: "var(--text-color6)",
-                        inkBarColor: "var(--text-color5)", //指示条颜色
-                    },
-                },
-            }}
-        >
-            <div className={`${styles.card_bgc4} w-full`}>
-            <SpotHeaderPage coinData={coinData}  groupData={groupData}/>
+        {/* 使用客户端渲染标记来控制渲染 */}
+        {!isClient ? (
+            // 服务器端渲染占位符
+            <div className="w-full h-screen flex items-center justify-center">
+                <Spin size="large" tip="加载中..." />
             </div>
+        ) : (
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Table: {
+                            // bodySortBg: "pink",
+                            headerBg: "transparent",
+                            headerColor: "var(--text-color6)",
+                            headerSplitColor: "transparent", // 表头分割线颜色
+                            rowExpandedBg: "var(--background10)", // 表格行展开背景色
+                            borderColor: "transparent",
+                            // stickyScrollBarBg:"transparent",
+                            headerBorderRadius: 0, // 表头圆角
+                        },
+                        Pagination: {
+                            itemActiveBg: "transparent",
+                            itemBg: "transparent",
+                        },
+
+                        Select: {
+                            activeBorderColor: "var(--border-color4)",
+                            optionActiveBg: "transparent",
+                            selectorBg: "transparent", //选框背景色
+                        },
+                        Tabs: {
+                            itemActiveColor: "var(--tip-color)", //激活态颜色  
+                            itemSelectedColor: "var(--text-color5)", //选中态颜色
+                            horizontalMargin: "0 0 0 0",
+                            itemColor: "var(--text-color6)",
+                            inkBarColor: "var(--text-color5)", //指示条颜色
+                        },
+                    },
+                }}
+            >
+                <div className={`${styles.card_bgc4} w-full`}>
+                <SpotHeaderPage coinData={coinData}  />
+                </div>
 
 
-            <div className='flex flex-wrap'>
-                <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
-                    {/* <div className={`flex-1`}> */}
-                    <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 16px',
-                            borderBottom: '1px solid var(--border-color1)'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                {dayData.map((item, index) => (
-                                    <Button
-                                        key={index}
-                                        type={timeInterval === item ? 'primary' : 'text'}
-                                        onClick={() => setTimeInterval(item)}
-                                        style={{
-                                            fontSize: '12px',
-                                            background: timeInterval === item ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: timeInterval === item ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        {item}
-                                    </Button>
-                                ))}
+                <div className='flex flex-wrap'>
+                    <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
+                        {/* <div className={`flex-1`}> */}
+                        <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '8px 16px',
+                                borderBottom: '1px solid var(--border-color1)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {dayData.map((item, index) => (
+                                        <Button
+                                            key={index}
+                                            type={timeInterval === item ? 'primary' : 'text'}
+                                            onClick={() => setTimeInterval(item)}
+                                            style={{
+                                                fontSize: '12px',
+                                                background: timeInterval === item ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                                color: timeInterval === item ? 'var(--text-color5)' : 'var(--text-color6)'
+                                            }}
+                                        >
+                                            {item}
+                                        </Button>
+                                    ))}
 
-                                <Space size="small" style={{ marginLeft: '16px' }}>
-                                    <Dropdown 
-                                        menu={{ 
-                                            items: chartTypeItems, 
-                                            onClick: handleChartTypeChange,
-                                            selectedKeys: [String(chartDisplayType)]
-                                        }} 
-                                        trigger={['hover']}
-                                        placement="bottom"
-                                    >
-                                    <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
-                                    </Dropdown>
-                                    <Tooltip title="技术指标">
-                                        <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
+                                    <Space size="small" style={{ marginLeft: '16px' }}>
+                                        <Dropdown 
+                                            menu={{ 
+                                                items: chartTypeItems, 
+                                                onClick: handleChartTypeChange,
+                                                selectedKeys: [String(chartDisplayType)]
+                                            }} 
+                                            trigger={['hover']}
+                                            placement="bottom"
+                                        >
+                                        <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
+                                        </Dropdown>
+                                        <Tooltip title="技术指标">
+                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
+                                        </Tooltip>
+                                        <Tooltip title="图表重置">
+                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20} />
+                                        </Tooltip>
+                                        <Tooltip title="图表截图">
+                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20} />
+                                        </Tooltip>
+                                        <Tooltip title="成交量分布">
+                                            <Image src="/images/exchange/icon_value.png" alt="exchange" width={20} height={20} />
+                                        </Tooltip>
+                                    </Space>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {chartType.map((item, index) => (
+                                        <Button
+                                            key={index}
+                                            type={activeChartType === item.value ? 'primary' : 'text'}
+                                            onClick={() => setActiveChartType(item.value)}
+                                            style={{
+                                                fontSize: '12px',
+                                                background: activeChartType === item.value ? 'rgba(0,0,0,0.05)' : 'transparent',
+                                                color: activeChartType === item.value ? 'var(--text-color5)' : 'var(--text-color6)'
+                                            }}
+                                        >
+                                            {item.label}
+                                        </Button>
+                                    ))}
+                                    
+                                    <Tooltip title="全屏">
+                                        <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
                                     </Tooltip>
-                                    <Tooltip title="图表重置">
-                                        <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20} />
-                                    </Tooltip>
-                                    <Tooltip title="图表截图">
-                                        <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20} />
-                                    </Tooltip>
-                                    <Tooltip title="成交量分布">
-                                        <Image src="/images/exchange/icon_value.png" alt="exchange" width={20} height={20} />
-                                    </Tooltip>
-                                </Space>
+                                </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                {chartType.map((item, index) => (
-                                    <Button
-                                        key={index}
-                                        type={activeChartType === item.value ? 'primary' : 'text'}
-                                        onClick={() => setActiveChartType(item.value)}
-                                        style={{
-                                            fontSize: '12px',
-                                            background: activeChartType === item.value ? 'rgba(0,0,0,0.05)' : 'transparent',
-                                            color: activeChartType === item.value ? 'var(--text-color5)' : 'var(--text-color6)'
-                                        }}
-                                    >
-                                        {item.label}
-                                    </Button>
-                                ))}
-                                
-                                <Tooltip title="全屏">
-                                    <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
-                                </Tooltip>
-                            </div>
+                            <Spin spinning={loading} tip="加载中...">
+                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                    <Tradingview symbol={currentPair.coinSymbol.toUpperCase() + '_' + currentPair.baseSymbol.toUpperCase() + '_' + currentPair.groupStatus} showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType} klineData={klineData} timeInterval={timeInterval} />
+                                )}
+                               
+                                {activeChartType === 'depth' && <DepthChart data={depthData} />}
+                            </Spin>
                         </div>
+                        <OrderBook bookData={depthData}  orderData={orderData}/>
 
-                        <Spin spinning={loading} tip="加载中...">
-                            {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
-                                <Tradingview symbol="BTC_USDT_1" showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType} klineData={klineData} timeInterval={timeInterval}/>
-                            )}
-                           
-                            {activeChartType === 'depth' && <DepthChart data={depthData} />}
-                        </Spin>
+                        {/* </div> */}
                     </div>
-                    <OrderBook bookData={depthData}  orderData={orderData}/>
-
-                    {/* </div> */}
+                    <div className={`${styles.card_bgc} mb-1 flex-1`} >
+                        <SpotChartTrade />
+                    </div>
+                    <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
+                        <SpotChartTables />
+                    </div>
+                    <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                        <SpotChartAssets />
+                    </div>
                 </div>
-                <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                    <SpotChartTrade />
-                </div>
-                <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
-                    <SpotChartTables />
-                </div>
-                <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                    <SpotChartAssets />
-                </div>
-            </div>
-        </ConfigProvider>
+            </ConfigProvider>
+        )}
     </div>
     );
 };

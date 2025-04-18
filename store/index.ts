@@ -16,7 +16,8 @@ interface UserInfoType {
     token: string,
 }
 
-
+// 添加这个辅助函数来检查是否在浏览器环境
+const isBrowser = () => typeof window !== 'undefined';
 
 class AppStore {
     isDarkMode: boolean = false;
@@ -75,8 +76,10 @@ class AppStore {
         // 使状态响应式
         makeAutoObservable(this);
         
-        // 从localStorage初始化币对信息
-        this.initCurrencyPairsFromStorage();
+        // 仅在浏览器环境中初始化
+        if (isBrowser()) {
+            this.initCurrencyPairsFromStorage();
+        }
     }
 
     toggleDarkMode() {
@@ -84,11 +87,15 @@ class AppStore {
     }
     setUserToken(token: string ) {
         this.userToken = token;
-        localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
+        }
     }
     clearUserToken() {
         this.userToken = null;
-        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN)
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        }
     }
 
     setAuthcodeState(state: string | number, type: string | number) {
@@ -116,7 +123,9 @@ class AppStore {
             ...this.userInfo,
             ...newUserInfo
         };
-        localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
+        }
     }
     clearUserInfo() {
         this.userInfo = {
@@ -125,13 +134,17 @@ class AppStore {
             avatarUrl: "",
             token: ""
         };
-        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
+        }
         // 考虑是否需要重置自选状态
         // this.loadFavoriteCoins();
     }
 
     // 从本地存储初始化币对信息
     initCurrencyPairsFromStorage() {
+        if (!isBrowser()) return;
+        
         try {
             const pairsJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS);
             const currentPairJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_PAIR);
@@ -188,14 +201,17 @@ class AppStore {
     // 设置币对列表
     setCurrencyPairs(pairs: CurrencyPairType[]) {
         this.currencyPairs = pairs;
-        localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(pairs));
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(pairs));
+        }
     }
     
     // 设置当前选中的币对
     setCurrentPair(pair: CurrencyPairType) {
         this.currentPair = pair;
-        localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_PAIR, JSON.stringify(pair));
-
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_PAIR, JSON.stringify(pair));
+        }
     }
     
     // 根据ID查找币对
@@ -205,7 +221,7 @@ class AppStore {
     
     // 根据基础货币筛选币对
     getCurrencyPairsByBase(baseSymbol: string) {
-        return this.currencyPairs.filter(pair => pair.baseCurrency === baseSymbol);
+        return this.currencyPairs.filter(pair => pair. baseSymbol=== baseSymbol);
     }
     
     // 获取当前选中的币对
@@ -227,7 +243,9 @@ class AppStore {
                 this.currentPair = this.currencyPairs[pairIndex];
             }
             
-            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+            if (isBrowser()) {
+                localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+            }
         }
     }
     
@@ -243,8 +261,10 @@ class AppStore {
         this.currencyPairs = [];
         this.currentPair = null;
         this.rawCurrencyData = [];
-        localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS);
-        localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENT_PAIR);
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS);
+            localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENT_PAIR);
+        }
     }
 
     // 从服务器重新加载自选币对
@@ -259,8 +279,8 @@ class AppStore {
                 // 更新现有币对的收藏状态
                 const updatedPairs = this.currencyPairs.map(pair => {
                     const isFavorite = favoriteCoins.some((favCoin: any) => 
-                        favCoin.coinSymbol === pair.quoteCurrency && 
-                        favCoin.baseSymbol === pair.baseCurrency
+                        favCoin.coinSymbol === pair.coinSymbol && 
+                        favCoin.baseSymbol === pair.baseSymbol
                     );
                     
                     return {

@@ -14,6 +14,9 @@ import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, lastD } from '@/utils'
 import DelectModal from '@/components/spotModal/Delect_modal';
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
+import { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 interface DataType {
   id: number,
@@ -39,7 +42,7 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
-const SpotMainPage = () => {
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -55,7 +58,8 @@ const SpotMainPage = () => {
   });
   const [delectId, setDelectId] = useState<number>(0);
   const [delectModal, setDelectModal] = useState<boolean>(false);
-
+  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
+  const [hideElse, setHideElse] = useState<boolean>(false);
 
   const columns: ColumnsType<DataType> = [
     {
@@ -187,17 +191,17 @@ const SpotMainPage = () => {
     // setPageParam(pageData)
     paramdataRef.current = pageData;
   }
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
-
-
+  const hideElseChange = (e: CheckboxChangeEvent) => {
+    if(loading) return toast.error('loading...')
+    setHideElse(!hideElse)
+    getOrderListData()
   }
   const getOrderListData = async () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type: 0
-
+      type: 0,
+      notStatus: hideElse ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
     }
     setLoading(true)
     try {
@@ -289,8 +293,8 @@ const SpotMainPage = () => {
         </div>
         <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
           <Checkbox
-          // checked={hideZero}
-          // onChange={hideZeroChange}
+          onChange={hideElseChange}
+          checked={hideElse}
           >
             <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
           </Checkbox>
@@ -325,6 +329,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;
