@@ -71,7 +71,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     try {
       if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        datafeed = createDatafeed(wsDataRef.current, tradTime);
+        datafeed = createDatafeed(wsDataRef.current, tradTime, symbol || "BTC_USDT_1");
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
