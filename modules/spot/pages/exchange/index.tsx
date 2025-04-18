@@ -111,7 +111,7 @@ const ExchangePage = () => {
     const [orderData, setOrderData] = useState<any[]>([]);
     const [coinData, setCoinData] = useState<any>();
     const [groupData, setGroupData] = useState<any[]>([]);
-    const [currentPair, setCurrentPair] = useState<any>({coinSymbol:'BTC',baseSymbol:'USDT',groupStatus:'1'});
+    const [currentPair, setCurrentPair] = useState<any>();
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
@@ -143,6 +143,9 @@ const ExchangePage = () => {
         }
     }
     const getOrderWsData = () => {
+        // 添加安全检查
+        if (!currentPair || !currentPair.coinSymbol) return;
+        
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
         
@@ -333,10 +336,8 @@ const ExchangePage = () => {
         // 设置客户端渲染标记
         setIsClient(true);
         
-        getOrderWsData();
-        getHistoryDepthData();
+        // 只获取不依赖currentPair的数据
         getCoinList();
-        getKlineData();
         
         // 组件卸载时清理所有WebSocket连接
         return () => {
@@ -345,6 +346,16 @@ const ExchangePage = () => {
             if (klineWsRef.current) klineWsRef.current.close();
         };
     }, []);
+
+    useEffect(() => {
+        // 只在客户端且currentPair有值时执行
+        if (!isClient || !currentPair) return;
+        
+        // 现在可以安全地使用currentPair
+        getOrderWsData();
+        getHistoryDepthData();
+        getKlineData();
+    }, [isClient, currentPair]);
 
     useEffect(() => {
         // 只在客户端执行
@@ -521,7 +532,7 @@ const ExchangePage = () => {
                             </div>
 
                             <Spin spinning={loading} tip="加载中...">
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && currentPair && (
                                     <Tradingview symbol={currentPair.coinSymbol.toUpperCase() + '_' + currentPair.baseSymbol.toUpperCase() + '_' + currentPair.groupStatus} showLeftToolbar={activeChartType === 'basic' ? false : true} chartType={chartDisplayType} klineData={klineData} timeInterval={timeInterval} />
                                 )}
                                
