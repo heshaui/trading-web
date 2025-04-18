@@ -184,7 +184,7 @@ const ExchangePage = () => {
         websocket.connect((message: string) => {
             try {
                 const data = JSON.parse(message);
-                console.log(data, 'wsDepthData');
+                // console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData:any) => {

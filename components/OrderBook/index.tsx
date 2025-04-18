@@ -30,7 +30,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [lastPrice, setLastPrice] = useState(0);
 
   useEffect(() => {
-    console.log('bookData updated:', bookData);
+    // console.log('bookData updated:', bookData);
     
     // 确保data存在且包含depth数据结构
     if (bookData && (bookData.asks || bookData.bids)) {
