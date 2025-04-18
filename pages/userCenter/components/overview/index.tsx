@@ -482,7 +482,8 @@ const OverviewPage: React.FC = () => {
                                     <p className='font-14 font-w-500 flex-col'>
                                         <span className='font-w-500'>
                                             {/* WEB */}
-                                            {`${item.deviceNo || '--'}(${item.platformType || '--'})`}
+                                            {/* {`${item.deviceNo || '--'}(${item.platformType || '--'})`} */}
+                                            {`${item.deviceNo || '--'}`}
                                         </span>
                                         <span className={`${styles.tip_color} font-12 font-w-400`}>
                                             {/* 中国香港 */}
@@ -530,7 +531,8 @@ const OverviewPage: React.FC = () => {
                                     <p className='font-14 font-w-500 flex-col'>
                                         <span className='font-w-500'>
                                             {/* Chrome 12 125.0.0.0(Mac OS X) */}
-                                            {`${item.deviceNo || '--'}(${item.platformType || '--'})`}
+                                            {/* {`${item.deviceNo || '--'}(${item.platformType || '--'})`} */}
+                                            {`${item.deviceNo || '--'}`}
                                         </span>
                                         <span className={`${styles.tip_color} font-12 font-w-400`}>
                                             {/* 2020-02-20 12:12:01 中国香港 */}

@@ -268,7 +268,7 @@
     background: var(--btncolor5) !important;
 }
 .custom-segmented2 .ant-segmented-item-selected{
-    box-shadow: 0px 4px 18px 0px var(--theme-shadow);
+    box-shadow: 0px 4px 18px 0px var(--theme-shadow) !important;
 }
 .spot-segmented .ant-segmented-item-selected,
 .spot-segmented .ant-segmented-thumb{
@@ -453,9 +453,7 @@
 /* 表格分页选择框背景色及颜色 */
 .table-box .ant-select-selector,
 .spot-table-box .ant-select-selector {
-    /* background: transparent !important; */
     color: var(--text-color5) !important;
-    /* border-color: var(--border-color4) !important; */
 }
 
 /* 表格分页选择框 激活时背景色及颜色 */
@@ -464,6 +462,12 @@
     color: var(--text-color4) !important;
 }
 
+.spot-pagination .ant-pagination-simple-pager{
+    color: var(--text-color5) !important;
+}
+.spot-pagination .ant-pagination-simple-pager input{
+    color: #0C0D0C !important;
+}
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body,
 .spot-table-box .ant-table-body {
