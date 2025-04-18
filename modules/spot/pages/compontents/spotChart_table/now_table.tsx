@@ -13,6 +13,7 @@ import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, lastD } from '@/utils'
+import DelectModal from '@/components/spotModal/Delect_modal';
 
 interface DataType {
   id: number,
@@ -52,7 +53,8 @@ const SpotMainPage = () => {
     page: 1,
     pageSize: 10,
   });
-
+  const [delectId, setDelectId] = useState<number>(0);
+  const [delectModal, setDelectModal] = useState<boolean>(false);
 
 
   const columns: ColumnsType<DataType> = [
@@ -70,7 +72,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 128,
-      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
+      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -87,7 +89,7 @@ const SpotMainPage = () => {
           text = t('spot.trade.sell')
           return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
-         return '--'
+          return '--'
         }
       }
     },
@@ -98,13 +100,17 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return < >{_status ? <div className='flex-x align-center'> 
+        return < >{_status ? <div className='flex-x align-center'>
           {_status}
           <Tooltip title={t('spot.modal.edit')}>
-          <button >
-            <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
-          </button>
-        </Tooltip>
+            <button 
+            onClick={()=>{
+              toast.error('接口：暂不做')
+            }}
+            >
+              <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+            </button>
+          </Tooltip>
         </div>
           : '0'}</>;
       },
@@ -118,17 +124,20 @@ const SpotMainPage = () => {
       render: (_amount, record) => {
         // amount/tradedAmount
         return < div className='flex-x-cc'>
-          {_amount ? <div  className='flex-x align-center'>
+          {_amount ? <div className='flex-x align-center'>
             {`${_amount}/${record.tradedAmount}`}
             <Tooltip title={t('spot.modal.edit')}>
-              <button >
+              <button 
+              onClick={()=>{
+                toast.error('接口：暂不做')
+              }}>
                 <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
             </span>
-            
+
           </div>
             : '0'
           }
@@ -143,19 +152,24 @@ const SpotMainPage = () => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_turnover,record) => {
-        const totalAmount = record.amount&&record.price?nul(record.amount,record.price):'0'
-        return <span >{`${totalAmount}/${_turnover?_turnover:'0'}` || '--'}</span>;
+      render: (_turnover, record) => {
+        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
+        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
       },
     },
     {
-      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span> , //"全撤",
+      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span>, //"全撤",
       key: "operation",
       width: 128,
       align: "center",
-      render: (_status) => {
+      render: (_status, record) => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
-          <button >
+          <button
+            onClick={() => {
+              setDelectId(record.id)
+              setDelectModal(true)
+            }}
+          >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
           </button>
         </Tooltip>;
@@ -165,18 +179,6 @@ const SpotMainPage = () => {
 
   ];
 
-  const directionSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
-  const symbolSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-  ]
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,
@@ -217,6 +219,9 @@ const SpotMainPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+  const handleDelectOk = () => {
+    getOrderListData()
   }
   useEffect(() => {
     getOrderListData()
@@ -311,7 +316,10 @@ const SpotMainPage = () => {
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
-
+        <DelectModal open={delectModal} 
+        orderId={delectId}
+        onCancel={() => setDelectModal(false)}
+        onOk={handleDelectOk}/>
       </div>
       {/* </div> */}
     </ConfigProvider>

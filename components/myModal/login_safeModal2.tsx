@@ -495,6 +495,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                     {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
                         (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1))
                         && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                             <Form.Item
                                 name="code"
                                 rules={[{ required: true, message: t('safeModal.codeNull') }]}

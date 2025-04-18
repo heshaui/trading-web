@@ -78,7 +78,9 @@ function Equipment() {
             width: 158,
             render: (text, record) => {
                 return (<div className='flex-row align-start '>
-                    <span>{`${text} (${record.platformType || '--'})`}
+                    <span>
+                        {/* {`${text} (${record.platformType || '--'})`} */}
+                        {`${text|| '--'}`}
                     </span>
                     <Iconify icon={expandedRowKeys.includes(record.id) ? "icon-park-solid:up-one"
                         : "icon-park-solid:down-one"}
@@ -86,7 +88,10 @@ function Equipment() {
                         className='ml-2'
                         size={20}
                     />
-                    {fingerprint === record.fingerprinting && <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>当前设备</p>}
+                    {fingerprint === record.fingerprinting && <p className={`${styles.tip_box} flex-x-cc font-14 font-w-500 ml-2`}>
+                        {/* 当前设备 */}
+                        {t('security.safeSet.currentDevice')}
+                        </p>}
                 </div>)
             },
         },
