@@ -37,7 +37,7 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
         {
             key: 'favorites',
             label: '自选',
-            children: <div>自选</div>
+            children: <SelfSelect />
         },
         {
             key: 'spot',
@@ -78,13 +78,14 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
                 onOpenChange={handleOpenChange}
                 dropdownRender={() => (
                     <div className={styles.dropdown_container}>
-                        <div className={styles.search_container}>
+                        <div className={`${styles.search_container} w-full`} >
                             <Input
                                 placeholder="搜索"
                                 prefix={<SearchOutlined />}
                                 value={searchValue}
                                 onChange={(e) => handleSearch(e.target.value)}
-                                className={styles.search_input}
+                                className={`${styles.input_box} modal-input w-full`}
+                                style={{width: '100%'}}
                             />
                         </div>
                         <div className={`${styles.tabs_container} w-full`}>
@@ -143,6 +144,14 @@ const SpotHeaderPage = ({coinData}:{coinData:any}) => {
                             horizontalMargin: "0 0 0 0",
                             itemColor: "var(--text-color6)",
                             inkBarColor: "var(--text-color5)", //指示条颜色
+                        },
+                        Input: {
+                            // color: '#FF5F1F',
+                            activeBorderColor: 'var(--theme-color)',
+                            hoverBorderColor: 'var(--theme-color)',
+                            controlHeightLG: 50,
+                            activeBg:'var(--background5)',
+                            hoverBg:'var(--background5)',
                         },
                     },
                 }}

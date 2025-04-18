@@ -90,13 +90,13 @@ const SpotMainPage = () => {
       render: (text, record) => {
 
         return <div className='flex-row align-start'>
-          <Iconify icon={expandedRowKeys.includes(record.id) ? "mingcute:up-fill"
+          <Iconify icon={expandedRowKeys.includes(record.orderId) ? "mingcute:up-fill"
             : "mingcute:down-fill"}
             style={{ color: "var(--text-color4)" }}
             className='mr-2'
             size={16}
           />
-          <span>{`${text}`}</span>
+          <span>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`}</span>
         </div>
       },
     },
@@ -117,9 +117,9 @@ const SpotMainPage = () => {
       render: (_status) => {
         let text
         if (_status === 0) {
-          text = t('spot.columns.buy')
+          text = t('spot.trade.buy')
         } else if (_status === 1) {
-          text = t('spot.columns.sell')
+          text = t('spot.trade.sell')
         } else {
           text = ''
         }
@@ -265,9 +265,11 @@ const SpotMainPage = () => {
 
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = (expanded: boolean, record: DataType) => {
+    console.log(record.orderId,12345,expanded);
+    
     if (expanded) {
       // 设置展开的行
-      setExpandedRowKeys([record.id]);
+      setExpandedRowKeys([record.orderId]);
 
       // 设置子数据
       if (record.userLoginLogs && record.userLoginLogs.length > 0) {
@@ -276,14 +278,14 @@ const SpotMainPage = () => {
         setChildDeviceNoData([]);
       }
 
-      // 如果URL中有deviceId参数，则清除它
-      if (router.query.deviceId) {
-        const { deviceId, ...restQuery } = router.query;
-        router.replace({
-          pathname: router.pathname,
-          query: restQuery
-        }, undefined, { shallow: true });
-      }
+      // // 如果URL中有deviceId参数，则清除它
+      // if (router.query.deviceId) {
+      //   const { deviceId, ...restQuery } = router.query;
+      //   router.replace({
+      //     pathname: router.pathname,
+      //     query: restQuery
+      //   }, undefined, { shallow: true });
+      // }
     } else {
       // 清空展开行
       setExpandedRowKeys([]);
@@ -314,11 +316,15 @@ const SpotMainPage = () => {
     try {
       const res = await getOrderList(params)
       if (res.code === '0') {
-        setInitTableData(res.data.list)
-        setTableData(res.data.list)
-        setTotal(res.data.total)
+        const newData = res.data.list.map((item: any) => ({
+          ...item,
+          userLoginLogs: []
+        }));
+        setInitTableData(newData);
+        setTableData(newData);
+        setTotal(res.data.total);
       } else {
-        toast.error(res.message)
+        toast.error(res.message);
       }
 
     } catch (error) {
@@ -372,48 +378,20 @@ const SpotMainPage = () => {
       {/* 充值 */}
       <div className={`${styles.table_box} w-full `}>
         <div className={`${styles.table_header2} w-full mb-6 flex align-center px-6 flex-wrap`}>
-          {/* <Segmented options={[
-            {
-              label: (
-                // className={`default_btn ${styles.btn_style}`}
-                <div style={{ padding: '2px 4px' }} >
-                  <div>限价 | 市价</div>
-                </div>
-              ),
-              value: 'user1',
-            },
-          ]} 
-          className={`custom-segmented2 mt-6`}/> */}
           <button className={`default_btn mt-6 ${styles.btn_style} mr-10`}>限价 | 市价</button>
-          {/* <Form
-            form={form}
-            layout="inline"
-            initialValues={{
-              type: '',
-              direction: '',
-              symbol: ''
-            }}
-          >
-            <Form.Item name="time" > */}
           <RangePicker
             className={`${styles.rangePicker_box} custom-range-picker mt-6 mr-6`}
             suffixIcon={<Iconify icon="cuida:calendar-outline"
               className={`${styles.title_color}`} size={20} />}
             placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
           />
-          {/* </Form.Item>
-          </Form> */}
           <div className={`${styles.table_header_checkbox2}`}>
             <Checkbox
-              // checked={hideZero}
-              // onChange={hideZeroChange}
               className='mt-7'
             >
               <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
             </Checkbox>
             <Checkbox
-              // checked={hideZero}
-              // onChange={hideZeroChange}
               className='mt-7'
             >
               <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideCancel')}</span>
@@ -426,7 +404,6 @@ const SpotMainPage = () => {
             columns={columns}
             dataSource={tableData}
             size="large"
-            // scroll={{ x: "max-content", y: 300 }}
             className={`spot-table-box`}
             loading={loading}
             // pagination={{
@@ -437,15 +414,15 @@ const SpotMainPage = () => {
             //   simple:true,
             //   onChange: (page, pageSize) => pageChange(page, pageSize),
             // }}
-            // loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
               expandedRowRender: (record) => {
                 // 使用当前展开行的ID来确定是否显示子数据
-                const isCurrentExpanded = expandedRowKeys.includes(record.id);
+                const isCurrentExpanded = expandedRowKeys.includes(record.orderId);
+                
 
                 return (
-                  <div key={record.id}>
+                  <div key={record.orderId}>
                     {isCurrentExpanded && record.userLoginLogs && record.userLoginLogs.length > 0 ? (
                       <Table
                         columns={columns2}
@@ -456,7 +433,7 @@ const SpotMainPage = () => {
                         pagination={false}
                         className={`spot-table-box2 ${styles.rowExpanded_table_box}`}
                         // style={{ padding: 0 }}
-                        rowKey="id"
+                        rowKey="orderId"
                         locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                       />
                     ) : (
@@ -472,7 +449,7 @@ const SpotMainPage = () => {
               expandedRowKeys: expandedRowKeys
             }}
             pagination={false}
-            rowKey="id"
+            rowKey="orderId"
           />
 
         </div>

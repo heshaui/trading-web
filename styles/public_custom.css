@@ -492,3 +492,6 @@
 .custom-tabs2 .ant-tabs-tab{
     margin: 0 0 0 24px !important;
 }
+.spot-tabs .ant-tabs-nav::before{
+    border-color: transparent !important;
+}

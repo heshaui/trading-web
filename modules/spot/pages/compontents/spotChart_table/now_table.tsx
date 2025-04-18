@@ -11,61 +11,46 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import {getOrderList} from '@/services/spot'
+import { toast } from 'sonner';
 
 interface DataType {
   id: number,
+  orderId: string,
+  amount: number,
+  baseSymbol: string,
+  canceledTime: number,
+  coinSymbol: string,
+  completedTime: number,
+  direction: number,
   userId: number,
-  platformType: number,
-  deviceNo: string,
-  ip: string,
-  address: string,
-  token: number,
-  tokenTime: number,
+  price: number,
+  status: number,
+  symbol: string,
   createTime: number,
   updateTime: number,
+  tradedAmount: number,
+  turnover: number,
+  type: number,
+  useDiscount: number,
+  orderResource: number,
   tenantId: string,
+  fee: number,
+  baseSymbolCount: number
 }
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-  const [tableData, setTableData] = useState<DataType[]>([
-    {
-      id: 1,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'BTC',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 23.3,
-      tokenTime: 123,
-      createTime: 1234567890,
-      updateTime: 1234567890,
-      tenantId: '1234567890'
-    }, {
-      id: 2,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'POINT',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 1234567890,
-      tokenTime: 23.0,
-      createTime: 1234567892,
-      updateTime: 1234567889,
-      tenantId: '1234567890'
-    }
-  ]);
+  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [initTableData, setInitTableData] = useState<DataType[]>([]);
+
   const router = useRouter();
-  const [paramInfo, sePparamInfo] = useState({
-    type: '',
-    selsect: ''
-  });
+  const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
-  const [pageParam, setPageParam] = useState({
+
+  const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
-  })
-  const paramdataRef = useRef(pageParam);
+  });
 
 
 
@@ -154,7 +139,7 @@ const SpotMainPage = () => {
       page: page,
       pageSize: pageSize
     }
-    setPageParam(pageData)
+    // setPageParam(pageData)
     paramdataRef.current = pageData;
   }
   const topUpTypeChange = (value: any, options: any) => {
@@ -162,6 +147,37 @@ const SpotMainPage = () => {
 
 
   }
+  const getOrderListData = async () => {
+    const params = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      type:0
+
+    }
+    setLoading(true)
+    try {
+      const res = await getOrderList(params)
+      if (res.code === '0') {
+        const newData = res.data.list.map((item: any) => ({
+          ...item,
+          userLoginLogs: []
+        }));
+        setInitTableData(newData);
+        setTableData(newData);
+        setTotal(res.data.total);
+      } else {
+        toast.error(res.message);
+      }
+
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => {
+    getOrderListData()
+  }, [])
   return (<>
     <ConfigProvider
       theme={{
@@ -249,7 +265,7 @@ const SpotMainPage = () => {
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
-            // loading={loading}
+            loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />
 
