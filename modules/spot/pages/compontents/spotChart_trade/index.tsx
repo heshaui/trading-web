@@ -1,11 +1,12 @@
+'use client'
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs,message } from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 // import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
@@ -13,7 +14,7 @@ import PlaceOrderModal from './placeOrder_modal';
 import { encryptData } from "@/hooks/user-encrypt";
 import ErrorModal from '@/components/spotModal/Error_modal';
 import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
-import { getUserBalance,getUserBalanceAll } from '@/services/assets'
+import { getUserBalance, getUserBalanceAll } from '@/services/assets'
 import { toast } from 'sonner';
 import appStore from '@/store';
 interface DataType {
@@ -44,7 +45,7 @@ const SpotTradePage = () => {
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
-    console.log('currentPair', currentPair);
+
     //  输入金额校验
     const checkAmount = (_: any, value: string) => { }
     const marks: SliderSingleProps['marks'] = {
@@ -64,25 +65,64 @@ const SpotTradePage = () => {
             label: <strong></strong>,
         },
     };
+
+    // 添加滑块变化时的处理函数
+    const handleSliderChange = (value: number) => {
+        // 限制最大值为98%
+        const percentage = Math.min(value, 98) / 100;
+
+        if (segmentedvalue === 'buy') {
+            // 买入操作，计算可买数量
+            const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+            const price = form.getFieldValue('price');
+
+            if (price && !priceDisabled) {
+                // 限价单
+                const availableAmount = (baseBalance * percentage) / price;
+                form.setFieldsValue({
+                    amount: availableAmount.toFixed(8),
+                    account: (availableAmount * price).toFixed(8)
+                });
+            } else if (priceDisabled) {
+                // 市价单
+                const availableFunds = baseBalance * percentage;
+                form.setFieldsValue({
+                    account: availableFunds.toFixed(8)
+                });
+            }
+        } else {
+            // 卖出操作，计算可卖数量
+            const coinBalance = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+            const availableAmount = coinBalance * percentage;
+
+            form.setFieldsValue({ amount: availableAmount.toFixed(8) });
+
+            const price = form.getFieldValue('price');
+            if (price && !priceDisabled) {
+                form.setFieldsValue({ account: (availableAmount * price).toFixed(8) });
+            }
+        }
+    };
+
     const onSumbit = () => {
         form.validateFields()
             .then(async (values) => {
                 const modalData = {
-                    amount:values.amount,
-                    price:values.price,
-                    type:priceDisabled?0:1,
-                    direction:segmentedvalue==='buy'?0:1,
+                    amount: values.amount,
+                    price: values.price,
+                    type: priceDisabled ? 0 : 1,
+                    direction: segmentedvalue === 'buy' ? 0 : 1,
                 }
                 setModalData(modalData)
                 console.log(values, 111);
                 const params = {
-                    amount:values.amount,
-                    baseSymbol:'BTC',
-                    coinSymbol:'USDT',
-                    direction:0,
-                    price:values.price,
-                    symbol:'BTC/USDT',
-                    type:priceDisabled?0:1
+                    amount: values.amount,
+                    baseSymbol: currentPair?.baseSymbol,
+                    coinSymbol: currentPair?.coinSymbol,
+                    direction: 0,
+                    price: values.price,
+                    symbol: currentPair?.symbol,
+                    type: priceDisabled ? 0 : 1
                 }
                 try {
                     // 
@@ -118,49 +158,69 @@ const SpotTradePage = () => {
         setSegmentedValue(value as string)
     }
 
-    const handelSubmitOrder =async () => {
-        console.log('提交订单');
-        form.validateFields()
-        .then(async (values) => {
-            const params = {
-                amount:values.amount,
-                baseSymbol:'USDT',
-                coinSymbol:'BTC',
-                direction:segmentedvalue==='buy'?0:1,
-                price:values.price,
-                symbol:'BTC/USDT',
-                type:priceDisabled?0:1
-            }
-           const data = await encryptData(params)
-            const res=await createOrder(data)
-            if(res.code==='0'){
-                message.success(res.message)
-            }else{
-                message.error(res.message)
-            }
-        })
-        
+    // 添加计算成交额的函数
+    const calculateTotal = () => {
+        const price = form.getFieldValue('price');
+        const amount = form.getFieldValue('amount');
+
+        if (price && amount) {
+            const total = price * amount;
+            form.setFieldsValue({ account: total });
+        } else {
+            form.setFieldsValue({ account: '' });
+        }
     }
 
-        // 币种余额
-        const getUserBalanceData = async () => {
-          
-            try {
-                const res = await getUserBalanceAll()
-                if (res.code === '0') {
-                    setUserBalance(res.data)
-                    return res.data
-                } else {
-                    toast.error(res.message)
-                }
-            } catch (error) {
-                toast.error(String(error))
-            }
-        }
+    // 监听价格和数量的变化，计算成交额
+    useEffect(() => {
+        // 初始化时计算一次总额
+        calculateTotal();
+    }, [form]);
 
-        useEffect(()=>{
-            getUserBalanceData()
-        },[])
+    const handelSubmitOrder = async () => {
+        console.log('提交订单');
+        form.validateFields()
+            .then(async (values) => {
+                const params = {
+                    amount: values.amount,
+                    baseSymbol: currentPair?.baseSymbol,
+                    coinSymbol: currentPair?.coinSymbol,
+                    direction: segmentedvalue === 'buy' ? 0 : 1,
+                    price: values.price,
+                    symbol: currentPair?.symbol,
+                    type: priceDisabled ? 0 : 1
+                }
+                const data = await encryptData(params)
+                const res = await createOrder(data)
+                if (res.code === '0') {
+                    message.success(res.message)
+                    setModalOpen(false)
+                } else {
+                    message.error(res.message)
+                }
+            })
+
+    }
+
+    // 币种余额
+    const getUserBalanceData = async () => {
+
+        try {
+            const res = await getUserBalanceAll()
+            if (res.code === '0') {
+                setUserBalance(res.data)
+                return res.data
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+
+    useEffect(() => {
+        getUserBalanceData()
+    }, [])
     return (<div className='flex-y align-center'>
         <ConfigProvider
             theme={{
@@ -264,6 +324,11 @@ const SpotTradePage = () => {
                     <Form
                         form={form}
                         style={{ width: '100%' }}
+                        onValuesChange={(changedValues) => {
+                            if ('price' in changedValues || 'amount' in changedValues) {
+                                calculateTotal();
+                            }
+                        }}
                     >
                         <Form.Item name='price'
                             className='spot_number_box'
@@ -275,7 +340,7 @@ const SpotTradePage = () => {
                                     boxSizing: 'border-box',
                                 }}
                                 suffix={!priceDisabled ? <div>
-                                    USDT
+                                    {currentPair?.baseSymbol}
                                 </div> : t('spot.select.market')}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.price')}</span>}
                                 // max={100}
@@ -301,10 +366,10 @@ const SpotTradePage = () => {
                         </Form.Item>
                         <Form.Item name='amount'
                         >
-                            <InputNumber disabled={true} className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
-                                    BTC
+                                    {currentPair?.coinSymbol}
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
                                 // max={100}
@@ -324,14 +389,19 @@ const SpotTradePage = () => {
 
                             />
                         </Form.Item>
-                        <Slider marks={marks} defaultValue={37} />
+                        <Slider
+                            marks={marks}
+                            defaultValue={0}
+                            max={100}
+                            onChange={handleSliderChange}
+                        />
                         <Form.Item name='account'
                         // rules={[{ validator: checkAmount }]}
                         >
-                            <InputNumber className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber disabled={priceDisabled ? true : false} className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
-                                    USDT
+                                    {currentPair?.baseSymbol}
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
                                 // max={100}
@@ -354,11 +424,11 @@ const SpotTradePage = () => {
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
-                                <p>{userBalance.find(item=>item.coinName==='USDT')?.balance} USDT</p>
+                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance} {currentPair?.baseSymbol}</p>
                             </li>
                             <li className='flex justify-between align-center'>
                                 <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                                <p>{userBalance.find(item=>item.coinName==='BTC')?.balance} BTC</p>
+                                <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance} {currentPair?.coinSymbol}</p>
                             </li>
                         </ul>
                     </Form>
@@ -367,16 +437,27 @@ const SpotTradePage = () => {
                         style={{ width: '100%', height: '50px', borderRadius: '32px' }}
                         htmlType="submit" onClick={onSumbit}>{segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}</Button>
 
-                    {/* <button className={`${styles.sumbit_btn} green_btn`} type="submit" onClick={onSumbit}>{t('spot.trade.buy')}</button> */}
-
+                    <div className={`${styles.fee_container} flex align-center mt-4`}>
+                        <div className={styles.fee_icon} style={{marginRight:'4px',verticalAlign:'middle'}}>
+                            <Iconify icon="mdi:percent-circle-outline" size={16} />
+                        </div>
+                        <span className={styles.fee_text} style={{fontSize:'12px',paddingTop:'2px'}}>手续费</span>
+                        <div className={styles.fee_tooltip}>
+                            <div className={styles.fee_tooltip_content}>
+                                <div className={styles.fee_tooltip_title}>手续费</div>
+                                <div className={styles.fee_tooltip_details}>挂单{currentPair.buyFee}% / 吃单{currentPair.sellFee}%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder()}} />
                 {/* <ErrorModal open={modalOpen} onCancel={() => {  }} onOk={() => {  }}  /> */}
                 {/* <SpotBuyModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} /> */}
 
-            </div>
-        </ConfigProvider>
     </div>
+        </ConfigProvider >
+    </div >
     );
 };
 

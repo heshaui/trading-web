@@ -91,7 +91,7 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
                 symbol: `${coin.coinSymbol}/${coin.baseSymbol}`,
                 baseSymbol: coin.baseSymbol,
                 coinSymbol: coin.coinSymbol,
-                groupStatus: group?.status,
+                groupStatus: group?.groupStatus,
                 baseCoinScale: coin?.baseCoinScale,
                 buyFee: coin?.buyFee,
                 classLabel: coin?.classLabel,
