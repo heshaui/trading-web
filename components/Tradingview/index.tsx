@@ -194,7 +194,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     }
   };
 
-  const createDatafeed = (initialData: any, timeInterval: string) => {
+  const createDatafeed = (initialData: any, timeInterval: string,symbol:string) => {
     const subscribers: any = {};
     
     // 先定义时间格式化函数
@@ -375,7 +375,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
         try {
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
-          const url = `http://ws81.imsaas.work/kline/${symbolInfo.toUpperCase()}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          const url = `http://ws81.imsaas.work/kline/${symbol}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
 
           const response = await fetch(url);

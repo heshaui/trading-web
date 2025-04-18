@@ -47,7 +47,44 @@ const SpotTradePage = () => {
 
     // console.log('currentPair', currentPair);
     //  输入金额校验
-    const checkAmount = (_: any, value: string) => { }
+    const checkAmount = (_: any, value: string) => { 
+        if (!value) return Promise.resolve();
+        
+        // 获取当前可用余额
+        const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+        
+        // 将输入值转为数字进行比较
+        const inputValue = parseFloat(value);
+        
+        if (segmentedvalue === 'buy' && inputValue > baseBalance) {
+            return Promise.reject(new Error(`可用${currentPair?.baseSymbol}余额不足`));
+        }
+        
+        return Promise.resolve();
+    }
+
+    // 添加数量校验函数
+    const checkAmountLimit = (_: any, value: string) => {
+        if (!value) return Promise.resolve();
+        
+        const inputValue = parseFloat(value);
+        
+        // 根据下单类型验证最大值
+        if (priceDisabled) {
+            // 市价单 - 验证最大市价单笔数量
+            if (inputValue > currentPair.maxMarketPrice) {
+                return Promise.reject(new Error(`最大市价单笔数量为 ${currentPair.maxMarketPrice} ${currentPair?.coinSymbol}`));
+            }
+        } else {
+            // 限价单 - 验证最大限价挂单数
+            if (inputValue > currentPair.maxCurrentPrice) {
+                return Promise.reject(new Error(`最大限价挂单数为 ${currentPair.maxCurrentPrice} ${currentPair?.coinSymbol}`));
+            }
+        }
+        
+        return Promise.resolve();
+    };
+
     const marks: SliderSingleProps['marks'] = {
         0: {
             label: <strong></strong>,
@@ -365,6 +402,7 @@ const SpotTradePage = () => {
                             />
                         </Form.Item>
                         <Form.Item name='amount'
+                            rules={[{ validator: checkAmountLimit }]}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
@@ -396,9 +434,9 @@ const SpotTradePage = () => {
                             onChange={handleSliderChange}
                         />
                         <Form.Item name='account'
-                        // rules={[{ validator: checkAmount }]}
+                            rules={[{ validator: checkAmount }]}
                         >
-                            <InputNumber disabled={priceDisabled ? true : false} className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber disabled={true} className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
                                     {currentPair?.baseSymbol}
@@ -418,7 +456,6 @@ const SpotTradePage = () => {
                                         .replace(/\.(?=.*\.)/g, '');
                                     return parsed as unknown as number;
                                 }}
-
                             />
                         </Form.Item>
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
@@ -435,7 +472,14 @@ const SpotTradePage = () => {
                     <Button
                         // className={`${styles.sumbit_btn} green_btn`}
                         style={{ width: '100%', height: '50px', borderRadius: '32px' }}
-                        htmlType="submit" onClick={onSumbit}>{segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}</Button>
+                        htmlType="submit" 
+                        onClick={onSumbit}
+                        disabled={currentPair?.enable === 0}
+                    >
+                        {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}
+                    </Button>
+
+
 
                     <div className={`${styles.fee_container} flex align-center mt-4`}>
                         <div className={styles.fee_icon} style={{marginRight:'4px',verticalAlign:'middle'}}>
