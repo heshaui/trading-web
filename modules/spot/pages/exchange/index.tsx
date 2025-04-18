@@ -473,7 +473,11 @@ const ExchangePage = () => {
                 }}
             >
                 <div className={`${styles.card_bgc4} w-full`}>
-                <SpotHeaderPage coinData={coinData}  />
+                    {
+                        currentPair && (
+                            <SpotHeaderPage coinData={coinData}  />
+                        )
+                    }
                 </div>
 
 
@@ -572,7 +576,11 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                        <SpotChartTrade />
+                        {
+                            currentPair && (
+                                <SpotChartTrade />
+                            )
+                        }
                     </div>
                     <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
                         <SpotChartTables />
