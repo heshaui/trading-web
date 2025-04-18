@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotHeader_select.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
+import { Input, Radio, ConfigProvider, Rate, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
 import { Iconify } from "@/components/icon"
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
@@ -8,34 +8,61 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 
-const SelfSelect = () => {
+const SpotSelect = () => {
     const { t } = useTranslation(['spot']);
-    const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
+    const [activeTab, setActiveTab] = useState('all');
     const [searchValue, setSearchValue] = useState('');
+    const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
     // 模拟的交易对数据
     const pairList = [
-        { 
-            name: 'GT/USDT', 
-            price: '4.9829', 
+        {
+            id: 1,
+            name: 'GT/USDT',
+            price: '4.9829',
             change: '-3.05%',
             isUp: false,
             isFavorite: true,
-            icon: '🔴'
+            icon: <Iconify icon="cryptocurrency-color:btc" size={16} />,
+            children: [
+                {
+                    id: 11,
+                    price: '4.9820',
+                    amount: '1000',
+                    total: '4982',
+                    time: '2024-02-28 10:00:00'
+                },
+                {
+                    id: 12,
+                    price: '4.9835',
+                    amount: '500',
+                    total: '2491.75',
+                    time: '2024-02-28 10:01:00'
+                }
+            ]
         },
-        { 
-            name: 'BTC/USDT', 
-            price: '27056.20', 
+        {
+            id: 2,
+            name: 'BTC/USDT',
+            price: '270246.20',
             change: '+3.05%',
             isUp: true,
             isFavorite: true,
-            icon: '🟡'
+            icon: <Iconify icon="cryptocurrency-color:btc" size={16} />,
+            children: [
+                {
+                    id: 21,
+                    price: '270246.00',
+                    amount: '0.1',
+                    total: '27024.60',
+                    time: '2024-02-28 10:02:00'
+                }
+            ]
         }
     ];
 
     // 标签页配置
-    const items = [
-        { key: 'all', label: '全部' },
+    const tabsItem: TabsProps['items'] = [
         { key: 'defi', label: 'Defi' },
         { key: 'main', label: '主流币' },
         { key: 'new', label: '新币种' },
@@ -50,22 +77,34 @@ const SelfSelect = () => {
         setSearchValue(e.target.value);
     };
 
-    // 渲染交易对列表
-    const renderPairList = () => {
-        return pairList.map((pair, index) => (
-            <div key={index} className={styles.pair_item}>
-                <div className={styles.pair_name}>
-                    <span className={styles.favorite}>⭐</span>
-                    <span className={styles.coin_icon}>{pair.icon}</span>
-                    <span>{pair.name}</span>
-                </div>
-                <div className={styles.pair_price}>{pair.price}</div>
-                <div className={`${styles.pair_change} ${pair.isUp ? styles.up : styles.down}`}>
-                    {pair.change}
-                </div>
-            </div>
-        ));
+    // 处理展开/折叠行
+    const handleExpand = (expanded: boolean, record: any) => {
+        setExpandedRowKeys(expanded ? [record.id] : []);
     };
+
+    // 子表格列配置
+    const expandedColumns = [
+        {
+            title: '时间',
+            dataIndex: 'time',
+            key: 'time',
+        },
+        {
+            title: '价格',
+            dataIndex: 'price',
+            key: 'price',
+        },
+        {
+            title: '数量',
+            dataIndex: 'amount',
+            key: 'amount',
+        },
+        {
+            title: '成交额',
+            dataIndex: 'total',
+            key: 'total',
+        }
+    ];
 
     return (
         <ConfigProvider
@@ -82,46 +121,93 @@ const SelfSelect = () => {
             }}
         >
             <div className={styles.container}>
-                {/* 搜索框 */}
-                <div className={styles.search_box}>
-                    <Input
-                        placeholder="搜索"
-                        prefix={<SearchOutlined />}
-                        value={searchValue}
-                        onChange={handleSearch}
-                        className={styles.search_input}
-                    />
-                </div>
-
-                {/* 标签页导航 */}
-                <div className={styles.tabs_wrapper}>
-                    <Radio.Group 
-                        value={activeTab} 
-                        onChange={(e) => handleTabChange(e.target.value)}
-                        className={styles.tabs_group}
-                    >
-                        {items.map(item => (
-                            <Radio.Button key={item.key} value={item.key} className={styles.tab_button}>
-                                {item.label}
-                            </Radio.Button>
-                        ))}
-                    </Radio.Group>
-                </div>
-
                 {/* 列表头部 */}
-                <div className={styles.list_header}>
-                    <div className={styles.header_item}>名称</div>
-                    <div className={styles.header_item}>最新价</div>
-                    <div className={styles.header_item}>24h涨跌</div>
+                <div className={`${styles.list_header} px-4 py-4 flex-x align-center`}>
+                    <div className={`${styles.tip_color} font-12  flex-1 flex-x align-center`}>
+                        <span>名称</span>
+                        <div className='ml-1 flex-y-cc'>
+                            <Iconify icon="fluent-mdl2:flick-down" className='pointer' size={10} style={{marginBottom: 2}}/>
+                            <Iconify icon="fluent-mdl2:flick-up" className='pointer' size={10} />
+                        </div>
+                    </div>
+                    <div className={`${styles.tip_color} font-12  flex-1 flex-x align-center`}>
+                        <span>最新价</span>
+                        <div className='ml-1 flex-y-cc'>
+                            <Iconify icon="fluent-mdl2:flick-down" className='pointer' size={10} style={{marginBottom: 2}}/>
+                            <Iconify icon="fluent-mdl2:flick-up" className='pointer' size={10} />
+                        </div>
+                    </div>
+                    <div className={`${styles.tip_color} font-12  flex-1 flex-x align-center`}>
+                        <span>24h涨跌</span>
+                        <div className='ml-1 flex-y-cc'>
+                            <Iconify icon="fluent-mdl2:flick-down" className='pointer' size={10} style={{marginBottom: 2}}/>
+                            <Iconify icon="fluent-mdl2:flick-up" className='pointer' size={10} />
+                        </div>
+                        <div className='ml-1 flex-y-cc'>
+                            <Iconify icon="mingcute:transfer-line" size={18} />
+                        </div>
+                    </div>
                 </div>
 
                 {/* 交易对列表 */}
-                <div className={styles.pair_list}>
-                    {renderPairList()}
+                <div className={`${styles.pair_list}`}>
+                    <Table
+                        dataSource={pairList}
+                        rowKey="id"
+                        pagination={false}
+                        expandable={{
+                            expandedRowRender: (record) => (
+                                <Table
+                                    columns={expandedColumns}
+                                    dataSource={record.children}
+                                    pagination={false}
+                                    rowKey="id"
+                                />
+                            ),
+                            expandedRowKeys,
+                            onExpand: handleExpand,
+                        }}
+                        columns={[
+                            {
+                                title: '',
+                                dataIndex: 'name',
+                                key: 'name',
+                                render: (_, record) => (
+                                    <div className={`${styles.pair_name} flex-1`}>
+                                        <span className={styles.favorite}>
+                                            <Rate count={1} style={{ fontSize: 14 }} />
+                                        </span>
+                                        <span className={styles.coin_icon}>{record.icon}</span>
+                                        <span className={`font-14 ${styles.title_color}`}>{record.name}</span>
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: '',
+                                dataIndex: 'price',
+                                key: 'price',
+                                render: (price) => (
+                                    <div className={`font-14 ${styles.title_color} flex-1`}>
+                                        {price}
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: '',
+                                dataIndex: 'change',
+                                key: 'change',
+                                render: (change, record) => (
+                                    <div className={`${styles.pair_change} ${record.isUp ? styles.success_icon : styles.error_icon} flex-1`}>
+                                        {change}
+                                    </div>
+                                ),
+                            },
+                        ]}
+                    />
                 </div>
             </div>
         </ConfigProvider>
     );
 };
 
-export default SelfSelect;
+export default SpotSelect;
