@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox,Tooltip } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox, Tooltip } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -10,9 +10,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import {getOrderList} from '@/services/spot'
+import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
-import { add, cut, nul,division, lastD } from '@/utils'
+import { add, cut, nul, division, lastD } from '@/utils'
 
 interface DataType {
   id: number,
@@ -62,7 +62,7 @@ const SpotMainPage = () => {
       key: "updateTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
@@ -97,7 +97,15 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return < >{_status ? <div className='flex-x align-center'> 
+          {_status}
+          <Tooltip title={t('spot.modal.edit')}>
+          <button >
+            <Iconify icon="mingcute:edit-3-line" className='tip_icon' size={20} />
+          </button>
+        </Tooltip>
+        </div>
+          : '--'}</>;
       },
     },
     {
@@ -106,9 +114,23 @@ const SpotMainPage = () => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_amount,record) => {
+      render: (_amount, record) => {
         // amount/tradedAmount
-        return <div >{_amount?`${_amount}/${record.tradedAmount} ${ division(_amount,record.tradedAmount)}` : '--'}</div>;
+        return < div className='flex-x-cc'>
+          {_amount ? <div  className='flex-x align-center'>
+            {`${_amount}/${record.tradedAmount}`}
+            <Tooltip title={t('spot.modal.edit')}>
+              <button >
+                <Iconify icon="mingcute:edit-3-line" className='tip_icon' size={20} />
+              </button>
+            </Tooltip>
+            { record.tradedAmount?division(_amount, record.tradedAmount):'0%'}
+          </div>
+            : '--'
+          }
+        </div >
+
+
       },
     },
     {
@@ -168,7 +190,7 @@ const SpotMainPage = () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type:0
+      type: 0
 
     }
     setLoading(true)
@@ -227,66 +249,66 @@ const SpotMainPage = () => {
     >
       {/* 充值 */}
       {/* <div className={`${styles.table_box}`}> */}
-        <div className={`${styles.table_header} flex align-center mb-6 flex-wrap`}>
-          <div className=' mt-6  ml-6'>
-            <Segmented options={[
-              {
-                label: (
-                  // className={`default_btn ${styles.btn_style}`}
-                  <div style={{ padding: '2px 4px' }} >
-                    <div>
-                      {/* 限价 | 市价 */}
-                      {t('spot.select.limit')} | {t('spot.select.market')}
-                      </div>
+      <div className={`${styles.table_header} flex align-center mb-6 flex-wrap`}>
+        <div className=' mt-6  ml-6'>
+          <Segmented options={[
+            {
+              label: (
+                // className={`default_btn ${styles.btn_style}`}
+                <div style={{ padding: '2px 4px' }} >
+                  <div>
+                    {/* 限价 | 市价 */}
+                    {t('spot.select.limit')} | {t('spot.select.market')}
                   </div>
-                ),
-                value: 'user1',
-              },
-              {
-                label: (
-                  <div style={{ padding: '2px 4px' }} >
-                    <div>
-                      {/* 止盈止损 */}
-                      {t('spot.select.stopLoss')}
-                      </div>
+                </div>
+              ),
+              value: 'user1',
+            },
+            {
+              label: (
+                <div style={{ padding: '2px 4px' }} >
+                  <div>
+                    {/* 止盈止损 */}
+                    {t('spot.select.stopLoss')}
                   </div>
-                ),
-                value: 'user2',
-              },
-            ]}
-              className={`custom-segmented2`} />
-          </div>
-          <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
-            <Checkbox
-            // checked={hideZero}
-            // onChange={hideZeroChange}
-            >
-              <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
-            </Checkbox>
-          </div>
+                </div>
+              ),
+              value: 'user2',
+            },
+          ]}
+            className={`custom-segmented2`} />
         </div>
-        <div className={`${styles.table_content} w-full `}>
-
-          <Table
-            columns={columns}
-            dataSource={tableData}
-            size="large"
-            // scroll={{ x: 'max-content', y: 300 }}
-            // scroll={{y: true }}
-            className={`spot-table-box`}
-            pagination={{
-              position: ["bottomRight"],
-              // showSizeChanger: true,
-              total: total,
-              size: "default",
-              simple: true,
-              onChange: (page, pageSize) => pageChange(page, pageSize),
-            }}
-            loading={loading}
-            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-          />
-
+        <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
+          <Checkbox
+          // checked={hideZero}
+          // onChange={hideZeroChange}
+          >
+            <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
+          </Checkbox>
         </div>
+      </div>
+      <div className={`${styles.table_content} w-full `}>
+
+        <Table
+          columns={columns}
+          dataSource={tableData}
+          size="large"
+          // scroll={{ x: 'max-content', y: 300 }}
+          // scroll={{y: true }}
+          className={`spot-table-box`}
+          pagination={{
+            position: ["bottomRight"],
+            // showSizeChanger: true,
+            total: total,
+            size: "default",
+            simple: true,
+            onChange: (page, pageSize) => pageChange(page, pageSize),
+          }}
+          loading={loading}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+        />
+
+      </div>
       {/* </div> */}
     </ConfigProvider>
   </>

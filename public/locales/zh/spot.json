@@ -82,7 +82,8 @@
             "market":"市价",
             "amount":"数量",
             "confirm":"确认",
-            "cancel":"取消"
+            "cancel":"取消",
+            "edit":"修改"
         }
     }
 }
