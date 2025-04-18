@@ -195,6 +195,7 @@ class AppStore {
     setCurrentPair(pair: CurrencyPairType) {
         this.currentPair = pair;
         localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_PAIR, JSON.stringify(pair));
+
     }
     
     // 根据ID查找币对
@@ -205,6 +206,11 @@ class AppStore {
     // 根据基础货币筛选币对
     getCurrencyPairsByBase(baseSymbol: string) {
         return this.currencyPairs.filter(pair => pair.baseCurrency === baseSymbol);
+    }
+    
+    // 获取当前选中的币对
+    getCurrentPair() {
+        return this.currentPair;
     }
     
     // 更新币对信息

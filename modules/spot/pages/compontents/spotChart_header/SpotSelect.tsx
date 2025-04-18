@@ -7,7 +7,7 @@ import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
-
+import appStore from '@/store';
 const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
@@ -29,6 +29,11 @@ const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(e.target.value);
+    };
+
+    const handlePairClick = async (pair: any) => {
+        console.log(pair);  
+        await appStore.setCurrentPair(pair);
     };
 
     return (
@@ -109,7 +114,7 @@ const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
                     {currencyPairs.map((pair:any, index:any) => (
-                        <div key={index} className={`${styles.base}  px-4 flex-x align-center`}>
+                        <div key={index} className={`${styles.base}  px-4 flex-x align-center`} style={{cursor: 'pointer'}} onClick={() => handlePairClick(pair)}>
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>

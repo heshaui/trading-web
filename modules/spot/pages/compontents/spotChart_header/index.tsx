@@ -60,10 +60,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }
     };
 
-    // 获取当前选中的货币对，如果没有则使用默认值
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const currencyPairsArray = appStore.currencyPairs || [];
-    const currentPair = currencyPairsArray.length > 0 ? currencyPairsArray[0] : { baseSymbol: '--', coinSymbol: '--' };
-    console.log('currencyPairs', currencyPairsArray);
+
+
 
     const tabsItem: TabsProps['items'] = [
         {
@@ -125,7 +126,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                     {isLoading ? (
                         <Spin size="small" />
                     ) : (
-                        <span>{currentPair.baseSymbol }/{currentPair.coinSymbol}</span>
+                        <span>{currentPair.coinSymbol}/{currentPair.baseSymbol }</span>
                     )}
                     <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
                        
@@ -202,11 +203,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                         <p className={`${styles.title_color}`}>{low_price ? low_price.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 成交量({currentPair.coinSymbol})</p>
+                        <p>24H 成交量({currentPair?.coinSymbol})</p>
                         <p className={`${styles.title_color}`}>{volume ? volume.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 交易额({currentPair.baseSymbol})</p>
+                        <p>24H 交易额({currentPair?.baseSymbol})</p>
                         <p className={`${styles.title_color}`}>
                             {volume && close_price ? formatAmount(volume * close_price) : '--'}
                         </p>
