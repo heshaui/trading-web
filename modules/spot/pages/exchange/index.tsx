@@ -186,6 +186,18 @@ const ExchangePage = () => {
         
         websocket.connect((message: string) => {
             try {
+                // 检查消息是否为系统消息
+                if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')) {
+                    // 处理系统消息
+                    console.log('深度WebSocket系统消息:', message);
+                    return;
+                }
+                
+                if(message.includes('error')){
+                    console.log(message, 'getWsDepthData');
+                    return;
+                }
+                
                 const data = JSON.parse(message);
                 // console.log(data, 'wsDepthData');
                 
@@ -273,7 +285,7 @@ const ExchangePage = () => {
                     return newData;
                 });
             } catch (error) {
-                console.error('解析WebSocket深度数据失败:', error);
+                console.error('解析WebSocket深度数据失败:', error, '原始消息:', message);
             }
         });
     }
@@ -320,6 +332,18 @@ const ExchangePage = () => {
             
             websocket.connect((message: string) => {
                 try {
+                    // 检查消息是否为有效JSON或系统消息
+                    if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')) {
+                        // 这是订阅确认或心跳消息，不需要解析为JSON
+                        console.log('WebSocket系统消息:', message);
+                        return;
+                    }
+
+                    if(message.includes('error')){
+                        console.log(message, 'getKlineData');
+                        return;
+                    }
+
                     const data = JSON.parse(message);
                     if(data.type === 'kline' && Array.isArray(data.data)) {
                         setCoinData(data);
@@ -334,7 +358,7 @@ const ExchangePage = () => {
                         });
                     }
                 } catch (err) {
-                    console.error('解析K线数据失败:', err);
+                    console.error('解析K线数据失败:', err, '原始消息:', message);
                 }
             });
         } catch (err) {
@@ -473,11 +497,11 @@ const ExchangePage = () => {
                 }}
             >
                 <div className={`${styles.card_bgc4} w-full`}>
-                    {
-                        currentPair && (
+                    
+                      
                             <SpotHeaderPage coinData={coinData}  />
-                        )
-                    }
+                        
+                    
                 </div>
 
 
