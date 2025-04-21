@@ -133,7 +133,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect }) 
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
                                     <Rate
-                                        // defaultValue={pair.isFavorite ? 1 : 0}
+                                         defaultValue={pair.isFavorite ? 1 : 0}
                                         count={1}
                                         style={{ fontSize: 14 }}
                                     />
@@ -143,13 +143,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect }) 
                             </div>
                             {/* 最新价 */}
                             <div className={`font-14 ${styles.title_color} flex-1`}>
-                                {/* {pair.price} */}
+                                {pair.price}
                             </div>
                             {/* 24h涨跌/24h成交量 */}
                             <div
                                 className={`${styles.pair_change} ${pair.isUp ? styles.success_icon : styles.error_icon} flex-1`}
                             >
-                                {/* {pair.change} */}
+                                {pair.change}
                             </div>
                         </div>
                     ))}
