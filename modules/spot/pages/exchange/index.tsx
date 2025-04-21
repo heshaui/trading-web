@@ -29,6 +29,7 @@ import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
 import { toast } from 'sonner';
 import appStore from '@/store';
 import { set } from 'mobx';
+import { reaction } from 'mobx';
 interface DataType {
     id: number,
     userId: number,
@@ -415,6 +416,56 @@ const ExchangePage = () => {
         }
     }, [isClient]);
 
+    // 添加一个新的 useEffect 来监听 appStore 中的币对变化
+    useEffect(() => {
+        // 只在客户端执行
+        if (!isClient || typeof window === 'undefined') return;
+        
+        // 创建一个订阅函数来监听 appStore 中当前币对的变化
+        const disposer = reaction(
+            () => appStore.getCurrentPair(),
+            (newPair) => {
+                if (newPair && (!currentPair || 
+                    newPair.coinSymbol !== currentPair.coinSymbol || 
+                    newPair.baseSymbol !== currentPair.baseSymbol ||
+                    newPair.groupStatus !== currentPair.groupStatus)) {
+                    
+                    console.log('当前币对已更新:', newPair);
+                    
+                    // 清理现有的 WebSocket 连接
+                    if (websocketRef.current) {
+                        websocketRef.current.close();
+                        websocketRef.current = null;
+                    }
+                    
+                    if (depthWsRef.current) {
+                        depthWsRef.current.close();
+                        depthWsRef.current = null;
+                    }
+                    
+                    if (klineWsRef.current) {
+                        klineWsRef.current.close();
+                        klineWsRef.current = null;
+                    }
+                    
+                    // 更新当前币对
+                    setCurrentPair(newPair);
+                    
+                    // 重置数据
+                    setOrderData([]);
+                    setDepthData(null);
+                    setKlineData(null);
+                }
+            },
+            { fireImmediately: true }
+        );
+        
+        // 清理函数
+        return () => {
+            disposer();
+        };
+    }, [isClient, currentPair]);
+
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
         
@@ -582,9 +633,10 @@ const ExchangePage = () => {
                             </div>
 
                             <Spin spinning={loading} tip="加载中...">
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && currentPair && (
+                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
                                     <Tradingview 
-                                        symbol={(currentPair.coinSymbol || '') + '_' + (currentPair.baseSymbol || '') + '_' + (currentPair.groupStatus || '')} 
+                                        key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
+                                        symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')} 
                                         showLeftToolbar={activeChartType === 'basic' ? false : true} 
                                         chartType={chartDisplayType} 
                                         klineData={klineData} 
@@ -592,7 +644,12 @@ const ExchangePage = () => {
                                     />
                                 )}
                                
-                                {activeChartType === 'depth' && <DepthChart data={depthData} />}
+                                {activeChartType === 'depth' && 
+                                    <DepthChart 
+                                        key={`depth_${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}`} 
+                                        data={depthData} 
+                                    />
+                                }
                             </Spin>
                         </div>
                         <OrderBook bookData={depthData}  orderData={orderData}/>
