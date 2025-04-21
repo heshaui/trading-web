@@ -62,6 +62,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         if (info.source === 'trigger' || nextOpen) {
             setOpen(nextOpen);
         }
+
+         appStore.setCurrentPair(info);
     };
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
@@ -84,7 +86,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     ];
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
-        if (!mounted) return null;
+        
 
         return (
 
