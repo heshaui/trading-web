@@ -90,3 +90,20 @@ export function getExchangeCoinAllPrice(): Promise<any> {
     });
 }
 
+// 添加自选币对
+export function addUserExchangeCoinType(data: any): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/exchange-coin/addUserExchangeCoinType`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
+
+
+
+// 取消自选币对
+export function canalUserExchangeCoinType(data: any): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/exchange-coin/canalUserExchangeCoinType`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}

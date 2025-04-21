@@ -337,30 +337,39 @@ const ExchangePage = () => {
             
             websocket.connect((message: string) => {
                 try {
-                    // 检查消息是否为有效JSON或系统消息
-                    if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')||message.includes('subscribe')) {
-                        // 这是订阅确认或心跳消息，不需要解析为JSON
+                    // 检查消息是否为系统消息（而非数据消息）
+                    if (message.startsWith('subscribe:') || 
+                        message.startsWith('ping') || 
+                        message.startsWith('pong') || 
+                        message.includes('subscribe') ||
+                        message.includes('joined') ||
+                        message.includes('left')) {
                         console.log('WebSocket系统消息:', message);
                         return;
                     }
 
                     if(message.includes('error')){
-                        console.log(message, 'getKlineData');
+                        console.log('WebSocket错误消息:', message);
                         return;
                     }
 
-                    const data = JSON.parse(message);
-                    if(data.type === 'kline' && Array.isArray(data.data)) {
-                        setCoinData(data);
-                        setKlineData((prevData:any) => {
-                            if (!prevData) return data;
-                            
-                            // 合并新数据和旧数据
-                            return {
-                                ...data,
-                                data: [...(data.data || []), ...(prevData.data || [])]
-                            };
-                        });
+                    // 确保消息是有效的JSON格式
+                    if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
+                        const data = JSON.parse(message);
+                        if(data.type === 'kline' && Array.isArray(data.data)) {
+                            setCoinData(data);
+                            setKlineData((prevData:any) => {
+                                if (!prevData) return data;
+                                
+                                // 合并新数据和旧数据
+                                return {
+                                    ...data,
+                                    data: [...(data.data || []), ...(prevData.data || [])]
+                                };
+                            });
+                        }
+                    } else {
+                        console.log('收到非JSON格式WebSocket消息:', message);
                     }
                 } catch (err) {
                     console.error('解析K线数据失败:', err, '原始消息:', message);
