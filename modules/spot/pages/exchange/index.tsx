@@ -144,8 +144,7 @@ const ExchangePage = () => {
         }
     }
     const getOrderWsData = () => {
-        // 添加安全检查
-        if (!currentPair || !currentPair.coinSymbol) return;
+
         
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
@@ -156,6 +155,7 @@ const ExchangePage = () => {
         websocket.connect((message: string) => {
 
             try {
+                console.log(message, 'getOrderWsData');
                 const data = JSON.parse(message);
                 
                 // 使用函数式更新来累积数据
@@ -187,15 +187,19 @@ const ExchangePage = () => {
         
         websocket.connect((message: string) => {
             try {
+                console.log(message, 'getWsDepthData');
                 // 检查消息是否为系统消息
-                if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')||message.includes('subscribe')) {
+                if (message.startsWith('subscribe:') || 
+                    message.startsWith('ping') || 
+                    message.startsWith('pong') || 
+                    message.includes('subscribe') ||
+                    message.includes('left the channel') ||  // 添加对"left the channel"消息的处理
+                    message.includes('client')) {  // 添加对可能包含"client"的系统消息的处理
                     // 处理系统消息
-                    console.log('深度WebSocket系统消息:', message);
                     return;
                 }
                 
                 if(message.includes('error')){
-                    console.log(message, 'getWsDepthData');
                     return;
                 }
                 

@@ -98,7 +98,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         return (
 
 
-           
+            <div>
             <Dropdown
                 trigger={['click']}
                 open={open}
@@ -146,8 +146,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
 
                 </Space>
             </Dropdown>
-           
-
+                <div>test</div>
+            </div>
         );
     };
 
