@@ -489,7 +489,7 @@ const SpotTradePage = () => {
                         <div className={styles.fee_tooltip}>
                             <div className={styles.fee_tooltip_content}>
                                 <div className={styles.fee_tooltip_title}>手续费</div>
-                                <div className={styles.fee_tooltip_details}>挂单{currentPair.buyFee}% / 吃单{currentPair.sellFee}%</div>
+                                <div className={styles.fee_tooltip_details}>挂单{currentPair?.buyFee}% / 吃单{currentPair?.sellFee}%</div>
                             </div>
                         </div>
                     </div>
