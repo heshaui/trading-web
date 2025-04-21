@@ -134,14 +134,27 @@ const SpotTradePage = () => {
 
             form.setFieldsValue({ amount: availableAmount.toFixed(8) });
 
+            // 只有在限价单时才设置成交额
             const price = form.getFieldValue('price');
             if (price && !priceDisabled) {
                 form.setFieldsValue({ account: (availableAmount * price).toFixed(8) });
+            } else if (priceDisabled) {
+                // 市价卖单时，清空account字段或设置为估算值
+                form.setFieldsValue({ account: '' });
             }
         }
     };
 
     const onSumbit = () => {
+        // 检查当前是卖出操作且可卖数量为0的情况
+        if (segmentedvalue === 'sell') {
+            const availableCoin = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+            if (availableCoin <= 0) {
+                toast.error(`${currentPair?.coinSymbol}余额不足，无法卖出`);
+                return;
+            }
+        }
+        
         form.validateFields()
             .then(async (values) => {
                 const modalData = {
