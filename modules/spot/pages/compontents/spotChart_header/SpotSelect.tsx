@@ -9,7 +9,13 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import appStore from '@/store';
-const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
+
+interface SpotSelectProps {
+    currencyPairs: any[];
+    onPairSelect?: (pair: any) => void;
+}
+
+const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect }) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
     const [searchValue, setSearchValue] = useState('');
@@ -35,6 +41,13 @@ const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
     const handlePairClick = async (pair: any) => {
         console.log(pair);  
         await appStore.setCurrentPair(pair);
+    };
+
+    // 在用户点击货币对时调用
+    const handleSelect = (pair: any) => {
+        if (onPairSelect) {
+            onPairSelect(pair);
+        }
     };
 
     return (
@@ -115,7 +128,7 @@ const SpotSelect = ({currencyPairs}:{currencyPairs:any[]}) => {
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
                     {currencyPairs.map((pair:any, index:any) => (
-                        <div key={index} className={`${styles.base}  px-4 flex-x align-center`} style={{cursor: 'pointer'}} onClick={() => handlePairClick(pair)}>
+                        <div key={index} className={`${styles.base}  px-4 flex-x align-center`} style={{cursor: 'pointer'}} onClick={() => handleSelect(pair)}>
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>

@@ -62,8 +62,12 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         if (info.source === 'trigger' || nextOpen) {
             setOpen(nextOpen);
         }
+    };
 
-         appStore.setCurrentPair(info);
+    // 添加新函数处理货币对选择
+    const handlePairSelect = (pair: any) => {
+        appStore.setCurrentPair(pair);
+        setOpen(false); // 选择后关闭下拉菜单
     };
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
@@ -81,7 +85,10 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         {
             key: 'spot',
             label: '现货',
-            children: <SpotSelect currencyPairs={currencyPairsArray} />
+            children: <SpotSelect 
+                currencyPairs={currencyPairsArray} 
+                onPairSelect={handlePairSelect} 
+            />
         },
     ];
     // 只在客户端渲染 Dropdown
