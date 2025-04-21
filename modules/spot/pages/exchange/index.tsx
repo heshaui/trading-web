@@ -187,7 +187,7 @@ const ExchangePage = () => {
         websocket.connect((message: string) => {
             try {
                 // 检查消息是否为系统消息
-                if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')) {
+                if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')||message.includes('subscribe')) {
                     // 处理系统消息
                     console.log('深度WebSocket系统消息:', message);
                     return;
@@ -333,7 +333,7 @@ const ExchangePage = () => {
             websocket.connect((message: string) => {
                 try {
                     // 检查消息是否为有效JSON或系统消息
-                    if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')) {
+                    if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong')||message.includes('subscribe')) {
                         // 这是订阅确认或心跳消息，不需要解析为JSON
                         console.log('WebSocket系统消息:', message);
                         return;
