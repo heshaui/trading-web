@@ -59,7 +59,8 @@ const SpotMainPage = observer(() => {
   const [delectId, setDelectId] = useState<number>(0);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
-  const [hideElse, setHideElse] = useState<boolean>(false);
+  // const [hideElse, setHideElse] = useState<boolean>(false);
+  const hideElse=useRef(false)
 
   const columns: ColumnsType<DataType> = [
     {
@@ -193,7 +194,7 @@ const SpotMainPage = observer(() => {
   }
   const hideElseChange = (e: CheckboxChangeEvent) => {
     if(loading) return toast.error('loading...')
-    setHideElse(!hideElse)
+    hideElse.current = !hideElse.current
     getOrderListData()
   }
   const getOrderListData = async () => {
@@ -201,7 +202,7 @@ const SpotMainPage = observer(() => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       type: 0,
-      notStatus: hideElse ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
+      notStatus: hideElse.current ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
     }
     setLoading(true)
     try {
@@ -294,7 +295,7 @@ const SpotMainPage = observer(() => {
         <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
           <Checkbox
           onChange={hideElseChange}
-          checked={hideElse}
+          checked={hideElse.current}
           >
             <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
           </Checkbox>

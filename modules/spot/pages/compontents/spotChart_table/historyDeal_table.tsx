@@ -13,6 +13,10 @@ import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
 import { add, cut, division, lastD } from '@/utils'
 import { toast } from 'sonner';
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
+
+
 const { RangePicker } = DatePicker;
 interface DataType {
   id: number,
@@ -38,7 +42,12 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
-const SpotMainPage = () => {
+interface SelectParamType {
+  startTime: number | null;
+  endTime: number | null;
+  hideOther: boolean;
+}
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -54,7 +63,12 @@ const SpotMainPage = () => {
     pageSize: 10,
   });
   const [loading, setLoading] = useState(false);
-
+  const selectParam = useRef<SelectParamType>({
+    startTime: null,
+    endTime: null,
+    hideOther: false,
+  })
+  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
 
 
   const columns: ColumnsType<DataType> = [
@@ -64,7 +78,7 @@ const SpotMainPage = () => {
       key: "completedTime",
       width: 200,
       align: "left",
-      render: (text, record) => <div>{`${text?dayjs(text).format('YYYY-MM-DD HH:mm:ss'):'--'}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
@@ -72,7 +86,7 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 158,
-      render: (_text,record) => <span className={`${record.status===2?styles.error_icon:''}`}>{_text || '--'}</span>,
+      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -89,7 +103,7 @@ const SpotMainPage = () => {
           text = t('spot.trade.sell')
           return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
-         return '--'
+          return '--'
         }
       },
     },
@@ -99,8 +113,8 @@ const SpotMainPage = () => {
       key: "turnover",
       align: "center",
       width: 158,
-      render: (_status,record) => {
-        return <span >{_status&&record.direction?division(_status,record.direction):'0'}</span>;
+      render: (_status, record) => {
+        return <span >{_status && record.direction ? division(_status, record.direction) : '0'}</span>;
 
       },
     },
@@ -167,8 +181,10 @@ const SpotMainPage = () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type:2
-
+      type: 2,
+      notStatus: selectParam.current.hideOther ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
+      startTime: selectParam.current.startTime||'',
+      endTime: selectParam.current.endTime||'',
     }
     setLoading(true)
     try {
@@ -190,6 +206,21 @@ const SpotMainPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+  const selectParamChange = (type: string) => {
+    if (loading) return toast.error('loading...')
+    selectParam.current.hideOther = !selectParam.current.hideOther
+    getOrderListData()
+  }
+  const dateChange = (value: any) => {
+
+    const startTime = value ? dayjs(value[0]).valueOf() : null
+    const endTime = value ? dayjs(value[1]).valueOf() : null
+    // const startTime =value[0].value()
+    // const endTime =  value[1].value()
+    selectParam.current.startTime = startTime
+    selectParam.current.endTime = endTime
+    getOrderListData()
   }
   useEffect(() => {
     getOrderListData()
@@ -242,14 +273,15 @@ const SpotMainPage = () => {
                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
+                onChange={dateChange}
               />
             </Form.Item>
             <div className={`${styles.table_header_checkbox3}`}>
               <Form.Item name="hideOther" >
                 <Checkbox
-                // checked={hideZero}
-                // onChange={hideZeroChange}
-                className='mt-7'
+                  // checked={hideZero}
+                  // onChange={hideZeroChange}
+                  className='mt-7'
                 >
                   <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
                 </Checkbox>
@@ -282,6 +314,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;
