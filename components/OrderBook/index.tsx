@@ -113,7 +113,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     if (orderData && Array.isArray(orderData)) {
       const processedTrades = orderData.map((item) => {
         // 解析JSON字符串
-        const tradeData = JSON.parse(item.data);
+        const tradeData = item.data
         return {
           price: tradeData.buy_price, // 或 sell_price，它们是相同的
           amount: tradeData.quantity,
@@ -176,19 +176,14 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   }, [orderData]);
 
   const renderColorModeButtons = () => {
-    const colorModes = [
-      { id: 1, buyColor: '#00c788', sellColor: '#ff6347' },
-      { id: 2, buyColor: '#00c788', sellColor: '#999' },
-      { id: 3, buyColor: '#999', sellColor: '#ff6347' },
-      { id: 4, buyColor: '#00c788', sellColor: '#00c788' },
-      { id: 5, buyColor: '#ff6347', sellColor: '#ff6347' },
-      { id: 6, buyColor: '#ff6347', sellColor: '#00c788' },
-    ];
 
     return (
       <div className='flex' style={{gap:'10px'}}>
-        <Image src='/images/exchange/icon_order_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        {/* 显示买卖单 */}
+        <Image src='/images/exchange/icon_order_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/> 
+        {/* 显示买单 */}
         <Image src='/images/exchange/icon_green_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        {/* 显示卖单 */}
         <Image src='/images/exchange/icon_red_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
       </div>
     );

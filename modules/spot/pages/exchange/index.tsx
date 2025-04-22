@@ -59,33 +59,6 @@ const ExchangePage = () => {
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
-    const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        }, {
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
-    ]);
     const router = useRouter();
     const [paramInfo, sePparamInfo] = useState({
         type: '',
@@ -204,7 +177,7 @@ const ExchangePage = () => {
                 }
                 
                 const data = JSON.parse(message);
-                // console.log(data, 'wsDepthData');
+                 console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData:any) => {
@@ -593,7 +566,9 @@ const ExchangePage = () => {
                                             }}
                                         >
                                             {item}
+                                            {item === '1D' && <Iconify icon="eva:arrow-down-fill" style={{ fontSize: '12px', marginLeft: '4px' }} />}
                                         </Button>
+                                    
                                     ))}
 
                                     <Space size="small" style={{ marginLeft: '16px' }}>
