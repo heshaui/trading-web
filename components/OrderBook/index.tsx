@@ -266,7 +266,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           {/* 卖单 */}
           <div className={styles.orderList}>
             {sellOrders.map((order, index) => {
-              const percentWidth = (order.total / Math.max(...sellOrders.map(o => o.total))) * 100;
+              const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
               return (
                 <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
                   <span className={styles.price}>{order.price.toFixed(1)}</span>
@@ -302,7 +302,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           {/* 买单 */}
           <div className={styles.orderList} style={{fontSize:'12px'}}>
             {buyOrders.map((order, index) => {
-              const percentWidth = (order.total / Math.max(...buyOrders.map(o => o.total))) * 100;
+              const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
               return (
                 <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
                   <span className={styles.price}>{order.price.toFixed(1)}</span>
