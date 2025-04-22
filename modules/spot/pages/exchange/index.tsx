@@ -75,6 +75,9 @@ const ExchangePage = () => {
     const [open, setOpen] = useState<boolean>(true);
     const [historyData, setHistoryData] = useState<any[]>([]);
     const [dayData, setDayData] = useState<any[]>(['15m','1h','4h','1D']);
+    const [timeIntervalOptions, setTimeIntervalOptions] = useState<any[]>([
+        '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D','1W', '1M','1Y'
+    ]);
     const [chartType, setChartType] = useState<any[]>([
         {label:'基本版',value:'basic'},
         {label:'TradingView',value:'tradingview'},
@@ -566,7 +569,51 @@ const ExchangePage = () => {
                                             }}
                                         >
                                             {item}
-                                            {item === '1D' && <Iconify icon="eva:arrow-down-fill" style={{ fontSize: '12px', marginLeft: '4px' }} />}
+                                            {item === '1D' && (
+                                                <Dropdown
+                                                    trigger={['click']}
+                                                    placement="bottomRight"
+                                                    dropdownRender={() => (
+                                                        <div style={{ 
+                                                            background: '#fff', 
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                                            padding: '10px',
+                                                            display: 'grid',
+                                                            gridTemplateColumns: 'repeat(3, 1fr)',
+                                                            gap: '10px',
+                                                            width: '320px'
+                                                        }}>
+                                                            {timeIntervalOptions.map((option) => (
+                                                                <div
+                                                                    key={option}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setTimeInterval(option);
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '10px 15px',
+                                                                        textAlign: 'center',
+                                                                        background: timeInterval === option ? 'var(--theme-color)' : '#f0f0f0',
+                                                                        color: timeInterval === option ? '#fff' : '#000',
+                                                                        borderRadius: '5px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '14px'
+                                                                    }}
+                                                                >
+                                                                    {option}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                >
+                                                    <Iconify 
+                                                        icon="eva:arrow-down-fill" 
+                                                        style={{ fontSize: '12px', marginLeft: '4px', cursor: 'pointer' }} 
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </Dropdown>
+                                            )}
                                         </Button>
                                     
                                     ))}
@@ -654,14 +701,10 @@ const ExchangePage = () => {
                     <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
                         <SpotChartTables />
                     </div>
-                    <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                        <SpotChartAssets />
-                    </div>
                 </div>
             </ConfigProvider>
         )}
-    </div>
-    );
-};
+    </div>);
+}
 
-export default ExchangePage
+export default ExchangePage;
