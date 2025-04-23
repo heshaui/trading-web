@@ -101,7 +101,7 @@ function ToastModal({ open, onCancel, onOk, toastData, type }: Props) {
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
-                width={275}
+                width={255}
                 className={`modal_box`}
                 classNames={{
                     content: styles.modal_content,
