@@ -50,11 +50,15 @@ export function getExchangeOrderList(data: any): Promise<any> {
     });
 }
 interface getOrderListType {
-    endTime?: number|string;
-    offset?: number;
-    pageNo?: number;
-    pageSize?: number
-    startTime?: number|string;
+    endTime?: number|string|null;
+    pageNo?: number|null;
+    pageSize?: number|null
+    startTime?: number|string|null;
+    baseSymbol?:number|string|null;
+    coinSymbol?:number|string|null;
+    notStatus?:number|string|null;
+    direction?:number|string|null;
+    symbol?:number|string|null;
 }
 
 // 订单查询

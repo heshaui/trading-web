@@ -59,6 +59,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
     const handOk = async () => {
         console.log('提交订单');
         onOk(true)
+        // onCancel()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
 
     };

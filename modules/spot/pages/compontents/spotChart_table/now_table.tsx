@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList } from '@/services/spot'
+import { getOrderList ,revocationOrder} from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, lastD } from '@/utils'
 import DelectModal from '@/components/spotModal/Delect_modal';
@@ -18,7 +18,6 @@ import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { encryptData } from '@/hooks/user-encrypt'
-import {revocationOrder} from '@/services/spot'
 import ToastModal from '@/components/spotModal/Toast_modal';
 
 interface DataType {
@@ -242,17 +241,16 @@ const SpotMainPage = observer(() => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type: 0,
-      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:'',
-      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:'',
+      orderType: 0,
+      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:null,
+      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:null,
     }
     setLoading(true)
     try {
       const res = await getOrderList(params)
       if (res.code === '0') {
         const newData = res.data.list.map((item: any) => ({
-          ...item,
-          userLoginLogs: []
+          ...item
         }));
         setInitTableData(newData);
         setTableData(newData);
