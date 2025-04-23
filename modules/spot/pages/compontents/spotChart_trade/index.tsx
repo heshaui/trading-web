@@ -245,6 +245,7 @@ const SpotTradePage = () => {
                 if (res.code === '0') {
                     message.success(res.message)
                     setModalOpen(false)
+                    form.resetFields()
                 } else {
                     message.error(res.message)
                 }

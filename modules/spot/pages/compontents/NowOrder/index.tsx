@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/now.module.css'
-import { Input, Radio, ConfigProvider, Table, Select,Form } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -9,178 +9,317 @@ import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {NoData} from '@/components/noData'
+import { NoData } from '@/components/noData'
+import { getOrderList, getExchangeCoinList,revocationOrder } from '@/services/spot'
+import { toast } from 'sonner';
+import { add, cut, division, lastD ,nul} from '@/utils'
+import ToastModal from '@/components/spotModal/Toast_modal';
+import DelectModal from '@/components/spotModal/Delect_modal';
+import { encryptData } from '@/hooks/user-encrypt'
+
+
+
+
+
 interface DataType {
   id: number,
+  orderId: string,
+  amount: number,
+  baseSymbol: string,
+  canceledTime: number,
+  coinSymbol: string,
+  completedTime: number,
+  direction: number,
   userId: number,
-  platformType: number,
-  deviceNo: string,
-  ip: string,
-  address: string,
-  token: number,
-  tokenTime: number,
+  price: number,
+  status: number,
+  symbol: string,
   createTime: number,
   updateTime: number,
+  tradedAmount: number,
+  turnover: number,
+  type: number,
+  useDiscount: number,
+  orderResource: number,
   tenantId: string,
+  fee: number,
+  baseSymbolCount: number
+}
+interface symbolSelectType {
+  label: string,
+  value: string,
+  baseSymbol: string,
+  coinSymbol: string
 }
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-  const [tableData, setTableData] = useState<DataType[]>([
-    {
-      id: 1,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'BTC',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 23.3,
-      tokenTime: 123,
-      createTime: 1234567890,
-      updateTime: 1234567890,
-      tenantId: '1234567890'
-    }, {
-      id: 2,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'POINT',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 1234567890,
-      tokenTime: 23.0,
-      createTime: 1234567892,
-      updateTime: 1234567889,
-      tenantId: '1234567890'
-    }
-  ]);
   const router = useRouter();
-  const [paramInfo,sePparamInfo]=useState({
-    type:'',
-    selsect:''
+  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [paramInfo, sePparamInfo] = useState({
+    type: '',
+    selsect: ''
   });
   const [total, setTotal] = useState(0);
-  const [pageParam, setPageParam] = useState({
+
+  const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
-  })
-  const paramdataRef = useRef(pageParam);
+  });
+  const [loading, setLoading] = useState(false);
+  const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
+  const [toastModal, setToastModal] = useState<boolean>(false);
+  const [delectId, setDelectId] = useState<number[]>([]);
+  const [delectIdAll, setDelectIdAll] = useState<number[]>([]);
+  const [delectModal, setDelectModal] = useState<boolean>(false);
+  const [toastData, setToastData] = useState<any>({})
 
-
+ 
 
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
+      dataIndex: "updateTime",
+      key: "updateTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "token",
-      key: "token",
+      dataIndex: "symbol",
+      key: "symbol",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
     },
     {
-      title: t('spot.columns.type'), //"类型",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.direction'),//"方向",
+      key: "direction",
+      dataIndex: "direction",
+      width: 128,
       align: "center",
-      width: 158,
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        let text
+        if (_status === 0) {
+          text = t('spot.trade.buy')
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
+          text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
+        } else {
+          return '--'
+        }
+      }
+    },
+    {
+      title: t('spot.columns.price'), //"价格",
+      key: "price",
+      dataIndex: "price",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <div className='flex-x align-center text-center'>
+          <p className='text-center '> {_status||'0'}</p>
+          <Tooltip title={t('spot.modal.edit')}>
+            <button 
+            onClick={()=>{
+              toast.error('接口：暂不做')
+            }}
+            >
+              <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+            </button>
+          </Tooltip>
+        </div>
+          
+      },
+    },
+    {
+      title: t('spot.columns.tradedAmount'), //"委托量/已完成",
+      key: "amount",
+      dataIndex: "amount",
+      width: 128,
+      align: "center",
+      render: (_amount, record) => {
+        // amount/tradedAmount
+        return < div className='flex-x-cc'>
+          {_amount ? <div className='flex-x align-center'>
+            {`${_amount}/${record.tradedAmount}`}
+            <Tooltip title={t('spot.modal.edit')}>
+              <button 
+              onClick={()=>{
+                toast.error('接口：暂不做')
+              }}>
+                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+              </button>
+            </Tooltip>
+            <span className={`${styles.tip_color2}`}>
+              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
+            </span>
+
+          </div>
+            : '0'
+          }
+        </div >
+
 
       },
     },
     {
-      title: t('spot.columns.direction'),//"方向",
-      key: "createTime",
-      dataIndex: "createTime",
+      title: t('spot.columns.totalAmount'), //"总额/已成交",
+      key: "turnover",
+      dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_turnover, record) => {
+        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
+        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
       },
     },
     {
-      title: t('spot.columns.price'), //"价格",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: <button className={`error_icon`}
+      onClick={()=>{
+        setDelectIdAll(tableData.map((item)=>item.id))
+        setDelectModal(true)
+      }}
+      >{t('spot.columns.cancel')}</button>, //"全撤",
+      key: "operation",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title:  t('spot.columns.quantity'),  //"数量",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.completion'), //"完成度",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.amount'), //"成交额",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-    },
-    {
-      title: t('spot.columns.cancel'), //"全撤",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status, record) => {
+        return <Tooltip title={t('spot.modal.cancel')} placement="left">
+          <button
+            onClick={() => {
+              setDelectId([record.id])
+              // setDelectOneSuccess(true)
+              setToastData({
+                coinSymbol: record.coinSymbol,
+                symbol: record.symbol,
+                baseSymbol: record.baseSymbol,
+                price: record.price,
+                amount: record.amount,
+              })
+              // setToastModal(true)
+              delectOne()
+            }}
+          >
+            <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
+          </button>
+        </Tooltip>;
       },
     },
 
 
   ];
+  const delectOne = async () => {
+    try {
+        const paeam={
+            orderId: delectId,
+        }
+        const encrypt=await encryptData(paeam)
+        const res = await revocationOrder(encrypt)
+        if(res.code==='0'){
+            toast.success(res.message)
+            setToastModal(true)
+            getOrderListData()
+        }else{
+            toast.error(res.message)
+        }
+    } catch (error) {
+        toast.error(String(error))
+    }
 
-  const directionSelect: { label: string, value: string }[] = [
+};
+
+  const directionSelect: { label: string, value: string | number }[] = [
     {
       label: t('spot.select.all'),
       value: ''
+    },
+    {
+      label: t('spot.modal.buy'),
+      value: 0
+    },
+    {
+      label: t('spot.modal.sell'),
+      value: 1
     }
   ]
-  const symbolSelect: { label: string, value: string }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    }
-]
+  //   const symbolSelect: { label: string, value: string }[] = [
+  //     {
+  //       label: t('spot.select.all'),
+  //       value: ''
+  //     }
+  // ]
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,
       pageSize: pageSize
     }
-    setPageParam(pageData)
     paramdataRef.current = pageData;
+    getOrderListData()
   }
-  const topUpTypeChange=(value:any,options:any)=>{
-    console.log(value,123,options);
-    
+  const topUpTypeChange = (value: any, options: any) => {
+    console.log(value, 123, options);
+
 
   }
+  const getOrderListData = async () => {
+    const params = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      orderType: 0,
+      // coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:'',
+      // baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:'',
+    }
+    setLoading(true)
+    try {
+      const res = await getOrderList(params)
+      if (res.code === '0') {
+        const newData = res.data.list.map((item: any) => ({
+          ...item
+        }));
+        setTableData(newData);
+        setTotal(res.data.count);
+      } else {
+        toast.error(res.message);
+      }
+
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setLoading(false)
+    }
+  }
+  const getCoinList = async () => {
+    const res = await getExchangeCoinList();
+    if (res.code === '0') {
+      const selectData = res.data.map((item: any) => {
+        return {
+          label: `${item.baseSymbol}/${item.coinSymbol}`,
+          value: `${item.baseSymbol}/${item.coinSymbol}`,
+          baseSymbol: item.baseSymbol,
+          coinSymbol: item.coinSymbol,
+          tenantId: item.tenantId
+        }
+      })
+      setSymbolSelect([{
+        label: t('spot.select.all'),
+        value: '',
+        baseSymbol: '',
+        coinSymbol: ''
+      }, ...selectData])
+    }
+
+  }
+
+  useEffect(() => {
+    getCoinList()
+    getOrderListData()
+  }, [])
+
+
+
   return (<>
     <ConfigProvider
       theme={{
@@ -193,7 +332,7 @@ const SpotMainPage = () => {
             rowExpandedBg: "var(--background10)", // 表格行展开背景色
             borderColor: "transparent",
             // stickyScrollBarBg:"transparent",
-            headerBorderRadius:0, // 表头圆角
+            headerBorderRadius: 0, // 表头圆角
           },
           Pagination: {
             itemActiveBg: "transparent",
@@ -208,58 +347,58 @@ const SpotMainPage = () => {
         },
       }}
     >
-        {/* 充值 */}
-        <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full flex align-center py-6 px-6`}>
+      {/* 充值 */}
+      <div className={`${styles.table_box} w-full `}>
+        <div className={`${styles.table_header} w-full flex align-center py-6 px-6`}>
           <Form
-          form={form}
-          layout="inline"
-          initialValues={{
-            direction: '',
-            symbol: ''
-          }}
+            form={form}
+            layout="inline"
+            initialValues={{
+              direction: '',
+              symbol: ''
+            }}
           >
             <Form.Item name="direction" >
               <Select allowClear
                 placeholder={t('spot.select.direction')}
                 options={directionSelect}
-              className={`${styles.select_box} select-text-right`}
-              prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
-            />
+                className={`${styles.select_box} select-text-right`}
+                prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
+              />
             </Form.Item>
             <Form.Item name="symbol" >
-            <Select allowClear
-              placeholder={t('spot.select.symbol')}
-              options={symbolSelect}
-              className={`${styles.select_box} select-text-right`}
-              prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
-            />
+              <Select allowClear
+                placeholder={t('spot.select.symbol')}
+                options={symbolSelect}
+                className={`${styles.select_box} select-text-right`}
+                prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
+              />
             </Form.Item>
             {/* --border-color4 */}
           </Form>
-          </div>
-          <div className={`${styles.table_content} w-full `}>
-
-            <Table
-              columns={columns}
-              dataSource={tableData}
-              size="large"
-              scroll={{ x: "max-content", y: 300 }}
-              className={` table-box`}
-              pagination={{
-                position: ["bottomRight"],
-                // showSizeChanger: true,
-                total: total,
-                size: "default",
-                simple:true,
-                onChange: (page, pageSize) => pageChange(page, pageSize),
-              }}
-            // loading={loading}
-            locale={{ emptyText: <NoData textColor='#A4A5AC'/> }}
-            />
-
-          </div>
         </div>
+        <div className={`${styles.table_content} w-full `}>
+
+          <Table
+            columns={columns}
+            dataSource={tableData}
+            size="large"
+            scroll={{ x: "max-content", y: 300 }}
+            className={`spot-table-box spot-pagination`}
+            pagination={{
+              position: ["bottomRight"],
+              // showSizeChanger: true,
+              total: total,
+              size: "default",
+              simple: true,
+              onChange: (page, pageSize) => pageChange(page, pageSize),
+            }}
+            // loading={loading}
+            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          />
+
+        </div>
+      </div>
     </ConfigProvider>
   </>
   );

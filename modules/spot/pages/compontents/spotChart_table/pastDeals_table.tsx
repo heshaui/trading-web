@@ -343,12 +343,12 @@ const SpotMainPage = observer(() => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
-      type: 1,
-      notStatus:  selectParam.current.hideCancel?'3':'',
-      coinSymbol: selectParam.current.hideOther?`${currentPair?.coinSymbol}`:'',
-      baseSymbol: selectParam.current.hideOther?`${currentPair?.baseSymbol}`:'',
-      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():'',
-      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():'',
+      orderType: 1,
+      notStatus:  selectParam.current.hideCancel?'3':null,
+      coinSymbol: selectParam.current.hideOther?`${currentPair?.coinSymbol}`:null,
+      baseSymbol: selectParam.current.hideOther?`${currentPair?.baseSymbol}`:null,
+      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():null,
+      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():null,
 
     }
     setLoading(true)
