@@ -60,20 +60,35 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
         };
     
 
-        // 获取排序后的数据
-        const getSortedPairs = () => {
-            if (!sortField) return currencyPairs;
-        
-            return [...currencyPairs].sort((a, b) => {
-                if (sortField === 'name') {
-                    // 使用正确的属性进行排序，确保不为undefined
-                    const nameA = a.coinSymbol || '';
-                    const nameB = b.coinSymbol || '';
-                    return sortDirection === 'asc' 
-                        ? nameA.localeCompare(nameB, undefined, { numeric: true })
-                        : nameB.localeCompare(nameA, undefined, { numeric: true });
-                }
-                // 其他字段排序可以在这里添加
+    // 获取排序后的数据
+    const getSortedPairs = () => {
+        if (!sortField) return currencyPairs;
+
+        return [...currencyPairs].sort((a, b) => {
+            if (sortField === 'name') {
+                // 使用正确的属性进行排序，确保不为undefined
+                const nameA = a.coinSymbol || '';
+                const nameB = b.coinSymbol || '';
+                return sortDirection === 'asc' 
+                    ? nameA.localeCompare(nameB, undefined, { numeric: true })
+                    : nameB.localeCompare(nameA, undefined, { numeric: true });
+            }
+            if (sortField === 'price') {
+                // 最新价排序
+                const priceA = parseFloat(a.yesterdayPrice) || 0;
+                const priceB = parseFloat(b.yesterdayPrice) || 0;
+                return sortDirection === 'asc' 
+                    ? priceA - priceB
+                    : priceB - priceA;
+            }
+            if (sortField === 'change') {
+                // 24h涨跌排序
+                const changeA = parseFloat(a.priceChangePercent) || 0;
+                const changeB = parseFloat(b.priceChangePercent) || 0;
+                return sortDirection === 'asc'
+                    ? changeA - changeB
+                    : changeB - changeA;
+            }
             return 0;
         });
     };
@@ -148,18 +163,42 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                             />
                         </div>
                     </div>
-                    <div className={`${styles.tip_color} font-12  flex-1 flex-x align-center`}>
+                    <div 
+                        className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
+                        onClick={() => handleSort('price')}
+                    >
                         <span>最新价</span>
                         <div className='ml-1 flex-y-cc'>
-                            <Iconify icon="fluent-mdl2:flick-down" className='pointer' size={10} style={{marginBottom: 2}}/>
-                            <Iconify icon="fluent-mdl2:flick-up" className='pointer' size={10} />
+                            <Iconify 
+                                icon="fluent-mdl2:flick-down" 
+                                className={`pointer ${sortField === 'price' && sortDirection === 'asc' ? styles.active_sort : ''}`} 
+                                size={10} 
+                                style={{marginBottom: 2}}
+                            />
+                            <Iconify 
+                                icon="fluent-mdl2:flick-up" 
+                                className={`pointer ${sortField === 'price' && sortDirection === 'desc' ? styles.active_sort : ''}`} 
+                                size={10} 
+                            />
                         </div>
                     </div>
-                    <div className={`${styles.tip_color} font-12  flex-1 flex-x align-center`}>
+                    <div 
+                        className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
+                        onClick={() => handleSort('change')}
+                    >
                         <span>24h涨跌</span>
                         <div className='ml-1 flex-y-cc'>
-                            <Iconify icon="fluent-mdl2:flick-down" className='pointer' size={10} style={{marginBottom: 2}}/>
-                            <Iconify icon="fluent-mdl2:flick-up" className='pointer' size={10} />
+                            <Iconify 
+                                icon="fluent-mdl2:flick-down" 
+                                className={`pointer ${sortField === 'change' && sortDirection === 'asc' ? styles.active_sort : ''}`} 
+                                size={10} 
+                                style={{marginBottom: 2}}
+                            />
+                            <Iconify 
+                                icon="fluent-mdl2:flick-up" 
+                                className={`pointer ${sortField === 'change' && sortDirection === 'desc' ? styles.active_sort : ''}`} 
+                                size={10} 
+                            />
                         </div>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify icon="mingcute:transfer-line" size={18} />
