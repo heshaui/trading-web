@@ -12,7 +12,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
 import { toast } from 'sonner';
-import { division } from '@/utils';
+import { division,nul } from '@/utils';
 
 
 const { RangePicker } = DatePicker;
@@ -172,9 +172,9 @@ const SpotMainPage = () => {
       render: (_amount, record) => {
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
-            <span>{`${_amount}/${record.tradedAmount}`}</span>
+            <span>{`${record.tradedAmount}/${_amount}`}</span>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
+              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
             </span>
 
           </div>

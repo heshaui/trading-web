@@ -144,7 +144,7 @@ const SpotMainPage = () => {
         // amount/tradedAmount
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-x align-center'>
-            {`${_amount}/${record.tradedAmount}`}
+            {`${record.tradedAmount}/${_amount}`}
             <Tooltip title={t('spot.modal.edit')}>
               <button 
               onClick={()=>{
@@ -154,7 +154,7 @@ const SpotMainPage = () => {
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
+              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
             </span>
 
           </div>
