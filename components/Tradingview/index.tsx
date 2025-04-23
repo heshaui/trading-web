@@ -78,6 +78,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
           "header_widget",
           "use_localstorage_for_settings",
           "timeframes_toolbar",
+          "symbol_search",
         ];
         
         // 如果不显示左侧工具栏，则添加到禁用列表
