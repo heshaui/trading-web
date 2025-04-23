@@ -31,14 +31,6 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
         { key: 'ai', label: '人工智能' },
     ];
 
-    const handleTabChange = (key: string) => {
-        setActiveTab(key);
-    };
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchValue(e.target.value);
-    };
-
     // 处理展开/折叠行
     const handleExpand = (expanded: boolean, record: any) => {
         setExpandedRowKeys(expanded ? [record.id] : []);
