@@ -155,7 +155,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                             </p>
                             <p className={`${styles.title_color}`}>
                                 {/* 市价 */}
-                                {modalData.type===0?t('spot.modal.market'):modalData.price}
+                                {modalData.type===0?t('spot.modal.market'):modalData.price}{currentPair?.baseSymbol}
                             </p>
                         </li>
                         <li className="flex-x align-center justify-between mt-3">

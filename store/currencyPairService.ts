@@ -1,5 +1,5 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
-
+import appStore from '@/store/index';
 // 币对接口数据类型
 export interface CurrencyPairType {
     id: string,
@@ -57,16 +57,18 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
         
         // 3. 获取用户自选币对（如果用户已登录）
         let favoriteCoins: any[] = [];
-
+        // const userToken = appStore.getUserToken();
+        // console.log('userToken', userToken);
+        // if(userToken){
         try {
             const favoriteResponse = await getUserExchangeCoinTypeList();
             if (favoriteResponse.code === '0') {
-                console.log('favoriteResponse', favoriteResponse);
                 favoriteCoins = favoriteResponse.data || [];
             }
         } catch (error) {
-            console.error('Error loading favorite coins:', error);
-        }
+                console.error('Error loading favorite coins:', error);
+            }
+        // }
         
         // 4. 获取币对价格数据
         const priceResponse = await getExchangeCoinAllPrice();
@@ -87,10 +89,9 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
             );
             
             // 确定是否为自选币对
-            const pairId = `${coin.coinSymbol}_${coin.baseSymbol}`;
+            const pairId = coin.id;
             const isFavorite = favoriteCoins.some((favCoin: any) => 
-                favCoin.coinSymbol === coin.coinSymbol && 
-                favCoin.baseSymbol === coin.baseSymbol
+                favCoin === pairId.toString()
             );
             
             // 查找价格数据
@@ -107,12 +108,13 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
             
             // 转换为标准CurrencyPairType格式
             const currencyPair: CurrencyPairType = {
+
                 id: pairId,
                 symbol: `${coin.coinSymbol}/${coin.baseSymbol}`,
                 baseSymbol: coin.baseSymbol,
                 coinSymbol: coin.coinSymbol,
                 groupStatus: group?.groupStatus,
-                isFavorite,
+                isFavorite: isFavorite,
                 baseCoinScale: coin?.baseCoinScale,
                 buyFee: coin?.buyFee,
                 classLabel: coin?.classLabel,

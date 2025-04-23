@@ -12,6 +12,7 @@ import SelfSelect from './SelfSelect';
 import SpotSelect from './SpotSelect';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
+import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     
     const { t } = useTranslation(['spot']);
@@ -81,7 +82,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         {
             key: 'favorites',
             label: '自选',
-            children: <SelfSelect />
+            children: <SelfSelect 
+                currencyPairs={currencyPairsArray} 
+                onPairSelect={handlePairSelect} 
+                searchValue={searchValue}
+            />
         },
         {
             key: 'spot',
@@ -89,13 +94,38 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
             children: <SpotSelect 
                 currencyPairs={currencyPairsArray} 
                 onPairSelect={handlePairSelect} 
+                searchValue={searchValue}
             />
         },
     ];
     // 添加处理收藏的函数
-    const handleToggleFavorite = () => {
+    const handleToggleFavorite = async () => {
         setIsFavorite(!isFavorite);
-        // 这里可以添加实际的收藏/取消收藏逻辑
+        if(isFavorite){
+            const data={
+                exchangeCoinId:currentPair.id,
+                type:1
+            }
+           const res= await addUserExchangeCoinType(data);
+           if(res.code === '0'){
+            appStore.setCurrentPair({
+                ...currentPair,
+                isFavorite: true
+            });
+           }
+        }else{
+            const data={
+                exchangeCoinId:currentPair.id,
+                type:0
+            }
+          const res= await canalUserExchangeCoinType(data);
+            if(res.code === '0'){
+                appStore.setCurrentPair({
+                    ...currentPair,
+                    isFavorite: false
+                });
+            }
+        }
     };
 
     // 只在客户端渲染 Dropdown
@@ -126,7 +156,9 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                             <div className={`${styles.tabs_list} w-full`}>
                                 <Tabs items={tabsItem}
                                     className="custom-tabs2 w-full"
-                                // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                                    activeKey={activeTab}
+                                    onChange={handleTabClick}
+                                    // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
                                 />
                             </div>
                             {/* <div className={styles.content_container}>
@@ -157,9 +189,9 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
             <Tooltip title={isFavorite ? "取消收藏" : "添加收藏"}>
                 <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
                     <Iconify 
-                        icon={isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
+                        icon={currentPair.isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
                         size={20} 
-                        color={isFavorite ? "#FFD700" : "var(--text-color6)"} 
+                        color={currentPair.isFavorite ? "#FFD700" : "var(--text-color6)"} 
                     />
                 </div>
             </Tooltip>
