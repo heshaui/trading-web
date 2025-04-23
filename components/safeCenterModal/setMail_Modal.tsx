@@ -82,7 +82,8 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                             phoneCode: values.phoneCode || '',
                             countryCode: values.phoneCode?acountInfo?.areaCode?.replace("+", ""): '',
                             phone: values.phoneCode?acountInfo?.phone: '',
-                            type: 2
+                            type: 2,
+                            platformType:'Web'
                         }
 
                     } else if (type === 'change') {
@@ -93,7 +94,8 @@ function SetPhoneModal({ open, onCancel, type, acountInfo ,onOk}: Props) {
                             userId: userInfo.userId || '',
                             // phoneCode: values.phoneCode || '',
                             // countryCode: values.areaCode.replace("+", ""),
-                            type: 1
+                            type: 1,
+                            platformType:'Web'
                         }
 
                     }

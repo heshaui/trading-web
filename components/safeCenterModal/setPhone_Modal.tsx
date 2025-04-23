@@ -89,6 +89,7 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                             phoneCode: values.code,
                             countryCode: values.areaCode.replace("+", ""),
                             type:1,
+                            platformType:'Web'
                         }
 
                     }

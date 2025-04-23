@@ -372,7 +372,8 @@ const SafeCenter: React.FC = () => {
         try {
             const dataInfo = {
                 isPhoneAuth: 0,
-                type:3
+                type:3,
+                platformType:'Web'
             }
             const dataEncrypt = await encryptData(dataInfo)
             const res = await getPhoneClose(dataEncrypt)

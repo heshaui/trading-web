@@ -51,7 +51,8 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
         try {
           const params = {
             password: values.password,
-            checkPassword: values.checkPassword
+            checkPassword: values.checkPassword,
+            platformType:'Web'
           }
           const dataEncrypt = await encryptData(params)
           const res = await setPassword(dataEncrypt)

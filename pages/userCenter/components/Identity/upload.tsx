@@ -86,7 +86,8 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                     birthday: dayjs(userInfo.birthday).valueOf() + '',
                     frontUrl: frontFileUrl,
                     backUrl: backFileUrl,
-                    selfieUrl: selfieFileUrl
+                    selfieUrl: selfieFileUrl,
+                    platformType:'Web'
                 }
 
                 const encrypt = await encryptData(params)
