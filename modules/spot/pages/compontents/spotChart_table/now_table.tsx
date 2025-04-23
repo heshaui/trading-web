@@ -58,8 +58,8 @@ const SpotMainPage = observer(() => {
     page: 1,
     pageSize: 10,
   });
-  const [delectId, setDelectId] = useState<number[]>([]);
-  const [delectIdAll, setDelectIdAll] = useState<number[]>([]);
+  const [delectId, setDelectId] = useState<string[]>([]);
+  const [delectIdAll, setDelectIdAll] = useState<string[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
   // const [hideElse, setHideElse] = useState<boolean>(false);
@@ -133,7 +133,7 @@ const SpotMainPage = observer(() => {
         // amount/tradedAmount
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-x align-center'>
-            {`${_amount}/${record.tradedAmount}`}
+            {`${record.tradedAmount}/${_amount}`}
             <Tooltip title={t('spot.modal.edit')}>
               <button 
               onClick={()=>{
@@ -143,7 +143,7 @@ const SpotMainPage = observer(() => {
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount ? division(_amount, record.tradedAmount) : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
             </span>
 
           </div>
@@ -168,7 +168,7 @@ const SpotMainPage = observer(() => {
     {
       title: <button className={`error_icon`}
       onClick={()=>{
-        setDelectIdAll(tableData.map((item)=>item.id))
+        setDelectIdAll(tableData.map((item)=>item.orderId))
         setDelectModal(true)
       }}
       >{t('spot.columns.cancel')}</button>, //"全撤",
@@ -179,7 +179,8 @@ const SpotMainPage = observer(() => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              setDelectId([record.id])
+              
+              setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
                 coinSymbol: record.coinSymbol,
@@ -205,6 +206,8 @@ const SpotMainPage = observer(() => {
         const paeam={
             orderId: delectId,
         }
+        console.log(paeam,12345);
+        
         const encrypt=await encryptData(paeam)
         const res = await revocationOrder(encrypt)
         if(res.code==='0'){
