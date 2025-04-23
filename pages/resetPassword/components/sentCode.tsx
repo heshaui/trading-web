@@ -37,28 +37,35 @@ function ResetPassword() {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const goNext = () => {
-        form .validateFields()
+        form.validateFields()
             .then(async (values) => {
                 setIsLoding(true)
                 try {
-                    let dataInfo={}
-                    if(acount.type=='p'){
-                        dataInfo={
-                            type: acount.type,
-                            account: acount.acount,
-                            phoneCode: values.code,
-                            googleCode: values.googleCode||'',
-                            emailCode: values.elseCode||''
-                        }
-                    }else if(acount.type=='m'){
-                        dataInfo={
-                            type: acount.type,
-                            account: acount.acount,
-                            emailCode: values.code,
+                    // let dataInfo = {}
+                    // if (acount.type == 'p') {
+                    //     dataInfo = {
+                    //         type: acount.type,
+                    //         account: acount.acount,
+                    //         phoneCode: values.code,
+                    //         googleCode: values.googleCode || '',
+                    //         emailCode: values.elseCode || ''
+                    //     }
+                    // } else if (acount.type == 'm') {
+                    //     dataInfo = {
+                    //         type: acount.type,
+                    //         account: acount.acount,
+                    //         emailCode: values.code,
 
-                            phoneCode: values.elseCode||'',
-                            googleCode: values.googleCode||'',
-                        }
+                    //         phoneCode: values.elseCode || '',
+                    //         googleCode: values.googleCode || '',
+                    //     }
+                    // }
+                    const dataInfo = {
+                        type: acount.type,
+                        account: acount.acount,
+                        emailCode: values.emailCode || '',
+                        phoneCode: values.phoneCode || '',
+                        googleCode: values.googleCode || '',
                     }
                     const dataEncrypt = await encryptData(dataInfo)
                     // 重置密码校验
@@ -83,27 +90,30 @@ function ResetPassword() {
         clearTimers()
         setResetState(ResetStateEnum.INPUT)
     }
-        // 清除定时器的函数
-        const clearTimers = () => {
-            if (timerRef.current) {
-                clearInterval(timerRef.current);
-                timerRef.current = null;
-            }
-            if (timer2Ref.current) {
-                clearInterval(timer2Ref.current);
-                timer2Ref.current = null;
-            }
-            // 重置状态
-            setCountdown(0);
-            setCountdown2(0);
-            setIsCounting(false);
-            setIsCounting2(false);
-        };
-    const getResetCode1 = async () => {
-        if (isCounting || isLoding || isCodeLoding) return
-        setIsCodeLoding(true)
+    // 清除定时器的函数
+    const clearTimers = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+        if (timer2Ref.current) {
+            clearInterval(timer2Ref.current);
+            timer2Ref.current = null;
+        }
+        // 重置状态
+        setCountdown(0);
+        setCountdown2(0);
+        setIsCounting(false);
+        setIsCounting2(false);
+    };
+    const getResetCode = async (type: string) => {
+        // if (isCounting || isLoding || isCodeLoding) return
+        // if (isCounting2|| isLoding || isCodeLoding2) return
         try {
-            if (acount.type == 'm' || acount.type == 'email') {
+            if (type == 'm' || type == 'email') {
+                if (isCounting || isLoding || isCodeLoding) return
+                setIsCodeLoding(true)
+
                 const dataInfo = {
                     number: acount.acount,
                     deviceType: 'web'
@@ -118,7 +128,9 @@ function ResetPassword() {
                 }
                 setIsCodeLoding(false)
 
-            } else if (acount.type == 'p' || acount.type == 'phone') {
+            } else if (type == 'p' || type == 'phone') {
+                if (isCounting2 || isLoding || isCodeLoding2) return
+                setIsCodeLoding2(true)
                 const dataInfo = {
                     number: acount.acount,
                     code: acount.areaCode?.replace("+", ""),
@@ -128,18 +140,19 @@ function ResetPassword() {
                 const res = await getResetSmsCode(dataEncrypt)
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown2(res.data);
                 } else if (res.code === "10044") {
                     toast.error(t('codeError') || res.message)
                 }
-                setIsCodeLoding(false)
+                setIsCodeLoding2(false)
             }
         } catch (error) {
             setIsCodeLoding(false)
+            setIsCodeLoding2(false)
             toast.error(String(error))
         }
     };
-    const getResetCode = async () => {
+    const getResetCode2 = async () => {
         try {
             const params = {
                 type: acount.type,
@@ -230,12 +243,18 @@ function ResetPassword() {
         }
 
         // 使用新的时间开始倒计时
-        if (acount.type === 'm' || acount.type === 'email') {
-            startCountdown(acount?.emailTime || 0);
-            startCountdown2(acount?.phoneTime || 0);
-        } else if (acount.type === 'p' || acount.type === 'phone') {
-            startCountdown(acount?.phoneTime || 0);
-            startCountdown2(acount?.emailTime || 0);
+        // if (acount.type === 'm' || acount.type === 'email') {
+        //     startCountdown(acount?.emailTime || 0);
+        //     startCountdown2(acount?.phoneTime || 0);
+        // } else if (acount.type === 'p' || acount.type === 'phone') {
+        //     startCountdown(acount?.phoneTime || 0);
+        //     startCountdown2(acount?.emailTime || 0);
+        // }
+        if (acount.isEmailAuth === 1) {
+            getResetCode('email')
+        }
+        if (acount.isPhoneAuth === 1 && (acount.isEmailAuth === 0 || acount.isGoogleAuth === 0)) {
+            getResetCode('phone')
         }
 
         return () => {
@@ -245,7 +264,13 @@ function ResetPassword() {
 
     const handleOk = (event: boolean) => {
         if (event) {
-            getResetCode()
+            clearTimers()
+            if (acount.isEmailAuth === 1) {
+                getResetCode('email')
+            }
+            if (acount.isPhoneAuth === 1 && (acount.isEmailAuth === 0 || acount.isGoogleAuth === 0)) {
+                getResetCode('phone')
+            }
         }
     }
     // useEffect(() => {
@@ -284,11 +309,7 @@ function ResetPassword() {
 
     return (
         <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
-            <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>
-                {/* 已发送验证码至 */}
-                {t('sent')}
-                <span className={`${styles.text_color} font-w-400 mt-2`}>{encryptString(acount.acount.toString()) || '-'}</span>
-            </div>
+
             <div className='mt-1'>
                 <ConfigProvider
                     theme={{
@@ -313,6 +334,10 @@ function ResetPassword() {
                         name="aount"
                         form={form}
                     >
+                        {/* <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>
+                            {t('sent')}
+                            <span className={`${styles.text_color} font-w-400 mt-2`}>{encryptString(acount.acount.toString()) || '-'}</span>
+                        </div>
                         <Form.Item noStyle name="code" rules={[{ required: true, message: t('codeNull') }]}>
                             <Input
                                 placeholder={t('inputCode')}
@@ -321,95 +346,95 @@ function ResetPassword() {
                                 allowClear
                                 size='large'
                                 suffix={
-                                    <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={getResetCode}>
+                                    <button type='button' className={isCounting ? `${styles.text_color}` : 'text-color'} onClick={() => getResetCode('code')}>
                                         {isCounting ? `${countdown} ${t('resendCountdown')}` : t('resend')}
                                     </button>
                                 }
                                 className={`${styles.mail_input} modal-input`}
-                            // className='custom-input'
-                            maxLength={6}
-                            onChange={(e) => handleInputChange(e, 'code')}
-                            value={codeInputValue}
+                                // className='custom-input'
+                                maxLength={6}
+                                onChange={(e) => handleInputChange(e, 'code')}
+                                value={codeInputValue}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
                         {(acount.isGoogleAuth == 1) && <>
                             <div className={`${styles.title_color} mb-3`}>{t('googleCodeTitle')}</div>
-                        <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
-                            <Input
-                                placeholder={t('inputCode')}
-                                style={{ borderRadius: "8px", height: "50px" }}
-                                // value={authCode}
-                                allowClear
-                                size='large'
-                                className={`${styles.mail_input} modal-input`}
-                            // className='custom-input'
-                            maxLength={6}
-                            onChange={(e) => handleInputChange(e, 'google')}
-                            value={googleCodeInputValue}
-                            />
-                        </Form.Item></>}
-                        {(acount.type === 'p' && acount.isEmailAuth == 1&&acount.isGoogleAuth == 0) && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>
-                        <Form.Item
-                            name="emailCode"
-                            rules={[{ required: true, message: t('codeNull') }]}
-                            className="position-relative"
-                        >
-                            <Input
-                                className={`${styles.input_box} modal-input`}
-                                style={{ width: "100%", height: "40px" }}
-                                placeholder={t('inputCode2')}
-                                allowClear
-                                suffix={
-                                    <button
-                                        type="button"
-                                        onClick={getResetCode}
-                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
-                                    >
-                                        {isCounting2
-                                            ? `${countdown2} ${t('resendCountdown')}`
-                                            :t('resend')
-                                        }
-                                    </button>
-                                }
-                                value={emailCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'emailCode')}
-                                maxLength={6}
-                            />
-                        </Form.Item>
-                    </>}
+                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
+                                <Input
+                                    placeholder={t('inputCode')}
+                                    style={{ borderRadius: "8px", height: "50px" }}
+                                    // value={authCode}
+                                    allowClear
+                                    size='large'
+                                    className={`${styles.mail_input} modal-input`}
+                                    // className='custom-input'
+                                    maxLength={6}
+                                    onChange={(e) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
+                                />
+                            </Form.Item></>}
+                        {(acount.isEmailAuth == 1) && <>
+                            <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>
+                            <Form.Item
+                                name="emailCode"
+                                rules={[{ required: true, message: t('codeNull') }]}
+                                className="position-relative"
+                            >
+                                <Input
+                                    className={`${styles.input_box} modal-input`}
+                                    style={{ width: "100%", height: "40px" }}
+                                    placeholder={t('inputCode2')}
+                                    allowClear
+                                    suffix={
+                                        <button
+                                            type="button"
+                                            onClick={() => getResetCode('email')}
+                                            className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
+                                        >
+                                            {isCounting
+                                                ? `${countdown} ${t('resendCountdown')}`
+                                                : t('resend')
+                                            }
+                                        </button>
+                                    }
+                                    value={emailCodeInputValue}
+                                    onChange={(e) => handleInputChange(e, 'emailCode')}
+                                    maxLength={6}
+                                />
+                            </Form.Item>
+                        </>}
                         {/* {(acount.type === 'p' && ((acount.isEmailAuth === 1 && acount.isGoogleAuth === 0) || (acount.openAll === 1 && acount.isEmailAuth === 1))) &&
                         <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>} */}
-                        {(acount.type === 'm' && acount.isPhoneAuth == 1&&(acount.isGoogleAuth == 0||acount.isEmailAuth == 0))
-                         && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('phoneCodeTitle')}</div>
-                        <Form.Item
-                            name="phoneCode"
-                            rules={[{ required: true, message: t('codeNull') }]}
-                            className="position-relative"
-                        >
-                            <Input
-                                className={`${styles.input_box} modal-input`}
-                                style={{ width: "100%", height: "40px" }}
-                                placeholder={t('inputCode2')}
-                                allowClear
-                                value={phoneCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'phoneCode')}
-                                suffix={
-                                    <button
-                                        type="button"
-                                        onClick={getResetCode}
-                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
-                                    >
-                                        {isCounting2
-                                            ? `${countdown2} ${t('resendCountdown')}`
-                                            :t('resend')
+                        {(acount.isPhoneAuth == 1 && (acount.isGoogleAuth == 0 || acount.isEmailAuth == 0))
+                            && <>
+                                <div className={`${styles.title_color} mb-3`}>{t('phoneCodeTitle')}</div>
+                                <Form.Item
+                                    name="phoneCode"
+                                    rules={[{ required: true, message: t('codeNull') }]}
+                                    className="position-relative"
+                                >
+                                    <Input
+                                        className={`${styles.input_box} modal-input`}
+                                        style={{ width: "100%", height: "40px" }}
+                                        placeholder={t('inputCode2')}
+                                        allowClear
+                                        value={phoneCodeInputValue}
+                                        onChange={(e) => handleInputChange(e, 'phoneCode')}
+                                        suffix={
+                                            <button
+                                                type="button"
+                                                onClick={() => getResetCode('phone')}
+                                                className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                            >
+                                                {isCounting2
+                                                    ? `${countdown2} ${t('resendCountdown')}`
+                                                    : t('resend')
+                                                }
+                                            </button>
                                         }
-                                    </button>
-                                }
-                                maxLength={6}
-                            />
-                        </Form.Item></>}
+                                        maxLength={6}
+                                    />
+                                </Form.Item></>}
 
 
                     </Form>
