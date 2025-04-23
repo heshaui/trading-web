@@ -186,12 +186,12 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                 </Space>
             </Dropdown>
                 
-            <Tooltip title={isFavorite ? "取消收藏" : "添加收藏"}>
+            <Tooltip title={currentPair?.isFavorite ? "取消收藏" : "添加收藏"}>
                 <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
                     <Iconify 
-                        icon={currentPair.isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
+                        icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
                         size={20} 
-                        color={currentPair.isFavorite ? "#FFD700" : "var(--text-color6)"} 
+                        color={currentPair?.isFavorite ? "#FFD700" : "var(--text-color6)"} 
                     />
                 </div>
             </Tooltip>
