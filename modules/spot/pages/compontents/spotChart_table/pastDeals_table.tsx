@@ -325,6 +325,7 @@ const SpotMainPage = observer(() => {
     }
     setPageParam(pageData)
     paramdataRef.current = pageData;
+    getOrderListData()
   }
   const topUpTypeChange = (value: any, options: any) => {
     console.log(value, 123, options);
@@ -332,20 +333,22 @@ const SpotMainPage = observer(() => {
 
   }
   const getOrderListData = async () => {
-    const notStatusArr = [];
-    if (selectParam.current.hideOther) {
-        notStatusArr.push(`${currentPair?.coinSymbol}`, `${currentPair?.baseSymbol}`);
-    }
-    if (selectParam.current.hideCancel) {
-        notStatusArr.push('3');
-    }
+    // const notStatusArr = [];
+    // if (selectParam.current.hideOther) {
+    //     notStatusArr.push(`${currentPair?.coinSymbol}`, `${currentPair?.baseSymbol}`);
+    // }
+    // if (selectParam.current.hideCancel) {
+    //     notStatusArr.push('3');
+    // }
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       type: 1,
-      notStatus:  notStatusArr.join(','),
-      startTime: selectParam.current.startTime||'',
-      endTime: selectParam.current.endTime||'',
+      notStatus:  selectParam.current.hideCancel?'3':'',
+      coinSymbol: selectParam.current.hideOther?`${currentPair?.coinSymbol}`:'',
+      baseSymbol: selectParam.current.hideOther?`${currentPair?.baseSymbol}`:'',
+      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():'',
+      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():'',
 
     }
     setLoading(true)
@@ -358,7 +361,7 @@ const SpotMainPage = observer(() => {
         }));
         setInitTableData(newData);
         setTableData(newData);
-        setTotal(res.data.total);
+        setTotal(res.data.count);
       } else {
         toast.error(res.message);
       }

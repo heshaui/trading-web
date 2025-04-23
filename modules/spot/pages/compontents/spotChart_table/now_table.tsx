@@ -222,12 +222,16 @@ const SpotMainPage = observer(() => {
 };
 
   const pageChange = async (page: number, pageSize: number) => {
-    const pageData = {
+    // const pageData = {
+    //   page: page,
+    //   pageSize: pageSize
+    // }
+    // setPageParam(pageData)
+    paramdataRef.current = {
       page: page,
       pageSize: pageSize
-    }
-    // setPageParam(pageData)
-    paramdataRef.current = pageData;
+    };
+    getOrderListData()
   }
   const hideElseChange = (e: CheckboxChangeEvent) => {
     if(loading) return toast.error('loading...')
@@ -239,7 +243,8 @@ const SpotMainPage = observer(() => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       type: 0,
-      notStatus: hideElse.current ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
+      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:'',
+      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:'',
     }
     setLoading(true)
     try {
@@ -251,7 +256,7 @@ const SpotMainPage = observer(() => {
         }));
         setInitTableData(newData);
         setTableData(newData);
-        setTotal(res.data.total);
+        setTotal(res.data.count);
       } else {
         toast.error(res.message);
       }
