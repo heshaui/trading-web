@@ -78,6 +78,13 @@ const Tradingview: React.FC<TradingviewProps> = ({
           "header_widget",
           "use_localstorage_for_settings",
           "timeframes_toolbar",
+          "symbol_search",
+          "symbol_info",
+          "header_symbol_search",
+          "header_compare",
+          "compare_symbol", 
+          "display_market_status",
+          "symbol_change",
         ];
         
         // 如果不显示左侧工具栏，则添加到禁用列表

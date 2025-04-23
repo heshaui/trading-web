@@ -137,7 +137,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
 
             <div>
             <Dropdown
-                trigger={['click']}
+                trigger={['hover']}
                 open={open}
                 onOpenChange={handleOpenChange}
                 dropdownRender={() => (
