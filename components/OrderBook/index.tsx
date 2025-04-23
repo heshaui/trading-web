@@ -179,8 +179,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const renderColorModeButtons = () => {
     return (
       <div className='flex' style={{gap:'10px'}}>
-        {/* 显示买卖单 */}
-        <Tooltip title="买卖单">
+        {/* 显示买卖盘 */}
+        <Tooltip title="买卖盘">
         <Image 
           src={colorMode === 1 ? '/images/exchange/icon_order_hover.png' : '/images/exchange/icon_order.png'} 
           alt="color-mode" 
@@ -190,8 +190,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           onClick={() => setColorMode(1)}
         /> 
         </Tooltip>
-        {/* 显示买单 */}
-        <Tooltip title="买单">
+        {/* 显示买盘 */}
+        <Tooltip title="买盘">
         <Image 
           src={colorMode === 2 ? '/images/exchange/icon_green_hover.png' : '/images/exchange/icon_green.png'} 
           alt="color-mode" 
@@ -201,8 +201,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           onClick={() => setColorMode(2)}
         />
         </Tooltip>
-        {/* 显示卖单 */}
-        <Tooltip title="卖单">
+        {/* 显示卖盘 */}
+        <Tooltip title="卖盘">
         <Image 
           src={colorMode === 3 ? '/images/exchange/icon_red_hover.png' : '/images/exchange/icon_red.png'} 
           alt="color-mode" 
