@@ -19,6 +19,8 @@ import appStore from '@/store';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { encryptData } from '@/hooks/user-encrypt'
 import {revocationOrder} from '@/services/spot'
+import ToastModal from '@/components/spotModal/Toast_modal';
+
 interface DataType {
   id: number,
   orderId: string,
@@ -52,7 +54,7 @@ const SpotMainPage = observer(() => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
-
+  const [toastModal, setToastModal] = useState<boolean>(false);
   const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
@@ -63,7 +65,7 @@ const SpotMainPage = observer(() => {
   const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
   // const [hideElse, setHideElse] = useState<boolean>(false);
   const hideElse=useRef(false)
-
+  const [toastData, setToastData] = useState<any>({})
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
@@ -180,6 +182,14 @@ const SpotMainPage = observer(() => {
             onClick={() => {
               setDelectId([record.id])
               // setDelectOneSuccess(true)
+              setToastData({
+                coinSymbol: record.coinSymbol,
+                symbol: record.symbol,
+                baseSymbol: record.baseSymbol,
+                price: record.price,
+                amount: record.amount,
+              })
+              // setToastModal(true)
               delectOne()
             }}
           >
@@ -200,6 +210,7 @@ const SpotMainPage = observer(() => {
         const res = await revocationOrder(encrypt)
         if(res.code==='0'){
             toast.success(res.message)
+            setToastModal(true)
             getOrderListData()
         }else{
             toast.error(res.message)
@@ -351,6 +362,11 @@ const SpotMainPage = observer(() => {
         orderId={delectIdAll}
         onCancel={() => setDelectModal(false)}
         onOk={handleDelectOk}/>
+        <ToastModal
+         open={toastModal} 
+         toastData={toastData}
+        onCancel={() => setToastModal(false)}
+        />
       </div>
       {/* </div> */}
     </ConfigProvider>
