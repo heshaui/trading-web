@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from './style/OrderBook.module.css';
 import Image from 'next/image';
 import appStore from '@/store';
+import { Tooltip } from 'antd';
 // 定义订单类型
 interface Order {
   price: number;
@@ -176,15 +177,41 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   }, [orderData]);
 
   const renderColorModeButtons = () => {
-
     return (
       <div className='flex' style={{gap:'10px'}}>
         {/* 显示买卖单 */}
-        <Image src='/images/exchange/icon_order_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/> 
+        <Tooltip title="买卖单">
+        <Image 
+          src={colorMode === 1 ? '/images/exchange/icon_order_hover.png' : '/images/exchange/icon_order.png'} 
+          alt="color-mode" 
+          width={20} 
+          height={20} 
+          style={{cursor:'pointer'}}
+          onClick={() => setColorMode(1)}
+        /> 
+        </Tooltip>
         {/* 显示买单 */}
-        <Image src='/images/exchange/icon_green_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        <Tooltip title="买单">
+        <Image 
+          src={colorMode === 2 ? '/images/exchange/icon_green_hover.png' : '/images/exchange/icon_green.png'} 
+          alt="color-mode" 
+          width={20} 
+          height={20} 
+          style={{cursor:'pointer'}}
+          onClick={() => setColorMode(2)}
+        />
+        </Tooltip>
         {/* 显示卖单 */}
-        <Image src='/images/exchange/icon_red_hover.png' alt="color-mode" width={20} height={20} style={{cursor:'pointer'}}/>
+        <Tooltip title="卖单">
+        <Image 
+          src={colorMode === 3 ? '/images/exchange/icon_red_hover.png' : '/images/exchange/icon_red.png'} 
+          alt="color-mode" 
+          width={20} 
+          height={20} 
+          style={{cursor:'pointer'}}
+          onClick={() => setColorMode(3)}
+        />
+        </Tooltip>
       </div>
     );
   };
@@ -264,31 +291,33 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           </div>
 
           {/* 卖单 */}
-          <div className={styles.orderList}>
-            {sellOrders.map((order, index) => {
-              const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
-              return (
-                <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
-                  <span className={styles.price}>{order.price.toFixed(1)}</span>
-                  <span className={styles.amount}>{order.amount.toFixed(5)}</span>
-                  <div className={styles.totalColumn}>
-                    <div 
-                      className={styles.background}
-                      style={{ 
-                        width: `${percentWidth}%`,
-                        transition: 'width 0.3s ease-in-out'
-                      }}
-                    />
-                    <span className={styles.total}>
-                      {order.total > 10000 
-                        ? `${(order.total/10000).toFixed(2)}万` 
-                        : order.total.toFixed(2)}
-                    </span>
+          {(colorMode === 1 || colorMode === 3) && (
+            <div className={styles.orderList}>
+              {sellOrders.map((order, index) => {
+                const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
+                return (
+                  <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
+                    <span className={styles.price}>{order.price.toFixed(1)}</span>
+                    <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+                    <div className={styles.totalColumn}>
+                      <div 
+                        className={styles.background}
+                        style={{ 
+                          width: `${percentWidth}%`,
+                          transition: 'width 0.3s ease-in-out'
+                        }}
+                      />
+                      <span className={styles.total}>
+                        {order.total > 10000 
+                          ? `${(order.total/10000).toFixed(2)}万` 
+                          : order.total.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* 当前价格 */}
           <div className={styles.currentPrice}>
@@ -300,31 +329,33 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           </div>
 
           {/* 买单 */}
-          <div className={styles.orderList} style={{fontSize:'12px'}}>
-            {buyOrders.map((order, index) => {
-              const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
-              return (
-                <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-                  <span className={styles.price}>{order.price.toFixed(1)}</span>
-                  <span className={styles.amount}>{order.amount.toFixed(5)}</span>
-                  <div className={styles.totalColumn}>
-                    <div 
-                      className={styles.background}
-                      style={{ 
-                        width: `${percentWidth}%`,
-                        transition: 'width 0.3s ease-in-out'
-                      }}
-                    />
-                    <span className={styles.total}>
-                      {order.total > 10000 
-                        ? `${(order.total/10000).toFixed(2)}万` 
-                        : order.total.toFixed(2)}
-                    </span>
+          {(colorMode === 1 || colorMode === 2) && (
+            <div className={styles.orderList} style={{fontSize:'12px'}}>
+              {buyOrders.map((order, index) => {
+                const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
+                return (
+                  <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
+                    <span className={styles.price}>{order.price.toFixed(1)}</span>
+                    <span className={styles.amount}>{order.amount.toFixed(5)}</span>
+                    <div className={styles.totalColumn}>
+                      <div 
+                        className={styles.background}
+                        style={{ 
+                          width: `${percentWidth}%`,
+                          transition: 'width 0.3s ease-in-out'
+                        }}
+                      />
+                      <span className={styles.total}>
+                        {order.total > 10000 
+                          ? `${(order.total/10000).toFixed(2)}万` 
+                          : order.total.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* 买单/卖单比例 */}
           <div className={styles.ratio}>
