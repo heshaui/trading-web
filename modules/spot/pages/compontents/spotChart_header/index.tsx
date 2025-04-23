@@ -126,7 +126,9 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                             <div className={`${styles.tabs_list} w-full`}>
                                 <Tabs items={tabsItem}
                                     className="custom-tabs2 w-full"
-                                // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                                    activeKey={activeTab}
+                                    onChange={handleTabClick}
+                                    // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
                                 />
                             </div>
                             {/* <div className={styles.content_container}>

@@ -68,7 +68,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect }) 
                 {/* 标签页导航 */}
                 <div className={`${styles.tabs_wrapper} px-4 `}>
                     <ul className={`flex-x align-center `}>
-                        <li className={`${styles.fixed_tab} pointer font-14`}>全部</li>
+                        {/* <li className={`${styles.fixed_tab} pointer font-14`}>全部</li> */}
                         {/* <li>
         <Iconify icon="mingcute:left-line" size={16}/>
     </li> */}
@@ -86,7 +86,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect }) 
                                     },
                                 }}
                             >
-                                <Tabs items={tabsItem} className={`spot-tabs`} />
+                                {/* <Tabs items={tabsItem} className={`spot-tabs`} /> */}
                             </ConfigProvider>
                         </li>
                         {/* <li>
