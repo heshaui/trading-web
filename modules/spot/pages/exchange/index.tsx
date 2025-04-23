@@ -29,6 +29,7 @@ import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
 import { toast } from 'sonner';
 import appStore from '@/store';
 import { set } from 'mobx';
+import { reaction } from 'mobx';
 interface DataType {
     id: number,
     userId: number,
@@ -58,33 +59,6 @@ const ExchangePage = () => {
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
-    const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        }, {
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
-    ]);
     const router = useRouter();
     const [paramInfo, sePparamInfo] = useState({
         type: '',
@@ -101,6 +75,9 @@ const ExchangePage = () => {
     const [open, setOpen] = useState<boolean>(true);
     const [historyData, setHistoryData] = useState<any[]>([]);
     const [dayData, setDayData] = useState<any[]>(['15m','1h','4h','1D']);
+    const [timeIntervalOptions, setTimeIntervalOptions] = useState<any[]>([
+        '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D','1W', '1M','1Y'
+    ]);
     const [chartType, setChartType] = useState<any[]>([
         {label:'基本版',value:'basic'},
         {label:'TradingView',value:'tradingview'},
@@ -143,18 +120,18 @@ const ExchangePage = () => {
         }
     }
     const getOrderWsData = () => {
-        // 添加安全检查
-        if (!currentPair || !currentPair.coinSymbol) return;
+
         
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
+        const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
         websocketRef.current = websocket;
         
         websocket.connect((message: string) => {
 
             try {
+                console.log(message, 'getOrderWsData');
                 const data = JSON.parse(message);
                 
                 // 使用函数式更新来累积数据
@@ -181,13 +158,29 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
         
-        const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
+        const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
         
         websocket.connect((message: string) => {
             try {
+                console.log(message, 'getWsDepthData');
+                // 检查消息是否为系统消息
+                if (message.startsWith('subscribe:') || 
+                    message.startsWith('ping') || 
+                    message.startsWith('pong') || 
+                    message.includes('subscribe') ||
+                    message.includes('left the channel') ||  // 添加对"left the channel"消息的处理
+                    message.includes('client')) {  // 添加对可能包含"client"的系统消息的处理
+                    // 处理系统消息
+                    return;
+                }
+                
+                if(message.includes('error')){
+                    return;
+                }
+                
                 const data = JSON.parse(message);
-                // console.log(data, 'wsDepthData');
+                 console.log(data, 'wsDepthData');
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData:any) => {
@@ -273,14 +266,14 @@ const ExchangePage = () => {
                     return newData;
                 });
             } catch (error) {
-                console.error('解析WebSocket深度数据失败:', error);
+                console.error('解析WebSocket深度数据失败:', error, '原始消息:', message);
             }
         });
     }
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`http://ws81.imsaas.work/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
+            const response = await fetch(`https://ws81.imsaas.work/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
             
@@ -315,26 +308,47 @@ const ExchangePage = () => {
         }
         
         try {
-            const websocket = new WebSocketService(`ws://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
+            const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
             klineWsRef.current = websocket;
             
             websocket.connect((message: string) => {
                 try {
-                    const data = JSON.parse(message);
-                    if(data.type === 'kline' && Array.isArray(data.data)) {
-                        setCoinData(data);
-                        setKlineData((prevData:any) => {
-                            if (!prevData) return data;
-                            
-                            // 合并新数据和旧数据
-                            return {
-                                ...data,
-                                data: [...(data.data || []), ...(prevData.data || [])]
-                            };
-                        });
+                    // 检查消息是否为系统消息（而非数据消息）
+                    if (message.startsWith('subscribe:') || 
+                        message.startsWith('ping') || 
+                        message.startsWith('pong') || 
+                        message.includes('subscribe') ||
+                        message.includes('joined') ||
+                        message.includes('left')) {
+                        console.log('WebSocket系统消息:', message);
+                        return;
+                    }
+
+                    if(message.includes('error')){
+                        console.log('WebSocket错误消息:', message);
+                        return;
+                    }
+
+                    // 确保消息是有效的JSON格式
+                    if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
+                        const data = JSON.parse(message);
+                        if(data.type === 'kline' && Array.isArray(data.data)) {
+                            setCoinData(data);
+                            setKlineData((prevData:any) => {
+                                if (!prevData) return data;
+                                
+                                // 合并新数据和旧数据
+                                return {
+                                    ...data,
+                                    data: [...(data.data || []), ...(prevData.data || [])]
+                                };
+                            });
+                        }
+                    } else {
+                        console.log('收到非JSON格式WebSocket消息:', message);
                     }
                 } catch (err) {
-                    console.error('解析K线数据失败:', err);
+                    console.error('解析K线数据失败:', err, '原始消息:', message);
                 }
             });
         } catch (err) {
@@ -390,6 +404,56 @@ const ExchangePage = () => {
             console.error('初始化货币对数据错误:', error);
         }
     }, [isClient]);
+
+    // 添加一个新的 useEffect 来监听 appStore 中的币对变化
+    useEffect(() => {
+        // 只在客户端执行
+        if (!isClient || typeof window === 'undefined') return;
+        
+        // 创建一个订阅函数来监听 appStore 中当前币对的变化
+        const disposer = reaction(
+            () => appStore.getCurrentPair(),
+            (newPair) => {
+                if (newPair && (!currentPair || 
+                    newPair.coinSymbol !== currentPair.coinSymbol || 
+                    newPair.baseSymbol !== currentPair.baseSymbol ||
+                    newPair.groupStatus !== currentPair.groupStatus)) {
+                    
+                    console.log('当前币对已更新:', newPair);
+                    
+                    // 清理现有的 WebSocket 连接
+                    if (websocketRef.current) {
+                        websocketRef.current.close();
+                        websocketRef.current = null;
+                    }
+                    
+                    if (depthWsRef.current) {
+                        depthWsRef.current.close();
+                        depthWsRef.current = null;
+                    }
+                    
+                    if (klineWsRef.current) {
+                        klineWsRef.current.close();
+                        klineWsRef.current = null;
+                    }
+                    
+                    // 更新当前币对
+                    setCurrentPair(newPair);
+                    
+                    // 重置数据
+                    setOrderData([]);
+                    setDepthData(null);
+                    setKlineData(null);
+                }
+            },
+            { fireImmediately: true }
+        );
+        
+        // 清理函数
+        return () => {
+            disposer();
+        };
+    }, [isClient, currentPair]);
 
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
@@ -501,7 +565,53 @@ const ExchangePage = () => {
                                             }}
                                         >
                                             {item}
+                                            {item === '1D' && (
+                                                <Dropdown
+                                                    trigger={['click']}
+                                                    placement="bottomRight"
+                                                    dropdownRender={() => (
+                                                        <div style={{ 
+                                                            background: '#fff', 
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                                            padding: '10px',
+                                                            display: 'grid',
+                                                            gridTemplateColumns: 'repeat(3, 1fr)',
+                                                            gap: '10px',
+                                                            width: '320px'
+                                                        }}>
+                                                            {timeIntervalOptions.map((option) => (
+                                                                <div
+                                                                    key={option}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setTimeInterval(option);
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '10px 15px',
+                                                                        textAlign: 'center',
+                                                                        background: timeInterval === option ? 'var(--theme-color)' : '#f0f0f0',
+                                                                        color: timeInterval === option ? '#fff' : '#000',
+                                                                        borderRadius: '5px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '14px'
+                                                                    }}
+                                                                >
+                                                                    {option}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                >
+                                                    <Iconify 
+                                                        icon="eva:arrow-down-fill" 
+                                                        style={{ fontSize: '12px', marginLeft: '4px', cursor: 'pointer' }} 
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </Dropdown>
+                                            )}
                                         </Button>
+                                    
                                     ))}
 
                                     <Space size="small" style={{ marginLeft: '16px' }}>
@@ -554,9 +664,10 @@ const ExchangePage = () => {
                             </div>
 
                             <Spin spinning={loading} tip="加载中...">
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && currentPair && (
+                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
                                     <Tradingview 
-                                        symbol={(currentPair.coinSymbol || '') + '_' + (currentPair.baseSymbol || '') + '_' + (currentPair.groupStatus || '')} 
+                                        key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
+                                        symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')} 
                                         showLeftToolbar={activeChartType === 'basic' ? false : true} 
                                         chartType={chartDisplayType} 
                                         klineData={klineData} 
@@ -564,7 +675,12 @@ const ExchangePage = () => {
                                     />
                                 )}
                                
-                                {activeChartType === 'depth' && <DepthChart data={depthData} />}
+                                {activeChartType === 'depth' && 
+                                    <DepthChart 
+                                        key={`depth_${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}`} 
+                                        data={depthData} 
+                                    />
+                                }
                             </Spin>
                         </div>
                         <OrderBook bookData={depthData}  orderData={orderData}/>
@@ -572,19 +688,19 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                        <SpotChartTrade />
+                        
+                          
+                                <SpotChartTrade />
+                            
+                        
                     </div>
                     <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
                         <SpotChartTables />
                     </div>
-                    <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                        <SpotChartAssets />
-                    </div>
                 </div>
             </ConfigProvider>
         )}
-    </div>
-    );
-};
+    </div>);
+}
 
-export default ExchangePage
+export default ExchangePage;

@@ -24,9 +24,14 @@ export async function request<T>(
   const defaultHeaders:RequestHeaders = {
     // 'Content-Type': '',
     'Authorization': `${getToken()}`, // 获取 token（可选）
-    'ambit-saas': '2e5bbf22907d4a31992e9641079af195',
     'sa-token': `${getToken()}`
   };
+  
+  // 仅在开发环境下添加 ambit-saas 头部
+  if (process.env.NODE_ENV === 'development') {
+    defaultHeaders['ambit-saas'] = '2e5bbf22907d4a31992e9641079af195';
+  }
+
  // 发送 FormData 时才添加 Content-Type: application/json
  if (!(options.body instanceof FormData)) {
   defaultHeaders['Content-Type'] = 'application/json';

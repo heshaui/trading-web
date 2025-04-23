@@ -20,6 +20,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const [activeTab, setActiveTab] = useState('spot'); // 当前选中的tab
     const [searchValue, setSearchValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false); // 添加收藏状态
 
    
     // 解析K线数据
@@ -64,6 +65,12 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }
     };
 
+    // 添加新函数处理货币对选择
+    const handlePairSelect = (pair: any) => {
+        appStore.setCurrentPair(pair);
+        setOpen(false); // 选择后关闭下拉菜单
+    };
+
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const currencyPairsArray = appStore.currencyPairs || [];
@@ -79,17 +86,26 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         {
             key: 'spot',
             label: '现货',
-            children: <SpotSelect currencyPairs={currencyPairsArray} />
+            children: <SpotSelect 
+                currencyPairs={currencyPairsArray} 
+                onPairSelect={handlePairSelect} 
+            />
         },
     ];
+    // 添加处理收藏的函数
+    const handleToggleFavorite = () => {
+        setIsFavorite(!isFavorite);
+        // 这里可以添加实际的收藏/取消收藏逻辑
+    };
+
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
-        if (!mounted) return null;
+        
 
         return (
 
 
-           
+            <div>
             <Dropdown
                 trigger={['click']}
                 open={open}
@@ -137,8 +153,17 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
 
                 </Space>
             </Dropdown>
-           
-
+                
+            <Tooltip title={isFavorite ? "取消收藏" : "添加收藏"}>
+                <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
+                    <Iconify 
+                        icon={isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
+                        size={20} 
+                        color={isFavorite ? "#FFD700" : "var(--text-color6)"} 
+                    />
+                </div>
+            </Tooltip>
+            </div>
         );
     };
 

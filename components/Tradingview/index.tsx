@@ -71,7 +71,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     try {
       if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        datafeed = createDatafeed(wsDataRef.current, tradTime);
+        datafeed = createDatafeed(wsDataRef.current, tradTime, symbol || "BTC_USDT_1");
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
@@ -375,7 +375,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
         try {
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
-          const url = `http://ws81.imsaas.work/kline/${symbol}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          const url = `https://ws81.imsaas.work/kline/${symbol}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
 
           const response = await fetch(url);
