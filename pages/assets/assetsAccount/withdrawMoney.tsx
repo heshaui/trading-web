@@ -624,18 +624,19 @@ const WithdrawMoneyPage = () => {
         // 设置允许提现
         setAllowWithdraw(true)
     }
-    // const checkOK = () => {
-    //     // resetState
-    //     form.resetFields()
-    //     setCurrent(1);
+    const checkOK = () => {
+        // resetState
+        form.resetFields()
+        setCurrent(1);
+        // setAmountNum(0)
 
-    // }
-    useEffect(() => {
-        if (resetState) {
-            form.resetFields()
-            setCurrent(1);
-        }
-    }, [resetState])
+    }
+    // useEffect(() => {
+    //     if (resetState) {
+    //         form.resetFields()
+    //         setCurrent(1);
+    //     }
+    // }, [resetState])
     useEffect(() => {
         getAllProtocolTypeList()
         getCoinAllData()
@@ -1081,7 +1082,7 @@ const WithdrawMoneyPage = () => {
             <WithdrawMoneyCheck open={checkOpen}
                 withdrawInfo={withdrawInfo}
                 onCancel={() => setCheckOpen(false)} 
-                // onOk={checkOK}
+                onOk={checkOK}
                 />
         </div>
     </div>

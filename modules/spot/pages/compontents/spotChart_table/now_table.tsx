@@ -17,7 +17,8 @@ import DelectModal from '@/components/spotModal/Delect_modal';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
-
+import { encryptData } from '@/hooks/user-encrypt'
+import {revocationOrder} from '@/services/spot'
 interface DataType {
   id: number,
   orderId: string,
@@ -56,7 +57,8 @@ const SpotMainPage = observer(() => {
     page: 1,
     pageSize: 10,
   });
-  const [delectId, setDelectId] = useState<number>(0);
+  const [delectId, setDelectId] = useState<number[]>([]);
+  const [delectIdAll, setDelectIdAll] = useState<number[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
   // const [hideElse, setHideElse] = useState<boolean>(false);
@@ -105,8 +107,8 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return < >{_status ? <div className='flex-x align-center'>
-          {_status}
+        return <div className='flex-x align-center text-center'>
+          <p className='text-center '> {_status||'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button 
             onClick={()=>{
@@ -117,7 +119,7 @@ const SpotMainPage = observer(() => {
             </button>
           </Tooltip>
         </div>
-          : '0'}</>;
+          
       },
     },
     {
@@ -163,7 +165,12 @@ const SpotMainPage = observer(() => {
       },
     },
     {
-      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span>, //"全撤",
+      title: <button className={`error_icon`}
+      onClick={()=>{
+        setDelectIdAll(tableData.map((item)=>item.id))
+        setDelectModal(true)
+      }}
+      >{t('spot.columns.cancel')}</button>, //"全撤",
       key: "operation",
       width: 128,
       align: "center",
@@ -171,8 +178,9 @@ const SpotMainPage = observer(() => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              setDelectId(record.id)
-              setDelectModal(true)
+              setDelectId([record.id])
+              // setDelectOneSuccess(true)
+              delectOne()
             }}
           >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
@@ -183,6 +191,24 @@ const SpotMainPage = observer(() => {
 
 
   ];
+  const delectOne = async () => {
+    try {
+        const paeam={
+            orderId: delectId,
+        }
+        const encrypt=await encryptData(paeam)
+        const res = await revocationOrder(encrypt)
+        if(res.code==='0'){
+            toast.success(res.message)
+            getOrderListData()
+        }else{
+            toast.error(res.message)
+        }
+    } catch (error) {
+        toast.error(String(error))
+    }
+
+};
 
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
@@ -322,7 +348,7 @@ const SpotMainPage = observer(() => {
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
         <DelectModal open={delectModal} 
-        orderId={delectId}
+        orderId={delectIdAll}
         onCancel={() => setDelectModal(false)}
         onOk={handleDelectOk}/>
       </div>
