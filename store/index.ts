@@ -85,6 +85,7 @@ class AppStore {
     toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;
     }
+
     setUserToken(token: string ) {
         this.userToken = token;
         if (isBrowser()) {
@@ -97,6 +98,11 @@ class AppStore {
             localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
         }
     }
+
+    getUserToken() {
+        return this.userToken;
+    }
+
 
     setAuthcodeState(state: string | number, type: string | number) {
         this.authcodeState = { state, type };

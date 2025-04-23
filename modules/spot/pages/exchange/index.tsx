@@ -169,8 +169,8 @@ const ExchangePage = () => {
                     message.startsWith('ping') || 
                     message.startsWith('pong') || 
                     message.includes('subscribe') ||
-                    message.includes('left the channel') ||  // 添加对"left the channel"消息的处理
-                    message.includes('client')) {  // 添加对可能包含"client"的系统消息的处理
+                    message.includes('left the channel') ||  
+                    message.includes('client')) {
                     // 处理系统消息
                     return;
                 }
@@ -180,12 +180,24 @@ const ExchangePage = () => {
                 }
                 
                 const data = JSON.parse(message);
-                 console.log(data, 'wsDepthData');
+                console.log(data, 'wsDepthData');
+                
+                // 检查消息类型是否为depth
+                if (data.type !== 'depth') {
+                    console.log('非深度数据消息:', data.type);
+                    return;
+                }
                 
                 // 更新深度数据而不是直接覆盖
                 setDepthData((prevData:any) => {
-                    // 如果还没有初始数据，则不处理WebSocket更新
-                    if (!prevData || !prevData.bids) return prevData;
+                    // 如果还没有初始数据，则创建一个新的数据结构
+                    if (!prevData || !prevData.bids) {
+                        return {
+                            asks: data.asks || [],
+                            bids: data.bids || [],
+                            lastUpdateId: data.end_update_id
+                        };
+                    }
                     
                     // 创建当前数据的副本
                     const newData = {
@@ -195,7 +207,7 @@ const ExchangePage = () => {
                     };
                     
                     // 处理买单(bids)更新
-                    if (data.bids && data.bids.length > 0) {
+                    if (data.bids && Array.isArray(data.bids)) {
                         data.bids.forEach((newBid:any) => {
                             const [price, quantity] = newBid;
                             
@@ -215,7 +227,7 @@ const ExchangePage = () => {
                                     // 按价格降序插入新买单
                                     let insertIndex = 0;
                                     while (insertIndex < newData.bids.length && 
-                                           newData.bids[insertIndex][0] > price) {
+                                           parseFloat(newData.bids[insertIndex][0]) > parseFloat(price)) {
                                         insertIndex++;
                                     }
                                     newData.bids.splice(insertIndex, 0, newBid);
@@ -225,7 +237,7 @@ const ExchangePage = () => {
                     }
                     
                     // 处理卖单(asks)更新
-                    if (data.asks && data.asks.length > 0) {
+                    if (data.asks && Array.isArray(data.asks)) {
                         data.asks.forEach((newAsk:any) => {
                             const [price, quantity] = newAsk;
                             
@@ -245,7 +257,7 @@ const ExchangePage = () => {
                                     // 按价格升序插入新卖单
                                     let insertIndex = 0;
                                     while (insertIndex < newData.asks.length && 
-                                           newData.asks[insertIndex][0] < price) {
+                                           parseFloat(newData.asks[insertIndex][0]) < parseFloat(price)) {
                                         insertIndex++;
                                     }
                                     newData.asks.splice(insertIndex, 0, newAsk);
@@ -277,12 +289,14 @@ const ExchangePage = () => {
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
             
-            // 格式化初始深度数据
+            // 确保bids和asks是数组
             const formattedData = {
-                bids: data.bids || [],
-                asks: data.asks || [],  // 确保asks字段存在，即使API返回中没有
+                bids: Array.isArray(data.bids) ? data.bids : [],
+                asks: Array.isArray(data.asks) ? data.asks : [],
                 lastUpdateId: data.spot_log_last_seq
             };
+            
+            console.log('格式化后的深度数据:', formattedData);
             
             // 设置初始深度数据
             setDepthData(formattedData);
