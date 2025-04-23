@@ -19,7 +19,7 @@ import {revocationOrder} from '@/services/spot'
 import Image from "next/image";
 type Props = {
     open: boolean;
-    orderId: number;
+    orderId: number[];
     errMsg?: string;
     onOk: () => void;
     onCancel: () => void;

@@ -148,7 +148,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 <ul className={`${styles.border_btm} mt-3`}>
                     {levelBenefit && levelBenefit.map((item: levelBenefitType) => (
                         <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
-                            <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName}</div>
+                            <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName||'--'}</div>
                             <div className={` font-w-500`}>
                                 {/* {(item.value1 && item.params1) ? getBenefitValue(item.value1) :
                                     item.status1 === 0 ? t('identity.certified.forbidden') : t('identity.certified.allow')

@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import dayjs from 'dayjs';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import {NoData} from "@/components/noData";
+
 interface DataType {
     id: number,
     userId: number,
@@ -170,6 +172,7 @@ function LoginRecord() {
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     loading={loading}
+                    locale={{ emptyText: <NoData textColor='#A4A5AC'/> }}
                 />
             </ConfigProvider>
         </div>

@@ -17,6 +17,9 @@ import DelectModal from '@/components/spotModal/Delect_modal';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
+import { encryptData } from '@/hooks/user-encrypt'
+import {revocationOrder} from '@/services/spot'
+import ToastModal from '@/components/spotModal/Toast_modal';
 
 interface DataType {
   id: number,
@@ -51,17 +54,18 @@ const SpotMainPage = observer(() => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
-
+  const [toastModal, setToastModal] = useState<boolean>(false);
   const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
   });
-  const [delectId, setDelectId] = useState<number>(0);
+  const [delectId, setDelectId] = useState<number[]>([]);
+  const [delectIdAll, setDelectIdAll] = useState<number[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
   // const [hideElse, setHideElse] = useState<boolean>(false);
   const hideElse=useRef(false)
-
+  const [toastData, setToastData] = useState<any>({})
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
@@ -105,8 +109,8 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return < >{_status ? <div className='flex-x align-center'>
-          {_status}
+        return <div className='flex-x align-center text-center'>
+          <p className='text-center '> {_status||'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button 
             onClick={()=>{
@@ -117,7 +121,7 @@ const SpotMainPage = observer(() => {
             </button>
           </Tooltip>
         </div>
-          : '0'}</>;
+          
       },
     },
     {
@@ -163,7 +167,12 @@ const SpotMainPage = observer(() => {
       },
     },
     {
-      title: <span className={`error_icon`}>{t('spot.columns.cancel')}</span>, //"全撤",
+      title: <button className={`error_icon`}
+      onClick={()=>{
+        setDelectIdAll(tableData.map((item)=>item.id))
+        setDelectModal(true)
+      }}
+      >{t('spot.columns.cancel')}</button>, //"全撤",
       key: "operation",
       width: 128,
       align: "center",
@@ -171,8 +180,17 @@ const SpotMainPage = observer(() => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              setDelectId(record.id)
-              setDelectModal(true)
+              setDelectId([record.id])
+              // setDelectOneSuccess(true)
+              setToastData({
+                coinSymbol: record.coinSymbol,
+                symbol: record.symbol,
+                baseSymbol: record.baseSymbol,
+                price: record.price,
+                amount: record.amount,
+              })
+              // setToastModal(true)
+              delectOne()
             }}
           >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
@@ -183,14 +201,37 @@ const SpotMainPage = observer(() => {
 
 
   ];
+  const delectOne = async () => {
+    try {
+        const paeam={
+            orderId: delectId,
+        }
+        const encrypt=await encryptData(paeam)
+        const res = await revocationOrder(encrypt)
+        if(res.code==='0'){
+            toast.success(res.message)
+            setToastModal(true)
+            getOrderListData()
+        }else{
+            toast.error(res.message)
+        }
+    } catch (error) {
+        toast.error(String(error))
+    }
+
+};
 
   const pageChange = async (page: number, pageSize: number) => {
-    const pageData = {
+    // const pageData = {
+    //   page: page,
+    //   pageSize: pageSize
+    // }
+    // setPageParam(pageData)
+    paramdataRef.current = {
       page: page,
       pageSize: pageSize
-    }
-    // setPageParam(pageData)
-    paramdataRef.current = pageData;
+    };
+    getOrderListData()
   }
   const hideElseChange = (e: CheckboxChangeEvent) => {
     if(loading) return toast.error('loading...')
@@ -202,7 +243,8 @@ const SpotMainPage = observer(() => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       type: 0,
-      notStatus: hideElse.current ? `${currentPair?.coinSymbol},${currentPair?.baseSymbol}`:'',
+      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:'',
+      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:'',
     }
     setLoading(true)
     try {
@@ -214,7 +256,7 @@ const SpotMainPage = observer(() => {
         }));
         setInitTableData(newData);
         setTableData(newData);
-        setTotal(res.data.total);
+        setTotal(res.data.count);
       } else {
         toast.error(res.message);
       }
@@ -322,9 +364,14 @@ const SpotMainPage = observer(() => {
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
         <DelectModal open={delectModal} 
-        orderId={delectId}
+        orderId={delectIdAll}
         onCancel={() => setDelectModal(false)}
         onOk={handleDelectOk}/>
+        <ToastModal
+         open={toastModal} 
+         toastData={toastData}
+        onCancel={() => setToastModal(false)}
+        />
       </div>
       {/* </div> */}
     </ConfigProvider>
