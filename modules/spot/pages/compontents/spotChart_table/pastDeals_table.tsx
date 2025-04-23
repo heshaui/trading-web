@@ -97,8 +97,8 @@ const SpotMainPage = observer(() => {
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
-      dataIndex: "updateTime",
-      key: "updateTime",
+      dataIndex: "createTime",
+      key: "createTime",
       width: 158,
       align: "left",
       render: (text, record) => {

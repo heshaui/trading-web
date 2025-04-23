@@ -688,15 +688,16 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                        
-                          
                                 <SpotChartTrade />
-                            
                         
                     </div>
                     <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
                         <SpotChartTables />
                     </div>
+                    <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                        <SpotChartAssets />
+                    </div>
+
                 </div>
             </ConfigProvider>
         )}
