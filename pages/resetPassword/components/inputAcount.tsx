@@ -92,7 +92,7 @@ function ResetPassword() {
                             toast.success(t('codeError'))
 
                         } else {
-                            toast.success(res.data.message)
+                            toast.success(res.message)
                         }
                         setResetState(ResetStateEnum.SENTCODE)
 

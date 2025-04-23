@@ -72,7 +72,7 @@ const SpotMainPage = observer(() => {
       key: "updateTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
