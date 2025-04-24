@@ -18,6 +18,7 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
+  console.log('bookData', bookData)
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
@@ -26,6 +27,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [activeTab, setActiveTab] = useState('orderbook');
   const [priceScale, setPriceScale] = useState('0.1');
   const [colorMode, setColorMode] = useState(1);
+  const [priceDirection, setPriceDirection] = useState<'up' | 'down' | ''>('');
+  const [priceSource, setPriceSource] = useState<'buy' | 'sell' | ''>('');
+  // 假设已有displayType状态变量，控制显示类型：'both'|'buy'|'sell'
 
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
@@ -88,11 +92,40 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       setSellOrders(processedSellOrders.slice(0, 10));
       setBuyOrders(processedBuyOrders.slice(0, 10));
       
-      // 更新当前价格（使用中间价格）
-      if (processedSellOrders.length > 0 && processedBuyOrders.length > 0) {
-        const lowestAsk = processedSellOrders[0].price;
+      // 修改条件判断，分别处理只有买盘和只有卖盘的情况
+      // 更新当前价格的逻辑
+      if (colorMode === 2 && processedBuyOrders.length > 0) {
+        // 只显示买盘且有买单数据时，使用最高买入价
         const highestBid = processedBuyOrders[0].price;
-        setCurrentPrice((lowestAsk + highestBid) / 2);
+        setCurrentPrice(highestBid);
+        setPriceSource('buy');
+      } else if (colorMode === 3 && processedSellOrders.length > 0) {
+        // 只显示卖盘且有卖单数据时，使用最低卖出价
+        const lowestAsk = processedSellOrders[0].price;
+        setCurrentPrice(lowestAsk);
+        setPriceSource('sell');
+      } else if (colorMode === 1) {
+        // 显示买卖盘时
+        if (processedBuyOrders.length > 0 && processedSellOrders.length > 0) {
+          // 有买有卖时
+          if (lastPrice === 0) {
+            // 尚无成交价，使用中间价
+            const lowestAsk = processedSellOrders[0].price;
+            const highestBid = processedBuyOrders[0].price;
+            setCurrentPrice((lowestAsk + highestBid) / 2);
+            setPriceSource('');
+          }
+        } else if (processedBuyOrders.length > 0) {
+          // 只有买盘数据时
+          const highestBid = processedBuyOrders[0].price;
+          setCurrentPrice(highestBid);
+          setPriceSource('buy');
+        } else if (processedSellOrders.length > 0) {
+          // 只有卖盘数据时
+          const lowestAsk = processedSellOrders[0].price;
+          setCurrentPrice(lowestAsk);
+          setPriceSource('sell');
+        }
       }
       
       // 计算买单和卖单比例
@@ -107,7 +140,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(sellPercentage.toFixed(2)));
       }
     }
-  }, [bookData]); // 确保这里正确依赖bookData
+  }, [bookData, lastPrice, colorMode]); // 添加colorMode作为依赖项
 
   // 添加处理交易数据的效果
   useEffect(() => {
@@ -136,18 +169,23 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       // 更新最后成交价
       if (typedProcessedTrades.length > 0) {
         const newPrice = typedProcessedTrades[0].price;
+        const newType = typedProcessedTrades[0].type;
+        
         setLastPrice(prevPrice => {
           if (prevPrice > 0) {
-            // 明确指定type的类型为"buy"|"sell"
-            const tradeWithDirection = {
-              ...typedProcessedTrades[0],  // 使用已经类型化的数据
-              direction: newPrice >= prevPrice ? 'up' : 'down'
-            };
+            // 设置价格方向
+            setPriceDirection(newPrice >= prevPrice ? 'up' : 'down');
             
             // 更新trades数组中的第一个元素
             setTrades(prev => {
-              return [tradeWithDirection, ...prev.slice(1)];
+              return [typedProcessedTrades[0], ...prev.slice(1)];
             });
+          }
+          
+          // 仅在显示完整订单簿时更新当前价格为最新成交价
+          if (colorMode === 1) {
+            setCurrentPrice(newPrice);
+            setPriceSource(newType);
           }
           return newPrice;
         });
@@ -174,7 +212,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
-  }, [orderData]);
+  }, [orderData, colorMode]); // 添加colorMode依赖
 
   const renderColorModeButtons = () => {
     return (
@@ -322,8 +360,30 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           {/* 当前价格 */}
           <div className={styles.currentPrice}>
             <div className={styles.priceContainer}>
-              <span className={styles.priceValue}>{currentPrice.toFixed(2)}</span>
-              <span className={styles.priceChange}>↓</span>
+              <span 
+                className={styles.priceValue}
+                style={{ 
+                  color: priceSource === 'buy' || priceDirection === 'up' 
+                    ? '#00b373' // 绿色
+                    : priceSource === 'sell' || priceDirection === 'down' 
+                      ? '#ff5252' // 红色
+                      : 'inherit' 
+                }}
+              >
+                {currentPrice.toFixed(2)}
+              </span>
+              <span 
+                className={styles.priceChange}
+                style={{ 
+                  color: priceDirection === 'up' 
+                    ? '#00b373' 
+                    : priceDirection === 'down' 
+                      ? '#ff5252' 
+                      : 'inherit' 
+                }}
+              >
+                {priceDirection === 'up' ? '↑' : priceDirection === 'down' ? '↓' : '-'}
+              </span>
               <span className={styles.priceCny}>¥ {(currentPrice * 7.18).toFixed(1)}</span>
             </div>
           </div>
