@@ -38,7 +38,6 @@ interface DataType {
 }
 type Props = {
     segmentedType: string,
-    currentPrice: number,
     onOrderSuccess?: () => void  // 添加回调函数属性
 }
 const SpotTradePage = ({ onOrderSuccess }: Props) => {
