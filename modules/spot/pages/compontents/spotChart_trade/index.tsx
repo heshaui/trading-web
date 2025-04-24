@@ -225,12 +225,10 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     // 监听价格和数量的变化，计算成交额
     useEffect(() => {
         // 初始化时计算一次总额
-       
         calculateTotal();
     }, [form]);
 
     const handelSubmitOrder = async () => {
-        console.log('提交订单');
         form.validateFields()
             .then(async (values) => {
                 const params = {
@@ -242,7 +240,6 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     symbol: currentPair?.symbol,
                     type: priceDisabled ? 0 : 1
                 }
-                console.log(params, 111);
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
@@ -257,7 +254,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                 <div>
                                     <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
                                     <div>数量：{values.amount}</div>
-                                    <div>价格：{values.price}</div>
+                                    <div>价格：{priceDisabled ? res.data[1]:values.price}</div>
                                 </div>
                             ),
                             duration: 3
