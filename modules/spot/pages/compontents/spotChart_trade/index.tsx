@@ -232,7 +232,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
         form.validateFields()
             .then(async (values) => {
                 const params = {
-                    amount: values.amount,
+                    amount: priceDisabled && segmentedvalue === 'buy' ? values.account : values.amount,
                     baseSymbol: currentPair?.baseSymbol,
                     coinSymbol: currentPair?.coinSymbol,
                     direction: segmentedvalue === 'buy' ? 0 : 1,
@@ -240,6 +240,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     symbol: currentPair?.symbol,
                     type: priceDisabled ? 0 : 1
                 }
+                console.log(params, 'params');
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
@@ -253,7 +254,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                             description: (
                                 <div>
                                     <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
-                                    <div>数量：{values.amount}</div>
+                                   {values.amount&&<div>数量：{values.amount}</div>}
                                     <div>价格：{priceDisabled ? res.data[1]:values.price}</div>
                                 </div>
                             ),
@@ -430,7 +431,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                         </Form.Item>
                         <Form.Item name='amount'
                             rules={[{ validator: checkAmountLimit }]}
-                            style={{ display: 'block' }}
+                            style={{ display: priceDisabled && segmentedvalue === 'buy' ? 'none' : 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
@@ -462,7 +463,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                         />
                         <Form.Item name='account'
                             rules={[{ validator: checkAmount }]}
-                            style={{ display: priceDisabled ? 'none' : 'block' }}
+                            style={{ display: (!priceDisabled || (priceDisabled && segmentedvalue === 'buy')) ? 'block' : 'none' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}

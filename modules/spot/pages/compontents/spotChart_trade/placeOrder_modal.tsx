@@ -170,20 +170,26 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                                 {modalData.type===0?t('spot.modal.market'):modalData.price}{currentPair?.baseSymbol}
                             </p>
                         </li>
-                        <li className="flex-x align-center justify-between mt-3">
-                            <p>
-                                {/* 数量 */}
-                                {t('spot.modal.amount')}
-                            </p>
-                            <p className={`${styles.title_color}`}>{modalData.amount}{currentPair?.coinSymbol}</p>
-                        </li>
-                        <li className="flex-x align-center justify-between mt-3">
-                            <p>
-                                {/* 成交额 */}
-                                {t('spot.trade.amount2')}
-                            </p>
-                            <p className={`${styles.title_color}`}>{modalData.amount*modalData.price}{currentPair?.baseSymbol}</p>
-                        </li>
+                        {/* 市价买单不显示数量 */}
+                        {!(modalData.type===0 && modalData.direction===0) && (
+                            <li className="flex-x align-center justify-between mt-3">
+                                <p>
+                                    {/* 数量 */}
+                                    {t('spot.modal.amount')}
+                                </p>
+                                <p className={`${styles.title_color}`}>{modalData.amount}{currentPair?.coinSymbol}</p>
+                            </li>
+                        )}
+                        {/* 市价卖单不显示成交额 */}
+                        {!(modalData.type===0 && modalData.direction===1) && (
+                            <li className="flex-x align-center justify-between mt-3">
+                                <p>
+                                    {/* 成交额 */}
+                                    {t('spot.trade.amount2')}
+                                </p>
+                                <p className={`${styles.title_color}`}>{modalData.amount*modalData.price}{currentPair?.baseSymbol}</p>
+                            </li>
+                        )}
                     </ul>
                   { modalData.type===0 && <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `} >
                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />

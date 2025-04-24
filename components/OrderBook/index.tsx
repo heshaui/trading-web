@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from './style/OrderBook.module.css';
 import Image from 'next/image';
 import appStore from '@/store';
-import { Tooltip } from 'antd';
+import { Tooltip,Select } from 'antd';
 // 定义订单类型
 interface Order {
   price: number;
@@ -18,14 +18,14 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
-  console.log('bookData', bookData)
+  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [buyRatio, setBuyRatio] = useState(0);
   const [sellRatio, setSellRatio] = useState(0);
   const [activeTab, setActiveTab] = useState('orderbook');
-  const [priceScale, setPriceScale] = useState('0.1');
+  const [priceScale, setPriceScale] = useState(currentPair?.depthOne);
   const [colorMode, setColorMode] = useState(1);
   const [priceDirection, setPriceDirection] = useState<'up' | 'down' | ''>('');
   const [priceSource, setPriceSource] = useState<'buy' | 'sell' | ''>('');
@@ -33,7 +33,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
 
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
-    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+   
   
   // 添加最新成交数据状态
   const [trades, setTrades] = useState<{price: number; amount: number; time: string; type: 'buy' | 'sell'}[]>([]);
@@ -88,9 +88,20 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         return { price, amount, total };
       }).sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
       
-      // 限制显示的订单数量，只显示前10个
-      setSellOrders(processedSellOrders.slice(0, 10));
-      setBuyOrders(processedBuyOrders.slice(0, 10));
+      // 根据priceScale过滤订单
+      const filterOrdersByDepth = (orders, currentPrice, depth) => {
+        return orders.filter(order => 
+          Math.abs(order.price - currentPrice) <= depth
+        );
+      };
+
+      // 处理卖单和买单
+      const filteredSellOrders = filterOrdersByDepth(processedSellOrders, currentPrice, priceScale);
+      const filteredBuyOrders = filterOrdersByDepth(processedBuyOrders, currentPrice, priceScale);
+
+      // 设置状态
+      setSellOrders(filteredSellOrders.slice(0, 10));
+      setBuyOrders(filteredBuyOrders.slice(0, 10));
       
       // 修改条件判断，分别处理只有买盘和只有卖盘的情况
       // 更新当前价格的逻辑
@@ -305,15 +316,16 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           <div className={styles.toolbar}>
           {renderColorModeButtons()}
           
-          <select 
-            className={styles.dropdown}
+          <Select 
             value={priceScale}
-            onChange={(e) => setPriceScale(e.target.value)}
+            bordered={false}
+            onChange={(e) => setPriceScale(e)}
           >
-            <option value="0.1">0.1</option>
-            <option value="1">1</option>
-            <option value="10">10</option>
-          </select>
+            <Select.Option value={currentPair?.depthOne}>{currentPair?.depthOne} </Select.Option>
+            <Select.Option value={currentPair?.depthTwo}>{currentPair?.depthTwo}</Select.Option>
+            <Select.Option value={currentPair?.depthThree}>{currentPair?.depthThree}</Select.Option>
+            <Select.Option value={currentPair?.depthFour}>{currentPair?.depthFour}</Select.Option>
+          </Select>
         </div>
       )}
      
