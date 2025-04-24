@@ -44,7 +44,7 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
-const SpotMainPage = observer(() => {
+const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -273,7 +273,7 @@ const SpotMainPage = observer(() => {
   }
   useEffect(() => {
     getOrderListData()
-  }, [])
+  }, [orderUpdateFlag])
   return (<>
     <ConfigProvider
       theme={{

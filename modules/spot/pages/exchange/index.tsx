@@ -89,6 +89,7 @@ const ExchangePage = () => {
     const [coinData, setCoinData] = useState<any>();
     const [groupData, setGroupData] = useState<any[]>([]);
     const [currentPair, setCurrentPair] = useState<any>();
+    const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
@@ -509,6 +510,11 @@ const ExchangePage = () => {
         setChartDisplayType(Number(e.key));
     };
 
+    const handleOrderSuccess = () => {
+        // 更新标志，触发SpotChartTables组件重新获取数据
+        setOrderUpdateFlag(prev => prev + 1);
+    };
+
     return (<div className={`${styles.page_box} w-full`}>
         {/* 使用客户端渲染标记来控制渲染 */}
         {!isClient ? (
@@ -702,11 +708,11 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade />
+                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" />
                         
                     </div>
                     <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
-                        <SpotChartTables />
+                        <SpotChartTables orderUpdateFlag={orderUpdateFlag} />
                     </div>
                     <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
                         <SpotChartAssets />

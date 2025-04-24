@@ -23,7 +23,12 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const SpotTablePage = () => {
+
+type Props = {
+    orderUpdateFlag?: number
+}
+
+const SpotTablePage = ({ orderUpdateFlag }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const [tableData, setTableData] = useState<DataType[]>([
@@ -70,7 +75,7 @@ const SpotTablePage = () => {
         {
             key: '1',
             label:t('spot.tabs.now') , //"当前委托",
-            children: <SpotOrderNow />, //<div>123</div>, //
+            children: <SpotOrderNow orderUpdateFlag={orderUpdateFlag} />, //<div>123</div>, //
         },
         {
             key: '2',

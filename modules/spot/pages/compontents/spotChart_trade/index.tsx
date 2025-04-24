@@ -31,9 +31,10 @@ interface DataType {
     tenantId: string,
 }
 type Props = {
-    segmentedType: string
+    segmentedType: string,
+    onOrderSuccess?: () => void  // 添加回调函数属性
 }
-const SpotTradePage = () => {
+const SpotTradePage = ({ onOrderSuccess }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
@@ -247,11 +248,14 @@ const SpotTradePage = () => {
                     message.success(res.message)
                     setModalOpen(false)
                     form.resetFields()
+                    // 通知父组件下单成功
+                    if (typeof onOrderSuccess === 'function') {
+                        onOrderSuccess()
+                    }
                 } else {
                     message.error(res.message)
                 }
             })
-
     }
 
     // 币种余额
