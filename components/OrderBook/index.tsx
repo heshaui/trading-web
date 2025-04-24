@@ -89,8 +89,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       }).sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
       
       // 根据priceScale过滤订单
-      const filterOrdersByDepth = (orders, currentPrice, depth) => {
-        return orders.filter(order => 
+      const filterOrdersByDepth = (orders:any, currentPrice:any, depth:any) => {
+        return orders.filter((order:any) => 
           Math.abs(order.price - currentPrice) <= depth
         );
       };
