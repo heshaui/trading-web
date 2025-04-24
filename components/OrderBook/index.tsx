@@ -18,6 +18,8 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
+  console.log(bookData, 'bookData');
+  console.log(orderData, 'orderData');
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);

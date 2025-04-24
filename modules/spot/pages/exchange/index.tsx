@@ -133,9 +133,12 @@ const ExchangePage = () => {
 
             try {
                 
-                console.log(message, 'getOrderWsData');
                 const data = JSON.parse(message);
 
+                if(data.type === '__ping__'){
+                   
+                    return;
+                }
                 // 使用函数式更新来累积数据
                 setOrderData((prevData) => {
                     if (!prevData) return [data];
@@ -165,7 +168,6 @@ const ExchangePage = () => {
 
         websocket.connect((message: string) => {
             try {
-                console.log(message, 'getWsDepthData');
                 // 检查消息是否为系统消息
                 if (message.startsWith('subscribe:') ||
                     message.startsWith('ping') ||
@@ -182,11 +184,11 @@ const ExchangePage = () => {
                 }
 
                 const data = JSON.parse(message);
-                console.log(data, 'wsDepthData');
+
 
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
-                    console.log('非深度数据消息:', data.type);
+
                     return;
                 }
 
@@ -344,6 +346,8 @@ const ExchangePage = () => {
                         console.log('WebSocket错误消息:', message);
                         return;
                     }
+
+                    
 
                     // 确保消息是有效的JSON格式
                     if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
