@@ -35,10 +35,11 @@ interface DataType {
     tenantId: string,
 }
 type Props = {
-    segmentedType: string
+    segmentedType: string,
+    onOrderSuccess?: () => void  // 添加回调函数属性
 }
-const SpotTradePage = () => {
-    const { t } = useTranslation(['spot','common']);
+const SpotTradePage = ({ onOrderSuccess }: Props) => {
+    const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
@@ -246,17 +247,21 @@ const SpotTradePage = () => {
                     symbol: currentPair?.symbol,
                     type: priceDisabled ? 0 : 1
                 }
+                console.log(params, 111);
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
                     message.success(res.message)
                     setModalOpen(false)
                     form.resetFields()
+                    // 通知父组件下单成功
+                    if (typeof onOrderSuccess === 'function') {
+                        onOrderSuccess()
+                    }
                 } else {
                     message.error(res.message)
                 }
             })
-
     }
 
     // 币种余额
@@ -423,6 +428,7 @@ const SpotTradePage = () => {
                         </Form.Item>
                         <Form.Item name='amount'
                             rules={[{ validator: checkAmountLimit }]}
+                            style={{ display: priceDisabled && segmentedvalue === 'buy' ? 'none' : 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
@@ -444,7 +450,6 @@ const SpotTradePage = () => {
                                         .replace(/\.(?=.*\.)/g, '');
                                     return parsed as unknown as number;
                                 }}
-
                             />
                         </Form.Item>
                         <Slider
@@ -455,8 +460,9 @@ const SpotTradePage = () => {
                         />
                         <Form.Item name='account'
                             rules={[{ validator: checkAmount }]}
+                            style={{ display: priceDisabled && segmentedvalue === 'sell' ? 'none' : 'block' }}
                         >
-                            <InputNumber disabled={true} className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
                                     {currentPair?.baseSymbol}

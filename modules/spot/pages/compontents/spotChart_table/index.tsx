@@ -24,7 +24,12 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const SpotTablePage = () => {
+
+type Props = {
+    orderUpdateFlag?: number
+}
+
+const SpotTablePage = ({ orderUpdateFlag }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const { isLoggedIn} = useAuth();
@@ -46,7 +51,7 @@ const SpotTablePage = () => {
         {
             key: '1',
             label:t('spot.tabs.now') , //"当前委托",
-            children: isLoggedIn ? <SpotOrderNow /> : <div className='h-full' style={{paddingTop:'100px'}}>
+            children: isLoggedIn ? <SpotOrderNow orderUpdateFlag={orderUpdateFlag} /> : <div className='h-full' style={{paddingTop:'100px'}}>
                 <NoLogin />
             </div>
         },

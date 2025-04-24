@@ -105,15 +105,11 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
         });
     };
 
-    const userToken = appStore.getUserToken() || [];
-    let sortedPairList = [];
-    if(userToken){
-        sortedPairList = getSortedPairs().filter(pair => pair.isFavorite === true);
-    }
+    const sortedPairList = getSortedPairs();
 
     const filteredPairs = sortedPairList.filter(pair => 
-        pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
-        pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
+        (pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
+        pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase()))
     );
 
     return (
