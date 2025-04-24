@@ -20,6 +20,8 @@ import appStore from '@/store';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
+import ToastModal from '@/components/spotModal/Toast_modal';
+
 
 interface DataType {
     id: number,
@@ -48,6 +50,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     const [modalData, setModalData] = useState({});
     const [userBalance, setUserBalance] = useState<any[]>([]);
     const { isLoggedIn } = useAuth();
+    const [toastModal, setToastModal] = useState(false);
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -508,11 +511,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                             // className={`${styles.sumbit_btn} green_btn`}
                             style={{ width: '100%', height: '50px', borderRadius: '32px' }}
                             htmlType="button"
-                            onClick={()=>{
+                            onClick={() => {
                                 router.push(ROUTER_KEY_OPEN.LOGIN)
                             }}
                         >
-                             {t('spot.modal.login')}
+                            {t('spot.modal.login')}
                         </Button>
                     }
 
@@ -534,8 +537,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
 
                 <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder() }} />
                 {/* <ErrorModal open={modalOpen} onCancel={() => {  }} onOk={() => {  }}  /> */}
+               
                 {/* <SpotBuyModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} /> */}
 
+                {/* 已挂单/已撤单 */}
+                {/* <ToastModal open={toastModal} type='1' onCancel={() => { setToastModal(false) }} onOk={() => { setToastModal(false) }} toastData={toastData} /> */}
             </div>
         </ConfigProvider >
     </div >
