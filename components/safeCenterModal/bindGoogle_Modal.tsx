@@ -80,7 +80,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 setLoading(true)
                 try {
                     const params = {
-                        googleCode: values.googleCode || ''
+                        googleCode: values.googleCode || '',
+                        platformType:'Web'
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await bindGoogle(dataEncrypt)

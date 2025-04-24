@@ -52,7 +52,8 @@ function ResetPassword() {
                         type: acount.type,
                         account: acount.acount,
                         password: values.newPassword,
-                        passwordConfirm: values.checkPassword
+                        passwordConfirm: values.checkPassword,
+                        platformType:'Web'
                     }
                     const dataEncrypt = await encryptData(dataInfo)
                     const res = await getResetPassword(dataEncrypt)
