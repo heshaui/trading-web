@@ -49,6 +49,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     };
         // 处理排序
         const handleSort = (field: string) => {
+            console.log('排序字段:', field, '当前排序字段:', sortField, '当前排序方向:', sortDirection);
             if (sortField === field) {
                 // 相同字段，切换排序方向
                 setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -63,41 +64,51 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     // 获取排序后的数据
     const getSortedPairs = () => {
         if (!sortField) return currencyPairs;
-
+        
+        console.log('开始排序，字段:', sortField, '方向:', sortDirection);
+        
         return [...currencyPairs].sort((a, b) => {
-            if (sortField === 'name') {
-                // 使用正确的属性进行排序，确保不为undefined
-                const nameA = a.coinSymbol || '';
-                const nameB = b.coinSymbol || '';
-                return sortDirection === 'asc' 
-                    ? nameA.localeCompare(nameB, undefined, { numeric: true })
-                    : nameB.localeCompare(nameA, undefined, { numeric: true });
-            }
-            if (sortField === 'price') {
-                // 最新价排序
-                const priceA = parseFloat(a.yesterdayPrice) || 0;
-                const priceB = parseFloat(b.yesterdayPrice) || 0;
-                return sortDirection === 'asc' 
-                    ? priceA - priceB
-                    : priceB - priceA;
-            }
-            if (sortField === 'change') {
-                // 24h涨跌排序
-                const changeA = parseFloat(a.priceChangePercent) || 0;
-                const changeB = parseFloat(b.priceChangePercent) || 0;
-                return sortDirection === 'asc'
-                    ? changeA - changeB
-                    : changeB - changeA;
+            try {
+                if (sortField === 'name') {
+                    // 使用正确的属性进行排序，确保不为undefined
+                    const nameA = String(a.coinSymbol || '');
+                    const nameB = String(b.coinSymbol || '');
+                    return sortDirection === 'asc' 
+                        ? nameA.localeCompare(nameB, undefined, { numeric: true })
+                        : nameB.localeCompare(nameA, undefined, { numeric: true });
+                }
+                if (sortField === 'price') {
+                    // 最新价排序
+                    const priceA = typeof a.yesterdayPrice === 'string' ? parseFloat(a.yesterdayPrice || '0') : (a.yesterdayPrice || 0);
+                    const priceB = typeof b.yesterdayPrice === 'string' ? parseFloat(b.yesterdayPrice || '0') : (b.yesterdayPrice || 0);
+                    return sortDirection === 'asc' 
+                        ? priceA - priceB
+                        : priceB - priceA;
+                }
+                if (sortField === 'change') {
+                    // 24h涨跌排序
+                    const changeA = typeof a.priceChangePercent === 'string' ? parseFloat(a.priceChangePercent || '0') : (a.priceChangePercent || 0);
+                    const changeB = typeof b.priceChangePercent === 'string' ? parseFloat(b.priceChangePercent || '0') : (b.priceChangePercent || 0);
+                    return sortDirection === 'asc'
+                        ? changeA - changeB
+                        : changeB - changeA;
+                }
+            } catch (error) {
+                console.error('排序过程中出错:', error, '数据:', a, b);
             }
             return 0;
         });
     };
-    const sortedPairList = getSortedPairs();
+    
+    // 确保在排序状态变化时重新计算排序结果
+    const sortedPairList = React.useMemo(() => getSortedPairs(), [currencyPairs, sortField, sortDirection]);
 
-    const filteredPairs = sortedPairList.filter(pair => 
-        pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
-        pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
-      );
+    // 基于搜索过滤排序后的结果
+    const filteredPairs = React.useMemo(() => 
+        sortedPairList.filter(pair => 
+            pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
+            pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
+        ), [sortedPairList, searchValue]);
     return (
         <ConfigProvider
             theme={{
