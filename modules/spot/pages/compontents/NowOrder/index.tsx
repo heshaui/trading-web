@@ -65,17 +65,18 @@ const SpotMainPage = () => {
   const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
+    direction: '',
+    symbol: ''
   });
   const [loading, setLoading] = useState(false);
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
   const [toastModal, setToastModal] = useState<boolean>(false);
-  const [delectId, setDelectId] = useState<number[]>([]);
-  const [delectIdAll, setDelectIdAll] = useState<number[]>([]);
+  const [delectId, setDelectId] = useState<string[]>([]);
+  const [delectIdAll, setDelectIdAll] = useState<string[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<any>({})
 
  
-
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
@@ -83,7 +84,7 @@ const SpotMainPage = () => {
       key: "updateTime",
       width: 158,
       align: "left",
-      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`} </div>,
     },
     {
       title: t('spot.columns.symbol'), //"交易对",
@@ -154,7 +155,7 @@ const SpotMainPage = () => {
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
             </span>
 
           </div>
@@ -179,7 +180,7 @@ const SpotMainPage = () => {
     {
       title: <button className={`error_icon`}
       onClick={()=>{
-        setDelectIdAll(tableData.map((item)=>item.id))
+        setDelectIdAll(tableData.map((item)=>item.orderId))
         setDelectModal(true)
       }}
       >{t('spot.columns.cancel')}</button>, //"全撤",
@@ -190,7 +191,8 @@ const SpotMainPage = () => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              setDelectId([record.id])
+              
+              setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
                 coinSymbol: record.coinSymbol,
@@ -232,10 +234,10 @@ const SpotMainPage = () => {
 };
 
   const directionSelect: { label: string, value: string | number }[] = [
-    {
-      label: t('spot.select.all'),
-      value: ''
-    },
+    // {
+    //   label: t('spot.select.all'),
+    //   value: ''
+    // },
     {
       label: t('spot.modal.buy'),
       value: 0
@@ -256,21 +258,38 @@ const SpotMainPage = () => {
       page: page,
       pageSize: pageSize
     }
-    paramdataRef.current = pageData;
+    paramdataRef.current.page = page
+    paramdataRef.current.pageSize = pageSize
     getOrderListData()
   }
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
-
-
+  const directionChange =async (value: any, options: any) => {
+   if(value||value?.toString()==='0'){
+    paramdataRef.current.direction = value
+   }else{
+    paramdataRef.current.direction = ''
+   }
+   await getOrderListData()
+  }
+  const symbolChange =async (value: any, options: any) => {
+    if(value||value?.toString()==='0'){
+     paramdataRef.current.symbol = value
+    }else{
+     paramdataRef.current.symbol = ''
+    }
+    await getOrderListData()
+   }
+  const handleDelectOk = () => {
+    getOrderListData()
   }
   const getOrderListData = async () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 0,
-      // coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:'',
-      // baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:'',
+      direction: (paramdataRef.current.direction||paramdataRef.current.direction.toString()==='0')?paramdataRef.current.direction:null,
+      // symbol: paramdataRef.current.symbol,
+      coinSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[0]:null,
+      baseSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[1]:null,
     }
     setLoading(true)
     try {
@@ -296,19 +315,14 @@ const SpotMainPage = () => {
     if (res.code === '0') {
       const selectData = res.data.map((item: any) => {
         return {
-          label: `${item.baseSymbol}/${item.coinSymbol}`,
-          value: `${item.baseSymbol}/${item.coinSymbol}`,
+          label: `${item.coinSymbol}/${item.baseSymbol}`,
+          value: `${item.coinSymbol}/${item.baseSymbol}`,
           baseSymbol: item.baseSymbol,
           coinSymbol: item.coinSymbol,
           tenantId: item.tenantId
         }
       })
-      setSymbolSelect([{
-        label: t('spot.select.all'),
-        value: '',
-        baseSymbol: '',
-        coinSymbol: ''
-      }, ...selectData])
+      setSymbolSelect(selectData)
     }
 
   }
@@ -353,25 +367,27 @@ const SpotMainPage = () => {
           <Form
             form={form}
             layout="inline"
-            initialValues={{
-              direction: '',
-              symbol: ''
-            }}
+            // initialValues={{
+            //   direction: '',
+            //   symbol: ''
+            // }}
           >
             <Form.Item name="direction" >
               <Select allowClear
-                placeholder={t('spot.select.direction')}
+                placeholder={t('spot.select.all')}
                 options={directionSelect}
                 className={`${styles.select_box} select-text-right`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
+                onChange={directionChange}
               />
             </Form.Item>
             <Form.Item name="symbol" >
               <Select allowClear
-                placeholder={t('spot.select.symbol')}
+                placeholder={t('spot.select.all')}
                 options={symbolSelect}
                 className={`${styles.select_box} select-text-right`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
+                onChange={symbolChange}
               />
             </Form.Item>
             {/* --border-color4 */}
@@ -383,7 +399,7 @@ const SpotMainPage = () => {
             columns={columns}
             dataSource={tableData}
             size="large"
-            scroll={{ x: "max-content", y: 300 }}
+            scroll={{ x: "max-content" }}
             className={`spot-table-box spot-pagination`}
             pagination={{
               position: ["bottomRight"],
@@ -398,6 +414,15 @@ const SpotMainPage = () => {
           />
 
         </div>
+        <DelectModal open={delectModal} 
+        orderId={delectIdAll}
+        onCancel={() => setDelectModal(false)}
+        onOk={handleDelectOk}/>
+        <ToastModal
+         open={toastModal} 
+         toastData={toastData}
+        onCancel={() => setToastModal(false)}
+        />
       </div>
     </ConfigProvider>
   </>

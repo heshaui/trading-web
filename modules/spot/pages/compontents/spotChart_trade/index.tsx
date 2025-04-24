@@ -17,6 +17,10 @@ import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import { getUserBalance, getUserBalanceAll } from '@/services/assets'
 import { toast } from 'sonner';
 import appStore from '@/store';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/router';
+import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
+
 interface DataType {
     id: number,
     userId: number,
@@ -34,41 +38,43 @@ type Props = {
     segmentedType: string
 }
 const SpotTradePage = () => {
-    const { t } = useTranslation(['spot']);
+    const { t } = useTranslation(['spot','common']);
     const [form] = Form.useForm();
+    const router = useRouter();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
     const [priceDisabled, setPriceDisabled] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
     const [userBalance, setUserBalance] = useState<any[]>([]);
+    const { isLoggedIn } = useAuth();
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
     // console.log('currentPair', currentPair);
     //  输入金额校验
-    const checkAmount = (_: any, value: string) => { 
+    const checkAmount = (_: any, value: string) => {
         if (!value) return Promise.resolve();
-        
+
         // 获取当前可用余额
         const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
-        
+
         // 将输入值转为数字进行比较
         const inputValue = parseFloat(value);
-        
+
         if (segmentedvalue === 'buy' && inputValue > baseBalance) {
             return Promise.reject(new Error(`可用${currentPair?.baseSymbol}余额不足`));
         }
-        
+
         return Promise.resolve();
     }
 
     // 添加数量校验函数
     const checkAmountLimit = (_: any, value: string) => {
         if (!value) return Promise.resolve();
-        
+
         const inputValue = parseFloat(value);
-        
+
         // 根据下单类型验证最大值
         if (priceDisabled) {
             // 市价单 - 验证最大市价单笔数量
@@ -81,7 +87,7 @@ const SpotTradePage = () => {
                 return Promise.reject(new Error(`最大限价挂单数为 ${currentPair.maxCurrentPrice} ${currentPair?.coinSymbol}`));
             }
         }
-        
+
         return Promise.resolve();
     };
 
@@ -154,7 +160,7 @@ const SpotTradePage = () => {
                 return;
             }
         }
-        
+
         form.validateFields()
             .then(async (values) => {
                 const modalData = {
@@ -475,31 +481,42 @@ const SpotTradePage = () => {
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance} {currentPair?.baseSymbol}</p>
+                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p>
                             </li>
                             <li className='flex justify-between align-center'>
                                 <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance} {currentPair?.coinSymbol}</p>
+                                <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>
                             </li>
                         </ul>
                     </Form>
-                    <Button
+                    {isLoggedIn ? <Button
                         // className={`${styles.sumbit_btn} green_btn`}
                         style={{ width: '100%', height: '50px', borderRadius: '32px' }}
-                        htmlType="submit" 
+                        htmlType="submit"
                         onClick={onSumbit}
                         disabled={currentPair?.enable === 0}
                     >
                         {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}
-                    </Button>
+                    </Button> :
+                        <Button
+                            // className={`${styles.sumbit_btn} green_btn`}
+                            style={{ width: '100%', height: '50px', borderRadius: '32px' }}
+                            htmlType="button"
+                            onClick={()=>{
+                                router.push(ROUTER_KEY_OPEN.LOGIN)
+                            }}
+                        >
+                             {t('spot.modal.login')}
+                        </Button>
+                    }
 
 
 
                     <div className={`${styles.fee_container} flex align-center mt-4`}>
-                        <div className={styles.fee_icon} style={{marginRight:'4px',verticalAlign:'middle'}}>
+                        <div className={styles.fee_icon} style={{ marginRight: '4px', verticalAlign: 'middle' }}>
                             <Iconify icon="mdi:percent-circle-outline" size={16} />
                         </div>
-                        <span className={styles.fee_text} style={{fontSize:'12px',paddingTop:'2px'}}>手续费</span>
+                        <span className={styles.fee_text} style={{ fontSize: '12px', paddingTop: '2px' }}>手续费</span>
                         <div className={styles.fee_tooltip}>
                             <div className={styles.fee_tooltip_content}>
                                 <div className={styles.fee_tooltip_title}>手续费</div>
@@ -509,11 +526,11 @@ const SpotTradePage = () => {
                     </div>
                 </div>
 
-                <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder()}} />
+                <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder() }} />
                 {/* <ErrorModal open={modalOpen} onCancel={() => {  }} onOk={() => {  }}  /> */}
                 {/* <SpotBuyModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} /> */}
 
-    </div>
+            </div>
         </ConfigProvider >
     </div >
     );

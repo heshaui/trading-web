@@ -8,6 +8,7 @@ export const publicPaths = [
     '/login',
     '/register',
     '/resetPassword',
+    '/exchange'
 ];
 
 // 检查路径是否匹配公开路径

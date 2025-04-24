@@ -9,7 +9,8 @@ import SpotOrderNow from './now_table'
 import SpotOrderHistory from './pastDeals_table'
 import SpotOrderDeal from './historyDeal_table'
 import SpotOrderAssets from './assets_table'
-
+import { useAuth } from '@/context/AuthContext';
+import { NoLogin } from '@/components/noData';
 interface DataType {
     id: number,
     userId: number,
@@ -26,33 +27,8 @@ interface DataType {
 const SpotTablePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
-    const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        }, {
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
-    ]);
+    const { isLoggedIn} = useAuth();
+
     const router = useRouter();
     const [paramInfo, sePparamInfo] = useState({
         type: '',
@@ -70,22 +46,30 @@ const SpotTablePage = () => {
         {
             key: '1',
             label:t('spot.tabs.now') , //"当前委托",
-            children: <SpotOrderNow />, //<div>123</div>, //
+            children: isLoggedIn ? <SpotOrderNow /> : <div className='h-full' style={{paddingTop:'100px'}}>
+                <NoLogin />
+            </div>
         },
         {
             key: '2',
             label: t('spot.tabs.history'), //'历史委托',
-            children: <SpotOrderHistory />, //<SpotOrderHistory />,
+            children: isLoggedIn ? <SpotOrderHistory /> : <div className='h-full' style={{paddingTop:'100px'}}>
+                <NoLogin />
+            </div>
         },
         {
             key: '3',
             label: t('spot.tabs.historyDeal'), //'历史成交',
-            children: <SpotOrderDeal/>, //<SpotOrderDeal/>,
+            children: isLoggedIn ? <SpotOrderDeal/> : <div className='h-full' style={{paddingTop:'100px'}}>
+                <NoLogin />
+            </div>
         },
         {
             key: '4',
             label: t('spot.tabs.asset'), //'资产',
-            children: <SpotOrderAssets/>, //<SpotOrderAssets/>,
+            children: isLoggedIn ? <SpotOrderAssets/> : <div className='h-full' style={{paddingTop:'100px'}}>
+                <NoLogin />
+            </div>
         },
     ];
  
