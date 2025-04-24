@@ -500,3 +500,8 @@
 .spot-tabs .ant-tabs-nav::before{
     border-color: transparent !important;
 }
+
+/* 自定义radio */
+.radio-custom .ant-radio-wrapper-block{
+    justify-content: flex-start !important;
+}

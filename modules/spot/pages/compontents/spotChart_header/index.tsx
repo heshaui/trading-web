@@ -13,7 +13,7 @@ import SpotSelect from './SpotSelect';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
-import DrawerPop from './DrawerPop';
+import DrawerPop from '../DrawerPop';
 
 
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {

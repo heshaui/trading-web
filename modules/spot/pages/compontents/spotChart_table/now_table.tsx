@@ -372,6 +372,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
         onCancel={() => setDelectModal(false)}
         onOk={handleDelectOk}/>
         <ToastModal
+        type='0'
          open={toastModal} 
          toastData={toastData}
         onCancel={() => setToastModal(false)}
