@@ -240,6 +240,7 @@ const SpotTradePage = () => {
                     symbol: currentPair?.symbol,
                     type: priceDisabled ? 0 : 1
                 }
+                console.log(params, 111);
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
@@ -417,6 +418,7 @@ const SpotTradePage = () => {
                         </Form.Item>
                         <Form.Item name='amount'
                             rules={[{ validator: checkAmountLimit }]}
+                            style={{ display: priceDisabled && segmentedvalue === 'buy' ? 'none' : 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
@@ -438,7 +440,6 @@ const SpotTradePage = () => {
                                         .replace(/\.(?=.*\.)/g, '');
                                     return parsed as unknown as number;
                                 }}
-
                             />
                         </Form.Item>
                         <Slider
@@ -449,8 +450,9 @@ const SpotTradePage = () => {
                         />
                         <Form.Item name='account'
                             rules={[{ validator: checkAmount }]}
+                            style={{ display: priceDisabled && segmentedvalue === 'sell' ? 'none' : 'block' }}
                         >
-                            <InputNumber disabled={true} className={`${styles.mail_input} spot_number_input `}
+                            <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
                                 suffix={<div>
                                     {currentPair?.baseSymbol}
@@ -490,7 +492,7 @@ const SpotTradePage = () => {
                         onClick={onSumbit}
                         disabled={currentPair?.enable === 0}
                     >
-                        {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}
+                        {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')} {currentPair?.coinSymbol}
                     </Button>
 
 
