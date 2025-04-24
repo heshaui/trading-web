@@ -171,23 +171,16 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     type: priceDisabled ? 0 : 1,
                     direction: segmentedvalue === 'buy' ? 0 : 1,
                 }
+                const noRemind = localStorage.getItem('noRemind')
+                console.log(noRemind, 'noRemind');
+                if (noRemind==='true') {
+                    setModalOpen(false)
+                    handelSubmitOrder()
+                }else{
                 setModalData(modalData)
-                console.log(values, 111);
-                const params = {
-                    amount: values.amount,
-                    baseSymbol: currentPair?.baseSymbol,
-                    coinSymbol: currentPair?.coinSymbol,
-                    direction: 0,
-                    price: values.price,
-                    symbol: currentPair?.symbol,
-                    type: priceDisabled ? 0 : 1
+                setModalOpen(true)
                 }
-                try {
-                    // 
-                    setModalOpen(true)
-                } catch (error) {
-
-                }
+               
             })
     }
     const items: TabsProps['items'] = [
@@ -232,6 +225,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     // 监听价格和数量的变化，计算成交额
     useEffect(() => {
         // 初始化时计算一次总额
+       
         calculateTotal();
     }, [form]);
 
@@ -252,7 +246,6 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
-                    message.success(res.message)
                     setModalOpen(false)
                     form.resetFields()
                     // 通知父组件下单成功
