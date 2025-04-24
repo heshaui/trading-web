@@ -51,6 +51,8 @@ type Props = {
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
     const { t } = useTranslation(['spot']);
+    const [noRemind, setNoRemind] = useState(false);
+    
     const handCancel = () => {
         // form.resetFields();
         onCancel()
@@ -58,10 +60,20 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
 
     const handOk = async () => {
         console.log('提交订单');
+        
+        // 如果用户选择不再提醒，保存到本地存储
+        if (noRemind) {
+            localStorage.setItem('noRemind', 'true');
+        }
+        
         onOk(true)
         // onCancel()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-
+    };
+    
+    // 处理复选框选中状态变化
+    const handleCheckboxChange = (e: any) => {
+        setNoRemind(e.target.checked);
     };
 
     const ModalFooter: ModalProps["footer"] = () => {
@@ -180,7 +192,11 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                             {t('spot.modal.warning')}
                         </span>
                     </div>}
-                    <Checkbox className="custom-checkbox text-color-default mb-5" >
+                    <Checkbox 
+                        className="custom-checkbox text-color-default mb-5" 
+                        checked={noRemind}
+                        onChange={handleCheckboxChange}
+                    >
                         <p className={`${styles.title_color}`}>
                             {/* 不再提醒,可在交易设置中，开启或关闭提示。 */}
                             {t('spot.modal.noRemind')}

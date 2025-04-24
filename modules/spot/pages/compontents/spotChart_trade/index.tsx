@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message } from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message,notification} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
@@ -174,23 +174,16 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     type: priceDisabled ? 0 : 1,
                     direction: segmentedvalue === 'buy' ? 0 : 1,
                 }
+                const noRemind = localStorage.getItem('noRemind')
+                console.log(noRemind, 'noRemind');
+                if (noRemind==='true') {
+                    setModalOpen(false)
+                    handelSubmitOrder()
+                }else{
                 setModalData(modalData)
-                console.log(values, 111);
-                const params = {
-                    amount: values.amount,
-                    baseSymbol: currentPair?.baseSymbol,
-                    coinSymbol: currentPair?.coinSymbol,
-                    direction: 0,
-                    price: values.price,
-                    symbol: currentPair?.symbol,
-                    type: priceDisabled ? 0 : 1
+                setModalOpen(true)
                 }
-                try {
-                    // 
-                    setModalOpen(true)
-                } catch (error) {
-
-                }
+               
             })
     }
     const items: TabsProps['items'] = [
@@ -239,7 +232,6 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     }, [form]);
 
     const handelSubmitOrder = async () => {
-        console.log('提交订单');
         form.validateFields()
             .then(async (values) => {
                 const params = {
@@ -251,16 +243,25 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     symbol: currentPair?.symbol,
                     type: priceDisabled ? 0 : 1
                 }
-                console.log(params, 111);
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
-                    message.success(res.message)
                     setModalOpen(false)
                     form.resetFields()
                     // 通知父组件下单成功
                     if (typeof onOrderSuccess === 'function') {
                         onOrderSuccess()
+                        notification.success({
+                            message: '已挂单',
+                            description: (
+                                <div>
+                                    <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
+                                    <div>数量：{values.amount}</div>
+                                    <div>价格：{priceDisabled ? res.data[1]:values.price}</div>
+                                </div>
+                            ),
+                            duration: 3
+                        })
                     }
                 } else {
                     message.error(res.message)
