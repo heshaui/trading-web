@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message } from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message,notification} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
@@ -258,6 +258,17 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                     // 通知父组件下单成功
                     if (typeof onOrderSuccess === 'function') {
                         onOrderSuccess()
+                        notification.success({
+                            message: '已挂单',
+                            description: (
+                                <div>
+                                    <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
+                                    <div>数量：{values.amount}</div>
+                                    <div>价格：{values.price}</div>
+                                </div>
+                            ),
+                            duration: 3
+                        })
                     }
                 } else {
                     message.error(res.message)
