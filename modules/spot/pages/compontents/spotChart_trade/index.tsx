@@ -36,6 +36,7 @@ interface DataType {
 }
 type Props = {
     segmentedType: string,
+    currentPrice: number,
     onOrderSuccess?: () => void  // 添加回调函数属性
 }
 const SpotTradePage = ({ onOrderSuccess }: Props) => {
@@ -428,7 +429,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                         </Form.Item>
                         <Form.Item name='amount'
                             rules={[{ validator: checkAmountLimit }]}
-                            style={{ display: priceDisabled && segmentedvalue === 'buy' ? 'none' : 'block' }}
+                            style={{ display: 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}
@@ -460,7 +461,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                         />
                         <Form.Item name='account'
                             rules={[{ validator: checkAmount }]}
-                            style={{ display: priceDisabled && segmentedvalue === 'sell' ? 'none' : 'block' }}
+                            style={{ display: priceDisabled ? 'none' : 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
                                 style={{ width: "100%" }}

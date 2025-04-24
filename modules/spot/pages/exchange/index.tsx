@@ -90,6 +90,7 @@ const ExchangePage = () => {
     const [groupData, setGroupData] = useState<any[]>([]);
     const [currentPair, setCurrentPair] = useState<any>();
     const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
+    const [currentPrice, setCurrentPrice] = useState<number>(0);
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
@@ -371,6 +372,13 @@ const ExchangePage = () => {
         }
     }
 
+    const getTradeHistoryData = async () => {
+        const response = await fetch(`https://ws81.imsaas.work/trade/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
+        const data = await response.json();
+        console.log(data, 'getTradeHistoryData');
+        // setCurrentPrice(data[0].price);
+    }
+
     useEffect(() => {
         // 设置客户端渲染标记
         setIsClient(true);
@@ -397,6 +405,7 @@ const ExchangePage = () => {
         getOrderWsData();
         getHistoryDepthData();
         getKlineData();
+        getTradeHistoryData();
     }, [isClient, currentPair]);
 
     useEffect(() => {
@@ -707,7 +716,7 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" />
+                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" currentPrice={currentPrice} />
                         
                     </div>
 
