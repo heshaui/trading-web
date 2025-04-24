@@ -78,7 +78,8 @@ function SetMailModal({ open, onCancel, type,acountInfo ,onOk}: Props) {
                             type:2,
                             googleCode: values.googleCode||'',
                             code:values.emailCode||'',
-                            email:values.emailCode?acountInfo?.email:''
+                            email:values.emailCode?acountInfo?.email:'',
+                            platformType:'Web'
                         }
 
                     } else if (type === 'change') {

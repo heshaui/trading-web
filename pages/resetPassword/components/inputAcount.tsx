@@ -101,6 +101,8 @@ function ResetPassword() {
                     }
                 } catch (error) {
                     toast.error(String(error))
+                }finally{
+                    setIsLoding(false)
                 }
 
 

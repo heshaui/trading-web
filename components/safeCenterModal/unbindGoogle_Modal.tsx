@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import  QuestionModal  from "@/components/myModal/questionModal";
 import { useTranslation } from 'next-i18next';
+import { platform } from "os";
 
 interface acountType {
     countryCode?: string;
@@ -91,6 +92,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                         phoneCode: values.phoneCode || '',
                         phone: values.phoneCode?acountInfo.phone:"",
                         countryCode: values.phoneCode?acountInfo.countryCode:"",
+                        platformType:'Web'
                     }
                     const dataEncrypt = await encryptData(params)
                     const res = await unbindGoogle(dataEncrypt)
