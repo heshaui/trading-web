@@ -174,7 +174,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setLastPrice(prevPrice => {
           if (prevPrice > 0) {
             // 设置价格方向
-            setPriceDirection(newPrice >= prevPrice ? 'up' : 'down');
+            setPriceDirection(newPrice > prevPrice ? 'up' : newPrice < prevPrice ? 'down' : '');
             
             // 更新trades数组中的第一个元素
             setTrades(prev => {
@@ -182,11 +182,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
             });
           }
           
-          // 仅在显示完整订单簿时更新当前价格为最新成交价
-          if (colorMode === 1) {
-            setCurrentPrice(newPrice);
-            setPriceSource(newType);
-          }
+          // 无论当前显示模式如何，始终将当前价格更新为最新成交价
+          setCurrentPrice(newPrice);
+          setPriceSource(newType);
+          
           return newPrice;
         });
       }
@@ -212,7 +211,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
-  }, [orderData, colorMode]); // 添加colorMode依赖
+  }, [orderData]); // 移除colorMode依赖，确保总是更新最新成交价
 
   const renderColorModeButtons = () => {
     return (
