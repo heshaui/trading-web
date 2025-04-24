@@ -46,6 +46,7 @@ export const useWebConfig = () => {
                     "theme",
                     "logo",
                     "footer_setting",
+                    "fee_direction",
                     // 可以根据需要添加更多配置项
                 ];
 
@@ -197,4 +198,20 @@ export const useThemeConfig = () => {
 
     return { theme, loading };
 };
+
+
+//获取手续费方向
+export const useFeeDirection = () => {
+    const { config, loading } = useWebConfig();
+    const [feeDirection, setFeeDirection] = useState<string>('');
+
+    useEffect(() => {
+        if (config.fee_direction) { 
+            setFeeDirection(config.fee_direction);
+        }
+    }, [config]);
+
+    return { feeDirection, loading };
+};
+
 

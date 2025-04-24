@@ -160,10 +160,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         // 解析JSON字符串
         const tradeData = item.data
         return {
-          price: tradeData.buy_price, // 或 sell_price，它们是相同的
-          amount: tradeData.quantity,
-          time: new Date(tradeData.timestamp).toLocaleTimeString(),
-          type: tradeData.taker_side === 'Buy' ? 'buy' : 'sell'
+          price: tradeData?.buy_price, // 或 sell_price，它们是相同的
+          amount: tradeData?.quantity,
+          time: new Date(tradeData?.timestamp).toLocaleTimeString(),
+          type: tradeData?.taker_side === 'Buy' ? 'buy' : 'sell'
         };
       });
       

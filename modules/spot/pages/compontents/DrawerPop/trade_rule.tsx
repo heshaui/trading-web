@@ -22,7 +22,7 @@ const TradeRule = observer(() => {
 
 
 
-
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
     if(popType !== PopTypeEnum.TRADE_RULE) return null
 
@@ -33,41 +33,41 @@ const TradeRule = observer(() => {
                 <li className='flex-x align-center justify-between '>
                     最大下单金额
                     <span className={`${styles.tip_color} font-w-400 mx-1 font-14`}>
-                        100BTC
+                        {currentPair?.maxBaseVolume}{currentPair?.baseSymbol}
                     </span>
 
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最小下单金额
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        USDT
+                        {currentPair?.minBaseVolume}{currentPair?.baseSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最大下单数量
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        USDT
+                        {currentPair?.maxVolume}{currentPair?.coinSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最小下单数量
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        USDT
+                        {currentPair?.minVolume}{currentPair?.coinSymbol}
                     </span>
                 </li>
 
-                <li className='flex-x align-center justify-between mt-5'>
+                {/* <li className='flex-x align-center justify-between mt-5'>
                     最小价格波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        USDT
+                        {currentPair?.minPriceChange}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最小数量波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        USDT
+                        {currentPair?.minPriceChange}
                     </span>
-                </li>
+                </li> */}
             </ul>
         </>
     )

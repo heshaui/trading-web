@@ -13,14 +13,16 @@ import { useRouter } from 'next/navigation';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import { usePopTypeContext, PopTypeEnum } from '@/hooks/usePopProvider';
+import { useFeeDirection } from '@/hooks/useKv';
 const FeeCoin = observer(() => {
 
     const { t } = useTranslation(['spot']);
     const { isLoggedIn } = useAuth();
     const router = useRouter();
     const {popType, setPopType } = usePopTypeContext();
+    const { feeDirection } = useFeeDirection();
 
-
+    console.log(feeDirection, 'feeDirection');
 
     const options: CheckboxGroupProps<string>['options'] = [
         {
@@ -28,14 +30,14 @@ const FeeCoin = observer(() => {
                 <div className='ml-1'>
                     接收币种
                 </div>,
-            value: '0'
+            value: '1'
         },
         {
             label:
                 <div className='ml-1'>
                     计价币种
                 </div>,
-            value: '1'
+            value: '2'
         },
     ];
 
@@ -55,7 +57,7 @@ const FeeCoin = observer(() => {
                 },
             }}
             >
-            <Radio.Group block options={options} defaultValue="0"
+            <Radio.Group block options={options} defaultValue={feeDirection.toString()}
                 className='mt-5 px-5 radio-custom' />
        </ConfigProvider>     
             <ul className={`${styles.tip_color} px-5 mt-5 font-14 font-w-400`}>

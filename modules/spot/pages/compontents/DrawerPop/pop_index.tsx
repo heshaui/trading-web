@@ -10,14 +10,14 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
 import { usePopTypeContext, PopTypeEnum } from '@/hooks/usePopProvider';
-
+import appStore from '@/store';
 const DrawerPopIndex = () => {
 
     const { t } = useTranslation(['spot']);
     const { isLoggedIn} = useAuth();
     const router = useRouter();
     const {popType, setPopType } = usePopTypeContext();
-
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 const goRule = () => {
     setPopType(PopTypeEnum.TRADE_RULE)
 }
@@ -95,7 +95,7 @@ const goFeeCoin = () => {
                     <button className={`${styles.tip_color} font-w-400  mx-1`}
                     onClick={goRule}
                     >
-                    BTC/USDT
+                    {currentPair?.coinSymbol}/{currentPair?.baseSymbol}
                     <Iconify icon="icon-park-outline:right" className={`${styles.tip_color} ml-1`} size={24} />
 
                     </button>
@@ -107,7 +107,7 @@ const goFeeCoin = () => {
                     <button className={`${styles.tip_color} font-w-400  mx-1`}
                     onClick={goRule}
                     >
-                    BTC/USDT
+                    {currentPair?.coinSymbol}/{currentPair?.baseSymbol}
                     <Iconify icon="icon-park-outline:right" className={`${styles.tip_color} ml-1`} size={24} />
 
                     </button>
