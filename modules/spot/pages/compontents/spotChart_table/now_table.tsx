@@ -44,6 +44,9 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
+type Props = {
+  orderUpdateFlag?: number
+}
 const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();

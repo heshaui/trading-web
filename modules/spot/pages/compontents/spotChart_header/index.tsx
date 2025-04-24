@@ -13,6 +13,9 @@ import SpotSelect from './SpotSelect';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
+import DrawerPop from './DrawerPop';
+
+
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     
     const { t } = useTranslation(['spot']);
@@ -22,7 +25,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const [searchValue, setSearchValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false); // 添加收藏状态
-
+    const [dawerPopOpen, setDawerPopOpen] = useState(false); // 侧边抽屉
    
     // 解析K线数据
     const klineData = coinData?.data?.[0] || [];
@@ -274,9 +277,10 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                         </p>
                     </li>
                 </ul>
-                <div className='flex-cc'>
+                <button type='button' className='flex-cc' onClick={() => setDawerPopOpen(true)}>
                     <Iconify icon="mingcute:settings-5-line" size={26} className={`${styles.tip_color}`} />
-                </div>
+                </button>
+                <DrawerPop open={dawerPopOpen} onClose={() => setDawerPopOpen(false)} />
             </ConfigProvider>
         </div>
     );

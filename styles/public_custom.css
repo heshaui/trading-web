@@ -84,7 +84,8 @@
     color: var(--text-color4) !important;
 }
 .select-text-right .ant-select-selection-placeholder{
-    color: var(--text-color4) !important;
+    color: var(--text-color5) !important;
+    text-align: right !important;
 }
 
 .custom-select .ant-select-selection-item {

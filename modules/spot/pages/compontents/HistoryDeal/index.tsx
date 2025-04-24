@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { add, cut, division, lastD } from '@/utils'
-import { getOrderList } from '@/services/spot'
+import { getOrderList, getExchangeCoinList } from '@/services/spot'
 import { toast } from 'sonner';
 
 
@@ -40,6 +40,23 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
+
+interface symbolSelectType {
+  label: string,
+  value: string,
+  baseSymbol: string,
+  coinSymbol: string
+}
+
+interface SelectParamType {
+  startTime: number|string;
+  endTime: number|string;
+  direction: string;
+  type: string;
+  symbol: string;
+  notStatus: string|number;
+}
+
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
@@ -54,7 +71,16 @@ const SpotMainPage = () => {
     page: 1,
     pageSize: 10,
   });
+  const selectParam = useRef<SelectParamType>({
+    startTime: '',
+    endTime: '',
+    direction: '',
+    type: '',
+    symbol: '',
+    notStatus: ''
+  });
   const [loading, setLoading] = useState(false);
+  const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
 
 
 
@@ -151,31 +177,41 @@ const SpotMainPage = () => {
 
   ];
 
-  const directionSelect: { label: string, value: string }[] = [
+  const directionSelect: { label: string, value: string | number }[] = [
     {
-      label: t('spot.select.all'),
-      value: ''
+      label: t('spot.modal.buy'),
+      value: 0
+    },
+    {
+      label: t('spot.modal.sell'),
+      value: 1
     }
   ]
-  const symbolSelect: { label: string, value: string }[] = [
+
+  const typeSelect: { label: string, value: string | number }[] = [
     {
-      label: t('spot.select.all'),
-      value: ''
+      label: t('spot.select.market'),
+      value: 0
+    },
+    {
+      label: t('spot.select.limit'),
+      value: 1
     }
   ]
+
   const pageChange = async (page: number, pageSize: number) => {
-    const pageData = {
-      page: page,
-      pageSize: pageSize
-    }
-    // setPageParam(pageData)
-    paramdataRef.current = pageData;
-    getOrderListData()
+    paramdataRef.current.page = page;
+    paramdataRef.current.pageSize = pageSize;
+    await getOrderListData();
   }
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
 
-
+  // 时间选择
+  const dateChange = async(value: any) => {
+    const startTime = value ? dayjs(value[0]).valueOf() : '';
+    const endTime = value ? dayjs(value[1]).valueOf() : '';
+    selectParam.current.startTime = startTime;
+    selectParam.current.endTime = endTime;
+    await getOrderListData();
   }
 
   const getOrderListData = async () => {
@@ -183,10 +219,13 @@ const SpotMainPage = () => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 2,
-      // coinSymbol: selectParam.current.hideOther ? `${currentPair?.coinSymbol}`:'',
-      // baseSymbol: selectParam.current.hideOther ? `${currentPair?.baseSymbol}`:'',
-      // startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():'',
-      // endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():'',
+      notStatus: selectParam.current.notStatus ? '3' : null,
+      coinSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[0]}` : null,
+      baseSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[1]}` : null,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+      direction: selectParam.current.direction || selectParam.current.direction?.toString() === '0' ? selectParam.current.direction : null,
+      type: selectParam.current.type || selectParam.current.type?.toString() === '0' ? selectParam.current.type : null,
     }
     setLoading(true)
     try {
@@ -196,20 +235,36 @@ const SpotMainPage = () => {
           ...item,
           userLoginLogs: []
         }));
-        // setInitTableData(newData);
         setTableData(newData);
         setTotal(res.data.count);
       } else {
         toast.error(res.message);
       }
-
     } catch (error) {
       toast.error(String(error))
     } finally {
       setLoading(false)
     }
   }
+
+  const getCoinList = async () => {
+    const res = await getExchangeCoinList();
+    if (res.code === '0') {
+      const selectData = res.data.map((item: any) => {
+        return {
+          label: `${item.coinSymbol}/${item.baseSymbol}`,
+          value: `${item.coinSymbol}/${item.baseSymbol}`,
+          baseSymbol: item.baseSymbol,
+          coinSymbol: item.coinSymbol,
+          tenantId: item.tenantId
+        }
+      })
+      setSymbolSelect(selectData)
+    }
+  }
+
   useEffect(() => {
+    getCoinList()
     getOrderListData()
   }, [])
   return (<>
@@ -260,37 +315,54 @@ const SpotMainPage = () => {
                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
+                onChange={dateChange}
               />
             </Form.Item>
 
             <Form.Item name="type" >
               <Select allowClear
-                placeholder={t('spot.select.type')}
-                options={directionSelect}
+                placeholder={t('spot.select.all')}
+                options={typeSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.type')}</span>}
+                onChange={(value) => {
+                  selectParam.current.type = value;
+                  getOrderListData();
+                }}
               />
             </Form.Item>
             <Form.Item name="direction" >
               <Select allowClear
-                placeholder={t('spot.select.direction')}
+                placeholder={t('spot.select.all')}
                 options={directionSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
+                onChange={(value) => {
+                  selectParam.current.direction = value;
+                  getOrderListData();
+                }}
               />
             </Form.Item>
             <Form.Item name="symbol" >
               <Select allowClear
-                placeholder={t('spot.select.symbol')}
+                placeholder={t('spot.select.all')}
                 options={symbolSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
+                onChange={(value) => {
+                  selectParam.current.symbol = value;
+                  getOrderListData();
+                }}
               />
             </Form.Item>
             <Form.Item name="hideAllCancel" >
               <Checkbox
                 defaultChecked={false}
                 className={` mt-8`}
+                onChange={(e) => {
+                  selectParam.current.notStatus = e.target.checked ? '3' : '';
+                  getOrderListData();
+                }}
               >
                 <span className={`${styles.title_color} font-14`}>
                   {t('spot.select.hideAllCancel')}

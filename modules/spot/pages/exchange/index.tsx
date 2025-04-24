@@ -25,7 +25,7 @@ import { FullscreenOutlined } from '@ant-design/icons';
 import Image from 'next/image'
 import { NoData } from '@/components/noData';
 import type { DropdownProps, MenuProps } from 'antd'
-import { getExchangeGroup,getExchangeCoinList } from '@/services/spot';
+import { getExchangeGroup, getExchangeCoinList } from '@/services/spot';
 import { toast } from 'sonner';
 import appStore from '@/store';
 import { set } from 'mobx';
@@ -74,14 +74,14 @@ const ExchangePage = () => {
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(true);
     const [historyData, setHistoryData] = useState<any[]>([]);
-    const [dayData, setDayData] = useState<any[]>(['15m','1h','4h','1D']);
+    const [dayData, setDayData] = useState<any[]>(['15m', '1h', '4h', '1D']);
     const [timeIntervalOptions, setTimeIntervalOptions] = useState<any[]>([
-        '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D','1W', '1M','1Y'
+        '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        {label:'基本版',value:'basic'},
-        {label:'TradingView',value:'tradingview'},
-        {label:'深度图',value:'depth'}
+        { label: '基本版', value: 'basic' },
+        { label: 'TradingView', value: 'tradingview' },
+        { label: '深度图', value: 'depth' }
     ]);
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
     const [depthData, setDepthData] = useState<any>();
@@ -100,9 +100,9 @@ const ExchangePage = () => {
 
     const getCoinList = async () => {
         const response = await getExchangeCoinList();
-        if(response.code === '0'){
-           
-           await setGroupData(response.data)
+        if (response.code === '0') {
+
+            await setGroupData(response.data)
             await getGroup();
         }
 
@@ -110,10 +110,10 @@ const ExchangePage = () => {
 
     const getGroup = async () => {
         const response = await getExchangeGroup();
-        if(response.code === '0'){
-            groupData.forEach((item:any)=>{
-                const group = response.data.find((group:any)=>group.baseSymbol === item.baseSymbol&&group.coinSymbol === item.coinSymbol);
-                if(group){
+        if (response.code === '0') {
+            groupData.forEach((item: any) => {
+                const group = response.data.find((group: any) => group.baseSymbol === item.baseSymbol && group.coinSymbol === item.coinSymbol);
+                if (group) {
                     item.group = group;
                 }
             });
@@ -122,30 +122,30 @@ const ExchangePage = () => {
     }
     const getOrderWsData = () => {
 
-        
+
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
-        
+
         const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
         websocketRef.current = websocket;
-        
+
         websocket.connect((message: string) => {
 
             try {
                 console.log(message, 'getOrderWsData');
                 const data = JSON.parse(message);
-                
+
                 // 使用函数式更新来累积数据
                 setOrderData((prevData) => {
                     if (!prevData) return [data];
-                    
+
                     // 假设我们希望保留最新的100条数据
                     const maxEntries = 100;
                     const newData = Array.isArray(data) ? data : [data];
-                    
+
                     // 将新数据添加到数组开头（假设最新的数据应该显示在前面）
                     const combinedData = [...newData, ...prevData];
-                    
+
                     // 限制数组长度
                     return combinedData.slice(0, maxEntries);
                 });
@@ -158,39 +158,39 @@ const ExchangePage = () => {
     const getWsDepthData = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
-        
+
         const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
-        
+
         websocket.connect((message: string) => {
             try {
                 console.log(message, 'getWsDepthData');
                 // 检查消息是否为系统消息
-                if (message.startsWith('subscribe:') || 
-                    message.startsWith('ping') || 
-                    message.startsWith('pong') || 
+                if (message.startsWith('subscribe:') ||
+                    message.startsWith('ping') ||
+                    message.startsWith('pong') ||
                     message.includes('subscribe') ||
-                    message.includes('left the channel') ||  
+                    message.includes('left the channel') ||
                     message.includes('client')) {
                     // 处理系统消息
                     return;
                 }
-                
-                if(message.includes('error')){
+
+                if (message.includes('error')) {
                     return;
                 }
-                
+
                 const data = JSON.parse(message);
                 console.log(data, 'wsDepthData');
-                
+
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
                     console.log('非深度数据消息:', data.type);
                     return;
                 }
-                
+
                 // 更新深度数据而不是直接覆盖
-                setDepthData((prevData:any) => {
+                setDepthData((prevData: any) => {
                     // 如果还没有初始数据，则创建一个新的数据结构
                     if (!prevData || !prevData.bids) {
                         return {
@@ -199,22 +199,22 @@ const ExchangePage = () => {
                             lastUpdateId: data.end_update_id
                         };
                     }
-                    
+
                     // 创建当前数据的副本
                     const newData = {
                         asks: [...(prevData.asks || [])],
                         bids: [...(prevData.bids || [])],
                         lastUpdateId: data.end_update_id || prevData.lastUpdateId
                     };
-                    
+
                     // 处理买单(bids)更新
                     if (data.bids && Array.isArray(data.bids)) {
-                        data.bids.forEach((newBid:any) => {
+                        data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
-                            
+
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
-                            
+
                             if (quantity === 0) {
                                 // 如果数量为0，删除该价格档位
                                 if (existingIndex > -1) {
@@ -227,8 +227,8 @@ const ExchangePage = () => {
                                 } else {
                                     // 按价格降序插入新买单
                                     let insertIndex = 0;
-                                    while (insertIndex < newData.bids.length && 
-                                           parseFloat(newData.bids[insertIndex][0]) > parseFloat(price)) {
+                                    while (insertIndex < newData.bids.length &&
+                                        parseFloat(newData.bids[insertIndex][0]) > parseFloat(price)) {
                                         insertIndex++;
                                     }
                                     newData.bids.splice(insertIndex, 0, newBid);
@@ -236,15 +236,15 @@ const ExchangePage = () => {
                             }
                         });
                     }
-                    
+
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        data.asks.forEach((newAsk:any) => {
+                        data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
-                            
+
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
-                            
+
                             if (quantity === 0) {
                                 // 如果数量为0，删除该价格档位
                                 if (existingIndex > -1) {
@@ -257,8 +257,8 @@ const ExchangePage = () => {
                                 } else {
                                     // 按价格升序插入新卖单
                                     let insertIndex = 0;
-                                    while (insertIndex < newData.asks.length && 
-                                           parseFloat(newData.asks[insertIndex][0]) < parseFloat(price)) {
+                                    while (insertIndex < newData.asks.length &&
+                                        parseFloat(newData.asks[insertIndex][0]) < parseFloat(price)) {
                                         insertIndex++;
                                     }
                                     newData.asks.splice(insertIndex, 0, newAsk);
@@ -266,7 +266,7 @@ const ExchangePage = () => {
                             }
                         });
                     }
-                    
+
                     // 可选：限制深度档位数量
                     const MAX_DEPTH_LEVELS = 200;
                     if (newData.bids.length > MAX_DEPTH_LEVELS) {
@@ -275,7 +275,7 @@ const ExchangePage = () => {
                     if (newData.asks && newData.asks.length > MAX_DEPTH_LEVELS) {
                         newData.asks = newData.asks.slice(0, MAX_DEPTH_LEVELS);
                     }
-                    
+
                     return newData;
                 });
             } catch (error) {
@@ -289,19 +289,19 @@ const ExchangePage = () => {
             const response = await fetch(`https://ws81.imsaas.work/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
-            
+
             // 确保bids和asks是数组
             const formattedData = {
                 bids: Array.isArray(data.bids) ? data.bids : [],
                 asks: Array.isArray(data.asks) ? data.asks : [],
                 lastUpdateId: data.spot_log_last_seq
             };
-            
+
             console.log('格式化后的深度数据:', formattedData);
-            
+
             // 设置初始深度数据
             setDepthData(formattedData);
-            
+
             // 初始数据加载完成后建立WebSocket连接获取实时更新
             getWsDepthData();
         } catch (error) {
@@ -315,23 +315,23 @@ const ExchangePage = () => {
     const getKlineData = () => {
         // 确保只在客户端和有currentPair时执行
         if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
-        
+
         // 先关闭已有连接
         if (klineWsRef.current) {
             klineWsRef.current.close();
             klineWsRef.current = null;
         }
-        
+
         try {
             const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
             klineWsRef.current = websocket;
-            
+
             websocket.connect((message: string) => {
                 try {
                     // 检查消息是否为系统消息（而非数据消息）
-                    if (message.startsWith('subscribe:') || 
-                        message.startsWith('ping') || 
-                        message.startsWith('pong') || 
+                    if (message.startsWith('subscribe:') ||
+                        message.startsWith('ping') ||
+                        message.startsWith('pong') ||
                         message.includes('subscribe') ||
                         message.includes('joined') ||
                         message.includes('left')) {
@@ -339,7 +339,7 @@ const ExchangePage = () => {
                         return;
                     }
 
-                    if(message.includes('error')){
+                    if (message.includes('error')) {
                         console.log('WebSocket错误消息:', message);
                         return;
                     }
@@ -347,11 +347,11 @@ const ExchangePage = () => {
                     // 确保消息是有效的JSON格式
                     if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
                         const data = JSON.parse(message);
-                        if(data.type === 'kline' && Array.isArray(data.data)) {
+                        if (data.type === 'kline' && Array.isArray(data.data)) {
                             setCoinData(data);
-                            setKlineData((prevData:any) => {
+                            setKlineData((prevData: any) => {
                                 if (!prevData) return data;
-                                
+
                                 // 合并新数据和旧数据
                                 return {
                                     ...data,
@@ -374,13 +374,13 @@ const ExchangePage = () => {
     useEffect(() => {
         // 设置客户端渲染标记
         setIsClient(true);
-        
+
         // 只在客户端执行初始化
         if (typeof window !== 'undefined') {
             // 只获取不依赖currentPair的数据
             getCoinList();
         }
-        
+
         // 组件卸载时清理所有WebSocket连接
         return () => {
             if (websocketRef.current) websocketRef.current.close();
@@ -392,7 +392,7 @@ const ExchangePage = () => {
     useEffect(() => {
         // 只在客户端且currentPair有值时执行
         if (!isClient || !currentPair || typeof window === 'undefined') return;
-        
+
         // 现在可以安全地使用currentPair
         getOrderWsData();
         getHistoryDepthData();
@@ -405,7 +405,7 @@ const ExchangePage = () => {
 
         try {
             appStore.loadCurrencyPairs()
-                .then((result) =>{
+                .then((result) => {
                     const currentPairList = appStore.getCurrentPair() || (appStore.currencyPairs && appStore.currencyPairs.length > 0 ? appStore.currencyPairs[0] : null);
                     if (currentPairList) {
                         setCurrentPair(currentPairList);
@@ -424,37 +424,37 @@ const ExchangePage = () => {
     useEffect(() => {
         // 只在客户端执行
         if (!isClient || typeof window === 'undefined') return;
-        
+
         // 创建一个订阅函数来监听 appStore 中当前币对的变化
         const disposer = reaction(
             () => appStore.getCurrentPair(),
             (newPair) => {
-                if (newPair && (!currentPair || 
-                    newPair.coinSymbol !== currentPair.coinSymbol || 
+                if (newPair && (!currentPair ||
+                    newPair.coinSymbol !== currentPair.coinSymbol ||
                     newPair.baseSymbol !== currentPair.baseSymbol ||
                     newPair.groupStatus !== currentPair.groupStatus)) {
-                    
+
                     console.log('当前币对已更新:', newPair);
-                    
+
                     // 清理现有的 WebSocket 连接
                     if (websocketRef.current) {
                         websocketRef.current.close();
                         websocketRef.current = null;
                     }
-                    
+
                     if (depthWsRef.current) {
                         depthWsRef.current.close();
                         depthWsRef.current = null;
                     }
-                    
+
                     if (klineWsRef.current) {
                         klineWsRef.current.close();
                         klineWsRef.current = null;
                     }
-                    
+
                     // 更新当前币对
                     setCurrentPair(newPair);
-                    
+
                     // 重置数据
                     setOrderData([]);
                     setDepthData(null);
@@ -463,7 +463,7 @@ const ExchangePage = () => {
             },
             { fireImmediately: true }
         );
-        
+
         // 清理函数
         return () => {
             disposer();
@@ -472,7 +472,7 @@ const ExchangePage = () => {
 
     const toggleFullscreen = () => {
         if (typeof document === 'undefined') return;
-        
+
         const chartContainer = document.getElementById('chart-container');
         if (chartContainer) {
             if (!isFullscreen) {
@@ -557,11 +557,10 @@ const ExchangePage = () => {
                 }}
             >
                 <div className={`${styles.card_bgc4} w-full  mb-1`}>
-                <SpotHeaderPage coinData={coinData}  />
+                    <SpotHeaderPage coinData={coinData} />
                 </div>
 
-
-                <div className='flex flex-wrap'>
+                <div className='flex-x'>
                     <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
                         {/* <div className={`flex-1`}> */}
                         <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
@@ -590,8 +589,8 @@ const ExchangePage = () => {
                                                     trigger={['click']}
                                                     placement="bottomRight"
                                                     dropdownRender={() => (
-                                                        <div style={{ 
-                                                            background: '#fff', 
+                                                        <div style={{
+                                                            background: '#fff',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                                             padding: '10px',
@@ -623,28 +622,28 @@ const ExchangePage = () => {
                                                         </div>
                                                     )}
                                                 >
-                                                    <Iconify 
-                                                        icon="eva:arrow-down-fill" 
-                                                        style={{ fontSize: '12px', marginLeft: '4px', cursor: 'pointer' }} 
+                                                    <Iconify
+                                                        icon="eva:arrow-down-fill"
+                                                        style={{ fontSize: '12px', marginLeft: '4px', cursor: 'pointer' }}
                                                         onClick={(e) => e.stopPropagation()}
                                                     />
                                                 </Dropdown>
                                             )}
                                         </Button>
-                                    
+
                                     ))}
 
                                     <Space size="small" style={{ marginLeft: '16px' }}>
-                                        <Dropdown 
-                                            menu={{ 
-                                                items: chartTypeItems, 
+                                        <Dropdown
+                                            menu={{
+                                                items: chartTypeItems,
                                                 onClick: handleChartTypeChange,
                                                 selectedKeys: [String(chartDisplayType)]
-                                            }} 
+                                            }}
                                             trigger={['hover']}
                                             placement="bottom"
                                         >
-                                        <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
+                                            <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                         </Dropdown>
                                         <Tooltip title="技术指标">
                                             <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
@@ -676,7 +675,7 @@ const ExchangePage = () => {
                                             {item.label}
                                         </Button>
                                     ))}
-                                    
+
                                     <Tooltip title="全屏">
                                         <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
                                     </Tooltip>
@@ -685,25 +684,25 @@ const ExchangePage = () => {
 
                             <Spin spinning={loading} tip="加载中...">
                                 {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
-                                    <Tradingview 
+                                    <Tradingview
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
-                                        symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')} 
-                                        showLeftToolbar={activeChartType === 'basic' ? false : true} 
-                                        chartType={chartDisplayType} 
-                                        klineData={klineData} 
-                                        timeInterval={timeInterval} 
+                                        symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')}
+                                        showLeftToolbar={activeChartType === 'basic' ? false : true}
+                                        chartType={chartDisplayType}
+                                        klineData={klineData}
+                                        timeInterval={timeInterval}
                                     />
                                 )}
-                               
-                                {activeChartType === 'depth' && 
-                                    <DepthChart 
-                                        key={`depth_${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}`} 
-                                        data={depthData} 
+
+                                {activeChartType === 'depth' &&
+                                    <DepthChart
+                                        key={`depth_${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}`}
+                                        data={depthData}
                                     />
                                 }
                             </Spin>
                         </div>
-                        <OrderBook bookData={depthData}  orderData={orderData}/>
+                        <OrderBook bookData={depthData} orderData={orderData} />
 
                         {/* </div> */}
                     </div>
@@ -711,14 +710,19 @@ const ExchangePage = () => {
                                 <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" />
                         
                     </div>
-                    <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh'}}>
-                        <SpotChartTables orderUpdateFlag={orderUpdateFlag} />
+
+
                     </div>
-                    <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                        <SpotChartAssets />
+                    <div className='flex-x'>
+                        <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh' }}>
+                            <SpotChartTables />
+                        </div>
+                        <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                            <SpotChartAssets />
+                        </div>
                     </div>
 
-                </div>
+
             </ConfigProvider>
         )}
     </div>);
