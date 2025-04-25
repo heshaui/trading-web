@@ -605,7 +605,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         onClick={onSumbit}
                         disabled={currentPair?.enable === 0}
                     >
-                        {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')}
+                        {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')} {currentPair?.coinSymbol}
                     </Button> :
                         <Button
                             // className={`${styles.sumbit_btn} green_btn`}
