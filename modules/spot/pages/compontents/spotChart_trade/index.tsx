@@ -350,7 +350,6 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const calculateAvailableAmount = () => {
         const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
         const coinBalance = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
-        
         // 获取最新价格
         const { buyPrice, sellPrice } = getLatestPrices();
         

@@ -240,6 +240,10 @@ class AppStore {
     getCurrentPair() {
         return this.currentPair;
     }
+    // 获取所有币对列表
+    getCurrentPairList() {
+        return this.currencyPairs;
+    }
     
     // 更新币对信息
     updateCurrencyPair(pairId: string, data: Partial<CurrencyPairType>) {
