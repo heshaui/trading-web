@@ -24,6 +24,7 @@ import ToastModal from '@/components/spotModal/Toast_modal';
 
 
 interface DataType {
+    data: any;
     id: number,
     userId: number,
     platformType: number,
@@ -309,7 +310,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
 
     // 添加函数获取最新交易价格
     const getLatestPrices = () => {
-        if (!orderData || orderData.length === 0) return { buyPrice: 0, sellPrice: 0 };
+        if (!orderData || orderData.length === 0) return { buyPrice: 0, sellPrice: 0, tradePrice: 0 };
         
         // 按时间戳排序，获取最新的交易记录
         const sortedData = [...orderData].sort((a, b) => b.data.timestamp - a.data.timestamp);
@@ -317,7 +318,8 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         
         return {
             buyPrice: latestData.buy_price,
-            sellPrice: latestData.sell_price
+            sellPrice: latestData.sell_price,
+            tradePrice: latestData.trade_price // 添加最新成交价
         };
     };
 
@@ -341,6 +343,29 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
             availableToBuy,
             availableToSell: formatWithPrecision(coinBalance, currentPair?.coinScale || 8)
         };
+    };
+
+    // 添加价格偏差验证函数
+    const checkPriceDeviation = (_: any, value: string) => {
+        if (!value || priceDisabled) return Promise.resolve();
+        
+        // 获取最新成交价
+        const { tradePrice } = getLatestPrices();
+        if (!tradePrice) return Promise.resolve();
+        
+        const inputPrice = parseFloat(value);
+        const maxDeviation = currentPair?.priceOffset || 0;
+        
+        // 计算价格偏差百分比
+        const deviation = Math.abs((inputPrice - tradePrice) / tradePrice * 100);
+        
+        if (deviation > maxDeviation) {
+            return Promise.reject(
+                new Error(`价格偏差不能超过${maxDeviation}%，当前偏差${deviation.toFixed(2)}%`)
+            );
+        }
+        
+        return Promise.resolve();
     };
 
     return (<div className='flex-y align-center'>
@@ -454,6 +479,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                     >
                         <Form.Item name='price'
                             className='spot_number_box'
+                            rules={[{ validator: checkPriceDeviation }]}
                         >
                             <InputNumber
                                 className={`${styles.mail_input} spot_number_input2 `}
