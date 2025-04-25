@@ -47,8 +47,8 @@ const SpotAssetsPage = observer(() => {
     }
     const roundNum=(coinName:string)=>{
         const balance=lastD(userBalanceAllData.find((item: any) => item.coinName === coinName)?.balance || 0)
-        const coin = coinList.find((item: any) => item.coinName === coinName);
-        return roundDown(balance,coin?.unitScale);
+        // const coin = coinList.find((item: any) => item.coinName === coinName);
+        return roundDown(balance,8);
     }
     useEffect(() => {
         getUserBalanceAllData();
