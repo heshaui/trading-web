@@ -11,10 +11,13 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
-import { add, cut, division, lastD ,nul} from '@/utils'
+import { add, cut, division, lastD ,nul,roundDown} from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+
+
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
@@ -119,8 +122,15 @@ const SpotMainPage = observer(() => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      width: 138,
+      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon :record.status?.toString() === '0' ?styles.success_icon:''}`}
+      onClick={()=>{
+        router.push(`${ROUTER_KEY_SPOT.SPOT_ORDER}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
+      </button >,
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -177,9 +187,9 @@ const SpotMainPage = observer(() => {
       render: (_amount, record) => {
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
-            <span>{`${record.tradedAmount}/${_amount}`}</span>
+            <span>{`${roundDown(_amount,2)}/${roundDown(record.tradedAmount,2)}`}</span>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
+              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount),100),2)}%` : '0%'}
             </span>
 
           </div>
@@ -196,7 +206,7 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '0'}</span>;
+        return <span >{_status?roundDown(_status,2) :'0'}</span>;
       },
     },
     {
@@ -476,6 +486,7 @@ const SpotMainPage = observer(() => {
             size="large"
             className={`spot-table-box`}
             loading={loading}
+            scroll={{ x: "max-content" }}
             pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,

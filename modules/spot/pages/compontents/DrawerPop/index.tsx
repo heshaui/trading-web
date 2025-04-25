@@ -27,6 +27,10 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
     const goIndex = () => {
         setPopType(PopTypeEnum.INDEX)
     }
+    const handClose = () => {
+        onClose()
+        setPopType(PopTypeEnum.INDEX)
+    }
     
     return (
         <Drawer
@@ -41,7 +45,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                                 </button>
                                 交易规则
                             </div>
-                            <button onClick={onClose}>
+                            <button onClick={handClose}>
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />
                             </button>
                         </div>
@@ -54,7 +58,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                                 </button>
                                 手续费币种
                             </div>
-                            <button onClick={onClose}>
+                            <button onClick={handClose}>
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />
                             </button>
                         </div>
@@ -62,7 +66,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                 </div>
             }
             open={open}
-            onClose={onClose}
+            onClose={handClose}
             closeIcon={false}
         >
             <DrawerPopIndex />

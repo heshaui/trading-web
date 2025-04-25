@@ -49,12 +49,12 @@ interface symbolSelectType {
 }
 
 interface SelectParamType {
-  startTime: number|string;
-  endTime: number|string;
+  startTime: number | string;
+  endTime: number | string;
   direction: string;
   type: string;
   symbol: string;
-  notStatus: string|number;
+  notStatus: string | number;
 }
 
 const SpotMainPage = () => {
@@ -100,6 +100,22 @@ const SpotMainPage = () => {
       align: "center",
       width: 158,
       render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
+      width: 128,
+      align: "center",
+      render: (_text) => {
+        if (_text === 0) {
+          return <span >{t('spot.columns.market')}</span>;
+        } else if (_text === 1) {
+          return <span  >{t('spot.columns.limit')}</span>;
+        } else {
+          return <span >--</span>;
+        }
+      },
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -179,6 +195,10 @@ const SpotMainPage = () => {
 
   const directionSelect: { label: string, value: string | number }[] = [
     {
+      label: t('spot.select.all'),
+      value: ''
+    },
+    {
       label: t('spot.modal.buy'),
       value: 0
     },
@@ -189,6 +209,10 @@ const SpotMainPage = () => {
   ]
 
   const typeSelect: { label: string, value: string | number }[] = [
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.select.market'),
       value: 0
@@ -206,7 +230,7 @@ const SpotMainPage = () => {
   }
 
   // 时间选择
-  const dateChange = async(value: any) => {
+  const dateChange = async (value: any) => {
     const startTime = value ? dayjs(value[0]).valueOf() : '';
     const endTime = value ? dayjs(value[1]).valueOf() : '';
     selectParam.current.startTime = startTime;
@@ -248,18 +272,27 @@ const SpotMainPage = () => {
   }
 
   const getCoinList = async () => {
-    const res = await getExchangeCoinList();
-    if (res.code === '0') {
-      const selectData = res.data.map((item: any) => {
-        return {
-          label: `${item.coinSymbol}/${item.baseSymbol}`,
-          value: `${item.coinSymbol}/${item.baseSymbol}`,
-          baseSymbol: item.baseSymbol,
-          coinSymbol: item.coinSymbol,
-          tenantId: item.tenantId
-        }
-      })
-      setSymbolSelect(selectData)
+    try {
+      const res = await getExchangeCoinList();
+      if (res.code === '0') {
+        const selectData = res.data.map((item: any) => {
+          return {
+            label: `${item.coinSymbol}/${item.baseSymbol}`,
+            value: `${item.coinSymbol}/${item.baseSymbol}`,
+            baseSymbol: item.baseSymbol,
+            coinSymbol: item.coinSymbol,
+            tenantId: item.tenantId
+          }
+        })
+        setSymbolSelect([
+          {
+            label: t('spot.select.all'),
+            value: ''
+          },
+          ...selectData])
+      }
+    } catch (error) {
+      toast.error(String(error))
     }
   }
 
@@ -373,11 +406,12 @@ const SpotMainPage = () => {
         </div>
         <div className={`${styles.table_content} w-full `}>
 
-        <Table
+          <Table
             columns={columns}
             dataSource={tableData}
             size="large"
             // scroll={{ x: "max-content", y: 300 }}
+            scroll={{ x: "max-content" }}
             className={`spot-table-box`}
             pagination={{
               position: ["bottomRight"],

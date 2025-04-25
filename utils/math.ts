@@ -151,6 +151,66 @@ function add(arg1: number, arg2: number): number {
     return symbol + result.join('') + (floatNum || ''); // 拼接正负号、整数部分和小数部分
   }
 
+  /**
+   * 四舍五入保留小数位数
+   * @param num 要处理的数字
+   * @param places 要保留的小数位数，默认为0
+   * @returns 处理后的数字
+   */
+   function roundOff(num: number | string | undefined | null, places: number = 0): number {
+    if (num === undefined || num === null||!num) return 0;
+    
+    // 将输入转换为数字
+    const number = typeof num === 'string' ? parseFloat(num) : num;
+    
+    // 如果是NaN，返回0
+    if (isNaN(number)) return 0;
+    
+    // 使用Math.round和Math.pow实现四舍五入
+    const factor = Math.pow(10, places);
+    return Math.round(number * factor) / factor;
+  }
+
+  /**
+   * 去尾法保留小数位数
+   * @param num 要处理的数字
+   * @param places 要保留的小数位数，默认为0
+   * @returns 处理后的数字
+   */
+   function roundDown(num: number | string | undefined | null, places: number = 0): number {
+    if (num === undefined || num === null||!num) return 0;
+    
+    // 将输入转换为数字
+    const number = typeof num === 'string' ? parseFloat(num) : num;
+    
+    // 如果是NaN，返回0
+    if (isNaN(number)) return 0;
+    
+    // 使用Math.floor和Math.pow实现去尾
+    const factor = Math.pow(10, places);
+    return Math.floor(number * factor) / factor;
+  }
+
+    /**
+   * 进一法保留小数位数
+   * @param num 要处理的数字
+   * @param places 要保留的小数位数，默认为0
+   * @returns 处理后的数字
+   */
+    function roundUp(num: number | string | undefined | null, places: number = 0): number {
+        if (num === undefined || num === null || !num) return 0;
+        
+        // 将输入转换为数字
+        const number = typeof num === 'string' ? parseFloat(num) : num;
+        
+        // 如果是NaN，返回0
+        if (isNaN(number)) return 0;
+        
+        // 使用Math.ceil和Math.pow实现进一法
+        const factor = Math.pow(10, places);
+        return Math.ceil(number * factor) / factor;
+    }
+
   export {
     add, // 加法
     cut, // 减法
@@ -158,4 +218,7 @@ function add(arg1: number, arg2: number): number {
     division, // 除法
     lastD, // 删除小数点最后面的0
     thousandsComma, // 千位数字每三位加逗号
+    roundOff, // 四舍五入
+    roundDown, // 向下取整
+    roundUp, // 向上取整
   };

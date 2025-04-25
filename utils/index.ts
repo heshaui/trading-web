@@ -3,7 +3,10 @@ import {
     cut, 
     nul, 
     division,
-    lastD
+    lastD,
+    roundOff, 
+    roundDown, 
+    roundUp
     } from './math';
 // import myStorage from './myStorage'
 import { diffTime,formatTime } from './time'
@@ -39,7 +42,11 @@ export {
     lastD, // 删除小数点最后面的0
     diffTime,
     formatTime,
-    // myStorage
+  
+    roundOff, //精度 四舍五入
+    roundDown, //精度 向下取整/去尾法
+    roundUp, //精度 向上取整/进一法
+
     countNum, // 预估金额
     withdrawFee, // 手续费
 }
