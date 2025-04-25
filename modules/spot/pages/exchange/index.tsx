@@ -199,7 +199,6 @@ const ExchangePage = () => {
                         return {
                             asks: data.asks || [],
                             bids: data.bids || [],
-                            lastUpdateId: data.end_update_id
                         };
                     }
 
@@ -207,7 +206,6 @@ const ExchangePage = () => {
                     const newData = {
                         asks: [...(prevData.asks || [])],
                         bids: [...(prevData.bids || [])],
-                        lastUpdateId: data.end_update_id || prevData.lastUpdateId
                     };
 
                     // 处理买单(bids)更新
@@ -297,7 +295,6 @@ const ExchangePage = () => {
             const formattedData = {
                 bids: Array.isArray(data.bids) ? data.bids : [],
                 asks: Array.isArray(data.asks) ? data.asks : [],
-                lastUpdateId: data.spot_log_last_seq
             };
 
             console.log('格式化后的深度数据:', formattedData);

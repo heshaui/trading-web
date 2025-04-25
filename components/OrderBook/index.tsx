@@ -51,9 +51,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       if (bookData.asks && Array.isArray(bookData.asks)) {
         // 不限制数量，先处理所有数据
         bookData.asks.forEach((item: [number, number]) => {
-          // 根据priceScale对价格进行取整
-          const rawPrice = Number(item[0]);
-          const price = Math.floor(rawPrice / priceScale) * priceScale;
+          // 直接使用原始价格，不进行取整
+          const price = Number(item[0]);
           const amount = Number(item[1]);
           
           // 对相同价格的订单进行数量累加
@@ -79,9 +78,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       if (bookData.bids && Array.isArray(bookData.bids)) {
         // 不限制数量，先处理所有数据
         bookData.bids.forEach((item: [number, number]) => {
-          // 根据priceScale对价格进行取整
-          const rawPrice = Number(item[0]);
-          const price = Math.floor(rawPrice / priceScale) * priceScale;
+          // 直接使用原始价格，不进行取整
+          const price = Number(item[0]);
           const amount = Math.abs(Number(item[1])); // 确保数量为正值
           
           // 对相同价格的订单进行数量累加
@@ -291,7 +289,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         </div>
       </div>
       
-      {
+      {/* 暂时注释 {
         activeTab === 'orderbook' && (
           <div className={styles.toolbar}>
           {renderColorModeButtons()}
@@ -307,7 +305,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
             <Select.Option value={currentPair?.depthFour}>{currentPair?.depthFour}</Select.Option>
           </Select>
         </div>
-      )}
+      )} */}
      
 
       {/* 根据活动标签显示不同内容 */}
