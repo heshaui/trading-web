@@ -42,16 +42,17 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [lastPrice, setLastPrice] = useState(0);
 
   useEffect(() => {
-    // console.log('bookData updated:', bookData);
+    console.log('原始数据:', bookData); // 添加日志输出查看原始数据
     
     // 确保data存在且包含depth数据结构
     if (bookData && (bookData.asks || bookData.bids)) {
       // 处理卖单数据 - 需要合并相同价格的订单
       const askMap = new Map<number, number>();
       if (bookData.asks && Array.isArray(bookData.asks)) {
+        // 不限制数量，先处理所有数据
         bookData.asks.forEach((item: [number, number]) => {
-          const price = item[0];
-          const amount = item[1];
+          const price = Number(item[0]);
+          const amount = Number(item[1]);
           
           // 对相同价格的订单进行数量累加
           if (askMap.has(price)) {
@@ -62,18 +63,22 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         });
       }
       
-      // 转换为订单列表格式
-      const processedSellOrders = Array.from(askMap.entries()).map(([price, amount]) => {
-        const total = price * amount;
-        return { price, amount, total };
-      }).sort((a: Order, b: Order) => a.price - b.price); // 卖单按价格升序排列
+      // 转换为订单列表格式 - 不过滤，保留所有数据
+      const processedSellOrders = Array.from(askMap.entries())
+        .map(([price, amount]) => {
+          const total = price * amount;
+          return { price, amount, total };
+        })
+        .sort((a: Order, b: Order) => a.price - b.price) // 卖单按价格升序排列
+        .slice(0, 10); // 之后再限制为10条
       
       // 处理买单数据 - 需要合并相同价格的订单
       const bidMap = new Map<number, number>();
       if (bookData.bids && Array.isArray(bookData.bids)) {
+        // 不限制数量，先处理所有数据
         bookData.bids.forEach((item: [number, number]) => {
-          const price = item[0];
-          const amount = Math.abs(item[1]); // 确保数量为正值
+          const price = Number(item[0]);
+          const amount = Math.abs(Number(item[1])); // 确保数量为正值
           
           // 对相同价格的订单进行数量累加
           if (bidMap.has(price)) {
@@ -84,76 +89,45 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         });
       }
       
-      // 转换为订单列表格式
-      const processedBuyOrders = Array.from(bidMap.entries()).map(([price, amount]) => {
-        const total = price * amount;
-        return { price, amount, total };
-      }).sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
+      // 转换为订单列表格式 - 不过滤，保留所有数据
+      const processedBuyOrders = Array.from(bidMap.entries())
+        .map(([price, amount]) => {
+          const total = price * amount;
+          return { price, amount, total };
+        })
+        .sort((a: Order, b: Order) => b.price - a.price) // 买单按价格降序排列
+        .slice(0, 10); // 之后再限制为10条
       
-      // 根据priceScale过滤订单
-      const filterOrdersByDepth = (orders:any, currentPrice:any, depth:any) => {
-        return orders.filter((order:any) => 
-          Math.abs(order.price - currentPrice) <= depth
-        );
-      };
+      console.log('处理后卖单数据:', processedSellOrders);
+      console.log('处理后买单数据:', processedBuyOrders);
 
-      // 处理卖单和买单
-      const filteredSellOrders = filterOrdersByDepth(processedSellOrders, currentPrice, priceScale);
-      const filteredBuyOrders = filterOrdersByDepth(processedBuyOrders, currentPrice, priceScale);
-
-      // 设置状态
-      setSellOrders(filteredSellOrders.slice(0, 10));
-      setBuyOrders(filteredBuyOrders.slice(0, 10));
+      // 更新状态
+      setSellOrders(processedSellOrders);
+      setBuyOrders(processedBuyOrders);
       
-      // 修改条件判断，分别处理只有买盘和只有卖盘的情况
-      // 更新当前价格的逻辑
-      if (colorMode === 2 && processedBuyOrders.length > 0) {
-        // 只显示买盘且有买单数据时，使用最高买入价
-        const highestBid = processedBuyOrders[0].price;
-        setCurrentPrice(highestBid);
-        setPriceSource('buy');
-      } else if (colorMode === 3 && processedSellOrders.length > 0) {
-        // 只显示卖盘且有卖单数据时，使用最低卖出价
-        const lowestAsk = processedSellOrders[0].price;
-        setCurrentPrice(lowestAsk);
-        setPriceSource('sell');
-      } else if (colorMode === 1) {
-        // 显示买卖盘时
-        if (processedBuyOrders.length > 0 && processedSellOrders.length > 0) {
-          // 有买有卖时
-          if (lastPrice === 0) {
-            // 尚无成交价，使用中间价
-            const lowestAsk = processedSellOrders[0].price;
-            const highestBid = processedBuyOrders[0].price;
-            setCurrentPrice((lowestAsk + highestBid) / 2);
-            setPriceSource('');
-          }
-        } else if (processedBuyOrders.length > 0) {
-          // 只有买盘数据时
-          const highestBid = processedBuyOrders[0].price;
-          setCurrentPrice(highestBid);
-          setPriceSource('buy');
-        } else if (processedSellOrders.length > 0) {
-          // 只有卖盘数据时
-          const lowestAsk = processedSellOrders[0].price;
-          setCurrentPrice(lowestAsk);
-          setPriceSource('sell');
+      // 计算当前价格
+      if (processedSellOrders.length > 0 && processedBuyOrders.length > 0) {
+        const midPrice = (processedSellOrders[0].price + processedBuyOrders[0].price) / 2;
+        if (currentPrice === 0) {
+          setCurrentPrice(midPrice);
         }
-      }
-      
-      // 计算买单和卖单比例
-      const totalBuyAmount = processedBuyOrders.reduce((sum, order) => sum + order.amount, 0);
-      const totalSellAmount = processedSellOrders.reduce((sum, order) => sum + order.amount, 0);
-      const total = totalBuyAmount + totalSellAmount;
-      
-      if (total > 0) {
-        const buyPercentage = (totalBuyAmount / total) * 100;
-        const sellPercentage = (totalSellAmount / total) * 100;
-        setBuyRatio(Number(buyPercentage.toFixed(2)));
-        setSellRatio(Number(sellPercentage.toFixed(2)));
+        
+        // 计算买卖比例
+        const totalSellAmount = processedSellOrders.reduce((sum, order) => sum + order.amount, 0);
+        const totalBuyAmount = processedBuyOrders.reduce((sum, order) => sum + order.amount, 0);
+        const total = totalSellAmount + totalBuyAmount;
+        
+        if (total > 0) {
+          setBuyRatio(totalBuyAmount / total);
+          setSellRatio(totalSellAmount / total);
+        }
+      } else if (processedSellOrders.length > 0 && currentPrice === 0) {
+        setCurrentPrice(processedSellOrders[0].price);
+      } else if (processedBuyOrders.length > 0 && currentPrice === 0) {
+        setCurrentPrice(processedBuyOrders[0].price);
       }
     }
-  }, [bookData, lastPrice, colorMode]); // 添加colorMode作为依赖项
+  }, [bookData, currentPrice, priceScale]);
 
   // 添加处理交易数据的效果
   useEffect(() => {

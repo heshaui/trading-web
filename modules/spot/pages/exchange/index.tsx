@@ -185,7 +185,7 @@ const ExchangePage = () => {
 
                 const data = JSON.parse(message);
 
-
+                console.log(data, 'getWsDepthData');
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
 
