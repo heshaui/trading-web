@@ -12,7 +12,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList,getExchangeCoinList } from '@/services/spot'
 import { toast } from 'sonner';
-import { division,nul } from '@/utils';
+import { division,nul ,roundDown} from '@/utils';
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 
 
 const { RangePicker } = DatePicker;
@@ -138,8 +139,33 @@ const SpotMainPage = () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
+      width: 138,
+      render: (_text, record) => <button type='button'
+      //  className={`${record.status === 2 ? styles.error_icon : ''}`}
+      onClick={()=>{
+        router.push(`${ROUTER_KEY_SPOT.SPOT_ORDER}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" 
+        className={`mx-1`} size={20} />
+      </button >,
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
       width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      align: "center",
+      render: (_text) => {
+        if(_text===0){
+          return <span >{t('spot.columns.market')}</span>;
+        }else if(_text===1){
+          return <span  >{t('spot.columns.limit')}</span>;
+        }else{
+          return <span >--</span>;
+        }
+      },
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -188,26 +214,25 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: t('spot.columns.tradedAmount'), //'委托量/已完成',  
+      title: t('spot.columns.quantity'), //"数量",
       key: "amount",
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_amount, record) => {
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-y align-center'>
-            <span>{`${record.tradedAmount}/${_amount}`}</span>
-            <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
-            </span>
-
-          </div>
-            : '0'
-          }
-        </div >
+      render: (_status) => {
+        return <span >{_status? roundDown(_status,2): '0'}</span>;
       },
     },
-
+    {
+      title: t('spot.columns.count'), //"成交数量",
+      key: "tradedAmount",
+      dataIndex: "tradedAmount",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status? roundDown(_status,2): '0'}</span>;
+      },
+    },
     {
       title: t('spot.columns.amount2'), //"成交金额",
       key: "turnover",
@@ -215,7 +240,7 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '0'}</span>;
+        return <span >{_status?roundDown(_status,2) :'0'}</span>;
       },
     },
     {
@@ -306,10 +331,10 @@ const SpotMainPage = () => {
     }
   ]
   const directionSelect: { label: string, value: string | number }[] = [
-    // {
-    //   label: t('spot.select.all'),
-    //   value: ''
-    // },
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.modal.buy'),
       value: 0
@@ -320,6 +345,10 @@ const SpotMainPage = () => {
     }
   ]
   const typeSelect: { label: string, value: string | number }[] = [
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.select.market'),
       value: 0
@@ -431,7 +460,14 @@ const SpotMainPage = () => {
           tenantId: item.tenantId
         }
       })
-      setSymbolSelect(selectData)
+      setSymbolSelect(
+        [
+          {
+            label: t('spot.select.all'),
+            value: ''
+          },
+          ...selectData
+        ])
     }
 
   }
