@@ -51,7 +51,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       if (bookData.asks && Array.isArray(bookData.asks)) {
         // 不限制数量，先处理所有数据
         bookData.asks.forEach((item: [number, number]) => {
-          const price = Number(item[0]);
+          // 根据priceScale对价格进行取整
+          const rawPrice = Number(item[0]);
+          const price = Math.floor(rawPrice / priceScale) * priceScale;
           const amount = Number(item[1]);
           
           // 对相同价格的订单进行数量累加
@@ -77,7 +79,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       if (bookData.bids && Array.isArray(bookData.bids)) {
         // 不限制数量，先处理所有数据
         bookData.bids.forEach((item: [number, number]) => {
-          const price = Number(item[0]);
+          // 根据priceScale对价格进行取整
+          const rawPrice = Number(item[0]);
+          const price = Math.floor(rawPrice / priceScale) * priceScale;
           const amount = Math.abs(Number(item[1])); // 确保数量为正值
           
           // 对相同价格的订单进行数量累加
@@ -118,8 +122,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         const total = totalSellAmount + totalBuyAmount;
         
         if (total > 0) {
-          setBuyRatio(totalBuyAmount / total);
-          setSellRatio(totalSellAmount / total);
+          setBuyRatio(Number(((totalBuyAmount / total) * 100).toFixed(2)));
+          setSellRatio(Number(((totalSellAmount / total) * 100).toFixed(2)));
         }
       } else if (processedSellOrders.length > 0 && currentPrice === 0) {
         setCurrentPrice(processedSellOrders[0].price);
@@ -322,7 +326,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
-                    <span className={styles.price}>{order.price.toFixed(1)}</span>
+                    <span className={styles.price}>{order.price.toFixed(priceScale < 1 ? 
+                      Math.abs(Math.log10(priceScale)) : 0)}</span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
                       <div 
@@ -357,7 +362,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                       : 'inherit' 
                 }}
               >
-                {currentPrice.toFixed(2)}
+                {currentPrice.toFixed(priceScale < 1 ? Math.abs(Math.log10(priceScale)) : 0)}
               </span>
               <span 
                 className={styles.priceChange}
@@ -382,7 +387,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-                    <span className={styles.price}>{order.price.toFixed(1)}</span>
+                    <span className={styles.price}>{order.price.toFixed(priceScale < 1 ? 
+                      Math.abs(Math.log10(priceScale)) : 0)}</span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
                       <div 
