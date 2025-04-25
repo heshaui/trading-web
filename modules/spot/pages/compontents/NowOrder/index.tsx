@@ -17,7 +17,7 @@ import ToastModal from '@/components/spotModal/Toast_modal';
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { encryptData } from '@/hooks/user-encrypt'
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-
+import { useCoinList } from '@/hooks/use-coinList';
 
 
 
@@ -55,6 +55,8 @@ const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const router = useRouter();
+      // 获取币种列表
+      const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [paramInfo, sePparamInfo] = useState({
     type: '',
@@ -68,6 +70,7 @@ const SpotMainPage = () => {
     direction: '',
     symbol: ''
   });
+  
   const [loading, setLoading] = useState(false);
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
   const [toastModal, setToastModal] = useState<boolean>(false);
@@ -181,10 +184,11 @@ const SpotMainPage = () => {
       align: "center",
       render: (_amount, record) => {
         // amount/tradedAmount
+        const coin = coinList.find((item: any) => item.coinName === record.coinSymbol);
         return < >
           {_amount ? 
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),2)}%` : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.unitScale)}%` : '0%'}
             </span> : '0'
           }
         </ >
@@ -200,7 +204,8 @@ const SpotMainPage = () => {
       align: "center",
       render: (_turnover, record) => {
         // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
-        return <span >{_turnover?`${roundDown(_turnover,2)}` : '0'}</span>;
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        return <span >{_turnover?`${roundDown(_turnover,coin?.unitScale)}` : '0'}</span>;
       },
     },
     {

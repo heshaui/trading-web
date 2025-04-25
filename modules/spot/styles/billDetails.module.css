@@ -127,7 +127,11 @@
     width: 75%;
     min-width: 760px;
 }
-
+.table_card2{
+    width: 100%;
+    min-width: 760px;
+    flex:1;
+}
 /* @media (max-width: 680px) {
     .card_mt {
         margin-top: 24px;

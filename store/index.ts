@@ -233,7 +233,7 @@ class AppStore {
     
     // 根据基础货币筛选币对
     getCurrencyPairsByBase(baseSymbol: string) {
-        return this.currencyPairs.filter(pair => pair. baseSymbol=== baseSymbol);
+        return this.currencyPairs.filter(pair => pair. baseSymbol=== baseSymbol)||this.currencyPairs.filter(pair => pair.symbol=== baseSymbol)
     }
     
     // 获取当前选中的币对
