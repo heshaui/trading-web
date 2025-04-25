@@ -252,8 +252,9 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
                                     <Rate
-                                         defaultValue={pair.isFavorite ? 1 : 0}
+                                        defaultValue={pair.isFavorite ? 1 : 0}
                                         count={1}
+                                        disabled={true}
                                         style={{ fontSize: 14 }}
                                     />
                                 </span>

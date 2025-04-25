@@ -289,7 +289,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         </div>
       </div>
       
-      暂时注释 {
+       {
         activeTab === 'orderbook' && (
           <div className={styles.toolbar}>
           {renderColorModeButtons()}
