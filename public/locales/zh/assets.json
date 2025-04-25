@@ -35,7 +35,10 @@
             "deposit":"充值",
             "trade":"交易",
             "bill":"现货账单",
-            "cancel":"撤销"
+            "cancel":"撤销",
+            "withdrawError":"禁止提现",
+            "depositError":"禁止充值",
+            "tradeError":"禁止交易"
          },
          "title2":"账单明细",
          "assets":"现货资产",

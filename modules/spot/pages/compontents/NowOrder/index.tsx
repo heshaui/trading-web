@@ -94,7 +94,7 @@ const SpotMainPage = () => {
       width: 138,
       render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
       onClick={()=>{
-        router.push(`${ROUTER_KEY_SPOT.SPOT_ORDER}?symbol=${record.symbol}`)
+        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
       }}
       >
         {_text || '--'}

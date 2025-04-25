@@ -1,4 +1,5 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
+import { getCoinAll } from '@/services/assets';
 import appStore from '@/store/index';
 // 币对接口数据类型
 export interface CurrencyPairType {
@@ -219,6 +220,31 @@ export async function fetchCurrencyPairPrices() {
         };
     } catch (error) {
         console.error('获取币对价格出错:', error);
+        return {
+            success: false,
+            data: [],
+            error
+        };
+    }
+} 
+
+// 获取所有币种
+export async function fetchAllCoin() {
+    try {
+        const response = await getCoinAll();
+        if (response.code === '0') {
+            return {
+                success: true,
+                data: response.data || []
+            };
+        }
+        return {
+            success: false,
+            data: [],
+            error: new Error('获取币种列表失败')
+        };
+    } catch (error) {
+        console.error('获取币种列表出错:', error);
         return {
             success: false,
             data: [],

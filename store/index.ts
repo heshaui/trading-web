@@ -5,7 +5,8 @@ import {
     fetchUserFavorites, 
     addToFavorites, 
     removeFromFavorites,
-    CurrencyPairType 
+    CurrencyPairType ,
+    fetchAllCoin
 } from './currencyPairService';
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 
@@ -71,6 +72,11 @@ class AppStore {
     rawCurrencyData: any[] = [];
     // API加载状态
     isLoadingCurrencyData: boolean = false;
+
+    // 添加币种列表
+    coinList: any[] = [];
+    // API加载状态
+    isLoadingCoinData: boolean = false;
 
     constructor() {
         // 使状态响应式
@@ -308,6 +314,44 @@ class AppStore {
         } catch (error) {
             console.error('Failed to load favorite coins:', error);
         }
+    }
+
+    // 从API加载币种信息
+    async loadCoinList() {
+        try {
+            this.isLoadingCoinData = true;
+            
+            const result = await fetchAllCoin();
+            
+            if (result.success) {
+                runInAction(() => {
+                    this.coinList = result.data;
+                });
+                return result.data;
+            } else {
+                throw result.error;
+            }
+        } catch (error) {
+            runInAction(() => {
+                // 可能需要设置错误状态
+            });
+            console.error('Error loading coin list:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingCoinData = false;
+            });
+        }
+    }
+
+    // 获取币种列表
+    getCoinList() {
+        return this.coinList;
+    }
+
+    // 清除币种列表
+    clearCoinList() {
+        this.coinList = [];
     }
 }
 
