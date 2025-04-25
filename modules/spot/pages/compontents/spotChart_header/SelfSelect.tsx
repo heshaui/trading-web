@@ -108,9 +108,15 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
     const sortedPairList = getSortedPairs();
 
     const filteredPairs = sortedPairList.filter(pair => 
+        pair.isFavorite && 
         (pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
         pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase()))
     );
+
+    const handlePairClick = async (pair: any) => {
+        console.log(pair);  
+        await appStore.setCurrentPair(pair);
+    };
 
     return (
         <ConfigProvider
@@ -247,12 +253,12 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                         ]}
                     /> */}
                     {filteredPairs.map((pair, index) => (
-                        <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`}>
+                        <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)}>
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
                                     <Rate
-                                        defaultValue={pair.isFavorite ? 1 : 0}
+                                        value={pair.isFavorite ? 1 : 0}
                                         count={1}
                                         disabled={true}
                                         style={{ fontSize: 14 }}

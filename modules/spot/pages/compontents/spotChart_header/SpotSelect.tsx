@@ -225,7 +225,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          <div className={`${styles.pair_name} flex-1`}>
                              <span className={styles.favorite}>
                                  <Rate
-                                    defaultValue={pair.isFavorite ? 1 : 0}
+                                    value={pair.isFavorite ? 1 : 0}
                                      count={1}
                                      disabled={true}
                                      style={{ fontSize: 14 }}
