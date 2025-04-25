@@ -1,4 +1,4 @@
-'use client'
+
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
 import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message,notification,Tooltip} from 'antd';
@@ -21,8 +21,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
 import ToastModal from '@/components/spotModal/Toast_modal';
-
-
+import { PlusCircleOutlined } from '@ant-design/icons';
 interface DataType {
     data: any;
     id: number,
@@ -582,7 +581,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p>
+                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}<PlusCircleOutlined /></p>
                             </li>
                             <li className='flex justify-between align-center'>
                                 <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入时的可用余额和最新成交价格' : '可卖取决于您卖出时的可用余额和最新成交价格'}>

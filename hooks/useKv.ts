@@ -109,7 +109,6 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
 
                 // 获取logo配置
                 const logoConfig = config.logo;
-
                 // 根据主题模式选择不同的 Logo
                 // 日间模式使用 dark 配置，夜间模式使用 light 配置
                 const imageUrl = isDayMode
@@ -117,6 +116,7 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
                     : logoConfig?.light?.headerLogo;
 
                 if (imageUrl) {
+                    console.log(imageUrl,'imageUrl');
                     const isValidUrl = await checkImageUrl(imageUrl);
                     setLogoUrl(isValidUrl ? imageUrl : defaultLogo);
                 }

@@ -324,8 +324,11 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
-                    <span className={styles.price}>{order.price.toFixed(priceScale < 1 ? 
-                      Math.abs(Math.log10(priceScale)) : 0)}</span>
+                    <span className={styles.price}>
+                      {order.price.toFixed(priceScale < 1 ? 
+                        Math.abs(Math.log10(priceScale)) : 
+                        (order.price < 1 ? 4 : 1))}
+                    </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
                       <div 
@@ -360,7 +363,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                       : 'inherit' 
                 }}
               >
-                {currentPrice.toFixed(priceScale < 1 ? Math.abs(Math.log10(priceScale)) : 0)}
+                {currentPrice.toFixed(priceScale < 1 ? 
+                  Math.abs(Math.log10(priceScale)) : 
+                  (currentPrice < 1 ? 4 : 1))}
               </span>
               <span 
                 className={styles.priceChange}
@@ -385,8 +390,11 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-                    <span className={styles.price}>{order.price.toFixed(priceScale < 1 ? 
-                      Math.abs(Math.log10(priceScale)) : 0)}</span>
+                    <span className={styles.price}>
+                      {order.price.toFixed(priceScale < 1 ? 
+                        Math.abs(Math.log10(priceScale)) : 
+                        (order.price < 1 ? 4 : 1))}
+                    </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
                       <div 
