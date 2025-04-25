@@ -24,6 +24,7 @@ import ToastModal from '@/components/spotModal/Toast_modal';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { add,lastD,  roundDown } from '@/utils'
 import { useCoinList } from '@/hooks/use-coinList';
+import SpotModal from '@/components/spotModal/placeOrder_modal';
 
 interface DataType {
     data: any;
@@ -57,6 +58,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const [userBalance, setUserBalance] = useState<any[]>([]);
     const { isLoggedIn } = useAuth();
     const [toastModal, setToastModal] = useState(false);
+    const [spotModal, setSpotModal] = useState(false);
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -593,7 +595,10 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
                                 {/* <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p> */}
-                                <p>{roundNum(currentPair?.baseSymbol || '')} {currentPair?.baseSymbol}</p>
+                                <p>{roundNum(currentPair?.baseSymbol || '')} {currentPair?.baseSymbol} <PlusCircleOutlined onClick={()=>{
+                                    setSpotModal(true)
+                                }}/></p>
+                               
                             </li>
                             <li className='flex justify-between align-center'>
                                 <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入时的可用余额和最新成交价格' : '可卖取决于您卖出时的可用余额和最新成交价格'}>
@@ -647,6 +652,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                 </div>
 
                 <PlaceOrderModal open={modalOpen} modalData={modalData} onCancel={() => { setModalOpen(false) }} onOk={() => { handelSubmitOrder() }} />
+                <SpotBuyModal open={spotModal} onCancel={() => { setSpotModal(false) }} onOk={() => { setSpotModal(false) }} />
                 {/* <ErrorModal open={modalOpen} onCancel={() => {  }} onOk={() => {  }}  /> */}
                
                 {/* <SpotBuyModal open={modalOpen} onCancel={() => { setModalOpen(false) }} onOk={() => { setModalOpen(false) }} /> */}
