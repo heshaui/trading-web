@@ -113,6 +113,12 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
         },
     };
 
+    // 添加处理精度的辅助函数
+    const formatWithPrecision = (value: number | string, precision: number) => {
+        if (!value && value !== 0) return '';
+        return Number(value).toFixed(precision);
+    };
+
     // 添加滑块变化时的处理函数
     const handleSliderChange = (value: number) => {
         // 限制最大值为98%
@@ -127,14 +133,14 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                 // 限价单
                 const availableAmount = (baseBalance * percentage) / price;
                 form.setFieldsValue({
-                    amount: availableAmount.toFixed(8),
-                    account: (availableAmount * price).toFixed(8)
+                    amount: formatWithPrecision(availableAmount, currentPair?.coinScale || 8),
+                    account: formatWithPrecision(availableAmount * price, currentPair?.baseCoinScale || 8)
                 });
             } else if (priceDisabled) {
                 // 市价单
                 const availableFunds = baseBalance * percentage;
                 form.setFieldsValue({
-                    account: availableFunds.toFixed(8)
+                    account: formatWithPrecision(availableFunds, currentPair?.baseCoinScale || 8)
                 });
             }
         } else {
@@ -142,12 +148,16 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
             const coinBalance = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
             const availableAmount = coinBalance * percentage;
 
-            form.setFieldsValue({ amount: availableAmount.toFixed(8) });
+            form.setFieldsValue({ 
+                amount: formatWithPrecision(availableAmount, currentPair?.coinScale || 8) 
+            });
 
             // 只有在限价单时才设置成交额
             const price = form.getFieldValue('price');
             if (price && !priceDisabled) {
-                form.setFieldsValue({ account: (availableAmount * price).toFixed(8) });
+                form.setFieldsValue({ 
+                    account: formatWithPrecision(availableAmount * price, currentPair?.baseCoinScale || 8) 
+                });
             } else if (priceDisabled) {
                 // 市价卖单时，清空account字段或设置为估算值
                 form.setFieldsValue({ account: '' });
@@ -211,14 +221,16 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
         setSegmentedValue(value as string)
     }
 
-    // 添加计算成交额的函数
+    // 修改计算成交额的函数，应用精度
     const calculateTotal = () => {
         const price = form.getFieldValue('price');
         const amount = form.getFieldValue('amount');
 
         if (price && amount) {
             const total = price * amount;
-            form.setFieldsValue({ account: total });
+            form.setFieldsValue({ 
+                account: formatWithPrecision(total, currentPair?.baseCoinScale || 8) 
+            });
         } else {
             form.setFieldsValue({ account: '' });
         }
@@ -246,6 +258,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                 const data = await encryptData(params)
                 const res = await createOrder(data)
                 if (res.code === '0') {
+                    getUserBalanceData()
                     setModalOpen(false)
                     form.resetFields()
                     // 通知父组件下单成功
@@ -410,15 +423,14 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                     {currentPair?.baseSymbol}
                                 </div> : t('spot.select.market')}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.price')}</span>}
-                                // max={100}
-                                // min={0}
                                 controls={priceDisabled ? false : {
                                     upIcon: <Iconify icon="mdi:chevron-up" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
                                     downIcon: <Iconify icon="mdi:chevron-down" size={20} className={`${styles.title_color} ${styles.hover_color}`} />,
                                 }}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
-                                    return `${value}`.replace(/[^\d.]/g, '');
+                                    const precision = currentPair?.baseCoinScale || 8;
+                                    return `${parseFloat(value.toString()).toFixed(precision)}`.replace(/\.?0+$/, '');
                                 }}
                                 parser={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
@@ -428,7 +440,6 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                     return parsed as unknown as number;
                                 }}
                                 disabled={priceDisabled}
-
                             />
                         </Form.Item>
                         <Form.Item name='amount'
@@ -441,12 +452,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                     {currentPair?.coinSymbol}
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
-                                // max={100}
-                                // min={0}
                                 controls={false}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
-                                    return `${value}`.replace(/[^\d.]/g, '');
+                                    const precision = currentPair?.coinScale || 8;
+                                    return `${parseFloat(value.toString()).toFixed(precision)}`.replace(/\.?0+$/, '');
                                 }}
                                 parser={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
@@ -473,12 +483,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                     {currentPair?.baseSymbol}
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
-                                // max={100}
-                                // min={0}
                                 controls={false}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
-                                    return `${value}`.replace(/[^\d.]/g, '');
+                                    const precision = currentPair?.baseCoinScale || 8;
+                                    return `${parseFloat(value.toString()).toFixed(precision)}`.replace(/\.?0+$/, '');
                                 }}
                                 parser={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
@@ -496,7 +505,7 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                             </li>
                             <li className='flex justify-between align-center'>
                                 <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>
+                               {segmentedvalue !== 'buy'&&<p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>} 
                             </li>
                         </ul>
                     </Form>
