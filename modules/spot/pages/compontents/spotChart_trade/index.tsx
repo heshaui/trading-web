@@ -227,11 +227,11 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         if (key === '1') {
             setPriceDisabled(false)
         } else {
-            form.setFieldsValue({
-                price: ''
-            })
             setPriceDisabled(true)
         }
+        
+        // 切换时重置所有表单字段
+        form.resetFields();
     }
     const geSegmentedChange = (value: string | number) => {
         setSegmentedValue(value as string)
