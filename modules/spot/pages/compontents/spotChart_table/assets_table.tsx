@@ -14,7 +14,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { NoData } from '@/components/noData'
 import { getUserBalanceAll } from '@/services/assets';
-
+import { ROUTER_KEY_ASSETS ,ROUTER_KEY_SPOT} from '@/config/apiConfig';
+import { observer } from 'mobx-react-lite';
+import { useCoinList } from '@/hooks/use-coinList';
 interface DataType {
     balance: number,
     frozenBalance: number,
@@ -25,6 +27,8 @@ interface DataType {
 }
 const AssetsMainPage = () => {
     const { t } = useTranslation(['spot']);
+    // 获取币种列表
+    const {coinList} = useCoinList();
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);
@@ -54,9 +58,10 @@ const AssetsMainPage = () => {
             align: "center",
             // width: 128,
             render: (_text, record) => {
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                return <span>{text2?roundDown(text2,7) :'0'}</span>
+                return <span>{text2 ?roundDown(text2,coin?.unitScale):'0'}</span>
             },
             sorter: (a, b) => {
                 const totalA = add(add(a.balance || 0, a.releaseBalance || 0), a.frozenBalance || 0);
@@ -70,8 +75,9 @@ const AssetsMainPage = () => {
             key: "balance",
             align: "center",
             // width: 158,
-            render: (_text) => {
-                return <span >{_text?roundDown(_text,7) :'0'}</span>;
+            render: (_text, record) => {
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
 
             },
             sorter: (a, b) => a.balance - b.balance,
@@ -80,10 +86,12 @@ const AssetsMainPage = () => {
             title: t('spot.columns.frozen'), //"冻结",
             key: "releaseBalance",
             dataIndex: "releaseBalance",
-            // width: 128,
+            width: 128,
             align: "center",
-            render: (_text) => {
-                return <span >{_text?roundDown(_text,7) :'0'}</span>;
+            render: (_text, record) => {
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}
+                </span>;
             },
             sorter: (a, b) => a.releaseBalance - b.releaseBalance,
         },
@@ -93,8 +101,9 @@ const AssetsMainPage = () => {
             dataIndex: "frozenBalance",
             // width: 128,
             align: "center",
-            render: (_text) => {
-                return <span >{_text?roundDown(_text,7) :'0'}</span>;
+            render: (_text, record) => {
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
             },
             sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
@@ -104,18 +113,56 @@ const AssetsMainPage = () => {
             dataIndex: "action",
             // width: 128,
             align: "center",
-            render: (_text) => {
+            render: (_text, record) => {
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 return <>
-                    <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}
-                    >{t('spot.columns.deposit')}</button>
-                    <button className={`${styles.theme_color} font-12 font-w-500`}
-                    >{t('spot.columns.withdraw')}</button>
+                {/* 提现 */}
+                    <button className={`${coin?.canWithdraw===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
+                    onClick={() => getCoinList('1', coin)}
+                    >
+                        {t('spot.columns.withdraw')}
+                    </button>
+                    {/* 充值 */}
+                    <button className={`${coin?.canRecharge===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
+                    onClick={() => getCoinList('2', coin)}
+                    >
+                        {t('spot.columns.deposit')}
+                    </button>
+                    {/* 交易 */}
+                    {/* <button className={`${coin?.canTransfer===1? styles.theme_color:styles.tip_color2} font-12 font-w-500`}
+                    onClick={() => getCoinList('3', coin)}
+                    >
+                        {t('assetsAccount.button.trade')}
+                    </button> */}
                 </>
             },
         },
 
 
     ];
+    const getCoinList = async (type: string,coinData: any) => {
+       if(type === '1'){
+        if(coinData?.canWithdraw === 1){
+            router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+        }else{
+            toast.error(t('spot.columns.withdrawError'));
+        }
+       }else if(type === '2'){
+        if(coinData?.canRecharge === 1){
+            router.push(ROUTER_KEY_ASSETS.TOP_UP);
+        }else{
+            toast.error(t('spot.columns.depositError'));
+        }
+        
+       }else if(type === '3'){
+        if(coinData?.canRecharge === 1){
+            router.push(ROUTER_KEY_SPOT.INDEX);
+        }else{
+            toast.error(t('spot.columns.tradeError'));
+        }
+       }
+        
+    }
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
             page: page,

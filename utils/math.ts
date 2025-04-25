@@ -157,19 +157,51 @@ function add(arg1: number, arg2: number): number {
    * @param places 要保留的小数位数，默认为0
    * @returns 处理后的数字
    */
-   function roundOff(num: number | string | undefined | null, places: number = 0): number {
-    if (num === undefined || num === null||!num) return 0;
+   function roundOff(num: number | string | undefined | null, places: number = 0): number | string {
+    if (num === undefined || num === null || !num) return 0;
     
-    // 将输入转换为数字
-    const number = typeof num === 'string' ? parseFloat(num) : num;
+    // 将输入转换为字符串
+    const numStr = typeof num === 'string' ? num : num.toString();
     
-    // 如果是NaN，返回0
-    if (isNaN(number)) return 0;
+    // 如果输入是0，直接返回0
+    if (parseFloat(numStr) === 0) return 0;
     
-    // 使用Math.round和Math.pow实现四舍五入
-    const factor = Math.pow(10, places);
-    return Math.round(number * factor) / factor;
-  }
+    // 分割整数和小数部分
+    const [intPart, decPart = ''] = numStr.split('.');
+    
+    // 如果没有小数部分，或者要求的精度为0
+    if (!decPart) {
+        // 如果是整数且需要精度，补充指定数量的0
+        return places > 0 ? `${intPart}.${'0'.repeat(places)}` : parseInt(intPart);
+    }
+    if (places === 0) {
+        return parseInt(intPart);
+    }
+    
+    // 处理小数部分
+    const truncatedDecimal = decPart.slice(0, places);
+    const nextDigit = decPart[places] ? parseInt(decPart[places]) : 0;
+    
+    // 判断是否需要进位（四舍五入）
+    const shouldRoundUp = nextDigit >= 5;
+    
+    if (shouldRoundUp) {
+        // 需要进位，将截取的小数部分转为数字并加1
+        const decimalAsNumber = parseInt(truncatedDecimal) + 1;
+        const maxDecimal = Math.pow(10, places);
+        
+        if (decimalAsNumber >= maxDecimal) {
+            // 如果小数部分进位后溢出，整数部分加1，小数部分归零
+            return `${parseInt(intPart) + 1}.${'0'.repeat(places)}`;
+        } else {
+            // 正常进位
+            return `${intPart}.${decimalAsNumber.toString().padStart(places, '0')}`;
+        }
+    }
+    
+    // 不需要进位，直接返回截取后的数字
+    return `${intPart}.${truncatedDecimal.padEnd(places, '0')}`;
+}
 
   /**
    * 去尾法保留小数位数
@@ -177,19 +209,35 @@ function add(arg1: number, arg2: number): number {
    * @param places 要保留的小数位数，默认为0
    * @returns 处理后的数字
    */
-   function roundDown(num: number | string | undefined | null, places: number = 0): number {
-    if (num === undefined || num === null||!num) return 0;
+  function roundDown(num: number | string | undefined | null, places: number = 0): number | string {
+    if (num === undefined || num === null || !num) return 0;
     
-    // 将输入转换为数字
-    const number = typeof num === 'string' ? parseFloat(num) : num;
+    // 将输入转换为字符串
+    const numStr = typeof num === 'string' ? num : num.toString();
     
-    // 如果是NaN，返回0
-    if (isNaN(number)) return 0;
+    // 如果输入是0，直接返回0
+    if (parseFloat(numStr) === 0) return 0;
     
-    // 使用Math.floor和Math.pow实现去尾
-    const factor = Math.pow(10, places);
-    return Math.floor(number * factor) / factor;
-  }
+    // 分割整数和小数部分
+    const [intPart, decPart = ''] = numStr.split('.');
+    
+    // 如果要求的精度为0，直接返回整数部分
+    if (places === 0) {
+        return parseInt(intPart);
+    }
+    
+    // 如果没有小数部分，补充指定数量的0
+    if (!decPart) {
+        return `${intPart}.${'0'.repeat(places)}`;
+    }
+    
+    // 处理小数部分：只保留指定位数，并补充0到指定精度
+    const truncatedDecimal = decPart.slice(0, places).padEnd(places, '0');
+    
+    // 组合整数和小数部分，转换回数字
+    // return parseFloat(`${intPart}.${truncatedDecimal}`);
+    return `${intPart}.${truncatedDecimal}`
+}
 
     /**
    * 进一法保留小数位数
@@ -197,19 +245,51 @@ function add(arg1: number, arg2: number): number {
    * @param places 要保留的小数位数，默认为0
    * @returns 处理后的数字
    */
-    function roundUp(num: number | string | undefined | null, places: number = 0): number {
-        if (num === undefined || num === null || !num) return 0;
-        
-        // 将输入转换为数字
-        const number = typeof num === 'string' ? parseFloat(num) : num;
-        
-        // 如果是NaN，返回0
-        if (isNaN(number)) return 0;
-        
-        // 使用Math.ceil和Math.pow实现进一法
-        const factor = Math.pow(10, places);
-        return Math.ceil(number * factor) / factor;
-    }
+    function roundUp(num: number | string | undefined | null, places: number = 0): number | string {
+      if (num === undefined || num === null || !num) return 0;
+      
+      // 将输入转换为字符串
+      const numStr = typeof num === 'string' ? num : num.toString();
+      
+      // 如果输入是0，直接返回0
+      if (parseFloat(numStr) === 0) return 0;
+      
+      // 分割整数和小数部分
+      const [intPart, decPart = ''] = numStr.split('.');
+      
+      // 如果没有小数部分，或者要求的精度为0
+      if (!decPart) {
+          // 如果是整数且需要精度，补充指定数量的0
+          return places > 0 ? `${intPart}.${'0'.repeat(places)}` : parseInt(intPart);
+      }
+      if (places === 0) {
+          return parseInt(intPart);
+      }
+      
+      // 处理小数部分
+      const truncatedDecimal = decPart.slice(0, places);
+      const remainingDecimal = decPart.slice(places);
+      
+      // 判断是否需要进位
+      const shouldRoundUp = remainingDecimal.length > 0 && /[1-9]/.test(remainingDecimal);
+      
+      if (shouldRoundUp) {
+          // 需要进位，将截取的小数部分转为数字并加1
+          const decimalAsNumber = parseInt(truncatedDecimal) + 1;
+          const maxDecimal = Math.pow(10, places);
+          
+          if (decimalAsNumber >= maxDecimal) {
+              // 如果小数部分进位后溢出，整数部分加1，小数部分归零
+              return `${parseInt(intPart) + 1}.${'0'.repeat(places)}`;
+          } else {
+              // 正常进位
+              return `${intPart}.${decimalAsNumber.toString().padStart(places, '0')}`;
+          }
+      }
+      
+      // 不需要进位，直接返回截取后的数字
+      return `${intPart}.${truncatedDecimal.padEnd(places, '0')}`;
+  }
 
   export {
     add, // 加法

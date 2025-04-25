@@ -13,7 +13,7 @@ import { NoData } from '@/components/noData'
 import { add, cut, division, lastD } from '@/utils'
 import { getOrderList, getExchangeCoinList } from '@/services/spot'
 import { toast } from 'sonner';
-
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 
 const { RangePicker } = DatePicker;
 interface DataType {
@@ -99,8 +99,15 @@ const SpotMainPage = () => {
       key: "symbol",
       align: "center",
       width: 158,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
-    },
+      render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+      onClick={()=>{
+        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+      </button >,
+     },
     {
       title: t('spot.columns.type'), //"类型",
       key: "type",
