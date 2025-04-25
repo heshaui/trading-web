@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import styles from '../styles/spotChartTrade.module.css'
-import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message,notification} from 'antd';
+import { Segmented, ConfigProvider, Form, Input, Slider, InputNumber, Button, Tabs, message,notification,Tooltip} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
@@ -113,10 +113,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
         },
     };
 
-    // 添加处理精度的辅助函数
+    // 修改处理精度的辅助函数，移除多余的0
     const formatWithPrecision = (value: number | string, precision: number) => {
         if (!value && value !== 0) return '';
-        return Number(value).toFixed(precision);
+        // 先格式化到指定精度，然后移除末尾多余的0和可能的小数点
+        return Number(value).toFixed(precision).replace(/\.?0+$/, '');
     };
 
     // 添加滑块变化时的处理函数
@@ -269,8 +270,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                             description: (
                                 <div>
                                     <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
-                                   {values.amount&&<div>数量：{values.amount}</div>}
-                                    <div>价格：{priceDisabled ? res.data[1]:values.price}</div>
+                                    {values.amount&&<div>数量：{values.amount}</div>}
+                                    <div>价格：{priceDisabled ? 
+                                        formatWithPrecision(res.data[1], currentPair?.baseCoinScale || 8) : 
+                                        formatWithPrecision(values.price, currentPair?.baseCoinScale || 8)
+                                    }</div>
                                 </div>
                             ),
                             duration: 3
@@ -504,8 +508,11 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                 <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p>
                             </li>
                             <li className='flex justify-between align-center'>
-                                <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
+                                <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入是的可用余额' : '可卖取决于您卖出时的可用余额'} className='w-full flex justify-between align-center'>
+                                    <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
+                                
                                {segmentedvalue !== 'buy'&&<p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>} 
+                               </Tooltip>
                             </li>
                         </ul>
                     </Form>
