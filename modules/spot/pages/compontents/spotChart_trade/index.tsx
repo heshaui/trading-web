@@ -85,12 +85,12 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         if (priceDisabled) {
             // 市价单 - 验证最大市价单笔数量
             if (inputValue > currentPair.maxMarketPrice) {
-                return Promise.reject(new Error(`最大市价单笔数量为 ${currentPair.maxMarketPrice} ${currentPair?.coinSymbol}`));
+                return Promise.reject(new Error(`市价单最大挂单数量为 ${currentPair.maxMarketPrice} ${currentPair?.coinSymbol}`));
             }
         } else {
             // 限价单 - 验证最大限价挂单数
             if (inputValue > currentPair.maxCurrentPrice) {
-                return Promise.reject(new Error(`最大限价挂单数为 ${currentPair.maxCurrentPrice} ${currentPair?.coinSymbol}`));
+                return Promise.reject(new Error(`限价单最大挂单数为 ${currentPair.maxCurrentPrice} ${currentPair?.coinSymbol}`));
             }
         }
 
