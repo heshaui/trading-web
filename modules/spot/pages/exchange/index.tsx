@@ -709,7 +709,7 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" />
+                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" orderData={orderData} />
                         
                     </div>
 

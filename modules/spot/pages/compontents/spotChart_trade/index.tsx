@@ -39,8 +39,9 @@ interface DataType {
 type Props = {
     segmentedType: string,
     onOrderSuccess?: () => void  // 添加回调函数属性
+    orderData?: DataType[]
 }
-const SpotTradePage = ({ onOrderSuccess }: Props) => {
+const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
@@ -305,6 +306,43 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     useEffect(() => {
         getUserBalanceData()
     }, [])
+
+    // 添加函数获取最新交易价格
+    const getLatestPrices = () => {
+        if (!orderData || orderData.length === 0) return { buyPrice: 0, sellPrice: 0 };
+        
+        // 按时间戳排序，获取最新的交易记录
+        const sortedData = [...orderData].sort((a, b) => b.data.timestamp - a.data.timestamp);
+        const latestData = sortedData[0].data;
+        
+        return {
+            buyPrice: latestData.buy_price,
+            sellPrice: latestData.sell_price
+        };
+    };
+
+    // 计算可买卖数量的函数
+    const calculateAvailableAmount = () => {
+        const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+        const coinBalance = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+        
+        // 获取最新价格
+        const { buyPrice, sellPrice } = getLatestPrices();
+        
+        // 如果没有价格数据，直接返回0
+        if (!buyPrice || !sellPrice) {
+            return { availableToBuy: 0, availableToSell: coinBalance };
+        }
+        
+        // 计算可买数量 (用户基础货币余额除以买入价格)
+        const availableToBuy = formatWithPrecision(baseBalance / buyPrice, currentPair?.coinScale || 8);
+        
+        return {
+            availableToBuy,
+            availableToSell: formatWithPrecision(coinBalance, currentPair?.coinScale || 8)
+        };
+    };
+
     return (<div className='flex-y align-center'>
         <ConfigProvider
             theme={{
@@ -508,11 +546,16 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                                 <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p>
                             </li>
                             <li className='flex justify-between align-center'>
-                                <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入是的可用余额' : '可卖取决于您卖出时的可用余额'} className='w-full flex justify-between align-center'>
+                                <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入时的可用余额和最新成交价格' : '可卖取决于您卖出时的可用余额和最新成交价格'}>
                                     <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
+                                    </Tooltip>
                                 
-                               {segmentedvalue !== 'buy'&&<p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>} 
-                               </Tooltip>
+                                    <p>
+                                        {segmentedvalue === 'buy' 
+                                            ? calculateAvailableAmount().availableToBuy 
+                                            : calculateAvailableAmount().availableToSell} {currentPair?.coinSymbol}
+                                    </p>
+                                
                             </li>
                         </ul>
                     </Form>
