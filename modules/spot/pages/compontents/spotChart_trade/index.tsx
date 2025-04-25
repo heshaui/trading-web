@@ -21,7 +21,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
 import ToastModal from '@/components/spotModal/Toast_modal';
-
+import { add,lastD,  roundDown } from '@/utils'
+import { useCoinList } from '@/hooks/use-coinList';
 
 interface DataType {
     id: number,
@@ -44,6 +45,8 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
+        // 获取币种列表
+        const {coinList} = useCoinList();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
     const [priceDisabled, setPriceDisabled] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -284,6 +287,12 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
             toast.error(String(error))
         }
     }
+    // 
+    const roundNum=(coinName:string)=>{
+        const balance=lastD(userBalance.find((item: any) => item.coinName === coinName)?.balance || 0)
+        const coin = coinList.find((item: any) => item.coinName === coinName);
+        return roundDown(balance,coin?.unitScale);
+    }
 
     useEffect(() => {
         getUserBalanceData()
@@ -492,11 +501,13 @@ const SpotTradePage = ({ onOrderSuccess }: Props) => {
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
                                 <p>可用</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p>
+                                {/* <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p> */}
+                                <p>{roundNum(currentPair?.baseSymbol || '')} {currentPair?.baseSymbol}</p>
                             </li>
                             <li className='flex justify-between align-center'>
                                 <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
-                                <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p>
+                                {/* <p>{userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || '--'} {currentPair?.coinSymbol}</p> */}
+                                <p>{roundNum(currentPair?.coinSymbol || '')} {currentPair?.coinSymbol}</p>
                             </li>
                         </ul>
                     </Form>

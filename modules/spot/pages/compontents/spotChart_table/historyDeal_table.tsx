@@ -11,12 +11,12 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
-import { add, cut, division, lastD } from '@/utils'
+import { add, cut, division, lastD,roundDown } from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-
+import { useCoinList } from '@/hooks/use-coinList';
 
 const { RangePicker } = DatePicker;
 interface DataType {
@@ -51,6 +51,8 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+        // 获取币种列表
+        const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const router = useRouter();
@@ -134,8 +136,10 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradedAmount",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '0'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+
+        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
       },
     },
 
@@ -145,14 +149,15 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
       },
     },
     {
       title: t('spot.columns.fee'), //"手续费",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "buyFee",
+      dataIndex: "buyFee",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -161,8 +166,8 @@ const SpotMainPage = observer(() => {
     },
     {
       title: t('spot.columns.role'), //"角色",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "tenantId",
+      dataIndex: "tenantId",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -202,8 +207,7 @@ const SpotMainPage = observer(() => {
       const res = await getOrderList(params)
       if (res.code === '0') {
         const newData = res.data.list.map((item: any) => ({
-          ...item,
-          userLoginLogs: []
+          ...item
         }));
         setInitTableData(newData);
         setTableData(newData);

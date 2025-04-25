@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-
+import { useCoinList } from '@/hooks/use-coinList';
 
 const { RangePicker } = DatePicker;
 interface DataLogsType {
@@ -77,6 +77,8 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+      // 获取币种列表
+      const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -122,9 +124,10 @@ const SpotMainPage = observer(() => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 138,
+      width: 148,
       render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon :record.status?.toString() === '0' ?styles.success_icon:''}`}
-      onClick={()=>{
+      onClick={(e)=>{
+        e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
         router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
       }}
       >
@@ -205,8 +208,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status?roundDown(_status,2) :'0'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        return <span >{_status?roundDown(_status,coin?.unitScale) :'0'}</span>;
       },
     },
     {

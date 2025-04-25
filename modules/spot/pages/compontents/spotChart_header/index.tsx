@@ -14,11 +14,13 @@ import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 import DrawerPop from '../DrawerPop';
+import { useRouter } from 'next/router';
 
 
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     
     const { t } = useTranslation(['spot']);
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('spot'); // 当前选中的tab
@@ -52,8 +54,58 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     //  // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     //  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+    const currencyPairsArray = appStore.currencyPairs || [];
 
+    // 处理路由参数变化，包括页面内跳转
+    useEffect(() => {
+        if (!router.isReady) return;
 
+        const { symbol } = router.query;
+        
+        if (symbol && typeof symbol === 'string') {
+            // 解析symbol参数 (格式: BTC/USDT)
+            const [coinSymbol, baseSymbol] = symbol.split('/');
+            
+            if (coinSymbol && baseSymbol) {
+                // 使用store的方法获取匹配的币对
+                const matchedPairs = appStore.getCurrencyPairsByBase(baseSymbol);
+                const matchedPair = matchedPairs.find(pair => 
+                    pair.coinSymbol === coinSymbol && pair.baseSymbol === baseSymbol
+                );
+
+                // 如果找到匹配的币对，使用store的方法更新当前币对
+                if (matchedPair) {
+                    appStore.setCurrentPair(matchedPair);
+                }
+            }
+            
+            // 清除路由中的 symbol 参数
+            const newQuery = { ...router.query };
+            delete newQuery.symbol;
+            router.replace({
+                pathname: router.pathname,
+                query: newQuery
+            }, undefined, { shallow: true });
+        }
+    }, [router.isReady, router.query]); // 监听路由准备状态和查询参数变化
+
+    // 当币对改变时更新URL
+    useEffect(() => {
+        if (currentPair && router.isReady) {
+            const newSymbol = `${currentPair.coinSymbol}/${currentPair.baseSymbol}`;
+            const currentSymbol = router.query.symbol;
+            
+            // 只有当URL中的symbol与当前币对不匹配时才更新
+            if (currentSymbol !== newSymbol) {
+                router.push({
+                    pathname: router.pathname,
+                    query: { ...router.query, symbol: newSymbol }
+                }, undefined, { shallow: true });
+            }
+        }
+    }, [currentPair, router.isReady]);
 
     const handleTabClick = (key: string) => {
         setActiveTab(key);
@@ -69,17 +121,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }
     };
 
-    // 添加新函数处理货币对选择
+    // 修改handlePairSelect，不再更新URL
     const handlePairSelect = (pair: any) => {
         appStore.setCurrentPair(pair);
-        setOpen(false); // 选择后关闭下拉菜单
+        setOpen(false);
     };
-
-    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
-    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
-    const currencyPairsArray = appStore.currencyPairs || [];
-
-
 
     const tabsItem: TabsProps['items'] = [
         {

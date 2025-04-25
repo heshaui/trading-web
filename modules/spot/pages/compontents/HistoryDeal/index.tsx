@@ -10,10 +10,11 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { add, cut, division, lastD } from '@/utils'
+import { add, cut, division, lastD,roundDown } from '@/utils'
 import { getOrderList, getExchangeCoinList } from '@/services/spot'
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useCoinList } from '@/hooks/use-coinList';
 
 const { RangePicker } = DatePicker;
 interface DataType {
@@ -60,6 +61,8 @@ interface SelectParamType {
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+  // 获取币种列表
+  const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
   const [paramInfo, sePparamInfo] = useState({
@@ -172,14 +175,15 @@ const SpotMainPage = () => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
       },
     },
     {
       title: t('spot.columns.fee'), //"手续费",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "buyFee",
+      dataIndex: "buyFee",
       width: 128,
       align: "center",
       render: (_status) => {
@@ -188,8 +192,8 @@ const SpotMainPage = () => {
     },
     {
       title: t('spot.columns.role'), //"角色",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      key: "tenantId",
+      dataIndex: "tenantId",
       width: 128,
       align: "center",
       render: (_status) => {
