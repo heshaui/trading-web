@@ -68,6 +68,19 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         // 将输入值转为数字进行比较
         const inputValue = parseFloat(value);
 
+        // 检查最小下单金额
+        const minBaseVolume = currentPair?.minBaseVolume || 0;
+        if (inputValue < minBaseVolume) {
+            return Promise.reject(new Error(`最小下单金额为 ${minBaseVolume} ${currentPair?.baseSymbol}`));
+        }
+        
+        // 检查最大下单金额
+        const maxBaseVolume = currentPair?.maxBaseVolume || 0;
+        if (maxBaseVolume > 0 && inputValue > maxBaseVolume) {
+            return Promise.reject(new Error(`最大下单金额为 ${maxBaseVolume} ${currentPair?.baseSymbol}`));
+        }
+
+        // 检查余额是否充足
         if (segmentedvalue === 'buy' && inputValue > baseBalance) {
             return Promise.reject(new Error(`可用${currentPair?.baseSymbol}余额不足`));
         }
