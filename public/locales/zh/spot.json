@@ -36,7 +36,10 @@
             "tradedAmount":"委托量/已完成",
             "totalAmount":"总额/已成交",
             "limit":"限价委托",
-            "market":"市价委托"
+            "market":"市价委托",
+            "withdrawError":"用户禁止提现",
+            "depositError":"用户禁止充值",
+            "tradeError":"用户禁止交易"
         },
         "select":{
             "all":"全部",
