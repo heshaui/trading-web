@@ -104,29 +104,53 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     // 添加处理收藏的函数
     const handleToggleFavorite = async () => {
         setIsFavorite(!isFavorite);
-        if(isFavorite){
+        if(!isFavorite){
             const data={
                 exchangeCoinId:currentPair.id,
                 type:1
             }
            const res= await addUserExchangeCoinType(data);
            if(res.code === '0'){
-            appStore.setCurrentPair({
-                ...currentPair,
-                isFavorite: true
-            });
+                // 更新currentPair
+                appStore.setCurrentPair({
+                    ...currentPair,
+                    isFavorite: true
+                });
+                
+                // 同时更新currencyPairs数组中的对应项
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(pair => pair.id === currentPair.id);
+                if (pairIndex !== -1) {
+                    updatedPairs[pairIndex] = {
+                        ...updatedPairs[pairIndex],
+                        isFavorite: true
+                    };
+                    appStore.setCurrencyPairs(updatedPairs);
+                }
            }
         }else{
             const data={
                 exchangeCoinId:currentPair.id,
-                type:0
+                type:2
             }
           const res= await canalUserExchangeCoinType(data);
             if(res.code === '0'){
+                // 更新currentPair
                 appStore.setCurrentPair({
                     ...currentPair,
                     isFavorite: false
                 });
+                
+                // 同时更新currencyPairs数组中的对应项
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(pair => pair.id === currentPair.id);
+                if (pairIndex !== -1) {
+                    updatedPairs[pairIndex] = {
+                        ...updatedPairs[pairIndex],
+                        isFavorite: false
+                    };
+                    appStore.setCurrencyPairs(updatedPairs);
+                }
             }
         }
     };

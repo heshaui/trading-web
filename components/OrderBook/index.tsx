@@ -289,12 +289,12 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         </div>
       </div>
       
-      {/* 暂时注释 {
+      暂时注释 {
         activeTab === 'orderbook' && (
           <div className={styles.toolbar}>
           {renderColorModeButtons()}
           
-          <Select 
+          {/* <Select 
             value={priceScale}
             bordered={false}
             onChange={(e) => setPriceScale(e)}
@@ -303,9 +303,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
             <Select.Option value={currentPair?.depthTwo}>{currentPair?.depthTwo}</Select.Option>
             <Select.Option value={currentPair?.depthThree}>{currentPair?.depthThree}</Select.Option>
             <Select.Option value={currentPair?.depthFour}>{currentPair?.depthFour}</Select.Option>
-          </Select>
+          </Select> */}
         </div>
-      )} */}
+      )}
      
 
       {/* 根据活动标签显示不同内容 */}
