@@ -10,15 +10,16 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList ,revocationOrder} from '@/services/spot'
+import { getOrderList, revocationOrder } from '@/services/spot'
 import { toast } from 'sonner';
-import { add, cut, nul, division, lastD } from '@/utils'
+import { add, cut, nul, division, roundDown } from '@/utils'
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { encryptData } from '@/hooks/user-encrypt'
 import ToastModal from '@/components/spotModal/Toast_modal';
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 
 interface DataType {
   id: number,
@@ -64,9 +65,9 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   const [delectId, setDelectId] = useState<string[]>([]);
   const [delectIdAll, setDelectIdAll] = useState<string[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
-  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0]; // 当前货币对
+  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0]; // 当前货币对
   // const [hideElse, setHideElse] = useState<boolean>(false);
-  const hideElse=useRef(false)
+  const hideElse = useRef(false)
   const [toastData, setToastData] = useState<any>({})
   const columns: ColumnsType<DataType> = [
     {
@@ -82,8 +83,15 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      width: 138,
+      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''}`}
+        onClick={() => {
+          router.push(`${ROUTER_KEY_SPOT.SPOT_ORDER}?symbol=${record.symbol}`)
+        }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
+      </button >,
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -111,19 +119,20 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <div className='flex-x align-center text-center'>
-          <p className='text-center '> {_status||'0'}</p>
+
+        return <><div className='flex-x-cc'>
+          <p className='text-center '> {_status || '0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
-            <button 
-            onClick={()=>{
-              toast.error('接口：暂不做')
-            }}
+            <button
+              onClick={() => {
+                toast.error('接口：暂不做')
+              }}
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-        </div>
-          
+        </div></>
+
       },
     },
     {
@@ -136,17 +145,17 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
         // amount/tradedAmount
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-x align-center'>
-            {`${record.tradedAmount}/${_amount}`}
+            {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}
             <Tooltip title={t('spot.modal.edit')}>
-              <button 
-              onClick={()=>{
-                toast.error('接口：暂不做')
-              }}>
+              <button
+                onClick={() => {
+                  toast.error('接口：暂不做')
+                }}>
                 <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
             </Tooltip>
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
+              {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
             </span>
 
           </div>
@@ -164,16 +173,16 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
-        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
+        const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), 2) : '0'
+        return <span >{`${totalAmount}/${roundDown(_turnover, 2)}` || '--'}</span>;
       },
     },
     {
       title: <button className={`error_icon`}
-      onClick={()=>{
-        setDelectIdAll(tableData.map((item)=>item.orderId))
-        setDelectModal(true)
-      }}
+        onClick={() => {
+          setDelectIdAll(tableData.map((item) => item.orderId))
+          setDelectModal(true)
+        }}
       >{t('spot.columns.cancel')}</button>, //"全撤",
       key: "operation",
       width: 128,
@@ -182,7 +191,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              
+
               setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
@@ -206,25 +215,25 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   ];
   const delectOne = async () => {
     try {
-        const paeam={
-            orderId: delectId,
-        }
-        console.log(paeam,12345);
-        
-        const encrypt=await encryptData(paeam)
-        const res = await revocationOrder(encrypt)
-        if(res.code==='0'){
-            toast.success(res.message)
-            setToastModal(true)
-            getOrderListData()
-        }else{
-            toast.error(res.message)
-        }
+      const paeam = {
+        orderId: delectId,
+      }
+      console.log(paeam, 12345);
+
+      const encrypt = await encryptData(paeam)
+      const res = await revocationOrder(encrypt)
+      if (res.code === '0') {
+        toast.success(res.message)
+        setToastModal(true)
+        getOrderListData()
+      } else {
+        toast.error(res.message)
+      }
     } catch (error) {
-        toast.error(String(error))
+      toast.error(String(error))
     }
 
-};
+  };
 
   const pageChange = async (page: number, pageSize: number) => {
     // const pageData = {
@@ -239,7 +248,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
     getOrderListData()
   }
   const hideElseChange = (e: CheckboxChangeEvent) => {
-    if(loading) return toast.error('loading...')
+    if (loading) return toast.error('loading...')
     hideElse.current = !hideElse.current
     getOrderListData()
   }
@@ -248,8 +257,8 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 0,
-      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}`:null,
-      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}`:null,
+      coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}` : null,
+      baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}` : null,
     }
     setLoading(true)
     try {
@@ -340,8 +349,8 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
         </div>
         <div className={`${styles.table_header_checkbox2}  ml-6 mt-6`}>
           <Checkbox
-          onChange={hideElseChange}
-          checked={hideElse.current}
+            onChange={hideElseChange}
+            checked={hideElse.current}
           >
             <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
           </Checkbox>
@@ -354,7 +363,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
           dataSource={tableData}
           size="large"
           // scroll={{ x: 'max-content', y: 300 }}
-          // scroll={{y: true }}
+          scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
           pagination={{
             position: ["bottomRight"],
@@ -367,15 +376,15 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
-        <DelectModal open={delectModal} 
-        orderId={delectIdAll}
-        onCancel={() => setDelectModal(false)}
-        onOk={handleDelectOk}/>
+        <DelectModal open={delectModal}
+          orderId={delectIdAll}
+          onCancel={() => setDelectModal(false)}
+          onOk={handleDelectOk} />
         <ToastModal
-        type='0'
-         open={toastModal} 
-         toastData={toastData}
-        onCancel={() => setToastModal(false)}
+          type='0'
+          open={toastModal}
+          toastData={toastData}
+          onCancel={() => setToastModal(false)}
         />
       </div>
       {/* </div> */}

@@ -12,11 +12,11 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList, getExchangeCoinList,revocationOrder } from '@/services/spot'
 import { toast } from 'sonner';
-import { add, cut, division, lastD ,nul} from '@/utils'
+import { add, cut, division, lastD ,nul,roundDown,roundUp} from '@/utils'
 import ToastModal from '@/components/spotModal/Toast_modal';
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { encryptData } from '@/hooks/user-encrypt'
-
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 
 
 
@@ -91,8 +91,31 @@ const SpotMainPage = () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
+      width: 138,
+      render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+      onClick={()=>{
+        router.push(`${ROUTER_KEY_SPOT.SPOT_ORDER}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+      </button >,
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
       width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      align: "center",
+      render: (_text) => {
+        if(_text===0){
+          return <span >{t('spot.columns.market')}</span>;
+        }else if(_text===1){
+          return <span  >{t('spot.columns.limit')}</span>;
+        }else{
+          return <span >--</span>;
+        }
+      },
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -120,7 +143,8 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <div className='flex-x align-center text-center'>
+        return <>
+        <div className='flex-x-cc'>
           <p className='text-center '> {_status||'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button 
@@ -131,50 +155,52 @@ const SpotMainPage = () => {
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-        </div>
+          </div>
+        </>
           
       },
     },
     {
-      title: t('spot.columns.tradedAmount'), //"委托量/已完成",
+      title: t('spot.columns.quantity'), //"数量",
+      key: "amount",
+      dataIndex: "amount",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <>
+        {_status||'0'}
+        </>
+          
+      },
+    },
+    {
+      title: t('spot.columns.completion'), //"完成度",
       key: "amount",
       dataIndex: "amount",
       width: 128,
       align: "center",
       render: (_amount, record) => {
         // amount/tradedAmount
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-x align-center'>
-            {`${record.tradedAmount}/${_amount}`}
-            <Tooltip title={t('spot.modal.edit')}>
-              <button 
-              onClick={()=>{
-                toast.error('接口：暂不做')
-              }}>
-                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
-              </button>
-            </Tooltip>
+        return < >
+          {_amount ? 
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
-            </span>
-
-          </div>
-            : '0'
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),2)}%` : '0%'}
+            </span> : '0'
           }
-        </div >
+        </ >
 
 
       },
     },
     {
-      title: t('spot.columns.totalAmount'), //"总额/已成交",
+      title: t('spot.columns.amount'), //成交额,
       key: "turnover",
       dataIndex: "turnover",
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
-        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
+        // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
+        return <span >{_turnover?`${roundDown(_turnover,2)}` : '0'}</span>;
       },
     },
     {
@@ -234,10 +260,10 @@ const SpotMainPage = () => {
 };
 
   const directionSelect: { label: string, value: string | number }[] = [
-    // {
-    //   label: t('spot.select.all'),
-    //   value: ''
-    // },
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.modal.buy'),
       value: 0
@@ -322,7 +348,15 @@ const SpotMainPage = () => {
           tenantId: item.tenantId
         }
       })
-      setSymbolSelect(selectData)
+      setSymbolSelect(
+        [
+          {
+            label: t('spot.select.all'),
+            value: ''
+          },
+          ...selectData
+        ]
+        )
     }
 
   }
@@ -367,10 +401,10 @@ const SpotMainPage = () => {
           <Form
             form={form}
             layout="inline"
-            // initialValues={{
-            //   direction: '',
-            //   symbol: ''
-            // }}
+            initialValues={{
+              direction: '',
+              symbol: ''
+            }}
           >
             <Form.Item name="direction" >
               <Select allowClear

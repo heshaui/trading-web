@@ -107,7 +107,7 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
                     <div className='position-relative'>
                         <Tabs items={items} 
                         className="custom-tabs2" 
-                       
+                        destroyInactiveTabPane={true}
                         indicator={{ size: (origin) => origin - 35, align: 'center' }}/>
                     </div>
                     {/* </div>

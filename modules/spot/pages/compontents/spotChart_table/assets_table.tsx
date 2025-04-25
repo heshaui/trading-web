@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
-import { add, cut, nul } from '@/utils'
+import { add, cut, nul ,roundDown} from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -56,7 +56,7 @@ const AssetsMainPage = () => {
             render: (_text, record) => {
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                return <span>{text2 || '0'}</span>
+                return <span>{text2?roundDown(text2,7) :'0'}</span>
             },
             sorter: (a, b) => {
                 const totalA = add(add(a.balance || 0, a.releaseBalance || 0), a.frozenBalance || 0);
@@ -71,7 +71,7 @@ const AssetsMainPage = () => {
             align: "center",
             // width: 158,
             render: (_text) => {
-                return <span >{_text || '0'}</span>;
+                return <span >{_text?roundDown(_text,7) :'0'}</span>;
 
             },
             sorter: (a, b) => a.balance - b.balance,
@@ -83,7 +83,7 @@ const AssetsMainPage = () => {
             // width: 128,
             align: "center",
             render: (_text) => {
-                return <span >{_text || '--'}</span>;
+                return <span >{_text?roundDown(_text,7) :'0'}</span>;
             },
             sorter: (a, b) => a.releaseBalance - b.releaseBalance,
         },
@@ -94,7 +94,7 @@ const AssetsMainPage = () => {
             // width: 128,
             align: "center",
             render: (_text) => {
-                return <span >{_text || '--'}</span>;
+                return <span >{_text?roundDown(_text,7) :'0'}</span>;
             },
             sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
@@ -106,8 +106,10 @@ const AssetsMainPage = () => {
             align: "center",
             render: (_text) => {
                 return <>
-                    <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>{t('spot.columns.deposit')}</button>
-                    <button className={`${styles.theme_color} font-12 font-w-500`}>{t('spot.columns.withdraw')}</button>
+                    <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}
+                    >{t('spot.columns.deposit')}</button>
+                    <button className={`${styles.theme_color} font-12 font-w-500`}
+                    >{t('spot.columns.withdraw')}</button>
                 </>
             },
         },

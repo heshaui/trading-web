@@ -34,7 +34,9 @@
             "deposit":"充值",
             "withdraw":"提现",
             "tradedAmount":"委托量/已完成",
-            "totalAmount":"总额/已成交"
+            "totalAmount":"总额/已成交",
+            "limit":"限价委托",
+            "market":"市价委托"
         },
         "select":{
             "all":"全部",
