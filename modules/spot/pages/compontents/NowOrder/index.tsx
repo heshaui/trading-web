@@ -18,7 +18,8 @@ import DelectModal from '@/components/spotModal/Delect_modal';
 import { encryptData } from '@/hooks/user-encrypt'
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
-
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
 
 
 interface DataType {
@@ -51,12 +52,14 @@ interface symbolSelectType {
   baseSymbol: string,
   coinSymbol: string
 }
-const SpotMainPage = () => {
+const SpotMainPage =observer( () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const router = useRouter();
       // 获取币种列表
-      const {coinList} = useCoinList();
+      // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [paramInfo, sePparamInfo] = useState({
     type: '',
@@ -184,11 +187,11 @@ const SpotMainPage = () => {
       align: "center",
       render: (_amount, record) => {
         // amount/tradedAmount
-        const coin = coinList.find((item: any) => item.coinName === record.coinSymbol);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
         return < >
           {_amount ? 
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.unitScale)}%` : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'}
             </span> : '0'
           }
         </ >
@@ -204,8 +207,8 @@ const SpotMainPage = () => {
       align: "center",
       render: (_turnover, record) => {
         // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        return <span >{_turnover?`${roundDown(_turnover,coin?.unitScale)}` : '0'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_turnover?`${roundDown(_turnover,coin?.baseCoinScale)}` : '0'}</span>;
       },
     },
     {
@@ -467,6 +470,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;

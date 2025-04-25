@@ -126,7 +126,9 @@ function ToastModal({ open, onCancel, onOk, toastData, type }: Props) {
                                 价格：{toastData.price}&nbsp;{toastData.symbol?.split('/')?.[1] || '--'}
                             </li>
                             <li className={` mt-3 font-14 font-w-400 `}>
-                                撤单量：{toastData.amount}&nbsp;{toastData.symbol?.split('/')?.[0] || '--'}
+                            {type.toString() === '0' && `撤单量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
+                            {type.toString() === '1' && `挂单量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}        
+                            {type.toString() === '2' && `成交量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
                             </li>
                         </ul>
                     </div>
