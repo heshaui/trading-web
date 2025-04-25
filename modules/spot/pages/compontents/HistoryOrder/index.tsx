@@ -10,10 +10,11 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList,getExchangeCoinList } from '@/services/spot'
+import { getOrderList, getExchangeCoinList, getOrderInfo } from '@/services/spot'
 import { toast } from 'sonner';
-import { division,nul ,roundDown} from '@/utils';
+import { division, nul, roundDown } from '@/utils';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useCoinList } from '@/hooks/use-coinList';
 
 
 const { RangePicker } = DatePicker;
@@ -73,16 +74,18 @@ interface symbolSelectType {
   coinSymbol: string
 }
 interface SelectParamType {
-  startTime: number|string;
-  endTime: number|string;
+  startTime: number | string;
+  endTime: number | string;
   direction: string;
   type: string;
   symbol: string;
-  notStatus:string|number;
+  notStatus: string | number;
 }
 const SpotMainPage = () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+      // 获取币种列表
+      const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
   const [paramInfo, sePparamInfo] = useState({
@@ -101,10 +104,10 @@ const SpotMainPage = () => {
   const selectParam = useRef<SelectParamType>({
     startTime: '',
     endTime: '',
-    direction:'',
-    type:'',
-    symbol:'',
-    notStatus:''
+    direction: '',
+    type: '',
+    symbol: '',
+    notStatus: ''
   })
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -141,14 +144,15 @@ const SpotMainPage = () => {
       align: "center",
       width: 138,
       render: (_text, record) => <button type='button'
-      //  className={`${record.status === 2 ? styles.error_icon : ''}`}
-      onClick={()=>{
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-      }}
+        //  className={`${record.status === 2 ? styles.error_icon : ''}`}
+        onClick={(e) => {
+          e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
       >
         {_text || '--'}
-        <Iconify icon="mingcute:right-line" 
-        className={`mx-1`} size={20} />
+        <Iconify icon="mingcute:right-line"
+          className={`mx-1`} size={20} />
       </button >,
     },
     {
@@ -158,11 +162,11 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_text) => {
-        if(_text===0){
+        if (_text === 0) {
           return <span >{t('spot.columns.market')}</span>;
-        }else if(_text===1){
+        } else if (_text === 1) {
           return <span  >{t('spot.columns.limit')}</span>;
-        }else{
+        } else {
           return <span >--</span>;
         }
       },
@@ -220,7 +224,7 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status? roundDown(_status,2): '0'}</span>;
+        return <span >{_status ? roundDown(_status, 2) : '0'}</span>;
       },
     },
     {
@@ -230,7 +234,7 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status? roundDown(_status,2): '0'}</span>;
+        return <span >{_status ? roundDown(_status, 2) : '0'}</span>;
       },
     },
     {
@@ -239,8 +243,9 @@ const SpotMainPage = () => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status?roundDown(_status,2) :'0'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
       },
     },
     {
@@ -369,45 +374,39 @@ const SpotMainPage = () => {
     paramdataRef.current.pageSize = pageSize
     await getOrderListData()
   }
-    // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
-    const handleExpand = (expanded: boolean, record: DataType) => {
-      console.log(record.orderId, 12345, expanded);
-  
-      if (expanded) {
-        // 设置展开的行
-        setExpandedRowKeys([record.orderId]);
-  
-        // 设置子数据
-        if (record.userLoginLogs && record.userLoginLogs.length > 0) {
-          setChildDeviceNoData(record.userLoginLogs);
-        } else {
-          setChildDeviceNoData([]);
-        }
-  
-        // // 如果URL中有deviceId参数，则清除它
-        // if (router.query.deviceId) {
-        //   const { deviceId, ...restQuery } = router.query;
-        //   router.replace({
-        //     pathname: router.pathname,
-        //     query: restQuery
-        //   }, undefined, { shallow: true });
-        // }
+  // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
+  const handleExpand = (expanded: boolean, record: DataType) => {
+    getOrderInfoData(record.symbol)
+    if (expanded) {
+      // 设置展开的行
+      setExpandedRowKeys([record.orderId]);
+
+      // 设置子数据
+      if (record.userLoginLogs && record.userLoginLogs.length > 0) {
+        setChildDeviceNoData(record.userLoginLogs);
       } else {
-        // 清空展开行
-        setExpandedRowKeys([]);
         setChildDeviceNoData([]);
       }
-    };
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
 
-
-  }
+      // // 如果URL中有deviceId参数，则清除它
+      // if (router.query.deviceId) {
+      //   const { deviceId, ...restQuery } = router.query;
+      //   router.replace({
+      //     pathname: router.pathname,
+      //     query: restQuery
+      //   }, undefined, { shallow: true });
+      // }
+    } else {
+      // 清空展开行
+      setExpandedRowKeys([]);
+      setChildDeviceNoData([]);
+    }
+  };
   // 时间选择
-  const dateChange = async(value: any) => {
-   
-    const startTime =value? dayjs(value[0]).valueOf():''
-    const endTime = value? dayjs(value[1]).valueOf():''
+  const dateChange = async (value: any) => {
+
+    const startTime = value ? dayjs(value[0]).valueOf() : ''
+    const endTime = value ? dayjs(value[1]).valueOf() : ''
     selectParam.current.startTime = startTime
     selectParam.current.endTime = endTime
     await getOrderListData()
@@ -418,13 +417,13 @@ const SpotMainPage = () => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 1,
-      notStatus:  selectParam.current.notStatus?'3':null,
-      coinSymbol: selectParam.current.symbol?`${selectParam.current.symbol.split('/')[0]}`:null,
-      baseSymbol: selectParam.current.symbol?`${selectParam.current.symbol.split('/')[1]}`:null,
-      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():null,
-      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():null,
-      direction: selectParam.current.direction||selectParam.current.direction?.toString()==='0'?selectParam.current.direction:null,
-      type: selectParam.current.type||selectParam.current.type?.toString()==='0'?selectParam.current.type:null,
+      notStatus: selectParam.current.notStatus ? '3' : null,
+      coinSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[0]}` : null,
+      baseSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[1]}` : null,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+      direction: selectParam.current.direction || selectParam.current.direction?.toString() === '0' ? selectParam.current.direction : null,
+      type: selectParam.current.type || selectParam.current.type?.toString() === '0' ? selectParam.current.type : null,
 
     }
     setLoading(true)
@@ -470,6 +469,25 @@ const SpotMainPage = () => {
         ])
     }
 
+  }
+  const getOrderInfoData = async (symbol: string) => {
+    try {
+      const symbol1 = 'BTCUSDT'
+      const params = {
+        // baseCoinScale:symbol.split('/')[1],
+        // coinScale:symbol.split('/')[0],
+        pageNum: 1,
+        pageSize: 10,
+        // baseCoinScale:'USDT',
+        // coinScale:'BTC',
+        symbol:'base_quote_group'
+      }
+      const res = await getOrderInfo(params)
+      if (res.code === '0') {
+      }
+    } catch (error) {
+      toast.error(String(error))
+    }
   }
 
   useEffect(() => {
@@ -534,7 +552,7 @@ const SpotMainPage = () => {
                 options={typeSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.type')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.type = value
                   getOrderListData()
                 }}
@@ -546,7 +564,7 @@ const SpotMainPage = () => {
                 options={directionSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.direction = value
                   getOrderListData()
                 }}
@@ -558,7 +576,7 @@ const SpotMainPage = () => {
                 options={symbolSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.symbol = value
                   getOrderListData()
                 }}
@@ -568,14 +586,14 @@ const SpotMainPage = () => {
               <Checkbox
                 defaultChecked={false}
                 className={` mt-8`}
-                onChange={(e)=>{
+                onChange={(e) => {
                   console.log(e.target.checked, 123456789, 'value');
-                  selectParam.current.notStatus = e.target.checked?'3':''
+                  selectParam.current.notStatus = e.target.checked ? '3' : ''
                   getOrderListData()
                 }}
               >
                 <span className={`${styles.title_color} font-14`}>
-                {t('spot.select.hideAllCancel')}
+                  {t('spot.select.hideAllCancel')}
                 </span>
               </Checkbox>
             </Form.Item>
@@ -583,7 +601,7 @@ const SpotMainPage = () => {
         </div>
         <div className={`${styles.table_content} w-full `}>
 
-        <Table
+          <Table
             columns={columns}
             dataSource={tableData}
             size="large"

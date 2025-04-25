@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import appStore from '@/store';
 import { set } from 'mobx';
 import { reaction } from 'mobx';
+import { useAuth } from '@/context/AuthContext';
 interface DataType {
     id: number,
     userId: number,
@@ -54,6 +55,7 @@ interface coinSelectType {
 const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
+    const { isLoggedIn} = useAuth()
     const [klineData, setKlineData] = useState<any>();
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
@@ -716,12 +718,12 @@ const ExchangePage = () => {
 
                     </div>
                     <div className='flex-x'>
-                        <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh' }}>
+                        <div className={`${styles.card_bgc1} mr-1 ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
                             <SpotChartTables />
                         </div>
-                        <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                        {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
                             <SpotChartAssets />
-                        </div>
+                        </div>}
                     </div>
 
 

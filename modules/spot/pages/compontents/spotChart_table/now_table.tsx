@@ -20,6 +20,7 @@ import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { encryptData } from '@/hooks/user-encrypt'
 import ToastModal from '@/components/spotModal/Toast_modal';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useCoinList } from '@/hooks/use-coinList';
 
 interface DataType {
   id: number,
@@ -51,6 +52,8 @@ type Props = {
 const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+     // 获取币种列表
+     const {coinList} = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
 
@@ -173,8 +176,9 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), 2) : '0'
-        return <span >{`${totalAmount}/${roundDown(_turnover, 2)}` || '--'}</span>;
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), coin?.unitScale) : '0'
+        return <span >{`${totalAmount}/${roundDown(_turnover, coin?.unitScale)}` || '0'}</span>;
       },
     },
     {
