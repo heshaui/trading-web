@@ -70,7 +70,8 @@
     font-size: 16px !important;
 }
 
-/* 输入框清除图标底色 */
+/* 输入框清除图标底色及可视 */
+.modal-input  .anticon.ant-input-password-icon,
 .modal-input .ant-input-clear-icon,
 .modal-input2 .ant-input-clear-icon {
     color: var(--text-color4) !important;

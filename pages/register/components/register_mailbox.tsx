@@ -271,7 +271,7 @@ export default function RegisterMail() {
                     </div>
                     <div 
                         className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
-                        onClick={() => { setIsOpen(!isOpen) }}
+                        
                     >
                         {/* 推荐人的邀请码(选填) */}
                         {t('registerForm.refereeTitle')}
@@ -279,6 +279,7 @@ export default function RegisterMail() {
                             icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
                             className={`${styles.tip_icon} ml-1 `} 
                             size={20} 
+                            onClick={() => { setIsOpen(!isOpen) }}
                         />
                     </div>
                     {isOpen && (
@@ -289,6 +290,7 @@ export default function RegisterMail() {
                                 allowClear={true} 
                                 size="large" 
                                 className={`${styles.mail_input} modal-input`}
+                                maxLength={8}
                             />
                         </Form.Item>
                     )}
