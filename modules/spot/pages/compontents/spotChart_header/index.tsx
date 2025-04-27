@@ -17,6 +17,7 @@ import DrawerPop from '../DrawerPop';
 import { useRouter } from 'next/router';
 
 
+
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     
     const { t } = useTranslation(['spot']);
@@ -202,6 +203,25 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
             }
         }
     };
+        const tabsItems: TabsProps['items'] = [
+            // 主流区、创新区、新币区、AI、Meme、NFT、DeFi、NFT、Web3、Payments、Launchpad、Layer2、Solana、RWA、Launchpool、游戏元宇宙、存储
+            { key: '1', label: '主流区' },
+            { key: '2', label: '创新区' },
+            { key: '3', label: '新币区' },
+            { key: '4', label: 'AI' },
+            { key: '5', label: 'Meme' },
+            { key: '6', label: 'NFT' },
+            { key: '7', label: 'DeFi' },
+            { key: '8', label: 'Web3' },
+            { key: '9', label: 'Payments' },
+            { key: '10', label: 'Launchpad' },
+            { key: '11', label: 'Layer2' },
+            { key: '12', label: 'Solana' },
+            { key: '13', label: 'RWA' },
+            { key: '14', label: 'Launchpool' },
+            { key: '15', label: '游戏元宇宙' },
+            { key: '16', label: '存储' },
+        ];
 
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
@@ -227,6 +247,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                                 style={{width: '100%'}}
                             />
                         </div>
+
                         <div className={`${styles.tabs_container} w-full`}>
                             <div className={`${styles.tabs_list} w-full`}>
                                 <Tabs items={tabsItem}
@@ -235,6 +256,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                                     onChange={handleTabClick}
                                     // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
                                 />
+  
+
                             </div>
                             {/* <div className={styles.content_container}>
                                 <div className={styles.pair_list}>

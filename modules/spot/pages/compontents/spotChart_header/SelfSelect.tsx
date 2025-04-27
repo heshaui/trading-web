@@ -1,13 +1,14 @@
 'use client'
 import React from 'react';
 import styles from '../styles/spotHeader_select.module.css'
-import { Input, Radio, ConfigProvider, Rate, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
+import { Input, Radio, ConfigProvider, Rate, Table, Select, Form, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
 import { Iconify } from "@/components/icon"
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
+import SimpleScrollTabs from '@/components/ScrollableTabs';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 import appStore from '@/store';
 interface SelfSelectProps {
@@ -26,10 +27,23 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
 
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
-        { key: 'defi', label: 'Defi' },
-        { key: 'main', label: '主流币' },
-        { key: 'new', label: '新币种' },
-        { key: 'ai', label: '人工智能' },
+        // 主流区、创新区、新币区、AI、Meme、NFT、DeFi、NFT、Web3、Payments、Launchpad、Layer2、Solana、RWA、Launchpool、游戏元宇宙、存储
+        { key: '1', label: '主流区' },
+        { key: '2', label: '创新区' },
+        { key: '3', label: '新币区' },
+        { key: '4', label: 'AI' },
+        { key: '5', label: 'Meme' },
+        { key: '6', label: 'NFT' },
+        { key: '7', label: 'DeFi' },
+        { key: '8', label: 'Web3' },
+        { key: '9', label: 'Payments' },
+        { key: '10', label: 'Launchpad' },
+        { key: '11', label: 'Layer2' },
+        { key: '12', label: 'Solana' },
+        { key: '13', label: 'RWA' },
+        { key: '14', label: 'Launchpool' },
+        { key: '15', label: '游戏元宇宙' },
+        { key: '16', label: '存储' },
     ];
 
     // 处理展开/折叠行
@@ -108,11 +122,19 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
 
     const sortedPairList = getSortedPairs();
 
-    const filteredPairs = sortedPairList.filter(pair => 
-        pair.isFavorite && 
-        (pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
-        pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase()))
-    );
+    const filteredPairs = sortedPairList.filter(pair => {
+        // 必须是收藏的
+        const isFavorite = pair.isFavorite;
+        
+        // 搜索过滤
+        const matchesSearch = pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
+                            pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
+        
+        // 标签过滤
+        const matchesTab = activeTab === 'all' ? true : pair.classLabel === activeTab;
+        
+        return isFavorite && matchesSearch && matchesTab;
+    });
 
     const handlePairClick = async (pair: any) => {
         console.log(pair);  
@@ -134,6 +156,9 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
         // });
     };
 
+   const handleTabClick = (key: string) => {
+        setActiveTab(key);
+    };
     return (
         <ConfigProvider
             theme={{
@@ -148,7 +173,16 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                 },
             }}
         >
+            <SimpleScrollTabs 
+                items={tabsItem} 
+                onChange={handleTabClick} 
+                activeKey={activeTab}
+                showAllTab={true}
+                allTabLabel="全部"
+            />
+
             <div className={styles.container}>
+              
                 {/* 列表头部 */}
                 <div className={`${styles.list_header} px-4 py-4 flex-x align-center`}>
                     <div 

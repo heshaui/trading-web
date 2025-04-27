@@ -454,10 +454,26 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         };
     };
     
-    // 使用useMemo来缓存计算结果，并在价格变化时重新计算
-    const availableAmounts = useMemo(() => {
-        return calculateAvailableAmount();
-    }, [form.getFieldValue('price'), priceDisabled, userBalance, currentPair]);
+    // 直接定义可买数量的计算函数
+    const getAvailableToBuy = () => {
+        const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+        const price = form.getFieldValue('price');
+        
+        if (!price || price <= 0) {
+            // 如果没有有效价格，使用市场价格
+            const { buyPrice } = getLatestPrices();
+            return buyPrice ? formatWithPrecision(baseBalance / buyPrice, currentPair?.coinScale || 8) : '0';
+        }
+        
+        // 使用表单中的当前价格计算
+        return formatWithPrecision(baseBalance / price, currentPair?.coinScale || 8);
+    };
+    
+    // 可卖数量计算
+    const getAvailableToSell = () => {
+        const coinBalance = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+        return formatWithPrecision(coinBalance, currentPair?.coinScale || 8);
+    };
 
     // 添加价格偏差验证函数
     const checkPriceDeviation = (_: any, value: string) => {
@@ -588,6 +604,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         onValuesChange={(changedValues) => {
                             if ('price' in changedValues || 'amount' in changedValues) {
                                 calculateTotal();
+                                // 价格变化时会自动重新渲染组件，因此可买数量也会更新
                             }
                         }}
                     >
@@ -775,8 +792,8 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                     isLoggedIn?
                                     <p>
                                         {segmentedvalue === 'buy' 
-                                            ? availableAmounts.availableToBuy 
-                                            : availableAmounts.availableToSell} {currentPair?.coinSymbol}
+                                            ? getAvailableToBuy() 
+                                            : getAvailableToSell()} {currentPair?.coinSymbol}
                                     </p>:
                                     <p>--</p>
                                     }
