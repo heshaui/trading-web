@@ -100,17 +100,16 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
 
         const inputValue = parseFloat(value);
 
-        // 根据下单类型验证最大值
-        if (priceDisabled) {
-            // 市价单 - 验证最大市价单笔数量
-            if (inputValue > currentPair.maxMarketPrice) {
-                return Promise.reject(new Error(`市价单最大挂单数量为 ${currentPair.maxMarketPrice} ${currentPair?.coinSymbol}`));
-            }
-        } else {
-            // 限价单 - 验证最大限价挂单数
-            if (inputValue > currentPair.maxCurrentPrice) {
-                return Promise.reject(new Error(`限价单最大挂单数为 ${currentPair.maxCurrentPrice} ${currentPair?.coinSymbol}`));
-            }
+        // 检查最小下单数量
+        const minVolume = currentPair?.minVolume || 0;
+        if (inputValue < minVolume) {
+            return Promise.reject(new Error(`最小下单数量为 ${minVolume} ${currentPair?.coinSymbol}`));
+        }
+        
+        // 检查最大下单数量
+        const maxVolume = currentPair?.maxVolume || 0;
+        if (maxVolume > 0 && inputValue > maxVolume) {
+            return Promise.reject(new Error(`最大下单数量为 ${maxVolume} ${currentPair?.coinSymbol}`));
         }
 
         return Promise.resolve();
@@ -548,10 +547,45 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
                                 controls={false}
                                 onBlur={() => {
-                                    // 失去焦点时立即验证字段，检查最大下单金额和最小下单金额
-                                    form.validateFields(['amount']).catch(err => {
-                                        // 验证失败时不需要额外处理，Form会显示错误信息
-                                    });
+                                    // 失去焦点时手动检查最大和最小下单数量
+                                    const value = form.getFieldValue('amount');
+                                    if (value) {
+                                        const inputValue = parseFloat(value);
+                                        let needCorrection = false;
+                                        let correctedValue = inputValue;
+                                        
+                                        // 检查最小下单数量
+                                        const minVolume = currentPair?.minVolume || 0;
+                                        if (inputValue < minVolume) {
+                                            message.error(`最小下单数量为 ${minVolume} ${currentPair?.coinSymbol}`);
+                                            correctedValue = minVolume;
+                                            needCorrection = true;
+                                        }
+                                        
+                                        // 检查最大下单数量
+                                        const maxVolume = currentPair?.maxVolume || 0;
+                                        if (maxVolume > 0 && inputValue > maxVolume) {
+                                            message.error(`最大下单数量为 ${maxVolume} ${currentPair?.coinSymbol}`);
+                                            correctedValue = maxVolume;
+                                            needCorrection = true;
+                                        }
+                                        
+                                        // 如果需要修正，更新表单值
+                                        if (needCorrection) {
+                                            form.setFieldsValue({ 
+                                                amount: formatWithPrecision(correctedValue, currentPair?.coinScale || 8) 
+                                            });
+                                            // 如果是限价单，同时更新成交额
+                                            if (!priceDisabled) {
+                                                const price = form.getFieldValue('price');
+                                                if (price) {
+                                                    form.setFieldsValue({ 
+                                                        account: formatWithPrecision(correctedValue * price, currentPair?.baseCoinScale || 8) 
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
                                 }}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
@@ -586,10 +620,32 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
                                 controls={false}
                                 onBlur={() => {
-                                    // 失去焦点时立即验证字段
-                                    form.validateFields(['account']).catch(err => {
-                                        // 验证失败时不需要额外处理，Form会显示错误信息
-                                    });
+                                    // 失去焦点时手动检查余额是否充足
+                                    const value = form.getFieldValue('account');
+                                    if (value) {
+                                        const inputValue = parseFloat(value);
+                                        
+                                        // 检查余额是否充足
+                                        const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+                                        if (segmentedvalue === 'buy' && inputValue > baseBalance) {
+                                            message.error(`可用${currentPair?.baseSymbol}余额不足`);
+                                            // 自动将金额调整为可用余额
+                                            form.setFieldsValue({ 
+                                                account: formatWithPrecision(baseBalance, currentPair?.baseCoinScale || 8) 
+                                            });
+                                            
+                                            // 如果是限价单，同时更新数量
+                                            if (!priceDisabled) {
+                                                const price = form.getFieldValue('price');
+                                                if (price) {
+                                                    const newAmount = baseBalance / price;
+                                                    form.setFieldsValue({ 
+                                                        amount: formatWithPrecision(newAmount, currentPair?.coinScale || 8) 
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
                                 }}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
