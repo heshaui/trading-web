@@ -182,7 +182,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                 <SimpleScrollTabs
              items={tabsItem} 
              onChange={handleTabClick} 
-             activeKey={activeTab}
+             defaultActiveKey={activeTab}
              showAllTab={true}
              allTabLabel="全部"
             />

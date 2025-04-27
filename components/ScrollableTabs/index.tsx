@@ -24,6 +24,8 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
     showAllTab = true,
     allTabLabel = '全部',
     className = ''
+
+
 }) => {
     const [activeKey, setActiveKey] = useState(defaultActiveKey);
     const [startIndex, setStartIndex] = useState(0);

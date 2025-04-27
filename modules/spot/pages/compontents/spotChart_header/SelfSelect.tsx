@@ -176,7 +176,7 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
             <SimpleScrollTabs 
                 items={tabsItem} 
                 onChange={handleTabClick} 
-                activeKey={activeTab}
+                defaultActiveKey={activeTab}
                 showAllTab={true}
                 allTabLabel="全部"
             />
