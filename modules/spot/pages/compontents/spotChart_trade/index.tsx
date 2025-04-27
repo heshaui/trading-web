@@ -141,6 +141,8 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         return Number(value).toFixed(precision).replace(/\.?0+$/, '');
     };
 
+
+    
     // 添加滑块变化时的处理函数
     const handleSliderChange = (value: number) => {
         // 限制最大值为98%
@@ -564,6 +566,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             defaultValue={0}
                             max={100}
                             onChange={handleSliderChange}
+                            disabled={!isLoggedIn}
                         />
                         <Form.Item name='account'
                             rules={[{ validator: checkAmount }]}
@@ -576,6 +579,12 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount2')}</span>}
                                 controls={false}
+                                onBlur={() => {
+                                    // 失去焦点时立即验证字段
+                                    form.validateFields(['account']).catch(err => {
+                                        // 验证失败时不需要额外处理，Form会显示错误信息
+                                    });
+                                }}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
                                     const precision = currentPair?.baseCoinScale || 8;

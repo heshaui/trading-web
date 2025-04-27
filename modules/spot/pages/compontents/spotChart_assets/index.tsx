@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { lastD, roundDown } from '@/utils';
 import { Skeleton } from 'antd';
 import { useCoinList } from '@/hooks/use-coinList';
+import { useAuth } from '@/context/AuthContext';
 interface DataType {
     id: number,
     userId: number,
@@ -32,6 +33,7 @@ const SpotAssetsPage = observer(() => {
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const [userBalanceAllData, setUserBalanceAllData] = useState<any>([]);
     const [loading, setLoading] = useState(true);
+      const { isLoggedIn } = useAuth();
     const getUserBalanceAllData = async () => {
         setLoading(true);
         try {
@@ -67,12 +69,12 @@ const SpotAssetsPage = observer(() => {
                     <li className='flex justify-between align-center mb-5'>
                         <div>{currentPair?.coinSymbol || '--'}可用资产</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.coinSymbol)?.balance || 0) || 0}</div> */}
-                        <div>{roundNum(currentPair?.coinSymbol || '')}</div>
+                       {isLoggedIn ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
                     </li>
                     <li className='flex justify-between align-center mb-5' >
                         <div>{currentPair?.baseSymbol || '--'}可用资产</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.baseSymbol)?.balance || 0) || 0}</div> */}
-                        <div>{roundNum(currentPair?.baseSymbol || '')}</div>
+                        {isLoggedIn ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
                     </li>
                 </Skeleton>
             </ul>
