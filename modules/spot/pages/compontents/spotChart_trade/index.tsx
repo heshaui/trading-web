@@ -547,6 +547,12 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                 </div>}
                                 prefix={<span className={`${styles.tip_color2}`}>{t('spot.trade.amount')}</span>}
                                 controls={false}
+                                onBlur={() => {
+                                    // 失去焦点时立即验证字段，检查最大下单金额和最小下单金额
+                                    form.validateFields(['amount']).catch(err => {
+                                        // 验证失败时不需要额外处理，Form会显示错误信息
+                                    });
+                                }}
                                 formatter={(value) => {
                                     if (value === '' || value === null || value === undefined) return '';
                                     const precision = currentPair?.coinScale || 8;
