@@ -198,6 +198,43 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
             }
         }
 
+        // 在提交时手动验证必填字段
+        const values = form.getFieldsValue();
+        let hasError = false;
+        
+        // 验证价格字段
+        if (!priceDisabled && (!values.price || values.price === '')) {
+            form.setFields([{
+                name: 'price',
+                errors: ['请输入价格']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证数量字段
+        if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
+            form.setFields([{
+                name: 'amount',
+                errors: ['请输入交易数量']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证金额字段 - 市价买单或限价单都需要验证
+        if ((priceDisabled && segmentedvalue === 'buy') || !priceDisabled) {
+            if (!values.account || values.account === '') {
+                form.setFields([{
+                    name: 'account',
+                    errors: ['请输入交易金额']
+                }]);
+                hasError = true;
+            }
+        }
+        
+        if (hasError) {
+            return;
+        }
+
         form.validateFields()
             .then(async (values) => {
 
@@ -266,8 +303,47 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         // 初始化时计算一次总额
         calculateTotal();
     }, [form]);
+    
+
 
     const handelSubmitOrder = async () => {
+        // 在提交时手动验证必填字段
+        const values = form.getFieldsValue();
+        let hasError = false;
+        
+        // 验证价格字段
+        if (!priceDisabled && (!values.price || values.price === '')) {
+            form.setFields([{
+                name: 'price',
+                errors: ['请输入价格']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证数量字段
+        if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
+            form.setFields([{
+                name: 'amount',
+                errors: ['请输入交易数量']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证金额字段 - 市价买单或限价单都需要验证
+        if ((priceDisabled && segmentedvalue === 'buy') || !priceDisabled) {
+            if (!values.account || values.account === '') {
+                form.setFields([{
+                    name: 'account',
+                    errors: ['请输入交易金额']
+                }]);
+                hasError = true;
+            }
+        }
+        
+        if (hasError) {
+            return;
+        }
+        
         form.validateFields()
             .then(async (values) => {
                 const params = {
@@ -506,7 +582,9 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                     >
                         <Form.Item name='price'
                             className='spot_number_box'
-                            rules={[{ validator: checkPriceDeviation }]}
+                            rules={[
+                                { validator: checkPriceDeviation }
+                            ]}
                         >
                             <InputNumber
                                 className={`${styles.mail_input} spot_number_input2 `}
@@ -538,7 +616,9 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             />
                         </Form.Item>
                         <Form.Item name='amount'
-                            rules={[{ validator: checkAmountLimit }]}
+                            rules={[
+                                { validator: checkAmountLimit }
+                            ]}
                             style={{ display: priceDisabled && segmentedvalue === 'buy' ? 'none' : 'block' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
@@ -611,7 +691,9 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             disabled={!isLoggedIn}
                         />
                         <Form.Item name='account'
-                            rules={[{ validator: checkAmount }]}
+                            rules={[
+                                { validator: checkAmount }
+                            ]}
                             style={{ display: (!priceDisabled || (priceDisabled && segmentedvalue === 'buy')) ? 'block' : 'none' }}
                         >
                             <InputNumber className={`${styles.mail_input} spot_number_input `}
