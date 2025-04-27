@@ -47,6 +47,7 @@ export const useWebConfig = () => {
                     "logo",
                     "footer_setting",
                     "fee_direction",
+                    // "account_configuration",
                     // 可以根据需要添加更多配置项
                 ];
 

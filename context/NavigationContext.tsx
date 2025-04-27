@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { processMenuItems, formatMenus, formatAdaptiveMenus } from '@/utils/menuHooks';
 import { useDayModeChange } from '@/hooks/dayModeChange';
 import { useAuth } from '@/context/AuthContext';
-
+import { getKvObject } from '@/services/kv'
 // 创建上下文
 const NavigationContext = createContext<any>(null);
 
