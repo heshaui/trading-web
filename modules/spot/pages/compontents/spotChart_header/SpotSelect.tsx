@@ -9,6 +9,8 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import appStore from '@/store';
+import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
+import SimpleScrollTabs from '@/components/ScrollableTabs';
 
 interface SpotSelectProps {
     currencyPairs: any[];
@@ -24,11 +26,22 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
-        // { key: 'all', label: '全部' },
-        { key: 'defi', label: 'Defi' },
-        { key: 'main', label: '主流币' },
-        { key: 'new', label: '新币种' },
-        { key: 'ai', label: '人工智能' },
+        { key: '1', label: '主流区' },
+        { key: '2', label: '创新区' },
+        { key: '3', label: '新币区' },
+        { key: '4', label: 'AI' },
+        { key: '5', label: 'Meme' },
+        { key: '6', label: 'NFT' },
+        { key: '7', label: 'DeFi' },
+        { key: '8', label: 'Web3' },
+        { key: '9', label: 'Payments' },
+        { key: '10', label: 'Launchpad' },
+        { key: '11', label: 'Layer2' },
+        { key: '12', label: 'Solana' },
+        { key: '13', label: 'RWA' },
+        { key: '14', label: 'Launchpool' },
+        { key: '15', label: '游戏元宇宙' },
+        { key: '16', label: '存储' },
     ];
 
     const handleTabChange = (key: string) => {
@@ -103,12 +116,51 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     // 确保在排序状态变化时重新计算排序结果
     const sortedPairList = React.useMemo(() => getSortedPairs(), [currencyPairs, sortField, sortDirection]);
 
-    // 基于搜索过滤排序后的结果
+    // 基于搜索和标签过滤排序后的结果
     const filteredPairs = React.useMemo(() => 
-        sortedPairList.filter(pair => 
-            pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
-            pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
-        ), [sortedPairList, searchValue]);
+        sortedPairList.filter(pair => {
+            // 搜索过滤
+            const matchesSearch = pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
+                                 pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
+            
+            // 标签过滤
+            const matchesTab = activeTab === 'all' ? true : pair.classLabel === activeTab;
+            
+            return matchesSearch && matchesTab;
+        }), [sortedPairList, searchValue, activeTab]);
+
+
+
+
+        
+            const handleFavoriteChange = async (value: number, pair: any) => {
+              const isFavorite = value === 1;
+              const apiCall = isFavorite 
+                ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
+                : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+                
+              const res = await apiCall;
+              if (res.code === '0') {
+                // 选项1：让store处理刷新
+                await appStore.loadCurrencyPairs();
+                
+                // 或 选项2：本地更新以提高性能
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(item => item.id === pair.id);
+                if (pairIndex !== -1) {
+                  updatedPairs[pairIndex] = {
+                    ...updatedPairs[pairIndex],
+                    isFavorite: isFavorite
+                  };
+                  appStore.setCurrencyPairs(updatedPairs);
+                }
+              }
+            };
+            const handleTabClick = (key: string) => {
+                setActiveTab(key);
+            };
+           
+        
     return (
         <ConfigProvider
             theme={{
@@ -123,37 +175,17 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                 },
             }}
         >
+      
             <div className={styles.container}>
                 {/* 标签页导航 */}
-                <div className={`${styles.tabs_wrapper} px-4 `}>
-                    <ul className={`flex-x align-center `}>
-                        {/* <li className={`${styles.fixed_tab} pointer font-14`}>全部</li> */}
-                        {/* <li>
-        <Iconify icon="mingcute:left-line" size={16}/>
-    </li> */}
-                        <li>
-                            <ConfigProvider
-                                theme={{
-                                    components: {
-                                        Tabs: {
-                                            itemActiveColor: "var(--theme-color)",
-                                            itemSelectedColor: "var(--theme-color)",
-                                            horizontalMargin: "0 0 0 0",
-                                            itemColor: "var(--text-color6)",
-                                            inkBarColor: "transparent",
-                                        },
-                                    },
-                                }}
-                            >
-                                {/* <Tabs items={tabsItem} className={`spot-tabs`} /> */}
-                            </ConfigProvider>
-                        </li>
-                        {/* <li>
-        <Iconify icon="mingcute:right-line" size={16}/>
-    </li> */}
-                    </ul>
-                </div>
-                {/* 列表头部 */}
+
+                <SimpleScrollTabs
+             items={tabsItem} 
+             onChange={handleTabClick} 
+             activeKey={activeTab}
+             showAllTab={true}
+             allTabLabel="全部"
+            />
                 <div className={`${styles.list_header} px-4 py-4 flex-x align-center`}>
                     <div 
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
@@ -223,12 +255,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)} style={{cursor:'pointer'}}>
                          {/* 币种名称 */}
                          <div className={`${styles.pair_name} flex-1`}>
-                             <span className={styles.favorite}>
+                             <span 
+                                className={styles.favorite}
+                                onClick={(e: React.MouseEvent) => {
+                                    // Stop event propagation to prevent parent click
+                                    e.stopPropagation();
+                                }}
+                             >
                                  <Rate
+                                    onChange={(value) => handleFavoriteChange(value, pair)}
                                     value={pair.isFavorite ? 1 : 0}
-                                     count={1}
-                                     disabled={true}
-                                     style={{ fontSize: 14 }}
+                                    count={1}
+                                    style={{ fontSize: 14 }}
                                  />
                              </span>
                              <span className={styles.coin_icon}>{pair.icon}</span>
