@@ -298,6 +298,24 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
             form.setFieldsValue({ account: '' });
         }
     }
+    
+    // 根据成交额计算数量的函数
+    const calculateAmount = () => {
+        const price = form.getFieldValue('price');
+        const account = form.getFieldValue('account');
+
+        if (price && account && price > 0) {
+            const amount = account / price;
+            form.setFieldsValue({ 
+                amount: formatWithPrecision(amount, currentPair?.coinScale || 8) 
+            });
+        } else {
+            // 如果价格为0或不存在，不更新数量字段
+            if (!price || price <= 0) {
+                message.info('请先输入有效的价格');
+            }
+        }
+    }
 
     // 监听价格和数量的变化，计算成交额
     useEffect(() => {
@@ -605,6 +623,10 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             if ('price' in changedValues || 'amount' in changedValues) {
                                 calculateTotal();
                                 // 价格变化时会自动重新渲染组件，因此可买数量也会更新
+                            }
+                            if ('account' in changedValues) {
+                                // 当成交额变化时，计算数量
+                                calculateAmount();
                             }
                         }}
                     >
