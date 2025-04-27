@@ -339,6 +339,9 @@ const SpotMainPage = () => {
             activeBg: "var(--background7)",
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}

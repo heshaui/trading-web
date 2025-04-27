@@ -125,6 +125,10 @@
 .custom-range-picker .ant-picker-separator{
     color: var(--text-color4) !important;
 }
+.custom-range-picker .ant-picker-outlined,
+.custom-range-picker {
+    background: transparent !important;
+}
 
 /* 自定义步骤条 */
 /* 步骤条选中状态 */
@@ -479,6 +483,7 @@
         width: 0;
         height: 0;
         display: none;
+        background: transparent !important;
     }
 
     /* 隐藏滚动条 - Firefox */
@@ -488,6 +493,30 @@
     -ms-overflow-style: none;
 
 }
+
+.ant-table-content::-webkit-scrollbar-track {
+    height: 8px !important;
+    background: transparent !important;
+  }
+  .ant-table-content::-webkit-scrollbar {
+    height: 8px;
+    background: transparent !important;
+  }
+  .ant-table-content::-webkit-scrollbar-thumb {
+    background: #ccc !important;
+    border-radius: 4px;
+  }
+  .ant-table-content::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  
+  /* Firefox */
+  .ant-table-content {
+    scrollbar-color: #ccc transparent !important;
+    scrollbar-width: thin;
+  }
+
+
 /* tabs 指示条颜色 */
 .custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;

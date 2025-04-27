@@ -177,8 +177,13 @@ const SpotMainPage = observer(() => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+       if(record.type === 0 ){
+        return <span >{t('spot.select.market')}</span>;
+       }else if(record.type === 1 ){
+        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
+       }
       },
     },
     {
@@ -446,6 +451,9 @@ const SpotMainPage = observer(() => {
             itemHoverColor: "var(--text-color5)",//鼠标悬停颜色
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}
@@ -458,6 +466,7 @@ const SpotMainPage = observer(() => {
               className={`${styles.title_color}`} size={20} />}
             placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
             onChange={dateChange}
+            size='large'
           />
           <div className={`${styles.table_header_checkbox2}`}>
             <Checkbox

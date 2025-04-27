@@ -337,6 +337,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     {/* t() */}

@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS ,ROUTER_KEY_SPOT} from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 interface DataType {
     balance: number,
     frozenBalance: number,
@@ -141,7 +141,7 @@ const AssetsMainPage = observer(() => {
 
     ];
     const getCoinList = async (type: string,coinData: any) => {
-        console.log(12345,coinList);
+        // console.log(12345,coinList);
        if(type === '1'){
         if(coinData?.canWithdraw === 1){
             router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
@@ -156,7 +156,7 @@ const AssetsMainPage = observer(() => {
         }
         
        }else if(type === '3'){
-        if(coinData?.canRecharge === 1){
+        if(coinData?.canTransfer === 1){
             router.push(ROUTER_KEY_SPOT.INDEX);
         }else{
             toast.error(t('assetsAccount.button.tradeError'));
@@ -242,6 +242,9 @@ const AssetsMainPage = observer(() => {
                         hoverBg: 'var(--background5)',
                     },
                 },
+                token: {
+                    colorBgContainer: 'transparent',
+                  }
             }}
         >
             <div className='flex justify-between align-center'>

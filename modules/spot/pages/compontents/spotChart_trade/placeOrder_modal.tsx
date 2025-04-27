@@ -132,6 +132,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                 },
                 token: {
                     // colorBgContainerDisabled: '#fff',
+                    colorBgContainer: 'var(--background5)',
                 }
             }}
         >
@@ -154,7 +155,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
             >
                 <div className="" style={{ width: "100%" }}>
                     {/* t() */}
-                    <p className="font-18 font-w-500">{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</p>
+                    <p className={`font-18 font-w-500 ${styles.title_color}`}>{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</p>
                     <p className={`${styles.success_icon} font-14 font-w-400 mt-1`}>
                         {/* 买入/市价 */}
                         {modalData.direction===0?t('spot.modal.buy'):t('spot.modal.sell')} / {modalData.type===0?t('spot.modal.market'):t('spot.select.limit')}

@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/now.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip} from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip,notification} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -81,14 +81,14 @@ const SpotMainPage =observer( () => {
   const [delectIdAll, setDelectIdAll] = useState<string[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<any>({})
-
+  const toastDataRef = useRef<any>({})
  
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
       dataIndex: "updateTime",
       key: "updateTime",
-      width: 158,
+      width: 138,
       align: "left",
       render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`} </div>,
     },
@@ -226,7 +226,7 @@ const SpotMainPage =observer( () => {
           <button
             onClick={() => {
               
-              setDelectId([record.orderId])
+              // setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
                 coinSymbol: record.coinSymbol,
@@ -235,8 +235,15 @@ const SpotMainPage =observer( () => {
                 price: record.price,
                 amount: record.amount,
               })
+              toastDataRef.current={
+                coinSymbol: record.coinSymbol,
+                symbol: record.symbol,
+                baseSymbol: record.baseSymbol,
+                price: record.price,
+                amount: record.amount,
+              }
               // setToastModal(true)
-              delectOne()
+              delectOne([record.orderId])
             }}
           >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
@@ -247,16 +254,33 @@ const SpotMainPage =observer( () => {
 
 
   ];
-  const delectOne = async () => {
+  const delectOne = async (orderId: string[]) => {
     try {
         const paeam={
-            orderId: delectId,
+            orderId: orderId,
         }
         const encrypt=await encryptData(paeam)
         const res = await revocationOrder(encrypt)
         if(res.code==='0'){
-            toast.success(res.message)
-            setToastModal(true)
+            // toast.success(res.message)
+            // setToastModal(true)
+            notification.success({
+              message: '已撤单',
+              description: (
+                <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
+                  <li className={` mt-5 font-14 font-w-400 `}>
+                    币对：{toastDataRef.current?.symbol}
+                  </li>
+                  <li className={` mt-3 font-14 font-w-400 `}>
+                    价格：{toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
+                  </li>
+                  <li className={` mt-3 font-14 font-w-400 `}>
+                    撤单量：{toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
+                  </li>
+                </ul>
+              ),
+              duration: 3
+            })
             getOrderListData()
         }else{
             toast.error(res.message)
@@ -442,7 +466,7 @@ const SpotMainPage =observer( () => {
             dataSource={tableData}
             size="large"
             scroll={{ x: "max-content" }}
-            className={`spot-table-box spot-pagination`}
+            className={`spot-table-box spot-pagination `}
             pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,

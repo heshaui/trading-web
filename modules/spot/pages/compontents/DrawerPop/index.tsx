@@ -41,7 +41,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                         <div className='flex-x align-center justify-between w-full'>
                             <div className='flex-x align-center'>
                                 <button onClick={goIndex}>
-                                    <Iconify icon="icon-park:left" className={`${styles.tip_color} `} size={24} />
+                                    <Iconify icon="icon-park-outline:left" className={`${styles.tip_color}`} size={24} />
                                 </button>
                                 交易规则
                             </div>
@@ -54,7 +54,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                         <div className='flex-x align-center justify-between w-full'>
                             <div className='flex-x align-center'>
                                 <button onClick={goIndex}>
-                                    <Iconify icon="icon-park:left" className={`${styles.tip_color}`} size={24} />
+                                    <Iconify icon="icon-park-outline:left" className={`${styles.tip_color}`} size={24} />
                                 </button>
                                 手续费币种
                             </div>
@@ -95,7 +95,7 @@ const DrawerPop = observer(({ open, onClose }: DrawerPopProps) => {
                         },
                     },
                     token: {
-                        colorBgElevated: 'var(--background9)',
+                        colorBgElevated: 'var(--background12)',
                         paddingLG: 0,
                         paddingXS: 0,
                     },

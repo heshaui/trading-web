@@ -251,6 +251,10 @@ const AssetsMainPage = () => {
                             selectorBg: "transparent", //选框背景色
                         }
                     },
+                    token: {
+                        // colorBgContainerDisabled: '#fff',
+                        colorBgContainer: 'var(--background5)',
+                    }
                 }}
             >
                 <Table

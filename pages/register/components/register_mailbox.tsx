@@ -191,8 +191,8 @@ export default function RegisterMail() {
                         }
                     },
                     token: {
-                        // colorBgContainerDisabled: '#fff',
-                    }
+                        colorBgContainer: 'transparent',
+                      }
                 }}
             >
                 <Form
