@@ -179,7 +179,7 @@ class AppStore {
             this.isLoadingCurrencyData = true;
             
             // 使用currencyPairService中的方法替代重复代码
-            const result = await fetchAllCurrencyPairs(this.userToken);
+            const result = await fetchAllCurrencyPairs();
             
             if (result.success) {
                 // 更新原始数据

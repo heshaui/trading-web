@@ -9,6 +9,7 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import appStore from '@/store';
+import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 
 interface SpotSelectProps {
     currencyPairs: any[];
@@ -109,6 +110,37 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
             pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
             pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
         ), [sortedPairList, searchValue]);
+
+
+
+
+        
+            const handleFavoriteChange = async (value: number, pair: any) => {
+              const isFavorite = value === 1;
+              const apiCall = isFavorite 
+                ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
+                : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+                
+              const res = await apiCall;
+              if (res.code === '0') {
+                // 选项1：让store处理刷新
+                await appStore.loadCurrencyPairs();
+                
+                // 或 选项2：本地更新以提高性能
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(item => item.id === pair.id);
+                if (pairIndex !== -1) {
+                  updatedPairs[pairIndex] = {
+                    ...updatedPairs[pairIndex],
+                    isFavorite: isFavorite
+                  };
+                  appStore.setCurrencyPairs(updatedPairs);
+                }
+              }
+            };
+            
+           
+        
     return (
         <ConfigProvider
             theme={{
@@ -223,12 +255,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)} style={{cursor:'pointer'}}>
                          {/* 币种名称 */}
                          <div className={`${styles.pair_name} flex-1`}>
-                             <span className={styles.favorite}>
+                             <span 
+                                className={styles.favorite}
+                                onClick={(e: React.MouseEvent) => {
+                                    // Stop event propagation to prevent parent click
+                                    e.stopPropagation();
+                                }}
+                             >
                                  <Rate
+                                    onChange={(value) => handleFavoriteChange(value, pair)}
                                     value={pair.isFavorite ? 1 : 0}
-                                     count={1}
-                                     disabled={true}
-                                     style={{ fontSize: 14 }}
+                                    count={1}
+                                    style={{ fontSize: 14 }}
                                  />
                              </span>
                              <span className={styles.coin_icon}>{pair.icon}</span>

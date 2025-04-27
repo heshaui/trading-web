@@ -34,8 +34,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const [timestamp, open_price, high_price, low_price, close_price, volume] = klineData;
     
     // 计算涨跌幅
-    const priceChange = close_price - open_price;
-    const priceChangePercent = (priceChange / open_price * 100).toFixed(2);
+    const priceChange = close_price && open_price ? close_price - open_price : 0;
+    const priceChangePercent = open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00';
     const isPriceUp = priceChange >= 0;
 
 
@@ -326,8 +326,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                     </li>
                     <li className='mr-9'>
                         <p>24H 涨跌</p>
-                        <p className={`${isPriceUp ? styles.success_icon : styles.error_icon} font-14`}>
-                            {priceChange ? (isPriceUp ? '+' : '') + priceChange.toFixed(2) : '--'} {priceChangePercent ? (isPriceUp ? '+' : '') + priceChangePercent + '%' : '--'}
+                        <p className={`${priceChange === 0 ? styles.default_icon : (isPriceUp ? styles.success_icon : styles.error_icon)} font-14`}>
+                            {priceChange && !isNaN(priceChange) && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChange.toFixed(2) : '--'} {priceChangePercent && priceChangePercent !== 'NaN' && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChangePercent + '%' : '--'}
                         </p>
                     </li>
                     <li className='mr-9'>

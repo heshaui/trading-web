@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
+import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 import appStore from '@/store';
 interface SelfSelectProps {
     currencyPairs: any[];
@@ -116,6 +117,21 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
     const handlePairClick = async (pair: any) => {
         console.log(pair);  
         await appStore.setCurrentPair(pair);
+    };
+
+    const handleFavoriteChange = async (value: number, pair: any) => {
+        console.log(value, pair);
+        // await addUserExchangeCoinType({
+        //     coinType: pair.coinSymbol,
+        //     baseCoinType: pair.baseSymbol,
+        //     isFavorite: value === 1
+        // });
+        // await appStore.loadCurrencyPairs();
+        // await canalUserExchangeCoinType({
+        //     coinType: pair.coinSymbol,
+        //     baseCoinType: pair.baseSymbol,
+        //     isFavorite: value === 1
+        // });
     };
 
     return (
@@ -258,9 +274,9 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
                                     <Rate
+                                        onChange={handleFavoriteChange}
                                         value={pair.isFavorite ? 1 : 0}
                                         count={1}
-                                        disabled={true}
                                         style={{ fontSize: 14 }}
                                     />
                                 </span>

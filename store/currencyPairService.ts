@@ -36,7 +36,7 @@ export interface CurrencyPairType {
 }
 
 // 获取所有币对数据
-export async function fetchAllCurrencyPairs(userToken: string | null) {
+export async function fetchAllCurrencyPairs() {
     try {
         // 1. 获取币种列表
         const coinListResponse = await getExchangeCoinList();
