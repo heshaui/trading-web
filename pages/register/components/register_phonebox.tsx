@@ -250,14 +250,16 @@ function RegisterPhone() {
                         </div>
 
 					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
-					onClick={()=>{setIsOpen(!isOpen)}}>推荐人的邀请码(选填)
+					>推荐人的邀请码(选填)
                         <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"} 
-						className={`${styles.tip_icon} ml-1`} size={20} />
+						className={`${styles.tip_icon} ml-1`} size={20} onClick={()=>{setIsOpen(!isOpen)}}/>
 
                     </div>
 					{isOpen && (
                         <Form.Item name="referee" rules={[{ required: false }]}>
-                            <Input type="referee" placeholder="不区分大小写" allowClear={true} size="large" className={`${styles.mail_input} modal-input`}
+                            <Input type="referee" placeholder="不区分大小写" allowClear={true} 
+							size="large" className={`${styles.mail_input} modal-input`}
+							maxLength={8}
                         />
                         </Form.Item>
                     )}

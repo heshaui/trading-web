@@ -32,6 +32,7 @@ import { encryptString } from '@/utils/encrypt';
 import { toast } from 'sonner';
 import UserInfoMenu from '../common/UserInfo';
 import AssetsMenu from '../common/Assets';
+import {NoData} from '@/components/noData';
 export default function LangageMenuItems() {
     // 路由
     const router = useRouter();
@@ -354,7 +355,7 @@ export default function LangageMenuItems() {
         {
             key: 'empty-language',
             type: 'group',
-            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无语言数据" />
+            label: <NoData title="暂无语言数据" />
         }
     ];
     // 定义汇率菜单项
@@ -377,7 +378,7 @@ export default function LangageMenuItems() {
         {
             key: 'empty-rate',
             type: 'group',
-            label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无汇率数据" />
+            label: <NoData title="暂无汇率数据" />
         }
     ];
     // 语言过滤(模糊搜索)
@@ -395,7 +396,7 @@ export default function LangageMenuItems() {
                 {
                     key: 'empty',
                     type: 'group',
-                    label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无匹配结果" />,
+                    label: <NoData title="暂无匹配结果" />,
                 },
             ];
         }
@@ -417,7 +418,7 @@ export default function LangageMenuItems() {
                 {
                     key: 'empty',
                     type: 'group',
-                    label: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无匹配结果" />,
+                    label: <NoData title="暂无匹配结果" />,
                 },
             ];
         }
