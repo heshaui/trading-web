@@ -200,7 +200,9 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
 
         form.validateFields()
             .then(async (values) => {
+
                 const modalData = {
+                    account: values.account,
                     amount: values.amount,
                     price: values.price,
                     type: priceDisabled ? 0 : 1,

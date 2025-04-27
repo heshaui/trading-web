@@ -187,7 +187,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                                     {/* 成交额 */}
                                     {t('spot.trade.amount2')}
                                 </p>
-                                <p className={`${styles.title_color}`}>{modalData.amount*modalData.price}{currentPair?.baseSymbol}</p>
+                                <p className={`${styles.title_color}`}>{modalData.account}{currentPair?.baseSymbol}</p>
                             </li>
                         )}
                     </ul>
