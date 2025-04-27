@@ -185,8 +185,8 @@ function RegisterPhone() {
 						}
 					},
 					token: {
-						// colorBgContainerDisabled: '#fff',
-					}
+						colorBgContainer: 'transparent',
+					  }
 				}}
 			>
 				<Form

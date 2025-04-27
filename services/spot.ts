@@ -118,3 +118,4 @@ export function getOrderInfo(data:any): Promise<any> {
         body:JSON.stringify(data)
     });
 }
+

@@ -181,6 +181,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className={`flex-col flex-ai-center  font-14 font-w-400`} style={{ width: "100%" }}>
                     <p className={`${styles.title_color} font-24 font-w-500`}>{withdrawInfo?.amount} {withdrawInfo?.coinName}</p>

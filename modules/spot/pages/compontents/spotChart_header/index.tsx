@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import styles from '../styles/spotHeader.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown, message } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
 import { Iconify } from "@/components/icon"
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
@@ -151,55 +151,29 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     // 添加处理收藏的函数
     const handleToggleFavorite = async () => {
         setIsFavorite(!isFavorite);
-        if(!isFavorite){
+        if(isFavorite){
             const data={
                 exchangeCoinId:currentPair.id,
                 type:1
             }
            const res= await addUserExchangeCoinType(data);
            if(res.code === '0'){
-                // 更新currentPair
-                appStore.setCurrentPair({
-                    ...currentPair,
-                    isFavorite: true
-                });
-                message.success('收藏成功');
-                // 同时更新currencyPairs数组中的对应项
-                const updatedPairs = [...appStore.currencyPairs];
-                const pairIndex = updatedPairs.findIndex(pair => pair.id === currentPair.id);
-                if (pairIndex !== -1) {
-                    updatedPairs[pairIndex] = {
-                        ...updatedPairs[pairIndex],
-                        isFavorite: true
-                    };
-                    appStore.setCurrencyPairs(updatedPairs);
-                }
+            appStore.setCurrentPair({
+                ...currentPair,
+                isFavorite: true
+            });
            }
         }else{
             const data={
                 exchangeCoinId:currentPair.id,
-                type:1
+                type:0
             }
           const res= await canalUserExchangeCoinType(data);
             if(res.code === '0'){
-
-                // 更新currentPair
                 appStore.setCurrentPair({
                     ...currentPair,
                     isFavorite: false
                 });
-                message.success('取消收藏成功');
-                
-                // 同时更新currencyPairs数组中的对应项
-                const updatedPairs = [...appStore.currencyPairs];
-                const pairIndex = updatedPairs.findIndex(pair => pair.id === currentPair.id);
-                if (pairIndex !== -1) {
-                    updatedPairs[pairIndex] = {
-                        ...updatedPairs[pairIndex],
-                        isFavorite: false
-                    };
-                    appStore.setCurrencyPairs(updatedPairs);
-                }
             }
         }
     };

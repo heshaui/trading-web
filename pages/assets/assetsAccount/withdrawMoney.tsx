@@ -23,7 +23,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
-import { ResetStateProvider,useResetStateContext} from '@/hooks/useStateProvider';
+import { ResetStateProvider, useResetStateContext } from '@/hooks/useStateProvider';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -31,6 +31,7 @@ interface coinSelectType {
     nameDefault: string,
     value: string,
     label: string,
+    memoTag:number
 }
 interface coinExtAllListType {
     id: number,
@@ -159,6 +160,9 @@ const WithdrawMoneyPage = () => {
 
     const [allowWithdraw, setAllowWithdraw] = useState(false)
     const { resetState } = useResetStateContext();
+    const [addressInput, setAddressInput] = useState('');
+const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
+
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -196,7 +200,7 @@ const WithdrawMoneyPage = () => {
             if (res.code === '0') {
                 // 先筛选 status === 1 的数据，然后再进行 map 转换
                 const coinList = res.data
-                    .filter((item: any) => item.status === 1)  // 添加筛选
+                    .filter((item: any) => item.status === 1 && item.canWithdraw === 1)  // 添加筛选
                     .map((item: any) => ({
                         ...item,
                         label: item.coinName,
@@ -441,10 +445,28 @@ const WithdrawMoneyPage = () => {
     }
     const addressChange = (value: string, option: any) => {
         form.setFieldValue('addressId', value);
-        checkAddressMatch(value);
+        // checkAddressMatch(value);
         checkStep2Required()
     }
-
+    useEffect(() => {
+        // 每次 addressSelect 变化时，重置过滤
+        setFilteredAddressOptions(addressSelect);
+      }, [addressSelect]);
+      
+      const handleAddressSearch = (value: string) => {
+        setAddressInput(value);
+        if (!value) {
+          setFilteredAddressOptions(addressSelect);
+          return;
+        }
+        setFilteredAddressOptions(
+          addressSelect.filter(option =>
+            option.addressName?.toLowerCase().includes(value.toLowerCase()) ||
+            option.addressTitle?.toLowerCase().includes(value.toLowerCase()) ||
+            option.protocolName?.toLowerCase().includes(value.toLowerCase())
+          )
+        );
+      };
     // 进入第三步-添加检查函数
     const checkStep2Required = () => {
         const addressId = form.getFieldValue('addressId');
@@ -486,7 +508,13 @@ const WithdrawMoneyPage = () => {
         setAmountNum(coninInfo.minRecharge || 0)
         form.setFieldValue('amount', coninInfo.minRecharge || 0)
     }
+const isMemo =  () => {
+    // memoTag
+    const coinId = form.getFieldValue('tenantId')
+    const data=coinSelect.filter((item:any)=>item.coinId===coinId)
+    return data[0].memoTag
 
+}
 
     // 金额
     const amountChange = (e: any) => {
@@ -661,11 +689,13 @@ const WithdrawMoneyPage = () => {
                                 return (
                                     <div className="flex items-center py-1">
                                         <Image
-                                            src={`/images/assets/assets_account/icon_money.png`}
+                                            // src={`/images/assets/assets_account/icon_money.png`}
+                                            src={option.data.iconUrl}
                                             alt={option.data.label}
                                             width={20}
                                             height={20}
                                             className={`mr-2`}
+                                            style={{borderRadius:'50%'}}
                                         />
                                         <span className="text-text-color7">
                                             {`${option.data.coinName}(${option.data.nameDefault})`}
@@ -782,9 +812,8 @@ const WithdrawMoneyPage = () => {
                     </Form.Item> */}
                     <Form.Item name='addressId' rules={[{ required: true, message: t('withdrawMoney.selectAddress') }]} >
                         <AutoComplete
-                            // options={addressSelect}
                             style={{ height: 50 }}
-                            options={addressSelect.map(item => ({
+                            options={filteredAddressOptions.map(item => ({
                                 ...item,
                                 key: item.id,
                                 label: (
@@ -801,7 +830,6 @@ const WithdrawMoneyPage = () => {
                                 value: item.addressName
                             }))}
                             onFocus={getUserAddressList}
-                            filterOption={filterAddressOptions}
                             notFoundContent={<NoAddress />}
                             dropdownRender={(menu) => (
                                 <>
@@ -816,6 +844,7 @@ const WithdrawMoneyPage = () => {
                                 </>
                             )}
                             onChange={addressChange}
+                            onSearch={handleAddressSearch} // 关键：输入变化时过滤
                         >
                             <Input
                                 type="text"
@@ -863,7 +892,8 @@ const WithdrawMoneyPage = () => {
                             />
 
                         </Form.Item>
-                        {showMemo && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
+                        {/* showMemo */}
+                        {isMemo() && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                             <span>
                                 {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
@@ -871,7 +901,7 @@ const WithdrawMoneyPage = () => {
                             </span>
                         </p>}
                     </Form.Item>
-                    {showMemo && <Form.Item>
+                    {isMemo() && <Form.Item>
                         <Form.Item name='momo' noStyle>
                             <Input className={`${styles.input_box3} modal-input2`}
                                 placeholder={t('withdrawMoney.memoPlaceholder')}
@@ -985,107 +1015,107 @@ const WithdrawMoneyPage = () => {
             <div className={`${styles.spot_auth_box}`} >
                 <div className='flex justify-between align-center'>
                     <Breadcrumb items={[
-                    {
-                        title: <Link href={ROUTER_KEY_ASSETS.ACCOUNT}><span className={`${styles.tip_color}`}>
-                            {/* 现货账户 */}
-                            {t('assets.assetsAccount')}
-                        </span></Link>,
-                    },
-                    {
-                        title: <span className={`${styles.title_color}`}>
-                            {/* 提现 */}
-                            {t('assets.withdraw')}
-                        </span>,
-                    },
-                ]} style={{ fontSize: 14 }} />
+                        {
+                            title: <Link href={ROUTER_KEY_ASSETS.ACCOUNT}><span className={`${styles.tip_color}`}>
+                                {/* 现货账户 */}
+                                {t('assets.assetsAccount')}
+                            </span></Link>,
+                        },
+                        {
+                            title: <span className={`${styles.title_color}`}>
+                                {/* 提现 */}
+                                {t('assets.withdraw')}
+                            </span>,
+                        },
+                    ]} style={{ fontSize: 14 }} />
 
-            </div>
-            <div className={`${styles.card_box}  mt-6  `}>
-                {/* {!userInfo ? null : (
+                </div>
+                <div className={`${styles.card_box}  mt-6  `}>
+                    {/* {!userInfo ? null : (
                     userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
                         userInfo.securityIntensity < 2 ? <NoUseCom type='2' /> :
                             userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )} */}
-                {!userInfo ? null : (
-                    userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
-                        (!userInfo.googleCode||userInfo.isGoogleAuth===0) ? <NoUseCom type='2' /> :
-                            userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
-                )}
-                <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
+                    {!userInfo ? null : (
+                        userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
+                            (!userInfo.googleCode || userInfo.isGoogleAuth === 0) ? <NoUseCom type='2' /> :
+                                userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
+                    )}
+                    <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
 
-                    <div className={`${styles.step_box}`}>
-                        <ConfigProvider
-                            theme={{
-                                components: {
-                                    Select: {
-                                        clearBg: "#ffffff",
-                                        selectorBg: 'var(--background7)',
-                                        singleItemHeightLG: 50,
-                                        paddingXXS: 10, // 下拉框选项最小内边距
-                                        optionHeight: 40, //选项高度
-                                        optionLineHeight: 2, //选项行高
-                                    },
-                                    Steps: {
-                                        navArrowColor: "var(--text-color6)",
-                                    },
-                                    Form: {
-                                        itemMarginBottom: 20
-                                        // singleItemHeightLG
-                                    },
+                        <div className={`${styles.step_box}`}>
+                            <ConfigProvider
+                                theme={{
+                                    components: {
+                                        Select: {
+                                            clearBg: "#ffffff",
+                                            selectorBg: 'var(--background7)',
+                                            singleItemHeightLG: 50,
+                                            paddingXXS: 10, // 下拉框选项最小内边距
+                                            optionHeight: 40, //选项高度
+                                            optionLineHeight: 2, //选项行高
+                                        },
+                                        Steps: {
+                                            navArrowColor: "var(--text-color6)",
+                                        },
+                                        Form: {
+                                            itemMarginBottom: 20
+                                            // singleItemHeightLG
+                                        },
 
-                                }
-                            }}
-                        >
-                            <Form
-                                form={form}
-                                disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0)}
+                                    }
+                                }}
                             >
-                                <Steps
-                                    direction="vertical"
-                                    current={current}
-                                    labelPlacement="vertical"
-                                    items={steps}
-                                    className='custom-steps' />
-                            </Form>
-                        </ConfigProvider>
-                    </div>
-                    <div className={`${styles.notice_box}`}>
-                        <div>
-                            <h5 className={`font-w-500 font-16 mb-4`}>
-                                {/* 常见问题 */}
-                                {t('withdrawMoney.faq')}
-                            </h5>
-                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item2')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item3')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item4')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li>
-                            </ul>
+                                <Form
+                                    form={form}
+                                    disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0)}
+                                >
+                                    <Steps
+                                        direction="vertical"
+                                        current={current}
+                                        labelPlacement="vertical"
+                                        items={steps}
+                                        className='custom-steps' />
+                                </Form>
+                            </ConfigProvider>
                         </div>
-                        <div className=''>
-                            <h5 className={`font-w-500 font-16 mb-4`}>
-                                {/* 提现须知 */}
-                                {t('withdrawMoney.notice')}
-                            </h5>
-                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item1')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item2')}</li>
-                                <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item3')}</li>
-                            </ul>
+                        <div className={`${styles.notice_box}`}>
+                            <div>
+                                <h5 className={`font-w-500 font-16 mb-4`}>
+                                    {/* 常见问题 */}
+                                    {t('withdrawMoney.faq')}
+                                </h5>
+                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item2')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item3')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item4')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li>
+                                </ul>
+                            </div>
+                            <div className=''>
+                                <h5 className={`font-w-500 font-16 mb-4`}>
+                                    {/* 提现须知 */}
+                                    {t('withdrawMoney.notice')}
+                                </h5>
+                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item1')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item2')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item3')}</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <TableBox coinId={form.getFieldValue('tenantId')} coinAll={coinSelect}/>
+                    <TableBox coinId={form.getFieldValue('tenantId')} coinAll={coinSelect} />
 
-            </div>
-            <WithdrawMoneyCheck open={checkOpen}
-                withdrawInfo={withdrawInfo}
-                onCancel={() => setCheckOpen(false)} 
-                onOk={checkOK}
+                </div>
+                <WithdrawMoneyCheck open={checkOpen}
+                    withdrawInfo={withdrawInfo}
+                    onCancel={() => setCheckOpen(false)}
+                    onOk={checkOK}
                 />
+            </div>
         </div>
-    </div>
     </ResetStateProvider>
     );
 };

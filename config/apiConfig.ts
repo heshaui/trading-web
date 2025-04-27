@@ -35,6 +35,7 @@ export const LOCAL_STORAGE_KEY = {
     OUT_MONEY:"imbit_out_money",
     CURRENCY_PAIRS: 'currency_pairs',
     CURRENT_PAIR: 'current_pair',
+    CURRENT_COIN: 'current_coin',
 };
 
 export const ROUTER_KEY_ASSETS = {

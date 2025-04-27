@@ -155,6 +155,7 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     {/* t() */}

@@ -31,6 +31,10 @@
     background-color: var( --homeground2); 
     padding: 24px 16px;
 }
+.card_bgc5{
+    background-color: var( --background7); 
+    padding: 24px 0;
+}
 
 .success_icon {
     color: #00C788;

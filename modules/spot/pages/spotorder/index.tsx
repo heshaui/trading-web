@@ -216,6 +216,7 @@ const SpotOrderPage = () => {
                         borderColor: "transparent",
                         // stickyScrollBarBg:"transparent",
                         headerBorderRadius: 0, // 表头圆角
+                        // stickyScrollBarBg:"transparent",
                     },
                     Pagination: {
                         itemActiveBg: "transparent",
@@ -242,7 +243,7 @@ const SpotOrderPage = () => {
                     {t('spot.spotOrder')}
                 </h2>
             </div>
-            <div className={`${styles.card_bgc}  mt-3 `}>
+            <div className={`${styles.card_bgc5}  mt-3 `}>
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}>

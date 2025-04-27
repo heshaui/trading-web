@@ -40,7 +40,8 @@ interface DataLogsType {
   orderResource: number,
   tenantId: string,
   fee: number,
-  baseSymbolCount: number
+  baseSymbolCount: number,
+  groupStatus: string
 }
 interface DataType {
   id: number,
@@ -64,7 +65,8 @@ interface DataType {
   orderResource: number,
   tenantId: string,
   fee: number,
-  baseSymbolCount: number
+  baseSymbolCount: number,
+  groupStatus: string,
   userLoginLogs: DataLogsType[]
 }
 interface symbolSelectType {
@@ -142,7 +144,7 @@ const SpotMainPage = () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 138,
+      width: 148,
       render: (_text, record) => <button type='button'
         //  className={`${record.status === 2 ? styles.error_icon : ''}`}
         onClick={(e) => {
@@ -213,8 +215,13 @@ const SpotMainPage = () => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+       if(record.type === 0 ){
+        return <span >{t('spot.select.market')}</span>;
+       }else if(record.type === 1 ){
+        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
+       }
       },
     },
     {
@@ -376,7 +383,7 @@ const SpotMainPage = () => {
   }
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = (expanded: boolean, record: DataType) => {
-    getOrderInfoData(record.symbol)
+    getOrderInfoData(record.symbol,record.orderId,record.groupStatus)
     if (expanded) {
       // 设置展开的行
       setExpandedRowKeys([record.orderId]);
@@ -470,17 +477,18 @@ const SpotMainPage = () => {
     }
 
   }
-  const getOrderInfoData = async (symbol: string) => {
+  const getOrderInfoData = async (symbol: string,orderId:string,groupStatus:string) => {
     try {
-      const symbol1 = 'BTCUSDT'
       const params = {
         // baseCoinScale:symbol.split('/')[1],
         // coinScale:symbol.split('/')[0],
-        pageNum: 1,
+        page: 1,
         pageSize: 10,
         // baseCoinScale:'USDT',
         // coinScale:'BTC',
-        symbol:'base_quote_group'
+        // symbol:'base_quote_group'
+        orderId:orderId,
+        symbol:`${symbol.split('/').join('_')}_${groupStatus}`
       }
       const res = await getOrderInfo(params)
       if (res.code === '0') {
@@ -522,6 +530,9 @@ const SpotMainPage = () => {
             activeBg: "var(--background7)",
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}

@@ -27,14 +27,14 @@ const FeeCoin = observer(() => {
     const options: CheckboxGroupProps<string>['options'] = [
         {
             label:
-                <div className='ml-1'>
+                <div className={`${styles.title_color} ml-1`}>
                     接收币种
                 </div>,
             value: '1'
         },
         {
             label:
-                <div className='ml-1'>
+                <div className={`${styles.title_color} ml-1`}>
                     计价币种
                 </div>,
             value: '2'

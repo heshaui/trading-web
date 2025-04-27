@@ -268,6 +268,9 @@ const SpotMainPage = observer(() => {
             activeBg: "var(--background7)",
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}
@@ -289,6 +292,7 @@ const SpotMainPage = observer(() => {
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
                 onChange={dateChange}
+                size='large'
               />
             </Form.Item>
             <div className={`${styles.table_header_checkbox3}`}>
