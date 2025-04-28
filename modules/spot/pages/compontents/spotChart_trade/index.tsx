@@ -403,10 +403,10 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                             description: (
                                 <div>
                                     <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
-                                    {values.amount&&<div>数量：{values.amount}</div>}
+                                    {values.amount&&<div>数量：{values.amount} {currentPair?.coinSymbol}</div>}
                                     <div>价格：{priceDisabled ? 
-                                        formatWithPrecision(res.data[1], currentPair?.baseCoinScale || 8) : 
-                                        formatWithPrecision(values.price, currentPair?.baseCoinScale || 8)
+                                        formatWithPrecision(res.data[1], currentPair?.baseCoinScale || 8) + ' ' + currentPair?.baseSymbol: 
+                                        formatWithPrecision(values.price, currentPair?.baseCoinScale || 8) + ' ' + currentPair?.baseSymbol
                                     }</div>
                                 </div>
                             ),
