@@ -8,13 +8,14 @@ import React, {
 import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import WebSocketService from '@/utils/websocket';
-
+import { useThemeMode } from "@/hooks/useThemeMode";
 export interface TradingviewProps {
   symbol?: string;
   showLeftToolbar?: boolean;
   chartType?: number;
   klineData?: any;
   timeInterval?: string;
+  isDayMode?: boolean;
 }
 
 export interface TradingviewRefHandle {
@@ -38,7 +39,7 @@ const Tradingview: React.ForwardRefRenderFunction<
   },
   ref
 ) => {
-  // console.log(klineData,'klineData');
+    const { isDayMode } = useThemeMode();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -147,6 +148,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           enabled_features: ["study_templates"],
           timezone: "Asia/Shanghai",
           debug: false,
+          theme: isDayMode ? "light" : "dark",
           disabled_features: disabledFeatures,
         };
 
@@ -185,7 +187,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         setTvWidget(null);
       }
     };
-  }, [symbol, timeInterval, showLeftToolbar, chartType]);
+  }, [symbol, timeInterval, showLeftToolbar, chartType, isDayMode]);
 
   // 单独处理WebSocket数据更新
   useEffect(() => {
@@ -671,8 +673,8 @@ const Tradingview: React.ForwardRefRenderFunction<
               top: '50%',
               transform: 'translateY(-50%)',
               zIndex: 10,
-              background: isLeftHovered ? themeColor : 'rgba(255,255,255,0.9)',
-              color: isLeftHovered ? '#fff' : '#333',
+              // background: isLeftHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isLeftHovered ? '#fff' : isDayMode ? '#333' : '#fff',
               border: 'none',
               borderRadius: '50%',
               width: '30px',
@@ -735,8 +737,8 @@ const Tradingview: React.ForwardRefRenderFunction<
               top: '50%',
               transform: 'translateY(-50%)',
               zIndex: 10,
-              background: isRightHovered ? themeColor : 'rgba(255,255,255,0.9)',
-              color: isRightHovered ? '#fff' : '#333',
+              // background: isRightHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isRightHovered ? '#fff' : isDayMode ? '#333' : '#fff',
               border: 'none',
               borderRadius: '50%',
               width: '30px',

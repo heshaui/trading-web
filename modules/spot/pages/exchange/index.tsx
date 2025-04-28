@@ -31,6 +31,7 @@ import appStore from '@/store';
 import { set } from 'mobx';
 import { reaction } from 'mobx';
 import { useAuth } from '@/context/AuthContext';
+
 interface DataType {
     id: number,
     userId: number,
@@ -62,6 +63,7 @@ const ExchangePage = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const router = useRouter();
+
     const [paramInfo, sePparamInfo] = useState({
         type: '',
         selsect: ''
@@ -684,7 +686,6 @@ const ExchangePage = () => {
                                     </Tooltip>
                                 </div>
                             </div>
-
                             <Spin spinning={loading} tip="加载中...">
                                 {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
                                     <Tradingview
