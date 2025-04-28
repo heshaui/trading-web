@@ -112,7 +112,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     try {
       if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        datafeed = createDatafeed(wsDataRef.current, tradTime, symbol || "BTC_USDT_1");
+        datafeed = createDatafeed(wsDataRef.current, timeInterval, symbol || "BTC_USDT_1");
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
@@ -136,7 +136,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         const widgetOptions = {
           symbol: chartSymbol,
           datafeed: datafeed,
-          interval: tradTime,
+          interval: timeInterval,
           container: chartContainerRef.current,
           library_path: "/charting_library/",
           locale: "zh",
@@ -187,7 +187,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         setTvWidget(null);
       }
     };
-  }, [symbol, tradTime, showLeftToolbar, chartType]);
+  }, [symbol, timeInterval, showLeftToolbar, chartType]);
 
   // 单独处理WebSocket数据更新
   useEffect(() => {
@@ -341,7 +341,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     }
   };
 
-  const createDatafeed = (initialData: any, timeInterval: string,symbol:string) => {
+  const createDatafeed = (initialData: any, timeInterval: string, symbol:string) => {
     const subscribers: any = {};
     
     // 先定义时间格式化函数
@@ -522,11 +522,13 @@ const Tradingview: React.ForwardRefRenderFunction<
         try {
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
-          const url = `https://ws81.imsaas.work/kline/${symbol}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
-
+          // 使用传入的 timeInterval 参数而不是 resolution
+          const url = `https://ws81.imsaas.work/kline/${symbol}/${timeInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          
+          console.log("获取图表数据:", url);
           const response = await fetch(url);
-          console.log(response,'response');
+          
           if(response.status === 200) {}
           const data = await response.json();
           
