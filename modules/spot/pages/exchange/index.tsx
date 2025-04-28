@@ -560,7 +560,7 @@ const ExchangePage = () => {
                 </div>
 
                 <div className='flex-x'>
-                    <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
+                    <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`}  style={{paddingRight:'0'}}>
                         {/* <div className={`flex-1`}> */}
                         <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
                             <div style={{
