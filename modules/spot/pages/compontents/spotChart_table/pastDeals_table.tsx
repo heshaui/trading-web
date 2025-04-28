@@ -160,7 +160,7 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
         const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
-        if (record.status === 0 || record.status === 1) {
+        if (record.status === 0 || record.status === 1||record.status === 5) {
           return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
         } else {
           return <span >--</span>;
