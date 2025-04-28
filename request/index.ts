@@ -24,7 +24,8 @@ export async function request<T>(
   const defaultHeaders:RequestHeaders = {
     // 'Content-Type': '',
     'Authorization': `${getToken()}`, // 获取 token（可选）
-    'sa-token': `${getToken()}`
+    'sa-token': `${getToken()}`,
+    'lang':localStorage.getItem('lang') || 'en_US'
   };
   
   // 仅在开发环境下添加 ambit-saas 头部

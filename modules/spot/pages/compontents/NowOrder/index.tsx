@@ -88,7 +88,7 @@ const SpotMainPage =observer( () => {
       title: t('spot.columns.uploadTime'), //"更新时间",
       dataIndex: "updateTime",
       key: "updateTime",
-      width: 138,
+      width: 128,
       align: "left",
       render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`} </div>,
     },
@@ -97,7 +97,7 @@ const SpotMainPage =observer( () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 138,
+      width: 148,
       render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
       onClick={()=>{
         router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
