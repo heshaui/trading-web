@@ -34,7 +34,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     showLeftToolbar = false,
     chartType = 9,
     klineData = [],
-    timeInterval = "1D"
+    timeInterval = "15m"
   },
   ref
 ) => {
@@ -663,7 +663,6 @@ const Tradingview: React.ForwardRefRenderFunction<
               listStyle: "none",
               fontSize: "12px",
               cursor: "pointer",
-              "&::-webkit-scrollbar": { display: "none" }
             }}
           >
             {target.map((item, index) => (
