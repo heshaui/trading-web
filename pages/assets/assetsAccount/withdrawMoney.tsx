@@ -512,7 +512,7 @@ const isMemo =  () => {
     // memoTag
     const coinId = form.getFieldValue('tenantId')
     const data=coinSelect.filter((item:any)=>item.coinId===coinId)
-    return data[0].memoTag
+    return data[0]?.memoTag
 
 }
 
@@ -553,7 +553,7 @@ const isMemo =  () => {
                     coinId: values.tenantId,
                     toAddress: values.addressId,
                     protocolId: values.protocolId,
-                    momo: values.momo,
+                    momo: values.momo || null,
                     amount: values.amount,
                     minWithdrawAmount: coninInfo.minWithdrawAmount,
                     minWithdrawFee: coninInfo.minWithdrawFee,
@@ -893,7 +893,8 @@ const isMemo =  () => {
 
                         </Form.Item>
                         {/* showMemo */}
-                        {isMemo() && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
+                        {isMemo() && 
+                        <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                             <span>
                                 {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
