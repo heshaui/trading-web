@@ -11,12 +11,13 @@ import type { TabsProps } from 'antd';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 import appStore from '@/store';
+import { observer } from "mobx-react-lite";
 interface SelfSelectProps {
     currencyPairs: any[];
     onPairSelect?: (pair: any) => void;
     searchValue: string;
 }
-const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProps) => {
+const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, searchValue }) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all');
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -142,19 +143,32 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
     };
 
     const handleFavoriteChange = async (value: number, pair: any) => {
-        console.log(value, pair);
-        // await addUserExchangeCoinType({
-        //     coinType: pair.coinSymbol,
-        //     baseCoinType: pair.baseSymbol,
-        //     isFavorite: value === 1
-        // });
-        // await appStore.loadCurrencyPairs();
-        // await canalUserExchangeCoinType({
-        //     coinType: pair.coinSymbol,
-        //     baseCoinType: pair.baseSymbol,
-        //     isFavorite: value === 1
-        // });
-    };
+        const isFavorite = value === 1;
+        const apiCall = isFavorite 
+          ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
+          : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+          
+        const res = await apiCall;
+        if (res.code === '0') {
+          // 本地更新以提高性能 - 只使用一种更新方式避免冲突
+          const updatedPairs = [...appStore.currencyPairs];
+          const pairIndex = updatedPairs.findIndex(item => item.id === pair.id);
+          if (pairIndex !== -1) {
+            updatedPairs[pairIndex] = {
+              ...updatedPairs[pairIndex],
+              isFavorite: isFavorite
+            };
+            appStore.setCurrencyPairs(updatedPairs);
+          }
+          
+          // 如果当前选中的是被修改的币对，也要更新currentPair
+          if (appStore.currentPair && appStore.currentPair.id === pair.id) {
+            const updatedCurrentPair = {...appStore.currentPair};
+            updatedCurrentPair.isFavorite = isFavorite;
+            appStore.setCurrentPair(updatedCurrentPair);
+          }
+        }
+      };
 
    const handleTabClick = (key: string) => {
         setActiveTab(key);
@@ -339,4 +353,4 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
     );
 };
 
-export default SelfSelect;
+export default observer(SelfSelect);

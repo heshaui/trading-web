@@ -166,7 +166,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }else{
             const data={
                 exchangeCoinId:currentPair.id,
-                type:0
+                type:1
             }
           const res= await canalUserExchangeCoinType(data);
             if(res.code === '0'){

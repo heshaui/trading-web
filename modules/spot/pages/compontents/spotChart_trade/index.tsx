@@ -330,7 +330,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         const values = form.getFieldsValue();
         let hasError = false;
         
-        // 验证价格字段
+        // 验证价格字段 - 只在限价模式下验证
         if (!priceDisabled && (!values.price || values.price === '')) {
             form.setFields([{
                 name: 'price',
