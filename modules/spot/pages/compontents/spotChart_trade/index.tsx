@@ -303,15 +303,32 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const calculateAmount = () => {
         const price = form.getFieldValue('price');
         const account = form.getFieldValue('account');
-
-        if (price && account && price > 0) {
-            const amount = account / price;
-            form.setFieldsValue({ 
-                amount: formatWithPrecision(amount, currentPair?.coinScale || 8) 
-            });
+        
+        if (!account) return; // 如果没有输入成交额，不需要计算
+        
+        // 市价模式下使用最新市场价格
+        if (priceDisabled) {
+            // 获取最新价格
+            const { buyPrice } = getLatestPrices();
+            
+            if (buyPrice && buyPrice > 0) {
+                const amount = account / buyPrice;
+                form.setFieldsValue({ 
+                    amount: formatWithPrecision(amount, currentPair?.coinScale || 8) 
+                });
+            } else {
+                // 如果没有可用的市场价格数据
+                message.info('暂无市场价格数据，无法计算交易数量');
+            }
         } else {
-            // 如果价格为0或不存在，不更新数量字段
-            if (!price || price <= 0) {
+            // 限价模式下使用用户输入的价格
+            if (price && price > 0) {
+                const amount = account / price;
+                form.setFieldsValue({ 
+                    amount: formatWithPrecision(amount, currentPair?.coinScale || 8) 
+                });
+            } else {
+                // 如果价格为0或不存在，不更新数量字段
                 message.info('请先输入有效的价格');
             }
         }
