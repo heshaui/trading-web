@@ -312,7 +312,7 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                                 <span className={styles.favorite}>
 
                                     <Rate
-                                        onChange={handleFavoriteChange}
+                                        onChange={(value) => handleFavoriteChange(value, pair)}
                                         value={pair.isFavorite ? 1 : 0}
                                         count={1}
                                         style={{ fontSize: 14 }}
