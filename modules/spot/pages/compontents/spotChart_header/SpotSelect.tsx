@@ -9,6 +9,7 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import appStore from '@/store';
+import { observer } from "mobx-react-lite";
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 
@@ -141,10 +142,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                 
               const res = await apiCall;
               if (res.code === '0') {
-                // 选项1：让store处理刷新
-                await appStore.loadCurrencyPairs();
-                
-                // 或 选项2：本地更新以提高性能
+                // 本地更新以提高性能 - 只使用一种更新方式避免冲突
                 const updatedPairs = [...appStore.currencyPairs];
                 const pairIndex = updatedPairs.findIndex(item => item.id === pair.id);
                 if (pairIndex !== -1) {
@@ -153,6 +151,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                     isFavorite: isFavorite
                   };
                   appStore.setCurrencyPairs(updatedPairs);
+                }
+                
+                // 如果当前选中的是被修改的币对，也要更新currentPair
+                if (appStore.currentPair && appStore.currentPair.id === pair.id) {
+                  const updatedCurrentPair = {...appStore.currentPair};
+                  updatedCurrentPair.isFavorite = isFavorite;
+                  appStore.setCurrentPair(updatedCurrentPair);
                 }
               }
             };
@@ -291,4 +296,4 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     );
 };
 
-export default SpotSelect;
+export default observer(SpotSelect);
