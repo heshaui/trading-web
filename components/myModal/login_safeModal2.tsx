@@ -359,7 +359,11 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     };
     const handleOk = (event: boolean) => {
         if (event) {
-            getLoginCode2()
+            if((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1&&(acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) || 
+            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) return
+            else{
+                getLoginCode2()
+            }
         }
     }
     useEffect(() => {
