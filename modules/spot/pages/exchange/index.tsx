@@ -484,22 +484,19 @@ const ExchangePage = () => {
     const chartTypeItems: MenuProps['items'] = [
         {
             key: 1,
-            label: 'K线图',
-
-
+            label: <span style={{ fontSize: '12px' }}>K线图</span>,
         },
         {
             key: 8,
-            label: '美国线',
-
+            label: <span style={{ fontSize: '12px' }}>美国线</span>,
         },
         {
             key: 13,
-            label: '面积图',
+            label: <span style={{ fontSize: '12px' }}>面积图</span>,
         },
         {
             key: 3,
-            label: '线型图',
+            label: <span style={{ fontSize: '12px' }}>线型图</span>,
         },
     ];
 
@@ -596,7 +593,7 @@ const ExchangePage = () => {
                                                             display: 'grid',
                                                             gridTemplateColumns: 'repeat(3, 1fr)',
                                                             gap: '10px',
-                                                            width: '320px'
+                                                            width: '320px',
                                                         }}>
                                                             {timeIntervalOptions.map((option) => (
                                                                 <div
@@ -606,13 +603,13 @@ const ExchangePage = () => {
                                                                         setTimeInterval(option);
                                                                     }}
                                                                     style={{
-                                                                        padding: '10px 15px',
+                                                                        padding: '10px',
                                                                         textAlign: 'center',
                                                                         background: timeInterval === option ? 'var(--theme-color)' : '#f0f0f0',
                                                                         color: timeInterval === option ? '#fff' : '#000',
                                                                         borderRadius: '5px',
                                                                         cursor: 'pointer',
-                                                                        fontSize: '14px'
+                                                                        fontSize: '12px'
                                                                     }}
                                                                 >
                                                                     {option}
@@ -644,22 +641,22 @@ const ExchangePage = () => {
                                         >
                                             <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                         </Dropdown>
-                                        <Tooltip title="技术指标">
-                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} onClick={() => tradingviewRef.current?.handleAddIndicator()} />
+                                        <Tooltip title="技术指标" overlayInnerStyle={{fontSize: '12px'}}>
+                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} onClick={() => tradingviewRef.current?.handleAddIndicator()}  style={{cursor: 'pointer'}}/>
                                         </Tooltip>
-                                        <Tooltip title="图表重置">
-                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.resetChart()}/>
+                                        <Tooltip title="图表重置" overlayInnerStyle={{fontSize: '12px'}}>
+                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.resetChart()} style={{cursor: 'pointer'}}/>
                                         </Tooltip>
                                         {/* <Tooltip title="图表截图">
                                             <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
                                         </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
-                                        <Tooltip title="成交量分布">
+                                        <Tooltip title="成交量分布" overlayInnerStyle={{fontSize: '12px'}}>
                                             <Image
                                                 src="/images/exchange/icon_value.png"
                                                 alt="exchange"
                                                 width={20}
                                                 height={20}
-                                                onClick={() => tradingviewRef.current?.addVolumeDistribution()}
+                                                onClick={() => tradingviewRef.current?.addVolumeDistribution()} style={{cursor: 'pointer'}}
                                             />
                                         </Tooltip>
                                     </Space>
@@ -681,7 +678,7 @@ const ExchangePage = () => {
                                         </Button>
                                     ))}
 
-                                    <Tooltip title="全屏">
+                                    <Tooltip title="全屏" overlayInnerStyle={{fontSize: '12px'}}>
                                         <Button type="text" icon={<FullscreenOutlined />}  onClick={() => tradingviewRef.current?.toggleFullScreen()} />
                                     </Tooltip>
                                 </div>
