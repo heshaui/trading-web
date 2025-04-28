@@ -92,6 +92,12 @@ const Tradingview: React.ForwardRefRenderFunction<
   const scrollContainer = useRef<HTMLUListElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const [isLeftHovered, setIsLeftHovered] = useState(false);
+  const [isRightHovered, setIsRightHovered] = useState(false);
+  const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
+
+  // 假设主题色，如果项目中已有变量请使用已有的
+  const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
 
   useEffect(() => {
     
@@ -219,6 +225,43 @@ const Tradingview: React.ForwardRefRenderFunction<
       tvWidget.chart().setResolution(tvInterval);
       setTradTime(interval);
       setShowIntervalDialog(false);
+    }
+  };
+  //手动添加指标
+  const addIndicator = (studyName: string) => {
+    const studyMappings: any = {
+      "Moving Average": { name: "Moving Average" },
+      EMA: { name: "Moving Average Exponential" },
+      MACD: { name: "MACD" },
+      KDJ: { name: "Stochastic" }, // 更正为 Stochastic
+      BOLL: { name: "Bollinger Bands" },
+      "TD Sequential": { name: "TD Sequential" },
+      "RSI-S-I": { name: "Relative Strength Index" },
+      Stochastic: { name: "Stochastic" },
+      "S-RSI": { name: "Stochastic RSI" },
+      SMI: { name: "SMI" },
+      TRIX: { name: "TRIX" },
+      PO: { name: "Price Oscillator" },
+      PC: { name: "Price Channel" },
+      PVT: { name: "Price Volume Trend" },
+      CC: { name: "Commodity Channel Index" },
+      KST: { name: "Know Sure Thing" },
+      NV: { name: "Negative Volume Index" },
+      Momentum: { name: "Momentum" },
+      DM: { name: "Directional Movement" },
+      AO: { name: "Awesome Oscillator" },
+    };
+
+    if (tvWidget && studyMappings[studyName]) {
+      const chart = tvWidget.chart();
+      chart.createStudy(
+        studyMappings[studyName].name,
+        false,
+        true,
+        [], // Params depending on the study
+        {}, // Overrides depending on the study
+        {} // Inputs depending on the study
+      );
     }
   };
 
@@ -561,13 +604,15 @@ const Tradingview: React.ForwardRefRenderFunction<
         {showLeftArrow && (
           <button 
             onClick={() => scroll('left')}
+          
             style={{
               position: 'absolute',
               left: 0,
               top: '50%',
               transform: 'translateY(-50%)',
               zIndex: 10,
-              background: 'rgba(255,255,255,0.9)',
+              background: isLeftHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isLeftHovered ? '#fff' : '#333',
               border: 'none',
               borderRadius: '50%',
               width: '30px',
@@ -576,7 +621,7 @@ const Tradingview: React.ForwardRefRenderFunction<
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              // boxShadow: '0 0 5px rgba(0,0,0,0.2)'
+              transition: 'all 0.3s ease'
             }}
           >
             &lt;
@@ -590,23 +635,29 @@ const Tradingview: React.ForwardRefRenderFunction<
             style={{ 
               display: "flex", 
               overflow: "auto",
-              scrollbarWidth: "none", // 火狐浏览器隐藏滚动条
-              msOverflowStyle: "none", // IE 隐藏滚动条
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
               whiteSpace: "nowrap",
               padding: "10px 0",
-              fontSize: "12px",
               margin: 0,
               listStyle: "none",
-              "&::-webkit-scrollbar": { display: "none" } // Chrome/Safari 隐藏滚动条
+              fontSize: "12px",
+              cursor: "pointer",
+              "&::-webkit-scrollbar": { display: "none" }
             }}
           >
             {target.map((item, index) => (
               <li 
                 key={index} 
                 style={{ 
-                  marginRight: index === target.length - 1 ? 0 : "20px", // 设置相等间距，最后一项无需右边距
-                  padding: "0 5px"
+                  marginRight: index === target.length - 1 ? 0 : "20px",
+                  padding: "0 5px",
+                  color: hoveredItemIndex === index ? themeColor : 'inherit',
+                  transition: 'color 0.3s ease'
                 }}
+                onMouseEnter={() => setHoveredItemIndex(index)}
+                onMouseLeave={() => setHoveredItemIndex(null)}
+                onClick={() => addIndicator(item.text)}
               >
                 {item.text}
               </li>
@@ -617,13 +668,16 @@ const Tradingview: React.ForwardRefRenderFunction<
         {showRightArrow && (
           <button 
             onClick={() => scroll('right')}
+            // onMouseEnter={() => setIsRightHovered(true)}
+            // onMouseLeave={() => setIsRightHovered(false)}
             style={{
               position: 'absolute',
               right: 0,
               top: '50%',
               transform: 'translateY(-50%)',
               zIndex: 10,
-              background: 'rgba(255,255,255,0.9)',
+              background: isRightHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isRightHovered ? '#fff' : '#333',
               border: 'none',
               borderRadius: '50%',
               width: '30px',
@@ -632,7 +686,7 @@ const Tradingview: React.ForwardRefRenderFunction<
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              // boxShadow: '0 0 5px rgba(0,0,0,0.2)'
+              transition: 'all 0.3s ease'
             }}
           >
             &gt;
