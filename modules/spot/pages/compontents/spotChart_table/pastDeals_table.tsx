@@ -255,20 +255,24 @@ const SpotMainPage = observer(() => {
     },
     {
       title: t('spot.columns.tradePrice'),//成交价
-      dataIndex: "buyPrice",
-      key: "buyPrice",
+      dataIndex: "tradePrice",
+      key: "tradePrice",
       align: "center",
       width: 128,
       // 判断方向是买还是卖 buyPrice/sellPrice
-      render: (_buyPrice,record) => {
-        const flag = record.takerSide
-        if(flag === 0){
-          return <span>{_buyPrice || '--'}</span>
-        }else if(flag === 1){
-          return <span>{record.sellPrice || '--'}</span>
-        }else{
-          return '--'
-        }
+      render: (_tradePrice,record) => {
+        // const flag = record.takerSide
+        // if(flag === 0){
+        //   return <span>{_buyPrice || '--'}</span>
+        // }else if(flag === 1){
+        //   return <span>{record.sellPrice || '--'}</span>
+        // }else{
+        //   return '--'
+        // }
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+
+        return <span>{_tradePrice?roundDown(nul(_tradePrice,record.quantity), coin?.baseCoinScale) : '--'}</span>
       },
     },
     {
@@ -313,16 +317,16 @@ const SpotMainPage = observer(() => {
     },
     {
       title: t('spot.columns.tradeRole'),//角色
-      key: "buyerUserId",
-      dataIndex: "buyerUserId",
+      key: "takerSide",
+      dataIndex: "takerSide",
       width: 128,
       align: "center",
       render: (_buyerUserId,record) => {
         const flag = record.takerSide
-        if(flag === 0){
-          return <span>{_buyerUserId || '--'}</span>
+        if(_buyerUserId === 0){
+          return <span>Maker</span>
         }else if(flag === 1){
-          return <span>{record.sellerUserId || '--'}</span>
+          return <span>Taker</span>
         }else{
           return '--'
         }

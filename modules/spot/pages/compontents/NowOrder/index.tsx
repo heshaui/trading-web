@@ -150,20 +150,18 @@ const SpotMainPage =observer( () => {
       align: "center",
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <>
-        <div className='flex-x-cc'>
+        return <>{record.type === 1 ? <div className='flex-x-cc'>
           <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
-            <button 
-            onClick={()=>{
-              toast.error('接口：暂不做')
-            }}
+            <button
+              onClick={() => {
+                toast.error('接口：暂不做')
+              }}
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-          </div>
-        </>
+        </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
           
       },
     },
