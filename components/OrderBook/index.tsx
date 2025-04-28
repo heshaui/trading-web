@@ -44,92 +44,64 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   useEffect(() => {
     console.log('原始数据:', bookData); // 添加日志输出查看原始数据
     
-    // 确保data存在且包含depth数据结构
+    // 直接使用bookData中的asks和bids数据
     if (bookData && (bookData.asks || bookData.bids)) {
-      // 处理卖单数据 - 需要合并相同价格的订单
-      const askMap = new Map<number, number>();
+      // 处理卖单数据 - 直接使用asks数据
       if (bookData.asks && Array.isArray(bookData.asks)) {
-        // 不限制数量，先处理所有数据
-        bookData.asks.forEach((item: [number, number]) => {
-          // 直接使用原始价格，不进行取整
+        const processedSellOrders = bookData.asks.map((item: [number, number]) => {
           const price = Number(item[0]);
           const amount = Number(item[1]);
-          
-          // 对相同价格的订单进行数量累加
-          if (askMap.has(price)) {
-            askMap.set(price, askMap.get(price)! + amount);
-          } else {
-            askMap.set(price, amount);
-          }
-        });
-      }
-      
-      // 转换为订单列表格式 - 不过滤，保留所有数据
-      const processedSellOrders = Array.from(askMap.entries())
-        .map(([price, amount]) => {
           const total = price * amount;
           return { price, amount, total };
-        })
-        .sort((a: Order, b: Order) => a.price - b.price) // 卖单按价格升序排列
-        .slice(0, 10); // 之后再限制为10条
+        });
+        
+        // 卖单按价格升序排列
+        processedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
+        
+        setSellOrders(processedSellOrders);
+      }
       
-      // 处理买单数据 - 需要合并相同价格的订单
-      const bidMap = new Map<number, number>();
+      // 处理买单数据 - 直接使用bids数据
       if (bookData.bids && Array.isArray(bookData.bids)) {
-        // 不限制数量，先处理所有数据
-        bookData.bids.forEach((item: [number, number]) => {
-          // 直接使用原始价格，不进行取整
+        const processedBuyOrders = bookData.bids.map((item: [number, number]) => {
           const price = Number(item[0]);
           const amount = Math.abs(Number(item[1])); // 确保数量为正值
-          
-          // 对相同价格的订单进行数量累加
-          if (bidMap.has(price)) {
-            bidMap.set(price, bidMap.get(price)! + amount);
-          } else {
-            bidMap.set(price, amount);
-          }
-        });
-      }
-      
-      // 转换为订单列表格式 - 不过滤，保留所有数据
-      const processedBuyOrders = Array.from(bidMap.entries())
-        .map(([price, amount]) => {
           const total = price * amount;
           return { price, amount, total };
-        })
-        .sort((a: Order, b: Order) => b.price - a.price) // 买单按价格降序排列
-        .slice(0, 10); // 之后再限制为10条
+        });
+        
+        // 买单按价格降序排列
+        processedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
+        
+        setBuyOrders(processedBuyOrders);
+      }
       
-      console.log('处理后卖单数据:', processedSellOrders);
-      console.log('处理后买单数据:', processedBuyOrders);
+      console.log('处理后卖单数据:', sellOrders);
+      console.log('处理后买单数据:', buyOrders);
 
-      // 更新状态
-      setSellOrders(processedSellOrders);
-      setBuyOrders(processedBuyOrders);
-      
       // 计算当前价格
-      if (processedSellOrders.length > 0 && processedBuyOrders.length > 0) {
-        const midPrice = (processedSellOrders[0].price + processedBuyOrders[0].price) / 2;
+      if (sellOrders.length > 0 && buyOrders.length > 0) {
+        const midPrice = (sellOrders[0].price + buyOrders[0].price) / 2;
         if (currentPrice === 0) {
           setCurrentPrice(midPrice);
         }
         
         // 计算买卖比例
-        const totalSellAmount = processedSellOrders.reduce((sum, order) => sum + order.amount, 0);
-        const totalBuyAmount = processedBuyOrders.reduce((sum, order) => sum + order.amount, 0);
+        const totalSellAmount = sellOrders.reduce((sum, order) => sum + order.amount, 0);
+        const totalBuyAmount = buyOrders.reduce((sum, order) => sum + order.amount, 0);
         const total = totalSellAmount + totalBuyAmount;
         
         if (total > 0) {
           setBuyRatio(Number(((totalBuyAmount / total) * 100).toFixed(2)));
           setSellRatio(Number(((totalSellAmount / total) * 100).toFixed(2)));
         }
-      } else if (processedSellOrders.length > 0 && currentPrice === 0) {
-        setCurrentPrice(processedSellOrders[0].price);
-      } else if (processedBuyOrders.length > 0 && currentPrice === 0) {
-        setCurrentPrice(processedBuyOrders[0].price);
+      } else if (sellOrders.length > 0 && currentPrice === 0) {
+        setCurrentPrice(sellOrders[0].price);
+      } else if (buyOrders.length > 0 && currentPrice === 0) {
+        setCurrentPrice(buyOrders[0].price);
       }
     }
-  }, [bookData, currentPrice, priceScale]);
+  }, [bookData, currentPrice, priceScale, sellOrders, buyOrders]);
 
   // 添加处理交易数据的效果
   useEffect(() => {
@@ -206,7 +178,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     return (
       <div className='flex' style={{gap:'10px'}}>
         {/* 显示买卖盘 */}
-        <Tooltip title="买卖盘">
+        <Tooltip title="买卖盘" overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 1 ? '/images/exchange/icon_order_hover.png' : '/images/exchange/icon_order.png'} 
           alt="color-mode" 
@@ -217,7 +189,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         /> 
         </Tooltip>
         {/* 显示买盘 */}
-        <Tooltip title="买盘">
+        <Tooltip title="买盘" overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 2 ? '/images/exchange/icon_green_hover.png' : '/images/exchange/icon_green.png'} 
           alt="color-mode" 
@@ -228,7 +200,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         />
         </Tooltip>
         {/* 显示卖盘 */}
-        <Tooltip title="卖盘">
+        <Tooltip title="卖盘" overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 3 ? '/images/exchange/icon_red_hover.png' : '/images/exchange/icon_red.png'} 
           alt="color-mode" 
@@ -312,9 +284,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       {activeTab === 'orderbook' ? (
         <>
           <div className={styles.labels}>
-            <span>价格({currentPair?.baseSymbol}) <span className={styles.sortIcon}>⇅</span></span>
+            <span>价格({currentPair?.baseSymbol}) </span>
             <span>数量({currentPair?.coinSymbol})</span>
-            <span>总额({currentPair?.baseSymbol}) <span className={styles.sortIcon}>⇅</span></span>
+            <span>总额({currentPair?.baseSymbol}) </span>
           </div>
 
           {/* 卖单 */}

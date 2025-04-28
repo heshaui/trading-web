@@ -195,7 +195,6 @@ const ExchangePage = () => {
                 console.log(data, 'getWsDepthData');
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
-
                     return;
                 }
 
@@ -219,7 +218,7 @@ const ExchangePage = () => {
                     if (data.bids && Array.isArray(data.bids)) {
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
-
+                            
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
 
@@ -231,7 +230,10 @@ const ExchangePage = () => {
                             } else {
                                 // 更新或添加价格档位
                                 if (existingIndex > -1) {
-                                    newData.bids[existingIndex] = newBid;
+                                    // 相同价格，累加数量
+                                    const currentQuantity = parseFloat(newData.bids[existingIndex][1]);
+                                    const newQuantity = parseFloat(quantity);
+                                    newData.bids[existingIndex][1] = (currentQuantity + newQuantity).toString();
                                 } else {
                                     // 按价格降序插入新买单
                                     let insertIndex = 0;
@@ -249,7 +251,7 @@ const ExchangePage = () => {
                     if (data.asks && Array.isArray(data.asks)) {
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
-
+                            
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
 
@@ -261,7 +263,10 @@ const ExchangePage = () => {
                             } else {
                                 // 更新或添加价格档位
                                 if (existingIndex > -1) {
-                                    newData.asks[existingIndex] = newAsk;
+                                    // 相同价格，累加数量
+                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
+                                    const newQuantity = parseFloat(quantity);
+                                    newData.asks[existingIndex][1] = (currentQuantity + newQuantity).toString();
                                 } else {
                                     // 按价格升序插入新卖单
                                     let insertIndex = 0;
@@ -275,14 +280,12 @@ const ExchangePage = () => {
                         });
                     }
 
-                    // 可选：限制深度档位数量
-                    const MAX_DEPTH_LEVELS = 200;
-                    if (newData.bids.length > MAX_DEPTH_LEVELS) {
-                        newData.bids = newData.bids.slice(0, MAX_DEPTH_LEVELS);
-                    }
-                    if (newData.asks && newData.asks.length > MAX_DEPTH_LEVELS) {
-                        newData.asks = newData.asks.slice(0, MAX_DEPTH_LEVELS);
-                    }
+                    // 确保只保留必要的档位数量并正确排序
+                    newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])); // 买单按价格降序
+                    newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])); // 卖单按价格升序
+                    
+                    newData.bids = newData.bids.slice(0, 200);
+                    newData.asks = newData.asks.slice(0, 200);
 
                     return newData;
                 });
