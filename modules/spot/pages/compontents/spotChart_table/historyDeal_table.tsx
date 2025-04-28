@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList } from '@/services/spot'
+import { getOrderList,getOrderInfo } from '@/services/spot'
 import { add, cut, division, lastD, roundDown } from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
@@ -127,7 +127,8 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        return <span >{_status && record.direction ? division(_status, record.direction) : '0'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status  ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
 
       },
     },
@@ -163,7 +164,8 @@ const SpotMainPage = observer(() => {
       dataIndex: "buyFee",
       width: 128,
       align: "center",
-      render: (_status) => {
+      render: (_status,record) => {
+        // const fee=record.direction===0?record.buyFee:record.sellFee
         return <span >{_status || '--'}</span>;
       },
     },
@@ -231,7 +233,7 @@ const SpotMainPage = observer(() => {
     }
     setLoading(true)
     try {
-      const res = await getOrderList(params)
+      const res = await getOrderInfo(params)
       if (res.code === '0') {
         const newData = res.data.records
         setInitTableData(newData);
