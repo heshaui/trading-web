@@ -822,7 +822,13 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                                
                             </li>
                             <li className='flex justify-between align-center'>
-                                <Tooltip title={segmentedvalue === 'buy' ? '可买取决于您买入时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可买将自动计算得出' : '可卖取决于您卖出时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可卖将自动计算得出  '}>
+                                <Tooltip title={!priceDisabled ? 
+                                    (segmentedvalue === 'buy' ? 
+                                      '可买取决于您买入时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可买将自动计算得出' : 
+                                      '可卖取决于您卖出时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可卖将自动计算得出') : 
+                                    (segmentedvalue === 'buy' ? 
+                                      '可买取决于您买入时的可用余额，以及市场最优价格。' : 
+                                      '可卖取决于您卖出时的可用余额，以及市场最优价格。')}>
                                     <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
                                     </Tooltip>
                                 
