@@ -22,6 +22,7 @@ export interface TradingviewRefHandle {
   resetChart: () => void;
   handleAddIndicator: () => void;
   handleChartScreenshot: () => void;
+  toggleFullScreen: () => void;
 }
 
 const Tradingview: React.ForwardRefRenderFunction<
@@ -272,6 +273,24 @@ const Tradingview: React.ForwardRefRenderFunction<
     }
   };
 
+
+  const toggleFullScreen = () => {
+    // const element = this.$refs.chartContainer;
+    const element = chartContainerRef.current;
+
+    // 首先检查element是否存在
+    if (!element) {
+      console.error("Element is undefined.");
+      return;
+    }
+
+    // 检查浏览器支持的全屏API
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } 
+  }
+
+
   //技术指标搜索
   const handleAddIndicator = () => {
     if (tvWidget) {
@@ -311,7 +330,8 @@ const Tradingview: React.ForwardRefRenderFunction<
     addVolumeDistribution,
     resetChart,
     handleAddIndicator,
-    handleChartScreenshot
+    handleChartScreenshot,
+    toggleFullScreen
   }));
 
   const setChartType = (typeCode: number) => {

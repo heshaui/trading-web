@@ -477,23 +477,7 @@ const ExchangePage = () => {
         };
     }, [isClient, currentPair]);
 
-    const toggleFullscreen = () => {
-        if (typeof document === 'undefined') return;
-
-        const chartContainer = document.getElementById('chart-container');
-        if (chartContainer) {
-            if (!isFullscreen) {
-                if (chartContainer.requestFullscreen) {
-                    chartContainer.requestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-            setIsFullscreen(!isFullscreen);
-        }
-    };
+  
 
     const chartTypeItems: MenuProps['items'] = [
         {
@@ -694,7 +678,7 @@ const ExchangePage = () => {
                                     ))}
 
                                     <Tooltip title="全屏">
-                                        <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
+                                        <Button type="text" icon={<FullscreenOutlined />}  onClick={() => tradingviewRef.current?.toggleFullScreen()} />
                                     </Tooltip>
                                 </div>
                             </div>
