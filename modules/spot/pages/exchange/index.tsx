@@ -216,66 +216,84 @@ const ExchangePage = () => {
 
                     // 处理买单(bids)更新
                     if (data.bids && Array.isArray(data.bids)) {
+                        // 买单按价格降序排列
+                        const sortedBids = [...newData.bids].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        const minPrice = sortedBids.length >= 10 ? parseFloat(sortedBids[9][0]) : 0;
+                        
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
+                            const priceFloat = parseFloat(price);
+                            
+                            // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
+                            if (sortedBids.length >= 10 && priceFloat < minPrice) {
+                                return; // 不处理此档位
+                            }
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
 
-                            if (quantity === 0) {
-                                // 如果数量为0，删除该价格档位
-                                if (existingIndex > -1) {
+                            // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
+                            if (existingIndex > -1) {
+                                // 不是累加，而是直接替换数量
+                                if (quantity === '0') {
+                                    // 如果数量为0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
-                                }
-                            } else {
-                                // 更新或添加价格档位
-                                if (existingIndex > -1) {
-                                    // 相同价格，累加数量
-                                    const currentQuantity = parseFloat(newData.bids[existingIndex][1]);
-                                    const newQuantity = parseFloat(quantity);
-                                    newData.bids[existingIndex][1] = (currentQuantity + newQuantity).toString();
                                 } else {
-                                    // 按价格降序插入新买单
-                                    let insertIndex = 0;
-                                    while (insertIndex < newData.bids.length &&
-                                        parseFloat(newData.bids[insertIndex][0]) > parseFloat(price)) {
-                                        insertIndex++;
-                                    }
-                                    newData.bids.splice(insertIndex, 0, newBid);
+                                    // 更新数量
+                                    newData.bids[existingIndex][1] = quantity;
                                 }
+                            } 
+                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
+                            else if (quantity !== '0') {
+                                // 按价格降序插入新买单
+                                let insertIndex = 0;
+                                while (insertIndex < newData.bids.length &&
+                                    parseFloat(newData.bids[insertIndex][0]) > priceFloat) {
+                                    insertIndex++;
+                                }
+                                newData.bids.splice(insertIndex, 0, newBid);
                             }
                         });
                     }
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
+                        // 卖单按价格升序排列
+                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+                        const maxPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : Number.MAX_SAFE_INTEGER;
+                        
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
+                            const priceFloat = parseFloat(price);
+                            
+                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
+                            if (sortedAsks.length >= 10 && priceFloat > maxPrice) {
+                                return; // 不处理此档位
+                            }
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
 
-                            if (quantity === 0) {
-                                // 如果数量为0，删除该价格档位
-                                if (existingIndex > -1) {
+                            // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
+                            if (existingIndex > -1) {
+                                // 不是累加，而是直接替换数量
+                                if (quantity === '0') {
+                                    // 如果数量为0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
-                                }
-                            } else {
-                                // 更新或添加价格档位
-                                if (existingIndex > -1) {
-                                    // 相同价格，累加数量
-                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
-                                    const newQuantity = parseFloat(quantity);
-                                    newData.asks[existingIndex][1] = (currentQuantity + newQuantity).toString();
                                 } else {
-                                    // 按价格升序插入新卖单
-                                    let insertIndex = 0;
-                                    while (insertIndex < newData.asks.length &&
-                                        parseFloat(newData.asks[insertIndex][0]) < parseFloat(price)) {
-                                        insertIndex++;
-                                    }
-                                    newData.asks.splice(insertIndex, 0, newAsk);
+                                    // 更新数量
+                                    newData.asks[existingIndex][1] = quantity;
                                 }
+                            } 
+                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
+                            else if (quantity !== '0') {
+                                // 按价格升序插入新卖单
+                                let insertIndex = 0;
+                                while (insertIndex < newData.asks.length &&
+                                    parseFloat(newData.asks[insertIndex][0]) < priceFloat) {
+                                    insertIndex++;
+                                }
+                                newData.asks.splice(insertIndex, 0, newAsk);
                             }
                         });
                     }
@@ -284,8 +302,8 @@ const ExchangePage = () => {
                     newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])); // 买单按价格降序
                     newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])); // 卖单按价格升序
                     
-                    newData.bids = newData.bids.slice(0, 200);
-                    newData.asks = newData.asks.slice(0, 200);
+                    newData.bids = newData.bids.slice(0, 10);
+                    newData.asks = newData.asks.slice(0, 10);
 
                     return newData;
                 });
@@ -301,10 +319,10 @@ const ExchangePage = () => {
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 
-            // 确保bids和asks是数组
+            // 确保bids和asks是数组并限制为10条
             const formattedData = {
-                bids: Array.isArray(data.bids) ? data.bids : [],
-                asks: Array.isArray(data.asks) ? data.asks : [],
+                bids: Array.isArray(data.bids) ? data.bids.slice(0, 10) : [],
+                asks: Array.isArray(data.asks) ? data.asks.slice(0, 10) : [],
             };
 
             console.log('格式化后的深度数据:', formattedData);
