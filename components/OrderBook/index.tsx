@@ -80,28 +80,30 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       console.log('处理后买单数据:', buyOrders);
 
       // 计算当前价格
-      if (sellOrders.length > 0 && buyOrders.length > 0) {
-        const midPrice = (sellOrders[0].price + buyOrders[0].price) / 2;
+      if (bookData.asks?.length > 0 && bookData.bids?.length > 0) {
+        const topAskPrice = Number(bookData.asks[0][0]);
+        const topBidPrice = Number(bookData.bids[0][0]);
+        const midPrice = (topAskPrice + topBidPrice) / 2;
         if (currentPrice === 0) {
           setCurrentPrice(midPrice);
         }
         
         // 计算买卖比例
-        const totalSellAmount = sellOrders.reduce((sum, order) => sum + order.amount, 0);
-        const totalBuyAmount = buyOrders.reduce((sum, order) => sum + order.amount, 0);
+        const totalSellAmount = bookData.asks.reduce((sum, item) => sum + Number(item[1]), 0);
+        const totalBuyAmount = bookData.bids.reduce((sum, item) => sum + Math.abs(Number(item[1])), 0);
         const total = totalSellAmount + totalBuyAmount;
         
         if (total > 0) {
           setBuyRatio(Number(((totalBuyAmount / total) * 100).toFixed(2)));
           setSellRatio(Number(((totalSellAmount / total) * 100).toFixed(2)));
         }
-      } else if (sellOrders.length > 0 && currentPrice === 0) {
-        setCurrentPrice(sellOrders[0].price);
-      } else if (buyOrders.length > 0 && currentPrice === 0) {
-        setCurrentPrice(buyOrders[0].price);
+      } else if (bookData.asks?.length > 0 && currentPrice === 0) {
+        setCurrentPrice(Number(bookData.asks[0][0]));
+      } else if (bookData.bids?.length > 0 && currentPrice === 0) {
+        setCurrentPrice(Number(bookData.bids[0][0]));
       }
     }
-  }, [bookData, currentPrice, priceScale, sellOrders, buyOrders]);
+  }, [bookData, currentPrice, priceScale]); // 移除 sellOrders 和 buyOrders 依赖
 
   // 添加处理交易数据的效果
   useEffect(() => {
@@ -109,13 +111,16 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       const processedTrades = orderData.map((item) => {
         // 解析JSON字符串
         const tradeData = item.data
+        // 检查数据是否有效
+        if (!tradeData) return null;
+        
         return {
-          price: tradeData?.buy_price, // 或 sell_price，它们是相同的
-          amount: tradeData?.quantity,
-          time: new Date(tradeData?.timestamp).toLocaleTimeString(),
+          price: Number(tradeData?.buy_price) || 0, // 确保数值有效
+          amount: Number(tradeData?.quantity) || 0,
+          time: tradeData?.timestamp ? new Date(tradeData.timestamp).toLocaleTimeString() : '--',
           type: tradeData?.taker_side === 'Buy' ? 'buy' : 'sell'
         };
-      });
+      }).filter(trade => trade !== null); // 过滤掉无效的交易数据
       
       // 确保 processedTrades 中的 type 字段是 "buy" 或 "sell"
       const typedProcessedTrades = processedTrades.map(trade => ({
@@ -136,14 +141,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           if (prevPrice > 0) {
             // 设置价格方向
             setPriceDirection(newPrice > prevPrice ? 'up' : newPrice < prevPrice ? 'down' : '');
-            
-            // 更新trades数组中的第一个元素
-            setTrades(prev => {
-              return [typedProcessedTrades[0], ...prev.slice(1)];
-            });
           }
           
-          // 无论当前显示模式如何，始终将当前价格更新为最新成交价
+          // 更新当前价格为最新成交价
           setCurrentPrice(newPrice);
           setPriceSource(newType);
           
@@ -152,7 +152,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       }
       
       // 计算最近20条交易的买卖单占比
-      const recentTrades = processedTrades.slice(0, 20);
+      const recentTrades = typedProcessedTrades.slice(0, 20);
       let buyCount = 0;
       let sellCount = 0;
       
@@ -172,7 +172,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
-  }, [orderData]); // 移除colorMode依赖，确保总是更新最新成交价
+  }, [orderData]); // 保持正确的依赖项
 
   const renderColorModeButtons = () => {
     return (
