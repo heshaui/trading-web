@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { add, cut, division, lastD,roundDown } from '@/utils'
-import { getOrderList, getExchangeCoinList } from '@/services/spot'
+import { getOrderList, getExchangeCoinList ,getOrderInfo} from '@/services/spot'
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
@@ -84,7 +84,6 @@ const SpotMainPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
-
 
 
   const columns: ColumnsType<DataType> = [
@@ -281,7 +280,35 @@ const SpotMainPage = () => {
       setLoading(false)
     }
   }
-
+const getOrderListData2=async()=>{
+  setLoading(true);
+  const record=form.getFieldsValue(['symbol'])?.find((item:any)=>item.value===selectParam.current.symbol);
+  try {
+    // 请求数据
+    const params = {
+      page: 1,
+      pageSize: 1000,
+      // orderId: record.orderId,
+      symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+    };
+    const res = await getOrderInfo(params);
+    if (res.code === '0') {
+      const newData = res.data.records.map((item: any) => ({
+        ...item,
+        userLoginLogs: []
+      }));
+      setTableData(newData);
+      setTotal(res.data.total);
+    } else {
+      toast.error(res.message);
+    }
+  } catch (error) {
+    toast.error(String(error));
+  } finally {
+    setLoading(false);
+  }
+  
+}
   const getCoinList = async () => {
     try {
       const res = await getExchangeCoinList();
@@ -295,12 +322,12 @@ const SpotMainPage = () => {
             tenantId: item.tenantId
           }
         })
-        setSymbolSelect([
-          {
-            label: t('spot.select.all'),
-            value: ''
-          },
-          ...selectData])
+
+        setSymbolSelect(selectData)
+          // 设置默认值
+          form.setFieldsValue({
+            symbol: selectData[0].value
+          })
       }
     } catch (error) {
       toast.error(String(error))
@@ -391,7 +418,7 @@ const SpotMainPage = () => {
               />
             </Form.Item>
             <Form.Item name="symbol" >
-              <Select allowClear
+              <Select allowClear={false}
                 placeholder={t('spot.select.all')}
                 options={symbolSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
@@ -402,7 +429,7 @@ const SpotMainPage = () => {
                 }}
               />
             </Form.Item>
-            <Form.Item name="hideAllCancel" >
+            {/* <Form.Item name="hideAllCancel" >
               <Checkbox
                 defaultChecked={false}
                 className={` mt-8`}
@@ -415,7 +442,7 @@ const SpotMainPage = () => {
                   {t('spot.select.hideAllCancel')}
                 </span>
               </Checkbox>
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </div>
         <div className={`${styles.table_content} w-full `}>

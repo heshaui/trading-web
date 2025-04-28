@@ -20,28 +20,20 @@ import { useCoinList } from '@/hooks/use-coinList';
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
-  orderId: string,
-  amount: number,
-  baseSymbol: string,
-  canceledTime: number,
-  coinSymbol: string,
-  completedTime: number,
-  direction: number,
-  userId: number,
-  price: number,
-  status: number,
-  symbol: string,
-  createTime: number,
-  updateTime: number,
-  tradedAmount: number,
-  turnover: number,
-  type: number,
-  useDiscount: number,
-  orderResource: number,
   tenantId: string,
-  fee: number,
-  baseSymbolCount: number,
-  groupStatus: string
+  buyOrderId: number,
+  sellOrderId: number,
+  buyerUserId: number,
+  sellerUserId: number,
+  buyPrice: number,
+  sellPrice: number,
+  tradePrice: number,
+  quantity: number,
+  takerSide: number,
+  buyFee: number,
+  sellFee: number,
+  ctime: string,
+  mtime: string
 }
 interface DataType {
   id: number,
@@ -276,6 +268,8 @@ const SpotMainPage = () => {
           return <span >{t('spot.select.partial') || '--'}</span>;
         } else if (_status === 6) {
           return <span >{t('spot.select.canceled2') || '--'}</span>;
+        }else{
+          return <span >{_status}</span>;
         }
       },
     },
@@ -284,25 +278,35 @@ const SpotMainPage = () => {
   ];
   const columns2: ColumnsType<DataLogsType> = [
     {
-      title: '成交时间',
-      dataIndex: "completedTime",
-      key: "completedTime",
-      width: 158,
+      title: t('spot.columns.tradeTime'),//成交时间
+      dataIndex: "mtime",
+      key: "mtime",
+      width: 128,
       align: "left",
-      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
-      title: "成交价",
-      dataIndex: "token",
-      key: "token",
+      title: t('spot.columns.tradePrice'),//成交价
+      dataIndex: "buyPrice",
+      key: "buyPrice",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      // 判断方向是买还是卖 buyPrice/sellPrice
+      render: (_buyPrice,record) => {
+        const flag = record.takerSide
+        if(flag === 0){
+          return <span>{_buyPrice || '--'}</span>
+        }else if(flag === 1){
+          return <span>{record.sellPrice || '--'}</span>
+        }else{
+          return '--'
+        }
+      },
     },
     {
-      title: "成交数量",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeCount'),//成交数量
+      dataIndex: "quantity",
+      key: "quantity",
       align: "center",
       width: 158,
       render: (_status) => {
@@ -311,9 +315,9 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: "成交金额",
-      key: "createTime",
-      dataIndex: "createTime",
+      title: t('spot.columns.tradeAmount'),//成交金额
+      key: "tradePrice",
+      dataIndex: "tradePrice",
       width: 128,
       align: "center",
       render: (_ip) => {
@@ -321,24 +325,39 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: "手续费",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeFee'),//手续费
+      dataIndex: "buyFee",
+      key: "buyFee",
       align: "center",
       width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
+      render: (_buyFee,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol.split('/')[1]
+        
+        const flag = record.takerSide
+        if(flag === 0){
+          return <span>{`${_buyFee} ${symbolName}` || '--'}</span>
+        }else if(flag === 1){
+          return <span>{`${record.sellFee} ${symbolName}` || '--'}</span>
+        }else{
+          return '--'
+        }
       },
     },
     {
-      title: "角色",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: t('spot.columns.tradeRole'),//角色
+      key: "buyerUserId",
+      dataIndex: "buyerUserId",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_buyerUserId,record) => {
+        const flag = record.takerSide
+        if(flag === 0){
+          return <span>{_buyerUserId || '--'}</span>
+        }else if(flag === 1){
+          return <span>{record.sellerUserId || '--'}</span>
+        }else{
+          return '--'
+        }
       },
     }
   ]
@@ -382,29 +401,37 @@ const SpotMainPage = () => {
     await getOrderListData()
   }
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
-  const handleExpand = (expanded: boolean, record: DataType) => {
-    getOrderInfoData(record.symbol,record.orderId,record.groupStatus)
+  const handleExpand = async (expanded: boolean, record: DataType) => {
     if (expanded) {
-      // 设置展开的行
-      setExpandedRowKeys([record.orderId]);
-
-      // 设置子数据
-      if (record.userLoginLogs && record.userLoginLogs.length > 0) {
-        setChildDeviceNoData(record.userLoginLogs);
-      } else {
-        setChildDeviceNoData([]);
+      setLoading(true);
+      try {
+        // 请求数据
+        const params = {
+          page: 1,
+          pageSize: 1000,
+          orderId: record.orderId,
+          symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+        };
+        const res = await getOrderInfo(params);
+        if (res.code === '0') {
+          // 更新当前行的 userLoginLogs
+          setTableData(prev =>
+            prev.map(item =>
+              item.orderId === record.orderId
+                ? { ...item, userLoginLogs: res.data?.records || [] }
+                : item
+            )
+          );
+          setExpandedRowKeys([record.orderId]);
+        } else {
+          toast.error(res.message);
+        }
+      } catch (error) {
+        toast.error(String(error));
+      } finally {
+        setLoading(false);
       }
-
-      // // 如果URL中有deviceId参数，则清除它
-      // if (router.query.deviceId) {
-      //   const { deviceId, ...restQuery } = router.query;
-      //   router.replace({
-      //     pathname: router.pathname,
-      //     query: restQuery
-      //   }, undefined, { shallow: true });
-      // }
     } else {
-      // 清空展开行
       setExpandedRowKeys([]);
       setChildDeviceNoData([]);
     }
@@ -631,10 +658,7 @@ const SpotMainPage = () => {
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
               expandedRowRender: (record) => {
-                // 使用当前展开行的ID来确定是否显示子数据
                 const isCurrentExpanded = expandedRowKeys.includes(record.orderId);
-
-
                 return (
                   <div key={record.orderId}>
                     {isCurrentExpanded && record.userLoginLogs && record.userLoginLogs.length > 0 ? (
@@ -643,10 +667,8 @@ const SpotMainPage = () => {
                         dataSource={record.userLoginLogs}
                         size="large"
                         scroll={{ x: "max-content" }}
-                        // showHeader={false}
                         pagination={false}
                         className={`spot-table-box2 ${styles.rowExpanded_table_box}`}
-                        // style={{ padding: 0 }}
                         rowKey="orderId"
                         locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                       />

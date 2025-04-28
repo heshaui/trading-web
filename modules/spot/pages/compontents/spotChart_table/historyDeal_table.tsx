@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList } from '@/services/spot'
-import { add, cut, division, lastD,roundDown } from '@/utils'
+import { add, cut, division, lastD, roundDown } from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
@@ -51,8 +51,8 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-        // 获取币种列表
-        const {coinList} = useCoinList();
+  // 获取币种列表
+  const { coinList } = useCoinList();
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const router = useRouter();
@@ -71,7 +71,7 @@ const SpotMainPage = observer(() => {
     endTime: null,
     hideOther: false,
   })
-  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
+  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
 
   const columns: ColumnsType<DataType> = [
@@ -90,14 +90,14 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
-      onClick={()=>{
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-      }}
+        onClick={() => {
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
       >
         {_text || '--'}
         <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
       </button >,
-    
+
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -136,10 +136,10 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradedAmount",
       width: 128,
       align: "center",
-      render: (_status,record) => {
+      render: (_status, record) => {
         const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
 
-        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
       },
     },
 
@@ -149,9 +149,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status,record) => {
+      render: (_status, record) => {
         const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
       },
     },
     {
@@ -187,20 +187,15 @@ const SpotMainPage = observer(() => {
     paramdataRef.current = pageData;
     getOrderListData()
   }
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
-
-
-  }
   const getOrderListData = async () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 2,
-      coinSymbol: selectParam.current.hideOther ? `${currentPair?.coinSymbol}`:null,
-      baseSymbol: selectParam.current.hideOther ? `${currentPair?.baseSymbol}`:null,
-      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():null,
-      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():null,
+      coinSymbol: selectParam.current.hideOther ? `${currentPair?.coinSymbol}` : null,
+      baseSymbol: selectParam.current.hideOther ? `${currentPair?.baseSymbol}` : null,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
     }
     setLoading(true)
     try {
@@ -222,117 +217,142 @@ const SpotMainPage = observer(() => {
       setLoading(false)
     }
   }
-  const selectParamChange = (type: string) => {
-    if (loading) return toast.error('loading...')
-    selectParam.current.hideOther = !selectParam.current.hideOther
-    getOrderListData()
+  const getOrderListData2 = async () => {
+    const params = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      // orderType: 2,
+      symbol: `${currentPair.symbol.split('/').join('_')}_${currentPair.groupStatus}`,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+    }
+    setLoading(true)
+    try {
+      const res = await getOrderList(params)
+      if (res.code === '0') {
+        const newData = res.data.records
+        setInitTableData(newData);
+        setTableData(newData);
+        setTotal(res.data.total);
+      }
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setLoading(false)
+    }
   }
-  const dateChange = (value: any) => {
+    const selectParamChange = (type: string) => {
+      if (loading) return toast.error('loading...')
+      selectParam.current.hideOther = !selectParam.current.hideOther
+      getOrderListData()
+    }
+    const dateChange = (value: any) => {
 
-    const startTime = value ? dayjs(value[0]).valueOf() : null
-    const endTime = value ? dayjs(value[1]).valueOf() : null
-    // const startTime =value[0].value()
-    // const endTime =  value[1].value()
-    selectParam.current.startTime = startTime
-    selectParam.current.endTime = endTime
-    getOrderListData()
-  }
-  useEffect(() => {
-    getOrderListData()
-  }, [])
-  return (<>
-    <ConfigProvider
-      theme={{
-        components: {
-          Table: {
-            // bodySortBg: "pink",
-            headerBg: "transparent",
-            headerColor: "var(--text-color4)",
-            headerSplitColor: "transparent", // 表头分割线颜色
-            rowExpandedBg: "var(--background10)", // 表格行展开背景色
-            borderColor: "transparent",
-            // stickyScrollBarBg:"transparent",
-            headerBorderRadius: 0, // 表头圆角
-          },
-          Pagination: {
-            itemActiveBg: "transparent",
-            itemBg: "transparent",
-          },
+      const startTime = value ? dayjs(value[0]).valueOf() : null
+      const endTime = value ? dayjs(value[1]).valueOf() : null
+      // const startTime =value[0].value()
+      // const endTime =  value[1].value()
+      selectParam.current.startTime = startTime
+      selectParam.current.endTime = endTime
+      getOrderListData()
+    }
+    useEffect(() => {
+      getOrderListData()
+    }, [currentPair])
+    return (<>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              // bodySortBg: "pink",
+              headerBg: "transparent",
+              headerColor: "var(--text-color4)",
+              headerSplitColor: "transparent", // 表头分割线颜色
+              rowExpandedBg: "var(--background10)", // 表格行展开背景色
+              borderColor: "transparent",
+              // stickyScrollBarBg:"transparent",
+              headerBorderRadius: 0, // 表头圆角
+            },
+            Pagination: {
+              itemActiveBg: "transparent",
+              itemBg: "transparent",
+            },
 
-          Select: {
-            activeBorderColor: "var(--border-color4)",
-            optionActiveBg: "transparent",
-            selectorBg: "transparent", //选框背景色
+            Select: {
+              activeBorderColor: "var(--border-color4)",
+              optionActiveBg: "transparent",
+              selectorBg: "transparent", //选框背景色
+            },
+            DatePicker: {
+              activeBg: "var(--background7)",
+            }
           },
-          DatePicker: {
-            activeBg: "var(--background7)",
+          token: {
+            colorBgContainer: 'transparent',
           }
-        },
-        token: {
-          colorBgContainer: 'transparent',
-        }
-      }}
-    >
-      {/* 充值 */}
-      <div className={`${styles.table_box} w-full `}>
-        <div className={`${styles.table_header} w-full mb-6 flex align-center px-6`}>
-          <Form
-            form={form}
-            layout="inline"
-            initialValues={{
-              type: '',
-              direction: '',
-              symbol: ''
-            }}
-          >
-            <Form.Item name="time" >
-              <RangePicker
-                className={`${styles.rangePicker_box} custom-range-picker mt-6`}
-                suffixIcon={<Iconify icon="cuida:calendar-outline"
-                  className={`${styles.title_color}`} size={20} />}
-                placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
-                onChange={dateChange}
-                size='large'
-              />
-            </Form.Item>
-            <div className={`${styles.table_header_checkbox3}`}>
-              <Form.Item name="hideOther" >
-                <Checkbox
-                  // checked={hideZero}
-                  // onChange={hideZeroChange}
-                  className='mt-7'
-                >
-                  <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
-                </Checkbox>
+        }}
+      >
+        {/* 充值 */}
+        <div className={`${styles.table_box} w-full `}>
+          <div className={`${styles.table_header} w-full mb-6 flex align-center px-6`}>
+            <Form
+              form={form}
+              layout="inline"
+              initialValues={{
+                type: '',
+                direction: '',
+                symbol: ''
+              }}
+            >
+              <Form.Item name="time" >
+                <RangePicker
+                  className={`${styles.rangePicker_box} custom-range-picker mt-6`}
+                  suffixIcon={<Iconify icon="cuida:calendar-outline"
+                    className={`${styles.title_color}`} size={20} />}
+                  placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
+                  onChange={dateChange}
+                  size='large'
+                />
               </Form.Item>
-            </div>
-          </Form>
-        </div>
-        <div className={`${styles.table_content} w-full `}>
+              <div className={`${styles.table_header_checkbox3}`}>
+                <Form.Item name="hideOther" >
+                  <Checkbox
+                    // checked={hideZero}
+                    // onChange={hideZeroChange}
+                    className='mt-7'
+                  >
+                    <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideOther')}</span>
+                  </Checkbox>
+                </Form.Item>
+              </div>
+            </Form>
+          </div>
+          <div className={`${styles.table_content} w-full `}>
 
-          <Table
-            columns={columns}
-            dataSource={tableData}
-            size="large"
-            // scroll={{ x: "max-content", y: 300 }}
-            className={`spot-table-box`}
-            pagination={{
-              position: ["bottomRight"],
-              // showSizeChanger: true,
-              total: total,
-              size: "default",
-              simple: true,
-              onChange: (page, pageSize) => pageChange(page, pageSize),
-            }}
-            loading={loading}
-            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-          />
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              size="large"
+              // scroll={{ x: "max-content", y: 300 }}
+              scroll={{ x: "max-content" }}
+              className={`spot-table-box`}
+              pagination={{
+                position: ["bottomRight"],
+                // showSizeChanger: true,
+                total: total,
+                size: "default",
+                simple: true,
+                onChange: (page, pageSize) => pageChange(page, pageSize),
+              }}
+              loading={loading}
+              locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+            />
 
+          </div>
         </div>
-      </div>
-    </ConfigProvider>
-  </>
-  );
-});
+      </ConfigProvider>
+    </>
+    );
+  });
 
 export default SpotMainPage;

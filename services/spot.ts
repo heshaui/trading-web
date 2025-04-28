@@ -113,7 +113,7 @@ export function canalUserExchangeCoinType(data: any): Promise<any> {
 
 // 历史委托详情
 export function getOrderInfo(data:any): Promise<any> {
-    return request(`${fixUrl}/user-web/v1/trades`, {
+    return request(`${fixUrl}/user-trade/v1/trades`, {
         method: 'POST',
         body:JSON.stringify(data)
     });

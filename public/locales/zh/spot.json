@@ -39,7 +39,13 @@
             "market":"市价委托",
             "withdrawError":"用户禁止提现",
             "depositError":"用户禁止充值",
-            "tradeError":"用户禁止交易"
+            "tradeError":"用户禁止交易",
+            "tradeTime":"成交时间",
+            "tradePrice":"成交价",
+            "tradeCount":"成交数量",
+            "tradeAmount":"成交金额",
+            "tradeFee":"手续费",
+            "tradeRole":"角色"
         },
         "select":{
             "all":"全部",

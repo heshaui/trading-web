@@ -25,6 +25,9 @@ interface DataType {
     coinId: string,
     coinName: string
 }
+type Props = {
+    orderUpdateFlag?: number
+}
 const AssetsMainPage = () => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
