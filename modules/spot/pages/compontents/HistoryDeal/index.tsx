@@ -155,7 +155,14 @@ const SpotMainPage =observer( () => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        return <span >{_status && record.direction ? division(_status, record.direction) : '0'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // let turnover 
+        // if(record.direction === 0){
+        //   turnover = record.turnover
+        // }else if(record.direction === 1){
+        //   turnover = record.turnover
+        // }
+        return <span >{_status  ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
 
       },
     },
@@ -293,7 +300,8 @@ const getOrderListData2=async()=>{
       page: 1,
       pageSize: 1000,
       // orderId: record.orderId,
-      symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+      // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+      symbol: `${record.symbol.split('/').join('_')}`
     };
     const res = await getOrderInfo(params);
     if (res.code === '0') {
