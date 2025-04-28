@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import WebSocketService from '@/utils/websocket';
 
-interface TradingviewProps {
+export interface TradingviewProps {
   symbol?: string;
   showLeftToolbar?: boolean;
   chartType?: number;
@@ -11,13 +17,26 @@ interface TradingviewProps {
   timeInterval?: string;
 }
 
-const Tradingview: React.FC<TradingviewProps> = ({ 
-  symbol,
-  showLeftToolbar = false,
-  chartType = 9,
-  klineData = [],
-  timeInterval = "1D"
-}) => {
+export interface TradingviewRefHandle {
+  addVolumeDistribution: () => void;
+  resetChart: () => void;
+  handleAddIndicator: () => void;
+  handleChartScreenshot: () => void;
+}
+
+const Tradingview: React.ForwardRefRenderFunction<
+  TradingviewRefHandle,
+  TradingviewProps
+> = (
+  {
+    symbol,
+    showLeftToolbar = false,
+    chartType = 9,
+    klineData = [],
+    timeInterval = "1D"
+  },
+  ref
+) => {
   // console.log(klineData,'klineData');
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
@@ -49,12 +68,24 @@ const Tradingview: React.FC<TradingviewProps> = ({
     { text: "Area", type: 3 },
     { text: "Heikin Ashi", type: 13 },
   ]);
-  const [target] = useState([
+ 
+  const [target, setTarget] = useState<any[]>([
     { text: "EMA" },
     { text: "MACD" },
     { text: "KDJ" },
     { text: "BOLL" },
-    { text: "RSI" },
+    { text: "RSI-S-I" },
+    { text: "Stochastic" },
+    { text: "S-RSI" },
+    { text: "TRIX" },
+    { text: "PO" },
+    { text: "PC" },
+    { text: "PVT" },
+    { text: "CC" },
+    { text: "KST" },
+    { text: "Momentum" },
+    { text: "DM" },
+    { text: "AO" },
   ]);
   const wsDataRef = useRef(klineData);
   const initCompletedRef = useRef(false);
@@ -188,11 +219,54 @@ const Tradingview: React.FC<TradingviewProps> = ({
     }
   };
 
-  const addIndicator = (studyName: string) => {
+  //图表截图
+  const handleChartScreenshot = () => {
     if (tvWidget) {
-      tvWidget.chart().createStudy(studyName, false, true, [], null, {});
+      tvWidget.chart().executeActionById('screenshot');
     }
   };
+
+  //技术指标搜索
+  const handleAddIndicator = () => {
+    if (tvWidget) {
+      tvWidget.chart().executeActionById('insertIndicator');
+    }
+  };
+
+  //成交量分布
+  const addVolumeDistribution = () => {
+    if (tvWidget) {
+      tvWidget
+        .chart()
+        .createStudy("Volume Profile Visible Range", false, false, [
+          /* ... 参数 ... */
+        ]);
+    }
+  };
+
+  //重置图表
+  const resetChart = () => {
+    if (tvWidget) {
+      tvWidget.chart().removeAllShapes();
+      tvWidget
+        .chart()
+        .getAllStudies()
+        .forEach((study: any) => {
+          // 移除指标
+          if (study.name != "Volume") {
+            tvWidget.chart().removeEntity(study.id);
+          }
+        });
+    }
+  };
+
+  // expose imperative handlers
+  useImperativeHandle(ref, () => ({
+    addVolumeDistribution,
+    resetChart,
+    handleAddIndicator,
+    handleChartScreenshot
+  }));
 
   const setChartType = (typeCode: number) => {
     if (tvWidget) {
@@ -458,8 +532,11 @@ const Tradingview: React.FC<TradingviewProps> = ({
         ref={chartContainerRef}
         style={{ width: "100%", height: "500px", margin: "auto" }}
       ></div>
-
-
+      <ul style={{ display: "flex", }} >
+        {target.map((item, index) => (
+          <li key={index}>{item.text}</li>
+        ))}
+      </ul>
     </div>
   );
 };
@@ -472,4 +549,4 @@ declare global {
   }
 }
 
-export default Tradingview;
+export default forwardRef(Tradingview);

@@ -17,7 +17,7 @@ import SpotChartAssets from '../compontents/spotChart_assets'
 import SpotChartTrade from '../compontents/spotChart_trade'
 import SpotHeaderPage from '../compontents/spotChart_header'
 import KlineChart from '@/components/KlineChart'
-import Tradingview from '@/components/Tradingview'
+import Tradingview, { TradingviewRefHandle } from '@/components/Tradingview'
 import DepthChart from '@/components/DepthChart'
 import OrderBook from '@/components/OrderBook'
 import WebSocketService from '@/utils/websocket';
@@ -85,6 +85,7 @@ const ExchangePage = () => {
         { label: 'TradingView', value: 'tradingview' },
         { label: '深度图', value: 'depth' }
     ]);
+ 
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
     const [depthData, setDepthData] = useState<any>();
     const [orderData, setOrderData] = useState<any[]>([]);
@@ -92,6 +93,8 @@ const ExchangePage = () => {
     const [groupData, setGroupData] = useState<any[]>([]);
     const [currentPair, setCurrentPair] = useState<any>();
     const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
+    // ref to access Tradingview methods
+    const tradingviewRef = useRef<TradingviewRefHandle>(null);
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
@@ -508,6 +511,10 @@ const ExchangePage = () => {
             key: 13,
             label: '面积图',
         },
+        {
+            key: 3,
+            label: '线型图',
+        },
     ];
 
     const handleChartTypeChange = (e: { key: string }) => {
@@ -650,16 +657,22 @@ const ExchangePage = () => {
                                             <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                         </Dropdown>
                                         <Tooltip title="技术指标">
-                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
+                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} onClick={() => tradingviewRef.current?.handleAddIndicator()} />
                                         </Tooltip>
                                         <Tooltip title="图表重置">
-                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20} />
+                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.resetChart()}/>
                                         </Tooltip>
-                                        <Tooltip title="图表截图">
-                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20} />
-                                        </Tooltip>
+                                        {/* <Tooltip title="图表截图">
+                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
+                                        </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
                                         <Tooltip title="成交量分布">
-                                            <Image src="/images/exchange/icon_value.png" alt="exchange" width={20} height={20} />
+                                            <Image
+                                                src="/images/exchange/icon_value.png"
+                                                alt="exchange"
+                                                width={20}
+                                                height={20}
+                                                onClick={() => tradingviewRef.current?.addVolumeDistribution()}
+                                            />
                                         </Tooltip>
                                     </Space>
                                 </div>
@@ -689,6 +702,7 @@ const ExchangePage = () => {
                             <Spin spinning={loading} tip="加载中...">
                                 {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
                                     <Tradingview
+                                        ref={tradingviewRef}
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
                                         symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')}
                                         showLeftToolbar={activeChartType === 'basic' ? false : true}

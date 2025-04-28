@@ -652,9 +652,6 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                     >
                         <Form.Item name='price'
                             className='spot_number_box'
-                            rules={[
-                                { validator: checkPriceDeviation }
-                            ]}
                         >
                             <InputNumber
                                 className={`${styles.mail_input} spot_number_input2 `}
