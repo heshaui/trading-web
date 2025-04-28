@@ -46,6 +46,7 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
     })
     const paramdataRef = useRef(pageParam);
 
+console.log(orderUpdateFlag,123344);
 
     const items: TabsProps['items'] = [
         {
