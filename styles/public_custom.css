@@ -472,7 +472,12 @@
     color: var(--text-color5) !important;
 }
 .spot-pagination .ant-pagination-simple-pager input{
-    color: #0C0D0C !important;
+    background: transparent !important;
+    color: var(--text-color5) !important;
+}
+/* 表格排序图标颜色 */
+.spot-table-box .ant-table-column-sorter{
+    color: var(--text-color5) !important;
 }
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body,
@@ -526,6 +531,8 @@
 }
 .custom-tabs2 .ant-tabs-tab{
     margin: 0 0 0 24px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 .spot-tabs .ant-tabs-nav::before{
     border-color: transparent !important;

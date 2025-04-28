@@ -36,7 +36,7 @@
 }
 
 .active_tab {
-    color: #0C0D0C;
+     color: var(--text-color5);
     font-weight: 500;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .scroll_arrow:hover {
-    color: #0C0D0C;
+     color: var(--text-color5);
     background-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -225,3 +225,6 @@
     color:  #0C0D0C !important;
     font-weight: 500;
 }
+.title_color {
+    color: var(--text-color5);
+  }
