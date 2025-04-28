@@ -553,7 +553,7 @@ const ExchangePage = () => {
                     },
                 }}
             >
-                <div className={`${styles.card_bgc4} w-full  mb-1`}>
+                <div className={`${styles.card_bgc4} w-full  mb-1`} style={{minWidth:'1135px'}}>
                     <SpotHeaderPage coinData={coinData} />
                 </div>
 

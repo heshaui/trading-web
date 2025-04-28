@@ -148,10 +148,11 @@ const SpotMainPage =observer( () => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
         return <>
         <div className='flex-x-cc'>
-          <p className='text-center '> {_status||'0'}</p>
+          <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button 
             onClick={()=>{
