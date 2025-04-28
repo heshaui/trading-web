@@ -45,8 +45,6 @@ const Tradingview: React.ForwardRefRenderFunction<
   const [showIntervalDialog, setShowIntervalDialog] = useState(false);
   const [tradTime, setTradTime] = useState("1D");
   const [intervals] = useState([
-    "10S",
-    "30S",
     "1",
     "3",
     "5",
@@ -208,6 +206,7 @@ const Tradingview: React.ForwardRefRenderFunction<
   const setChartInterval = (interval: string) => {
     if (tvWidget) {
       let tvInterval = interval || "1";
+      
       if (interval === "1m") tvInterval = "1";
       if (interval === "3m") tvInterval = "3";
       if (interval === "5m") tvInterval = "5";
@@ -343,6 +342,10 @@ const Tradingview: React.ForwardRefRenderFunction<
 
   const createDatafeed = (initialData: any, timeInterval: string, symbol:string) => {
     const subscribers: any = {};
+    // 添加请求缓存对象
+    const requestCache: {[key: string]: {timestamp: number, data: any}} = {};
+    // 缓存过期时间(毫秒)
+    const CACHE_EXPIRY = 30000; // 30秒
     
     // 先定义时间格式化函数
     const formatTimeValue = (timeValue: any): number => {
@@ -440,7 +443,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     return {
       onReady: (cb: any) => {
         setTimeout(() => cb({
-          supported_resolutions: intervals,
+          supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M"],
           supports_marks: false,
           supports_timescale_marks: false,
           supports_time: true
@@ -506,7 +509,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           has_intraday: true,
           has_no_volume: false,
           has_weekly_and_monthly: true,
-          supported_resolutions: intervals,
+          supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M"],
           volume_precision: 8,
           data_status: "streaming",
         }), 0);
@@ -523,28 +526,63 @@ const Tradingview: React.ForwardRefRenderFunction<
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
           
-          // 使用传入的 timeInterval 参数而不是 resolution
+          // 创建缓存键
+          const cacheKey = `${symbol}_${timeInterval}_${startTime}_${endTime}`;
+          
+          // 检查缓存中是否有有效数据
+          const now = Date.now();
+          if (requestCache[cacheKey] && 
+              now - requestCache[cacheKey].timestamp < CACHE_EXPIRY) {
+            console.log("使用缓存数据:", cacheKey);
+            const cachedData = requestCache[cacheKey].data;
+            
+            if(cachedData.type === 'kline' && Array.isArray(cachedData.data)) {
+              const formattedBars = cachedData.data.map((kline: any) => ({
+                time: kline[0],
+                open: parseFloat(kline[1]),
+                high: parseFloat(kline[2]),
+                low: parseFloat(kline[3]),
+                close: parseFloat(kline[4]),
+                volume: parseFloat(kline[5])
+              }));
+              
+              onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+              return;
+            }
+          }
+          
+          // 如果缓存中没有数据或已过期，则发送请求
           const url = `https://ws81.imsaas.work/kline/${symbol}/${timeInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
           console.log("获取图表数据:", url);
           const response = await fetch(url);
           
-          if(response.status === 200) {}
-          const data = await response.json();
-          
-          if(data.type === 'kline' && Array.isArray(data.data)) {
-            const formattedBars = data.data.map((kline: any) => ({
-              time: kline[0],
-              open: parseFloat(kline[1]),
-              high: parseFloat(kline[2]),
-              low: parseFloat(kline[3]),
-              close: parseFloat(kline[4]),
-              volume: parseFloat(kline[5])
-            }));
+          if(response.status === 200) {
+            const data = await response.json();
             
-            onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+            // 将结果存入缓存
+            requestCache[cacheKey] = {
+              timestamp: now,
+              data: data
+            };
+            
+            if(data.type === 'kline' && Array.isArray(data.data)) {
+              const formattedBars = data.data.map((kline: any) => ({
+                time: kline[0],
+                open: parseFloat(kline[1]),
+                high: parseFloat(kline[2]),
+                low: parseFloat(kline[3]),
+                close: parseFloat(kline[4]),
+                volume: parseFloat(kline[5])
+              }));
+              
+              onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+            } else {
+              console.error('获取历史数据格式错误:', data);
+              onHistoryCallback([], { noData: true });
+            }
           } else {
-            console.error('获取历史数据格式错误:', data);
+            console.error('API请求失败:', response.status);
             onHistoryCallback([], { noData: true });
           }
         } catch (error) {
