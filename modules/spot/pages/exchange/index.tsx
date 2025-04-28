@@ -582,7 +582,7 @@ const ExchangePage = () => {
                                             {item}
                                             {item === '1D' && (
                                                 <Dropdown
-                                                    trigger={['click']}
+                                                    trigger={['hover']}
                                                     placement="bottomRight"
                                                     dropdownRender={() => (
                                                         <div style={{
@@ -601,6 +601,7 @@ const ExchangePage = () => {
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         setTimeInterval(option);
+                                                                    
                                                                     }}
                                                                     style={{
                                                                         padding: '10px',

@@ -100,6 +100,24 @@ const Tradingview: React.ForwardRefRenderFunction<
   const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
 
   useEffect(() => {
+    console.log(timeInterval)
+    
+    // 添加这段代码：将timeInterval转换为TradingView格式
+    let tvTimeInterval = timeInterval;
+    if (timeInterval === "1m") tvTimeInterval = "1";
+    if (timeInterval === "3m") tvTimeInterval = "3";
+    if (timeInterval === "5m") tvTimeInterval = "5";
+    if (timeInterval === "15m") tvTimeInterval = "15";
+    if (timeInterval === "30m") tvTimeInterval = "30";
+    if (timeInterval === "1h") tvTimeInterval = "60";
+    if (timeInterval === "2h") tvTimeInterval = "120";
+    if (timeInterval === "4h") tvTimeInterval = "240";
+    if (timeInterval === "6h") tvTimeInterval = "360";
+    if (timeInterval === "8h") tvTimeInterval = "480";
+    if (timeInterval === "12h") tvTimeInterval = "720";
+    if (timeInterval === "1D") tvTimeInterval = "D";
+    if (timeInterval === "1W") tvTimeInterval = "W";
+    if (timeInterval === "1M") tvTimeInterval = "M";
     
     // 保存初始数据但不触发重渲染
     if (klineData && klineData.length > 0) {
@@ -111,7 +129,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     try {
       if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        datafeed = createDatafeed(wsDataRef.current, timeInterval, symbol || "BTC_USDT_1");
+        datafeed = createDatafeed(wsDataRef.current, tvTimeInterval, symbol || "BTC_USDT_1", timeInterval);
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
@@ -135,7 +153,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         const widgetOptions = {
           symbol: chartSymbol,
           datafeed: datafeed,
-          interval: timeInterval,
+          interval: tvTimeInterval,
           container: chartContainerRef.current,
           library_path: "/charting_library/",
           locale: "zh",
@@ -342,7 +360,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     }
   };
 
-  const createDatafeed = (initialData: any, timeInterval: string, symbol:string) => {
+  const createDatafeed = (initialData: any, tvTimeInterval: string, symbol: string, originalInterval: string) => {
     const subscribers: any = {};
     // 添加请求缓存对象
     const requestCache: {[key: string]: {timestamp: number, data: any}} = {};
@@ -528,8 +546,8 @@ const Tradingview: React.ForwardRefRenderFunction<
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
           
-          // 创建缓存键
-          const cacheKey = `${symbol}_${timeInterval}_${startTime}_${endTime}`;
+          // 创建缓存键，使用原始格式
+          const cacheKey = `${symbol}_${originalInterval}_${startTime}_${endTime}`;
           
           // 检查缓存中是否有有效数据
           const now = Date.now();
@@ -552,9 +570,9 @@ const Tradingview: React.ForwardRefRenderFunction<
               return;
             }
           }
-          
-          // 如果缓存中没有数据或已过期，则发送请求
-          const url = `https://ws81.imsaas.work/kline/${symbol}/${timeInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          console.log('请求的',originalInterval)
+          // 使用原始的时间间隔格式构建URL
+          const url = `https://ws81.imsaas.work/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
           console.log("获取图表数据:", url);
           const response = await fetch(url);
