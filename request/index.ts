@@ -57,7 +57,10 @@ export async function request<T>(
       toast.error(data.message);
       logout();
     }
-
+    if (data.code === '10046' ) {
+      toast.error(data.message);
+      logout();
+    }
     return data;
   } catch (error) {
     console.error('API 请求错误:', error);

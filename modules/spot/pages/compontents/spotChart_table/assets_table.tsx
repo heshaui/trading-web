@@ -71,13 +71,14 @@ const AssetsMainPage = () => {
         },
         {
             title: t('spot.columns.available'), //"可用",
-            dataIndex: "balance",
-            key: "balance",
+            dataIndex: "balance1",
+            key: "balance1",
             align: "center",
             // width: 158,
             render: (_text, record) => {
+                const text = record.balance
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
+                return <span >{text ?roundDown(text,coin?.unitScale):'0'}</span>;
 
             },
             sorter: (a, b) => a.balance - b.balance,
@@ -208,7 +209,35 @@ const AssetsMainPage = () => {
     useEffect(() => {
         getUserBalanceAllData();
     }, [])
-    return (<>
+    return (<><ConfigProvider
+        theme={{
+            components: {
+                Table: {
+                    // bodySortBg: "pink",
+                    headerBg: "transparent",
+                    headerColor: "var(--text-color6)",
+                    headerSplitColor: "transparent", // 表头分割线颜色
+                    rowExpandedBg: "var(--background10)", // 表格行展开背景色
+                    borderColor: "transparent",
+                    // stickyScrollBarBg:"transparent",
+                    headerBorderRadius: 0, // 表头圆角
+                },
+                Pagination: {
+                    itemActiveBg: "transparent",
+                    itemBg: "transparent",
+                },
+
+                Select: {
+                    activeBorderColor: "var(--border-color4)",
+                    optionActiveBg: "transparent",
+                    selectorBg: "transparent", //选框背景色
+                }
+            },
+            token: {
+                colorBgContainer: 'transparent',
+            }
+        }}
+    >
         <div className={`${styles.table_header}  my-4 ml-6 flex align-center justify-end ${styles.table_header_checkbox}`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
                 maxLength={25}
@@ -227,36 +256,7 @@ const AssetsMainPage = () => {
                     </Form> */}
         </div>
         <div className={`${styles.table_content} w-full `}>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Table: {
-                            // bodySortBg: "pink",
-                            headerBg: "transparent",
-                            headerColor: "var(--text-color6)",
-                            headerSplitColor: "transparent", // 表头分割线颜色
-                            rowExpandedBg: "var(--background10)", // 表格行展开背景色
-                            borderColor: "transparent",
-                            // stickyScrollBarBg:"transparent",
-                            headerBorderRadius: 0, // 表头圆角
-                        },
-                        Pagination: {
-                            itemActiveBg: "transparent",
-                            itemBg: "transparent",
-                        },
-
-                        Select: {
-                            activeBorderColor: "var(--border-color4)",
-                            optionActiveBg: "transparent",
-                            selectorBg: "transparent", //选框背景色
-                        }
-                    },
-                    token: {
-                        // colorBgContainerDisabled: '#fff',
-                        colorBgContainer: 'var(--background5)',
-                    }
-                }}
-            >
+            
                 <Table
                     columns={columns}
                     dataSource={tableData}
@@ -274,8 +274,9 @@ const AssetsMainPage = () => {
                     loading={tableLoading}
                     locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />
-            </ConfigProvider>
         </div>
+        </ConfigProvider>
+
     </>
     );
 };

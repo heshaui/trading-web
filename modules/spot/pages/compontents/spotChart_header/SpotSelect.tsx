@@ -172,6 +172,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         itemColor: "var(--text-color6)",
                         inkBarColor: "var(--text-color5)",
                     },
+                    Rate:{
+                        starBg:"#A4A5AC",
+                    }
                 },
             }}
         >

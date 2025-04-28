@@ -466,7 +466,7 @@ const SpotMainPage =observer( () => {
             dataSource={tableData}
             size="large"
             scroll={{ x: "max-content" }}
-            className={`spot-table-box spot-pagination `}
+            className={`spot-table-box spot-pagination`}
             pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,

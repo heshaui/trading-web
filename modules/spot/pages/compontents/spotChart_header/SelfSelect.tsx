@@ -170,6 +170,9 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                         itemColor: "var(--text-color6)",
                         inkBarColor: "var(--text-color5)",
                     },
+                    Rate:{
+                        starBg:"#A4A5AC",
+                    }
                 },
             }}
         >
@@ -307,6 +310,7 @@ const SelfSelect = ({ currencyPairs, onPairSelect, searchValue }: SelfSelectProp
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
                                 <span className={styles.favorite}>
+
                                     <Rate
                                         onChange={handleFavoriteChange}
                                         value={pair.isFavorite ? 1 : 0}

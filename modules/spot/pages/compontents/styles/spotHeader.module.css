@@ -69,8 +69,8 @@
 .input_box {
     /* width: 188px !important; */
     height: 40px;
-    background: var(--background7) !important;
-    color: var(--text-color6) !important;
+    background: var(--background8) ;
+    color: var(--text-color6) ;
 }
 .select_box {
     width: 165px;

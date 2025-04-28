@@ -70,7 +70,7 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
                 {/* 全部标签 */}
                 {showAllTab && (
                     <div 
-                        className={`${styles.all_tab} ${activeKey === 'all' ? styles.active_tab : ''}`}
+                        className={`${styles.all_tab} ${activeKey === 'all' ? styles.active_tab : ''} ${styles.title_color}`}
                         onClick={() => handleTabClick('all')}
                     >
                         {allTabLabel}
