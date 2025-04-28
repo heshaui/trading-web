@@ -89,6 +89,9 @@ const Tradingview: React.ForwardRefRenderFunction<
   ]);
   const wsDataRef = useRef(klineData);
   const initCompletedRef = useRef(false);
+  const scrollContainer = useRef<HTMLUListElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
   useEffect(() => {
     
@@ -487,6 +490,28 @@ const Tradingview: React.ForwardRefRenderFunction<
     };
   };
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainer.current) {
+      const scrollAmount = 200; // 可以根据需要调整滚动距离
+      const newScrollLeft = direction === 'left' 
+        ? scrollContainer.current.scrollLeft - scrollAmount
+        : scrollContainer.current.scrollLeft + scrollAmount;
+      
+      scrollContainer.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollContainer.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainer.current;
+      setShowLeftArrow(scrollLeft > 0);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px 容差
+    }
+  };
+
   return (
     <div style={{ width: "100%", height: "100%" }}>
       {showModal && (
@@ -530,13 +555,90 @@ const Tradingview: React.ForwardRefRenderFunction<
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "500px", margin: "auto" }}
+        style={{ width: "100%", height: "470px", margin: "auto" }}
       ></div>
-      <ul style={{ display: "flex", }} >
-        {target.map((item, index) => (
-          <li key={index}>{item.text}</li>
-        ))}
-      </ul>
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        {showLeftArrow && (
+          <button 
+            onClick={() => scroll('left')}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(255,255,255,0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              // boxShadow: '0 0 5px rgba(0,0,0,0.2)'
+            }}
+          >
+            &lt;
+          </button>
+        )}
+        
+        <div style={{ overflow: 'hidden', margin: '0 35px' }}>
+          <ul 
+            ref={scrollContainer}
+            onScroll={handleScroll}
+            style={{ 
+              display: "flex", 
+              overflow: "auto",
+              scrollbarWidth: "none", // 火狐浏览器隐藏滚动条
+              msOverflowStyle: "none", // IE 隐藏滚动条
+              whiteSpace: "nowrap",
+              padding: "10px 0",
+              fontSize: "12px",
+              margin: 0,
+              listStyle: "none",
+              "&::-webkit-scrollbar": { display: "none" } // Chrome/Safari 隐藏滚动条
+            }}
+          >
+            {target.map((item, index) => (
+              <li 
+                key={index} 
+                style={{ 
+                  marginRight: index === target.length - 1 ? 0 : "20px", // 设置相等间距，最后一项无需右边距
+                  padding: "0 5px"
+                }}
+              >
+                {item.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        {showRightArrow && (
+          <button 
+            onClick={() => scroll('right')}
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(255,255,255,0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              // boxShadow: '0 0 5px rgba(0,0,0,0.2)'
+            }}
+          >
+            &gt;
+          </button>
+        )}
+      </div>
     </div>
   );
 };
