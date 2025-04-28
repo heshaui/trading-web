@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-import { useCoinList } from '@/hooks/use-coinList';
+// import { useCoinList } from '@/hooks/use-coinList';
 
 const { RangePicker } = DatePicker;
 interface DataType {
@@ -52,7 +52,9 @@ const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
-  const { coinList } = useCoinList();
+  // const { coinList } = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const router = useRouter();
@@ -137,9 +139,9 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status, record) => {
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-
-        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
       },
     },
 
@@ -150,8 +152,9 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status, record) => {
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
       },
     },
     {

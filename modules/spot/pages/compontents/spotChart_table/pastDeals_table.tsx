@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-import { useCoinList } from '@/hooks/use-coinList';
+// import { useCoinList } from '@/hooks/use-coinList';
 import { getOrderList, getOrderInfo } from '@/services/spot'
 
 const { RangePicker } = DatePicker;
@@ -71,7 +71,9 @@ const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
       // 获取币种列表
-      const {coinList} = useCoinList();
+      // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -156,8 +158,10 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
         if (record.status === 0 || record.status === 1) {
-          return <span >{_status || '--'}</span>;
+          return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
         } else {
           return <span >--</span>;
         }
@@ -171,11 +175,12 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
        if(record.type === 0 ){
         return <span >{t('spot.select.market')}</span>;
        }else if(record.type === 1 ){
-        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
        }
       },
     },
@@ -207,8 +212,9 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        return <span >{_status?roundDown(_status,coin?.unitScale) :'0'}</span>;
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status?roundDown(_status,coin?.baseCoinScale) :'0'}</span>;
       },
     },
     {
@@ -334,7 +340,8 @@ const SpotMainPage = observer(() => {
           page: 1,
           pageSize: 1000,
           orderId: record.orderId,
-          // 你可以根据实际需要补充 symbol/groupStatus 等参数
+          //  symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+          symbol: `${record.symbol.split('/').join('_')}`
         };
         // 假设你有 getOrderInfo 这个接口
         const res = await getOrderInfo(params);

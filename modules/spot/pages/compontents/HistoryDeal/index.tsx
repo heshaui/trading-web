@@ -15,7 +15,8 @@ import { getOrderList, getExchangeCoinList ,getOrderInfo} from '@/services/spot'
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
-
+import appStore from '@/store';
+import { observer } from 'mobx-react-lite';
 const { RangePicker } = DatePicker;
 interface DataType {
   id: number,
@@ -58,11 +59,13 @@ interface SelectParamType {
   notStatus: string | number;
 }
 
-const SpotMainPage = () => {
+const SpotMainPage =observer( () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
-  const {coinList} = useCoinList();
+  // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
   const [paramInfo, sePparamInfo] = useState({
@@ -175,8 +178,9 @@ const SpotMainPage = () => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        return <span >{_status ? roundDown(_status,coin?.unitScale) : '0'}</span>;
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '0'}</span>;
       },
     },
     {
@@ -471,6 +475,6 @@ const getOrderListData2=async()=>{
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;
