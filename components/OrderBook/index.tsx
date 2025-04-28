@@ -218,7 +218,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const renderTrades = () => {
     return (
       <div className={styles.tradesContainer}>
-        <div className={styles.labels}>
+        <div className={styles.labels} style={{fontSize:'12px'}}>
           <span>价格({currentPair?.baseSymbol})</span>
           <span>数量({currentPair?.coinSymbol})</span>
           <span>时间</span>
@@ -283,7 +283,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       {/* 根据活动标签显示不同内容 */}
       {activeTab === 'orderbook' ? (
         <>
-          <div className={styles.labels}>
+          <div className={styles.labels} style={{fontSize:'12px'}}>
             <span>价格({currentPair?.baseSymbol}) </span>
             <span>数量({currentPair?.coinSymbol})</span>
             <span>总额({currentPair?.baseSymbol}) </span>
