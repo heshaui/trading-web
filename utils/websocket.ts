@@ -100,13 +100,13 @@ class WebSocketService {
   }
 
   private startHeartbeat(): void {
-    // this.pingTimer = setInterval(() => {
-    //   this.sendPing();
-    //   this.pongWaitTimer = setTimeout(
-    //     () => this.handlePongTimeout(),
-    //     this.pongTimeout
-    //   );
-    // }, this.pingInterval);
+    this.pingTimer = setInterval(() => {
+      this.sendPing();
+      this.pongWaitTimer = setTimeout(
+        () => this.handlePongTimeout(),
+        this.pongTimeout
+      );
+    }, this.pingInterval);
   }
 
   private sendPing(): void {

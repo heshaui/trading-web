@@ -316,10 +316,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                 form.setFieldsValue({ 
                     amount: formatWithPrecision(amount, currentPair?.coinScale || 8) 
                 });
-            } else {
-                // 如果没有可用的市场价格数据
-                message.info('暂无市场价格数据，无法计算交易数量');
-            }
+            } 
         } else {
             // 限价模式下使用用户输入的价格
             if (price && price > 0) {
