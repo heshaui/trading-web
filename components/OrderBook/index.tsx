@@ -89,8 +89,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         }
         
         // 计算买卖比例
-        const totalSellAmount = bookData.asks.reduce((sum, item) => sum + Number(item[1]), 0);
-        const totalBuyAmount = bookData.bids.reduce((sum, item) => sum + Math.abs(Number(item[1])), 0);
+        const totalSellAmount = bookData.asks.reduce((sum: number, item: [number, number]) => sum + Number(item[1]), 0);
+        const totalBuyAmount = bookData.bids.reduce((sum: number, item: [number, number]) => sum + Math.abs(Number(item[1])), 0);
         const total = totalSellAmount + totalBuyAmount;
         
         if (total > 0) {
