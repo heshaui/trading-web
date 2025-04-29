@@ -11,7 +11,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList,getOrderInfo } from '@/services/spot'
-import { add, cut, division, lastD, roundDown } from '@/utils'
+import { add, cut, division, lastD, roundDown,nul } from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
@@ -19,7 +19,7 @@ import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 // import { useCoinList } from '@/hooks/use-coinList';
 
 const { RangePicker } = DatePicker;
-interface DataType {
+interface DataType1 {
   id: number,
   orderId: string,
   amount: number,
@@ -42,6 +42,21 @@ interface DataType {
   tenantId: string,
   fee: number,
   baseSymbolCount: number
+}
+interface DataType{
+  id: number,
+  orderId: number,  
+  tenantId: string,
+  buyPrice: number,
+  sellPrice: number,
+  tradePrice: number,
+  quantity: number,
+  takerSide: number,
+  buyFee: number,
+  sellFee: number,
+  ctime: string,
+  mtime: string,
+  symbol: string
 }
 interface SelectParamType {
   startTime: number | null;
@@ -76,7 +91,7 @@ const SpotMainPage = observer(() => {
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
 
-  const columns: ColumnsType<DataType> = [
+  const columns1: ColumnsType<DataType1> = [
     {
       title: t('spot.columns.date'), //"日期",
       dataIndex: "completedTime",
@@ -182,7 +197,133 @@ const SpotMainPage = observer(() => {
 
 
   ];
+  const columns: ColumnsType<DataType> = [
+    {
+      title: t('spot.columns.date'), //"日期",
+      dataIndex: "ctime",
+      key: "ctime",
+      width: 200,
+      align: "left",
+      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+    },
+    {
+      title: t('spot.columns.symbol'), //"交易对",
+      dataIndex: "symbol",
+      key: "symbol",
+      align: "center",
+      width: 158,
+      render: (_text, record) => <button type='button' className={``}
+        onClick={() => {
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
+      >
+        {_text?`${_text.split('_').join('/')}` : '--'}
+        <Iconify icon="mingcute:right-line" className={`mx-1`} size={20} />
+      </button >,
+    //   render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+    //   onClick={() => {
+    //     router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+    //   }}
+    // >
+    //   {_text?`${_text.split('_').join('/')}` : '--'}
+    //   <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+    // </button >,
 
+    },
+    {
+      title: t('spot.columns.direction'), //"方向",
+      dataIndex: "takerSide",
+      key: "takerSide",
+      align: "center",
+      width: 158,
+      render: (_status) => {
+        let text
+        if (_status === 0) {
+          text = t('spot.trade.buy')
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
+          text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
+        } else {
+          return '--'
+        }
+      },
+    },
+    {
+      title: t('spot.columns.price2'), //"成交价",
+      dataIndex: "tradePrice",
+      key: "tradePrice",
+      align: "center",
+      width: 158,
+      render: (_status, record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const amount=nul(_status,record.quantity)
+        return <span >{amount  ? roundDown(amount, coin?.baseCoinScale) : '0'}</span>;
+
+      },
+    },
+
+    {
+      title: t('spot.columns.count'),  //"成交数量",
+      key: "quantity",
+      dataIndex: "quantity",
+      width: 128,
+      align: "center",
+      render: (_status, record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? _status : '0'}</span>;
+      },
+    },
+
+    {
+      title: t('spot.columns.amount2'), //"成交金额",
+      key: "tradePrice",
+      dataIndex: "tradePrice",
+      width: 128,
+      align: "center",
+      render: (_status, record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+      },
+    },
+    {
+      title: t('spot.columns.fee'), //"手续费",
+      key: "buyFee",
+      dataIndex: "buyFee",
+      width: 128,
+      align: "center",
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        if(record.takerSide===0){
+          return <span >{record.buyFee ? roundDown(record.buyFee, coin?.baseCoinScale) : '0'}</span>;
+        }else if(record.takerSide===1){
+          return <span >{record.sellFee ? roundDown(record.sellFee, coin?.baseCoinScale) : '0'}</span>;
+        }else{
+          return <span >{'--'}</span>;
+        }
+      },
+    },
+    {
+      title: t('spot.columns.role'), //"角色",
+      key: "takerSide",
+      dataIndex: "takerSide",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        if(_status===0){
+          return <span >{'Maker'}</span>;
+        }else if(_status===1){
+          return <span >{'Taker'}</span>;
+        }else{
+          return <span >{'--'}</span>;
+        }
+      },
+    },
+
+
+  ];
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,
@@ -192,7 +333,7 @@ const SpotMainPage = observer(() => {
     paramdataRef.current = pageData;
     getOrderListData()
   }
-  const getOrderListData = async () => {
+  const getOrderListData1 = async () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
@@ -222,23 +363,28 @@ const SpotMainPage = observer(() => {
       setLoading(false)
     }
   }
-  const getOrderListData2 = async () => {
+  const getOrderListData = async () => {
     const params = {
-      pageNo: paramdataRef.current.page,
+      page: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
+      // orderId: "20250428000193",
       // orderType: 2,
-      symbol: `${currentPair.symbol.split('/').join('_')}_${currentPair.groupStatus}`,
-      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
-      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+      symbol: `${currentPair.symbol.split('/').join('_')}`,
+      // symbol: `${currentPair.symbol.split('/').join('_')}_${currentPair.groupStatus}`,
+      // startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      // endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
     }
     setLoading(true)
     try {
       const res = await getOrderInfo(params)
       if (res.code === '0') {
-        const newData = res.data.records
+        const newData = res.data?.records.map((item:any)=>({
+          ...item,
+          symbol:item.symbol.split('_').join('/')
+        }))
         setInitTableData(newData);
         setTableData(newData);
-        setTotal(res.data.total);
+        setTotal(res.data?.total);
       }
     } catch (error) {
       toast.error(String(error))

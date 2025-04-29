@@ -126,7 +126,8 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       align: "center",
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <><div className='flex-x-cc'>
+        // type
+        return <>{record.type === 1 ? <div className='flex-x-cc'>
           <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button
@@ -137,7 +138,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-        </div></>
+        </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
 
       },
     },

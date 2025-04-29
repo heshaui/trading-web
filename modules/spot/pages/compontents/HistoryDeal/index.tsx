@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { add, cut, division, lastD,roundDown } from '@/utils'
+import { add, cut, division, nul,roundDown } from '@/utils'
 import { getOrderList, getExchangeCoinList ,getOrderInfo} from '@/services/spot'
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
@@ -18,7 +18,7 @@ import { useCoinList } from '@/hooks/use-coinList';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 const { RangePicker } = DatePicker;
-interface DataType {
+interface DataType1 {
   id: number,
   orderId: string,
   amount: number,
@@ -42,7 +42,21 @@ interface DataType {
   fee: number,
   baseSymbolCount: number
 }
-
+interface DataType{
+  id: number,
+  orderId: number,  
+  tenantId: string,
+  buyPrice: number,
+  sellPrice: number,
+  tradePrice: number,
+  quantity: number,
+  takerSide: number,
+  buyFee: number,
+  sellFee: number,
+  ctime: string,
+  mtime: string,
+  symbol: string
+}
 interface symbolSelectType {
   label: string,
   value: string,
@@ -89,7 +103,7 @@ const SpotMainPage =observer( () => {
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
 
 
-  const columns: ColumnsType<DataType> = [
+  const columns1: ColumnsType<DataType1> = [
     {
       title: t('spot.columns.date'), //"日期",
       dataIndex: "completedTime",
@@ -213,7 +227,146 @@ const SpotMainPage =observer( () => {
 
 
   ];
+  const columns: ColumnsType<DataType> = [
+    {
+      title: t('spot.columns.date'), //"日期",
+      dataIndex: "ctime",
+      key: "ctime",
+      width: 200,
+      align: "left",
+      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+    },
+    {
+      title: t('spot.columns.symbol'), //"交易对",
+      dataIndex: "symbol",
+      key: "symbol",
+      align: "center",
+      width: 158,
+      render: (_text, record) => <button type='button' className={``}
+        onClick={() => {
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
+      >
+        {_text?`${_text.split('_').join('/')}` : '--'}
+        <Iconify icon="mingcute:right-line" className={`mx-1`} size={20} />
+      </button >,
+    //   render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+    //   onClick={() => {
+    //     router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+    //   }}
+    // >
+    //   {_text?`${_text.split('_').join('/')}` : '--'}
+    //   <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+    // </button >,
 
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
+      width: 108,
+      align: "center",
+      render: (_text) => {
+        if (_text === 0) {
+          return <span >{t('spot.columns.market')}</span>;
+        } else if (_text === 1) {
+          return <span  >{t('spot.columns.limit')}</span>;
+        } else {
+          return <span >--</span>;
+        }
+      },
+    },
+    {
+      title: t('spot.columns.direction'), //"方向",
+      dataIndex: "takerSide",
+      key: "takerSide",
+      align: "center",
+      width: 108,
+      render: (_status) => {
+        let text
+        if (_status === 0) {
+          text = t('spot.trade.buy')
+          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+        } else if (_status === 1) {
+          text = t('spot.trade.sell')
+          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
+        } else {
+          return '--'
+        }
+      },
+    },
+    {
+      title: t('spot.columns.price2'), //"成交价",
+      dataIndex: "tradePrice",
+      key: "tradePrice",
+      align: "center",
+      width: 158,
+      render: (_status, record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const amount=nul(_status,record.quantity)
+        return <span >{amount  ? roundDown(amount, coin?.baseCoinScale) : '0'}</span>;
+
+      },
+    },
+
+    {
+      title: t('spot.columns.count'),  //"成交数量",
+      key: "quantity",
+      dataIndex: "quantity",
+      width: 108,
+      align: "center",
+      render: (_status, record) => {
+        return <span >{_status ? _status : '0'}</span>;
+      },
+    },
+    {
+      title: t('spot.columns.amount2'), //"成交金额",
+      key: "tradePrice",
+      dataIndex: "tradePrice",
+      width: 128,
+      align: "center",
+      render: (_status, record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+      },
+    },
+    {
+      title: t('spot.columns.fee'), //"手续费",
+      key: "buyFee",
+      dataIndex: "buyFee",
+      // width: 158,
+      align: "center",
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        if(record.takerSide===0){
+          return <span >{record.buyFee ?`${roundDown(record.buyFee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+        }else if(record.takerSide===1){
+          return <span >{record.sellFee ?`${roundDown(record.sellFee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+        }else{
+          return <span >{'--'}</span>;
+        }
+      },
+    },
+    {
+      title: t('spot.columns.role'), //"角色",
+      key: "takerSide",
+      dataIndex: "takerSide",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        if(_status===0){
+          return <span >{'Maker'}</span>;
+        }else if(_status===1){
+          return <span >{'Taker'}</span>;
+        }else{
+          return <span >{'--'}</span>;
+        }
+      },
+    },
+
+
+  ];
   const directionSelect: { label: string, value: string | number }[] = [
     {
       label: t('spot.select.all'),
@@ -259,7 +412,7 @@ const SpotMainPage =observer( () => {
     await getOrderListData();
   }
 
-  const getOrderListData = async () => {
+  const getOrderListData1 = async () => {
     const params = {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
@@ -291,9 +444,9 @@ const SpotMainPage =observer( () => {
       setLoading(false)
     }
   }
-const getOrderListData2=async()=>{
+const getOrderListData=async()=>{
   setLoading(true);
-  const record=form.getFieldsValue(['symbol'])?.find((item:any)=>item.value===selectParam.current.symbol);
+  const symbol = form.getFieldValue('symbol');
   try {
     // 请求数据
     const params = {
@@ -301,16 +454,16 @@ const getOrderListData2=async()=>{
       pageSize: 1000,
       // orderId: record.orderId,
       // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
-      symbol: `${record.symbol.split('/').join('_')}`
+      symbol: `${symbol.split('/').join('_')}`
     };
     const res = await getOrderInfo(params);
     if (res.code === '0') {
-      const newData = res.data.records.map((item: any) => ({
+      const newData = res.data.records?.map((item: any) => ({
         ...item,
-        userLoginLogs: []
+        symbol: `${item.symbol.split('_').join('/')}`,
       }));
       setTableData(newData);
-      setTotal(res.data.total);
+      setTotal(res.data?.total);
     } else {
       toast.error(res.message);
     }
@@ -340,15 +493,22 @@ const getOrderListData2=async()=>{
           form.setFieldsValue({
             symbol: selectData[0].value
           })
+          selectParam.current.symbol = selectData[0].value;
       }
     } catch (error) {
       toast.error(String(error))
     }
   }
-
+  const initData = async () => {
+    try {
+      await getCoinList(); // 等待 getCoinList 完成
+      await getOrderListData(); // 然后执行 getOrderListData
+    } catch (error) {
+      toast.error(String(error));
+    }
+  };
   useEffect(() => {
-    getCoinList()
-    getOrderListData()
+    initData()
   }, [])
   return (<>
     <ConfigProvider
