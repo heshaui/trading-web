@@ -131,3 +131,8 @@ export function getUserBalance(coinId: string|number): Promise<any> {
     });
   }
 
+  export function getUserBalanceByDay(): Promise<any> {
+    return request(`${fixUrl2}/assets-web/v1/user-wallet/getUserBalanceByDay`, {
+      method: 'GET'
+    });
+  }

@@ -18,7 +18,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
 import Image from 'next/image';
-import { useRate } from '@/hooks/useRate';
+import { getRate } from '@/utils/useRate';
 import appStore from '@/store';
 interface DataType {
     balance: number,
@@ -94,9 +94,10 @@ const AssetsMainPage = () => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
+                const {ratetext} = getRate(record.coinName,text2);
                 return <p className='flex-y align-end'>
                     <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
-                    {record.coinName ? useRate(record.coinName, text2) : '--'}
+                    {record.coinName ? ratetext : '--'}
                 </p>
             },
             sorter: (a, b) => {
