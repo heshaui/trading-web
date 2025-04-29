@@ -20,6 +20,7 @@ import { getCarouselImageList } from '@/services/userCenter';
 import { getLoginInfo } from '@/services/overview';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
+import { getUserBalanceByDay } from '@/services/assets'
 
 
 const identityStyle: CSSProperties = {
@@ -215,6 +216,10 @@ const OverviewPage: React.FC = () => {
         } catch (error) {
             toast.error(String(error))
         }
+    }
+    const getUserBalanceList=async()=>{
+        const res=await getUserBalanceByDay()
+        console.log(res)
     }
     useEffect(() => {
         getLoginInfoData()

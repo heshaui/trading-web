@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import appStore from '@/store';
 import { nul } from '@/utils';
 /*
@@ -7,7 +6,7 @@ import { nul } from '@/utils';
 * @param rateName 汇率符号
 * @returns 汇率
 */
-export const useRate = (symbolName: string,priceNum:string|number, rateName: string = 'USD') => {
+export const getRate = (symbolName: string,priceNum:string|number, rateName: string = 'USD') => {
     // 获取汇率数据 usdt-$
     const rateData = appStore.getRateData() || [];
     // 获取币种信息 coin-usdt
@@ -37,10 +36,11 @@ export const useRate = (symbolName: string,priceNum:string|number, rateName: str
         return {
             exchangeRate: Number(rate?.exchangeRate),
             symbol: rate?.symbol,
+            shortName: rate?.shortName
         }
     };
 
-    const {exchangeRate,symbol} = getExchangeRate();
+    const {exchangeRate,symbol,shortName} = getExchangeRate();
     // 计算最终结果
     const calculateRate = () => {
         const price = getCoinPrice();
@@ -55,5 +55,10 @@ export const useRate = (symbolName: string,priceNum:string|number, rateName: str
         return num2;
     };
 
-    return `${symbol} ${calculateRate()}`;
+    return {
+        ratetext:`${symbol} ${calculateRate()}`,
+        rate:calculateRate(),
+        symbol:symbol,
+        shortName:shortName
+    };
 };
