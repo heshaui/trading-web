@@ -60,6 +60,8 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const [toastModal, setToastModal] = useState(false);
     const [spotModal, setSpotModal] = useState(false);
     const [errorModal, setErrorModal] = useState(false);
+    // 添加一个状态变量用于强制组件重新渲染
+    const [forceUpdate, setForceUpdate] = useState(false);
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -655,7 +657,11 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         onValuesChange={(changedValues) => {
                             if ('price' in changedValues || 'amount' in changedValues) {
                                 calculateTotal();
-                                // 价格变化时会自动重新渲染组件，因此可买数量也会更新
+                                // 价格变化时强制重新渲染组件，确保可买数量更新
+                                if ('price' in changedValues) {
+                                    // 使用一个无关的状态更新来触发重新渲染
+                                    setForceUpdate(prev => !prev);
+                                }
                             }
                             if ('account' in changedValues) {
                                 // 当成交额变化时，计算数量
