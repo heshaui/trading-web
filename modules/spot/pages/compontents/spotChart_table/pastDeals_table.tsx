@@ -272,7 +272,7 @@ const SpotMainPage = observer(() => {
         const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
         const coin = coinList.find((item: any) => item.symbol === symbolName);
 
-        return <span>{_tradePrice?roundDown(nul(_tradePrice,record.quantity), coin?.baseCoinScale) : '--'}</span>
+        return <span>{_tradePrice?roundDown(_tradePrice, coin?.baseCoinScale) : '--'}</span>
       },
     },
     {
@@ -292,8 +292,10 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradePrice",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_ip,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+        return <span >{_ip ? roundDown(nul(_ip,record.quantity), coin?.baseCoinScale) : '--'}</span>;
       },
     },
     {
@@ -303,13 +305,17 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_buyFee,record) => {
-        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol.split('/')[1]
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
         
         const flag = record.takerSide
+        const price=nul(record.tradePrice,record.quantity)
         if(flag === 0){
-          return <span>{`${_buyFee} ${symbolName}` || '--'}</span>
+          const fee=nul(_buyFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else if(flag === 1){
-          return <span>{`${record.sellFee} ${symbolName}` || '--'}</span>
+          const fee=nul(record.sellFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else{
           return '--'
         }

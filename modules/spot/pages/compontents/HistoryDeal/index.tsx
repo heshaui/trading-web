@@ -303,7 +303,7 @@ const SpotMainPage =observer( () => {
       width: 158,
       render: (_status, record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const amount=nul(_status,record.quantity)
+        const amount=division(_status,record.quantity)
         return <span >{amount  ? roundDown(amount, coin?.baseCoinScale) : '0'}</span>;
 
       },
@@ -339,10 +339,13 @@ const SpotMainPage =observer( () => {
       align: "center",
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const price=nul(record.tradePrice,record.quantity)
         if(record.takerSide===0){
-          return <span >{record.buyFee ?`${roundDown(record.buyFee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          const fee=nul(record.buyFee,price)
+          return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
         }else if(record.takerSide===1){
-          return <span >{record.sellFee ?`${roundDown(record.sellFee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          const fee=nul(record.sellFee,price)
+          return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
         }else{
           return <span >{'--'}</span>;
         }
