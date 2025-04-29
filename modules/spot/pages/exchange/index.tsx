@@ -258,16 +258,16 @@ const ExchangePage = () => {
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        // 卖单按价格升序排列
-                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
-                        const maxPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : Number.MAX_SAFE_INTEGER;
+                        // 卖单按价格降序排列
+                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        const minPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : 0;
                         
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
                             const priceFloat = parseFloat(price);
                             
-                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
-                            if (sortedAsks.length >= 10 && priceFloat > maxPrice) {
+                            // 规则1: 如果新档位不在10档内（对于卖单，价格小于当前10档最低价），不处理
+                            if (sortedAsks.length >= 10 && priceFloat < minPrice) {
                                 return; // 不处理此档位
                             }
                             
@@ -287,10 +287,10 @@ const ExchangePage = () => {
                             } 
                             // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
                             else if (quantity !== '0') {
-                                // 按价格升序插入新卖单
+                                // 按价格降序插入新卖单
                                 let insertIndex = 0;
                                 while (insertIndex < newData.asks.length &&
-                                    parseFloat(newData.asks[insertIndex][0]) < priceFloat) {
+                                    parseFloat(newData.asks[insertIndex][0]) > priceFloat) {
                                     insertIndex++;
                                 }
                                 newData.asks.splice(insertIndex, 0, newAsk);
