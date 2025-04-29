@@ -6,7 +6,7 @@ import { Iconify } from "@/components/icon"
 import type { SliderSingleProps } from 'antd';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 // import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
@@ -189,75 +189,16 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         }
     };
 
-    const onSumbit = () => {
-        // 检查当前是卖出操作且可卖数量为0的情况
-        if (segmentedvalue === 'sell') {
-            const availableCoin = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
-            if (availableCoin <= 0) {
-                toast.error(`${currentPair?.coinSymbol}余额不足，无法卖出`);
-                return;
-            }
-        }
-
-        // 在提交时手动验证必填字段
-        const values = form.getFieldsValue();
-        let hasError = false;
+    // 防抖函数实现 - 带TypeScript类型定义
+    function debounce<F extends (...args: any[]) => any>(func: F, wait: number): ((...args: Parameters<F>) => void) {
+        let timeout: NodeJS.Timeout | null = null;
         
-        // 验证价格字段
-        if (!priceDisabled && (!values.price || values.price === '')) {
-            form.setFields([{
-                name: 'price',
-                errors: ['请输入价格']
-            }]);
-            hasError = true;
-        }
-        
-        // 验证数量字段
-        if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
-            form.setFields([{
-                name: 'amount',
-                errors: ['请输入交易数量']
-            }]);
-            hasError = true;
-        }
-        
-        // 验证金额字段 - 市价买单或限价单都需要验证
-        if ((priceDisabled && segmentedvalue === 'buy') || !priceDisabled) {
-            if (!values.account || values.account === '') {
-                form.setFields([{
-                    name: 'account',
-                    errors: ['请输入交易金额']
-                }]);
-                hasError = true;
-            }
-        }
-        
-        if (hasError) {
-            return;
-        }
-
-        form.validateFields()
-            .then(async (values) => {
-
-                const modalData = {
-                    account: values.account,
-                    amount: values.amount,
-                    price: values.price,
-                    type: priceDisabled ? 0 : 1,
-                    direction: segmentedvalue === 'buy' ? 0 : 1,
-                }
-                const noRemind = localStorage.getItem('noRemind')
-                console.log(noRemind, 'noRemind');
-                if (noRemind==='true') {
-                    setModalOpen(false)
-                    handelSubmitOrder()
-                }else{
-                setModalData(modalData)
-                setModalOpen(true)
-                }
-               
-            })
+        return (...args: Parameters<F>): void => {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
     }
+    
     const items: TabsProps['items'] = [
         {
             key: '1',
@@ -418,6 +359,78 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                 }
             })
     }
+    
+    // 定义原始提交函数
+    const handleSubmit = () => {
+        // 检查当前是卖出操作且可卖数量为0的情况
+        if (segmentedvalue === 'sell') {
+            const availableCoin = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+            if (availableCoin <= 0) {
+                toast.error(`${currentPair?.coinSymbol}余额不足，无法卖出`);
+                return;
+            }
+        }
+
+        // 在提交时手动验证必填字段
+        const values = form.getFieldsValue();
+        let hasError = false;
+        
+        // 验证价格字段
+        if (!priceDisabled && (!values.price || values.price === '')) {
+            form.setFields([{
+                name: 'price',
+                errors: ['请输入价格']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证数量字段
+        if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
+            form.setFields([{
+                name: 'amount',
+                errors: ['请输入交易数量']
+            }]);
+            hasError = true;
+        }
+        
+        // 验证金额字段 - 市价买单或限价单都需要验证
+        if ((priceDisabled && segmentedvalue === 'buy') || !priceDisabled) {
+            if (!values.account || values.account === '') {
+                form.setFields([{
+                    name: 'account',
+                    errors: ['请输入交易金额']
+                }]);
+                hasError = true;
+            }
+        }
+        
+        if (hasError) {
+            return;
+        }
+
+        form.validateFields()
+            .then(async (values) => {
+                const modalData = {
+                    account: values.account,
+                    amount: values.amount,
+                    price: values.price,
+                    type: priceDisabled ? 0 : 1,
+                    direction: segmentedvalue === 'buy' ? 0 : 1,
+                }
+                const noRemind = localStorage.getItem('noRemind')
+                console.log(noRemind, 'noRemind');
+                if (noRemind==='true') {
+                    setModalOpen(false)
+                    handelSubmitOrder()
+                } else {
+                    setModalData(modalData)
+                    setModalOpen(true)
+                }
+            });
+    };
+    
+    // 使用防抖处理的提交函数 - 300ms延迟
+    const onSubmit = debounce(handleSubmit, 300);
 
     // 币种余额
     const getUserBalanceData = async () => {
@@ -850,7 +863,7 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         // className={`${styles.sumbit_btn} green_btn`}
                         style={{ width: '100%', height: '50px', borderRadius: '32px' }}
                         htmlType="submit"
-                        onClick={onSumbit}
+                        onClick={onSubmit}
                         disabled={currentPair?.enable === 0}
                     >
                         {segmentedvalue === 'buy' ? t('spot.trade.buy') : t('spot.trade.sell')} {currentPair?.coinSymbol}
