@@ -18,7 +18,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
 import Image from 'next/image';
-import { getRate } from '@/utils/useRate';
+import { getRate } from '@/utils/getUseRate';
 import appStore from '@/store';
 interface DataType {
     balance: number,

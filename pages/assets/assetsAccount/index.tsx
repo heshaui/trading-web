@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-import { getRate } from '@/utils/useRate';
+import { getRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 interface DataType {
