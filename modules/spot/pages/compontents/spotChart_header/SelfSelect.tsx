@@ -23,6 +23,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [sortField, setSortField] = useState<string>('');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [showVolume, setShowVolume] = useState<boolean>(false);
 
  
 
@@ -110,12 +111,21 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                     : priceB - priceA;
             }
             if (sortField === 'change') {
-                // 24h涨跌排序
-                const changeA = parseFloat(a.priceChangePercent) || 0;
-                const changeB = parseFloat(b.priceChangePercent) || 0;
-                return sortDirection === 'asc'
-                    ? changeA - changeB
-                    : changeB - changeA;
+                if (showVolume) {
+                    // 成交量排序
+                    const volumeA = parseFloat(a.volume) || 0;
+                    const volumeB = parseFloat(b.volume) || 0;
+                    return sortDirection === 'asc'
+                        ? volumeA - volumeB
+                        : volumeB - volumeA;
+                } else {
+                    // 24h涨跌排序
+                    const changeA = parseFloat(a.priceChangePercent) || 0;
+                    const changeB = parseFloat(b.priceChangePercent) || 0;
+                    return sortDirection === 'asc'
+                        ? changeA - changeB
+                        : changeB - changeA;
+                }
             }
             return 0;
         });
@@ -173,6 +183,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
    const handleTabClick = (key: string) => {
         setActiveTab(key);
     };
+
+         const showChange = (e: React.MouseEvent)=>{
+                    e.stopPropagation(); // 阻止事件冒泡
+                    setShowVolume(!showVolume); // 切换显示状态
+                }
     return (
         <ConfigProvider
             theme={{
@@ -244,7 +259,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('change')}
                     >
-                        <span>24h涨跌</span>
+                        <span>{showVolume ? '成交量' : '24h涨跌'}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
@@ -258,7 +273,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                                 size={10} 
                             />
                         </div>
-                        <div className='ml-1 flex-y-cc'>
+                        <div className='ml-1 flex-y-cc' onClick={(e) => showChange(e)}>
                             <Iconify icon="mingcute:transfer-line" size={18} />
                         </div>
                     </div>
@@ -341,9 +356,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                             </div>
                             {/* 24h涨跌/24h成交量 */}
                             <div
-                                className={`${styles.pair_change} ${pair.priceChangePercent > 0 ? styles.success_icon : styles.error_icon} flex-1`}
+                                className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
                             >
-                                {pair.priceChangePercent}
+                                {showVolume ? pair.quantity : pair.priceChangePercent}
                             </div>
                         </div>
                     ))}
