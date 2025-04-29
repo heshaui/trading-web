@@ -30,12 +30,13 @@ export interface identityInfoType {
 }
 // 本地存储key
 export const LOCAL_STORAGE_KEY = {
-	USER_INFO:'imbit_userInfo' , 
-	USER_TOKEN:"imbit_userToken",
-    OUT_MONEY:"imbit_out_money",
-    CURRENCY_PAIRS: 'currency_pairs',
-    CURRENT_PAIR: 'current_pair',
-    CURRENT_COIN: 'current_coin',
+	USER_INFO:'imbit_userInfo' , // 用户信息
+	USER_TOKEN:"imbit_userToken", // 用户token
+    OUT_MONEY:"imbit_out_money", // 提现数据
+    CURRENCY_PAIRS: 'currency_pairs', // 币对数据
+    CURRENT_PAIR: 'current_pair', // 当前币对
+    CURRENT_COIN: 'current_coin', // 币种数据
+    RATE_DATA: 'rate_data', //汇率数据
 };
 
 export const ROUTER_KEY_ASSETS = {

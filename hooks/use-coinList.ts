@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import appStore from '@/store';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
-export const useCoinList = () => {
+export const useCoinList = (needPrice: boolean = false) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -9,7 +9,7 @@ export const useCoinList = () => {
         try {
             setLoading(true);
             setError(null);
-            await appStore.loadCoinList();
+            await appStore.loadCoinList(needPrice);
             localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_COIN, JSON.stringify(appStore.getCoinList()));
         } catch (err) {
             setError(err as Error);

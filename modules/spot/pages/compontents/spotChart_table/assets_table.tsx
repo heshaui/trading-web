@@ -1,29 +1,34 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/spotChartCom.module.css'
-import { Input, Radio, ConfigProvider, Table, Form, Checkbox } from 'antd';
+import { Input, Tooltip, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
-import { add, cut, nul ,roundDown} from '@/utils'
+import { add, cut, nul, roundDown } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { NoData } from '@/components/noData'
 import { getUserBalanceAll } from '@/services/assets';
-import { ROUTER_KEY_ASSETS ,ROUTER_KEY_SPOT} from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
+import Image from 'next/image';
+import { useRate } from '@/hooks/useRate';
+import appStore from '@/store';
 interface DataType {
     balance: number,
     frozenBalance: number,
     releaseBalance: number,
     isLock: number,
     coinId: string,
-    coinName: string
+    coinName: string,
+    iconUrl: string,
+    nameDefault: string
 }
 type Props = {
     orderUpdateFlag?: number
@@ -31,7 +36,8 @@ type Props = {
 const AssetsMainPage = () => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
-    const {coinList} = useCoinList();
+    const { coinList } = useCoinList(true);
+    const coinPairs = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);
@@ -51,7 +57,31 @@ const AssetsMainPage = () => {
             key: "coinName",
             // width: 158,
             align: "left",
-            render: (text, record) => <div>{`${text}`} </div>,
+            render: (text, record) => {
+                return <div className='flex align-center'>
+                    <Image src={record?.iconUrl} alt={''} width={28} height={28}
+                        style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+                        className='mr-1' />
+                    <p className='font-w-500 font-14 flex-x'>
+                        {`${text}`}
+                        <Tooltip title={
+                            coinPairs.filter((item: any) =>
+                                item.coinSymbol === text || item.baseSymbol === text
+                            ).length > 0 ? (
+                                coinPairs.filter((item: any) =>
+                                    item.coinSymbol === text || item.baseSymbol === text
+                                ).map((item: any) => (
+                                    <div key={item.id} className={`mb-1 font-12 font-w-400`} style={{ color: '#FFFFFF' }}>
+                                        {item.symbol}
+                                    </div>
+                                ))
+                            ) : '----'
+                        }>
+                            <Iconify icon="mingcute:right-line" className={` mx-1`} size={20} />
+                        </Tooltip>
+                    </p>
+                </div>
+            },
             sorter: (a, b) => a.coinName.localeCompare(b.coinName),
         },
         {
@@ -64,7 +94,10 @@ const AssetsMainPage = () => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                return <span>{text2 ?roundDown(text2,coin?.unitScale):'0'}</span>
+                return <p className='flex-y align-end'>
+                    <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
+                    {record.coinName ? useRate(record.coinName, text2) : '--'}
+                </p>
             },
             sorter: (a, b) => {
                 const totalA = add(add(a.balance || 0, a.releaseBalance || 0), a.frozenBalance || 0);
@@ -81,7 +114,7 @@ const AssetsMainPage = () => {
             render: (_text, record) => {
                 const text = record.balance
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{text ?roundDown(text,coin?.unitScale):'0'}</span>;
+                return <span >{text ? roundDown(text, coin?.unitScale) : '0'}</span>;
 
             },
             sorter: (a, b) => a.balance - b.balance,
@@ -94,7 +127,7 @@ const AssetsMainPage = () => {
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}
                 </span>;
             },
             sorter: (a, b) => a.releaseBalance - b.releaseBalance,
@@ -107,7 +140,7 @@ const AssetsMainPage = () => {
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}</span>;
             },
             sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
@@ -120,15 +153,15 @@ const AssetsMainPage = () => {
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 return <>
-                {/* 提现 */}
-                    <button className={`${coin?.canWithdraw===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
-                    onClick={() => getCoinList('1', coin)}
+                    {/* 提现 */}
+                    <button className={`${coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
+                        onClick={() => getCoinList('1', coin)}
                     >
                         {t('spot.columns.withdraw')}
                     </button>
                     {/* 充值 */}
-                    <button className={`${coin?.canRecharge===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
-                    onClick={() => getCoinList('2', coin)}
+                    <button className={`${coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
+                        onClick={() => getCoinList('2', coin)}
                     >
                         {t('spot.columns.deposit')}
                     </button>
@@ -144,28 +177,28 @@ const AssetsMainPage = () => {
 
 
     ];
-    const getCoinList = async (type: string,coinData: any) => {
-       if(type === '1'){
-        if(coinData?.canWithdraw === 1){
-            router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
-        }else{
-            toast.error(t('spot.columns.withdrawError'));
+    const getCoinList = async (type: string, coinData: any) => {
+        if (type === '1') {
+            if (coinData?.canWithdraw === 1) {
+                router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+            } else {
+                toast.error(t('spot.columns.withdrawError'));
+            }
+        } else if (type === '2') {
+            if (coinData?.canRecharge === 1) {
+                router.push(ROUTER_KEY_ASSETS.TOP_UP);
+            } else {
+                toast.error(t('spot.columns.depositError'));
+            }
+
+        } else if (type === '3') {
+            if (coinData?.canRecharge === 1) {
+                router.push(ROUTER_KEY_SPOT.INDEX);
+            } else {
+                toast.error(t('spot.columns.tradeError'));
+            }
         }
-       }else if(type === '2'){
-        if(coinData?.canRecharge === 1){
-            router.push(ROUTER_KEY_ASSETS.TOP_UP);
-        }else{
-            toast.error(t('spot.columns.depositError'));
-        }
-        
-       }else if(type === '3'){
-        if(coinData?.canRecharge === 1){
-            router.push(ROUTER_KEY_SPOT.INDEX);
-        }else{
-            toast.error(t('spot.columns.tradeError'));
-        }
-       }
-        
+
     }
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
@@ -259,26 +292,26 @@ const AssetsMainPage = () => {
                     </Form> */}
         </div>
         <div className={`${styles.table_content} w-full `}>
-            
-                <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    size="large"
-                    // scroll={{ x: "max-content", y: 500 }}
-                    className={` table-box`}
-                    // pagination={{
-                    //     position: ["bottomRight"],
-                    //     showSizeChanger: true,
-                    //     total: total,
-                    //     size: "default",
-                    //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                    // }}
-                    pagination={false}
-                    loading={tableLoading}
-                    locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-                />
+
+            <Table
+                columns={columns}
+                dataSource={tableData}
+                size="large"
+                // scroll={{ x: "max-content", y: 500 }}
+                className={` table-box`}
+                // pagination={{
+                //     position: ["bottomRight"],
+                //     showSizeChanger: true,
+                //     total: total,
+                //     size: "default",
+                //     onChange: (page, pageSize) => pageChange(page, pageSize),
+                // }}
+                pagination={false}
+                loading={tableLoading}
+                locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+            />
         </div>
-        </ConfigProvider>
+    </ConfigProvider>
 
     </>
     );
