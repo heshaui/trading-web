@@ -87,6 +87,7 @@ class AppStore {
         if (isBrowser()) {
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
+            this.initUserInfoFromStorage();
         }
     }
 
@@ -109,6 +110,9 @@ class AppStore {
 
     getUserToken() {
         return this.userToken;
+    }
+    getUserInfo() {
+        return this.userInfo;
     }
 
 
@@ -205,6 +209,19 @@ class AppStore {
             }
         } catch (error) {
             console.error('Failed to load rate data from storage:', error);
+        }
+    }
+     //  从本地存储初始化用户信息
+     initUserInfoFromStorage() {
+        if (!isBrowser()) return;
+
+        try {
+            const userInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO);
+            if (userInfoJson) {
+                this.userInfo = JSON.parse(userInfoJson);
+            }
+        } catch (error) {
+            console.error('Failed to load user info from storage:', error);
         }
     }
     // 从API加载币对信息

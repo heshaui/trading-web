@@ -206,7 +206,7 @@ const AssetsMainPage = observer(() => {
         // setHideZero(!hideZero)
         const value = e.target.checked
         if (value && initTableData.length > 0) {
-            const newData = initTableData.filter(item => item.balance !== 0);
+            const newData = initTableData.filter(item => item.balance.toString().trim() !== '0');
             setTableData(newData);
         } else {
             setTableData(initTableData);
