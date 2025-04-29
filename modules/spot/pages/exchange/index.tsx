@@ -280,13 +280,25 @@ const ExchangePage = () => {
                                 if (quantity === '0') {
                                     // 如果数量为0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
+                                } else if (parseFloat(quantity) < 0) {
+                                    // 处理负数数量的情况：减去总额
+                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
+                                    const newQuantity = currentQuantity + parseFloat(quantity); // 加上负数 = 减去绝对值
+                                    
+                                    if (newQuantity <= 0) {
+                                        // 如果减完后小于等于0，移除该档位
+                                        newData.asks.splice(existingIndex, 1);
+                                    } else {
+                                        // 否则更新为新数量
+                                        newData.asks[existingIndex][1] = newQuantity.toString();
+                                    }
                                 } else {
-                                    // 更新数量
+                                    // 常规情况：直接替换数量
                                     newData.asks[existingIndex][1] = quantity;
                                 }
                             } 
-                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
-                            else if (quantity !== '0') {
+                            // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
+                            else if (quantity !== '0' && parseFloat(quantity) > 0) {
                                 // 按价格降序插入新卖单
                                 let insertIndex = 0;
                                 while (insertIndex < newData.asks.length &&
@@ -295,6 +307,7 @@ const ExchangePage = () => {
                                 }
                                 newData.asks.splice(insertIndex, 0, newAsk);
                             }
+                            // 规则4: 如果新档位价格找不到且数量为负数，不处理
                         });
                     }
 
