@@ -145,10 +145,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           "symbol_change",
         ];
         
-        // 如果不显示左侧工具栏，则添加到禁用列表
-        if (!showLeftToolbar) {
-          disabledFeatures.push("left_toolbar");
-        }
+        
         
         const widgetOptions = {
           symbol: chartSymbol,

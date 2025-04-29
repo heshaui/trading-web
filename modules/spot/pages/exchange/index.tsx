@@ -83,8 +83,8 @@ const ExchangePage = () => {
         '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        { label: '基本版', value: 'basic' },
-        { label: 'TradingView', value: 'tradingview' },
+        { label: 'K线图', value: 'basic' },
+        // { label: 'TradingView', value: 'tradingview' },
         { label: '深度图', value: 'depth' }
     ]);
  
@@ -721,7 +721,7 @@ const ExchangePage = () => {
                                   
                             <Spin spinning={loading} tip="加载中...">
                                     
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                {(activeChartType === 'basic') && (
                                     <div>
 
                                     <Tradingview
