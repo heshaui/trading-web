@@ -299,7 +299,7 @@ const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSele
                         ...item,
                         label: item.coinName,
                         value: item.coinId,
-                    }));
+                    })).sort((a:any,b:any)=>a.sort-b.sort)
                 setCoinSelect(coinList);
                 currentCoinList = coinList;
             } else {
@@ -893,16 +893,16 @@ const isMemo =  () => {
 
                         </Form.Item>
                         {/* showMemo */}
-                        {isMemo() && 
+                        {isMemo() ?
                         <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                             <span>
                                 {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
                                 {t('withdrawMoney.memoWarning')}
                             </span>
-                        </p>}
+                        </p>:null}
                     </Form.Item>
-                    {isMemo() && <Form.Item>
+                    {isMemo() ? <Form.Item>
                         <Form.Item name='momo' noStyle>
                             <Input className={`${styles.input_box3} modal-input2`}
                                 placeholder={t('withdrawMoney.memoPlaceholder')}
@@ -917,7 +917,7 @@ const isMemo =  () => {
                                 {t('withdrawMoney.memoConfirm')}
                             </span>
                         </p>
-                    </Form.Item>}
+                    </Form.Item>:null}
                 </>
                 }
             </div >,

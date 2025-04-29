@@ -45,8 +45,11 @@ interface DataType1 {
 }
 interface DataType{
   id: number,
-  orderId: number,  
   tenantId: string,
+  buyOrderId: number,
+  sellOrderId: number,
+  buyerUserId: number,
+  sellerUserId: number,
   buyPrice: number,
   sellPrice: number,
   tradePrice: number,
@@ -69,7 +72,7 @@ const SpotMainPage = observer(() => {
   // 获取币种列表
   // const { coinList } = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
-
+  const userInfo = appStore.getUserInfo()
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const router = useRouter();
@@ -314,19 +317,30 @@ const SpotMainPage = observer(() => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_status) => {
-        if(_status===0){
-          return <span >{'Maker'}</span>;
-        }else if(_status===1){
-          return <span >{'Taker'}</span>;
-        }else{
-          return <span >{'--'}</span>;
-        }
+      render: (_status,record) => {
+        return maskName(_status,record.buyerUserId,record.sellerUserId)
       },
     },
 
 
   ];
+  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+    const userId = userInfo.userId
+    if(takerSide === 0){
+      if(userId === buyerUserId){
+        return 'Taker'
+      }else {
+        return 'Maker'
+      }
+    }else if(takerSide === 1){
+      if(userId === sellerUserId){
+        return 'Taker'
+      }else{
+        return 'Maker'
+      }
+    }else{
+      return '--'
+  }}
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {
       page: page,

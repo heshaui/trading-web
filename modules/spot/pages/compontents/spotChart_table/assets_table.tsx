@@ -222,7 +222,11 @@ const AssetsMainPage = () => {
         // setHideZero(!hideZero)
         const value = e.target.checked
         if (value && initTableData.length > 0) {
-            const newData = initTableData.filter(item => item.balance !== 0);
+            const newData = initTableData.filter(item => {
+            const { rate } = getRate(item.coinName, item.balance);
+            // 确保 rate 是数字且大于 1
+            return  Number(rate) > 1;
+            });
             setTableData(newData);
         } else {
             setTableData(initTableData);

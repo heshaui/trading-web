@@ -93,7 +93,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 setResetState(true) // 重置状态
                 setTotastOpen(true)
                 setTotastMessage(`${withdrawInfo?.amount} ${withdrawInfo?.coinName}`)
-                setTotastType('success')
+                setTotastType('loading')
                 onOk?.()
                 handCancel()
             } else if(res.code==='1') {

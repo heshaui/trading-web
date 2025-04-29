@@ -73,6 +73,7 @@ const SpotMainPage = observer(() => {
       // 获取币种列表
       // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+  const userInfo = appStore.getUserInfo()
 
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
@@ -327,19 +328,28 @@ const SpotMainPage = observer(() => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_buyerUserId,record) => {
-        const flag = record.takerSide
-        if(_buyerUserId === 0){
-          return <span>Maker</span>
-        }else if(flag === 1){
-          return <span>Taker</span>
-        }else{
-          return '--'
-        }
+      render: (_text,record) => {
+        return maskName(_text,record.buyerUserId,record.sellerUserId)
       },
     }
   ]
-
+  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+    const userId = userInfo.userId
+    if(takerSide === 0){
+      if(userId === buyerUserId){
+        return 'Taker'
+      }else {
+        return 'Maker'
+      }
+    }else if(takerSide === 1){
+      if(userId === sellerUserId){
+        return 'Taker'
+      }else{
+        return 'Maker'
+      }
+    }else{
+      return '--'
+  }}
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = async (expanded: boolean, record: DataType) => {
     if (expanded) {
