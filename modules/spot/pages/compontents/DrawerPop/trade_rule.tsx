@@ -59,13 +59,13 @@ const TradeRule = observer(() => {
                  <li className='flex-x align-center justify-between mt-5'>
                     最小价格波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        {currentPair?.coinScale}
+                        {currentPair?.coinScale}{currentPair?.coinSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最小数量波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        {currentPair?.baseCoinScale}
+                        {currentPair?.baseCoinScale}{currentPair?.baseSymbol}
                     </span>
                 </li> 
             </ul>
