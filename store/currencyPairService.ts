@@ -231,26 +231,50 @@ export async function fetchCurrencyPairPrices() {
 } 
 
 // 获取所有币种
-export async function fetchAllCoin() {
+// 获取所有币种
+export async function fetchAllCoin(needPrice: boolean = false) {
     try {
-        const response = await getCoinAll();
-        if (response.code === '0') {
-            return {
-                success: true,
-                data: response.data || []
-            };
+        // 1. 获取币种列表
+        const coinListResponse = await getCoinAll();
+        if (coinListResponse.code !== '0') {
+            throw new Error('Failed to load coin list');
         }
+
+        const coinList = coinListResponse.data || [];
+        let processedCoins = coinList;
+
+        // 2. 如果需要价格数据，则获取并合并
+        if (needPrice) {
+            const priceResponse = await getExchangeCoinAllPrice();
+            let priceData: any[] = [];
+            if (priceResponse.code === '0') {
+                priceData = priceResponse.data || [];
+            }
+
+            // 合并数据
+            processedCoins = coinList.map((coin: any) => {
+                const priceInfo = priceData.find((p: any) =>
+                    p.coinSymbol === coin.coinName
+                );
+                return {
+                    ...coin,
+                    ...priceInfo
+                };
+            });
+        }
+
         return {
-            success: false,
-            data: [],
-            error: new Error('获取币种列表失败')
+            success: true,
+            data: processedCoins,
+            rawData: coinList
         };
     } catch (error) {
         console.error('获取币种列表出错:', error);
         return {
             success: false,
             data: [],
+            rawData: [],
             error
         };
     }
-} 
+}

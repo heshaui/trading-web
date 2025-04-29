@@ -9,22 +9,26 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
 import { toast } from "sonner";
-import { add,  roundDown } from '@/utils'
+import { add, roundDown } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { ROUTER_KEY_ASSETS ,ROUTER_KEY_SPOT} from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
+import { useRate } from '@/hooks/useRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import Image from 'next/image';
 interface DataType {
     balance: number,
     frozenBalance: number,
     releaseBalance: number,
     isLock: number,
     coinId: string,
-    coinName: string
+    coinName: string,
+    iconUrl: string,
+    nameDefault: string
 }
 const AssetsMainPage = observer(() => {
     const { t } = useTranslation(['assets']);
@@ -39,8 +43,11 @@ const AssetsMainPage = observer(() => {
     })
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
-    const {coinList} = useCoinList();
+    const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
+    // 获取汇率数据
+    const rateData = appStore.getRateData();
+
     const columns: ColumnsType<DataType> = [
         {
             title: t('assetsAccount.currency'), //"币种",
@@ -48,7 +55,17 @@ const AssetsMainPage = observer(() => {
             key: "coinName",
             // width: 158,
             align: "left",
-            render: (text, record) => <div>{`${text}`} </div>,
+            render: (text, record) => {
+                return <div className='flex align-center'>
+                    <Image src={record?.iconUrl} alt={text} width={28} height={28}
+                        style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+                        className='mr-1' />
+                    <p className='font-w-500 font-14 flex-y'>
+                        {`${text}`}
+                        <span className={`font-w-400 font-12 ${styles.tip_color}`}>{record?.nameDefault}</span>
+                    </p>
+                </div>
+            },
             sorter: (a, b) => a.coinName.localeCompare(b.coinName),
         },
         {
@@ -61,7 +78,10 @@ const AssetsMainPage = observer(() => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                return <span>{text2 ?roundDown(text2,coin?.unitScale):'0'}</span>
+                return <p className='flex-y align-end'>
+                <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
+                {record.coinName?useRate(record.coinName,text2):'--'}
+                </p>
             },
             sorter: (a, b) => {
                 const totalA = add(add(a.balance || 0, a.releaseBalance || 0), a.frozenBalance || 0);
@@ -77,7 +97,7 @@ const AssetsMainPage = observer(() => {
             // width: 158,
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}</span>;
 
             },
             sorter: (a, b) => a.balance - b.balance,
@@ -90,7 +110,7 @@ const AssetsMainPage = observer(() => {
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}
                 </span>;
             },
             sorter: (a, b) => a.releaseBalance - b.releaseBalance,
@@ -103,7 +123,7 @@ const AssetsMainPage = observer(() => {
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
-                return <span >{_text ?roundDown(_text,coin?.unitScale):'0'}</span>;
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}</span>;
             },
             sorter: (a, b) => a.frozenBalance - b.frozenBalance,
         },
@@ -116,21 +136,21 @@ const AssetsMainPage = observer(() => {
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 return <>
-                {/* 提现 */}
-                    <button className={`${coin?.canWithdraw===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
-                    onClick={() => getCoinList('1', coin)}
+                    {/* 提现 */}
+                    <button className={`${coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
+                        onClick={() => getCoinList('1', coin)}
                     >
                         {t('assetsAccount.button.withdraw')}
                     </button>
                     {/* 充值 */}
-                    <button className={`${coin?.canRecharge===1? styles.theme_color:styles.tip_color2} mr-3 font-12 font-w-500`}
-                    onClick={() => getCoinList('2', coin)}
+                    <button className={`${coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
+                        onClick={() => getCoinList('2', coin)}
                     >
                         {t('assetsAccount.button.deposit')}
                     </button>
                     {/* 交易 */}
-                    <button className={`${coin?.canTransfer===1? styles.theme_color:styles.tip_color2} font-12 font-w-500`}
-                    onClick={() => getCoinList('3', coin)}
+                    <button className={`${coin?.canTransfer === 1 ? styles.theme_color : styles.tip_color2} font-12 font-w-500`}
+                        onClick={() => getCoinList('3', coin)}
                     >
                         {t('assetsAccount.button.trade')}
                     </button>
@@ -140,29 +160,29 @@ const AssetsMainPage = observer(() => {
 
 
     ];
-    const getCoinList = async (type: string,coinData: any) => {
+    const getCoinList = async (type: string, coinData: any) => {
         // console.log(12345,coinList);
-       if(type === '1'){
-        if(coinData?.canWithdraw === 1){
-            router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
-        }else{
-            toast.error(t('assetsAccount.button.withdrawError'));
+        if (type === '1') {
+            if (coinData?.canWithdraw === 1) {
+                router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+            } else {
+                toast.error(t('assetsAccount.button.withdrawError'));
+            }
+        } else if (type === '2') {
+            if (coinData?.canRecharge === 1) {
+                router.push(ROUTER_KEY_ASSETS.TOP_UP);
+            } else {
+                toast.error(t('assetsAccount.button.depositError'));
+            }
+
+        } else if (type === '3') {
+            if (coinData?.canTransfer === 1) {
+                router.push(ROUTER_KEY_SPOT.INDEX);
+            } else {
+                toast.error(t('assetsAccount.button.tradeError'));
+            }
         }
-       }else if(type === '2'){
-        if(coinData?.canRecharge === 1){
-            router.push(ROUTER_KEY_ASSETS.TOP_UP);
-        }else{
-            toast.error(t('assetsAccount.button.depositError'));
-        }
-        
-       }else if(type === '3'){
-        if(coinData?.canTransfer === 1){
-            router.push(ROUTER_KEY_SPOT.INDEX);
-        }else{
-            toast.error(t('assetsAccount.button.tradeError'));
-        }
-       }
-        
+
     }
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
@@ -244,7 +264,7 @@ const AssetsMainPage = observer(() => {
                 },
                 token: {
                     colorBgContainer: 'transparent',
-                  }
+                }
             }}
         >
             <div className='flex justify-between align-center'>
