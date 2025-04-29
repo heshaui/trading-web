@@ -6,7 +6,7 @@ import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, 
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -83,8 +83,8 @@ const ExchangePage = () => {
         '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        { label: '基本版', value: 'basic' },
-        { label: 'TradingView', value: 'tradingview' },
+        { label: 'K线图', value: 'basic' },
+        // { label: 'TradingView', value: 'tradingview' },
         { label: '深度图', value: 'depth' }
     ]);
  
@@ -258,16 +258,16 @@ const ExchangePage = () => {
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        // 卖单按价格升序排列
-                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
-                        const maxPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : Number.MAX_SAFE_INTEGER;
+                        // 卖单按价格降序排列
+                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        const minPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : 0;
                         
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
                             const priceFloat = parseFloat(price);
                             
-                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
-                            if (sortedAsks.length >= 10 && priceFloat > maxPrice) {
+                            // 规则1: 如果新档位不在10档内（对于卖单，价格小于当前10档最低价），不处理
+                            if (sortedAsks.length >= 10 && priceFloat < minPrice) {
                                 return; // 不处理此档位
                             }
                             
@@ -280,21 +280,34 @@ const ExchangePage = () => {
                                 if (quantity === '0') {
                                     // 如果数量为0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
+                                } else if (parseFloat(quantity) < 0) {
+                                    // 处理负数数量的情况：减去总额
+                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
+                                    const newQuantity = currentQuantity + parseFloat(quantity); // 加上负数 = 减去绝对值
+                                    
+                                    if (newQuantity <= 0) {
+                                        // 如果减完后小于等于0，移除该档位
+                                        newData.asks.splice(existingIndex, 1);
+                                    } else {
+                                        // 否则更新为新数量
+                                        newData.asks[existingIndex][1] = newQuantity.toString();
+                                    }
                                 } else {
-                                    // 更新数量
+                                    // 常规情况：直接替换数量
                                     newData.asks[existingIndex][1] = quantity;
                                 }
                             } 
-                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
-                            else if (quantity !== '0') {
-                                // 按价格升序插入新卖单
+                            // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
+                            else if (quantity !== '0' && parseFloat(quantity) > 0) {
+                                // 按价格降序插入新卖单
                                 let insertIndex = 0;
                                 while (insertIndex < newData.asks.length &&
-                                    parseFloat(newData.asks[insertIndex][0]) < priceFloat) {
+                                    parseFloat(newData.asks[insertIndex][0]) > priceFloat) {
                                     insertIndex++;
                                 }
                                 newData.asks.splice(insertIndex, 0, newAsk);
                             }
+                            // 规则4: 如果新档位价格找不到且数量为负数，不处理
                         });
                     }
 
@@ -340,7 +353,8 @@ const ExchangePage = () => {
     // 修改K线WebSocket连接逻辑
     const klineWsRef = useRef<WebSocketService | null>(null);
 
-    const getKlineData = () => {
+    // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
+    const getKlineData = useCallback(() => {
         // 确保只在客户端和有currentPair时执行
         if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
 
@@ -399,7 +413,7 @@ const ExchangePage = () => {
         } catch (err) {
             console.error('创建K线WebSocket连接失败:', err);
         }
-    }
+    }, [currentPair, timeInterval]);
 
     useEffect(() => {
         // 设置客户端渲染标记
@@ -428,6 +442,15 @@ const ExchangePage = () => {
         getHistoryDepthData();
         getKlineData();
     }, [isClient, currentPair]);
+    
+    // 新增：监听timeInterval变化，重新连接kline的WebSocket
+    useEffect(() => {
+        // 只在客户端且currentPair有值时执行
+        if (!isClient || !currentPair || typeof window === 'undefined') return;
+        
+        // 当timeInterval变化时，重新获取K线数据
+        getKlineData();
+    }, [timeInterval, isClient, currentPair, getKlineData]);
 
     useEffect(() => {
         // 只在客户端执行
@@ -580,6 +603,7 @@ const ExchangePage = () => {
                 <div className='flex-x'>
                     <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`}  style={{paddingRight:'0'}}>
                         {/* <div className={`flex-1`}> */}
+                  
                         <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
                             <div style={{
                                 display: 'flex',
@@ -705,8 +729,14 @@ const ExchangePage = () => {
                                     </Tooltip>
                                 </div>
                             </div>
+                        
+                          
+                                  
                             <Spin spinning={loading} tip="加载中...">
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                    
+                                {(activeChartType === 'basic') && (
+                                    <div>
+
                                     <Tradingview
                                         ref={tradingviewRef}
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
@@ -716,6 +746,7 @@ const ExchangePage = () => {
                                         klineData={klineData}
                                         timeInterval={timeInterval}
                                     />
+                                      </div>
                                 )}
 
                                 {activeChartType === 'depth' &&

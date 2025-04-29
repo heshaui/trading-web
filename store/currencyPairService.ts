@@ -33,6 +33,7 @@ export interface CurrencyPairType {
     price?: number,             // 当前价格
     yesterdayPrice?: number,    // 昨日价格
     priceChangePercent?: number // 价格变化百分比
+    quantity:number //成交数量
 }
 
 // 获取所有币对数据
@@ -139,7 +140,8 @@ export async function fetchAllCurrencyPairs() {
                 show: coin?.show,
                 price: priceInfo?.price,
                 yesterdayPrice: priceInfo?.yesterdayPrice,
-                priceChangePercent
+                quantity:priceInfo.quantity,
+                priceChangePercent:priceChangePercent
             };
             
             console.log('currencyPair', currencyPair);

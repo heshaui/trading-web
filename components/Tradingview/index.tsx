@@ -145,10 +145,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           "symbol_change",
         ];
         
-        // 如果不显示左侧工具栏，则添加到禁用列表
-        if (!showLeftToolbar) {
-          disabledFeatures.push("left_toolbar");
-        }
+        
         
         const widgetOptions = {
           symbol: chartSymbol,
@@ -678,7 +675,7 @@ const Tradingview: React.ForwardRefRenderFunction<
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "470px", margin: "auto" }}
+        style={{ width: "100%", height: "550px", margin: "auto"}}
       ></div>
       <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
         {showLeftArrow && (
