@@ -6,7 +6,7 @@ import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, 
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -340,7 +340,8 @@ const ExchangePage = () => {
     // 修改K线WebSocket连接逻辑
     const klineWsRef = useRef<WebSocketService | null>(null);
 
-    const getKlineData = () => {
+    // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
+    const getKlineData = useCallback(() => {
         // 确保只在客户端和有currentPair时执行
         if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
 
@@ -399,7 +400,7 @@ const ExchangePage = () => {
         } catch (err) {
             console.error('创建K线WebSocket连接失败:', err);
         }
-    }
+    }, [currentPair, timeInterval]);
 
     useEffect(() => {
         // 设置客户端渲染标记
@@ -428,6 +429,15 @@ const ExchangePage = () => {
         getHistoryDepthData();
         getKlineData();
     }, [isClient, currentPair]);
+    
+    // 新增：监听timeInterval变化，重新连接kline的WebSocket
+    useEffect(() => {
+        // 只在客户端且currentPair有值时执行
+        if (!isClient || !currentPair || typeof window === 'undefined') return;
+        
+        // 当timeInterval变化时，重新获取K线数据
+        getKlineData();
+    }, [timeInterval, isClient, currentPair, getKlineData]);
 
     useEffect(() => {
         // 只在客户端执行
@@ -580,6 +590,7 @@ const ExchangePage = () => {
                 <div className='flex-x'>
                     <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`}  style={{paddingRight:'0'}}>
                         {/* <div className={`flex-1`}> */}
+                  
                         <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
                             <div style={{
                                 display: 'flex',
@@ -705,8 +716,14 @@ const ExchangePage = () => {
                                     </Tooltip>
                                 </div>
                             </div>
+                        
+                          
+                                  
                             <Spin spinning={loading} tip="加载中...">
+                                    
                                 {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                    <div>
+
                                     <Tradingview
                                         ref={tradingviewRef}
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
@@ -716,6 +733,7 @@ const ExchangePage = () => {
                                         klineData={klineData}
                                         timeInterval={timeInterval}
                                     />
+                                      </div>
                                 )}
 
                                 {activeChartType === 'depth' &&
