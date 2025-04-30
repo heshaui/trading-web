@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import { getUserBalanceAll, getUserBalanceByDay } from '@/services/assets';
 import { toast } from "sonner";
-import { add, roundDown, cut } from '@/utils'
+import { add, roundDown, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -49,14 +49,14 @@ const AssetsMainPage = observer(() => {
         usdBalance: 0,
         cnyBalance: 0,
     });
-    
+
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
     const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
     // 获取汇率数据
     const rateData = appStore.getRateData();
-
+    const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
 
     const columns: ColumnsType<DataType> = [
         {
@@ -229,36 +229,22 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 setInitTableData(res.data || []);
                 setTableData(res.data || []);
-                setTotal(res.data.total);
-
-                // 等待所有币种的汇率计算完成
-                const balancePromises = res.data.map(async (curr: any) => {
+                const totalUsd = res.data.reduce((sum: number, curr: any) => {
                     const coinTotal = add(
                         add(curr.balance || 0, curr.releaseBalance || 0),
                         curr.frozenBalance || 0
                     );
-
-                    // 等待汇率计算完成
-                    const usdRate = await getRate(curr.coinName, coinTotal, 'USD');
-                    const cnyRate = await getRate(curr.coinName, coinTotal, 'CNY');
-
-                    return {
-                        usdBalance: Number(usdRate.rate) || 0,
-                        cnyBalance: Number(cnyRate.rate) || 0
-                    };
-                });
-
-                // 等待所有汇率计算完成
-                const balances = await Promise.all(balancePromises);
-
-                // 计算总和
-                const totalUsd = balances.reduce((sum, curr) => sum + curr.usdBalance, 0);
-                const totalCny = balances.reduce((sum, curr) => sum + curr.cnyBalance, 0);
-
-                setBalanceAll({
-                    usdBalance: totalUsd,
-                    cnyBalance: totalCny
-                });
+                    const coin=coinList.find((item:any)=>item.coinName===curr.coinName);
+                    const balance=add(coinTotal,coin?.price||0);
+                    // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    return sum + Number(balance) || 0;
+                }, 0);
+                   const usdRate =  getRate('USDT', totalUsd, 'USD').rate
+                    const cnyRate =  getRate('USDT', totalUsd, 'CNY').rate
+                        setBalanceAll({
+                        usdBalance: Number(usdRate) || 0,
+                        cnyBalance: Number(cnyRate) || 0
+                    });
             }
         } catch (error) {
             toast.error(String(error));
@@ -270,28 +256,11 @@ const AssetsMainPage = observer(() => {
         try {
             const res = await getUserBalanceByDay();
             if (res.code === '0') {
-                const balancePromises = res.data.map(async (curr: any) => {
-                    const coinTotal = add(
-                        add(curr.balance || 0, curr.releaseBalance || 0),
-                        curr.frozenBalance || 0
-                    );
-
-                    const usdRate = await getRate('USDT', coinTotal, 'USD');
-                    const cnyRate = await getRate('USDT', coinTotal, 'CNY');
-
-                    return {
-                        usdBalance: Number(usdRate.rate) || 0,
-                        cnyBalance: Number(cnyRate.rate) || 0
-                    };
-                });
-
-                const balances = await Promise.all(balancePromises);
-                const totalUsd = balances.reduce((sum, curr) => sum + curr.usdBalance, 0);
-                const totalCny = balances.reduce((sum, curr) => sum + curr.cnyBalance, 0);
-
+                const usdRate = await getRate('USDT', res.data[0].balance, 'USD');
+                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
                 setBalanceDay({
-                    usdBalance: totalUsd,
-                    cnyBalance: totalCny
+                    usdBalance: Number(usdRate.rate) || 0,
+                    cnyBalance: Number(cnyRate.rate) || 0
                 });
             }
         } catch (error) {

@@ -6,13 +6,11 @@ function add(arg1: number, arg2: number): number {
     try {
       r1 = arg1.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       r1 = 0;
     }
     try {
       r2 = arg2.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       r2 = 0;
     }
     m = 10 ** Math.max(r1, r2);
@@ -28,13 +26,11 @@ function add(arg1: number, arg2: number): number {
     try {
       r1 = arg1.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       r1 = 0;
     }
     try {
       r2 = arg2.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       r2 = 0;
     }
     m = 10 ** Math.max(r1, r2);
@@ -54,12 +50,10 @@ function add(arg1: number, arg2: number): number {
     try {
       m += s1.split('.')[1]?.length || 0;
     } catch (e) {
-      console.log(e);
     }
     try {
       m += s2.split('.')[1]?.length || 0;
     } catch (e) {
-      console.log(e);
     }
     return (
       (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) /
@@ -76,13 +70,11 @@ function add(arg1: number, arg2: number): number {
     try {
       t1 = arg1.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       // No decimal places in arg1
     }
     try {
       t2 = arg2.toString().split('.')[1].length;
     } catch (e) {
-      console.log(e);
       // No decimal places in arg2
     }
     r1 = Number(arg1.toString().replace('.', ''));
@@ -209,9 +201,9 @@ function add(arg1: number, arg2: number): number {
    * @param places 要保留的小数位数，默认为0
    * @returns 处理后的数字
    */
-  function roundDown(num: number | string | undefined | null, places: number = 0): number | string {
+  function roundDown(num: number | string | undefined | null, placesNum: number|string = 0): number | string {
     if (num === undefined || num === null || !num) return 0;
-    
+    const places=Number(placesNum);
     // 将输入转换为字符串
     const numStr = typeof num === 'string' ? num : num.toString();
     
