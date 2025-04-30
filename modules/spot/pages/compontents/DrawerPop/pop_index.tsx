@@ -105,7 +105,7 @@ const goFeeCoin = () => {
                     </li>
                 </ul>
                 <ul className={`${styles.title_color} ${styles.swith_box} font-16 font-w-500`}>
-                    <li className='flex-x align-center justify-between '>
+                    {/* <li className='flex-x align-center justify-between '>
                     手续费币种 
                     <button className={`${styles.tip_color} font-w-400 mx-1`}
                     onClick={goFeeCoin}
@@ -113,9 +113,9 @@ const goFeeCoin = () => {
                     接收币种
                     <Iconify icon="icon-park-outline:right" className={`${styles.tip_color} ml-1`} size={24} />
 
-                    </button>
+                    </button> */}
                         
-                    </li>
+                    {/* </li> 暂时注释 2025.04.30 -zyj */}
                     <li className='flex-x align-center justify-between mt-5'>
                     交易规则 
                     <button className={`${styles.tip_color} font-w-400  mx-1`}
