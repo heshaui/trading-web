@@ -419,14 +419,21 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                     type: priceDisabled ? 0 : 1,
                     direction: segmentedvalue === 'buy' ? 0 : 1,
                 }
-                const noRemind = localStorage.getItem('noRemind')
-                console.log(noRemind, 'noRemind');
+                console.log(priceDisabled)
+                let noRemind
+                if(!priceDisabled){
+                     noRemind = localStorage.getItem('limitOrderConfirm')
+                }else{
+                     noRemind = localStorage.getItem('marketOrderConfirm')
+                }
+               
+                 console.log(noRemind, 'noRemind');
                 if (noRemind==='true') {
-                    setModalOpen(false)
-                    handelSubmitOrder()
-                } else {
                     setModalData(modalData)
                     setModalOpen(true)
+                } else {
+                    setModalOpen(false)
+                    handelSubmitOrder()
                 }
             });
     };

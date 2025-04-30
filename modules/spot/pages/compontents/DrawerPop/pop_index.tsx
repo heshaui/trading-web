@@ -14,16 +14,38 @@ import appStore from '@/store';
 const DrawerPopIndex = () => {
 
     const { t } = useTranslation(['spot']);
-    const { isLoggedIn} = useAuth();
+    const { isLoggedIn } = useAuth();
     const router = useRouter();
-    const {popType, setPopType } = usePopTypeContext();
+    const { popType, setPopType } = usePopTypeContext();
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+    const [limitOrderConfirm, setLimitOrderConfirm] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('limitOrderConfirm') === 'true';
+        }
+        return false;
+    });
+    const [marketOrderConfirm, setMarketOrderConfirm] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('marketOrderConfirm') === 'true';
+        }
+        return false;
+    });
 const goRule = () => {
     setPopType(PopTypeEnum.TRADE_RULE)
 }
 const goFeeCoin = () => {
     setPopType(PopTypeEnum.FEE_COIN)
 }   
+
+    const handleLimitOrderChange = (checked: boolean) => {
+        setLimitOrderConfirm(checked);
+        localStorage.setItem('limitOrderConfirm', String(checked));
+    }
+
+    const handleMarketOrderChange = (checked: boolean) => {
+        setMarketOrderConfirm(checked);
+        localStorage.setItem('marketOrderConfirm', String(checked));
+    }
 
     if(popType !== PopTypeEnum.INDEX) return null
 
@@ -70,11 +92,15 @@ const goFeeCoin = () => {
                         限价单 
                         <Switch 
                         size='small'
+                        checked={limitOrderConfirm}
+                        onChange={handleLimitOrderChange}
                         />
                     </li>
                     <li className='flex-x align-center justify-between mt-5'>
                         市价单 <Switch
                             size='small'
+                            checked={marketOrderConfirm}
+                            onChange={handleMarketOrderChange}
                         />
                     </li>
                 </ul>
