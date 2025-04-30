@@ -31,7 +31,7 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
     // 获取汇率
     const getExchangeRate = () => {
         const rate = rateData.find((item: any) => 
-            item.shortName === rateName
+            item.shortName === rateName.toUpperCase()
         );
         return {
             exchangeRate: Number(rate?.exchangeRate),
