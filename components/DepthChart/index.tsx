@@ -71,14 +71,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
   // ECharts 配置项
   const option = {
     tooltip: {
-      trigger: 'axis',
-      formatter: (params:any) => {
-        const data = params[0].data;
-        return `价格: ${data[0].toFixed(2)}<br/>累积量: ${data[1].toFixed(4)}`;
-      },
-      axisPointer: {
-        type: 'cross'
-      }
+      show:false
     },
     grid: {
       left: '3%',
@@ -88,7 +81,6 @@ const DepthChart = ({ data }: DepthChartProps) => {
     },
     xAxis: {
       type: 'value',
-      name: '价格',
       min: minPrice, // 设置x轴最小值
       max: maxPrice, // 设置x轴最大值
       // axisLabel: {
@@ -107,7 +99,6 @@ const DepthChart = ({ data }: DepthChartProps) => {
     },
     yAxis: {
       type: 'value',
-      name: '累积量',
       position: 'right',
       splitLine: {
         show: true,
@@ -145,7 +136,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
         },
         lineStyle: {
           width: 2,
-          color: 'rgb(0, 180, 0)'
+          color: 'rgb(0, 180, 0,0.5)'
         },
         smooth: false,
         symbol: 'none'
@@ -163,7 +154,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
         },
         lineStyle: {
           width: 2,
-          color: 'rgb(255, 0, 0)'
+          color: 'rgb(255, 0, 0,0.5)'
         },
         smooth: false,
         symbol: 'none'
