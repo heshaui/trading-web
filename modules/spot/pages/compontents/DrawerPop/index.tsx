@@ -50,7 +50,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                             </button>
                         </div>
                     )}
-                    {popType === PopTypeEnum.FEE_COIN && (
+                    {/* {popType === PopTypeEnum.FEE_COIN && (
                         <div className='flex-x align-center justify-between w-full'>
                             <div className='flex-x align-center'>
                                 <button onClick={goIndex}>
@@ -62,7 +62,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />
                             </button>
                         </div>
-                    )}
+                    )}  暂时注释 --20205.04.30 zyj*/}
                 </div>
             }
             open={open}
