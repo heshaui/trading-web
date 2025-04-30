@@ -313,12 +313,12 @@ const SpotMainPage = observer(() => {
         const price=nul(record.tradePrice,record.quantity)
         if(flag === 0){
           // const fee=division(nul(_buyFee,price),100)
-          const fee=division(_buyFee,100)
-          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+          // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+          return <span>{`${roundDown(_buyFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol}`}</span>
         }else if(flag === 1){
           // const fee=division(nul(record.sellFee,price),100)
-          const fee=division(record.sellFee,100)
-          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+           // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+          return <span>{`${roundDown(record.sellFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol}`}</span>
         }else{
           return '--'
         }

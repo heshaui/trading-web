@@ -131,6 +131,7 @@ export function getUserBalance(coinId: string|number): Promise<any> {
     });
   }
 
+  // 查询用户余额日K线
   export function getUserBalanceByDay(): Promise<any> {
     return request(`${fixUrl2}/assets-web/v1/user-wallet/getUserBalanceByDay`, {
       method: 'GET'

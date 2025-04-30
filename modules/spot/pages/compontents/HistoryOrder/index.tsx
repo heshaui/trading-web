@@ -353,11 +353,11 @@ const SpotMainPage = observer(() => {
         if(flag === 0){
           // const fee=division(nul(_buyFee,price),100)
           // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
-          return <span>{_buyFee|| '--'}</span>
+          return <span>{`${roundDown(_buyFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol}`}</span>
         }else if(flag === 1){
           // const fee=division(nul(record.sellFee,price),100)
           // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
-          return <span>{record.sellFee|| '--'}</span>
+          return <span>{`${roundDown(record.sellFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol}`}</span>
         }else{
           return '--'
         }
