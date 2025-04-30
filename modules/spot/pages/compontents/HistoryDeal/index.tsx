@@ -44,8 +44,11 @@ interface DataType1 {
 }
 interface DataType{
   id: number,
-  orderId: number,  
   tenantId: string,
+  buyOrderId: number,
+  sellOrderId: number,
+  buyerUserId: number,
+  sellerUserId: number,
   buyPrice: number,
   sellPrice: number,
   tradePrice: number,
@@ -79,6 +82,7 @@ const SpotMainPage =observer( () => {
   // 获取币种列表
   // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+  const userInfo = appStore.getUserInfo()
 
   const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
@@ -341,11 +345,15 @@ const SpotMainPage =observer( () => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
         const price=nul(record.tradePrice,record.quantity)
         if(record.takerSide===0){
-          const fee=nul(record.buyFee,price)
-          return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          // const fee=division(nul(record.buyFee,price),100)
+          // const fee=division(record.buyFee,100)
+          // return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          return <span >{record.buyFee || '0'}</span>;
         }else if(record.takerSide===1){
-          const fee=nul(record.sellFee,price)
-          return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          // // const fee=division(nul(record.sellFee,price),100)
+          // const fee=division(record.sellFee,100)
+          // return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
+          return <span >{record.sellFee || '0'}</span>;
         }else{
           return <span >{'--'}</span>;
         }
@@ -357,19 +365,30 @@ const SpotMainPage =observer( () => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_status) => {
-        if(_status===0){
-          return <span >{'Maker'}</span>;
-        }else if(_status===1){
-          return <span >{'Taker'}</span>;
-        }else{
-          return <span >{'--'}</span>;
-        }
+      render: (_status,record) => {
+        return maskName(_status,record.buyerUserId,record.sellerUserId)
       },
     },
 
 
   ];
+  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+    const userId = userInfo.userId
+    if(takerSide === 0){
+      if(userId === buyerUserId){
+        return 'Taker'
+      }else {
+        return 'Maker'
+      }
+    }else if(takerSide === 1){
+      if(userId === sellerUserId){
+        return 'Taker'
+      }else{
+        return 'Maker'
+      }
+    }else{
+      return '--'
+  }}
   const directionSelect: { label: string, value: string | number }[] = [
     {
       label: t('spot.select.all'),

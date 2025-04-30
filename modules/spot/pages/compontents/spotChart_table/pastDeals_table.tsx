@@ -73,6 +73,7 @@ const SpotMainPage = observer(() => {
       // 获取币种列表
       // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+  const userInfo = appStore.getUserInfo()
 
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
@@ -311,10 +312,12 @@ const SpotMainPage = observer(() => {
         const flag = record.takerSide
         const price=nul(record.tradePrice,record.quantity)
         if(flag === 0){
-          const fee=nul(_buyFee,price)
+          // const fee=division(nul(_buyFee,price),100)
+          const fee=division(_buyFee,100)
           return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else if(flag === 1){
-          const fee=nul(record.sellFee,price)
+          // const fee=division(nul(record.sellFee,price),100)
+          const fee=division(record.sellFee,100)
           return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else{
           return '--'
@@ -327,19 +330,28 @@ const SpotMainPage = observer(() => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_buyerUserId,record) => {
-        const flag = record.takerSide
-        if(_buyerUserId === 0){
-          return <span>Maker</span>
-        }else if(flag === 1){
-          return <span>Taker</span>
-        }else{
-          return '--'
-        }
+      render: (_text,record) => {
+        return maskName(_text,record.buyerUserId,record.sellerUserId)
       },
     }
   ]
-
+  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+    const userId = userInfo.userId
+    if(takerSide === 0){
+      if(userId === buyerUserId){
+        return 'Taker'
+      }else {
+        return 'Maker'
+      }
+    }else if(takerSide === 1){
+      if(userId === sellerUserId){
+        return 'Taker'
+      }else{
+        return 'Maker'
+      }
+    }else{
+      return '--'
+  }}
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = async (expanded: boolean, record: DataType) => {
     if (expanded) {

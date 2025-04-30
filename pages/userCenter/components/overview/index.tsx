@@ -21,7 +21,7 @@ import { getLoginInfo } from '@/services/overview';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
 import { getUserBalanceByDay } from '@/services/assets'
-
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 
 const identityStyle: CSSProperties = {
     position: 'relative',
@@ -470,7 +470,11 @@ const OverviewPage: React.FC = () => {
                             <div className={`${styles.tip_color} mt-2`} >
                                 {/* 总资产折合 */}
                                 {t('overview.assets.totalAssets')}
-                                <Iconify icon="clarity:eye-show-line" className='cursor-pointer ml-1' size={20} />
+                                <button type='button'  className='ml-1' onClick={()=>router.push(ROUTER_KEY_ASSETS.ACCOUNT)}>
+                                <Iconify icon="clarity:eye-show-line"  size={20} 
+                               
+                                />
+                                </button>
                             </div>
                             <p className='font-32 font-w-700'>0.00 USDT</p>
                             <p className={`${styles.tip_color} font-14`}>≈￥0.00</p>
@@ -481,11 +485,15 @@ const OverviewPage: React.FC = () => {
                                 <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
                             </div>
                             <div className='mt-5'>
-                                <button className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} >
+                                <button type='button' className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} 
+                                onClick={()=>router.push(ROUTER_KEY_ASSETS.TOP_UP)}
+                                >
                                     {/* 充值 */}
                                     {t('overview.assets.deposit')}
                                 </button>
-                                <button className={`btn-disable font-14 font-w-500  ${styles.btn}`} >
+                                <button type='button' className={`btn-disable font-14 font-w-500  ${styles.btn}`} 
+                                onClick={()=>router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)}
+                                >
                                     {/* 提现 */}
                                     {t('overview.assets.withdraw')}
                                 </button>

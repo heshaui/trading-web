@@ -181,8 +181,10 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
     const handleAvatarClick = (item: AvatarItem) => {
         if (item.src === selectedAvatar) {
             setSelectedAvatar(null);
+            setFileUrl('')
         } else {
             setSelectedAvatar(item.src);
+            setFileUrl(item.src)
         }
     };
 
@@ -289,6 +291,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
         //     return prevImages.filter((_, i) => i !== index);
         // });
         setFileUrl('')
+        setSelectedAvatar(null);
         setSelectedImages([])
     };
     const handleUpload = () => {
