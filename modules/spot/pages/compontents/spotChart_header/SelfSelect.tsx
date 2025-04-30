@@ -259,7 +259,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('change')}
                     >
-                        <span>{showVolume ? '成交量' : '24h涨跌'}</span>
+                        <span>{showVolume ? '24H成交量' : '24H涨跌'}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
