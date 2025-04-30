@@ -345,10 +345,10 @@ const SpotMainPage =observer( () => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
         const price=nul(record.tradePrice,record.quantity)
         if(record.takerSide===0){
-          const fee=nul(record.buyFee,price)
+          const fee=division(nul(record.buyFee,price),100)
           return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
         }else if(record.takerSide===1){
-          const fee=nul(record.sellFee,price)
+          const fee=division(nul(record.sellFee,price),100)
           return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
         }else{
           return <span >{'--'}</span>;

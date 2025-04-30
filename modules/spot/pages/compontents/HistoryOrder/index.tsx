@@ -199,7 +199,9 @@ const SpotMainPage = observer(() => {
         const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
         if (record.status === 0 || record.status === 1||record.status === 5) {
           return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
-        } else {
+        } else if(record.type === 0 ){
+          return <span >{t('spot.select.market')}</span>;
+         } else {
           return <span >--</span>;
         }
 
@@ -349,10 +351,10 @@ const SpotMainPage = observer(() => {
         const flag = record.takerSide
         const price=nul(record.tradePrice,record.quantity)
         if(flag === 0){
-          const fee=nul(_buyFee,price)
+          const fee=division(nul(_buyFee,price),100)
           return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else if(flag === 1){
-          const fee=nul(record.sellFee,price)
+          const fee=division(nul(record.sellFee,price),100)
           return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
         }else{
           return '--'

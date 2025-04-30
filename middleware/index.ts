@@ -2,6 +2,7 @@ import { NextRouter } from 'next/router';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { forbiddenPathManager } from './forbiddenPathManager';
 // 定义公开路径（不需要登录即可访问的页面）
 export const publicPaths = [
     '/',
@@ -26,6 +27,26 @@ export const isPublicPath = (path: string): boolean => {
     return false;
 };
 
+// // [路由权限]
+// const checkPermission = (path: string): boolean => {
+//     // 1. 从 localStorage 获取用户权限信息
+//     const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '[]');
+    
+//     // // 2. 从 store 获取用户信息
+//     // const userInfo = appStore.getUserInfo();
+    
+//     // // 3. 检查用户角色
+//     // if (userInfo.role === 'admin') {
+//     //     return true; // 管理员可以访问所有页面
+//     // }
+    
+//     // 4. 检查具体权限
+//     return userPermissions.includes(path);
+// };
+// 检查是否是禁止访问的路径
+const checkForbiddenPath = (path: string): boolean => {
+    return forbiddenPathManager.isForbidden(path);
+};
 interface AuthGuardOptions {
     isAuthChecking: boolean;
     isLoggedIn: boolean;
@@ -85,6 +106,21 @@ export const useAuthGuard =
                 pathname: '/login',
                 query: { returnUrl }
             });
+        }
+        // [检查权限]
+        // if (!isPublicPath(currentPath)) {
+        //     const hasPermission = checkPermission(currentPath);
+        //     if (!hasPermission) {
+        //         // 无权限时重定向到不存在的路由，触发 Next.js 的 404
+        //         router.push('/not-found-page');
+        //         return;
+        //     }
+        // }
+        // 检查是否是禁止访问的路径
+        if (checkForbiddenPath(currentPath)) {
+            // 触发 Next.js 的 404
+            router.push('/not-found-page');
+            return;
         }
     }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 
