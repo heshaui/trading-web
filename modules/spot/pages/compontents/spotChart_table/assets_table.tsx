@@ -38,7 +38,8 @@ const AssetsMainPage = () => {
     // 获取币种列表
     const { coinList } = useCoinList(true);
     const coinPairs = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
-    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
+    const rateData = appStore.getRateData() || [];
+    const rateKey = appStore.getRateKey().replace(/\s+/g, '');// 汇率key
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);

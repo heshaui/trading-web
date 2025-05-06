@@ -7,6 +7,8 @@ import { nul,roundDown } from '@/utils';
 * @returns 汇率
 */
 export const getRate = (symbolName: string,priceNum:string|number, rateName: string = 'USD') => {
+    try {
+
     // 获取汇率数据 usdt-$
     const rateData = appStore.getRateData() || [];
     // 获取币种信息 coin-usdt
@@ -64,4 +66,15 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
         symbol:symbol, // 汇率符号
         shortName:shortName // 汇率名称
     };
+            
+} catch (error) {
+     // 发生错误时返回默认值
+     console.error('Error in getRate:', error);
+     return {
+         ratetext: '--',
+         rate: '--',
+         symbol: '',
+         shortName: ''
+     };    
+}
 };

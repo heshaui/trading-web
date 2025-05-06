@@ -55,7 +55,7 @@ const AssetsMainPage = observer(() => {
     const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
     // 获取汇率数据
-    const rateData = appStore.getRateData();
+    const rateData = appStore.getRateData()||[];
     const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
     const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
 

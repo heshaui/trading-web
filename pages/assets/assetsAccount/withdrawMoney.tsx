@@ -13,7 +13,7 @@ import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
-import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll ,getUserALlLimit} from '@/services/assets'
+import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll, getUserALlLimit, getUserBalanceAll } from '@/services/assets'
 import { toast } from "sonner";
 import { cut, nul, division, countNum, withdrawFee } from '@/utils'
 import { getUserInfo } from '@/hooks/userInfo';
@@ -34,7 +34,11 @@ interface coinSelectType {
     nameDefault: string,
     value: string,
     label: string,
-    memoTag:number
+    memoTag: number,
+    balance: number,
+    frozenBalance: number,
+    isLock: number
+
 }
 interface coinExtAllListType {
     id: number,
@@ -84,7 +88,8 @@ interface SearchHistoryItem {
     label: string,
     value: string,
     desc?: string,
-    network?: string
+    network?: string,
+    iconUrl: string
 }
 interface userBalanceType {
     balance: number,
@@ -126,7 +131,8 @@ const WithdrawMoneyPage = observer(() => {
     const { t } = useTranslation('assets');
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
-    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
+    const rateData = appStore.getRateData() || [];
+    const rateKey = appStore.getRateKey().replace(/\s+/g, '')
     const [current, setCurrent] = useState(0);
 
     // 商户支持的币种协议(网络)
@@ -164,9 +170,9 @@ const WithdrawMoneyPage = observer(() => {
     const [allowWithdraw, setAllowWithdraw] = useState(false)
     const { resetState } = useResetStateContext();
     const [addressInput, setAddressInput] = useState('');
-const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
+    const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
 
-const [userAllLimit, setUserAllLimit] = useState<any>('')
+    const [userAllLimit, setUserAllLimit] = useState<any>('')
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -210,7 +216,16 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
                         label: item.coinName,
                         value: item.coinId,
                     }));
-                setCoinSelect(coinList)
+                const balanceAll = await getUserBalanceAllData()
+                const coinListAll = coinList.map((item: any) => {
+                    const balance = balanceAll.find((balance: any) => balance.coinName === item.coinName)
+                    return {
+                        ...item,
+                        ...balance
+                    }
+                })
+
+                setCoinSelect(coinListAll)
             } else {
                 toast.error(res.message)
             }
@@ -246,8 +261,10 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
             const filtered = prev.filter(item => item.value !== value);
             // 将新选项添加到开头
             const newHistory = [{
+                ...selectedCoin,
                 value: value,
-                label: selectedCoin.coinName
+                label: selectedCoin.coinName,
+
             }, ...filtered].slice(0, 4);
             // 保存到localStorage
             localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
@@ -266,6 +283,19 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
         }
         try {
             const res = await getUserBalance(tenantId)
+            if (res.code === '0') {
+                // setUserBalance(res.data)
+                return res.data
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+    const getUserBalanceAllData = async () => {
+        try {
+            const res = await getUserBalanceAll()
             if (res.code === '0') {
                 // setUserBalance(res.data)
                 return res.data
@@ -303,7 +333,7 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
                         ...item,
                         label: item.coinName,
                         value: item.coinId,
-                    })).sort((a:any,b:any)=>a.sort-b.sort)
+                    })).sort((a: any, b: any) => a.sort - b.sort)
                 setCoinSelect(coinList);
                 currentCoinList = coinList;
             } else {
@@ -455,22 +485,22 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
     useEffect(() => {
         // 每次 addressSelect 变化时，重置过滤
         setFilteredAddressOptions(addressSelect);
-      }, [addressSelect]);
-      
-      const handleAddressSearch = (value: string) => {
+    }, [addressSelect]);
+
+    const handleAddressSearch = (value: string) => {
         setAddressInput(value);
         if (!value) {
-          setFilteredAddressOptions(addressSelect);
-          return;
+            setFilteredAddressOptions(addressSelect);
+            return;
         }
         setFilteredAddressOptions(
-          addressSelect.filter(option =>
-            option.addressName?.toLowerCase().includes(value.toLowerCase()) ||
-            option.addressTitle?.toLowerCase().includes(value.toLowerCase()) ||
-            option.protocolName?.toLowerCase().includes(value.toLowerCase())
-          )
+            addressSelect.filter(option =>
+                option.addressName?.toLowerCase().includes(value.toLowerCase()) ||
+                option.addressTitle?.toLowerCase().includes(value.toLowerCase()) ||
+                option.protocolName?.toLowerCase().includes(value.toLowerCase())
+            )
         );
-      };
+    };
     // 进入第三步-添加检查函数
     const checkStep2Required = () => {
         const addressId = form.getFieldValue('addressId');
@@ -512,13 +542,13 @@ const [userAllLimit, setUserAllLimit] = useState<any>('')
         setAmountNum(coninInfo.minRecharge || 0)
         form.setFieldValue('amount', coninInfo.minRecharge || 0)
     }
-const isMemo =  () => {
-    // memoTag
-    const coinId = form.getFieldValue('tenantId')
-    const data=coinSelect.filter((item:any)=>item.coinId===coinId)
-    return data[0]?.memoTag
+    const isMemo = () => {
+        // memoTag
+        const coinId = form.getFieldValue('tenantId')
+        const data = coinSelect.filter((item: any) => item.coinId === coinId)
+        return data[0]?.memoTag
 
-}
+    }
 
     // 金额
     const amountChange = (e: any) => {
@@ -552,12 +582,12 @@ const isMemo =  () => {
             //     setAllowWithdraw(false)
             // }
             // 小于最小提币量，大于最大提币量，大于现货余额 //，大于24h限额-接口未通
-            if(filteredValue < coninInfo.minWithdraw||filteredValue > userAllLimit.maxWithdraw||filteredValue > userAllLimit.balance){
+            if (filteredValue < coninInfo.minWithdraw || filteredValue > userAllLimit.maxWithdraw || filteredValue > userAllLimit.balance) {
                 setAllowWithdraw(false)
-            }else{
+            } else {
                 setAllowWithdraw(true)
             }
-            
+
         } else {
             setAmountNum(0)
             form.setFieldValue('amount', 0)
@@ -692,11 +722,16 @@ const isMemo =  () => {
         // setAmountNum(0)
 
     }
-    // 手续费汇率
-    const getWithdrawFee = (fee:number)=>{
-        const coinName=coinSelect.find((item:any)=>item.coinId===form.getFieldValue('tenantId'))?.coinName||''
-        const rateKeyName=rateKey.split('-')[0]; // 获取汇率key
-        const {shortName,rate,symbol} = getRate(coinName,fee,rateKeyName);
+    // 手续费汇率-可用余额汇率（传baseCoinName）
+    const getWithdrawFee = (number: number, baseCoinName?: string) => {
+        let coinName = ''
+        if (baseCoinName) {
+            coinName = baseCoinName || ''
+        } else {
+            coinName = coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
+        }
+        const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
+        const { shortName, rate, symbol } = getRate(coinName, number, rateKeyName);
         return {
             coinName,
             shortName,
@@ -733,7 +768,7 @@ const isMemo =  () => {
                             className={`${styles.select_box} custom-select`}
                             optionRender={(option) => {
                                 if (!option?.data) return null;  // 添加空值检查
-                                return (
+                                return (<div className='flex-x align-center justify-between'>
                                     <div className="flex items-center py-1">
                                         <Image
                                             // src={`/images/assets/assets_account/icon_money.png`}
@@ -742,30 +777,52 @@ const isMemo =  () => {
                                             width={20}
                                             height={20}
                                             className={`mr-2`}
-                                            style={{borderRadius:'50%'}}
+                                            style={{ borderRadius: '50%', height: '20px', width: '20px' }}
                                         />
                                         <span className="text-text-color7">
                                             {`${option.data.coinName}(${option.data.nameDefault})`}
                                         </span>
                                     </div>
+                                    <div className='flex-y align-end'>
+                                        <span>{option.data.balance}</span>
+                                        <span>{`≈${getWithdrawFee(option.data.balance,option.data.coinName).rate} ${getWithdrawFee(option.data.balance,option.data.coinName).coinName}`}</span>
+                                    </div>
+                                </div>
                                 );
                             }}
                             dropdownRender={(menu) => (
                                 <>
                                     {coinSelect.length > 0 && (
                                         <div className={`font-14 font-w-400 mb-2_5`}>
-                                            <p className={`${styles.tip_color2}`}>
-                                                {t('withdrawMoney.searchHistory')}
-                                            </p>
+                                            <div className={`${styles.tip_color2} w-full flex-x justify-between`}>
+                                                {/* 搜索历史 */}
+                                                <span> {t('withdrawMoney.searchHistory')}</span>
+
+                                                <button
+                                                    type='button'
+                                                    onClick={() => delHistory()}
+                                                >
+                                                    <Iconify icon="mingcute:delete-2-line" size={20} className={`${styles.title_color}`} />
+                                                </button>
+                                            </div>
                                             {searchHistory.length > 0 ? (
                                                 <div className='mt-2 mb-2_5'>
                                                     {searchHistory.map((item) => (
                                                         <button
                                                             type='button'
                                                             key={item.value}
-                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2`}
+                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2 flex-x justify-between`}
                                                             onClick={() => setFormCoin(item.value)}
                                                         >
+                                                            <Image
+                                                                // src={`/images/assets/assets_account/icon_money.png`}
+                                                                src={item.iconUrl}
+                                                                alt={item.label}
+                                                                width={20}
+                                                                height={20}
+                                                                className={`mr-2`}
+                                                                style={{ borderRadius: '50%', height: '12px', width: '12px' }}
+                                                            />
                                                             {item.label}
                                                         </button>
                                                     ))}
@@ -942,13 +999,13 @@ const isMemo =  () => {
                         </Form.Item>
                         {/* showMemo */}
                         {isMemo() ?
-                        <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
-                            <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                            <span>
-                                {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
-                                {t('withdrawMoney.memoWarning')}
-                            </span>
-                        </p>:null}
+                            <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}>
+                                <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
+                                <span>
+                                    {/* 提币至其他交易所时需要填写标签，否则提币将失败 */}
+                                    {t('withdrawMoney.memoWarning')}
+                                </span>
+                            </p> : null}
                     </Form.Item>
                     {isMemo() ? <Form.Item>
                         <Form.Item name='momo' noStyle>
@@ -965,7 +1022,7 @@ const isMemo =  () => {
                                 {t('withdrawMoney.memoConfirm')}
                             </span>
                         </p>
-                    </Form.Item>:null}
+                    </Form.Item> : null}
                 </>
                 }
             </div >,
@@ -1048,6 +1105,11 @@ const isMemo =  () => {
 
         },
     ]
+    // 删除历史记录
+    const delHistory = () => {
+        localStorage.removeItem('coinSearchHistory');
+        setSearchHistory([]);
+    }
 
     // 添加 useEffect 来加载历史记录
     useEffect(() => {
