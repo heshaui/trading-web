@@ -31,12 +31,14 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
     // 获取汇率
     const getExchangeRate = () => {
         const rate = rateData.find((item: any) => 
-            item.shortName === rateName
+            item.shortName === rateName.trim()
         );
+        
         return {
             ...rate,
             exchangeRate: Number(rate?.exchangeRate),
             symbol: rate?.symbol,
+            // symbol: rateName,
             shortName: rate?.shortName
         }
     };

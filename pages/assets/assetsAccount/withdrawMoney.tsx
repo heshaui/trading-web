@@ -24,6 +24,9 @@ import { useTranslation } from 'next-i18next';
 import { getLoginUserInfo } from "@/services/userCenter"
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { ResetStateProvider, useResetStateContext } from '@/hooks/useStateProvider';
+import appStore from '@/store';
+import { observer } from 'mobx-react-lite';
+import { getRate } from '@/utils/getUseRate';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -119,11 +122,11 @@ interface coinInfoType {
     confirms: number
 }
 
-const WithdrawMoneyPage = () => {
+const WithdrawMoneyPage = observer(() => {
     const { t } = useTranslation('assets');
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
-
+    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
     const [current, setCurrent] = useState(0);
 
     // 商户支持的币种协议(网络)
@@ -533,11 +536,28 @@ const isMemo =  () => {
 
             form.setFieldValue('amount', filteredValue);
             setAmountNum(filteredValue)
-            if (filteredValue > coninInfo.minWithdraw) {
-                setAllowWithdraw(true)
-            } else {
+            // if (filteredValue > coninInfo.minWithdraw) {
+            //     // setAllowWithdraw(true)
+            //     if (filteredValue > userAllLimit.maxWithdraw) {
+            //         setAllowWithdraw(false)
+            //     }else{
+            //         setAllowWithdraw(true)
+            //     }
+            //     if(filteredValue > userAllLimit.balance){
+            //         setAllowWithdraw(false)
+            //     }else{
+            //         setAllowWithdraw(true)
+            //     }
+            // } else {
+            //     setAllowWithdraw(false)
+            // }
+            // 小于最小提币量，大于最大提币量，大于现货余额 //，大于24h限额-接口未通
+            if(filteredValue < coninInfo.minWithdraw||filteredValue > userAllLimit.maxWithdraw||filteredValue > userAllLimit.balance){
                 setAllowWithdraw(false)
+            }else{
+                setAllowWithdraw(true)
             }
+            
         } else {
             setAmountNum(0)
             form.setFieldValue('amount', 0)
@@ -670,6 +690,19 @@ const isMemo =  () => {
         form.resetFields()
         setCurrent(1);
         // setAmountNum(0)
+
+    }
+    // 手续费汇率
+    const getWithdrawFee = (fee:number)=>{
+        const coinName=coinSelect.find((item:any)=>item.coinId===form.getFieldValue('tenantId'))?.coinName||''
+        const rateKeyName=rateKey.split('-')[0]; // 获取汇率key
+        const {shortName,rate,symbol} = getRate(coinName,fee,rateKeyName);
+        return {
+            coinName,
+            shortName,
+            rate,
+            symbol
+        }
 
     }
     // useEffect(() => {
@@ -883,7 +916,8 @@ const isMemo =  () => {
                                                 <span className={`${styles.tip_color}`}>{option.data.protocolName}</span>
                                             </p>
                                             <p className={`${styles.tip_color2} `}>
-                                                {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`}
+                                                {/* {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`} */}
+                                                {`${t('withdrawMoney.fee')} ${option.data.withdrawFee}${getWithdrawFee(option.data.withdrawFee).coinName}≈${getWithdrawFee(option.data.withdrawFee).symbol} ${getWithdrawFee(option.data.withdrawFee).rate}`}
                                             </p>
                                         </div>
                                     );
@@ -1133,7 +1167,7 @@ const isMemo =  () => {
         </div>
     </ResetStateProvider>
     );
-};
+});
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {

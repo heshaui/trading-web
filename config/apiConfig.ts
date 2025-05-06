@@ -38,6 +38,8 @@ export const LOCAL_STORAGE_KEY = {
     CURRENT_COIN: 'current_coin', // 币种数据
     RATE_DATA: 'rate_data', //汇率数据
     PATH_FORBIDDEN: 'path_forbidden', // 禁止路径
+    RATE_KEY: 'rate_key', // 汇率key
+    CACHED_RATE_DATA: 'cachedRateData', // 缓存汇率数据
 };
 
 export const ROUTER_KEY_ASSETS = {
