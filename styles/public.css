@@ -15,7 +15,7 @@
   background: #E1E1E4;
 }
 .disabled_btn2{
-  color:  var(--btncolor9);
+  color: #A4A5AC;
   background: var(--btncolor9);
 }
 .cancel_btn2{
@@ -593,6 +593,10 @@
   -webkit-line-clamp: 2; 
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.ltr-text {
+  direction: ltr;
+  unicode-bidi: bidi-override;
 }
 /* 标准属性的兼容性补充（如果未来支持） */
 @supports (line-clamp: 2) {
