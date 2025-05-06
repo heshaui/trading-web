@@ -425,11 +425,11 @@ const OverviewPage: React.FC = () => {
                             <span className='mr-2_5' >
                                 {/* 安全强度 */}
                                 {t('overview.securityAuth.securityLevel')}({loginInfo?.securityIntensity === 1 ? t('overview.securityAuth.low') : loginInfo?.securityIntensity === 2 ? t('overview.securityAuth.medium') : t('overview.securityAuth.high')})</span>
-                            {loginInfo?.securityIntensity === 1 && <Image src="/images/userCenter/safe/icon_safe1.svg"
+                            {loginInfo?.securityIntensity === 1 && <Image src={isDayMode?"/images/userCenter/safe/icon_safe1.svg":"/images/userCenter/safe/icon_safe1_dark.svg"}
                                 width={71}
                                 height={4}
                                 alt="" />}
-                            {loginInfo?.securityIntensity === 2 && <Image src="/images/userCenter/safe/icon_safe2.svg"
+                            {loginInfo?.securityIntensity === 2 && <Image src={isDayMode?"/images/userCenter/safe/icon_safe2.svg":"/images/userCenter/safe/icon_safe2_dark.svg"}
                                 width={71}
                                 height={4}
                                 alt="" />}

@@ -107,130 +107,6 @@ const SpotMainPage =observer( () => {
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
 
 
-  const columns1: ColumnsType<DataType1> = [
-    {
-      title: t('spot.columns.date'), //"日期",
-      dataIndex: "completedTime",
-      key: "completedTime",
-      width: 200,
-      align: "left",
-      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
-    },
-    {
-      title: t('spot.columns.symbol'), //"交易对",
-      dataIndex: "symbol",
-      key: "symbol",
-      align: "center",
-      width: 158,
-      render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
-      onClick={()=>{
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-      }}
-      >
-        {_text || '--'}
-        <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
-      </button >,
-     },
-    {
-      title: t('spot.columns.type'), //"类型",
-      key: "type",
-      dataIndex: "type",
-      width: 128,
-      align: "center",
-      render: (_text) => {
-        if (_text === 0) {
-          return <span >{t('spot.columns.market')}</span>;
-        } else if (_text === 1) {
-          return <span  >{t('spot.columns.limit')}</span>;
-        } else {
-          return <span >--</span>;
-        }
-      },
-    },
-    {
-      title: t('spot.columns.direction'), //"方向",
-      dataIndex: "direction",
-      key: "direction",
-      align: "center",
-      width: 158,
-      render: (_status) => {
-        let text
-        if (_status === 0) {
-          text = t('spot.trade.buy')
-          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
-        } else if (_status === 1) {
-          text = t('spot.trade.sell')
-          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
-        } else {
-          return '--'
-        }
-      },
-    },
-    {
-      title: t('spot.columns.price2'), //"成交价",
-      dataIndex: "turnover",
-      key: "turnover",
-      align: "center",
-      width: 158,
-      render: (_status, record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        // let turnover 
-        // if(record.direction === 0){
-        //   turnover = record.turnover
-        // }else if(record.direction === 1){
-        //   turnover = record.turnover
-        // }
-        return <span >{_status  ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
-
-      },
-    },
-
-    {
-      title: t('spot.columns.count'),  //"成交数量",
-      key: "tradedAmount",
-      dataIndex: "tradedAmount",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '0'}</span>;
-      },
-    },
-
-    {
-      title: t('spot.columns.amount2'), //"成交金额",
-      key: "turnover",
-      dataIndex: "turnover",
-      width: 128,
-      align: "center",
-      render: (_status,record) => {
-        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '0'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.fee'), //"手续费",
-      key: "buyFee",
-      dataIndex: "buyFee",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('spot.columns.role'), //"角色",
-      key: "tenantId",
-      dataIndex: "tenantId",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-
-
-  ];
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
@@ -320,7 +196,8 @@ const SpotMainPage =observer( () => {
       width: 108,
       align: "center",
       render: (_status, record) => {
-        return <span >{_status ? _status : '0'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '0'}</span>;
       },
     },
     {
@@ -343,17 +220,17 @@ const SpotMainPage =observer( () => {
       align: "center",
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const price=nul(record.tradePrice,record.quantity)
+        // const price=nul(record.tradePrice,record.quantity)
         if(record.takerSide===0){
           // const fee=division(nul(record.buyFee,price),100)
           // const fee=division(record.buyFee,100)
           // return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
-          return <span >{record.buyFee || '0'}</span>;
+          return <span >{`${roundDown(record.buyFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>;
         }else if(record.takerSide===1){
           // // const fee=division(nul(record.sellFee,price),100)
           // const fee=division(record.sellFee,100)
           // return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
-          return <span >{record.sellFee || '0'}</span>;
+          return <span >{`${roundDown(record.sellFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>;
         }else{
           return <span >{'--'}</span>;
         }

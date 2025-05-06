@@ -7,9 +7,9 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import { getUserBalanceAll } from '@/services/assets';
+import { getUserBalanceAll, getUserBalanceByDay } from '@/services/assets';
 import { toast } from "sonner";
-import { add, roundDown } from '@/utils'
+import { add, roundDown, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -41,12 +41,22 @@ const AssetsMainPage = observer(() => {
         page: 1,
         pageSize: 10
     })
+    const [balanceAll, setBalanceAll] = useState({
+        usdBalance: 0,
+        cnyBalance: 0,
+    });
+    const [balanceDay, setBalanceDay] = useState({
+        usdBalance: 0,
+        cnyBalance: 0,
+    });
+
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
     const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
     // 获取汇率数据
     const rateData = appStore.getRateData();
+    const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
 
     const columns: ColumnsType<DataType> = [
         {
@@ -78,10 +88,10 @@ const AssetsMainPage = observer(() => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                const {ratetext} = getRate(record.coinName,text2);
+                const { ratetext } = getRate(record.coinName, text2);
                 return <p className='flex-y align-end'>
-                <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
-                {record.coinName?ratetext:''}
+                    <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
+                    {record.coinName ? ratetext : ''}
                 </p>
             },
             sorter: (a, b) => {
@@ -219,17 +229,48 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 setInitTableData(res.data || []);
                 setTableData(res.data || []);
-                setTotal(res.data.total);
+                const totalUsd = res.data.reduce((sum: number, curr: any) => {
+                    const coinTotal = add(
+                        add(curr.balance || 0, curr.releaseBalance || 0),
+                        curr.frozenBalance || 0
+                    );
+                    const coin=coinList.find((item:any)=>item.coinName===curr.coinName);
+                    const balance=add(coinTotal,coin?.price||0);
+                    // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    return sum + Number(balance) || 0;
+                }, 0);
+                   const usdRate =  getRate('USDT', totalUsd, 'USD').rate
+                    const cnyRate =  getRate('USDT', totalUsd, 'CNY').rate
+                        setBalanceAll({
+                        usdBalance: Number(usdRate) || 0,
+                        cnyBalance: Number(cnyRate) || 0
+                    });
             }
         } catch (error) {
             toast.error(String(error));
         } finally {
             setTableLoading(false);
         }
-    }
+    };
+    const getUserBalanceDay = async () => {
+        try {
+            const res = await getUserBalanceByDay();
+            if (res.code === '0') {
+                const usdRate = await getRate('USDT', res.data[0].balance, 'USD');
+                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                setBalanceDay({
+                    usdBalance: Number(usdRate.rate) || 0,
+                    cnyBalance: Number(cnyRate.rate) || 0
+                });
+            }
+        } catch (error) {
+            toast.error(String(error));
+        }
+    };
 
     useEffect(() => {
         getUserBalanceAllData();
+        getUserBalanceDay()
     }, [])
     return (<div>
         <ConfigProvider
@@ -291,14 +332,18 @@ const AssetsMainPage = observer(() => {
             <div className={`${styles.card_bgc}  mt-3 `}>
                 <div className={`${styles.card_bgc2} w-full`}>
                     <ul className='flex-row'>
-                        <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
+                        <li className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}>
                             <p className={`${styles.tip_color} font-w-400 font-14`}>
                                 {/* 现货资产 */}
                                 {t('assetsAccount.assets')}
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
-                                <span>≈  1.12 CNY</span>
+                                <span className={`${styles.title_color} font-w-700 font-32`}>
+                                    {balanceAll.usdBalance} USD
+                                </span>
+                                <span>
+                                    ≈  {balanceAll.cnyBalance} CNY
+                                </span>
                             </p>
                         </li>
                         <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
@@ -307,8 +352,9 @@ const AssetsMainPage = observer(() => {
                                 {t('assetsAccount.todayProfit')}
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
-                                <span>≈  1.12 CNY</span>
+                                <span className={`${styles.title_color} font-w-700 font-32`}>
+                                    {cut(balanceAll.usdBalance, balanceDay.usdBalance)} USD</span>
+                                <span>≈  {cut(balanceAll.cnyBalance, balanceDay.cnyBalance)} CNY</span>
                             </p>
                         </li>
                     </ul>

@@ -126,7 +126,7 @@
 }
 
 .header_content_item{
-    width: 30%;
+    min-width: 30%;
 }
 
 .spot_auth_box{

@@ -1,5 +1,5 @@
 import appStore from '@/store';
-import { nul } from '@/utils';
+import { nul,roundDown } from '@/utils';
 /*
 * @param symbolName 币种符号
 * @param num 数量
@@ -21,7 +21,7 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
 
         // 查找币种信息
         const coin = coinInfo.find((item: any) => 
-            item.coinSymbol === symbolName.toUpperCase()
+            item.coinSymbol === symbolName
         );
 
         // 返回价格，如果没有则返回 0
@@ -34,13 +34,14 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
             item.shortName === rateName
         );
         return {
+            ...rate,
             exchangeRate: Number(rate?.exchangeRate),
             symbol: rate?.symbol,
             shortName: rate?.shortName
         }
     };
 
-    const {exchangeRate,symbol,shortName} = getExchangeRate();
+    const {exchangeRate,symbol,shortName,accuracy} = getExchangeRate();
     // 计算最终结果
     const calculateRate = () => {
         const price = getCoinPrice();
@@ -52,7 +53,7 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
         const num1 = nul(price, exchangeRate);
         const num2 = nul(num1, Number(priceNum));
         // 使用 nul 函数计算最终结果
-        return num2;
+        return roundDown(num2,accuracy||2);
     };
 
     return {

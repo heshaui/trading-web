@@ -273,9 +273,9 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status, record) => {
-        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_status ? _status : '0'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+
+        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '0'}</span>;
       },
     },
 
@@ -304,12 +304,12 @@ const SpotMainPage = observer(() => {
           // const fee=division(nul(record.buyFee,price),100)
           // const fee=division(record.buyFee,100)
           // return <span >{record.buyFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
-          return <span >{record.buyFee || '0'}</span>;
+          return <span >{`${roundDown(record.buyFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>;
         }else if(record.takerSide===1){
           // const fee=division(nul(record.sellFee,price),100)
           // const fee=division(record.sellFee,100)
           // return <span >{record.sellFee ?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '0'}</span>;
-          return <span >{record.sellFee || '0'}</span>;
+          return <span >{`${roundDown(record.sellFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>;
         }else{
           return <span >{'--'}</span>;
         }
