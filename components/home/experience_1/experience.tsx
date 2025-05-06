@@ -12,7 +12,7 @@ import { CSSProperties } from "react";
 import { getPic2, getHomeImage } from "@/services/open";
 import { useEffect, useState } from "react";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-
+import {useThemeMode} from '@/hooks/useThemeMode'
 const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
     backgroundSize: 'cover',
@@ -40,6 +40,7 @@ export default function Experience() {
     const [homePic, setHomePic] = useState<LoginPicType | null>(null)
    const [homeImage,setHomeImage]=useState<string>('')
     // const [email, setEmail] = useState('');
+    const {isDayMode}=useThemeMode()
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
         // setEmail(e.target.value)
@@ -55,7 +56,7 @@ export default function Experience() {
 
                 let lang = '';
                 if (typeof window !== 'undefined') {
-                    lang = localStorage.getItem('localeLanguage') || '';
+                    lang = localStorage.getItem('lang') || '';
                 }
                 if (lang === 'en'||lang === 'en_US') {
                     setHomePic(resdata['en_US'])
@@ -77,10 +78,10 @@ export default function Experience() {
         }
     }
     const bgUrl = () => {
-        let isDayMode = '';
+        // let isDayMode = '';
         let token = '';
         if (typeof window !== 'undefined') {
-            isDayMode = localStorage.getItem('isDayMode') || ''
+            // isDayMode = localStorage.getItem('isDayMode') || ''
             token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || ''
         }
 
@@ -98,6 +99,11 @@ export default function Experience() {
             }
         }
     }
+    const picClick = (url:string) => {
+		if (url) {
+			window.open(url, '_blank', 'noopener')
+		}
+	}
     // const getHommePic=async()=>{
     //     const params={
     //         key:'HomeBanner',
@@ -128,12 +134,15 @@ export default function Experience() {
                     <h2>{bgUrl()?.title}</h2>
                     <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
                         <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />
-                        <Button className={`${styles.experience_main_btn}`}>{bgUrl()?.buttonText}</Button>
+                        <Button className={`${styles.experience_main_btn}`}
+                        onClick={()=>picClick(bgUrl()?.url||'')}
+                        >{bgUrl()?.buttonText}</Button>
                     </div>
                 </div>
                 <div
                     className={`${styles.experience_main_pic}`}
                     style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
+                    // style={{ ...bgStyle, backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png')` }}
                 >
                 </div>
             </div>

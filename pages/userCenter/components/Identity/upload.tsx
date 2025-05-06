@@ -389,8 +389,9 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 </button>
                 {!checkFilesComplete() ? (
                     <button
-                        className={`${styles.btn_style_next} disabled_btn`}
+                        className={`${styles.btn_style_next} disabled_btn2 cursor-not-allowed`}
                         disabled
+
                     >
                         {/* 下一步 */}
                         {t('identity.upload.next')}

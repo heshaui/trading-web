@@ -291,7 +291,7 @@ function ResetPassword({ onNext }: IDVProps) {
                     
                     {!isNext ? (
                         <button
-                            className={`${styles.btn_style} disabled_btn cursor-not-allowed`}
+                            className={`${styles.btn_style} disabled_btn2 cursor-not-allowed`}
                             disabled
                         >
                             {/* 下一步 */}

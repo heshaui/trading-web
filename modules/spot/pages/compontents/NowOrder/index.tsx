@@ -171,9 +171,10 @@ const SpotMainPage =observer( () => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_status) => {
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
         return <>
-        {_status||'0'}
+        {_status?roundDown(_status,coin?.baseCoinScale):'0'}
         </>
           
       },
