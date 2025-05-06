@@ -137,3 +137,9 @@ export function getUserBalance(coinId: string|number): Promise<any> {
       method: 'GET'
     });
   }
+  // 获取用户24小时限额
+  export function getUserALlLimit(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/withdraw-deposit/getUserALlLimit`, {
+      method: 'GET',
+    });
+  }

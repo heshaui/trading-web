@@ -14,6 +14,10 @@
   color: #A4A5AC;
   background: #E1E1E4;
 }
+.disabled_btn2{
+  color:  var(--btncolor9);
+  background: var(--btncolor9);
+}
 .cancel_btn2{
   color: var(--cancel-color);
   background-color: var( --cancel-btn2);

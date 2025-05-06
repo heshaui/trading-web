@@ -13,7 +13,7 @@ import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
-import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll } from '@/services/assets'
+import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll ,getUserALlLimit} from '@/services/assets'
 import { toast } from "sonner";
 import { cut, nul, division, countNum, withdrawFee } from '@/utils'
 import { getUserInfo } from '@/hooks/userInfo';
@@ -163,6 +163,7 @@ const WithdrawMoneyPage = () => {
     const [addressInput, setAddressInput] = useState('');
 const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
 
+const [userAllLimit, setUserAllLimit] = useState<any>('')
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -652,6 +653,18 @@ const isMemo =  () => {
         // 设置允许提现
         setAllowWithdraw(true)
     }
+
+    // 获取用户24小时限额
+    const getUserALlLimitData = async () => {
+        try {
+            const res = await getUserALlLimit()
+            if (res.code === '0') {
+                setUserAllLimit(res.data)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
     const checkOK = () => {
         // resetState
         form.resetFields()
@@ -668,6 +681,7 @@ const isMemo =  () => {
     useEffect(() => {
         getAllProtocolTypeList()
         getCoinAllData()
+        getUserALlLimitData()
     }, [])
 
     const steps = [
@@ -989,7 +1003,7 @@ const isMemo =  () => {
                                 </span></p>
                             </div>
                             {/* default_btn */}
-                            <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn'}`}
+                            <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn2'}`}
                                 onClick={antiFraud}>
                                 {t('withdrawMoney.withdraw')}
                             </button>

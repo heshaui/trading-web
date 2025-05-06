@@ -14,13 +14,13 @@ import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
 import { useResetStateContext } from '@/hooks/useStateProvider';
 import { encryptData } from '@/hooks/user-encrypt'
-import { ROUTER_KEY_ASSETS ,LOCAL_STORAGE_KEY} from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS, LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { roundDown } from '@/utils';
 interface DataType {
     withdrawalId: string,
     userId: number,
     coinId: number,
-    coinName:string,
+    coinName: string,
     protocolId: number,
     amount: number,
     fee: number,
@@ -106,9 +106,9 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             dataIndex: "fee",
             width: 128,
             align: "center",
-            render: (_text,record) => {
-                const coin = currentCoin.find((item:any)=>item.coinName===record.coinName)
-                return <span >{_text?roundDown(_text,coin?.unitScale): '0'}</span>;
+            render: (_text, record) => {
+                const coin = currentCoin.find((item: any) => item.coinName === record.coinName)
+                return <span >{_text ? roundDown(_text, coin?.unitScale) : '0'}</span>;
             },
         },
         {
@@ -174,7 +174,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     ];
     // 撤销提现
     const cancelWithdraw = async () => {
-        const param={
+        const param = {
             withdrawalId: orderId
         }
         const encrypt = await encryptData(param)
@@ -188,7 +188,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             }
         } catch (error) {
             toast.error(String(error) || 'error')
-        }finally{
+        } finally {
             await getWithdrawDepositListData()
             setOpen(false)
         }
@@ -271,10 +271,10 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     }, [resetState]);
     useEffect(() => {
         if (typeof window !== 'undefined') {
-          const coinStr = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_COIN);
-          setCurrentCoin(coinStr ? JSON.parse(coinStr) : null);
+            const coinStr = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_COIN);
+            setCurrentCoin(coinStr ? JSON.parse(coinStr) : null);
         }
-      }, []);
+    }, []);
     // 添加初始加载的 useEffect
     useEffect(() => {
         getWithdrawDepositListData();
@@ -282,30 +282,6 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
     return (
         <div className={`${styles.table_box} w-full `}>
-            <div className={`${styles.table_header} w-full my-4 flex align-center justify-between`}>
-                <h5 className={`font-w-500 font-18`}>
-                    {/* 最近提现记录 */}
-                    {t('withdrawTable.title')}
-                </h5>
-                <div className='flex-x align-center'>
-                    <Checkbox
-                        defaultChecked={false}
-                        onChange={onlyShowChange}
-                        checked={checked}
-                    >
-                        <span className={`${styles.title_color} font-14`}>
-                            {t('withdrawTable.onlyShow')}
-                        </span>
-                    </Checkbox>
-                    <button className='flex-x align-center font-16' onClick={() => {
-                        router.push(ROUTER_KEY_ASSETS.BILL)
-                    }}>
-                        {t('withdrawTable.more')}
-                        <Iconify icon="mingcute:right-line" size={26} />
-                    </button>
-                </div>
-
-            </div>
             <ConfigProvider
                 theme={{
                     components: {
@@ -327,10 +303,39 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                             activeBorderColor: "var(--border-color4)",
                             optionActiveBg: "transparent",
                             selectorBg: "transparent", //选框背景色
-                        }
+                        },
+                        
                     },
+                    token: {
+                        colorBgContainer: 'transparent',
+                      }
                 }}
             >
+                <div className={`${styles.table_header} w-full my-4 flex align-center justify-between`}>
+                    <h5 className={`font-w-500 font-18`}>
+                        {/* 最近提现记录 */}
+                        {t('withdrawTable.title')}
+                    </h5>
+                    <div className='flex-x align-center'>
+                        <Checkbox
+                            defaultChecked={false}
+                            onChange={onlyShowChange}
+                            checked={checked}
+                        >
+                            <span className={`${styles.title_color} font-14`}>
+                                {t('withdrawTable.onlyShow')}
+                            </span>
+                        </Checkbox>
+                        <button className='flex-x align-center font-16' onClick={() => {
+                            router.push(ROUTER_KEY_ASSETS.BILL)
+                        }}>
+                            {t('withdrawTable.more')}
+                            <Iconify icon="mingcute:right-line" size={26} />
+                        </button>
+                    </div>
+
+                </div>
+
                 <Table
                     columns={columns}
                     dataSource={tableData}
