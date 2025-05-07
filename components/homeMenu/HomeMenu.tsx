@@ -971,7 +971,6 @@ export default function HomeMenu() {
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
     const listItems = mergedMenus.map((menuList: MenuListItem) => {
         return <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
     });
