@@ -237,6 +237,8 @@ const WithdrawMoneyPage = observer(() => {
     }
     // 币种选中更改-筛选历史选中/获取币种余额
     const coinChange = async (value: string, option: any) => {
+        console.log(option,121,value);
+        
         const coinId = form.getFieldValue('tenantId')
         // 判断同币种不重复请求
         if (coinId !== coinIdHistory) {
@@ -253,23 +255,39 @@ const WithdrawMoneyPage = observer(() => {
         // console.log(123, option);
         setCurrent(1)
         // 获取当前选中项的完整信息
-        const selectedCoin = coinSelect.find(coin => coin.coinId === value);
+        const selectedCoin = coinSelect.find(coin => coin.coinId.toString() === value.toString());
         if (!selectedCoin) return;
 
+        // 更新历史记录
+        const newHistoryItem = {
+            ...selectedCoin,
+            value: value,
+            label: selectedCoin.coinName,
+            iconUrl: selectedCoin.iconUrl, // 确保包含图标URL
+        };
         setSearchHistory(prev => {
             // 移除已存在的相同选项
             const filtered = prev.filter(item => item.value !== value);
             // 将新选项添加到开头
-            const newHistory = [{
-                ...selectedCoin,
-                value: value,
-                label: selectedCoin.coinName,
-
-            }, ...filtered].slice(0, 4);
+            const newHistory = [newHistoryItem, ...filtered].slice(0, 4);
             // 保存到localStorage
             localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
             return newHistory;
         });
+        // setSearchHistory(prev => {
+        //     // 移除已存在的相同选项
+        //     const filtered = prev.filter(item => item.value !== value);
+        //     // 将新选项添加到开头
+        //     const newHistory = [{
+        //         ...selectedCoin,
+        //         value: value,
+        //         label: selectedCoin.coinName,
+
+        //     }, ...filtered].slice(0, 4);
+        //     // 保存到localStorage
+        //     localStorage.setItem('coinSearchHistory', JSON.stringify(newHistory));
+        //     return newHistory;
+        // });
         // 获取币种余额
         const balance = await getUserBalanceData()
         setConinInfo(Object.assign(balance, option))
@@ -736,7 +754,8 @@ const WithdrawMoneyPage = observer(() => {
             coinName,
             shortName,
             rate,
-            symbol
+            symbol,
+            text: `${rate} ${shortName}`
         }
 
     }
@@ -785,7 +804,7 @@ const WithdrawMoneyPage = observer(() => {
                                     </div>
                                     <div className='flex-y align-end'>
                                         <span>{option.data.balance}</span>
-                                        <span>{`≈${getWithdrawFee(option.data.balance,option.data.coinName).rate} ${getWithdrawFee(option.data.balance,option.data.coinName).coinName}`}</span>
+                                        <span>{`≈${getWithdrawFee(option.data.balance, option.data.coinName).text}`}</span>
                                     </div>
                                 </div>
                                 );
@@ -806,12 +825,12 @@ const WithdrawMoneyPage = observer(() => {
                                                 </button>
                                             </div>
                                             {searchHistory.length > 0 ? (
-                                                <div className='mt-2 mb-2_5'>
+                                                <div className='mt-2 mb-2_5 flex-x'>
                                                     {searchHistory.map((item) => (
                                                         <button
                                                             type='button'
                                                             key={item.value}
-                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2 flex-x justify-between`}
+                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2 flex-x align-center justify-between`}
                                                             onClick={() => setFormCoin(item.value)}
                                                         >
                                                             <Image

@@ -233,21 +233,25 @@ class AppStore {
         try {
             // 首先尝试从 rate_key 获取
             const rateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
-
+            
             if (rateKey) {
-                this.rateKey = rateKey;
-            } else {
-                // 如果没有 rate_key，尝试从 cachedRateData 获取第一项
-                const cachedRateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
-                if (cachedRateData) {
-                    const parsedData = JSON.parse(cachedRateData);
-                    if (parsedData && parsedData.length > 0) {
-                        this.rateKey = parsedData[0];
-                    }
+                return rateKey;
+            }
+            
+            // 如果没有 rate_key，尝试从 rateData 获取第一项
+            const rateData = localStorage.getItem(LOCAL_STORAGE_KEY. CACHED_RATE_DATA);
+            if (rateData) {
+                const parsedData = JSON.parse(rateData);
+                if (parsedData && parsedData.length > 0) {
+                    // 只设置 rateKey，不存储到 localStorage
+                    return parsedData[0].span;
                 }
             }
+            
+            return 'USD-¥'; // 默认值
         } catch (error) {
-            console.error('Failed to load rate key from storage:', error);
+            console.error('Error getting rate key:', error);
+            return 'USD-¥'; // 发生错误时返回默认值
         }
     }
     // 从API加载币对信息
