@@ -776,8 +776,8 @@ const checkAllowWithdraw = (amount: number) => {
 
     }
     // 24h限额换算
-    const getCoinRateData = (coinName:string,number:number) => {
-         const {coinRate,price} = getCoinRate(coinName,number,'USDT',1)
+    const getCoinRateData = (coinName:string,number:number|string) => {
+         const {coinRate,price} = getCoinRate(coinName,Number(number),'USDT',1)
         return coinRate
     }
   
