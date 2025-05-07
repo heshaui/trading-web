@@ -79,6 +79,7 @@ class AppStore {
     isLoadingCoinData: boolean = false;
     // 汇率数据状态
     rateData: any[] = [];
+    rateKey: string = '';
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -88,6 +89,7 @@ class AppStore {
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
+            this.initRateKeyFromStorage(); // 初始化汇率key
         }
     }
 
@@ -211,8 +213,8 @@ class AppStore {
             console.error('Failed to load rate data from storage:', error);
         }
     }
-     //  从本地存储初始化用户信息
-     initUserInfoFromStorage() {
+    //  从本地存储初始化用户信息
+    initUserInfoFromStorage() {
         if (!isBrowser()) return;
 
         try {
@@ -222,6 +224,34 @@ class AppStore {
             }
         } catch (error) {
             console.error('Failed to load user info from storage:', error);
+        }
+    }
+    // 从本地存储初始化 rate_key
+    initRateKeyFromStorage() {
+        if (!isBrowser()) return;
+
+        try {
+            // 首先尝试从 rate_key 获取
+            const rateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
+            
+            if (rateKey) {
+                return rateKey;
+            }
+            
+            // 如果没有 rate_key，尝试从 rateData 获取第一项
+            const rateData = localStorage.getItem(LOCAL_STORAGE_KEY. CACHED_RATE_DATA);
+            if (rateData) {
+                const parsedData = JSON.parse(rateData);
+                if (parsedData && parsedData.length > 0) {
+                    // 只设置 rateKey，不存储到 localStorage
+                    return parsedData[0].span;
+                }
+            }
+            
+            return 'USD-¥'; // 默认值
+        } catch (error) {
+            console.error('Error getting rate key:', error);
+            return 'USD-¥'; // 发生错误时返回默认值
         }
     }
     // 从API加载币对信息
@@ -407,6 +437,26 @@ class AppStore {
     // 清除币种列表
     clearCoinList() {
         this.coinList = [];
+    }
+    // 设置 rate_key 的方法
+    setRateKey(key: string) {
+        this.rateKey = key;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.RATE_KEY, key);
+        }
+    }
+
+    // 获取 rate_key 的方法
+    getRateKey() {
+        return this.rateKey;
+    }
+
+    // 清除 rate_key 的方法
+    clearRateKey() {
+        this.rateKey = '';
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.RATE_KEY);
+        }
     }
 }
 

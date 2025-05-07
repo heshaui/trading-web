@@ -231,7 +231,7 @@ const SpotMainPage = observer(() => {
       align: "center",
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status, coin?.coinScale) : '0'}</span>;
       },
     },
     {
@@ -243,7 +243,7 @@ const SpotMainPage = observer(() => {
       render: (_status,record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
 
-        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status, coin?.coinScale) : '0'}</span>;
       },
     },
     {
@@ -327,7 +327,7 @@ const SpotMainPage = observer(() => {
       render: (_status) => {
         const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
         const coin = coinList.find((item: any) => item.symbol === symbolName);
-        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '--'}</span>;
+        return <span >{_status ? roundDown(_status,coin?.coinScale) : '--'}</span>;
 
       },
     },

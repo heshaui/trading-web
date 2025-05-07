@@ -17,7 +17,7 @@ const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    backgroundRepeat: 'repeat',
 };
 interface isLoginType {
     buttonText: string,
@@ -128,7 +128,7 @@ export default function Experience() {
     return (
         <div className={`${styles.experience_page} flex-y-cc`}>
             <div className={`${styles.experience_main}`}
-            // style={{...bgStyle, backgroundImage: `url(${homePic?.url})`}}
+           style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
             >
                 <div className={`${styles.experience_main_box} flex-y flex-ai-center mt-10 `}>
                     <h2>{bgUrl()?.title}</h2>
@@ -141,8 +141,9 @@ export default function Experience() {
                 </div>
                 <div
                     className={`${styles.experience_main_pic}`}
-                    style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
-                    // style={{ ...bgStyle, backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png')` }}
+                    // style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
+                    // style={{ ...bgStyle
+                    //     , backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png')` }}
                 >
                 </div>
             </div>

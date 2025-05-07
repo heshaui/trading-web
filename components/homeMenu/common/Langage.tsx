@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import UserInfoMenu from '../common/UserInfo';
 import AssetsMenu from '../common/Assets';
 import {NoData} from '@/components/noData';
+import appStore from '@/store';
 export default function LangageMenuItems() {
     // 路由
     const router = useRouter();
@@ -84,7 +85,7 @@ export default function LangageMenuItems() {
             localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
         }
         if (rateData.length > 0) {
-            localStorage.setItem('cachedRateData', JSON.stringify(rateData));
+            localStorage.setItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA, JSON.stringify(rateData));
         }
     }, [menus, adaptiveMenuData, bulletinData, languageList, rateData]);
 
@@ -120,7 +121,7 @@ export default function LangageMenuItems() {
             const cachedAdaptiveMenuData = JSON.parse(localStorage.getItem('cachedAdaptiveMenuData') || '[]');
             const cachedBulletinData = JSON.parse(localStorage.getItem('cachedBulletinData') || '[]');
             const cachedLanguageList = JSON.parse(localStorage.getItem('cachedLanguageList') || '[]');
-            const cachedRateData = JSON.parse(localStorage.getItem('cachedRateData') || '[]');
+            const cachedRateData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA) || '[]');
 
             return {
                 cachedMenus,
@@ -263,7 +264,8 @@ export default function LangageMenuItems() {
                 'cachedAdaptiveMenuData',
                 'cachedBulletinData',
                 'cachedLanguageList',
-                'cachedRateData'
+                // 'cachedRateData',
+                LOCAL_STORAGE_KEY.CACHED_RATE_DATA
             ];
 
             keysToRemove.forEach(key => {
@@ -331,6 +333,7 @@ export default function LangageMenuItems() {
     // 汇率点击
     const handleRateClick = (rate: string) => {
         setSelectedRate(rate);
+        appStore.setRateKey(rate);
         // 可以在这里添加其他逻辑，例如更新语言设置
     };
     // 定义语言菜单项

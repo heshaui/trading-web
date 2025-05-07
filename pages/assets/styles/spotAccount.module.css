@@ -86,20 +86,20 @@
 .input_box:focus,
 .input_box:focus-within {
    border-color: var(--text-color3) !important;
-   box-shadow: none;
+   box-shadow: none !important;
    /* box-shadow: 0 0 0 1px var(--text_color3) !important; */
 }
 /* 鼠标聚焦且移出样式 */
-.input_box:focus:not(:hover){
+/* .input_box:focus:not(:hover){
     background-color: var(--homeground);
     color: #fff;
     box-shadow: none;
-}
+} */
 /* 鼠标聚焦且移出样式 */
 .input_box:focus:not(:hover){
     background-color: var(--homeground5);
     color: #fff;
-    box-shadow: none;
+    box-shadow: none !important;
 }
 /* 鼠标滑过 */
 .input_box:hover{
@@ -117,6 +117,32 @@
     height: 50px !important;
     background: var(--background7) !important;
     color: var(--text-color6) !important;
+}
+
+
+.input_box4 {
+    width: 188px !important;
+    height: 40px;
+    background: var(--background11) !important;
+    color: var(--text-color6) !important;
+}
+/* 输入框组件覆盖 */
+.input_box4:focus,
+.input_box4:focus-within {
+   border-color: var(--text-color3) !important;
+   box-shadow: none;
+   /* box-shadow: 0 0 0 1px var(--text_color3) !important; */
+}
+/* 鼠标聚焦且移出样式 */
+.input_box4:focus:not(:hover){
+    background-color: var(--homeground5);
+    color: #fff;
+    box-shadow: none;
+    color: var(--text-color6) !important;
+}
+/* 鼠标滑过 */
+.input_box4:hover{
+    border-color: var(--text-color3);
 }
 .select_box,.steps_item_content3 {
     width: 38vw;

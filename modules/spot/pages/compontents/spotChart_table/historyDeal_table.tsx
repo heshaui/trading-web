@@ -275,7 +275,7 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         const coin = coinList.find((item: any) => item.symbol === record.symbol);
 
-        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '0'}</span>;
+        return <span >{_status ? roundDown(_status,coin?.coinScale) : '0'}</span>;
       },
     },
 

@@ -285,7 +285,7 @@ const SpotMainPage = observer(() => {
       render: (_status) => {
         const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
         const coin = coinList.find((item: any) => item.symbol === symbolName);
-        return <span >{_status ? roundDown(_status,coin?.baseCoinScale) : '--'}</span>;
+        return <span >{_status ? roundDown(_status,coin?.coinScale) : '--'}</span>;
       },
     },
     {
