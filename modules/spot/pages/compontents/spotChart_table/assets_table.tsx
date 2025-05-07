@@ -33,7 +33,7 @@ interface DataType {
 type Props = {
     orderUpdateFlag?: number
 }
-const AssetsMainPage = () => {
+const AssetsMainPage =observer(() => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
     const { coinList } = useCoinList(true);
@@ -253,7 +253,7 @@ const AssetsMainPage = () => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [])
+    }, [rateKey])
     return (<><ConfigProvider
         theme={{
             components: {
@@ -324,6 +324,6 @@ const AssetsMainPage = () => {
 
     </>
     );
-};
+}) ;
 
 export default AssetsMainPage;

@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-import { getRate } from '@/utils/getUseRate';
+import { getRate ,getCoinRate} from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 interface DataType {
@@ -243,8 +243,15 @@ const AssetsMainPage = observer(() => {
                         curr.frozenBalance || 0
                     );
                     const coin = coinList.find((item: any) => item.coinName === curr.coinName);
-                    const balance = add(coinTotal, coin?.price || 0);
+                    
+                    // let balance 
+                    // if(curr.coinName === 'USDT'){
+                    //  balance = coinTotal
+                    // }else{
+                    //     balance = nul(coinTotal, coin?.price || 0);
+                    // }
                     // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    const balance=getCoinRate(curr.coinName,coinTotal).coinRate
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
@@ -283,7 +290,7 @@ const AssetsMainPage = observer(() => {
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
-    }, [])
+    }, [rateKey])
     return (<div>
         <ConfigProvider
             theme={{

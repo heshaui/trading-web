@@ -26,7 +26,7 @@ import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { ResetStateProvider, useResetStateContext } from '@/hooks/useStateProvider';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
-import { getRate } from '@/utils/getUseRate';
+import { getRate ,getCoinRate} from '@/utils/getUseRate';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -108,23 +108,28 @@ interface coinInfoType {
     canRecharge: number,
     canTransfer: number,
     canWithdraw: number,
-    minWithdrawAmount: number,
+    minWithdrawAmount: number, // 最小提币量-币种
     nameDefault: string,
     sort: number,
     status: number,
     unit: string,
     unitScale: number,
-    maxWithdrawAmount: number,
+    maxWithdrawAmount: number, // 最大提币量-币种
     minTopUp: number,
     protocolId: number,
     decimals: number,
     withdrawFee: number,
     minWithdrawFee: number,
     withdraw: number,
-    minWithdraw: number,
-    maxWithdraw: number,
+    minWithdraw: number, // 最小提币量-协议
+    maxWithdraw: number, // 最大提币量-协议
     minRecharge: number,
     confirms: number
+}
+interface limitType {
+   max:string,
+   min:string,
+   unit:string
 }
 
 const WithdrawMoneyPage = observer(() => {
@@ -172,7 +177,7 @@ const WithdrawMoneyPage = observer(() => {
     const [addressInput, setAddressInput] = useState('');
     const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
 
-    const [userAllLimit, setUserAllLimit] = useState<any>('')
+    const [userAllLimit, setUserAllLimit] = useState<limitType>({} as limitType)
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -241,7 +246,7 @@ const WithdrawMoneyPage = observer(() => {
         
         const coinId = form.getFieldValue('tenantId')
         // 判断同币种不重复请求
-        if (coinId !== coinIdHistory) {
+        if (coinId.toString() !== coinIdHistory.toString()) {
             // 重置表单字段
             form.resetFields(['protocolId']);
         }
@@ -360,13 +365,13 @@ const WithdrawMoneyPage = observer(() => {
         }
 
         // 4. 获取选中币种的信息
-        const selectedCoin = currentCoinList.find(coin => coin.coinId === coinId);
+        const selectedCoin = currentCoinList.find(coin => coin.coinId.toString() === coinId.toString());
         if (!selectedCoin) {
             return toast.error(t('withdrawMoney.setCoinError'));
         }
 
         // 5. 重置相关字段
-        if (coinId !== coinIdHistory) {
+        if (coinId.toString() !== coinIdHistory.toString()) {
             form.resetFields(['protocolId']);
         }
 
@@ -375,7 +380,7 @@ const WithdrawMoneyPage = observer(() => {
             form.setFieldValue('tenantId', coinId);
 
             // 7. 如果在第一步，进入下一步
-            if (current === 0 || (coinId !== coinIdHistory)) {
+            if (current === 0 || (coinId.toString() !== coinIdHistory.toString())) {
                 setCurrent(1);
             }
 
@@ -408,7 +413,7 @@ const WithdrawMoneyPage = observer(() => {
             return toast.error(t('assetsAccount.selectCoin'))
         }
         // 判断同币种不重复请求
-        if (coinIdHistory === tenantId || coinExtLoading) return
+        if (coinIdHistory.toString() === tenantId.toString() || coinExtLoading) return
         setCoinExtSelect([]) //初始化
         setCoinIdHistory(tenantId)
         // await getAllProtocolTypeList()
@@ -563,7 +568,7 @@ const WithdrawMoneyPage = observer(() => {
     const isMemo = () => {
         // memoTag
         const coinId = form.getFieldValue('tenantId')
-        const data = coinSelect.filter((item: any) => item.coinId === coinId)
+        const data = coinSelect.filter((item: any) => item.coinId.toString() === coinId.toString()  )
         return data[0]?.memoTag
 
     }
@@ -600,12 +605,13 @@ const WithdrawMoneyPage = observer(() => {
             //     setAllowWithdraw(false)
             // }
             // 小于最小提币量，大于最大提币量，大于现货余额 //，大于24h限额-接口未通
-            if (filteredValue < coninInfo.minWithdraw || filteredValue > userAllLimit.maxWithdraw || filteredValue > userAllLimit.balance) {
-                setAllowWithdraw(false)
-            } else {
-                setAllowWithdraw(true)
-            }
-
+            // if (filteredValue < coninInfo.minWithdraw || filteredValue > coninInfo.maxWithdraw || filteredValue > Number(userAllLimit.max)) {
+            //     setAllowWithdraw(false)
+            // } else {
+            //     setAllowWithdraw(true)
+            // }
+            // 检查是否允许提现
+            checkAllowWithdraw(filteredValue);
         } else {
             setAmountNum(0)
             form.setFieldValue('amount', 0)
@@ -691,14 +697,14 @@ const WithdrawMoneyPage = observer(() => {
         }
 
         // 检查单笔最大限额
-        if (amount > coninInfo.maxWithdrawAmount) {
+        if (amount > coninInfo.maxWithdraw) {
             return Promise.reject(
                 t('withdrawMoney.exceedMaxLimit2')
             );
         }
 
         // 检查单笔最小限额
-        if (amount < coninInfo.minWithdrawAmount) {
+        if (amount < coninInfo.minWithdraw) {
             return Promise.reject(
                 t('withdrawMoney.belowMinLimit2')
             );
@@ -707,21 +713,31 @@ const WithdrawMoneyPage = observer(() => {
         // 所有检查都通过
         return Promise.resolve();
     }
-    // 最大提现金额
     const maxWithdrawAmountBtn = () => {
-
-        if (coninInfo.balance > coninInfo.maxWithdrawAmount) {
-            form.setFieldValue('amount', coninInfo.maxWithdrawAmount || 0)
-            setAmountNum(coninInfo.maxWithdrawAmount || 0)
-
+        let maxAmount;
+        if (coninInfo.balance > coninInfo.maxWithdraw) {
+            maxAmount = coninInfo.maxWithdraw || 0;
         } else {
-            form.setFieldValue('amount', coninInfo.balance || 0)
-            setAmountNum(coninInfo.balance || 0)
+            maxAmount = coninInfo.balance || 0;
         }
-        // 设置允许提现
-        setAllowWithdraw(true)
+        
+        form.setFieldValue('amount', maxAmount);
+        setAmountNum(maxAmount);
+        
+        // 检查是否允许提现
+        checkAllowWithdraw(maxAmount);
     }
-
+// 新增 checkAllowWithdraw 函数来统一处理提现权限检查
+const checkAllowWithdraw = (amount: number) => {
+    // 小于最小提币量，大于最大提币量，大于现货余额
+    if (amount < coninInfo.minWithdraw || 
+        amount > coninInfo.maxWithdraw || 
+        amount > Number(userAllLimit.max)) {
+        setAllowWithdraw(false);
+    } else {
+        setAllowWithdraw(true);
+    }
+}
     // 获取用户24小时限额
     const getUserALlLimitData = async () => {
         try {
@@ -759,17 +775,22 @@ const WithdrawMoneyPage = observer(() => {
         }
 
     }
-    // useEffect(() => {
-    //     if (resetState) {
-    //         form.resetFields()
-    //         setCurrent(1);
-    //     }
-    // }, [resetState])
+    // 24h限额换算
+    const getCoinRateData = (coinName:string,number:number) => {
+         const {coinRate,price} = getCoinRate(coinName,number,'USDT',1)
+        return coinRate
+    }
+  
+    useEffect(() => {
+        if (amountNum > 0) {
+            checkAllowWithdraw(amountNum);
+        }
+    }, [coninInfo, userAllLimit,amountNum]);
     useEffect(() => {
         getAllProtocolTypeList()
         getCoinAllData()
         getUserALlLimitData()
-    }, [])
+    }, [rateKey])
 
     const steps = [
         {
@@ -1064,7 +1085,10 @@ const WithdrawMoneyPage = observer(() => {
                                     {/* USDT */}
                                     {coninInfo.coinName || '--'}
                                 </p><span className={`${styles.tip_color2}`}>|</span>
-                                <button className={` theme_color pl-2`} onClick={() => { maxWithdrawAmountBtn() }}>{t('withdrawMoney.max')}</button>
+                                <button className={`${allowWithdraw ? 'theme_color' : styles.tip_color2} pl-2`} 
+                                onClick={() => { maxWithdrawAmountBtn() }}
+                                // disabled={allowWithdrawBtn()}
+                                >{t('withdrawMoney.max')}</button>
                             </div>}
                             onChange={amountChange}
                             value={amountNum}
@@ -1076,7 +1100,7 @@ const WithdrawMoneyPage = observer(() => {
                                 <p>{t('withdrawMoney.spotAvailable')}</p>
                                 <p>
                                     {/* 50.13USDT */}
-                                    {coninInfo.balance || '0'}
+                                    {coninInfo.balance || '0'}&nbsp;
                                     {coninInfo.coinName || '--'}
                                 </p>
                             </li>
@@ -1085,12 +1109,14 @@ const WithdrawMoneyPage = observer(() => {
                                 <p>
                                     {/* 10-10,000USDT */}
                                     {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
-                                    {coninInfo.minWithdrawAmount || '0'}-{coninInfo.maxWithdrawAmount || '0'}{coninInfo.coinName || '--'}
+                                    {coninInfo.minWithdraw || '0'}-{coninInfo.maxWithdraw || '0'}&nbsp;{coninInfo.coinName || '--'}
                                 </p>
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.dayLimit')}</p>
-                                <p>50,000 <span>/ 50,000USDT</span></p>
+                                {/* 24h限额 */}
+                                <p>{userAllLimit.min?getCoinRateData(coninInfo.coinName,userAllLimit.min):'0'} 
+                                    <span>/ {userAllLimit.max?getCoinRateData(coninInfo.coinName,userAllLimit.max):'0'}</span>&nbsp;{coninInfo.coinName||'--'}</p>
                             </li>
                         </ul>
                         <div className='flex-x justify-between align-center'>
