@@ -136,3 +136,36 @@ export const getCoinRate = (symbolName: string,priceNum:string|number, baseSymbo
      };    
 }
 };
+
+// 币对精度
+export const getRound = (symbolPairs: string,num:string|number,symbolName?: string, baseSymbolName?: string,) => {
+
+    try {
+    const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+        const coin = coinList.find((item: any) => {
+            return (item.coinSymbol === symbolName&&item.baseSymbol===baseSymbolName)||
+            (item.symbol===symbolPairs)
+        });
+        const scaleResult = roundDown(num,coin?.coinScale||0);
+        const baseScaleResult = roundDown(num,coin?.baseCoinScale||0);
+        return {
+            scaleResult: scaleResult,
+            baseScaleResult: baseScaleResult,
+            coinScale:coin?.coinScale||0,
+            baseCoinScale: coin?.baseCoinScale || 0,
+            baseSymbol: coin?.baseSymbol || '--',
+            coinSymbol: coin?.coinSymbol || '--'
+        }
+    } catch (error) {
+     // 发生错误时返回默认值
+     console.error('Error in getRound:', error);
+     return {
+        scaleResult:0,
+        baseScaleResult:0,
+        coinScale:0,
+        baseCoinScale: 0,
+        baseSymbol: '--',
+        coinSymbol: '--'
+     };    
+}
+};

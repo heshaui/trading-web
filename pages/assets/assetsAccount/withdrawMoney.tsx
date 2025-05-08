@@ -617,6 +617,7 @@ const WithdrawMoneyPage = observer(() => {
             form.setFieldValue('amount', 0)
             setAllowWithdraw(false)
         }
+
     }
 
     const antiFraud = () => {
@@ -709,6 +710,18 @@ const WithdrawMoneyPage = observer(() => {
                 t('withdrawMoney.belowMinLimit2')
             );
         }
+        // 检查24h限额
+        if (amount <getCoinRateData(coninInfo.coinName,userAllLimit.min)) {
+            return Promise.reject(
+                t('withdrawMoney.belowMin24h2')
+            );
+        }
+        if (amount >getCoinRateData(coninInfo.coinName,userAllLimit.max)) {
+            return Promise.reject(
+                t('withdrawMoney.belowMax24h2')
+            );
+        }
+        
 
         // 所有检查都通过
         return Promise.resolve();
@@ -728,11 +741,11 @@ const WithdrawMoneyPage = observer(() => {
         checkAllowWithdraw(maxAmount);
     }
 // 新增 checkAllowWithdraw 函数来统一处理提现权限检查
-const checkAllowWithdraw = (amount: number) => {
+const checkAllowWithdraw = (amount: number|string) => {
     // 小于最小提币量，大于最大提币量，大于现货余额
-    if (amount < coninInfo.minWithdraw || 
-        amount > coninInfo.maxWithdraw || 
-        amount > Number(userAllLimit.max)) {
+    if (Number(amount) < coninInfo.minWithdraw || 
+        Number(amount) > coninInfo.maxWithdraw || 
+        Number(amount) > Number(userAllLimit.max)) {
         setAllowWithdraw(false);
     } else {
         setAllowWithdraw(true);
@@ -762,7 +775,8 @@ const checkAllowWithdraw = (amount: number) => {
         if (baseCoinName) {
             coinName = baseCoinName || ''
         } else {
-            coinName = coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
+            coinName =coninInfo.coinName
+                // coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
         }
         const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
         const { shortName, rate, symbol } = getRate(coinName, number, rateKeyName);
@@ -778,7 +792,7 @@ const checkAllowWithdraw = (amount: number) => {
     // 24h限额换算
     const getCoinRateData = (coinName:string,number:number|string) => {
          const {coinRate,price} = getCoinRate(coinName,Number(number),'USDT',1)
-        return coinRate
+        return coinRate||0
     }
   
     useEffect(() => {
@@ -918,42 +932,6 @@ const checkAllowWithdraw = (amount: number) => {
             </p>,
             description: <div className={`${styles.steps_item_content2} mt-2`}>
                 {current >= 1 && <>
-                    {/* <Form.Item name='addressId' >
-                        <Select className={`${styles.select_box} custom-select `}
-                            // maxLength={25}
-                            options={addressSelect}
-                            placeholder='选择提现地址'
-                            allowClear
-                            suffixIcon={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color} `} />}
-                            optionRender={(option) => {
-                                return (
-                                    <div className="flex-y  py-1">
-                                        <p className={`${styles.title_color} font-14 font-w-400`}>{option.data.addressTitle}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>地址：{option.data.label}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>网络：{option.data.protocolName}</p>
-                                    </div>
-                                );
-                            }}
-                            dropdownRender={(menu) => (<>
-                                {menu}
-                                <button type='button' className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
-                                    onClick={() => {
-                                        router.push('/assets/assetsAccount/addAddress')
-                                    }}
-                                >
-                                    添加地址
-                                </button>
-                            </>
-
-                            )}
-                            notFoundContent={<NoAddress />}
-                            onFocus={getUserAddressList}
-                            loading={addressLoading}
-                            showSearch
-                            filterOption={filterAddressOption}
-                        />
-
-                    </Form.Item> */}
                     <Form.Item name='addressId' rules={[{ required: true, message: t('withdrawMoney.selectAddress') }]} >
                         <AutoComplete
                             style={{ height: 50 }}

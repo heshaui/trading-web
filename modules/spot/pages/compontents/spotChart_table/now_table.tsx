@@ -13,6 +13,7 @@ import { NoData } from '@/components/noData'
 import { getOrderList, revocationOrder } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, roundDown } from '@/utils'
+import { getRound } from '@/utils/getUseRate'
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
@@ -125,10 +126,9 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        // type
+        const {baseScaleResult} = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
-          <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
+          <p className='text-center '> {baseScaleResult}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
@@ -180,9 +180,12 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), coin?.baseCoinScale) : '0'
-        return <span >{`${totalAmount}/${roundDown(_turnover, coin?.baseCoinScale)}` || '0'}</span>;
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), coin?.baseCoinScale) : '0'
+        const res = getRound(record.symbol,nul(record.amount, record.price)).baseScaleResult
+        const totalAmount = record.amount && record.price ? res : '0'
+        const resNum = getRound(record.symbol,_turnover).baseScaleResult
+        return <span >{`${totalAmount}/${resNum}` || '0'}</span>;
       },
     },
     {
