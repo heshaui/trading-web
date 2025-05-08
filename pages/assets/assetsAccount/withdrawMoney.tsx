@@ -26,7 +26,7 @@ import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { ResetStateProvider, useResetStateContext } from '@/hooks/useStateProvider';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
-import { getRate ,getCoinRate} from '@/utils/getUseRate';
+import { getRate, getCoinRate } from '@/utils/getUseRate';
 interface coinSelectType {
     coinId: string,
     coinName: string,
@@ -127,9 +127,9 @@ interface coinInfoType {
     confirms: number
 }
 interface limitType {
-   max:string,
-   min:string,
-   unit:string
+    max: string,
+    min: string,
+    unit: string
 }
 
 const WithdrawMoneyPage = observer(() => {
@@ -242,8 +242,8 @@ const WithdrawMoneyPage = observer(() => {
     }
     // 币种选中更改-筛选历史选中/获取币种余额
     const coinChange = async (value: string, option: any) => {
-        console.log(option,121,value);
-        
+        console.log(option, 121, value);
+
         const coinId = form.getFieldValue('tenantId')
         // 判断同币种不重复请求
         if (coinId.toString() !== coinIdHistory.toString()) {
@@ -568,7 +568,7 @@ const WithdrawMoneyPage = observer(() => {
     const isMemo = () => {
         // memoTag
         const coinId = form.getFieldValue('tenantId')
-        const data = coinSelect.filter((item: any) => item.coinId.toString() === coinId.toString()  )
+        const data = coinSelect.filter((item: any) => item.coinId.toString() === coinId.toString())
         return data[0]?.memoTag
 
     }
@@ -711,46 +711,59 @@ const WithdrawMoneyPage = observer(() => {
             );
         }
         // 检查24h限额
-        if (amount <getCoinRateData(coninInfo.coinName,userAllLimit.min)) {
+        if (amount < getCoinRateData(coninInfo.coinName, userAllLimit.min)) {
             return Promise.reject(
                 t('withdrawMoney.belowMin24h2')
             );
         }
-        if (amount >getCoinRateData(coninInfo.coinName,userAllLimit.max)) {
+        if (amount > getCoinRateData(coninInfo.coinName, userAllLimit.max)) {
             return Promise.reject(
                 t('withdrawMoney.belowMax24h2')
             );
         }
-        
+
 
         // 所有检查都通过
         return Promise.resolve();
     }
     const maxWithdrawAmountBtn = () => {
-        let maxAmount;
-        if (coninInfo.balance > coninInfo.maxWithdraw) {
-            maxAmount = coninInfo.maxWithdraw || 0;
-        } else {
-            maxAmount = coninInfo.balance || 0;
-        }
-        
+        if (!checkMaxWithdraw()) return;
+
+        // 获取三个限制值
+        const balanceLimit = Number(coninInfo.balance) || 0;
+        const withdrawLimit = Number(coninInfo.maxWithdraw) || 0;
+        const rateLimit = getCoinRateData(coninInfo.coinName, userAllLimit.max) || 0;
+        console.log(balanceLimit, withdrawLimit, rateLimit,12346);
+        // 找出三个值中的最小值
+        const maxAmount = Math.min(balanceLimit, withdrawLimit, rateLimit);
+
         form.setFieldValue('amount', maxAmount);
         setAmountNum(maxAmount);
-        
+
         // 检查是否允许提现
         checkAllowWithdraw(maxAmount);
     }
-// 新增 checkAllowWithdraw 函数来统一处理提现权限检查
-const checkAllowWithdraw = (amount: number|string) => {
-    // 小于最小提币量，大于最大提币量，大于现货余额
-    if (Number(amount) < coninInfo.minWithdraw || 
-        Number(amount) > coninInfo.maxWithdraw || 
-        Number(amount) > Number(userAllLimit.max)) {
-        setAllowWithdraw(false);
-    } else {
-        setAllowWithdraw(true);
+    // 新增 checkAllowWithdraw 函数来统一处理提现权限检查
+    const checkAllowWithdraw = (amount: number | string) => {
+        // 小于最小提币量，大于最大提币量，大于现货余额
+        if (Number(amount) < coninInfo.minWithdraw ||
+            Number(amount) > coninInfo.maxWithdraw ||
+            Number(amount) > getCoinRateData(coninInfo.coinName, userAllLimit.max)) {
+            setAllowWithdraw(false);
+        } else {
+            setAllowWithdraw(true);
+        }
     }
-}
+    // 最大值检查
+    const checkMaxWithdraw = () => {
+        if ((allowWithdraw &&
+            Number(amountNum) < Math.min(Number(coninInfo.balance||0), Number(coninInfo.maxWithdraw||0), getCoinRateData(coninInfo.coinName, userAllLimit.max)))
+            || Number(amountNum) === 0) {
+           return true
+        } else {
+            return false
+    }
+    }
     // 获取用户24小时限额
     const getUserALlLimitData = async () => {
         try {
@@ -775,8 +788,8 @@ const checkAllowWithdraw = (amount: number|string) => {
         if (baseCoinName) {
             coinName = baseCoinName || ''
         } else {
-            coinName =coninInfo.coinName||
-                 coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
+            coinName = coninInfo.coinName ||
+                coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
         }
         const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
         const { shortName, rate, symbol } = getRate(coinName, number, rateKeyName);
@@ -790,22 +803,31 @@ const checkAllowWithdraw = (amount: number|string) => {
 
     }
     // 24h限额换算
-    const getCoinRateData = (coinName:string,number:number|string) => {
-         const {coinRate,price} = getCoinRate(coinName,Number(number),'USDT',1)
-        return coinRate||0
+    const getCoinRateData = (coinName: string, number: number | string) => {
+        const { coinRate, price } = getCoinRate(coinName, Number(number), 'USDT', 1)
+        return coinRate || 0
     }
-  
+
     useEffect(() => {
         if (amountNum > 0) {
             checkAllowWithdraw(amountNum);
         }
-    }, [coninInfo, userAllLimit,amountNum]);
+    }, [coninInfo, userAllLimit, amountNum]);
     useEffect(() => {
         getAllProtocolTypeList()
         getCoinAllData()
         getUserALlLimitData()
     }, [rateKey])
+    useEffect(() => {
+        // 只在客户端执
+        if (typeof window === 'undefined') return;
 
+        try {
+            appStore.loadCurrencyPairs()
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
+        }
+    }, []);
     const steps = [
         {
             title: <p className={`${styles.tip_title}`}>
@@ -865,7 +887,11 @@ const checkAllowWithdraw = (amount: number|string) => {
                                                         <button
                                                             type='button'
                                                             key={item.value}
-                                                            className={`cancel_btn5 ${styles.selsect_btn} mr-2 flex-x align-center justify-between`}
+                                                            className={`${styles.selsect_btn} mr-2 flex-x align-center justify-between`}
+                                                            // cancel_btn5
+                                                            style={{
+                                                                backgroundColor: '#F5F5F5'
+                                                            }}
                                                             onClick={() => setFormCoin(item.value)}
                                                         >
                                                             <Image
@@ -970,7 +996,7 @@ const checkAllowWithdraw = (amount: number|string) => {
                         >
                             <Input
                                 type="text"
-                                className={`${styles.input_box3} modal-input2`}
+                                className={`${styles.input_box3} modal-input`}
                                 placeholder={t('withdrawMoney.inputAddress')}
                                 allowClear
                                 suffix={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color}`} />}
@@ -1063,8 +1089,8 @@ const checkAllowWithdraw = (amount: number|string) => {
                                     {/* USDT */}
                                     {coninInfo.coinName || '--'}
                                 </p><span className={`${styles.tip_color2}`}>|</span>
-                                <button className={`${allowWithdraw ? 'theme_color' : styles.tip_color2} pl-2`} 
-                                onClick={() => { maxWithdrawAmountBtn() }}
+                                <button className={`${checkMaxWithdraw()?'theme_color' : styles.tip_color2} pl-2`}
+                                    onClick={() => { maxWithdrawAmountBtn() }}
                                 // disabled={allowWithdrawBtn()}
                                 >{t('withdrawMoney.max')}</button>
                             </div>}
@@ -1093,8 +1119,8 @@ const checkAllowWithdraw = (amount: number|string) => {
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.dayLimit')}</p>
                                 {/* 24h限额 */}
-                                <p>{userAllLimit.min?getCoinRateData(coninInfo.coinName,userAllLimit.min):'0'} 
-                                    <span>/ {userAllLimit.max?getCoinRateData(coninInfo.coinName,userAllLimit.max):'0'}</span>&nbsp;{coninInfo.coinName||'--'}</p>
+                                <p>{userAllLimit.min ? getCoinRateData(coninInfo.coinName, userAllLimit.min) : '0'}
+                                    <span>/ {userAllLimit.max ? getCoinRateData(coninInfo.coinName, userAllLimit.max) : '0'}</span>&nbsp;{coninInfo.coinName || '--'}</p>
                             </li>
                         </ul>
                         <div className='flex-x justify-between align-center'>
@@ -1183,7 +1209,7 @@ const checkAllowWithdraw = (amount: number|string) => {
                                     components: {
                                         Select: {
                                             clearBg: "#ffffff",
-                                            selectorBg: 'var(--background7)',
+                                            selectorBg: 'transparent',
                                             singleItemHeightLG: 50,
                                             paddingXXS: 10, // 下拉框选项最小内边距
                                             optionHeight: 40, //选项高度
@@ -1195,6 +1221,15 @@ const checkAllowWithdraw = (amount: number|string) => {
                                         Form: {
                                             itemMarginBottom: 20
                                             // singleItemHeightLG
+                                        },
+                                        Input: {
+                                            activeBorderColor: 'var(--theme-color)',
+                                            hoverBorderColor: 'var(--theme-color)',
+                                            controlHeightLG: 50,
+                                            // activeBg: 'var(--background5)',
+                                            // hoverBg: 'var(--background5)',
+                                            activeBg: 'transparent',
+                                            hoverBg: 'transparent',
                                         },
 
                                     }
