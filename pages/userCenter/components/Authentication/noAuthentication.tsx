@@ -180,17 +180,17 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                     </div>
                     {/* 认证提示 */}
                     <div className={`font-14 font-w-400 mt-3 ${styles.error_icon} flex align-start`} >
-                        <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
+                        {/* <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
                         <span>
                         {t('overview.identityAuth.reVerify')}
                         </span>
-                        
-
-                        {/* {identityInfo?.remark ? (<>
+                         */}
+                        {/*                         
+                        {identityInfo?.remark ? (<>
                             {identityInfo.remark.includes('&')
                                 ? identityInfo.remark.split('&').map((item, index) => (<>
                                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
-                                    <span key={index} className={`${index > 0 ? 'mt-1' : ''}`}>
+                                    <span key={item} className={`${index > 0 ? 'mt-1' : ''}`}>
                                         {item.trim()}
                                     </span>
                                 </>))
@@ -199,6 +199,22 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                         </>) : <div className='flex align-center'>
                             <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />--
                         </div>} */}
+                        {!identityInfo?.remark ? <div className='flex align-center'>
+                            <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />--
+                        </div> :
+                            identityInfo.remark.includes('&') ? <>
+                                <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
+                                <span >
+                                    {identityInfo.remark.split('&')[0]}
+                                </span>
+                            </>
+                                : <>
+                                    <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon}`} size={20} />
+                                    <span >
+                                        {identityInfo.remark}
+                                    </span>
+                                </>
+                        }
                     </div>
                 </div>
                 {/* 按钮 */}
