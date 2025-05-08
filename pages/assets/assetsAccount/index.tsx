@@ -294,8 +294,8 @@ const AssetsMainPage = observer(() => {
         getUserBalanceDay()
     }, [rateKey])
     useEffect(() => {
-        // 只在客户端执行
-        if (!isClient || typeof window === 'undefined') return;
+        // 只在客户端执
+        if ( typeof window === 'undefined') return;
 
         try {
             appStore.loadCurrencyPairs()
