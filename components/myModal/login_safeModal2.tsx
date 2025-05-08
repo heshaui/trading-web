@@ -360,8 +360,9 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const handleOk = (event: boolean) => {
         if (event) {
             if((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1&&(acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) || 
-            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) return
-            else{
+            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)){
+            return
+            } else{
                 getLoginCode2()
             }
         }
@@ -593,7 +594,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         </Form.Item>
                     </>} */}
                 </Form>
-                <QuestionModal
+                {!((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1&&(acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) || 
+            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <QuestionModal
                     open={pointout}
                     onOk={handleOk}
                     type={acountInfo.type}
@@ -605,7 +607,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 : ""
                     }
                     onCancel={() => setPointout(false)}
-                />
+                />}
             </Modal>
         </ConfigProvider>
     );

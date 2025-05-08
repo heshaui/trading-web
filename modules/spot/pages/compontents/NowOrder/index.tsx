@@ -20,7 +20,7 @@ import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
-
+import { getRound } from '@/utils/getUseRate'
 
 interface DataType {
   id: number,
@@ -149,9 +149,10 @@ const SpotMainPage =observer( () => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const {baseScaleResult} = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
-          <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
+          <p className='text-center '> {baseScaleResult}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
@@ -172,9 +173,10 @@ const SpotMainPage =observer( () => {
       width: 128,
       align: "center",
       render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const {scaleResult} = getRound(record.symbol, _status)
         return <>
-        {_status?roundDown(_status,coin?.coinScale):'0'}
+        {scaleResult}
         </>
           
       },
@@ -187,11 +189,14 @@ const SpotMainPage =observer( () => {
       align: "center",
       render: (_amount, record) => {
         // amount/tradedAmount
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const amount=nul(division(record.tradedAmount, _amount),100)
+        const {baseScaleResult} = getRound(record.symbol, amount)
         return < >
           {_amount ? 
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'}
+            {/* {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'} */}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${baseScaleResult}%` : '0%'}
             </span> : '0'
           }
         </ >
@@ -207,8 +212,10 @@ const SpotMainPage =observer( () => {
       align: "center",
       render: (_turnover, record) => {
         // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_turnover?`${roundDown(_turnover,coin?.baseCoinScale)}` : '0'}</span>;
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const {baseScaleResult} = getRound(record.symbol, _turnover)
+
+        return <span >{_turnover?`${baseScaleResult}` : '0'}</span>;
       },
     },
     {

@@ -13,6 +13,7 @@ import { NoData } from '@/components/noData'
 import { getOrderList, getExchangeCoinList, getOrderInfo } from '@/services/spot'
 import { toast } from 'sonner';
 import { division, nul, roundDown } from '@/utils';
+import { getRound } from '@/utils/getUseRate'
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
 import appStore from '@/store';
@@ -195,16 +196,15 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
-        if (record.status === 0 || record.status === 1||record.status === 5) {
-          return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
+        const averagePrice = record.tradedAmount ? division(record.turnover||0,record.tradedAmount) : 0
+        if (record.status === 0 || record.status === 1 || record.status === 5) {
+          const {baseScaleResult} = getRound(record.symbol, averagePrice);
+          return <span>{averagePrice ? baseScaleResult : '--'}</span>;
         } else if(record.type === 0 ){
-          return <span >{t('spot.select.market')}</span>;
-         } else {
-          return <span >--</span>;
+          return <span>{t('spot.select.market')}</span>;
+        } else {
+          return <span>--</span>;
         }
-
       },
     },
     {
@@ -213,14 +213,15 @@ const SpotMainPage = observer(() => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-       if(record.type === 0 ){
-        return <span >{t('spot.select.market')}</span>;
-       }else if(record.type === 1 ){
-        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
-       }
+      render: (_status: any, record: DataType) => {
+        if(record.type === 0 ){
+          return <span>{t('spot.select.market')}</span>;
+        } else if(record.type === 1 ){
+          const {baseScaleResult} = getRound(record.symbol, _status);
+          return <span>{_status ? baseScaleResult : '0'}</span>;
+        } else {
+          return <span>--</span>;
+        }
       },
     },
     {
@@ -229,9 +230,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_status ? roundDown(_status, coin?.coinScale) : '0'}</span>;
+      render: (_status: any, record: DataType) => {
+        const {scaleResult} = getRound(record.symbol, _status);
+        return <span>{_status ? scaleResult : '0'}</span>;
       },
     },
     {
@@ -240,10 +241,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradedAmount",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-
-        return <span >{_status ? roundDown(_status, coin?.coinScale) : '0'}</span>;
+      render: (_status: any, record: DataType) => {
+        const {scaleResult} = getRound(record.symbol, _status);
+        return <span>{_status ? scaleResult : '0'}</span>;
       },
     },
     {
@@ -252,10 +252,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+      render: (_status: any, record: DataType) => {
+        const {baseScaleResult} = getRound(record.symbol, _status);
+        return <span>{_status ? baseScaleResult : '0'}</span>;
       },
     },
     {
@@ -303,19 +302,10 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 128,
       // 判断方向是买还是卖 buyPrice/sellPrice
-      render: (_tradePrice,record) => {
-        // const flag = record.takerSide
-        // if(flag === 0){
-        //   return <span>{_buyPrice || '--'}</span>
-        // }else if(flag === 1){
-        //   return <span>{record.sellPrice || '--'}</span>
-        // }else{
-        //   return '--'
-        // }
-        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
-        const coin = coinList.find((item: any) => item.symbol === symbolName);
-
-        return <span>{_tradePrice?roundDown(_tradePrice, coin?.baseCoinScale) : '--'}</span>
+      render: (_tradePrice, record) => {
+        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
+        const {baseScaleResult} = getRound(symbolName, _tradePrice);
+        return <span>{_tradePrice ? baseScaleResult : '--'}</span>;
       },
     },
     {
@@ -325,10 +315,9 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status) => {
-        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
-        const coin = coinList.find((item: any) => item.symbol === symbolName);
-        return <span >{_status ? roundDown(_status,coin?.coinScale) : '--'}</span>;
-
+        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
+        const {scaleResult} = getRound(symbolName, _status);
+        return <span>{_status ? scaleResult : '--'}</span>;
       },
     },
     {
@@ -337,10 +326,11 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradePrice",
       width: 128,
       align: "center",
-      render: (_ip,record) => {
-        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
-        const coin = coinList.find((item: any) => item.symbol === symbolName);
-        return <span >{_ip ? roundDown(nul(_ip,record.quantity), coin?.baseCoinScale) : '--'}</span>;
+      render: (_ip, record) => {
+        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
+        const tradeAmount = _ip ? nul(_ip, record.quantity) : 0;
+        const {baseScaleResult} = getRound(symbolName, tradeAmount);
+        return <span>{tradeAmount ? baseScaleResult : '--'}</span>;
       },
     },
     {
@@ -349,24 +339,20 @@ const SpotMainPage = observer(() => {
       key: "buyFee",
       align: "center",
       width: 158,
-      render: (_buyFee,record) => {
-        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
-        const coin = coinList.find((item: any) => item.symbol === symbolName);
-        
-        const flag = record.takerSide
-        const price=nul(record.tradePrice,record.quantity)
-        if(flag === 0){
-          // const fee=division(nul(_buyFee,price),100)
-          // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
-          return <span>{`${roundDown(_buyFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>
-        }else if(flag === 1){
-          // const fee=division(nul(record.sellFee,price),100)
-          // return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
-          return <span>{`${roundDown(record.sellFee||0, coin?.baseCoinScale)} ${coin?.baseSymbol||'--'}`}</span>
-        }else{
-          return '--'
-        }
-      },
+     render: (_buyFee,record) => {
+             const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
+             const flag = record.takerSide
+             // const price=nul(record.tradePrice,record.quantity)
+             if(flag === 0){
+               const {baseScaleResult, baseSymbol} = getRound(symbolName, _buyFee||0)
+               return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
+             }else if(flag === 1){
+               const {baseScaleResult, baseSymbol} = getRound(symbolName, record.sellFee||0)
+               return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
+             }else{
+               return '--'
+             }
+           },
     },
     {
       title: t('spot.columns.tradeRole'),//角色

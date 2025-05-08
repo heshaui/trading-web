@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-import { getRate } from '@/utils/getUseRate';
+import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 interface DataType {
@@ -55,7 +55,7 @@ const AssetsMainPage = observer(() => {
     const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
     // 获取汇率数据
-    const rateData = appStore.getRateData()||[];
+    const rateData = appStore.getRateData() || [];
     const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
     const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
 
@@ -98,8 +98,8 @@ const AssetsMainPage = observer(() => {
                 return <p className='flex-y align-end'>
                     <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
                     <span className='ltr-text'>
-                    {record.coinName ? ratetext : ''}
-                </span>
+                        {record.coinName ? ratetext : ''}
+                    </span>
                 </p>
             },
             sorter: (a, b) => {
@@ -179,6 +179,8 @@ const AssetsMainPage = observer(() => {
 
 
     ];
+    // 添加客户端渲染标记
+    const [isClient, setIsClient] = useState(false);
     const getCoinList = async (type: string, coinData: any) => {
         // console.log(12345,coinList);
         if (type === '1') {
@@ -243,8 +245,15 @@ const AssetsMainPage = observer(() => {
                         curr.frozenBalance || 0
                     );
                     const coin = coinList.find((item: any) => item.coinName === curr.coinName);
-                    const balance = add(coinTotal, coin?.price || 0);
+
+                    // let balance 
+                    // if(curr.coinName === 'USDT'){
+                    //  balance = coinTotal
+                    // }else{
+                    //     balance = nul(coinTotal, coin?.price || 0);
+                    // }
                     // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    const balance = getCoinRate(curr.coinName, coinTotal).coinRate
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
@@ -283,7 +292,17 @@ const AssetsMainPage = observer(() => {
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
-    }, [])
+    }, [rateKey])
+    useEffect(() => {
+        // 只在客户端执
+        if ( typeof window === 'undefined') return;
+
+        try {
+            appStore.loadCurrencyPairs()
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
+        }
+    }, [isClient]);
     return (<div>
         <ConfigProvider
             theme={{
@@ -351,7 +370,7 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim()||'--'}
+                                    {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'}
                                 </span>
                                 <span>
                                     ≈  {balanceAll.cnyBalance} CNY
@@ -367,8 +386,8 @@ const AssetsMainPage = observer(() => {
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
                                     {cut(balanceAll.usdBalance, balanceDay.usdBalance)}&nbsp;
                                     {/* USD */}
-                                    {rateKey.split('-')[0].trim()||'--'}
-                                    </span>
+                                    {rateKey.split('-')[0].trim() || '--'}
+                                </span>
                                 <span>≈  {cut(balanceAll.cnyBalance, balanceDay.cnyBalance)} CNY</span>
                             </p>
                         </li>

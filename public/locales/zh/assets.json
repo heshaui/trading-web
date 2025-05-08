@@ -102,7 +102,11 @@
         "exceedMaxLimit": "超出单笔最大限额 {{max}} {{currency}}",
         "exceedMaxLimit2": "超出单笔最大限额 ",
         "belowMinLimit": "低于单笔最小限额 {{min}} {{currency}}",
-        "belowMinLimit2": "低于单笔最小限额"
+        "belowMinLimit2": "低于单笔最小限额",
+        "belowMax24h": "高于24h限额 {{min}} {{currency}}",
+        "belowMax24h2": "高于24h限额",
+        "belowMin24h": "低于24h限额 {{min}} {{currency}}",
+        "belowMin24h2": "低于24h限额"
     
     },
     "withdrawTable":{

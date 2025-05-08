@@ -14,6 +14,7 @@ import type { TabsProps } from 'antd';
 import SpotOrderNow from '../compontents/NowOrder'
 import SpotOrderHistory from '../compontents/HistoryOrder'
 import SpotOrderDeal from '../compontents/HistoryDeal'
+import appStore from '@/store';
 
 interface DataType {
     id: number,
@@ -30,149 +31,14 @@ interface DataType {
 }
 const SpotOrderPage = () => {
     const { t } = useTranslation(['spot']);
-    const [form] = Form.useForm();
-    const [tableData, setTableData] = useState<DataType[]>([
-        {
-            id: 1,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'BTC',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 23.3,
-            tokenTime: 123,
-            createTime: 1234567890,
-            updateTime: 1234567890,
-            tenantId: '1234567890'
-        }, {
-            id: 2,
-            userId: 1,
-            platformType: 1,
-            deviceNo: 'POINT',
-            ip: '123.45.67.89',
-            address: '123.45.67.89',
-            token: 1234567890,
-            tokenTime: 23.0,
-            createTime: 1234567892,
-            updateTime: 1234567889,
-            tenantId: '1234567890'
-        }
-    ]);
-    const router = useRouter();
-    const [paramInfo, sePparamInfo] = useState({
-        type: '',
-        selsect: ''
-    });
-    const [total, setTotal] = useState(0);
+
+    const [isClient, setIsClient] = useState(false);
     const [pageParam, setPageParam] = useState({
         page: 1,
         pageSize: 10,
     })
     const paramdataRef = useRef(pageParam);
 
-
-
-    const columns: ColumnsType<DataType> = [
-        {
-            title: t('spot.columns.uploadTime'), //"更新时间",
-            dataIndex: "deviceNo",
-            key: "deviceNo",
-            width: 158,
-            align: "left",
-            render: (text, record) => <div>{`${text}`} </div>,
-        },
-        {
-            title: t('spot.columns.symbol'), //"交易对",
-            dataIndex: "token",
-            key: "token",
-            align: "center",
-            width: 128,
-            render: (_text) => <span>{_text || '--'}</span>,
-        },
-        {
-            title: t('spot.columns.type'), //"类型",
-            dataIndex: "tokenTime",
-            key: "tokenTime",
-            align: "center",
-            width: 158,
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-
-            },
-        },
-        {
-            title: t('spot.columns.direction'),//"方向",
-            key: "createTime",
-            dataIndex: "createTime",
-            width: 128,
-            align: "center",
-            render: (_ip) => {
-                return <span >{_ip || '--'}</span>;
-            },
-        },
-        {
-            title: t('spot.columns.price'), //"价格",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-        {
-            title: t('spot.columns.quantity'),  //"数量",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-        {
-            title: t('spot.columns.completion'), //"完成度",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-        {
-            title: t('spot.columns.amount'), //"成交额",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-        },
-        {
-            title: t('spot.columns.cancel'), //"全撤",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-
-
-    ];
-
-    const directionSelect: { label: string, value: string }[] = [
-        {
-            label: t('spot.select.all'),
-            value: ''
-        }
-    ]
-    const symbolSelect: { label: string, value: string }[] = [
-        {
-            label: t('spot.select.all'),
-            value: ''
-        }
-    ]
     const items: TabsProps['items'] = [
         {
             key: '1',
@@ -190,19 +56,16 @@ const SpotOrderPage = () => {
             children: <SpotOrderDeal/>,
         },
     ];
-    const pageChange = async (page: number, pageSize: number) => {
-        const pageData = {
-            page: page,
-            pageSize: pageSize
+    useEffect(() => {
+        // 只在客户端执行
+        if (typeof window === 'undefined') return;
+
+        try {
+            appStore.loadCurrencyPairs()
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
         }
-        setPageParam(pageData)
-        paramdataRef.current = pageData;
-    }
-    const topUpTypeChange = (value: any, options: any) => {
-        console.log(value, 123, options);
-
-
-    }
+    }, [isClient]);
     return (<>
         <ConfigProvider
             theme={{
