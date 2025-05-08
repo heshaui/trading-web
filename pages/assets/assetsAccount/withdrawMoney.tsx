@@ -775,13 +775,13 @@ const checkAllowWithdraw = (amount: number|string) => {
         if (baseCoinName) {
             coinName = baseCoinName || ''
         } else {
-            coinName =coninInfo.coinName
-                // coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
+            coinName =coninInfo.coinName||
+                 coinSelect.find((item: any) => item.coinId === form.getFieldValue('tenantId'))?.coinName || ''
         }
         const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
         const { shortName, rate, symbol } = getRate(coinName, number, rateKeyName);
         return {
-            coinName,
+            coinName: coinName || '--',
             shortName,
             rate,
             symbol,
