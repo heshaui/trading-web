@@ -9,7 +9,7 @@ import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 import { encryptString } from '@/utils/encrypt';
-import {useCopyToClipboard} from '@/hooks/use-copy-to-clipboard';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import dayjs from 'dayjs';
 import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';
@@ -196,18 +196,18 @@ const OverviewPage: React.FC = () => {
         }
         return imgRes[0]
     }
-    const picClick = (url:string) => {
-			window.open(url, '_blank', 'noopener')
-	}
+    const picClick = (url: string) => {
+        window.open(url, '_blank', 'noopener')
+    }
     const getUseBankKv = async () => {
         const keys = ['account_configuration']
 
         const res = await getKvObject(keys)
         try {
             if (res.code === '0') {
-                if(res.data.account_configuration==='1'){
+                if (res.data.account_configuration === '1') {
                     setUseInvite(true)
-                }else{
+                } else {
                     setUseInvite(false)
                 }
             } else {
@@ -217,8 +217,8 @@ const OverviewPage: React.FC = () => {
             toast.error(String(error))
         }
     }
-    const getUserBalanceList=async()=>{
-        const res=await getUserBalanceByDay()
+    const getUserBalanceList = async () => {
+        const res = await getUserBalanceByDay()
         console.log(res)
     }
     useEffect(() => {
@@ -385,12 +385,12 @@ const OverviewPage: React.FC = () => {
                         {loginInfo?.realnessStatus === 0 ? <div className={`font-14 mt-3 ${styles.error_icon}`}>
                             {/* 请重新提交认证，完成认证后可以享受
                             交易所完整的服务 */}
-                            {t('overview.identityAuth.reVerify')}
+                            {/* {t('overview.identityAuth.reVerify')} */}
                             {/* {loginInfo?.remark && (
                                 <div className="mb-2">
                                     {loginInfo.remark.includes('&')
                                         ? loginInfo.remark.split('&').map((item, index) => (
-                                            <div key={index} className={`${index > 0 ? 'mt-1' : ''}`}>
+                                            <div key={item} className={`${index > 0 ? 'mt-1' : ''}`}>
                                                 {item.trim()}
                                             </div>
                                         ))
@@ -398,6 +398,14 @@ const OverviewPage: React.FC = () => {
                                     }
                                 </div>
                             )} */}
+                            {!loginInfo?.remark ? <div className='flex align-center'>-- </div> :
+                                loginInfo.remark.includes('&') ? <span >
+                                    {loginInfo.remark.split('&')[0]}
+                                </span>
+                                    : <span >
+                                        {loginInfo.remark}
+                                    </span>
+                            }
                         </div>
                             : <p className={`font-14 mt-3 mb-2`}>
                                 {/* 已完成身份认证，开始您的货币之旅吧！ */}
@@ -425,11 +433,11 @@ const OverviewPage: React.FC = () => {
                             <span className='mr-2_5' >
                                 {/* 安全强度 */}
                                 {t('overview.securityAuth.securityLevel')}({loginInfo?.securityIntensity === 1 ? t('overview.securityAuth.low') : loginInfo?.securityIntensity === 2 ? t('overview.securityAuth.medium') : t('overview.securityAuth.high')})</span>
-                            {loginInfo?.securityIntensity === 1 && <Image src={isDayMode?"/images/userCenter/safe/icon_safe1.svg":"/images/userCenter/safe/icon_safe1_dark.svg"}
+                            {loginInfo?.securityIntensity === 1 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe1.svg" : "/images/userCenter/safe/icon_safe1_dark.svg"}
                                 width={71}
                                 height={4}
                                 alt="" />}
-                            {loginInfo?.securityIntensity === 2 && <Image src={isDayMode?"/images/userCenter/safe/icon_safe2.svg":"/images/userCenter/safe/icon_safe2_dark.svg"}
+                            {loginInfo?.securityIntensity === 2 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe2.svg" : "/images/userCenter/safe/icon_safe2_dark.svg"}
                                 width={71}
                                 height={4}
                                 alt="" />}
@@ -470,10 +478,10 @@ const OverviewPage: React.FC = () => {
                             <div className={`${styles.tip_color} mt-2`} >
                                 {/* 总资产折合 */}
                                 {t('overview.assets.totalAssets')}
-                                <button type='button'  className='ml-1' onClick={()=>router.push(ROUTER_KEY_ASSETS.ACCOUNT)}>
-                                <Iconify icon="clarity:eye-show-line"  size={20} 
-                               
-                                />
+                                <button type='button' className='ml-1' onClick={() => router.push(ROUTER_KEY_ASSETS.ACCOUNT)}>
+                                    <Iconify icon="clarity:eye-show-line" size={20}
+
+                                    />
                                 </button>
                             </div>
                             <p className='font-32 font-w-700'>0.00 USDT</p>
@@ -485,14 +493,14 @@ const OverviewPage: React.FC = () => {
                                 <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
                             </div>
                             <div className='mt-5'>
-                                <button type='button' className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`} 
-                                onClick={()=>router.push(ROUTER_KEY_ASSETS.TOP_UP)}
+                                <button type='button' className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`}
+                                    onClick={() => router.push(ROUTER_KEY_ASSETS.TOP_UP)}
                                 >
                                     {/* 充值 */}
                                     {t('overview.assets.deposit')}
                                 </button>
-                                <button type='button' className={`btn-disable font-14 font-w-500  ${styles.btn}`} 
-                                onClick={()=>router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)}
+                                <button type='button' className={`btn-disable font-14 font-w-500  ${styles.btn}`}
+                                    onClick={() => router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)}
                                 >
                                     {/* 提现 */}
                                     {t('overview.assets.withdraw')}
@@ -626,8 +634,8 @@ const OverviewPage: React.FC = () => {
                             {carouselPic.map((item: any) => (
                                 <div key={item.id} className={`${styles.bannerImg_box} w-full`}>
                                     <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className='w-full pointer'
-                                        alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260} 
-                                        onClick={()=>picClick(getLanguage(item.carouselImageContents)?.accessUrl)} />
+                                        alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260}
+                                        onClick={() => picClick(getLanguage(item.carouselImageContents)?.accessUrl)} />
                                 </div>
                             ))}
                         </Carousel>
@@ -635,40 +643,40 @@ const OverviewPage: React.FC = () => {
                 </div>
 
                 {useInvite &&
-                 <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
-                    <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
+                    <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
+                        <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
 
-                        {t('overview.recommend.inviteFriend')}
-                    </div>
-                    <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
-                        <QRCode
-                            style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
-                            value={`${codeValue}`} size={68}
-                        // className='flex-1'
-                        />
-                        <div className={`flex-1 ${styles.invite_code_box} flex-col justify-between`}>
-                            <div >
-                                <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
-                                <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
-                                    <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
-                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20}
-                                        onClick={() => copyFn(loginInfo?.inviteCode || '')}
-                                    />
+                            {t('overview.recommend.inviteFriend')}
+                        </div>
+                        <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
+                            <QRCode
+                                style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
+                                value={`${codeValue}`} size={68}
+                            // className='flex-1'
+                            />
+                            <div className={`flex-1 ${styles.invite_code_box} flex-col justify-between`}>
+                                <div >
+                                    <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
+                                    <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
+                                        <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
+                                        <Iconify icon="bx:copy" className='cursor-pointer' size={20}
+                                            onClick={() => copyFn(loginInfo?.inviteCode || '')}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div  >
-                                <p className='font-14 font-w-400' >{t('overview.recommend.inviteLink')}</p>
-                                <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
-                                    <span className={`${styles.tip_color} ${styles.line1} line-2 mr-1`}>{`${codeValue}`}</span>
-                                    <Iconify icon="bx:copy" className='cursor-pointer' size={20}
-                                        onClick={() => copyFn(`${codeValue}`)}
-                                    />
+                                <div  >
+                                    <p className='font-14 font-w-400' >{t('overview.recommend.inviteLink')}</p>
+                                    <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
+                                        <span className={`${styles.tip_color} ${styles.line1} line-2 mr-1`}>{`${codeValue}`}</span>
+                                        <Iconify icon="bx:copy" className='cursor-pointer' size={20}
+                                            onClick={() => copyFn(`${codeValue}`)}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-}
+                }
             </div>
         </div>
     </div>);

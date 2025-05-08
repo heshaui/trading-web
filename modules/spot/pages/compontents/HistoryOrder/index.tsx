@@ -79,8 +79,8 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-      // 获取币种列表
-      // const {coinList} = useCoinList();
+  // 获取币种列表
+  // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
   const userInfo = appStore.getUserInfo()
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -99,8 +99,8 @@ const SpotMainPage = observer(() => {
     pageSize: 10,
   });
   const selectParam = useRef<SelectParamType>({
-    startTime: '',
-    endTime: '',
+    startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
+    endTime: dayjs().endOf('day').valueOf(),
     direction: '',
     type: '',
     symbol: '',
@@ -196,11 +196,11 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const averagePrice = record.tradedAmount ? division(record.turnover||0,record.tradedAmount) : 0
+        const averagePrice = record.tradedAmount ? division(record.turnover || 0, record.tradedAmount) : 0
         if (record.status === 0 || record.status === 1 || record.status === 5) {
-          const {baseScaleResult} = getRound(record.symbol, averagePrice);
+          const { baseScaleResult } = getRound(record.symbol, averagePrice);
           return <span>{averagePrice ? baseScaleResult : '--'}</span>;
-        } else if(record.type === 0 ){
+        } else if (record.type === 0) {
           return <span>{t('spot.select.market')}</span>;
         } else {
           return <span>--</span>;
@@ -214,10 +214,10 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status: any, record: DataType) => {
-        if(record.type === 0 ){
+        if (record.type === 0) {
           return <span>{t('spot.select.market')}</span>;
-        } else if(record.type === 1 ){
-          const {baseScaleResult} = getRound(record.symbol, _status);
+        } else if (record.type === 1) {
+          const { baseScaleResult } = getRound(record.symbol, _status);
           return <span>{_status ? baseScaleResult : '0'}</span>;
         } else {
           return <span>--</span>;
@@ -231,7 +231,7 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status: any, record: DataType) => {
-        const {scaleResult} = getRound(record.symbol, _status);
+        const { scaleResult } = getRound(record.symbol, _status);
         return <span>{_status ? scaleResult : '0'}</span>;
       },
     },
@@ -242,7 +242,7 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status: any, record: DataType) => {
-        const {scaleResult} = getRound(record.symbol, _status);
+        const { scaleResult } = getRound(record.symbol, _status);
         return <span>{_status ? scaleResult : '0'}</span>;
       },
     },
@@ -253,7 +253,7 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status: any, record: DataType) => {
-        const {baseScaleResult} = getRound(record.symbol, _status);
+        const { baseScaleResult } = getRound(record.symbol, _status);
         return <span>{_status ? baseScaleResult : '0'}</span>;
       },
     },
@@ -278,7 +278,7 @@ const SpotMainPage = observer(() => {
           return <span >{t('spot.select.partial') || '--'}</span>;
         } else if (_status === 6) {
           return <span >{t('spot.select.canceled2') || '--'}</span>;
-        }else{
+        } else {
           return <span >{_status}</span>;
         }
       },
@@ -303,8 +303,8 @@ const SpotMainPage = observer(() => {
       width: 128,
       // 判断方向是买还是卖 buyPrice/sellPrice
       render: (_tradePrice, record) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
-        const {baseScaleResult} = getRound(symbolName, _tradePrice);
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || '';
+        const { baseScaleResult } = getRound(symbolName, _tradePrice);
         return <span>{_tradePrice ? baseScaleResult : '--'}</span>;
       },
     },
@@ -315,8 +315,8 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
-        const {scaleResult} = getRound(symbolName, _status);
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || '';
+        const { scaleResult } = getRound(symbolName, _status);
         return <span>{_status ? scaleResult : '--'}</span>;
       },
     },
@@ -327,9 +327,9 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_ip, record) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || '';
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || '';
         const tradeAmount = _ip ? nul(_ip, record.quantity) : 0;
-        const {baseScaleResult} = getRound(symbolName, tradeAmount);
+        const { baseScaleResult } = getRound(symbolName, tradeAmount);
         return <span>{tradeAmount ? baseScaleResult : '--'}</span>;
       },
     },
@@ -339,20 +339,20 @@ const SpotMainPage = observer(() => {
       key: "buyFee",
       align: "center",
       width: 158,
-     render: (_buyFee,record) => {
-             const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
-             const flag = record.takerSide
-             // const price=nul(record.tradePrice,record.quantity)
-             if(flag === 0){
-               const {baseScaleResult, baseSymbol} = getRound(symbolName, _buyFee||0)
-               return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
-             }else if(flag === 1){
-               const {baseScaleResult, baseSymbol} = getRound(symbolName, record.sellFee||0)
-               return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
-             }else{
-               return '--'
-             }
-           },
+      render: (_buyFee, record) => {
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
+        const flag = record.takerSide
+        // const price=nul(record.tradePrice,record.quantity)
+        if (flag === 0) {
+          const { baseScaleResult, baseSymbol } = getRound(symbolName, _buyFee || 0)
+          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+        } else if (flag === 1) {
+          const { baseScaleResult, baseSymbol } = getRound(symbolName, record.sellFee || 0)
+          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+        } else {
+          return '--'
+        }
+      },
     },
     {
       title: t('spot.columns.tradeRole'),//角色
@@ -360,29 +360,30 @@ const SpotMainPage = observer(() => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_text,record) => {
-        
-        return maskName(_text,record.buyerUserId,record.sellerUserId)
+      render: (_text, record) => {
+
+        return maskName(_text, record.buyerUserId, record.sellerUserId)
       },
     }
   ]
-  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+  const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
-    if(takerSide === 0){
-      if(userId === buyerUserId){
+    if (takerSide === 0) {
+      if (userId === buyerUserId) {
         return 'Taker'
-      }else {
+      } else {
         return 'Maker'
       }
-    }else if(takerSide === 1){
-      if(userId === sellerUserId){
+    } else if (takerSide === 1) {
+      if (userId === sellerUserId) {
         return 'Taker'
-      }else{
+      } else {
         return 'Maker'
       }
-    }else{
+    } else {
       return '--'
-  }}
+    }
+  }
   const directionSelect: { label: string, value: string | number }[] = [
     {
       label: t('spot.select.all'),
@@ -461,11 +462,21 @@ const SpotMainPage = observer(() => {
   };
   // 时间选择
   const dateChange = async (value: any) => {
+    let startTime
+    let endTime
 
-    const startTime = value ? dayjs(value[0]).valueOf() : ''
-    const endTime = value ? dayjs(value[1]).valueOf() : ''
-    selectParam.current.startTime = startTime
-    selectParam.current.endTime = endTime
+    if (value) {
+      // 开始时间保持不变，转为时间戳
+      startTime = dayjs(value[0]).valueOf();
+
+      // 结束时间先格式化为YYYY-MM-DD，然后加上23:59:59
+      const endDate = dayjs(value[1]).format('YYYY-MM-DD');
+      endTime = dayjs(`${endDate} 23:59:59`).valueOf();
+      // endTime = dayjs(value[1]).endOf(value[1]).valueOf();
+    }
+
+    selectParam.current.startTime = startTime || ''
+    selectParam.current.endTime = endTime || ''
     await getOrderListData()
   }
 
@@ -527,7 +538,7 @@ const SpotMainPage = observer(() => {
     }
 
   }
-  const getOrderInfoData = async (symbol: string,orderId:string,groupStatus:string) => {
+  const getOrderInfoData = async (symbol: string, orderId: string, groupStatus: string) => {
     try {
       const params = {
         // baseCoinScale:symbol.split('/')[1],
@@ -537,8 +548,8 @@ const SpotMainPage = observer(() => {
         // baseCoinScale:'USDT',
         // coinScale:'BTC',
         // symbol:'base_quote_group'
-        orderId:orderId,
-        symbol:`${symbol.split('/').join('_')}_${groupStatus}`
+        orderId: orderId,
+        symbol: `${symbol.split('/').join('_')}_${groupStatus}`
       }
       const res = await getOrderInfo(params)
       if (res.code === '0') {
@@ -604,6 +615,9 @@ const SpotMainPage = observer(() => {
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
                 onChange={dateChange}
+                minDate={dayjs().subtract(6, 'month')}
+                maxDate={dayjs().endOf('day')}
+                defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
               />
             </Form.Item>
 

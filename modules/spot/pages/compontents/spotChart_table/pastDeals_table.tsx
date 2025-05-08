@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Checkbox, ConfigProvider, Table, Select, Form, DatePicker, Segmented } from 'antd';
+import { Checkbox, ConfigProvider, Table, Form, DatePicker, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -10,7 +11,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { add, cut, division, lastD ,nul,roundDown} from '@/utils'
+import { add, cut, division, lastD, nul, roundDown } from '@/utils'
 import { getRound } from '@/utils/getUseRate'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
@@ -18,7 +19,6 @@ import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 // import { useCoinList } from '@/hooks/use-coinList';
 import { getOrderList, getOrderInfo } from '@/services/spot'
-
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
@@ -71,8 +71,10 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
-      // 获取币种列表
-      // const {coinList} = useCoinList();
+  const directionRef = useRef<string>('3');
+
+  // 获取币种列表
+  // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
   const userInfo = appStore.getUserInfo()
 
@@ -90,12 +92,36 @@ const SpotMainPage = observer(() => {
   const [loading, setLoading] = useState(false);
   const paramdataRef = useRef(pageParam);
   const selectParam = useRef<SelectParamType>({
-    startTime: null,
-    endTime: null,
+    startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
+    endTime: dayjs().endOf('day').valueOf(),
     hideOther: false,
     hideCancel: false,
   })
-  const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
+  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+
+  const directionSelect: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <button className='w-full'
+        onClick={() => directionChange('3')}
+      >{t('spot.select.all')}</button>,
+    },
+    {
+      key: '2',
+      label: <button className='w-full' onClick={() => directionChange('0')}>{t('spot.modal.buy')}</button>,
+    },
+    {
+      key: '3',
+      label: <button className='w-full' onClick={() => directionChange('1')}>{t('spot.modal.sell')}</button>,
+    }
+  ];
+  const directionChange = (key: string) => {
+
+    if (key === directionRef.current) return
+    if (loading) return toast.error('loading...')
+    directionRef.current = key
+    getOrderListData()
+  }
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.date'), //"日期",
@@ -122,18 +148,25 @@ const SpotMainPage = observer(() => {
       key: "symbol",
       align: "center",
       width: 148,
-      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon :record.status?.toString() === '0' ?styles.success_icon:''}`}
-      onClick={(e)=>{
-        e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-      }}
+      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''}`}
+        onClick={(e) => {
+          e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
       >
         {_text || '--'}
         <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
       </button >,
     },
     {
-      title: t('spot.columns.direction'), //"方向",
+      title: <>
+        <Dropdown menu={{ items: directionSelect }} trigger={['hover']} >
+          <div>
+            <span className='ml-4'>{directionRef.current === '3' ? t('spot.columns.direction') : directionRef.current === '0' ? t('spot.modal.buy') : directionRef.current === '1' ? t('spot.modal.sell') : '--'}</span>
+            <Iconify icon="mingcute:down-line" className={`${styles.tip_color} ml-1`} size={16} />
+          </div>
+        </Dropdown>
+      </>, //"方向"
       dataIndex: "direction",
       key: "direction",
       align: "center",
@@ -160,9 +193,9 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const averagePrice = record.tradedAmount ? division(record.turnover||0,record.tradedAmount) : 0
+        const averagePrice = record.tradedAmount ? division(record.turnover || 0, record.tradedAmount) : 0
         if (record.status === 0 || record.status === 1 || record.status === 5) {
-          const {baseScaleResult} = getRound(record.symbol, averagePrice)
+          const { baseScaleResult } = getRound(record.symbol, averagePrice)
           return <span >{averagePrice ? baseScaleResult : '--'}</span>;
         } else {
           return <span >--</span>;
@@ -176,13 +209,13 @@ const SpotMainPage = observer(() => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-       if(record.type === 0 ){
-        return <span >{t('spot.select.market')}</span>;
-       }else if(record.type === 1 ){
-        const {baseScaleResult} = getRound(record.symbol, _status)
-        return <span >{_status ? baseScaleResult : '0'}</span>;
-       }
+      render: (_status, record) => {
+        if (record.type === 0) {
+          return <span >{t('spot.select.market')}</span>;
+        } else if (record.type === 1) {
+          const { baseScaleResult } = getRound(record.symbol, _status)
+          return <span >{_status ? baseScaleResult : '0'}</span>;
+        }
       },
     },
     {
@@ -194,9 +227,9 @@ const SpotMainPage = observer(() => {
       render: (_amount, record) => {
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
-            <span>{`${roundDown(_amount,2)}/${roundDown(record.tradedAmount,2)}`}</span>
+            <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount),100),2)}%` : '0%'}
+              {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
             </span>
 
           </div>
@@ -212,8 +245,8 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        const {baseScaleResult} = getRound(record.symbol, _status)
+      render: (_status, record) => {
+        const { baseScaleResult } = getRound(record.symbol, _status)
         return <span >{_status ? baseScaleResult : '0'}</span>;
       },
     },
@@ -260,7 +293,7 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 128,
       // 判断方向是买还是卖 buyPrice/sellPrice
-      render: (_tradePrice,record) => {
+      render: (_tradePrice, record) => {
         // const flag = record.takerSide
         // if(flag === 0){
         //   return <span>{_buyPrice || '--'}</span>
@@ -269,8 +302,8 @@ const SpotMainPage = observer(() => {
         // }else{
         //   return '--'
         // }
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
-        const {baseScaleResult} = getRound(symbolName, _tradePrice)
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
+        const { baseScaleResult } = getRound(symbolName, _tradePrice)
         return <span>{_tradePrice ? baseScaleResult : '--'}</span>
       },
     },
@@ -281,8 +314,8 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
-        const {scaleResult} = getRound(symbolName, _status)
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
+        const { scaleResult } = getRound(symbolName, _status)
         return <span >{_status ? scaleResult : '--'}</span>;
       },
     },
@@ -292,9 +325,9 @@ const SpotMainPage = observer(() => {
       dataIndex: "tradePrice",
       width: 128,
       align: "center",
-      render: (_ip,record) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
-        const {baseScaleResult} = getRound(symbolName, nul(_ip, record.quantity))
+      render: (_ip, record) => {
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
+        const { baseScaleResult } = getRound(symbolName, nul(_ip, record.quantity))
         return <span >{_ip ? baseScaleResult : '--'}</span>;
       },
     },
@@ -304,17 +337,17 @@ const SpotMainPage = observer(() => {
       key: "buyFee",
       align: "center",
       width: 158,
-      render: (_buyFee,record) => {
-        const symbolName = tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol || ''
+      render: (_buyFee, record) => {
+        const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
         const flag = record.takerSide
         // const price=nul(record.tradePrice,record.quantity)
-        if(flag === 0){
-          const {baseScaleResult, baseSymbol} = getRound(symbolName, _buyFee||0)
-          return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
-        }else if(flag === 1){
-          const {baseScaleResult, baseSymbol} = getRound(symbolName, record.sellFee||0)
-          return <span>{`${baseScaleResult} ${baseSymbol||'--'}`}</span>
-        }else{
+        if (flag === 0) {
+          const { baseScaleResult, baseSymbol } = getRound(symbolName, _buyFee || 0)
+          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+        } else if (flag === 1) {
+          const { baseScaleResult, baseSymbol } = getRound(symbolName, record.sellFee || 0)
+          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+        } else {
           return '--'
         }
       },
@@ -325,28 +358,29 @@ const SpotMainPage = observer(() => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_text,record) => {
-        return maskName(_text,record.buyerUserId,record.sellerUserId)
+      render: (_text, record) => {
+        return maskName(_text, record.buyerUserId, record.sellerUserId)
       },
     }
   ]
-  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+  const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
-    if(takerSide === 0){
-      if(userId === buyerUserId){
+    if (takerSide === 0) {
+      if (userId === buyerUserId) {
         return 'Taker'
-      }else {
+      } else {
         return 'Maker'
       }
-    }else if(takerSide === 1){
-      if(userId === sellerUserId){
+    } else if (takerSide === 1) {
+      if (userId === sellerUserId) {
         return 'Taker'
-      }else{
+      } else {
         return 'Maker'
       }
-    }else{
+    } else {
       return '--'
-  }}
+    }
+  }
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
   const handleExpand = async (expanded: boolean, record: DataType) => {
     if (expanded) {
@@ -409,11 +443,12 @@ const SpotMainPage = observer(() => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 1,
-      notStatus:  selectParam.current.hideCancel?'3':null,
-      coinSymbol: selectParam.current.hideOther?`${currentPair?.coinSymbol}`:null,
-      baseSymbol: selectParam.current.hideOther?`${currentPair?.baseSymbol}`:null,
-      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():null,
-      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():null,
+      notStatus: selectParam.current.hideCancel ? '3' : null,
+      coinSymbol: selectParam.current.hideOther ? `${currentPair?.coinSymbol}` : null,
+      baseSymbol: selectParam.current.hideOther ? `${currentPair?.baseSymbol}` : null,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+      direction: directionRef.current !== '3' ? directionRef.current : null
 
     }
     setLoading(true)
@@ -448,14 +483,22 @@ const SpotMainPage = observer(() => {
     getOrderListData()
   }
   const dateChange = (value: any) => {
-   
-    const startTime =value? dayjs(value[0]).valueOf():null
-    const endTime = value? dayjs(value[1]).valueOf():null
-    // const startTime =value[0].value()
-    // const endTime =  value[1].value()
-    selectParam.current.startTime = startTime
-    selectParam.current.endTime = endTime
-    getOrderListData()
+    let startTime = null;
+    let endTime = null;
+
+    if (value) {
+      // 开始时间保持不变，转为时间戳
+      startTime = dayjs(value[0]).valueOf();
+
+      // 结束时间先格式化为YYYY-MM-DD，然后加上23:59:59
+      const endDate = dayjs(value[1]).format('YYYY-MM-DD');
+      endTime = dayjs(`${endDate} 23:59:59`).valueOf();
+      // endTime = dayjs(value[1]).endOf(value[1]).valueOf();
+    }
+
+    selectParam.current.startTime = startTime;
+    selectParam.current.endTime = endTime;
+    getOrderListData();
   }
   useEffect(() => {
     getOrderListData()
@@ -513,6 +556,9 @@ const SpotMainPage = observer(() => {
             placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
             onChange={dateChange}
             size='large'
+            minDate={dayjs().subtract(6, 'month')}
+            maxDate={dayjs().endOf('day')}
+            defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
           />
           <div className={`${styles.table_header_checkbox2}`}>
             <Checkbox
