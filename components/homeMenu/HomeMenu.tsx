@@ -240,10 +240,10 @@ export default function HomeMenu() {
             if (response && typeof response === 'object' && response.code === 0 && response.data) {
                 const formattedData = response.data.list?.map((item: any) => ({
                     id: item.id,
-                    h5Text: item.title,
+                    h5Text: item.titleTemplate,
                     spanText: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
                     link: item.link || '',
-                    content: item.content || ''
+                    content: item.contentTemplate || ''
                 })) || [];
                 
                 setAccountAssistantData(formattedData);
