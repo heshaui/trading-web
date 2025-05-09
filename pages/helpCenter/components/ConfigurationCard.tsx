@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Card, Col, Row, ConfigProvider } from 'antd';
 import Image from 'next/image';
 
@@ -10,8 +10,26 @@ import { useRouter } from 'next/navigation';
 
 type ConfigurationCardProps = {
     configurationList: CustomizationProps[];
+    onHeightChange?: (height: number) => void;
 }
-const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList }) => {
+const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList, onHeightChange }) => {
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (contentRef.current && onHeightChange) {
+            const observer = new ResizeObserver((entries) => {
+                for (const entry of entries) {
+                    onHeightChange(entry.contentRect.height);
+                }
+            });
+
+            observer.observe(contentRef.current);
+
+            return () => {
+                observer.disconnect();
+            };
+        }
+    }, [onHeightChange]);
     const { isDayMode } = useThemeMode();
     const router = useRouter();
     const handleButtonClick = (languagePath: string) => {
@@ -32,7 +50,7 @@ const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList
                 },
             }}
         >
-            <div className={`${styles.cardContent} ${styles.contentLayout}`}>
+            <div ref={contentRef} className={`${styles.cardContent} configContentLayout`}>
                 <Row>
                     <Col flex={1}>
                         <Card className={styles.card} style={{ paddingTop: 0 }}>

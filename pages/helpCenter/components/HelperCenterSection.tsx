@@ -10,12 +10,14 @@ import { useThemeMode } from '@/hooks/useThemeMode'
 type Props = {
     helpCenterList: HelpCenterMenuProps[];
     onButtonClick: (item: any) => void;
-    flag:boolean
+    flag: boolean;
+    configContentHeight?: number;
 };
 const HelpCenterSection: React.FC<Props> = ({
     helpCenterList = [],
     flag,
-    onButtonClick
+    onButtonClick,
+    configContentHeight = 0
 }) => {
     const { isDayMode } = useThemeMode();
 
@@ -32,12 +34,17 @@ const HelpCenterSection: React.FC<Props> = ({
             }
         });
     };
-    const clickButton = (item: any) => {
-        
+    const clickButton = (languagePath: string) => {
+        if(!languagePath) return 
+        if (languagePath.startsWith('http')) {
+            window.open(languagePath, '_blank', 'noopener');
+        } else {
+            router.push(languagePath);
+        }
     };
 
     return (
-        <div className={`${styles.helpCenterCard}`} style={flag?{ marginTop: 150 }:{}}>
+        <div className={`${styles.helpCenterCard}`} style={flag?{ marginTop: configContentHeight }:{}}>
             {Array.isArray(helpCenterList) && helpCenterList.map((item, index) => (
                 <div key={index} className={styles.helpCenterCardContent}>
                     <Row>
@@ -66,7 +73,7 @@ const HelpCenterSection: React.FC<Props> = ({
                                     alignItems: 'center',
                                     }}
                                     
-                                onClick={() => clickButton(child)}
+                                onClick={() => clickButton(child?.languagePath || '')}
                             >
                                 <Row
                                     gutter={18}
@@ -97,3 +104,7 @@ const HelpCenterSection: React.FC<Props> = ({
 };
 
 export default HelpCenterSection;
+
+export interface HelpCenterSectionProps {
+    configContentHeight?: number;
+}

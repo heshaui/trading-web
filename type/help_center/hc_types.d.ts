@@ -79,5 +79,6 @@ export interface HelpCenterMenuProps {
     contentId: string,
     languageCode: string,
     articleTitle: string,
+    languagePath?: string,
     children?: HelpCenterMenuProps[]
 }

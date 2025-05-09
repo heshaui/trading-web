@@ -13,6 +13,7 @@ import { observer } from 'mobx-react-lite';
 import { toast } from 'sonner';
 export default function HelpCenter() {
     const lang = appStore.getLang();
+    const [configContentHeight, setConfigContentHeight] = useState<number>(0);
     const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
     const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     // 测试数据
@@ -162,6 +163,7 @@ export default function HelpCenter() {
             const res = await getCustomization({ lang: langName });
             if (res.code === '0') {
                 const sortedData = res.data.sort((a: CustomizationProps, b: CustomizationProps) => a.sort - b.sort);
+                setMenuData(sortedData)
                 // setMenuData([...sortedData, {
                 //     id: 1,
                 //     whiteIcon: "/images/help_center/icon_lock.png",
@@ -173,7 +175,6 @@ export default function HelpCenter() {
                 //     articleTitle: "修改密码",
                 //     languagePath: "/userCenter"
                 // }]);
-                setMenuData(sortedData)
             } else {
                 toast.error(res.message);
             }
@@ -286,7 +287,10 @@ export default function HelpCenter() {
                     {
                         showSearch ? <></> :
                             Array.isArray(menuData) && menuData.length > 0 && (
-                                <ConfigurationCard configurationList={menuData} />
+                                <ConfigurationCard 
+                                    configurationList={menuData} 
+                                    onHeightChange={setConfigContentHeight}
+                                />
                             )
                     }
                 </div>
@@ -324,9 +328,10 @@ export default function HelpCenter() {
                 ) : (
                     <>
                         <HelpCenterSection
-                            helpCenterList={helpCenterMenuData || []}
+                            helpCenterList={helpCenterMenuData}
+                            flag={true}
                             onButtonClick={handleButtonClick}
-                            flag={menuData.length > 0}
+                            configContentHeight={configContentHeight}
                         />
                         <div className={`${styles.otherSupport} customCard`}>
                             <Row>
