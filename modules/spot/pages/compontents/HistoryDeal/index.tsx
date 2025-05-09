@@ -10,9 +10,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { add, cut, division, nul,roundDown } from '@/utils'
+import { add, cut, division, nul, roundDown } from '@/utils'
 import { getRound } from '@/utils/getUseRate'
-import { getOrderList, getExchangeCoinList ,getOrderInfo} from '@/services/spot'
+import { getOrderList, getExchangeCoinList, getOrderInfo } from '@/services/spot'
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 import { useCoinList } from '@/hooks/use-coinList';
@@ -43,7 +43,7 @@ interface DataType1 {
   fee: number,
   baseSymbolCount: number
 }
-interface DataType{
+interface DataType {
   id: number,
   tenantId: string,
   buyOrderId: number,
@@ -77,7 +77,7 @@ interface SelectParamType {
   notStatus: string | number;
 }
 
-const SpotMainPage =observer( () => {
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
@@ -97,8 +97,8 @@ const SpotMainPage =observer( () => {
     pageSize: 10,
   });
   const selectParam = useRef<SelectParamType>({
-    startTime: '',
-    endTime: '',
+    startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
+    endTime: dayjs().endOf('day').valueOf(),
     direction: '',
     type: '',
     symbol: '',
@@ -128,17 +128,17 @@ const SpotMainPage =observer( () => {
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
         }}
       >
-        {_text?`${_text.split('_').join('/')}` : '--'}
+        {_text ? `${_text.split('_').join('/')}` : '--'}
         <Iconify icon="mingcute:right-line" className={`mx-1`} size={20} />
       </button >,
-    //   render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
-    //   onClick={() => {
-    //     router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-    //   }}
-    // >
-    //   {_text?`${_text.split('_').join('/')}` : '--'}
-    //   <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
-    // </button >,
+      //   render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+      //   onClick={() => {
+      //     router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+      //   }}
+      // >
+      //   {_text?`${_text.split('_').join('/')}` : '--'}
+      //   <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+      // </button >,
 
     },
     {
@@ -183,8 +183,8 @@ const SpotMainPage =observer( () => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const amount = division(_status,record.quantity)
-        const {baseScaleResult} = getRound(record.symbol, amount)
+        const amount = division(_status, record.quantity)
+        const { baseScaleResult } = getRound(record.symbol, amount)
         return <span >{amount ? baseScaleResult : '0'}</span>;
 
       },
@@ -197,7 +197,7 @@ const SpotMainPage =observer( () => {
       width: 108,
       align: "center",
       render: (_status, record) => {
-        const {scaleResult} = getRound(record.symbol, _status)
+        const { scaleResult } = getRound(record.symbol, _status)
         return <span >{_status ? scaleResult : '0'}</span>;
       },
     },
@@ -210,7 +210,7 @@ const SpotMainPage =observer( () => {
       render: (_status, record) => {
         // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const {baseScaleResult} = getRound(record.symbol, _status)
+        const { baseScaleResult } = getRound(record.symbol, _status)
         return <span >{_status ? baseScaleResult : '0'}</span>;
       },
     },
@@ -220,16 +220,16 @@ const SpotMainPage =observer( () => {
       dataIndex: "buyFee",
       // width: 158,
       align: "center",
-      render: (_status,record) => {
+      render: (_status, record) => {
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const buyRes= getRound(record.symbol,record.buyFee||0)
-        const sellRes = getRound(record.symbol, record.sellFee||0)
-        
-        if(record.takerSide===0){
-          return <span >{`${buyRes.baseScaleResult} ${buyRes.baseSymbol||'--'}`}</span>;
-        }else if(record.takerSide===1){
-          return <span >{`${sellRes.baseScaleResult} ${sellRes.baseSymbol||'--'}`}</span>;
-        }else{
+        const buyRes = getRound(record.symbol, record.buyFee || 0)
+        const sellRes = getRound(record.symbol, record.sellFee || 0)
+
+        if (record.takerSide === 0) {
+          return <span >{`${buyRes.baseScaleResult} ${buyRes.baseSymbol || '--'}`}</span>;
+        } else if (record.takerSide === 1) {
+          return <span >{`${sellRes.baseScaleResult} ${sellRes.baseSymbol || '--'}`}</span>;
+        } else {
           return <span >{'--'}</span>;
         }
       },
@@ -240,30 +240,31 @@ const SpotMainPage =observer( () => {
       dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        return maskName(_status,record.buyerUserId,record.sellerUserId)
+      render: (_status, record) => {
+        return maskName(_status, record.buyerUserId, record.sellerUserId)
       },
     },
 
 
   ];
-  const maskName = (takerSide:number,buyerUserId:number,sellerUserId:number)=>{
+  const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
-    if(takerSide === 0){
-      if(userId === buyerUserId){
+    if (takerSide === 0) {
+      if (userId === buyerUserId) {
         return 'Taker'
-      }else {
+      } else {
         return 'Maker'
       }
-    }else if(takerSide === 1){
-      if(userId === sellerUserId){
+    } else if (takerSide === 1) {
+      if (userId === sellerUserId) {
         return 'Taker'
-      }else{
+      } else {
         return 'Maker'
       }
-    }else{
+    } else {
       return '--'
-  }}
+    }
+  }
   const directionSelect: { label: string, value: string | number }[] = [
     {
       label: t('spot.select.all'),
@@ -299,14 +300,24 @@ const SpotMainPage =observer( () => {
     paramdataRef.current.pageSize = pageSize;
     await getOrderListData();
   }
-
   // 时间选择
   const dateChange = async (value: any) => {
-    const startTime = value ? dayjs(value[0]).valueOf() : '';
-    const endTime = value ? dayjs(value[1]).valueOf() : '';
-    selectParam.current.startTime = startTime;
-    selectParam.current.endTime = endTime;
-    await getOrderListData();
+    let startTime
+    let endTime
+
+    if (value) {
+      // 开始时间保持不变，转为时间戳
+      startTime = dayjs(value[0]).valueOf();
+
+      // 结束时间先格式化为YYYY-MM-DD，然后加上23:59:59
+      const endDate = dayjs(value[1]).format('YYYY-MM-DD');
+      endTime = dayjs(`${endDate} 23:59:59`).valueOf();
+      // endTime = dayjs(value[1]).endOf(value[1]).valueOf();
+    }
+
+    selectParam.current.startTime = startTime || ''
+    selectParam.current.endTime = endTime || ''
+    await getOrderListData()
   }
 
   const getOrderListData1 = async () => {
@@ -341,36 +352,36 @@ const SpotMainPage =observer( () => {
       setLoading(false)
     }
   }
-const getOrderListData=async()=>{
-  setLoading(true);
-  const symbol = form.getFieldValue('symbol');
-  try {
-    // 请求数据
-    const params = {
-      page: 1,
-      pageSize: 1000,
-      // orderId: record.orderId,
-      // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
-      symbol: `${symbol.split('/').join('_')}`
-    };
-    const res = await getOrderInfo(params);
-    if (res.code === '0') {
-      const newData = res.data.records?.map((item: any) => ({
-        ...item,
-        symbol: `${item.symbol.split('_').join('/')}`,
-      }));
-      setTableData(newData);
-      setTotal(res.data?.total);
-    } else {
-      toast.error(res.message);
+  const getOrderListData = async () => {
+    setLoading(true);
+    const symbol = form.getFieldValue('symbol');
+    try {
+      // 请求数据
+      const params = {
+        page: 1,
+        pageSize: 1000,
+        // orderId: record.orderId,
+        // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+        symbol: `${symbol.split('/').join('_')}`
+      };
+      const res = await getOrderInfo(params);
+      if (res.code === '0') {
+        const newData = res.data.records?.map((item: any) => ({
+          ...item,
+          symbol: `${item.symbol.split('_').join('/')}`,
+        }));
+        setTableData(newData);
+        setTotal(res.data?.total);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(String(error));
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    toast.error(String(error));
-  } finally {
-    setLoading(false);
+
   }
-  
-}
   const getCoinList = async () => {
     try {
       const res = await getExchangeCoinList();
@@ -386,11 +397,11 @@ const getOrderListData=async()=>{
         })
 
         setSymbolSelect(selectData)
-          // 设置默认值
-          form.setFieldsValue({
-            symbol: selectData[0].value
-          })
-          selectParam.current.symbol = selectData[0].value;
+        // 设置默认值
+        form.setFieldsValue({
+          symbol: selectData[0].value
+        })
+        selectParam.current.symbol = selectData[0].value;
       }
     } catch (error) {
       toast.error(String(error))
@@ -459,6 +470,8 @@ const getOrderListData=async()=>{
                   className={`${styles.title_color}`} size={20} />}
                 placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
                 onChange={dateChange}
+                minDate={dayjs().subtract(6, 'month')}
+                maxDate={dayjs().endOf('day')}
               />
             </Form.Item>
 
