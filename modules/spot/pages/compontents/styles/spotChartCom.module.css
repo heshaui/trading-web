@@ -110,7 +110,10 @@
     padding: 12px 0;
 }
 .rangePicker_box{
-    border-color: var(--border-color4);
+    /* border-color: var(--border-color4); */
+    box-shadow: none !important;
+    color: var(--text-color5) !important;
+    background: transparent !important;
 }
 
 

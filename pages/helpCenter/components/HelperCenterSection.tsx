@@ -3,13 +3,21 @@ import { Row, Col, Button } from 'antd';
 import Image from 'next/image';
 
 import styles from '../styles/helpCenter.module.css';
-import { HelpCenterSectionProps } from '@/type/help_center/hc_types';
+import { HelpCenterMenuProps} from '@/type/help_center/hc_types';
 import { useRouter } from 'next/router';
+import { useThemeMode } from '@/hooks/useThemeMode'
 
-const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
+type Props = {
+    helpCenterList: HelpCenterMenuProps[];
+    onButtonClick: (item: any) => void;
+    flag:boolean
+};
+const HelpCenterSection: React.FC<Props> = ({
     helpCenterList = [],
+    flag,
     onButtonClick
 }) => {
+    const { isDayMode } = useThemeMode();
 
     const router = useRouter();
     const locale = router.query.locale || 'zh';
@@ -24,9 +32,12 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
             }
         });
     };
+    const clickButton = (item: any) => {
+        
+    };
 
     return (
-        <div className={styles.helpCenterCard}>
+        <div className={`${styles.helpCenterCard}`} style={flag?{ marginTop: 150 }:{}}>
             {Array.isArray(helpCenterList) && helpCenterList.map((item, index) => (
                 <div key={index} className={styles.helpCenterCardContent}>
                     <Row>
@@ -39,21 +50,23 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
                                 }}
                                 onClick={() => handleTitleClick(item)}
                             >
-                                {item.title}
+                                {item.helpDescription}
                             </h2>
                         </Col>
                     </Row>
                     <Row style={{ marginTop: 40 }}>
-                        <Col span={8}>
-                            <Button
-                                className={styles.helpCenterCardButton}
-                                style={{
-                                    width: '100%',
+                        {item.children && item.children.map((child) => (
+                            <Col  key={child.id} style={{ width: '30%' }} className='mr-6'>
+                                <Button
+                                    className={`${styles.helpCenterCardButton} flex-x `}
+                                    style={{
+                                        width: '100%',
                                     height: 64,
                                     display: 'flex',
                                     alignItems: 'center',
-                                }}
-                                onClick={() => onButtonClick?.(item)}
+                                    }}
+                                    
+                                onClick={() => clickButton(child)}
                             >
                                 <Row
                                     gutter={18}
@@ -63,18 +76,19 @@ const HelpCenterSection: React.FC<HelpCenterSectionProps> = ({
                                 >
                                     <Col>
                                         <Image
-                                            src={item.icon}
-                                            alt={item.alt}
+                                            src={isDayMode&&child.whiteIcon ? child.whiteIcon : child.blackIcon}
+                                            alt={child.articleTitle}
                                             width={18}
                                             height={18}
                                         />
                                     </Col>
                                     <Col>
-                                        <span>{item.buttonWord}</span>
+                                        <span>{child.helpDescription}</span>
                                     </Col>
                                 </Row>
                             </Button>
-                        </Col>
+                            </Col>
+                        ))}
                     </Row>
                 </div>
             ))}

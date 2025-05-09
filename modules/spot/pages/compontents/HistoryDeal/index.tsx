@@ -72,7 +72,7 @@ interface SelectParamType {
   startTime: number | string;
   endTime: number | string;
   direction: string;
-  type: string;
+  // type: string;
   symbol: string;
   notStatus: string | number;
 }
@@ -100,7 +100,7 @@ const SpotMainPage = observer(() => {
     startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
     endTime: dayjs().endOf('day').valueOf(),
     direction: '',
-    type: '',
+    // type: '',
     symbol: '',
     notStatus: ''
   });
@@ -320,49 +320,19 @@ const SpotMainPage = observer(() => {
     await getOrderListData()
   }
 
-  const getOrderListData1 = async () => {
-    const params = {
-      pageNo: paramdataRef.current.page,
-      pageSize: paramdataRef.current.pageSize,
-      orderType: 2,
-      notStatus: selectParam.current.notStatus ? '3' : null,
-      coinSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[0]}` : null,
-      baseSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[1]}` : null,
-      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
-      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
-      direction: selectParam.current.direction || selectParam.current.direction?.toString() === '0' ? selectParam.current.direction : null,
-      type: selectParam.current.type || selectParam.current.type?.toString() === '0' ? selectParam.current.type : null,
-    }
-    setLoading(true)
-    try {
-      const res = await getOrderList(params)
-      if (res.code === '0') {
-        const newData = res.data.list.map((item: any) => ({
-          ...item,
-          userLoginLogs: []
-        }));
-        setTableData(newData);
-        setTotal(res.data.count);
-      } else {
-        toast.error(res.message);
-      }
-    } catch (error) {
-      toast.error(String(error))
-    } finally {
-      setLoading(false)
-    }
-  }
   const getOrderListData = async () => {
     setLoading(true);
     const symbol = form.getFieldValue('symbol');
     try {
       // 请求数据
       const params = {
-        page: 1,
-        pageSize: 1000,
-        // orderId: record.orderId,
-        // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
-        symbol: `${symbol.split('/').join('_')}`
+        page: paramdataRef.current.page,
+        pageSize:paramdataRef.current.pageSize,
+        symbol: `${symbol.split('/').join('_')}`,
+        startTime: dayjs(selectParam.current.startTime).valueOf(),
+        endTime: dayjs(selectParam.current.endTime).valueOf(),
+        sellUserId:  selectParam.current.direction?.toString() === '0' ? userInfo.userId : null,
+        buyUserId:  selectParam.current.direction?.toString() === '1' ? userInfo.userId : null,
       };
       const res = await getOrderInfo(params);
       if (res.code === '0') {
@@ -443,7 +413,7 @@ const SpotMainPage = observer(() => {
             selectorBg: "transparent", //选框背景色
           },
           DatePicker: {
-            activeBg: "var(--background7)",
+            activeBg: "transparent",
           }
         },
         token: {
@@ -472,10 +442,11 @@ const SpotMainPage = observer(() => {
                 onChange={dateChange}
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
+                 defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
               />
             </Form.Item>
 
-            <Form.Item name="type" >
+            {/* <Form.Item name="type" >
               <Select allowClear
                 placeholder={t('spot.select.all')}
                 options={typeSelect}
@@ -486,7 +457,7 @@ const SpotMainPage = observer(() => {
                   getOrderListData();
                 }}
               />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item name="direction" >
               <Select allowClear
                 placeholder={t('spot.select.all')}

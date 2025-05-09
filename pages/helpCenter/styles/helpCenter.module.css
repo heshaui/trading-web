@@ -222,6 +222,7 @@
     background-color: var(--background8);
     height: 60vw;
 }
+
 .articleHeader {
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color4);
@@ -258,3 +259,10 @@
     background-color: transparent;
     padding: 0;
 }
+
+/* .boxLayout {
+    position: relative; 
+    display: flex; 
+    flex-direction: column;
+    background-color: pink;
+} */
