@@ -18,7 +18,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
 import Image from 'next/image';
-import { useRate } from '@/hooks/useRate';
+import { getRate } from '@/utils/getUseRate';
 import appStore from '@/store';
 interface DataType {
     balance: number,
@@ -33,11 +33,13 @@ interface DataType {
 type Props = {
     orderUpdateFlag?: number
 }
-const AssetsMainPage = () => {
+const AssetsMainPage =observer(() => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
     const { coinList } = useCoinList(true);
     const coinPairs = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+    const rateData = appStore.getRateData() || [];
+    const rateKey = appStore.getRateKey().replace(/\s+/g, '');// 汇率key
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);
@@ -91,12 +93,15 @@ const AssetsMainPage = () => {
             align: "center",
             // width: 128,
             render: (_text, record) => {
-                const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                const coin = coinList.find((item: any) => item.coinName === record.coinName);  // 获取币种信息
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
+                const rateKeyName=rateKey.split('-')[0]; // 获取汇率key
+                const {ratetext} = getRate(record.coinName,text2,rateKeyName);
                 return <p className='flex-y align-end'>
                     <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
-                    {record.coinName ? useRate(record.coinName, text2) : '--'}
+                    <span className='ltr-text'>{record.coinName ? ratetext : ''}
+                </span>
                 </p>
             },
             sorter: (a, b) => {
@@ -211,7 +216,7 @@ const AssetsMainPage = () => {
     const searchInputChange = (e: any) => {
         const value = e.target.value;
         if (value) {
-            const newData = initTableData.filter(item => item.coinName.includes(value));
+            const newData = initTableData.filter(item => item.coinName.toLowerCase().includes(value));
             setTableData(newData);
         } else {
             setTableData(initTableData);
@@ -221,7 +226,11 @@ const AssetsMainPage = () => {
         // setHideZero(!hideZero)
         const value = e.target.checked
         if (value && initTableData.length > 0) {
-            const newData = initTableData.filter(item => item.balance !== 0);
+            const newData = initTableData.filter(item => {
+            const { rate } = getRate(item.coinName, item.balance);
+            // 确保 rate 是数字且大于 1
+            return  Number(rate) > 1;
+            });
             setTableData(newData);
         } else {
             setTableData(initTableData);
@@ -244,7 +253,7 @@ const AssetsMainPage = () => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [])
+    }, [rateKey])
     return (<><ConfigProvider
         theme={{
             components: {
@@ -315,6 +324,6 @@ const AssetsMainPage = () => {
 
     </>
     );
-};
+}) ;
 
 export default AssetsMainPage;

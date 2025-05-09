@@ -14,6 +14,7 @@ import { encryptString } from '@/utils/encrypt';
 import { toast } from 'sonner';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
+import { forbiddenPathManager } from '@/middleware/forbiddenPathManager'; //禁止路径
 interface UserItemsListType {
     key: string,
     type: string,
@@ -252,6 +253,7 @@ export default function UserInfoIcon() {
                 if(res.data.account_configuration==='1'){
                     setUserItemsList(userItems)
                 }else{
+                    forbiddenPathManager.addForbiddenPath('/invite');
                     const userItemsList = userItems.filter(item=>item.key!=='5')
                     setUserItemsList(userItemsList)
                 }

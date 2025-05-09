@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Segmented, Checkbox, Tooltip, notification } from 'antd';
+import { Dropdown, ConfigProvider, Table, Form, Segmented, Checkbox, Tooltip, notification } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -13,6 +13,7 @@ import { NoData } from '@/components/noData'
 import { getOrderList, revocationOrder } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, roundDown } from '@/utils'
+import { getRound } from '@/utils/getUseRate'
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
@@ -21,7 +22,7 @@ import { encryptData } from '@/hooks/user-encrypt'
 import ToastModal from '@/components/spotModal/Toast_modal';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 // import { useCoinList } from '@/hooks/use-coinList';
-
+import type { MenuProps } from 'antd';
 interface DataType {
   id: number,
   orderId: string,
@@ -75,6 +76,25 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
   const hideElse = useRef(false)
   const [toastData, setToastData] = useState<any>({})
   const toastDataRef = useRef<any>({})
+  const directionRef = useRef<string>('3')
+
+
+  const directionSelect: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <button className='w-full'
+        onClick={() => directionChange('3')}
+      >{t('spot.select.all')}</button>,
+    },
+    {
+      key: '2',
+      label: <button className='w-full' onClick={() => directionChange('0')}>{t('spot.modal.buy')}</button>,
+    },
+    {
+      key: '3',
+      label: <button className='w-full' onClick={() => directionChange('1')}>{t('spot.modal.sell')}</button>,
+    }
+  ];
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
@@ -100,7 +120,15 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       </button >,
     },
     {
-      title: t('spot.columns.direction'),//"方向",
+      title: <>
+        <Dropdown menu={{ items: directionSelect }} trigger={['hover']} >
+          <div>
+            <span className='ml-4'>{directionRef.current==='3' ?t('spot.columns.direction') :directionRef.current==='0' ? t('spot.modal.buy') : directionRef.current==='1' ? t('spot.modal.sell') : '--'}</span>
+            <Iconify icon="mingcute:down-line" className={`${styles.tip_color} ml-1`} size={16} />
+          </div>
+
+        </Dropdown>
+      </>, //"方向"
       key: "direction",
       dataIndex: "direction",
       width: 128,
@@ -109,10 +137,12 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
         let text
         if (_status === 0) {
           text = t('spot.trade.buy')
-          return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
+          return <span className={`${styles.success_icon}`} >{text || '--'}
+          </span>;
         } else if (_status === 1) {
           text = t('spot.trade.sell')
-          return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
+          return <span className={`${styles.error_icon}`} >{text || '--'}
+          </span>;
         } else {
           return '--'
         }
@@ -124,11 +154,10 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        // type
+      render: (_status, record) => {
+        const { baseScaleResult } = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
-          <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
+          <p className='text-center '> {baseScaleResult}</p>
           <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
@@ -138,7 +167,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-        </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
+        </div> : <p className='text-center '> {t('spot.select.market')}</p>}</>
 
       },
     },
@@ -180,9 +209,12 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), coin?.baseCoinScale) : '0'
-        return <span >{`${totalAmount}/${roundDown(_turnover, coin?.baseCoinScale)}` || '0'}</span>;
+        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price), coin?.baseCoinScale) : '0'
+        const res = getRound(record.symbol, nul(record.amount, record.price)).baseScaleResult
+        const totalAmount = record.amount && record.price ? res : '0'
+        const resNum = getRound(record.symbol, _turnover).baseScaleResult
+        return <span >{`${totalAmount}/${resNum}` || '0'}</span>;
       },
     },
     {
@@ -209,7 +241,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
                 price: record.price,
                 amount: record.amount,
               })
-              toastDataRef.current={
+              toastDataRef.current = {
                 coinSymbol: record.coinSymbol,
                 symbol: record.symbol,
                 baseSymbol: record.baseSymbol,
@@ -228,6 +260,12 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
 
 
   ];
+  const directionChange = (key: string) => {
+    if (key === directionRef.current) return
+    if (loading) return toast.error('loading...')
+    directionRef.current = key
+    getOrderListData()
+  }
   const delectOne = async (orderId: string[]) => {
     if (delectLoading) return toast.error('loading...')
     setDelectLoading(true)
@@ -296,6 +334,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
       orderType: 0,
       coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}` : null,
       baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}` : null,
+      direction:directionRef.current!=='3' ? directionRef.current : null
     }
     setLoading(true)
     try {

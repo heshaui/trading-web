@@ -231,10 +231,10 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                   trade.type === 'buy' ? styles.buyPrice : styles.sellPrice
                 }`}
               >
-                {trade.price.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}
+                {trade.price.toFixed(currentPair?.baseCoinScale || 1)}
               </span>
               <span className={styles.tradeAmount}>
-                {trade.amount.toFixed(8)}
+                {trade.amount.toFixed(currentPair?.coinScale || 8)}
               </span>
               <span className={styles.tradeTime}>{trade.time}</span>
             </div>
@@ -335,9 +335,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                       : 'inherit' 
                 }}
               >
-                {currentPrice.toFixed(priceScale < 1 ? 
-                  Math.abs(Math.log10(priceScale)) : 
-                  (currentPrice < 1 ? 4 : 1))}
+                {currentPrice.toFixed(currentPair?.baseCoinScale || 1)}
               </span>
               <span 
                 className={styles.priceChange}

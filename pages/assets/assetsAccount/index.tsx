@@ -7,9 +7,9 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import { getUserBalanceAll } from '@/services/assets';
+import { getUserBalanceAll, getUserBalanceByDay } from '@/services/assets';
 import { toast } from "sonner";
-import { add, roundDown } from '@/utils'
+import { add, roundDown, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-import { useRate } from '@/hooks/useRate';
+import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 interface DataType {
@@ -41,19 +41,30 @@ const AssetsMainPage = observer(() => {
         page: 1,
         pageSize: 10
     })
+    const [balanceAll, setBalanceAll] = useState({
+        usdBalance: 0,
+        cnyBalance: 0,
+    });
+    const [balanceDay, setBalanceDay] = useState({
+        usdBalance: 0,
+        cnyBalance: 0,
+    });
+
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
     const { coinList } = useCoinList(true);
     const [form] = Form.useForm();
     // 获取汇率数据
-    const rateData = appStore.getRateData();
+    const rateData = appStore.getRateData() || [];
+    const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
 
     const columns: ColumnsType<DataType> = [
         {
             title: t('assetsAccount.currency'), //"币种",
             dataIndex: "coinName",
             key: "coinName",
-            // width: 158,
+            width: 128,
             align: "left",
             render: (text, record) => {
                 return <div className='flex align-center'>
@@ -75,12 +86,20 @@ const AssetsMainPage = observer(() => {
             align: "center",
             // width: 128,
             render: (_text, record) => {
-                const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                const coin = coinList.find((item: any) => item.coinName === record.coinName); // 获取币种信息
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
+                // 添加默认值和检查
+                const rateKeyName = rateKey.split('-')[0].trim()
+
+                // 确保 rateKeyName 有值
+                const { ratetext } = getRate(record.coinName, text2, rateKeyName);
+
                 return <p className='flex-y align-end'>
-                <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
-                {record.coinName?useRate(record.coinName,text2):'--'}
+                    <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
+                    <span className='ltr-text'>
+                        {record.coinName ? ratetext : ''}
+                    </span>
                 </p>
             },
             sorter: (a, b) => {
@@ -119,7 +138,7 @@ const AssetsMainPage = observer(() => {
             title: t('assetsAccount.order'), //"下单锁定",
             key: "frozenBalance",
             dataIndex: "frozenBalance",
-            // width: 128,
+            width: 128,
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
@@ -160,6 +179,8 @@ const AssetsMainPage = observer(() => {
 
 
     ];
+    // 添加客户端渲染标记
+    const [isClient, setIsClient] = useState(false);
     const getCoinList = async (type: string, coinData: any) => {
         // console.log(12345,coinList);
         if (type === '1') {
@@ -195,7 +216,7 @@ const AssetsMainPage = observer(() => {
     const searchInputChange = (e: any) => {
         const value = e.target.value;
         if (value) {
-            const newData = initTableData.filter(item => item.coinName.includes(value));
+            const newData = initTableData.filter(item => item.coinName.toLowerCase().includes(value.toLowerCase()));
             setTableData(newData);
         } else {
             setTableData(initTableData);
@@ -205,7 +226,7 @@ const AssetsMainPage = observer(() => {
         // setHideZero(!hideZero)
         const value = e.target.checked
         if (value && initTableData.length > 0) {
-            const newData = initTableData.filter(item => item.balance !== 0);
+            const newData = initTableData.filter(item => item.balance.toString().trim() !== '0');
             setTableData(newData);
         } else {
             setTableData(initTableData);
@@ -218,18 +239,70 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 setInitTableData(res.data || []);
                 setTableData(res.data || []);
-                setTotal(res.data.total);
+                const totalUsd = res.data.reduce((sum: number, curr: any) => {
+                    const coinTotal = add(
+                        add(curr.balance || 0, curr.releaseBalance || 0),
+                        curr.frozenBalance || 0
+                    );
+                    const coin = coinList.find((item: any) => item.coinName === curr.coinName);
+
+                    // let balance 
+                    // if(curr.coinName === 'USDT'){
+                    //  balance = coinTotal
+                    // }else{
+                    //     balance = nul(coinTotal, coin?.price || 0);
+                    // }
+                    // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    const balance = getCoinRate(curr.coinName, coinTotal).coinRate
+                    return sum + Number(balance) || 0;
+                }, 0);
+                const rateKeyName = rateKey.split('-')[0].trim()
+                const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
+                // const usdRate = getRate('USDT', totalUsd, 'USD').rate
+                const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
+                setBalanceAll({
+                    usdBalance: Number(usdRate) || 0,
+                    cnyBalance: Number(cnyRate) || 0
+                });
             }
         } catch (error) {
             toast.error(String(error));
         } finally {
             setTableLoading(false);
         }
-    }
+    };
+    const getUserBalanceDay = async () => {
+        try {
+            const res = await getUserBalanceByDay();
+            if (res.code === '0') {
+                const rateKeyName = rateKey.split('-')[0].trim()
+                // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
+                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
+                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                setBalanceDay({
+                    usdBalance: Number(usdRate.rate) || 0,
+                    cnyBalance: Number(cnyRate.rate) || 0
+                });
+            }
+        } catch (error) {
+            toast.error(String(error));
+        }
+    };
 
     useEffect(() => {
         getUserBalanceAllData();
-    }, [])
+        getUserBalanceDay()
+    }, [rateKey])
+    useEffect(() => {
+        // 只在客户端执
+        if ( typeof window === 'undefined') return;
+
+        try {
+            appStore.loadCurrencyPairs()
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
+        }
+    }, [isClient]);
     return (<div>
         <ConfigProvider
             theme={{
@@ -290,14 +363,18 @@ const AssetsMainPage = observer(() => {
             <div className={`${styles.card_bgc}  mt-3 `}>
                 <div className={`${styles.card_bgc2} w-full`}>
                     <ul className='flex-row'>
-                        <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
+                        <li className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}>
                             <p className={`${styles.tip_color} font-w-400 font-14`}>
                                 {/* 现货资产 */}
                                 {t('assetsAccount.assets')}
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
-                                <span>≈  1.12 CNY</span>
+                                <span className={`${styles.title_color} font-w-700 font-32`}>
+                                    {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'}
+                                </span>
+                                <span>
+                                    ≈  {balanceAll.cnyBalance} CNY
+                                </span>
                             </p>
                         </li>
                         <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
@@ -306,8 +383,12 @@ const AssetsMainPage = observer(() => {
                                 {t('assetsAccount.todayProfit')}
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>0.15 USD</span>
-                                <span>≈  1.12 CNY</span>
+                                <span className={`${styles.title_color} font-w-700 font-32`}>
+                                    {cut(balanceAll.usdBalance, balanceDay.usdBalance)}&nbsp;
+                                    {/* USD */}
+                                    {rateKey.split('-')[0].trim() || '--'}
+                                </span>
+                                <span>≈  {cut(balanceAll.cnyBalance, balanceDay.cnyBalance)} CNY</span>
                             </p>
                         </li>
                     </ul>

@@ -2,9 +2,10 @@ import { request } from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
 
 // 获取公告列表 - 登录前
-export function getBulletinMessage(data: { languageCode: string }) {
-    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/open/announcement/list?languageCode=${data.languageCode}`, {
+export function getBulletinMessage(data: { languageCode: string, classMenu?: number }) {
+    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/open/announcement/list`, {
         method: 'POST',
+        body: JSON.stringify(data),
     });
 }
 // 获取公告详情 - 登录前
@@ -14,9 +15,10 @@ export function getBulletinDetail(data: { languageCode: string, id: number }) {
     });
 }
 // 获取公告列表 - 登录后
-export function getBulletinMessageLogined(data: { languageCode: string }) {
-    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/list?languageCode=${data.languageCode}`, {
+export function getBulletinMessageLogined(data: { languageCode: string, classMenu?: number }) {
+    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/list`, {
         method: 'POST',
+        body: JSON.stringify(data),
     });
 }
 // 获取公告详情 - 登录后
@@ -36,5 +38,14 @@ export function readBulletinMessageLogined(data: { ids: number[] }) {
 export function getBulletinMessageUnreadCount() {
     return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/unread-count`, {
         method: 'GET',
+    });
+}
+
+
+// 修改接口定义，添加可选参数支持
+export function getInformClassMenuList(data: { languageCode: string, [key: string]: any }) {
+    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/open/class/getInformClassMenuList`, {
+        method: 'POST',
+        body: JSON.stringify(data),
     });
 }

@@ -62,7 +62,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />
                             </button>
                         </div>
-                    )}
+                    )}  
                 </div>
             }
             open={open}

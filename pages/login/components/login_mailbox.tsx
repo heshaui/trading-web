@@ -120,7 +120,10 @@ function Mailbox() {
                         }
                         setLoginInfo(data)
                         setCodeModelOpen(true)
-                        toast.success(res.message)
+                        if(!((res.data.openAll === 1 && res.data.isGoogleAuth === 1&&(res.data.isEmailAuth === 0 && res.data.isPhoneAuth === 0)) || 
+                        (res.data.openAll === 0 && res.data.isGoogleAuth === 1))){
+                            toast.success(res.message)
+                        }
                     } else if (res.code === "10044") {
                         // const data = {
                         //     ...res.data,

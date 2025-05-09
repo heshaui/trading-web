@@ -675,7 +675,23 @@ export default function HomeMenu() {
     // 汇率点击
     const handleRateClick = (rate: string) => {
         setSelectedRate(rate);
-        // 可以在这里添加其他逻辑，例如更新语言设置
+        
+        // 获取当前汇率数据
+        const currentRateData = store.getRateData();
+        
+        // 查找选中的汇率数据
+        const selectedRateData = currentRateData.find(item => item.rate === rate);
+        
+        // 如果找到了匹配的汇率数据，则更新它为当前选中的汇率
+        if (selectedRateData) {
+            // 将选中的汇率数据设置为当前汇率
+            store.setRateData([
+                // 将选中的汇率数据放在数组的第一位
+                selectedRateData,
+                // 过滤掉已选中的汇率，添加其他汇率数据
+                ...currentRateData.filter(item => item.rate !== rate)
+            ]);
+        }
     };
     // 定义语言菜单项
     const languageItems = spanArr.length > 0 ? spanArr.map((item: { span: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; key: any; }, index: number) => ({
@@ -955,7 +971,6 @@ export default function HomeMenu() {
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
     const listItems = mergedMenus.map((menuList: MenuListItem) => {
         return <MenuItem key={menuList.key} menuList={menuList} haveArrow={false} isCascading />
     });
@@ -1048,6 +1063,8 @@ export default function HomeMenu() {
                             width={126}
                             height={30}
                             onError={() => setLogoUrl('/home_menu_logo.png')}
+                            className='pointer'
+                            onClick={() => router.push('/')}
                         />
                     </div>
                     <div className={styles.menuContainer}>

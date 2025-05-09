@@ -60,6 +60,8 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
     const [toastModal, setToastModal] = useState(false);
     const [spotModal, setSpotModal] = useState(false);
     const [errorModal, setErrorModal] = useState(false);
+    // 添加一个状态变量用于强制组件重新渲染
+    const [forceUpdate, setForceUpdate] = useState(false);
 
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -78,13 +80,13 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
         // 检查最小下单金额
         const minBaseVolume = currentPair?.minBaseVolume || 0;
         if (inputValue < minBaseVolume) {
-            return Promise.reject(new Error(`最小下单金额为 ${minBaseVolume} ${currentPair?.baseSymbol}`));
+            return Promise.reject(new Error(`最小成交额 ${minBaseVolume} ${currentPair?.baseSymbol}`));
         }
         
         // 检查最大下单金额
         const maxBaseVolume = currentPair?.maxBaseVolume || 0;
         if (maxBaseVolume > 0 && inputValue > maxBaseVolume) {
-            return Promise.reject(new Error(`最大下单金额为 ${maxBaseVolume} ${currentPair?.baseSymbol}`));
+            return Promise.reject(new Error(`最大成交额 ${maxBaseVolume} ${currentPair?.baseSymbol}`));
         }
 
         // 检查余额是否充足
@@ -417,14 +419,21 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                     type: priceDisabled ? 0 : 1,
                     direction: segmentedvalue === 'buy' ? 0 : 1,
                 }
-                const noRemind = localStorage.getItem('noRemind')
-                console.log(noRemind, 'noRemind');
+                console.log(priceDisabled)
+                let noRemind
+                if(!priceDisabled){
+                     noRemind = localStorage.getItem('limitOrderConfirm')
+                }else{
+                     noRemind = localStorage.getItem('marketOrderConfirm')
+                }
+               
+                 console.log(noRemind, 'noRemind');
                 if (noRemind==='true') {
-                    setModalOpen(false)
-                    handelSubmitOrder()
-                } else {
                     setModalData(modalData)
                     setModalOpen(true)
+                } else {
+                    setModalOpen(false)
+                    handelSubmitOrder()
                 }
             });
     };
@@ -655,7 +664,11 @@ const SpotTradePage = ({ onOrderSuccess,orderData }: Props) => {
                         onValuesChange={(changedValues) => {
                             if ('price' in changedValues || 'amount' in changedValues) {
                                 calculateTotal();
-                                // 价格变化时会自动重新渲染组件，因此可买数量也会更新
+                                // 价格变化时强制重新渲染组件，确保可买数量更新
+                                if ('price' in changedValues) {
+                                    // 使用一个无关的状态更新来触发重新渲染
+                                    setForceUpdate(prev => !prev);
+                                }
                             }
                             if ('account' in changedValues) {
                                 // 当成交额变化时，计算数量

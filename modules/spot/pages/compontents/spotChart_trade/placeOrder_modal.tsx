@@ -63,7 +63,13 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
         
         // 如果用户选择不再提醒，保存到本地存储
         if (noRemind) {
-            localStorage.setItem('noRemind', 'true');
+            console.log(modalData,'modalData')
+            if(modalData.type===1){
+                localStorage.setItem('limitOrderConfirm', 'false');
+            }else{
+                localStorage.setItem('marketOrderConfirm', 'false');
+            }
+            
         }
         
         onOk(true)

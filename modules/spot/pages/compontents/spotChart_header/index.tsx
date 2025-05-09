@@ -58,6 +58,13 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const currencyPairsArray = appStore.currencyPairs || [];
+    
+    // 当currentPair变化时同步收藏状态
+    useEffect(() => {
+        if (currentPair) {
+            setIsFavorite(!!currentPair.isFavorite);
+        }
+    }, [currentPair]);
 
     // 处理路由参数变化，包括页面内跳转
     useEffect(() => {
@@ -150,31 +157,50 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     ];
     // 添加处理收藏的函数
     const handleToggleFavorite = async () => {
-        setIsFavorite(!isFavorite);
-        if(isFavorite){
-            const data={
-                exchangeCoinId:currentPair.id,
-                type:1
+        const newFavoriteState = !isFavorite;
+        setIsFavorite(newFavoriteState); // 先更新UI状态，提高响应速度
+        
+        const data = {
+            exchangeCoinId: currentPair.id,
+            type: 1
+        };
+        
+        try {
+            let res;
+            if (newFavoriteState) {
+                // 添加收藏
+                res = await addUserExchangeCoinType(data);
+            } else {
+                // 取消收藏
+                res = await canalUserExchangeCoinType(data);
             }
-           const res= await addUserExchangeCoinType(data);
-           if(res.code === '0'){
-            appStore.setCurrentPair({
-                ...currentPair,
-                isFavorite: true
-            });
-           }
-        }else{
-            const data={
-                exchangeCoinId:currentPair.id,
-                type:1
-            }
-          const res= await canalUserExchangeCoinType(data);
-            if(res.code === '0'){
+            
+            if (res.code === '0') {
+                // 请求成功后更新store中的状态
                 appStore.setCurrentPair({
                     ...currentPair,
-                    isFavorite: false
+                    isFavorite: newFavoriteState
                 });
+                
+                // 更新币对列表中的收藏状态
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(item => item.id === currentPair.id);
+                if (pairIndex !== -1) {
+                    updatedPairs[pairIndex] = {
+                        ...updatedPairs[pairIndex],
+                        isFavorite: newFavoriteState
+                    };
+                    appStore.setCurrencyPairs(updatedPairs);
+                }
+            } else {
+                // 如果API失败，恢复UI状态
+                setIsFavorite(!newFavoriteState);
+                console.error('更新收藏状态失败:', res);
             }
+        } catch (error) {
+            // 发生错误时恢复UI状态
+            setIsFavorite(!newFavoriteState);
+            console.error('收藏操作发生错误:', error);
         }
     };
         const tabsItems: TabsProps['items'] = [

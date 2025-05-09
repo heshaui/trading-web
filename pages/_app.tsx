@@ -21,7 +21,7 @@ import store from '@/store';
 import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
-import { useAuthGuard } from '@/middleware/authGuard';
+import { useAuthGuard } from '@/middleware';
 // 定义公开路径（不需要登录即可访问的页面）
 // const publicPaths = [
 //   '/',

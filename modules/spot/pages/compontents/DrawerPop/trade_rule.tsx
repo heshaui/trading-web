@@ -13,8 +13,16 @@ import { useRouter } from 'next/navigation';
 import { ROUTER_KEY_OPEN } from '@/config/apiConfig';
 import { usePopTypeContext, PopTypeEnum } from '@/hooks/usePopProvider';
 
-const TradeRule = observer(() => {
+// 根据精度值生成对应的最小小数值
+const getMinimumDecimal = (scale: number | undefined): string => {
+  if (!scale || scale <= 0) return '1';
+  
+  // 生成对应精度的小数，例如：scale为4时返回0.0001
+  return `0.${'0'.repeat(scale-1)}1`;
+};
 
+const TradeRule = observer(() => {
+    const price=1
     const { t } = useTranslation(['spot']);
     const { isLoggedIn } = useAuth();
     const router = useRouter();
@@ -59,13 +67,13 @@ const TradeRule = observer(() => {
                  <li className='flex-x align-center justify-between mt-5'>
                     最小价格波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        {currentPair?.coinScale}
+                       {getMinimumDecimal(currentPair?.coinScale)}{currentPair?.coinSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
                     最小数量波动
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
-                        {currentPair?.baseCoinScale}
+                     {currentPair?.baseCoinScale}{currentPair?.baseSymbol}
                     </span>
                 </li> 
             </ul>

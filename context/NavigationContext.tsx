@@ -36,12 +36,17 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
         try {
             // 获取菜单数据
             const menuResponse = await homeMenu({ lang }) as { data: any[] };
+            console.log(menuResponse, 'menuResponse');
             if (menuResponse?.data) {
                 const processedMenuData = processMenuItems(menuResponse.data);
                 setMenuData(processedMenuData);
                 // 传入 isDayMode 参数
                 setMenus(formatMenus(processedMenuData.slice(0, 6), isDayMode));
                 setAdaptiveMenuData(formatAdaptiveMenus(processedMenuData));
+                console.log(processedMenuData, 'processedMenuData');
+                setTimeout(() => {  
+                    console.log(menus, 'menus');
+                }, 1000);
             }
 
             // 记录当前的登录状态
@@ -54,6 +59,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                     const bulletinResponse = await getBulletinMessageLogined({ languageCode: lang }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            id: item.id,
                             h5Text: item.title,
                             spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                         }));
@@ -67,6 +73,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                     const bulletinResponse = await getBulletinMessage({ languageCode: lang }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            id: item.id,
                             h5Text: item.title,
                             spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                         }));
@@ -134,6 +141,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                         const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                id: item.id,
                                 h5Text: item.title,
                                 spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                             }));
@@ -145,6 +153,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                         const bulletinResponse = await getBulletinMessage({ languageCode: currentLang }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                id: item.id,
                                 h5Text: item.title,
                                 spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                             }));

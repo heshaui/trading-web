@@ -189,9 +189,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                     setShowVolume(!showVolume); // 切换显示状态
                 }
     return (
-        <ConfigProvider
-            theme={{
-                components: {
+            <ConfigProvider
+                theme={{
+                    components: {
                     Tabs: {
                         itemActiveColor: "var(--tip-color)",
                         itemSelectedColor: "var(--text-color5)",
@@ -202,9 +202,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                     Rate:{
                         starBg:"#A4A5AC",
                     }
-                },
-            }}
-        >
+                    },
+                }}
+            >
             <SimpleScrollTabs 
                 items={tabsItem} 
                 onChange={handleTabClick} 
@@ -259,7 +259,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('change')}
                     >
-                        <span>{showVolume ? '成交量' : '24h涨跌'}</span>
+                        <span>{showVolume ? '24H成交量' : '24H涨跌'}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
@@ -277,7 +277,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                             <Iconify icon="mingcute:transfer-line" size={18} />
                         </div>
                     </div>
-                </div>
+        </div>
 
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
@@ -364,7 +364,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                     ))}
                 </div>
             </div>
-        </ConfigProvider>
+            </ConfigProvider>
     );
 };
 
