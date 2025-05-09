@@ -158,8 +158,8 @@ export default function BulletinCenter() {
     useEffect(() => {
         if (isLoggedIn && bulletinData && bulletinData.length > 0 && !hasInitializedFromContext) {
             // 从NavigationContext转换数据格式
-            const formattedData = bulletinData.map((item: { h5Text: string; spanText: string }, index: number) => ({
-                id: (index + 1).toString(), // 假设没有实际ID，用索引代替
+            const formattedData = bulletinData.map((item: { id: string; h5Text: string; spanText: string }, index: number) => ({
+                id: item.id, // Use the ID from context
                 title: item.h5Text,
                 time: item.spanText,
                 isRead: false // 初始假设所有消息未读
@@ -434,8 +434,9 @@ export default function BulletinCenter() {
 
     // 点击查看详情
     const handleMessageClick = (message: MessageData) => {
+        console.log(message)
        // 跳转到Notice
-       router.push(`/notice/${message.id}`);
+   router.push(`/Notice/${message.id}`);
        
     };
 
@@ -714,7 +715,7 @@ export default function BulletinCenter() {
             }}
         >
             <div className={styles.bulletinContainer}>
-                <RenderBulletinTop
+                {/* <RenderBulletinTop
                     showDetail={showDetail}
                     onBack={handleBack}
                     onReadAll={handleReadAll}
@@ -722,7 +723,7 @@ export default function BulletinCenter() {
                     onSearch={handleSearch}
                     hasUnreadMessages={hasUnreadMessages}
                     disableUnreadCheckbox={!hasUnreadMessages}
-                />
+                /> */}
                 <div className={`${styles.bulletinContent} customMenu`}>
                     <Row justify='space-between' gutter={16}>
                         <Col flex={1}>

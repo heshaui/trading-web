@@ -59,6 +59,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                     const bulletinResponse = await getBulletinMessageLogined({ languageCode: lang }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            id: item.id,
                             h5Text: item.title,
                             spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                         }));
@@ -72,6 +73,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                     const bulletinResponse = await getBulletinMessage({ languageCode: lang }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                            id: item.id,
                             h5Text: item.title,
                             spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                         }));
@@ -139,6 +141,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                         const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                id: item.id,
                                 h5Text: item.title,
                                 spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                             }));
@@ -150,6 +153,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                         const bulletinResponse = await getBulletinMessage({ languageCode: currentLang }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
+                                id: item.id,
                                 h5Text: item.title,
                                 spanText: dayjs(item.releaseTime).format('YYYY/MM/DD HH:mm:ss')
                             }));
