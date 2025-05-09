@@ -8,6 +8,7 @@ export interface MessageData {
     isDetail?: boolean;
     isClickable?: boolean;
     isRead?: boolean; // 添加已读状态
+    classMenu: string
 }
 // 消息详情页
 export interface MessageItemDetailProps {

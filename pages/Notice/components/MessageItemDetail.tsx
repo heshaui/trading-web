@@ -12,7 +12,8 @@ export default function MessageItemDetail({
     currentDetailLabel,
     currentDetailKey,
     onLatestClick,
-    showArticle
+    showArticle,
+    isDetail
 }: MessageItemDetailProps) {
     const [showContent, setShowContent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,47 +37,20 @@ export default function MessageItemDetail({
         setShowContent(prev => !prev);
     }
 
-    const items = [
-        { title: '公告', onClick: onBack },
-        {
-            title: currentDetailKey === 'latest'
-                ? (showArticle ? '最新动态' : currentDetailLabel)
-                : currentDetailLabel,
-            onClick: currentDetailKey === 'latest' && showArticle ? onLatestClick : undefined
-        },
-        ...(currentDetailKey === 'latest' && showArticle ? [{ title: '文章' }] : [])
-    ];
+
+
     return (
         <>
-            <DetailBreadCrumb items={items} />
-            {!showArticle ? (
-                <>
-                    <div>
-                        {getCurrentPageData().map((item, index) => (
-                            <MessageItem
-                                key={index}
-                                title={item.title}
-                                time={item.time}
-                            />
-                        ))}
-                    </div>
-                    <MessagePagination
-                        current={currentPage}
-                        total={(detailListData[currentDetailKey] || []).length}
-                        onChange={handlePageChange}
-                        pageSize={pageSize}
-                    />
-                </>
-            ) : (
+
                 <MessageItem
                     title={message.title}
                     time={message.time}
                     content={message.content}
                     isClickable
                     onClick={handleDetailClick}
-                    isDetail={showContent}
+                    isDetail={isDetail}
                 />
-            )}
+
         </>
     );
 }
