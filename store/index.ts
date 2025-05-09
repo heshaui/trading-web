@@ -80,6 +80,7 @@ class AppStore {
     // 汇率数据状态
     rateData: any[] = [];
     rateKey: string = '';
+    lang: string = '';
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -90,6 +91,7 @@ class AppStore {
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
             this.initRateKeyFromStorage(); // 初始化汇率key
+            this.initLangFromStorage(); // 初始化语言
         }
     }
 
@@ -247,6 +249,35 @@ class AppStore {
 
                 if (parsedData && parsedData.length > 0) {
                     this.rateKey =parsedData[0].span;
+                    // return parsedData[0].span;
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error getting rate key:', error);
+        }
+    }
+     // 从本地存储初始化lang
+     initLangFromStorage() {
+        if (!isBrowser()) return;
+
+        try {
+            // 首先尝试从 lang 获取
+            const lang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
+            
+            if (lang) {
+                this.lang = lang; 
+                // return lang;
+            }
+            
+            // 如果没有，尝试从 cachedLanguageList 获取第一项
+            const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
+            
+            if (languageList) {
+                const parsedData = JSON.parse(languageList);
+
+                if (parsedData && parsedData.length > 0) {
+                    this.lang =parsedData[0].key;
                     // return parsedData[0].span;
                 }
             }
@@ -458,6 +489,17 @@ class AppStore {
         if (isBrowser()) {
             localStorage.removeItem(LOCAL_STORAGE_KEY.RATE_KEY);
         }
+    }
+    // 设置语言
+    setLang(lang: string) {
+        this.lang = lang;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.LANG, lang);
+        }
+    }
+    // 获取语言
+    getLang() {
+        return this.lang;
     }
 }
 

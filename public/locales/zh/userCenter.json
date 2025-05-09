@@ -122,7 +122,8 @@
                 "hkMacauPass": "港澳通行证",
                 "taiwanPass": "台湾通行证",
                 "taiwanId": "台湾身份证",
-                "foreignerId": "外国人永久居住身份证"
+                "foreignerId": "外国人永久居住身份证",
+                "driverLicense": "驾驶证"
             }
         },
         "realName": {

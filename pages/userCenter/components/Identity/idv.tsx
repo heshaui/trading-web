@@ -51,21 +51,25 @@ function ResetPassword({ onNext }: IDVProps) {
             value: '2'
         },
         {
-            label: t('identity.certified.idTypes.hkMacauPass'), // 港澳通行证
+            label: t('identity.certified.idTypes.driverLicense'), // 驾驶证
             value: '3'
         },
-        {
-            label: t('identity.certified.idTypes.taiwanPass'), // 台湾通行证
-            value: '4'
-        },
-        {
-            label: t('identity.certified.idTypes.taiwanId'), // 台湾身份证
-            value: '5'
-        },
-        {
-            label: t('identity.certified.idTypes.foreignerId'), // 外国人永久居住身份证
-            value: '6'
-        }
+        // {
+        //     label: t('identity.certified.idTypes.hkMacauPass'), // 港澳通行证
+        //     value: '3'
+        // },
+        // {
+        //     label: t('identity.certified.idTypes.taiwanPass'), // 台湾通行证
+        //     value: '4'
+        // },
+        // {
+        //     label: t('identity.certified.idTypes.taiwanId'), // 台湾身份证
+        //     value: '5'
+        // },
+        // {
+        //     label: t('identity.certified.idTypes.foreignerId'), // 外国人永久居住身份证
+        //     value: '6'
+        // }
     ]
 
 

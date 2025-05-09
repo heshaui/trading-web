@@ -109,7 +109,8 @@ const SpotOrderPage = () => {
             <div className={`${styles.card_bgc5}  mt-3 `}>
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
-                    <div className={`${styles.table_box_inner} `}>
+                    <div className={`${styles.table_box_inner} `}
+                    style={{minHeight:"50vh"}}>
                         <Tabs items={items} 
                         className="custom-tabs2" 
                         destroyInactiveTabPane={true}
