@@ -55,3 +55,30 @@ export interface SearchResultProps {
     currentCategory: SearchCategory;
     searchValue: string; // 添加搜索关键词
 }
+// 自定义服务菜单
+export interface CustomizationProps {
+    id: number,
+    whiteIcon: string,
+    blackIcon: string,
+    accessType: number,
+    accessPath: string,
+    sort: number,
+    languageCode: string,
+    articleTitle: string,
+    languagePath: string
+}
+
+// 帮助中心菜单
+export interface HelpCenterMenuProps {
+    id: number,
+    helpDescription: string,
+    helpSort: number,
+    blackIcon: string,
+    whiteIcon: string,
+    parentId: number,
+    contentId: string,
+    languageCode: string,
+    articleTitle: string,
+    languagePath?: string,
+    children?: HelpCenterMenuProps[]
+}

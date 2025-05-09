@@ -129,7 +129,9 @@
 .custom-range-picker {
     background: transparent !important;
 }
-
+.custom-range-picker .ant-picker-clear{
+    color: var(--text-color4) !important;
+}
 /* 自定义步骤条 */
 /* 步骤条选中状态 */
 /* .custom-steps .ant-steps-item-process .ant-steps-item-icon{

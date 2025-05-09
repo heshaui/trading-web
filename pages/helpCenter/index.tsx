@@ -2,14 +2,20 @@ import styles from './styles/helpCenter.module.css';
 import ConfigurationCard from './components/ConfigurationCard';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import HelpCenterSection from './components/HelperCenterSection';
-import { HelpCenterItem, SearchCategory } from '@/type/help_center/hc_types';
+import { HelpCenterItem, SearchCategory, CustomizationProps, HelpCenterMenuProps } from '@/type/help_center/hc_types';
 import SearchDetail from './components/SearchDetail';
-
+import { getCustomization, getHelpCenterMenu, getClassIdContent } from '@/services/helpCenter';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Card, Col, ConfigProvider, Empty, Input, message, Row } from 'antd';
-
+import appStore from '@/store';
+import { observer } from 'mobx-react-lite';
+import { toast } from 'sonner';
 export default function HelpCenter() {
+    const lang = appStore.getLang();
+    const [configContentHeight, setConfigContentHeight] = useState<number>(0);
+    const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
+    const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     // 测试数据
     const testDataFAQ = [
         {
@@ -37,18 +43,10 @@ export default function HelpCenter() {
     const { isDayMode } = useThemeMode();
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+
     // 历史搜索
     const [historicalSearchList] = useState(['永续合约', '期货合约', '期权合约']);
-    // 配置列表
-    const [configurationList] = useState([
-        {
-            icon: '/images/help_center/icon_lock.png',
-            title: '重置登录密码',
-        }
-    ]);
+
     // 帮助中心列表
     const [helpCenterList, setHelpCenterList] = useState([
         {
@@ -64,18 +62,7 @@ export default function HelpCenter() {
             alt: 'user',
         },
     ]);
-    // 如果需要在主题切换时更新列表
-    useEffect(() => {
-        if (isClient) {
-            const updatedList = helpCenterList.map(item => ({
-                ...item,
-                icon: isDayMode
-                    ? item.icon.replace('_dark.png', '.png')
-                    : item.icon.replace('.png', '_dark.png'),
-            }));
-            setHelpCenterList(updatedList);
-        }
-    }, [isDayMode, isClient]);
+
     // 搜索框输入值
     const [searchValue, setSearchValue] = useState('');
     // 搜索框显示状态
@@ -100,22 +87,121 @@ export default function HelpCenter() {
             setShowSearch(true);
         }
     };
-
-    // 搜索图标
-    const SearchIcon = <Image
-        src={isDayMode
-            ? "/images/help_center/icon_search.png"
-            : "/images/help_center/icon_search_dark.png"
-        }
-        alt="search"
-        width={18}
-        height={18}
-    />;
     // 按钮点击事件
     const handleButtonClick = (item: HelpCenterItem) => {
         console.log(item);
     }
+    // 递归排序函数
+    const recursiveSort = (data: HelpCenterMenuProps[]): HelpCenterMenuProps[] => {
+        return data.map(item => {
+            if (item.children && item.children.length > 0) {
+                return {
+                    ...item,
+                    children: recursiveSort(item.children)
+                };
+            }
+            return item;
+        }).sort((a, b) => a.helpSort - b.helpSort);
+    };
 
+    // 帮助中心菜单
+    const getHelpCenterMenuData = async () => {
+        const langName = lang || 'en_US'
+        try {
+            const res = await getHelpCenterMenu({ lang: langName });
+            if (res.code === '0') {
+                const sortedData = recursiveSort(res.data);
+                setHelpCenterMenuData(sortedData)
+                // setHelpCenterMenuData([...sortedData, {
+                //     id: 0,
+                //     helpDescription: "账户管理",
+                //     helpSort: 1,
+                //     blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //     whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //     parentId: 0,
+                //     contentId: "1",
+                //     languageCode: "en-US",
+                //     articleTitle: "Account Help",
+                //     children: [
+                //         {
+                //             id: 1,
+                //             helpDescription: "修改密码",
+                //             helpSort: 10,
+                //             blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //             whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //             parentId: 0,
+                //             contentId: "1",
+                //             languageCode: "en-US",
+                //             articleTitle: "Account Help",
+                //             children: []
+                //         },
+                //         {
+                //             id: 1,
+                //             helpDescription: "修改昵称",
+                //             helpSort: 11,
+                //             blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //             whiteIcon: "",
+                //             parentId: 0,
+                //             contentId: "1",
+                //             languageCode: "en-US",
+                //             articleTitle: "Account Help",
+                //             children: []
+                //         }
+                //     ]
+                // }]);
+            } else {
+                toast.error(res.message);
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+    // 自定义服务菜单
+    const getMenuData = async () => {
+        const langName = lang || 'en_US'
+        try {
+            const res = await getCustomization({ lang: langName });
+            if (res.code === '0') {
+                const sortedData = res.data.sort((a: CustomizationProps, b: CustomizationProps) => a.sort - b.sort);
+                setMenuData(sortedData)
+                // setMenuData([...sortedData, {
+                //     id: 1,
+                //     whiteIcon: "/images/help_center/icon_lock.png",
+                //     blackIcon: "/images/help_center/icon_lock.png",
+                //     accessType: 2,
+                //     accessPath: "/custom-service",
+                //     sort: 1,
+                //     languageCode: "ja-JP",
+                //     articleTitle: "修改密码",
+                //     languagePath: "/userCenter"
+                // }]);
+            } else {
+                toast.error(res.message);
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
+
+    useEffect(() => {
+        setIsClient(true);
+    }, [lang]);
+    useEffect(() => {
+        getHelpCenterMenuData();
+        getMenuData();
+    }, []);
+    // // 如果需要在主题切换时更新列表
+    // useEffect(() => {
+    //     if (isClient) {
+    //         const updatedList = helpCenterList.map(item => ({
+    //             ...item,
+    //             icon: isDayMode
+    //                 ? item.icon.replace('_dark.png', '.png')
+    //                 : item.icon.replace('.png', '_dark.png'),
+    //         }));
+    //         setHelpCenterList(updatedList);
+    //     }
+    // }, [isDayMode, isClient]);
     return (
         <div className={styles.helpCenterContainer}>
             <ConfigProvider
@@ -137,7 +223,7 @@ export default function HelpCenter() {
                     }
                 }}
             >
-                <div className={styles.banner}>
+                <div className={`${styles.banner}`}>
                     <div className={styles.bannerContent}>
                         <Row>
                             <Col>
@@ -148,7 +234,15 @@ export default function HelpCenter() {
                             <Col flex={1}>
                                 <Input
                                     placeholder="请输入您的问题"
-                                    prefix={SearchIcon}
+                                    prefix={<Image
+                                        src={isDayMode
+                                            ? "/images/help_center/icon_search.png"
+                                            : "/images/help_center/icon_search_dark.png"
+                                        }
+                                        alt="search"
+                                        width={18}
+                                        height={18}
+                                    />}
                                     value={searchValue}
                                     onChange={(e) => setSearchValue(e.target.value)}
                                     onKeyDown={handleSearch}
@@ -192,12 +286,15 @@ export default function HelpCenter() {
                     </div>
                     {
                         showSearch ? <></> :
-                            Array.isArray(configurationList) && configurationList.length > 0 && (
-                                <ConfigurationCard configurationList={configurationList} />
+                            Array.isArray(menuData) && menuData.length > 0 && (
+                                <ConfigurationCard 
+                                    configurationList={menuData} 
+                                    onHeightChange={setConfigContentHeight}
+                                />
                             )
                     }
-
                 </div>
+
                 {showSearch ? (
                     searchResults.length > 0 ? (
                         <SearchDetail
@@ -231,8 +328,10 @@ export default function HelpCenter() {
                 ) : (
                     <>
                         <HelpCenterSection
-                            helpCenterList={helpCenterList || []}
+                            helpCenterList={helpCenterMenuData}
+                            flag={true}
                             onButtonClick={handleButtonClick}
+                            configContentHeight={configContentHeight}
                         />
                         <div className={`${styles.otherSupport} customCard`}>
                             <Row>
@@ -297,5 +396,6 @@ export default function HelpCenter() {
                 )}
             </ConfigProvider>
         </div>
+
     )
 }

@@ -84,8 +84,9 @@
     height: 40px !important;
     /* min-width: 250px; */
     color: var(--text-color5) !important;
-    background: var(--background8) !important;
-    border-color: var(--border-color4) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-color: var(--border-color4) ;
 }
 
 .header_content_item{
