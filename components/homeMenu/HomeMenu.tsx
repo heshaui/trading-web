@@ -10,7 +10,7 @@ import MenuItemLabel from './HomeMenuLabel';
 import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
@@ -36,6 +36,7 @@ import LangageMenu from './common/Langage';
 import { getKvObject } from '@/services/kv'
 import { NoData } from '@/components/noData';
 import SpotMenu from './common/Spot';
+import { getInformUserMessageList } from '@/services/bulletinCenter';
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -147,7 +148,7 @@ export default function HomeMenu() {
     // 合并API数据和缓存数据
     const mergedMenus = useMemo(() => menus.length > 0 ? menus : getCachedMenuData.cachedMenus, [menus, getCachedMenuData.cachedMenus]);
     const mergedAdaptiveMenuData = useMemo(() => adaptiveMenuData.length > 0 ? adaptiveMenuData : getCachedMenuData.cachedAdaptiveMenuData, [adaptiveMenuData, getCachedMenuData.cachedAdaptiveMenuData]);
-    const mergedBulletinData = useMemo(() => bulletinData.length > 0 ? bulletinData : getCachedMenuData.cachedBulletinData, [bulletinData, getCachedMenuData.cachedBulletinData]);
+    const bulletinDataList = useMemo(() => bulletinData.length > 0 ? bulletinData : getCachedMenuData.cachedBulletinData, [bulletinData, getCachedMenuData.cachedBulletinData]);
     const mergedLanguageList = useMemo(() => languageList.length > 0 ? languageList : getCachedMenuData.cachedLanguageList, [languageList, getCachedMenuData.cachedLanguageList]);
     const mergedRateData = useMemo(() => rateData.length > 0 ? rateData : getCachedMenuData.cachedRateData, [rateData, getCachedMenuData.cachedRateData]);
 
@@ -202,6 +203,10 @@ export default function HomeMenu() {
     };
     // 获取logo
     const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
+    // 账户助手数据
+    const [accountAssistantData, setAccountAssistantData] = useState<any[]>([]);
+    // 账户助手加载状态
+    const [accountAssistantLoading, setAccountAssistantLoading] = useState<boolean>(false);
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null);
     // 语言
@@ -220,6 +225,45 @@ export default function HomeMenu() {
         // 服务器端渲染时的默认值
         return '简体中文';
     });
+    
+    // 获取账户助手数据
+    const fetchAccountAssistantData = useCallback(async () => {
+        try {
+            setAccountAssistantLoading(true);
+            const response: any = await getInformUserMessageList({
+                languageCode: typeof selectedLanguage === 'object' && selectedLanguage?.langCode ? selectedLanguage.langCode : 'zh_CN',
+                pageNum: 1,
+                pageSize: 20,
+                bizType:'account'
+            });
+            
+            if (response && typeof response === 'object' && response.code === 0 && response.data) {
+                const formattedData = response.data.list?.map((item: any) => ({
+                    id: item.id,
+                    h5Text: item.title,
+                    spanText: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+                    link: item.link || '',
+                    content: item.content || ''
+                })) || [];
+                
+                setAccountAssistantData(formattedData);
+            } else {
+                setAccountAssistantData([]);
+            }
+        } catch (error) {
+            console.error('获取账户助手数据失败:', error);
+            setAccountAssistantData([]);
+        } finally {
+            setAccountAssistantLoading(false);
+        }
+    }, [selectedLanguage]);
+    
+    // 在登录状态变化时获取账户助手数据
+    useEffect(() => {
+        if (isLogin && isLoggedIn) {
+            fetchAccountAssistantData();
+        }
+    }, [isLogin, isLoggedIn, fetchAccountAssistantData]);
 
     // 资产 - 2版
     const itemsFunding = [
@@ -542,7 +586,7 @@ export default function HomeMenu() {
             item.h5Text.toLowerCase().includes(lowerSearchValue)
         );
     };
-
+    
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
@@ -797,6 +841,13 @@ export default function HomeMenu() {
         { h5Text: "IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正式上线的公告", spanText: "2024/09/27 14:30:00" },
         { h5Text: "IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投币的公告", spanText: "2024/09/27 11:00:00" },
     ];
+
+    const goNotice = (id: string) => {
+        console.log(id);
+        // 跳转到公告详情页面
+        router.push(`/Notice/${id}`);
+    }
+
     // 公告中心标签页 - 使用动态获取的数据
     const bulletinItems: TabsProps['items'] = [
         {
@@ -804,9 +855,9 @@ export default function HomeMenu() {
             label: '公告',
             children:
                 // 如果有公告数据则使用，否则使用默认数据
-                mergedBulletinData.length > 0
-                    ? mergedBulletinData.map((item: any, index: number) => (
-                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover />
+                bulletinDataList.length > 0
+                    ? bulletinDataList.map((item: any, index: number) => (
+                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover onClick={() => {goNotice(item.id)}} />
                     ))
                     : (
                         <div style={{
@@ -821,7 +872,64 @@ export default function HomeMenu() {
         {
             key: '2',
             label: '账户助手',
-            children: 'Content of Tab Pane 2',
+            children: (
+                accountAssistantLoading ? (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        加载中...
+                    </div>
+                ) : accountAssistantData.length > 0 ? (
+                    accountAssistantData.map((item: any, index: number) => (
+                        <MenuItemLabel 
+                            key={index} 
+                            h5Text={item.h5Text} 
+                            spanText={item.spanText} 
+                            needHover 
+                            onClick={() => { 
+                                // 可以添加点击事件处理，例如跳转到详情页
+                                router.push(`/account-assistant/${item.id}`);
+                            }} 
+                        />
+                    ))
+                ) : (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        <NoData title="暂无新的通知" />
+                    </div>
+                )
+            ),
+        },
+        {
+            key: '3',
+            label: '资产',
+            children: (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '40px 0'
+                }}>
+                    <NoData title="暂无新的通知" />
+                </div>
+            ),
+        },
+        {
+            key: '4',
+            label: '交易',
+            children: (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '40px 0'
+                }}>
+                    <NoData title="暂无新的通知" />
+                </div>
+            ),
         },
     ];
 

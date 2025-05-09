@@ -49,3 +49,12 @@ export function getInformClassMenuList(data: { languageCode: string, [key: strin
         body: JSON.stringify(data),
     });
 }
+
+
+
+export function getInformUserMessageList(data: { languageCode: string, [key: string]: any }) {
+    return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/inform-user-message/list`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
