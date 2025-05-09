@@ -11,7 +11,7 @@
 !.yarn/versions
 yarn.lock
 package-lock.json
-
+.history
 # testing
 /coverage
 
