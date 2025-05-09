@@ -6,7 +6,7 @@ import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, 
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -17,7 +17,7 @@ import SpotChartAssets from '../compontents/spotChart_assets'
 import SpotChartTrade from '../compontents/spotChart_trade'
 import SpotHeaderPage from '../compontents/spotChart_header'
 import KlineChart from '@/components/KlineChart'
-import Tradingview from '@/components/Tradingview'
+import Tradingview, { TradingviewRefHandle } from '@/components/Tradingview'
 import DepthChart from '@/components/DepthChart'
 import OrderBook from '@/components/OrderBook'
 import WebSocketService from '@/utils/websocket';
@@ -30,6 +30,8 @@ import { toast } from 'sonner';
 import appStore from '@/store';
 import { set } from 'mobx';
 import { reaction } from 'mobx';
+import { useAuth } from '@/context/AuthContext';
+
 interface DataType {
     id: number,
     userId: number,
@@ -54,12 +56,14 @@ interface coinSelectType {
 const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
+    const { isLoggedIn} = useAuth()
     const [klineData, setKlineData] = useState<any>();
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const router = useRouter();
+
     const [paramInfo, sePparamInfo] = useState({
         type: '',
         selsect: ''
@@ -79,10 +83,11 @@ const ExchangePage = () => {
         '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        { label: '基本版', value: 'basic' },
-        { label: 'TradingView', value: 'tradingview' },
+        { label: 'K线图', value: 'basic' },
+        // { label: 'TradingView', value: 'tradingview' },
         { label: '深度图', value: 'depth' }
     ]);
+ 
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
     const [depthData, setDepthData] = useState<any>();
     const [orderData, setOrderData] = useState<any[]>([]);
@@ -90,7 +95,8 @@ const ExchangePage = () => {
     const [groupData, setGroupData] = useState<any[]>([]);
     const [currentPair, setCurrentPair] = useState<any>();
     const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
-    const [currentPrice, setCurrentPrice] = useState<number>(0);
+    // ref to access Tradingview methods
+    const tradingviewRef = useRef<TradingviewRefHandle>(null);
 
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
@@ -133,9 +139,13 @@ const ExchangePage = () => {
         websocket.connect((message: string) => {
 
             try {
-                console.log(message, 'getOrderWsData');
+                
                 const data = JSON.parse(message);
 
+                if(data.type === '__ping__'){
+                   
+                    return;
+                }
                 // 使用函数式更新来累积数据
                 setOrderData((prevData) => {
                     if (!prevData) return [data];
@@ -165,7 +175,6 @@ const ExchangePage = () => {
 
         websocket.connect((message: string) => {
             try {
-                console.log(message, 'getWsDepthData');
                 // 检查消息是否为系统消息
                 if (message.startsWith('subscribe:') ||
                     message.startsWith('ping') ||
@@ -182,11 +191,10 @@ const ExchangePage = () => {
                 }
 
                 const data = JSON.parse(message);
-                console.log(data, 'wsDepthData');
 
+                console.log(data, 'getWsDepthData');
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
-                    console.log('非深度数据消息:', data.type);
                     return;
                 }
 
@@ -197,7 +205,6 @@ const ExchangePage = () => {
                         return {
                             asks: data.asks || [],
                             bids: data.bids || [],
-                            lastUpdateId: data.end_update_id
                         };
                     }
 
@@ -205,77 +212,111 @@ const ExchangePage = () => {
                     const newData = {
                         asks: [...(prevData.asks || [])],
                         bids: [...(prevData.bids || [])],
-                        lastUpdateId: data.end_update_id || prevData.lastUpdateId
                     };
 
                     // 处理买单(bids)更新
                     if (data.bids && Array.isArray(data.bids)) {
+                        // 买单按价格降序排列
+                        const sortedBids = [...newData.bids].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        const minPrice = sortedBids.length >= 10 ? parseFloat(sortedBids[9][0]) : 0;
+                        
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
-
+                            const priceFloat = parseFloat(price);
+                            
+                            // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
+                            if (sortedBids.length >= 10 && priceFloat < minPrice) {
+                                return; // 不处理此档位
+                            }
+                            
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
 
-                            if (quantity === 0) {
-                                // 如果数量为0，删除该价格档位
-                                if (existingIndex > -1) {
+                            // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
+                            if (existingIndex > -1) {
+                                // 不是累加，而是直接替换数量
+                                if (quantity === '0') {
+                                    // 如果数量为0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
-                                }
-                            } else {
-                                // 更新或添加价格档位
-                                if (existingIndex > -1) {
-                                    newData.bids[existingIndex] = newBid;
                                 } else {
-                                    // 按价格降序插入新买单
-                                    let insertIndex = 0;
-                                    while (insertIndex < newData.bids.length &&
-                                        parseFloat(newData.bids[insertIndex][0]) > parseFloat(price)) {
-                                        insertIndex++;
-                                    }
-                                    newData.bids.splice(insertIndex, 0, newBid);
+                                    // 更新数量
+                                    newData.bids[existingIndex][1] = quantity;
                                 }
+                            } 
+                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
+                            else if (quantity !== '0') {
+                                // 按价格降序插入新买单
+                                let insertIndex = 0;
+                                while (insertIndex < newData.bids.length &&
+                                    parseFloat(newData.bids[insertIndex][0]) > priceFloat) {
+                                    insertIndex++;
+                                }
+                                newData.bids.splice(insertIndex, 0, newBid);
                             }
                         });
                     }
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
+                        // 卖单按价格降序排列
+                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        const minPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : 0;
+                        
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
-
+                            const priceFloat = parseFloat(price);
+                            
+                            // 规则1: 如果新档位不在10档内（对于卖单，价格小于当前10档最低价），不处理
+                            if (sortedAsks.length >= 10 && priceFloat < minPrice) {
+                                return; // 不处理此档位
+                            }
+                            
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
 
-                            if (quantity === 0) {
-                                // 如果数量为0，删除该价格档位
-                                if (existingIndex > -1) {
+                            // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
+                            if (existingIndex > -1) {
+                                // 不是累加，而是直接替换数量
+                                if (quantity === '0') {
+                                    // 如果数量为0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
-                                }
-                            } else {
-                                // 更新或添加价格档位
-                                if (existingIndex > -1) {
-                                    newData.asks[existingIndex] = newAsk;
-                                } else {
-                                    // 按价格升序插入新卖单
-                                    let insertIndex = 0;
-                                    while (insertIndex < newData.asks.length &&
-                                        parseFloat(newData.asks[insertIndex][0]) < parseFloat(price)) {
-                                        insertIndex++;
+                                } else if (parseFloat(quantity) < 0) {
+                                    // 处理负数数量的情况：减去总额
+                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
+                                    const newQuantity = currentQuantity + parseFloat(quantity); // 加上负数 = 减去绝对值
+                                    
+                                    if (newQuantity <= 0) {
+                                        // 如果减完后小于等于0，移除该档位
+                                        newData.asks.splice(existingIndex, 1);
+                                    } else {
+                                        // 否则更新为新数量
+                                        newData.asks[existingIndex][1] = newQuantity.toString();
                                     }
-                                    newData.asks.splice(insertIndex, 0, newAsk);
+                                } else {
+                                    // 常规情况：直接替换数量
+                                    newData.asks[existingIndex][1] = quantity;
                                 }
+                            } 
+                            // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
+                            else if (quantity !== '0' && parseFloat(quantity) > 0) {
+                                // 按价格降序插入新卖单
+                                let insertIndex = 0;
+                                while (insertIndex < newData.asks.length &&
+                                    parseFloat(newData.asks[insertIndex][0]) > priceFloat) {
+                                    insertIndex++;
+                                }
+                                newData.asks.splice(insertIndex, 0, newAsk);
                             }
+                            // 规则4: 如果新档位价格找不到且数量为负数，不处理
                         });
                     }
 
-                    // 可选：限制深度档位数量
-                    const MAX_DEPTH_LEVELS = 200;
-                    if (newData.bids.length > MAX_DEPTH_LEVELS) {
-                        newData.bids = newData.bids.slice(0, MAX_DEPTH_LEVELS);
-                    }
-                    if (newData.asks && newData.asks.length > MAX_DEPTH_LEVELS) {
-                        newData.asks = newData.asks.slice(0, MAX_DEPTH_LEVELS);
-                    }
+                    // 确保只保留必要的档位数量并正确排序
+                    newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])); // 买单按价格降序
+                    newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])); // 卖单按价格升序
+                    
+                    newData.bids = newData.bids.slice(0, 10);
+                    newData.asks = newData.asks.slice(0, 10);
 
                     return newData;
                 });
@@ -291,11 +332,10 @@ const ExchangePage = () => {
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 
-            // 确保bids和asks是数组
+            // 确保bids和asks是数组并限制为10条
             const formattedData = {
-                bids: Array.isArray(data.bids) ? data.bids : [],
-                asks: Array.isArray(data.asks) ? data.asks : [],
-                lastUpdateId: data.spot_log_last_seq
+                bids: Array.isArray(data.bids) ? data.bids.slice(0, 10) : [],
+                asks: Array.isArray(data.asks) ? data.asks.slice(0, 10) : [],
             };
 
             console.log('格式化后的深度数据:', formattedData);
@@ -313,7 +353,8 @@ const ExchangePage = () => {
     // 修改K线WebSocket连接逻辑
     const klineWsRef = useRef<WebSocketService | null>(null);
 
-    const getKlineData = () => {
+    // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
+    const getKlineData = useCallback(() => {
         // 确保只在客户端和有currentPair时执行
         if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
 
@@ -345,6 +386,8 @@ const ExchangePage = () => {
                         return;
                     }
 
+                    
+
                     // 确保消息是有效的JSON格式
                     if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
                         const data = JSON.parse(message);
@@ -370,14 +413,7 @@ const ExchangePage = () => {
         } catch (err) {
             console.error('创建K线WebSocket连接失败:', err);
         }
-    }
-
-    const getTradeHistoryData = async () => {
-        const response = await fetch(`https://ws81.imsaas.work/trade/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
-        const data = await response.json();
-        console.log(data, 'getTradeHistoryData');
-        // setCurrentPrice(data[0].price);
-    }
+    }, [currentPair, timeInterval]);
 
     useEffect(() => {
         // 设置客户端渲染标记
@@ -405,8 +441,16 @@ const ExchangePage = () => {
         getOrderWsData();
         getHistoryDepthData();
         getKlineData();
-        getTradeHistoryData();
     }, [isClient, currentPair]);
+    
+    // 新增：监听timeInterval变化，重新连接kline的WebSocket
+    useEffect(() => {
+        // 只在客户端且currentPair有值时执行
+        if (!isClient || !currentPair || typeof window === 'undefined') return;
+        
+        // 当timeInterval变化时，重新获取K线数据
+        getKlineData();
+    }, [timeInterval, isClient, currentPair, getKlineData]);
 
     useEffect(() => {
         // 只在客户端执行
@@ -479,39 +523,24 @@ const ExchangePage = () => {
         };
     }, [isClient, currentPair]);
 
-    const toggleFullscreen = () => {
-        if (typeof document === 'undefined') return;
-
-        const chartContainer = document.getElementById('chart-container');
-        if (chartContainer) {
-            if (!isFullscreen) {
-                if (chartContainer.requestFullscreen) {
-                    chartContainer.requestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-            setIsFullscreen(!isFullscreen);
-        }
-    };
+  
 
     const chartTypeItems: MenuProps['items'] = [
         {
             key: 1,
-            label: 'K线图',
-
-
+            label: <span style={{ fontSize: '12px' }}>K线图</span>,
         },
         {
             key: 8,
-            label: '美国线',
-
+            label: <span style={{ fontSize: '12px' }}>美国线</span>,
         },
         {
             key: 13,
-            label: '面积图',
+            label: <span style={{ fontSize: '12px' }}>面积图</span>,
+        },
+        {
+            key: 3,
+            label: <span style={{ fontSize: '12px' }}>线型图</span>,
         },
     ];
 
@@ -522,6 +551,8 @@ const ExchangePage = () => {
     const handleOrderSuccess = () => {
         // 更新标志，触发SpotChartTables组件重新获取数据
         setOrderUpdateFlag(prev => prev + 1);
+        console.log(123456);
+        
     };
 
     return (<div className={`${styles.page_box} w-full`}>
@@ -565,13 +596,14 @@ const ExchangePage = () => {
                     },
                 }}
             >
-                <div className={`${styles.card_bgc4} w-full  mb-1`}>
+                <div className={`${styles.card_bgc4} w-full  mb-1`} style={{minWidth:'1135px'}}>
                     <SpotHeaderPage coinData={coinData} />
                 </div>
 
                 <div className='flex-x'>
-                    <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`} >
+                    <div className={`${styles.card_bgc3} ${styles.spot_chartBox} w-full mb-1 mr-1 flex`}  style={{paddingRight:'0'}}>
                         {/* <div className={`flex-1`}> */}
+                  
                         <div id="chart-container" style={{ width: '70%', height: '548px' }} className='flex-1'>
                             <div style={{
                                 display: 'flex',
@@ -595,7 +627,7 @@ const ExchangePage = () => {
                                             {item}
                                             {item === '1D' && (
                                                 <Dropdown
-                                                    trigger={['click']}
+                                                    trigger={['hover']}
                                                     placement="bottomRight"
                                                     dropdownRender={() => (
                                                         <div style={{
@@ -606,7 +638,7 @@ const ExchangePage = () => {
                                                             display: 'grid',
                                                             gridTemplateColumns: 'repeat(3, 1fr)',
                                                             gap: '10px',
-                                                            width: '320px'
+                                                            width: '320px',
                                                         }}>
                                                             {timeIntervalOptions.map((option) => (
                                                                 <div
@@ -614,15 +646,16 @@ const ExchangePage = () => {
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         setTimeInterval(option);
+                                                                    
                                                                     }}
                                                                     style={{
-                                                                        padding: '10px 15px',
+                                                                        padding: '10px',
                                                                         textAlign: 'center',
                                                                         background: timeInterval === option ? 'var(--theme-color)' : '#f0f0f0',
                                                                         color: timeInterval === option ? '#fff' : '#000',
                                                                         borderRadius: '5px',
                                                                         cursor: 'pointer',
-                                                                        fontSize: '14px'
+                                                                        fontSize: '12px'
                                                                     }}
                                                                 >
                                                                     {option}
@@ -654,17 +687,23 @@ const ExchangePage = () => {
                                         >
                                             <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                         </Dropdown>
-                                        <Tooltip title="技术指标">
-                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} />
+                                        <Tooltip title="技术指标" overlayInnerStyle={{fontSize: '12px'}}>
+                                            <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} onClick={() => tradingviewRef.current?.handleAddIndicator()}  style={{cursor: 'pointer'}}/>
                                         </Tooltip>
-                                        <Tooltip title="图表重置">
-                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20} />
+                                        <Tooltip title="图表重置" overlayInnerStyle={{fontSize: '12px'}}>
+                                            <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.resetChart()} style={{cursor: 'pointer'}}/>
                                         </Tooltip>
-                                        <Tooltip title="图表截图">
-                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20} />
-                                        </Tooltip>
-                                        <Tooltip title="成交量分布">
-                                            <Image src="/images/exchange/icon_value.png" alt="exchange" width={20} height={20} />
+                                        {/* <Tooltip title="图表截图">
+                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
+                                        </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
+                                        <Tooltip title="成交量分布" overlayInnerStyle={{fontSize: '12px'}}>
+                                            <Image
+                                                src="/images/exchange/icon_value.png"
+                                                alt="exchange"
+                                                width={20}
+                                                height={20}
+                                                onClick={() => tradingviewRef.current?.addVolumeDistribution()} style={{cursor: 'pointer'}}
+                                            />
                                         </Tooltip>
                                     </Space>
                                 </div>
@@ -685,15 +724,21 @@ const ExchangePage = () => {
                                         </Button>
                                     ))}
 
-                                    <Tooltip title="全屏">
-                                        <Button type="text" icon={<FullscreenOutlined />} onClick={toggleFullscreen} />
+                                    <Tooltip title="全屏" overlayInnerStyle={{fontSize: '12px'}}>
+                                        <Button type="text" icon={<FullscreenOutlined />}  onClick={() => tradingviewRef.current?.toggleFullScreen()} />
                                     </Tooltip>
                                 </div>
                             </div>
-
+                        
+                          
+                                  
                             <Spin spinning={loading} tip="加载中...">
-                                {(activeChartType === 'basic' || activeChartType === 'tradingview') && (
+                                    
+                                {(activeChartType === 'basic') && (
+                                    <div>
+
                                     <Tradingview
+                                        ref={tradingviewRef}
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
                                         symbol={(currentPair?.coinSymbol || '') + '_' + (currentPair?.baseSymbol || '') + '_' + (currentPair?.groupStatus || '')}
                                         showLeftToolbar={activeChartType === 'basic' ? false : true}
@@ -701,6 +746,7 @@ const ExchangePage = () => {
                                         klineData={klineData}
                                         timeInterval={timeInterval}
                                     />
+                                      </div>
                                 )}
 
                                 {activeChartType === 'depth' &&
@@ -716,19 +762,19 @@ const ExchangePage = () => {
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" currentPrice={currentPrice} />
+                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" orderData={orderData} />
                         
                     </div>
 
 
                     </div>
                     <div className='flex-x'>
-                        <div className={`${styles.card_bgc1} mr-1 ${styles.table_card}`} style={{ minHeight: '57.5vh' }}>
-                            <SpotChartTables />
+                        <div className={`${styles.card_bgc1} mr-1 ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
+                            <SpotChartTables orderUpdateFlag={orderUpdateFlag}/>
                         </div>
-                        <div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                            <SpotChartAssets />
-                        </div>
+                        {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                            <SpotChartAssets orderUpdateFlag={orderUpdateFlag}/>
+                        </div>}
                     </div>
 
 

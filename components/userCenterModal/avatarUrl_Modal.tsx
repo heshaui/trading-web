@@ -368,6 +368,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                     footer: styles.modal_footer,
                 }}
                 className={`modal_box`}
+                maskClosable={false}
             >
                 <div className="flex-x flex-ai-center" style={{ width: "100%" }}>
                     <div className={`${styles.upload_box} flex-y-cc`}>

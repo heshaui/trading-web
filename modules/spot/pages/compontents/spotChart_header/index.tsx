@@ -13,12 +13,15 @@ import SpotSelect from './SpotSelect';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
-import DrawerPop from './DrawerPop';
+import DrawerPop from '../DrawerPop';
+import { useRouter } from 'next/router';
+
 
 
 const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     
     const { t } = useTranslation(['spot']);
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState('spot'); // 当前选中的tab
@@ -32,8 +35,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const [timestamp, open_price, high_price, low_price, close_price, volume] = klineData;
     
     // 计算涨跌幅
-    const priceChange = close_price - open_price;
-    const priceChangePercent = (priceChange / open_price * 100).toFixed(2);
+    const priceChange = close_price && open_price ? close_price - open_price : 0;
+    const priceChangePercent = open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00';
     const isPriceUp = priceChange >= 0;
 
 
@@ -52,8 +55,58 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     //  // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     //  const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 
+    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
+    const currencyPairsArray = appStore.currencyPairs || [];
 
+    // 处理路由参数变化，包括页面内跳转
+    useEffect(() => {
+        if (!router.isReady) return;
 
+        const { symbol } = router.query;
+        
+        if (symbol && typeof symbol === 'string') {
+            // 解析symbol参数 (格式: BTC/USDT)
+            const [coinSymbol, baseSymbol] = symbol.split('/');
+            
+            if (coinSymbol && baseSymbol) {
+                // 使用store的方法获取匹配的币对
+                const matchedPairs = appStore.getCurrencyPairsByBase(baseSymbol);
+                const matchedPair = matchedPairs.find(pair => 
+                    pair.coinSymbol === coinSymbol && pair.baseSymbol === baseSymbol
+                );
+
+                // 如果找到匹配的币对，使用store的方法更新当前币对
+                if (matchedPair) {
+                    appStore.setCurrentPair(matchedPair);
+                }
+            }
+            
+            // 清除路由中的 symbol 参数
+            const newQuery = { ...router.query };
+            delete newQuery.symbol;
+            router.replace({
+                pathname: router.pathname,
+                query: newQuery
+            }, undefined, { shallow: true });
+        }
+    }, [router.isReady, router.query]); // 监听路由准备状态和查询参数变化
+
+    // 当币对改变时更新URL
+    useEffect(() => {
+        if (currentPair && router.isReady) {
+            const newSymbol = `${currentPair.coinSymbol}/${currentPair.baseSymbol}`;
+            const currentSymbol = router.query.symbol;
+            
+            // 只有当URL中的symbol与当前币对不匹配时才更新
+            if (currentSymbol !== newSymbol) {
+                router.push({
+                    pathname: router.pathname,
+                    query: { ...router.query, symbol: newSymbol }
+                }, undefined, { shallow: true });
+            }
+        }
+    }, [currentPair, router.isReady]);
 
     const handleTabClick = (key: string) => {
         setActiveTab(key);
@@ -69,17 +122,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }
     };
 
-    // 添加新函数处理货币对选择
+    // 修改handlePairSelect，不再更新URL
     const handlePairSelect = (pair: any) => {
         appStore.setCurrentPair(pair);
-        setOpen(false); // 选择后关闭下拉菜单
+        setOpen(false);
     };
-
-    // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
-    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
-    const currencyPairsArray = appStore.currencyPairs || [];
-
-
 
     const tabsItem: TabsProps['items'] = [
         {
@@ -119,7 +166,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         }else{
             const data={
                 exchangeCoinId:currentPair.id,
-                type:0
+                type:1
             }
           const res= await canalUserExchangeCoinType(data);
             if(res.code === '0'){
@@ -130,6 +177,25 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
             }
         }
     };
+        const tabsItems: TabsProps['items'] = [
+            // 主流区、创新区、新币区、AI、Meme、NFT、DeFi、NFT、Web3、Payments、Launchpad、Layer2、Solana、RWA、Launchpool、游戏元宇宙、存储
+            { key: '1', label: '主流区' },
+            { key: '2', label: '创新区' },
+            { key: '3', label: '新币区' },
+            { key: '4', label: 'AI' },
+            { key: '5', label: 'Meme' },
+            { key: '6', label: 'NFT' },
+            { key: '7', label: 'DeFi' },
+            { key: '8', label: 'Web3' },
+            { key: '9', label: 'Payments' },
+            { key: '10', label: 'Launchpad' },
+            { key: '11', label: 'Layer2' },
+            { key: '12', label: 'Solana' },
+            { key: '13', label: 'RWA' },
+            { key: '14', label: 'Launchpool' },
+            { key: '15', label: '游戏元宇宙' },
+            { key: '16', label: '存储' },
+        ];
 
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
@@ -155,6 +221,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                                 style={{width: '100%'}}
                             />
                         </div>
+
                         <div className={`${styles.tabs_container} w-full`}>
                             <div className={`${styles.tabs_list} w-full`}>
                                 <Tabs items={tabsItem}
@@ -163,6 +230,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                                     onChange={handleTabClick}
                                     // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
                                 />
+  
+
                             </div>
                             {/* <div className={styles.content_container}>
                                 <div className={styles.pair_list}>
@@ -254,8 +323,8 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                     </li>
                     <li className='mr-9'>
                         <p>24H 涨跌</p>
-                        <p className={`${isPriceUp ? styles.success_icon : styles.error_icon} font-14`}>
-                            {priceChange ? (isPriceUp ? '+' : '') + priceChange.toFixed(2) : '--'} {priceChangePercent ? (isPriceUp ? '+' : '') + priceChangePercent + '%' : '--'}
+                        <p className={`${priceChange === 0 ? styles.default_icon : (isPriceUp ? styles.success_icon : styles.error_icon)} font-14`}>
+                            {priceChange && !isNaN(priceChange) && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChange.toFixed(2) : '--'} {priceChangePercent && priceChangePercent !== 'NaN' && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChangePercent + '%' : '--'}
                         </p>
                     </li>
                     <li className='mr-9'>

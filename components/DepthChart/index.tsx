@@ -18,7 +18,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
   if (!data || !data.bids || !data.asks) {
     return (
       <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        无数据或数据格式不正确
+       
       </div>
     );
   }
@@ -79,10 +79,6 @@ const DepthChart = ({ data }: DepthChartProps) => {
       axisPointer: {
         type: 'cross'
       }
-    },
-    legend: {
-      data: ['买盘', '卖盘'],
-      top: 30
     },
     grid: {
       left: '3%',

@@ -46,6 +46,8 @@ export const useWebConfig = () => {
                     "theme",
                     "logo",
                     "footer_setting",
+                    "fee_direction",
+                    // "account_configuration",
                     // 可以根据需要添加更多配置项
                 ];
 
@@ -108,7 +110,6 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
 
                 // 获取logo配置
                 const logoConfig = config.logo;
-
                 // 根据主题模式选择不同的 Logo
                 // 日间模式使用 dark 配置，夜间模式使用 light 配置
                 const imageUrl = isDayMode
@@ -116,6 +117,7 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
                     : logoConfig?.light?.headerLogo;
 
                 if (imageUrl) {
+                    console.log(imageUrl,'imageUrl');
                     const isValidUrl = await checkImageUrl(imageUrl);
                     setLogoUrl(isValidUrl ? imageUrl : defaultLogo);
                 }
@@ -197,4 +199,20 @@ export const useThemeConfig = () => {
 
     return { theme, loading };
 };
+
+
+//获取手续费方向
+export const useFeeDirection = () => {
+    const { config, loading } = useWebConfig();
+    const [feeDirection, setFeeDirection] = useState<string>('');
+
+    useEffect(() => {
+        if (config.fee_direction) { 
+            setFeeDirection(config.fee_direction);
+        }
+    }, [config]);
+
+    return { feeDirection, loading };
+};
+
 

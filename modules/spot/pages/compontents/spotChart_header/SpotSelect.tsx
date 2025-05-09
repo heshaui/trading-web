@@ -9,6 +9,9 @@ import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import appStore from '@/store';
+import { observer } from "mobx-react-lite";
+import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
+import SimpleScrollTabs from '@/components/ScrollableTabs';
 
 interface SpotSelectProps {
     currencyPairs: any[];
@@ -20,15 +23,27 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
     const [sortField, setSortField] = useState<string>('');
+    const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
-        // { key: 'all', label: '全部' },
-        { key: 'defi', label: 'Defi' },
-        { key: 'main', label: '主流币' },
-        { key: 'new', label: '新币种' },
-        { key: 'ai', label: '人工智能' },
+        { key: '1', label: '主流区' },
+        { key: '2', label: '创新区' },
+        { key: '3', label: '新币区' },
+        { key: '4', label: 'AI' },
+        { key: '5', label: 'Meme' },
+        { key: '6', label: 'NFT' },
+        { key: '7', label: 'DeFi' },
+        { key: '8', label: 'Web3' },
+        { key: '9', label: 'Payments' },
+        { key: '10', label: 'Launchpad' },
+        { key: '11', label: 'Layer2' },
+        { key: '12', label: 'Solana' },
+        { key: '13', label: 'RWA' },
+        { key: '14', label: 'Launchpool' },
+        { key: '15', label: '游戏元宇宙' },
+        { key: '16', label: '存储' },
     ];
 
     const handleTabChange = (key: string) => {
@@ -103,12 +118,60 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     // 确保在排序状态变化时重新计算排序结果
     const sortedPairList = React.useMemo(() => getSortedPairs(), [currencyPairs, sortField, sortDirection]);
 
-    // 基于搜索过滤排序后的结果
+    // 基于搜索和标签过滤排序后的结果
     const filteredPairs = React.useMemo(() => 
-        sortedPairList.filter(pair => 
-            pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
-            pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase())
-        ), [sortedPairList, searchValue]);
+        sortedPairList.filter(pair => {
+            // 搜索过滤
+            const matchesSearch = pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) || 
+                                 pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
+            
+            // 标签过滤
+            const matchesTab = activeTab === 'all' ? true : pair.classLabel === activeTab;
+            
+            return matchesSearch && matchesTab;
+        }), [sortedPairList, searchValue, activeTab]);
+
+
+
+
+        
+            const handleFavoriteChange = async (value: number, pair: any) => {
+              const isFavorite = value === 1;
+              const apiCall = isFavorite 
+                ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
+                : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+                
+              const res = await apiCall;
+              if (res.code === '0') {
+                // 本地更新以提高性能 - 只使用一种更新方式避免冲突
+                const updatedPairs = [...appStore.currencyPairs];
+                const pairIndex = updatedPairs.findIndex(item => item.id === pair.id);
+                if (pairIndex !== -1) {
+                  updatedPairs[pairIndex] = {
+                    ...updatedPairs[pairIndex],
+                    isFavorite: isFavorite
+                  };
+                  appStore.setCurrencyPairs(updatedPairs);
+                }
+                
+                // 如果当前选中的是被修改的币对，也要更新currentPair
+                if (appStore.currentPair && appStore.currentPair.id === pair.id) {
+                  const updatedCurrentPair = {...appStore.currentPair};
+                  updatedCurrentPair.isFavorite = isFavorite;
+                  appStore.setCurrentPair(updatedCurrentPair);
+                }
+              }
+            };
+            const handleTabClick = (key: string) => {
+                setActiveTab(key);
+            };
+
+            const showChange = (e: React.MouseEvent)=>{
+                e.stopPropagation(); // 阻止事件冒泡
+                setShowVolume(!showVolume); // 切换显示状态
+            }
+           
+        
     return (
         <ConfigProvider
             theme={{
@@ -120,40 +183,23 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         itemColor: "var(--text-color6)",
                         inkBarColor: "var(--text-color5)",
                     },
+                    Rate:{
+                        starBg:"#A4A5AC",
+                    }
                 },
             }}
         >
+      
             <div className={styles.container}>
                 {/* 标签页导航 */}
-                <div className={`${styles.tabs_wrapper} px-4 `}>
-                    <ul className={`flex-x align-center `}>
-                        {/* <li className={`${styles.fixed_tab} pointer font-14`}>全部</li> */}
-                        {/* <li>
-        <Iconify icon="mingcute:left-line" size={16}/>
-    </li> */}
-                        <li>
-                            <ConfigProvider
-                                theme={{
-                                    components: {
-                                        Tabs: {
-                                            itemActiveColor: "var(--theme-color)",
-                                            itemSelectedColor: "var(--theme-color)",
-                                            horizontalMargin: "0 0 0 0",
-                                            itemColor: "var(--text-color6)",
-                                            inkBarColor: "transparent",
-                                        },
-                                    },
-                                }}
-                            >
-                                {/* <Tabs items={tabsItem} className={`spot-tabs`} /> */}
-                            </ConfigProvider>
-                        </li>
-                        {/* <li>
-        <Iconify icon="mingcute:right-line" size={16}/>
-    </li> */}
-                    </ul>
-                </div>
-                {/* 列表头部 */}
+
+                <SimpleScrollTabs
+             items={tabsItem} 
+             onChange={handleTabClick} 
+             defaultActiveKey={activeTab}
+             showAllTab={true}
+             allTabLabel="全部"
+            />
                 <div className={`${styles.list_header} px-4 py-4 flex-x align-center`}>
                     <div 
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
@@ -197,7 +243,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('change')}
                     >
-                        <span>24h涨跌</span>
+                        <span>{showVolume ? '成交量' : '24h涨跌'}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
@@ -211,7 +257,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                                 size={10} 
                             />
                         </div>
-                        <div className='ml-1 flex-y-cc'>
+                        <div className='ml-1 flex-y-cc' onClick={(e) => showChange(e)}>
                             <Iconify icon="mingcute:transfer-line" size={18} />
                         </div>
                     </div>
@@ -223,11 +269,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)} style={{cursor:'pointer'}}>
                          {/* 币种名称 */}
                          <div className={`${styles.pair_name} flex-1`}>
-                             <span className={styles.favorite}>
+                             <span 
+                                className={styles.favorite}
+                                onClick={(e: React.MouseEvent) => {
+                                    // Stop event propagation to prevent parent click
+                                    e.stopPropagation();
+                                }}
+                             >
                                  <Rate
-                                    defaultValue={pair.isFavorite ? 1 : 0}
-                                     count={1}
-                                     style={{ fontSize: 14 }}
+                                    onChange={(value) => handleFavoriteChange(value, pair)}
+                                    value={pair.isFavorite ? 1 : 0}
+                                    count={1}
+                                    style={{ fontSize: 14 }}
                                  />
                              </span>
                              <span className={styles.coin_icon}>{pair.icon}</span>
@@ -239,9 +292,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          </div>
                          {/* 24h涨跌/24h成交量 */}
                          <div
-                             className={`${styles.pair_change} ${pair.priceChangePercent > 0 ? styles.success_icon : styles.error_icon} flex-1`}
+                             className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
                          >
-                             {pair.priceChangePercent}
+                             {showVolume ? pair.quantity : `${pair.priceChangePercent}%`}
                          </div>
                      </div>
                     ))}
@@ -252,4 +305,4 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     );
 };
 
-export default SpotSelect;
+export default observer(SpotSelect);

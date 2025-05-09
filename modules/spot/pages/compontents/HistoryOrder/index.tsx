@@ -10,35 +10,30 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList,getExchangeCoinList } from '@/services/spot'
+import { getOrderList, getExchangeCoinList, getOrderInfo } from '@/services/spot'
 import { toast } from 'sonner';
-import { division,nul } from '@/utils';
-
-
+import { division, nul, roundDown } from '@/utils';
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useCoinList } from '@/hooks/use-coinList';
+import appStore from '@/store';
+import { observer } from 'mobx-react-lite';
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
-  orderId: string,
-  amount: number,
-  baseSymbol: string,
-  canceledTime: number,
-  coinSymbol: string,
-  completedTime: number,
-  direction: number,
-  userId: number,
-  price: number,
-  status: number,
-  symbol: string,
-  createTime: number,
-  updateTime: number,
-  tradedAmount: number,
-  turnover: number,
-  type: number,
-  useDiscount: number,
-  orderResource: number,
   tenantId: string,
-  fee: number,
-  baseSymbolCount: number
+  buyOrderId: number,
+  sellOrderId: number,
+  buyerUserId: number,
+  sellerUserId: number,
+  buyPrice: number,
+  sellPrice: number,
+  tradePrice: number,
+  quantity: number,
+  takerSide: number,
+  buyFee: number,
+  sellFee: number,
+  ctime: string,
+  mtime: string
 }
 interface DataType {
   id: number,
@@ -62,7 +57,8 @@ interface DataType {
   orderResource: number,
   tenantId: string,
   fee: number,
-  baseSymbolCount: number
+  baseSymbolCount: number,
+  groupStatus: string,
   userLoginLogs: DataLogsType[]
 }
 interface symbolSelectType {
@@ -72,16 +68,19 @@ interface symbolSelectType {
   coinSymbol: string
 }
 interface SelectParamType {
-  startTime: number|string;
-  endTime: number|string;
+  startTime: number | string;
+  endTime: number | string;
   direction: string;
   type: string;
   symbol: string;
-  notStatus:string|number;
+  notStatus: string | number;
 }
-const SpotMainPage = () => {
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+      // 获取币种列表
+      // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
   const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
   const [paramInfo, sePparamInfo] = useState({
@@ -100,10 +99,10 @@ const SpotMainPage = () => {
   const selectParam = useRef<SelectParamType>({
     startTime: '',
     endTime: '',
-    direction:'',
-    type:'',
-    symbol:'',
-    notStatus:''
+    direction: '',
+    type: '',
+    symbol: '',
+    notStatus: ''
   })
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -138,8 +137,34 @@ const SpotMainPage = () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
+      width: 148,
+      render: (_text, record) => <button type='button'
+        //  className={`${record.status === 2 ? styles.error_icon : ''}`}
+        onClick={(e) => {
+          e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line"
+          className={`mx-1`} size={20} />
+      </button >,
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
       width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      align: "center",
+      render: (_text) => {
+        if (_text === 0) {
+          return <span >{t('spot.columns.market')}</span>;
+        } else if (_text === 1) {
+          return <span  >{t('spot.columns.limit')}</span>;
+        } else {
+          return <span >--</span>;
+        }
+      },
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -169,8 +194,10 @@ const SpotMainPage = () => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        if (record.status === 0 || record.status === 1) {
-          return <span >{_status || '--'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
+        if (record.status === 0 || record.status === 1||record.status === 5) {
+          return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
         } else {
           return <span >--</span>;
         }
@@ -183,39 +210,46 @@ const SpotMainPage = () => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+       if(record.type === 0 ){
+        return <span >{t('spot.select.market')}</span>;
+       }else if(record.type === 1 ){
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+       }
       },
     },
     {
-      title: t('spot.columns.tradedAmount'), //'委托量/已完成',  
+      title: t('spot.columns.quantity'), //"数量",
       key: "amount",
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_amount, record) => {
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-y align-center'>
-            <span>{`${record.tradedAmount}/${_amount}`}</span>
-            <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
-            </span>
-
-          </div>
-            : '0'
-          }
-        </div >
+      render: (_status) => {
+        return <span >{_status ? roundDown(_status, 2) : '0'}</span>;
       },
     },
-
+    {
+      title: t('spot.columns.count'), //"成交数量",
+      key: "tradedAmount",
+      dataIndex: "tradedAmount",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <span >{_status ? roundDown(_status, 2) : '0'}</span>;
+      },
+    },
     {
       title: t('spot.columns.amount2'), //"成交金额",
       key: "turnover",
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '0'}</span>;
+      render: (_status,record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
       },
     },
     {
@@ -239,6 +273,8 @@ const SpotMainPage = () => {
           return <span >{t('spot.select.partial') || '--'}</span>;
         } else if (_status === 6) {
           return <span >{t('spot.select.canceled2') || '--'}</span>;
+        }else{
+          return <span >{_status}</span>;
         }
       },
     },
@@ -247,25 +283,39 @@ const SpotMainPage = () => {
   ];
   const columns2: ColumnsType<DataLogsType> = [
     {
-      title: '成交时间',
-      dataIndex: "completedTime",
-      key: "completedTime",
-      width: 158,
+      title: t('spot.columns.tradeTime'),//成交时间
+      dataIndex: "mtime",
+      key: "mtime",
+      width: 128,
       align: "left",
-      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
-      title: "成交价",
-      dataIndex: "token",
-      key: "token",
+      title: t('spot.columns.tradePrice'),//成交价
+      dataIndex: "tradePrice",
+      key: "tradePrice",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      // 判断方向是买还是卖 buyPrice/sellPrice
+      render: (_tradePrice,record) => {
+        // const flag = record.takerSide
+        // if(flag === 0){
+        //   return <span>{_buyPrice || '--'}</span>
+        // }else if(flag === 1){
+        //   return <span>{record.sellPrice || '--'}</span>
+        // }else{
+        //   return '--'
+        // }
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+
+        return <span>{_tradePrice?roundDown(_tradePrice, coin?.baseCoinScale) : '--'}</span>
+      },
     },
     {
-      title: "成交数量",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeCount'),//成交数量
+      dataIndex: "quantity",
+      key: "quantity",
       align: "center",
       width: 158,
       render: (_status) => {
@@ -274,42 +324,63 @@ const SpotMainPage = () => {
       },
     },
     {
-      title: "成交金额",
-      key: "createTime",
-      dataIndex: "createTime",
+      title: t('spot.columns.tradeAmount'),//成交金额
+      key: "tradePrice",
+      dataIndex: "tradePrice",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_ip,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+        return <span >{_ip ? roundDown(nul(_ip,record.quantity), coin?.baseCoinScale) : '--'}</span>;
       },
     },
     {
-      title: "手续费",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeFee'),//手续费
+      dataIndex: "buyFee",
+      key: "buyFee",
       align: "center",
       width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
+      render: (_buyFee,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+        
+        const flag = record.takerSide
+        const price=nul(record.tradePrice,record.quantity)
+        if(flag === 0){
+          const fee=nul(_buyFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+        }else if(flag === 1){
+          const fee=nul(record.sellFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+        }else{
+          return '--'
+        }
       },
     },
     {
-      title: "角色",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: t('spot.columns.tradeRole'),//角色
+      key: "takerSide",
+      dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_buyerUserId,record) => {
+        const flag = record.takerSide
+        if(_buyerUserId === 0){
+          return <span>Maker</span>
+        }else if(flag === 1){
+          return <span>Taker</span>
+        }else{
+          return '--'
+        }
       },
     }
   ]
   const directionSelect: { label: string, value: string | number }[] = [
-    // {
-    //   label: t('spot.select.all'),
-    //   value: ''
-    // },
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.modal.buy'),
       value: 0
@@ -320,6 +391,10 @@ const SpotMainPage = () => {
     }
   ]
   const typeSelect: { label: string, value: string | number }[] = [
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.select.market'),
       value: 0
@@ -340,45 +415,48 @@ const SpotMainPage = () => {
     paramdataRef.current.pageSize = pageSize
     await getOrderListData()
   }
-    // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
-    const handleExpand = (expanded: boolean, record: DataType) => {
-      console.log(record.orderId, 12345, expanded);
-  
-      if (expanded) {
-        // 设置展开的行
-        setExpandedRowKeys([record.orderId]);
-  
-        // 设置子数据
-        if (record.userLoginLogs && record.userLoginLogs.length > 0) {
-          setChildDeviceNoData(record.userLoginLogs);
+  // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
+  const handleExpand = async (expanded: boolean, record: DataType) => {
+    if (expanded) {
+      setLoading(true);
+      try {
+        // 请求数据
+        const params = {
+          page: 1,
+          pageSize: 1000,
+          orderId: record.orderId,
+          // symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+          symbol: `${record.symbol.split('/').join('_')}`
+        };
+        const res = await getOrderInfo(params);
+        if (res.code === '0') {
+          // 更新当前行的 userLoginLogs
+          setTableData(prev =>
+            prev.map(item =>
+              item.orderId === record.orderId
+                ? { ...item, userLoginLogs: res.data?.records || [] }
+                : item
+            )
+          );
+          setExpandedRowKeys([record.orderId]);
         } else {
-          setChildDeviceNoData([]);
+          toast.error(res.message);
         }
-  
-        // // 如果URL中有deviceId参数，则清除它
-        // if (router.query.deviceId) {
-        //   const { deviceId, ...restQuery } = router.query;
-        //   router.replace({
-        //     pathname: router.pathname,
-        //     query: restQuery
-        //   }, undefined, { shallow: true });
-        // }
-      } else {
-        // 清空展开行
-        setExpandedRowKeys([]);
-        setChildDeviceNoData([]);
+      } catch (error) {
+        toast.error(String(error));
+      } finally {
+        setLoading(false);
       }
-    };
-  const topUpTypeChange = (value: any, options: any) => {
-    console.log(value, 123, options);
-
-
-  }
+    } else {
+      setExpandedRowKeys([]);
+      setChildDeviceNoData([]);
+    }
+  };
   // 时间选择
-  const dateChange = async(value: any) => {
-   
-    const startTime =value? dayjs(value[0]).valueOf():''
-    const endTime = value? dayjs(value[1]).valueOf():''
+  const dateChange = async (value: any) => {
+
+    const startTime = value ? dayjs(value[0]).valueOf() : ''
+    const endTime = value ? dayjs(value[1]).valueOf() : ''
     selectParam.current.startTime = startTime
     selectParam.current.endTime = endTime
     await getOrderListData()
@@ -389,13 +467,13 @@ const SpotMainPage = () => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 1,
-      notStatus:  selectParam.current.notStatus?'3':null,
-      coinSymbol: selectParam.current.symbol?`${selectParam.current.symbol.split('/')[0]}`:null,
-      baseSymbol: selectParam.current.symbol?`${selectParam.current.symbol.split('/')[1]}`:null,
-      startTime: selectParam.current.startTime?dayjs(selectParam.current.startTime).valueOf():null,
-      endTime: selectParam.current.endTime?dayjs(selectParam.current.endTime).valueOf():null,
-      direction: selectParam.current.direction||selectParam.current.direction?.toString()==='0'?selectParam.current.direction:null,
-      type: selectParam.current.type||selectParam.current.type?.toString()==='0'?selectParam.current.type:null,
+      notStatus: selectParam.current.notStatus ? '3' : null,
+      coinSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[0]}` : null,
+      baseSymbol: selectParam.current.symbol ? `${selectParam.current.symbol.split('/')[1]}` : null,
+      startTime: selectParam.current.startTime ? dayjs(selectParam.current.startTime).valueOf() : null,
+      endTime: selectParam.current.endTime ? dayjs(selectParam.current.endTime).valueOf() : null,
+      direction: selectParam.current.direction || selectParam.current.direction?.toString() === '0' ? selectParam.current.direction : null,
+      type: selectParam.current.type || selectParam.current.type?.toString() === '0' ? selectParam.current.type : null,
 
     }
     setLoading(true)
@@ -431,9 +509,36 @@ const SpotMainPage = () => {
           tenantId: item.tenantId
         }
       })
-      setSymbolSelect(selectData)
+      setSymbolSelect(
+        [
+          {
+            label: t('spot.select.all'),
+            value: ''
+          },
+          ...selectData
+        ])
     }
 
+  }
+  const getOrderInfoData = async (symbol: string,orderId:string,groupStatus:string) => {
+    try {
+      const params = {
+        // baseCoinScale:symbol.split('/')[1],
+        // coinScale:symbol.split('/')[0],
+        page: 1,
+        pageSize: 10,
+        // baseCoinScale:'USDT',
+        // coinScale:'BTC',
+        // symbol:'base_quote_group'
+        orderId:orderId,
+        symbol:`${symbol.split('/').join('_')}_${groupStatus}`
+      }
+      const res = await getOrderInfo(params)
+      if (res.code === '0') {
+      }
+    } catch (error) {
+      toast.error(String(error))
+    }
   }
 
   useEffect(() => {
@@ -468,6 +573,9 @@ const SpotMainPage = () => {
             activeBg: "var(--background7)",
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}
@@ -498,7 +606,7 @@ const SpotMainPage = () => {
                 options={typeSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.type')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.type = value
                   getOrderListData()
                 }}
@@ -510,7 +618,7 @@ const SpotMainPage = () => {
                 options={directionSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.direction')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.direction = value
                   getOrderListData()
                 }}
@@ -522,7 +630,7 @@ const SpotMainPage = () => {
                 options={symbolSelect}
                 className={`${styles.select_box} select-text-right mt-6`}
                 prefix={<span className={`${styles.title_color}`}>{t('spot.columns.symbol')}</span>}
-                onChange={(value)=>{
+                onChange={(value) => {
                   selectParam.current.symbol = value
                   getOrderListData()
                 }}
@@ -532,14 +640,14 @@ const SpotMainPage = () => {
               <Checkbox
                 defaultChecked={false}
                 className={` mt-8`}
-                onChange={(e)=>{
+                onChange={(e) => {
                   console.log(e.target.checked, 123456789, 'value');
-                  selectParam.current.notStatus = e.target.checked?'3':''
+                  selectParam.current.notStatus = e.target.checked ? '3' : ''
                   getOrderListData()
                 }}
               >
                 <span className={`${styles.title_color} font-14`}>
-                {t('spot.select.hideAllCancel')}
+                  {t('spot.select.hideAllCancel')}
                 </span>
               </Checkbox>
             </Form.Item>
@@ -547,7 +655,7 @@ const SpotMainPage = () => {
         </div>
         <div className={`${styles.table_content} w-full `}>
 
-        <Table
+          <Table
             columns={columns}
             dataSource={tableData}
             size="large"
@@ -566,10 +674,7 @@ const SpotMainPage = () => {
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
               expandedRowRender: (record) => {
-                // 使用当前展开行的ID来确定是否显示子数据
                 const isCurrentExpanded = expandedRowKeys.includes(record.orderId);
-
-
                 return (
                   <div key={record.orderId}>
                     {isCurrentExpanded && record.userLoginLogs && record.userLoginLogs.length > 0 ? (
@@ -578,10 +683,8 @@ const SpotMainPage = () => {
                         dataSource={record.userLoginLogs}
                         size="large"
                         scroll={{ x: "max-content" }}
-                        // showHeader={false}
                         pagination={false}
                         className={`spot-table-box2 ${styles.rowExpanded_table_box}`}
-                        // style={{ padding: 0 }}
                         rowKey="orderId"
                         locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                       />
@@ -606,6 +709,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;

@@ -6,11 +6,12 @@ import { useRouter } from 'next/router';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { useEffect, useState } from 'react';
-import {getUserBalanceAll} from '@/services/assets';
+import { getUserBalanceAll } from '@/services/assets';
 import { toast } from 'sonner';
-import { lastD } from '@/utils';
+import { lastD, roundDown } from '@/utils';
 import { Skeleton } from 'antd';
-
+import { useCoinList } from '@/hooks/use-coinList';
+import { useAuth } from '@/context/AuthContext';
 interface DataType {
     id: number,
     userId: number,
@@ -24,12 +25,18 @@ interface DataType {
     updateTime: number,
     tenantId: string,
 }
-const SpotAssetsPage = observer(() => {
+type Props = {
+    orderUpdateFlag?: number
+}
+const SpotAssetsPage = observer(({orderUpdateFlag}:Props) => {
     const { t } = useTranslation(['spot']);
     const router = useRouter();
-    const currentPair = appStore.getCurrentPair()|| appStore.currencyPairs[0];
+    // 获取币种列表
+    const { coinList } = useCoinList();
+    const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const [userBalanceAllData, setUserBalanceAllData] = useState<any>([]);
     const [loading, setLoading] = useState(true);
+      const { isLoggedIn } = useAuth();
     const getUserBalanceAllData = async () => {
         setLoading(true);
         try {
@@ -43,40 +50,47 @@ const SpotAssetsPage = observer(() => {
             setLoading(false);
         }
     }
+    const roundNum=(coinName:string)=>{
+        const balance=lastD(userBalanceAllData.find((item: any) => item.coinName === coinName)?.balance || 0)
+        // const coin = coinList.find((item: any) => item.coinName === coinName);
+        return roundDown(balance,8);
+    }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [])
+    }, [orderUpdateFlag])
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
             资产
         </div>
         <div className={`px-6 py-6 w-full ${styles.spot_main}`}>
             <ul className={`${styles.tip_color1} font-14 font-w-400`}>
-                <Skeleton active 
-                loading={loading} 
-                title={false}
+                <Skeleton active
+                    loading={loading}
+                    title={false}
                     paragraph={{ rows: 2 }}
                     className={`mb-4`} >
-                <li className='flex justify-between align-center mb-5'>
-                    <div>{currentPair?.coinSymbol||'--'}可用资产</div>
-                    <div>{lastD(userBalanceAllData.find((item:any)=>item.coinName===currentPair?.coinSymbol)?.balance||0)||0}</div>
-                </li>
-                <li className='flex justify-between align-center mb-5' >
-                    <div>{currentPair?.baseSymbol||'--'}可用资产</div>
-                    <div>{lastD(userBalanceAllData.find((item:any)=>item.coinName===currentPair?.baseSymbol)?.balance||0)||0}</div>
-                </li>
+                    <li className='flex justify-between align-center mb-5'>
+                        <div>{currentPair?.coinSymbol || '--'}可用资产</div>
+                        {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.coinSymbol)?.balance || 0) || 0}</div> */}
+                       {isLoggedIn ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
+                    </li>
+                    <li className='flex justify-between align-center mb-5' >
+                        <div>{currentPair?.baseSymbol || '--'}可用资产</div>
+                        {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.baseSymbol)?.balance || 0) || 0}</div> */}
+                        {isLoggedIn ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
+                    </li>
                 </Skeleton>
             </ul>
             <div className={`flex-x-cc w-full `}>
-                <button type='button' className={`cancel_btn2 ${styles.btn_style} mr-4`} 
-                onClick={()=>{
-                    router.push(ROUTER_KEY_ASSETS.TOP_UP)
-                }}
+                <button type='button' className={`cancel_btn2 ${styles.btn_style} mr-4`}
+                    onClick={() => {
+                        router.push(ROUTER_KEY_ASSETS.TOP_UP)
+                    }}
                 >{t('spot.columns.deposit')}</button>
                 <button type='button' className={`cancel_btn2 ${styles.btn_style}`}
-                onClick={()=>{
-                    router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)
-                }}>{t('spot.columns.withdraw')}</button>
+                    onClick={() => {
+                        router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)
+                    }}>{t('spot.columns.withdraw')}</button>
             </div>
         </div>
     </>

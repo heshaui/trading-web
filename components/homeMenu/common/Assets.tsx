@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getLoginInfo } from '@/services/overview';
 import { encryptString } from '@/utils/encrypt';
 import { toast } from 'sonner';
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 export default function AssetsMenuItems() {
     // 路由
     const router = useRouter();
@@ -33,7 +34,7 @@ export default function AssetsMenuItems() {
                     h5Text="我的资产"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount')
+                        router.push(ROUTER_KEY_ASSETS.ACCOUNT)
                     }}
                 />
             ),
@@ -48,7 +49,7 @@ export default function AssetsMenuItems() {
                     h5Text="充币"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount/topUp')
+                        router.push(ROUTER_KEY_ASSETS.TOP_UP)
                     }}
                 />
             ),
@@ -63,7 +64,7 @@ export default function AssetsMenuItems() {
                     h5Text="提币"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/assetsAccount/withdrawMoney')
+                        router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)
                     }}
                 />
             ),
@@ -78,7 +79,7 @@ export default function AssetsMenuItems() {
                     h5Text="账单明细"
                     spanText=""
                     onClick={()=>{
-                        router.push('/assets/billDetails')
+                        router.push(ROUTER_KEY_ASSETS.BILL)
                     }}
                 />
             ),

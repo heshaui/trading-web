@@ -34,7 +34,18 @@
             "deposit":"充值",
             "withdraw":"提现",
             "tradedAmount":"委托量/已完成",
-            "totalAmount":"总额/已成交"
+            "totalAmount":"总额/已成交",
+            "limit":"限价委托",
+            "market":"市价委托",
+            "withdrawError":"用户禁止提现",
+            "depositError":"用户禁止充值",
+            "tradeError":"用户禁止交易",
+            "tradeTime":"成交时间",
+            "tradePrice":"成交价",
+            "tradeCount":"成交数量",
+            "tradeAmount":"成交金额",
+            "tradeFee":"手续费",
+            "tradeRole":"角色"
         },
         "select":{
             "all":"全部",

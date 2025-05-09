@@ -119,7 +119,10 @@ const nextConfig: NextConfig = {
     return [];
   },
   images: {
-    domains: ['meta2025.oss-ap-northeast-2.aliyuncs.com', 'example.com'],
+    domains: ['meta2025.oss-ap-northeast-2.aliyuncs.com',
+       'example.com',
+       'metawave.oss-cn-hongkong.aliyuncs.com',
+      ],
   },
 };
 

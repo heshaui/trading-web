@@ -14,11 +14,13 @@ import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
 import { useResetStateContext } from '@/hooks/useStateProvider';
 import { encryptData } from '@/hooks/user-encrypt'
-import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS ,LOCAL_STORAGE_KEY} from '@/config/apiConfig';
+import { roundDown } from '@/utils';
 interface DataType {
     withdrawalId: string,
     userId: number,
     coinId: number,
+    coinName:string,
     protocolId: number,
     amount: number,
     fee: number,
@@ -52,7 +54,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     const [open, setOpen] = useState(false);
     const [total, setTotal] = useState(0);
     const [checked, setChecked] = useState<boolean>(false);
-
+    const [currentCoin, setCurrentCoin] = useState<any>(null);
     const [pageParam, setPageParam] = useState({
         page: 1,
         pageSize: 10
@@ -104,8 +106,9 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             dataIndex: "fee",
             width: 128,
             align: "center",
-            render: (_text) => {
-                return <span >{_text || '--'}</span>;
+            render: (_text,record) => {
+                const coin = currentCoin.find((item:any)=>item.coinName===record.coinName)
+                return <span >{_text?roundDown(_text,coin?.unitScale): '0'}</span>;
             },
         },
         {
@@ -264,7 +267,12 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             getWithdrawDepositListData();
         }
     }, [resetState]);
-
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+          const coinStr = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_COIN);
+          setCurrentCoin(coinStr ? JSON.parse(coinStr) : null);
+        }
+      }, []);
     // 添加初始加载的 useEffect
     useEffect(() => {
         getWithdrawDepositListData();

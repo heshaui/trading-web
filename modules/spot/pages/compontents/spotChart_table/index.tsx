@@ -46,6 +46,7 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
     })
     const paramdataRef = useRef(pageParam);
 
+console.log(orderUpdateFlag,123344);
 
     const items: TabsProps['items'] = [
         {
@@ -107,7 +108,7 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
                     <div className='position-relative'>
                         <Tabs items={items} 
                         className="custom-tabs2" 
-                       
+                        destroyInactiveTabPane={true}
                         indicator={{ size: (origin) => origin - 35, align: 'center' }}/>
                     </div>
                     {/* </div>

@@ -1,4 +1,5 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
+import { getCoinAll } from '@/services/assets';
 import appStore from '@/store/index';
 // 币对接口数据类型
 export interface CurrencyPairType {
@@ -32,10 +33,11 @@ export interface CurrencyPairType {
     price?: number,             // 当前价格
     yesterdayPrice?: number,    // 昨日价格
     priceChangePercent?: number // 价格变化百分比
+    quantity:number //成交数量
 }
 
 // 获取所有币对数据
-export async function fetchAllCurrencyPairs(userToken: string | null) {
+export async function fetchAllCurrencyPairs() {
     try {
         // 1. 获取币种列表
         const coinListResponse = await getExchangeCoinList();
@@ -138,7 +140,8 @@ export async function fetchAllCurrencyPairs(userToken: string | null) {
                 show: coin?.show,
                 price: priceInfo?.price,
                 yesterdayPrice: priceInfo?.yesterdayPrice,
-                priceChangePercent
+                quantity:priceInfo.quantity,
+                priceChangePercent:priceChangePercent
             };
             
             console.log('currencyPair', currencyPair);
@@ -226,3 +229,52 @@ export async function fetchCurrencyPairPrices() {
         };
     }
 } 
+
+// 获取所有币种
+// 获取所有币种
+export async function fetchAllCoin(needPrice: boolean = false) {
+    try {
+        // 1. 获取币种列表
+        const coinListResponse = await getCoinAll();
+        if (coinListResponse.code !== '0') {
+            throw new Error('Failed to load coin list');
+        }
+
+        const coinList = coinListResponse.data || [];
+        let processedCoins = coinList;
+
+        // 2. 如果需要价格数据，则获取并合并
+        if (needPrice) {
+            const priceResponse = await getExchangeCoinAllPrice();
+            let priceData: any[] = [];
+            if (priceResponse.code === '0') {
+                priceData = priceResponse.data || [];
+            }
+
+            // 合并数据
+            processedCoins = coinList.map((coin: any) => {
+                const priceInfo = priceData.find((p: any) =>
+                    p.coinSymbol === coin.coinName
+                );
+                return {
+                    ...coin,
+                    ...priceInfo
+                };
+            });
+        }
+
+        return {
+            success: true,
+            data: processedCoins,
+            rawData: coinList
+        };
+    } catch (error) {
+        console.error('获取币种列表出错:', error);
+        return {
+            success: false,
+            data: [],
+            rawData: [],
+            error
+        };
+    }
+}

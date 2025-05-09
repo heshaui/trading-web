@@ -1,11 +1,12 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-import { 
-    fetchAllCurrencyPairs, 
-    fetchUserFavorites, 
-    addToFavorites, 
+import {
+    fetchAllCurrencyPairs,
+    fetchUserFavorites,
+    addToFavorites,
     removeFromFavorites,
-    CurrencyPairType 
+    CurrencyPairType,
+    fetchAllCoin
 } from './currencyPairService';
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 
@@ -48,13 +49,13 @@ class AppStore {
         countryCode?: string,
         code?: string
     } = {
-        type: "",
-        email: "",
-        phone: "",
-        password: "",
-        parentInviteCode: "",
-        countryCode: "",
-        code: ""
+            type: "",
+            email: "",
+            phone: "",
+            password: "",
+            parentInviteCode: "",
+            countryCode: "",
+            code: ""
         };
     userInfo: UserInfoType = {
         userId: 0,
@@ -62,7 +63,7 @@ class AppStore {
         avatarUrl: "",
         token: ""
     }
-    
+
     // 添加币对信息列表
     currencyPairs: CurrencyPairType[] = [];
     // 添加当前选中的币对
@@ -72,13 +73,20 @@ class AppStore {
     // API加载状态
     isLoadingCurrencyData: boolean = false;
 
+    // 添加币种列表
+    coinList: any[] = [];
+    // API加载状态
+    isLoadingCoinData: boolean = false;
+    // 汇率数据状态
+    rateData: any[] = [];
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
-        
+
         // 仅在浏览器环境中初始化
         if (isBrowser()) {
             this.initCurrencyPairsFromStorage();
+            this.initRateDataFromStorage();
         }
     }
 
@@ -86,7 +94,7 @@ class AppStore {
         this.isDarkMode = !this.isDarkMode;
     }
 
-    setUserToken(token: string ) {
+    setUserToken(token: string) {
         this.userToken = token;
         if (isBrowser()) {
             localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
@@ -150,15 +158,15 @@ class AppStore {
     // 从本地存储初始化币对信息
     initCurrencyPairsFromStorage() {
         if (!isBrowser()) return;
-        
+
         try {
             const pairsJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS);
             const currentPairJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_PAIR);
-            
+
             if (pairsJson) {
                 this.currencyPairs = JSON.parse(pairsJson);
             }
-            
+
             if (currentPairJson) {
                 this.currentPair = JSON.parse(currentPairJson);
             }
@@ -166,27 +174,59 @@ class AppStore {
             console.error('Failed to load currency pairs from storage:', error);
         }
     }
-    
+    //  设置汇率数据的方法
+    setRateData(data: any[]) {
+        this.rateData = data;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.RATE_DATA, JSON.stringify(data));
+        }
+    }
+
+    // 获取汇率数据的方法
+    getRateData() {
+        return this.rateData;
+    }
+
+    // 清除汇率数据的方法
+    clearRateData() {
+        this.rateData = [];
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.RATE_DATA);
+        }
+    }
+    //  从本地存储初始化汇率数据
+    initRateDataFromStorage() {
+        if (!isBrowser()) return;
+
+        try {
+            const rateDataJson = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_DATA);
+            if (rateDataJson) {
+                this.rateData = JSON.parse(rateDataJson);
+            }
+        } catch (error) {
+            console.error('Failed to load rate data from storage:', error);
+        }
+    }
     // 从API加载币对信息
     async loadCurrencyPairs() {
         try {
             this.isLoadingCurrencyData = true;
-            
+
             // 使用currencyPairService中的方法替代重复代码
-            const result = await fetchAllCurrencyPairs(this.userToken);
-            
+            const result = await fetchAllCurrencyPairs();
+
             if (result.success) {
                 // 更新原始数据
                 this.rawCurrencyData = result.rawData;
-                
+
                 // 更新币对列表
                 this.setCurrencyPairs(result.data);
-                
+
                 // 如果没有当前选中的币对，设置第一个为当前币对
                 if (!this.currentPair && result.data.length > 0) {
                     this.setCurrentPair(result.data[0]);
                 }
-                
+
                 return result.data;
             } else {
                 throw result.error;
@@ -203,7 +243,7 @@ class AppStore {
             });
         }
     }
-    
+
     // 设置币对列表
     setCurrencyPairs(pairs: CurrencyPairType[]) {
         this.currencyPairs = pairs;
@@ -211,7 +251,7 @@ class AppStore {
             localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(pairs));
         }
     }
-    
+
     // 设置当前选中的币对
     setCurrentPair(pair: CurrencyPairType) {
         this.currentPair = pair;
@@ -219,22 +259,26 @@ class AppStore {
             localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_PAIR, JSON.stringify(pair));
         }
     }
-    
+
     // 根据ID查找币对
     getCurrencyPairById(id: string) {
         return this.currencyPairs.find(pair => pair.id === id) || null;
     }
-    
+
     // 根据基础货币筛选币对
     getCurrencyPairsByBase(baseSymbol: string) {
-        return this.currencyPairs.filter(pair => pair. baseSymbol=== baseSymbol);
+        return this.currencyPairs.filter(pair => pair.baseSymbol === baseSymbol) || this.currencyPairs.filter(pair => pair.symbol === baseSymbol)
     }
-    
+
     // 获取当前选中的币对
     getCurrentPair() {
         return this.currentPair;
     }
-    
+    // 获取所有币对列表
+    getCurrentPairList() {
+        return this.currencyPairs;
+    }
+
     // 更新币对信息
     updateCurrencyPair(pairId: string, data: Partial<CurrencyPairType>) {
         const pairIndex = this.currencyPairs.findIndex(pair => pair.id === pairId);
@@ -243,20 +287,20 @@ class AppStore {
                 ...this.currencyPairs[pairIndex],
                 ...data
             };
-            
+
             // 如果更新的是当前选中的币对，也更新currentPair
             if (this.currentPair?.id === pairId) {
                 this.currentPair = this.currencyPairs[pairIndex];
             }
-            
+
             if (isBrowser()) {
                 localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
             }
         }
     }
-    
-  
-    
+
+
+
     // 使用计算属性替代方法
     get favoritePairs() {
         return this.currencyPairs.filter(pair => pair.isFavorite);
@@ -276,27 +320,27 @@ class AppStore {
     // 从服务器重新加载自选币对
     async loadFavoriteCoins() {
         if (!this.userToken) return;
-        
+
         try {
             const response = await getUserExchangeCoinTypeList();
             if (response.code === '0') {
                 const favoriteCoins = response.data || [];
-                
+
                 // 更新现有币对的收藏状态
                 const updatedPairs = this.currencyPairs.map(pair => {
-                    const isFavorite = favoriteCoins.some((favCoin: any) => 
-                        favCoin.coinSymbol === pair.coinSymbol && 
+                    const isFavorite = favoriteCoins.some((favCoin: any) =>
+                        favCoin.coinSymbol === pair.coinSymbol &&
                         favCoin.baseSymbol === pair.baseSymbol
                     );
-                    
+
                     return {
                         ...pair,
                         isFavorite
                     };
                 });
-                
+
                 this.setCurrencyPairs(updatedPairs);
-                
+
                 // 如果当前选中的币对也发生了变化，更新它
                 if (this.currentPair) {
                     const currentPairUpdated = updatedPairs.find(p => p.id === this.currentPair?.id);
@@ -308,6 +352,44 @@ class AppStore {
         } catch (error) {
             console.error('Failed to load favorite coins:', error);
         }
+    }
+
+    // 从API加载币种信息
+    async loadCoinList(needPrice: boolean = false) {
+        try {
+            this.isLoadingCoinData = true;
+
+            const result = await fetchAllCoin(needPrice);
+
+            if (result.success) {
+                runInAction(() => {
+                    this.coinList = result.data;
+                });
+                return result.data;
+            } else {
+                throw result.error;
+            }
+        } catch (error) {
+            runInAction(() => {
+                // 可能需要设置错误状态
+            });
+            console.error('Error loading coin list:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingCoinData = false;
+            });
+        }
+    }
+
+    // 获取币种列表
+    getCoinList() {
+        return this.coinList;
+    }
+
+    // 清除币种列表
+    clearCoinList() {
+        this.coinList = [];
     }
 }
 

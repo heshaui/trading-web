@@ -70,7 +70,8 @@
     font-size: 16px !important;
 }
 
-/* 输入框清除图标底色 */
+/* 输入框清除图标底色及可视 */
+.modal-input  .anticon.ant-input-password-icon,
 .modal-input .ant-input-clear-icon,
 .modal-input2 .ant-input-clear-icon {
     color: var(--text-color4) !important;
@@ -123,6 +124,10 @@
 /* 选择框分隔符颜色 */
 .custom-range-picker .ant-picker-separator{
     color: var(--text-color4) !important;
+}
+.custom-range-picker .ant-picker-outlined,
+.custom-range-picker {
+    background: transparent !important;
 }
 
 /* 自定义步骤条 */
@@ -467,7 +472,13 @@
     color: var(--text-color5) !important;
 }
 .spot-pagination .ant-pagination-simple-pager input{
-    color: #0C0D0C !important;
+    background: transparent !important;
+    color: var(--text-color5) !important;
+}
+/* 表格排序图标颜色 */
+.spot-table-box .ant-table-column-sorter,
+.table-box .ant-table-column-sorter{
+    color: var(--text-color5) !important;
 }
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body,
@@ -478,6 +489,7 @@
         width: 0;
         height: 0;
         display: none;
+        background: transparent !important;
     }
 
     /* 隐藏滚动条 - Firefox */
@@ -487,6 +499,30 @@
     -ms-overflow-style: none;
 
 }
+
+.ant-table-content::-webkit-scrollbar-track {
+    height: 8px !important;
+    background: transparent !important;
+  }
+  .ant-table-content::-webkit-scrollbar {
+    height: 8px;
+    background: transparent !important;
+  }
+  .ant-table-content::-webkit-scrollbar-thumb {
+    background: #ccc !important;
+    border-radius: 4px;
+  }
+  .ant-table-content::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  
+  /* Firefox */
+  .ant-table-content {
+    scrollbar-color: #ccc transparent !important;
+    scrollbar-width: thin;
+  }
+
+
 /* tabs 指示条颜色 */
 .custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
@@ -496,7 +532,14 @@
 }
 .custom-tabs2 .ant-tabs-tab{
     margin: 0 0 0 24px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 .spot-tabs .ant-tabs-nav::before{
     border-color: transparent !important;
+}
+
+/* 自定义radio */
+.radio-custom .ant-radio-wrapper-block{
+    justify-content: flex-start !important;
 }

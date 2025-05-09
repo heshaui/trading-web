@@ -101,6 +101,7 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className={`flex-col  ${styles.msg_color}`} style={{ width: "100%" }}>
                     {/* 移除后，该设备将退出登录态！ */}

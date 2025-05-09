@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/now.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip} from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip,notification} from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -12,13 +12,14 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
 import { getOrderList, getExchangeCoinList,revocationOrder } from '@/services/spot'
 import { toast } from 'sonner';
-import { add, cut, division, lastD ,nul} from '@/utils'
+import { add, cut, division, lastD ,nul,roundDown,roundUp} from '@/utils'
 import ToastModal from '@/components/spotModal/Toast_modal';
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { encryptData } from '@/hooks/user-encrypt'
-
-
-
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+import { useCoinList } from '@/hooks/use-coinList';
+import { observer } from 'mobx-react-lite';
+import appStore from '@/store';
 
 
 interface DataType {
@@ -51,10 +52,14 @@ interface symbolSelectType {
   baseSymbol: string,
   coinSymbol: string
 }
-const SpotMainPage = () => {
+const SpotMainPage =observer( () => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const router = useRouter();
+      // 获取币种列表
+      // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [paramInfo, sePparamInfo] = useState({
     type: '',
@@ -68,6 +73,7 @@ const SpotMainPage = () => {
     direction: '',
     symbol: ''
   });
+  
   const [loading, setLoading] = useState(false);
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
   const [toastModal, setToastModal] = useState<boolean>(false);
@@ -75,14 +81,14 @@ const SpotMainPage = () => {
   const [delectIdAll, setDelectIdAll] = useState<string[]>([]);
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<any>({})
-
+  const toastDataRef = useRef<any>({})
  
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
       dataIndex: "updateTime",
       key: "updateTime",
-      width: 158,
+      width: 128,
       align: "left",
       render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`} </div>,
     },
@@ -91,8 +97,31 @@ const SpotMainPage = () => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
+      width: 148,
+      render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+      onClick={()=>{
+        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+      </button >,
+    },
+    {
+      title: t('spot.columns.type'), //"类型",
+      key: "type",
+      dataIndex: "type",
       width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      align: "center",
+      render: (_text) => {
+        if(_text===0){
+          return <span >{t('spot.columns.market')}</span>;
+        }else if(_text===1){
+          return <span  >{t('spot.columns.limit')}</span>;
+        }else{
+          return <span >--</span>;
+        }
+      },
     },
     {
       title: t('spot.columns.direction'),//"方向",
@@ -119,62 +148,66 @@ const SpotMainPage = () => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <div className='flex-x align-center text-center'>
-          <p className='text-center '> {_status||'0'}</p>
+      render: (_status,record) => {
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <>{record.type === 1 ? <div className='flex-x-cc'>
+          <p className='text-center '> {_status?roundDown(_status,coin?.baseCoinScale):'0'}</p>
           <Tooltip title={t('spot.modal.edit')}>
-            <button 
-            onClick={()=>{
-              toast.error('接口：暂不做')
-            }}
+            <button
+              onClick={() => {
+                toast.error('接口：暂不做')
+              }}
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip>
-        </div>
+        </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
           
       },
     },
     {
-      title: t('spot.columns.tradedAmount'), //"委托量/已完成",
+      title: t('spot.columns.quantity'), //"数量",
+      key: "amount",
+      dataIndex: "amount",
+      width: 128,
+      align: "center",
+      render: (_status) => {
+        return <>
+        {_status||'0'}
+        </>
+          
+      },
+    },
+    {
+      title: t('spot.columns.completion'), //"完成度",
       key: "amount",
       dataIndex: "amount",
       width: 128,
       align: "center",
       render: (_amount, record) => {
         // amount/tradedAmount
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-x align-center'>
-            {`${record.tradedAmount}/${_amount}`}
-            <Tooltip title={t('spot.modal.edit')}>
-              <button 
-              onClick={()=>{
-                toast.error('接口：暂不做')
-              }}>
-                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
-              </button>
-            </Tooltip>
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return < >
+          {_amount ? 
             <span className={`${styles.tip_color2}`}>
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
-            </span>
-
-          </div>
-            : '0'
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'}
+            </span> : '0'
           }
-        </div >
+        </ >
 
 
       },
     },
     {
-      title: t('spot.columns.totalAmount'), //"总额/已成交",
+      title: t('spot.columns.amount'), //成交额,
       key: "turnover",
       dataIndex: "turnover",
       width: 128,
       align: "center",
       render: (_turnover, record) => {
-        const totalAmount = record.amount && record.price ? nul(record.amount, record.price) : '0'
-        return <span >{`${totalAmount}/${_turnover ? _turnover : '0'}` || '--'}</span>;
+        // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_turnover?`${roundDown(_turnover,coin?.baseCoinScale)}` : '0'}</span>;
       },
     },
     {
@@ -192,7 +225,7 @@ const SpotMainPage = () => {
           <button
             onClick={() => {
               
-              setDelectId([record.orderId])
+              // setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
                 coinSymbol: record.coinSymbol,
@@ -201,8 +234,15 @@ const SpotMainPage = () => {
                 price: record.price,
                 amount: record.amount,
               })
+              toastDataRef.current={
+                coinSymbol: record.coinSymbol,
+                symbol: record.symbol,
+                baseSymbol: record.baseSymbol,
+                price: record.price,
+                amount: record.amount,
+              }
               // setToastModal(true)
-              delectOne()
+              delectOne([record.orderId])
             }}
           >
             <Iconify icon="mingcute:delete-2-line" className='error_icon' size={24} />
@@ -213,16 +253,33 @@ const SpotMainPage = () => {
 
 
   ];
-  const delectOne = async () => {
+  const delectOne = async (orderId: string[]) => {
     try {
         const paeam={
-            orderId: delectId,
+            orderId: orderId,
         }
         const encrypt=await encryptData(paeam)
         const res = await revocationOrder(encrypt)
         if(res.code==='0'){
-            toast.success(res.message)
-            setToastModal(true)
+            // toast.success(res.message)
+            // setToastModal(true)
+            notification.success({
+              message: '已撤单',
+              description: (
+                <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
+                  <li className={` mt-5 font-14 font-w-400 `}>
+                    币对：{toastDataRef.current?.symbol}
+                  </li>
+                  <li className={` mt-3 font-14 font-w-400 `}>
+                    价格：{toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
+                  </li>
+                  <li className={` mt-3 font-14 font-w-400 `}>
+                    撤单量：{toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
+                  </li>
+                </ul>
+              ),
+              duration: 3
+            })
             getOrderListData()
         }else{
             toast.error(res.message)
@@ -234,10 +291,10 @@ const SpotMainPage = () => {
 };
 
   const directionSelect: { label: string, value: string | number }[] = [
-    // {
-    //   label: t('spot.select.all'),
-    //   value: ''
-    // },
+    {
+      label: t('spot.select.all'),
+      value: ''
+    },
     {
       label: t('spot.modal.buy'),
       value: 0
@@ -322,7 +379,15 @@ const SpotMainPage = () => {
           tenantId: item.tenantId
         }
       })
-      setSymbolSelect(selectData)
+      setSymbolSelect(
+        [
+          {
+            label: t('spot.select.all'),
+            value: ''
+          },
+          ...selectData
+        ]
+        )
     }
 
   }
@@ -367,10 +432,10 @@ const SpotMainPage = () => {
           <Form
             form={form}
             layout="inline"
-            // initialValues={{
-            //   direction: '',
-            //   symbol: ''
-            // }}
+            initialValues={{
+              direction: '',
+              symbol: ''
+            }}
           >
             <Form.Item name="direction" >
               <Select allowClear
@@ -419,6 +484,7 @@ const SpotMainPage = () => {
         onCancel={() => setDelectModal(false)}
         onOk={handleDelectOk}/>
         <ToastModal
+        type='0'
          open={toastModal} 
          toastData={toastData}
         onCancel={() => setToastModal(false)}
@@ -427,6 +493,6 @@ const SpotMainPage = () => {
     </ConfigProvider>
   </>
   );
-};
+});
 
 export default SpotMainPage;

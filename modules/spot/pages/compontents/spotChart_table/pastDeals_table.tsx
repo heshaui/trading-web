@@ -10,35 +10,31 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList } from '@/services/spot'
-import { add, cut, division, lastD ,nul} from '@/utils'
+import { add, cut, division, lastD ,nul,roundDown} from '@/utils'
 import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
+import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
+// import { useCoinList } from '@/hooks/use-coinList';
+import { getOrderList, getOrderInfo } from '@/services/spot'
+
 const { RangePicker } = DatePicker;
 interface DataLogsType {
   id: number,
-  orderId: string,
-  amount: number,
-  baseSymbol: string,
-  canceledTime: number,
-  coinSymbol: string,
-  completedTime: number,
-  direction: number,
-  userId: number,
-  price: number,
-  status: number,
-  symbol: string,
-  createTime: number,
-  updateTime: number,
-  tradedAmount: number,
-  turnover: number,
-  type: number,
-  useDiscount: number,
-  orderResource: number,
   tenantId: string,
-  fee: number,
-  baseSymbolCount: number
+  buyOrderId: number,
+  sellOrderId: number,
+  buyerUserId: number,
+  sellerUserId: number,
+  buyPrice: number,
+  sellPrice: number,
+  tradePrice: number,
+  quantity: number,
+  takerSide: number,
+  buyFee: number,
+  sellFee: number,
+  ctime: string,
+  mtime: string
 }
 interface DataType {
   id: number,
@@ -74,6 +70,10 @@ interface SelectParamType {
 const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
+      // 获取币种列表
+      // const {coinList} = useCoinList();
+  const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
+
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [initTableData, setInitTableData] = useState<DataType[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -119,8 +119,16 @@ const SpotMainPage = observer(() => {
       dataIndex: "symbol",
       key: "symbol",
       align: "center",
-      width: 128,
-      render: (_text, record) => <span className={`${record.status === 2 ? styles.error_icon : ''}`}>{_text || '--'}</span>,
+      width: 148,
+      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon :record.status?.toString() === '0' ?styles.success_icon:''}`}
+      onClick={(e)=>{
+        e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
+        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+      }}
+      >
+        {_text || '--'}
+        <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
+      </button >,
     },
     {
       title: t('spot.columns.direction'), //"方向",
@@ -150,8 +158,10 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        if (record.status === 0 || record.status === 1) {
-          return <span >{_status || '--'}</span>;
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        const averagePrice =record.tradedAmount? division(record.turnover||0,record.tradedAmount):0
+        if (record.status === 0 || record.status === 1||record.status === 5) {
+          return <span >{averagePrice ? roundDown(averagePrice, coin?.baseCoinScale) : '--'}</span>;
         } else {
           return <span >--</span>;
         }
@@ -164,8 +174,14 @@ const SpotMainPage = observer(() => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_status,record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+       if(record.type === 0 ){
+        return <span >{t('spot.select.market')}</span>;
+       }else if(record.type === 1 ){
+        return <span >{_status ? roundDown(_status, coin?.baseCoinScale) : '0'}</span>;
+       }
       },
     },
     {
@@ -177,9 +193,9 @@ const SpotMainPage = observer(() => {
       render: (_amount, record) => {
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
-            <span>{`${record.tradedAmount}/${_amount}`}</span>
+            <span>{`${roundDown(_amount,2)}/${roundDown(record.tradedAmount,2)}`}</span>
             <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${nul(division(record.tradedAmount, _amount),100)}%` : '0%'}
+              {record.tradedAmount&&record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount),100),2)}%` : '0%'}
             </span>
 
           </div>
@@ -195,8 +211,10 @@ const SpotMainPage = observer(() => {
       dataIndex: "turnover",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '0'}</span>;
+      render: (_status,record) => {
+        // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
+        const coin = coinList.find((item: any) => item.symbol === record.symbol);
+        return <span >{_status?roundDown(_status,coin?.baseCoinScale) :'0'}</span>;
       },
     },
     {
@@ -228,25 +246,39 @@ const SpotMainPage = observer(() => {
   ];
   const columns2: ColumnsType<DataLogsType> = [
     {
-      title: '成交时间',
-      dataIndex: "completedTime",
-      key: "completedTime",
-      width: 158,
+      title: t('spot.columns.tradeTime'),//成交时间
+      dataIndex: "mtime",
+      key: "mtime",
+      width: 128,
       align: "left",
-      render: (text, record) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
+      render: (text) => <div>{`${text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--'}`} </div>,
     },
     {
-      title: "成交价",
-      dataIndex: "token",
-      key: "token",
+      title: t('spot.columns.tradePrice'),//成交价
+      dataIndex: "tradePrice",
+      key: "tradePrice",
       align: "center",
       width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
+      // 判断方向是买还是卖 buyPrice/sellPrice
+      render: (_tradePrice,record) => {
+        // const flag = record.takerSide
+        // if(flag === 0){
+        //   return <span>{_buyPrice || '--'}</span>
+        // }else if(flag === 1){
+        //   return <span>{record.sellPrice || '--'}</span>
+        // }else{
+        //   return '--'
+        // }
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+
+        return <span>{_tradePrice?roundDown(_tradePrice, coin?.baseCoinScale) : '--'}</span>
+      },
     },
     {
-      title: "成交数量",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeCount'),//成交数量
+      dataIndex: "quantity",
+      key: "quantity",
       align: "center",
       width: 158,
       render: (_status) => {
@@ -255,67 +287,93 @@ const SpotMainPage = observer(() => {
       },
     },
     {
-      title: "成交金额",
-      key: "createTime",
-      dataIndex: "createTime",
+      title: t('spot.columns.tradeAmount'),//成交金额
+      key: "tradePrice",
+      dataIndex: "tradePrice",
       width: 128,
       align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
+      render: (_ip,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+        return <span >{_ip ? roundDown(nul(_ip,record.quantity), coin?.baseCoinScale) : '--'}</span>;
       },
     },
     {
-      title: "手续费",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
+      title: t('spot.columns.tradeFee'),//手续费
+      dataIndex: "buyFee",
+      key: "buyFee",
       align: "center",
       width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
+      render: (_buyFee,record) => {
+        const symbolName=tableData.find((item:any)=>item.orderId === expandedRowKeys[0])?.symbol
+        const coin = coinList.find((item: any) => item.symbol === symbolName);
+        
+        const flag = record.takerSide
+        const price=nul(record.tradePrice,record.quantity)
+        if(flag === 0){
+          const fee=nul(_buyFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+        }else if(flag === 1){
+          const fee=nul(record.sellFee,price)
+          return <span>{fee?`${roundDown(fee, coin?.baseCoinScale)} ${coin?.baseSymbol}` : '--'}</span>
+        }else{
+          return '--'
+        }
       },
     },
     {
-      title: "角色",
-      key: "updateTime",
-      dataIndex: "updateTime",
+      title: t('spot.columns.tradeRole'),//角色
+      key: "takerSide",
+      dataIndex: "takerSide",
       width: 128,
       align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
+      render: (_buyerUserId,record) => {
+        const flag = record.takerSide
+        if(_buyerUserId === 0){
+          return <span>Maker</span>
+        }else if(flag === 1){
+          return <span>Taker</span>
+        }else{
+          return '--'
+        }
       },
     }
-
-
-  ];
+  ]
 
   // 处理展开/折叠行的函数 - 展开时清除URL中的deviceId
-  const handleExpand = (expanded: boolean, record: DataType) => {
-    console.log(record.orderId, 12345, expanded);
-
+  const handleExpand = async (expanded: boolean, record: DataType) => {
     if (expanded) {
-      // 设置展开的行
-      setExpandedRowKeys([record.orderId]);
-
-      // 设置子数据
-      if (record.userLoginLogs && record.userLoginLogs.length > 0) {
-        setChildDeviceNoData(record.userLoginLogs);
-      } else {
-        setChildDeviceNoData([]);
+      setLoading(true);
+      try {
+        // 这里根据你的接口和参数调整
+        const params = {
+          page: 1,
+          pageSize: 1000,
+          orderId: record.orderId,
+          //  symbol: `${record.symbol.split('/').join('_')}_${record.groupStatus}`
+          symbol: `${record.symbol.split('/').join('_')}`
+        };
+        // 假设你有 getOrderInfo 这个接口
+        const res = await getOrderInfo(params);
+        if (res.code === '0') {
+          setTableData(prev =>
+            prev.map(item =>
+              item.orderId === record.orderId
+                ? { ...item, userLoginLogs: res.data?.records || [] }
+                : item
+            )
+          );
+          setExpandedRowKeys([record.orderId]);
+        } else {
+          toast.error(res.message);
+        }
+      } catch (error) {
+        toast.error(String(error));
+      } finally {
+        setLoading(false);
       }
-
-      // // 如果URL中有deviceId参数，则清除它
-      // if (router.query.deviceId) {
-      //   const { deviceId, ...restQuery } = router.query;
-      //   router.replace({
-      //     pathname: router.pathname,
-      //     query: restQuery
-      //   }, undefined, { shallow: true });
-      // }
     } else {
-      // 清空展开行
       setExpandedRowKeys([]);
-      setChildDeviceNoData([]);
     }
   };
   const pageChange = async (page: number, pageSize: number) => {
@@ -394,7 +452,7 @@ const SpotMainPage = observer(() => {
   }
   useEffect(() => {
     getOrderListData()
-  }, [])
+  }, [currentPair])
   return (<>
     <ConfigProvider
       theme={{
@@ -432,6 +490,9 @@ const SpotMainPage = observer(() => {
             itemHoverColor: "var(--text-color5)",//鼠标悬停颜色
           }
         },
+        token: {
+          colorBgContainer: 'transparent',
+        }
       }}
     >
       {/* 充值 */}
@@ -444,6 +505,7 @@ const SpotMainPage = observer(() => {
               className={`${styles.title_color}`} size={20} />}
             placeholder={[t('spot.select.startTime'), t('spot.select.endTime')]}
             onChange={dateChange}
+            size='large'
           />
           <div className={`${styles.table_header_checkbox2}`}>
             <Checkbox
@@ -476,6 +538,7 @@ const SpotMainPage = observer(() => {
             size="large"
             className={`spot-table-box`}
             loading={loading}
+            scroll={{ x: "max-content" }}
             pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,
@@ -488,10 +551,7 @@ const SpotMainPage = observer(() => {
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
               expandedRowRender: (record) => {
-                // 使用当前展开行的ID来确定是否显示子数据
                 const isCurrentExpanded = expandedRowKeys.includes(record.orderId);
-
-
                 return (
                   <div key={record.orderId}>
                     {isCurrentExpanded && record.userLoginLogs && record.userLoginLogs.length > 0 ? (
@@ -500,10 +560,8 @@ const SpotMainPage = observer(() => {
                         dataSource={record.userLoginLogs}
                         size="large"
                         scroll={{ x: "max-content" }}
-                        // showHeader={false}
                         pagination={false}
                         className={`spot-table-box2 ${styles.rowExpanded_table_box}`}
-                        // style={{ padding: 0 }}
                         rowKey="orderId"
                         locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                       />

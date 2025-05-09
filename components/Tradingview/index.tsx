@@ -1,32 +1,51 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import WebSocketService from '@/utils/websocket';
-
-interface TradingviewProps {
+import { useThemeMode } from "@/hooks/useThemeMode";
+export interface TradingviewProps {
   symbol?: string;
   showLeftToolbar?: boolean;
   chartType?: number;
   klineData?: any;
   timeInterval?: string;
+  isDayMode?: boolean;
 }
 
-const Tradingview: React.FC<TradingviewProps> = ({ 
-  symbol,
-  showLeftToolbar = false,
-  chartType = 9,
-  klineData = [],
-  timeInterval = "1D"
-}) => {
-  // console.log(klineData,'klineData');
+export interface TradingviewRefHandle {
+  addVolumeDistribution: () => void;
+  resetChart: () => void;
+  handleAddIndicator: () => void;
+  handleChartScreenshot: () => void;
+  toggleFullScreen: () => void;
+}
+
+const Tradingview: React.ForwardRefRenderFunction<
+  TradingviewRefHandle,
+  TradingviewProps
+> = (
+  {
+    symbol,
+    showLeftToolbar = false,
+    chartType = 9,
+    klineData = [],
+    timeInterval = "15m"
+  },
+  ref
+) => {
+    const { isDayMode } = useThemeMode();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [showIntervalDialog, setShowIntervalDialog] = useState(false);
   const [tradTime, setTradTime] = useState("1D");
   const [intervals] = useState([
-    "10S",
-    "30S",
     "1",
     "3",
     "5",
@@ -49,17 +68,56 @@ const Tradingview: React.FC<TradingviewProps> = ({
     { text: "Area", type: 3 },
     { text: "Heikin Ashi", type: 13 },
   ]);
-  const [target] = useState([
+ 
+  const [target, setTarget] = useState<any[]>([
     { text: "EMA" },
     { text: "MACD" },
     { text: "KDJ" },
     { text: "BOLL" },
-    { text: "RSI" },
+    { text: "RSI-S-I" },
+    { text: "Stochastic" },
+    { text: "S-RSI" },
+    { text: "TRIX" },
+    { text: "PO" },
+    { text: "PC" },
+    { text: "PVT" },
+    { text: "CC" },
+    { text: "KST" },
+    { text: "Momentum" },
+    { text: "DM" },
+    { text: "AO" },
   ]);
   const wsDataRef = useRef(klineData);
   const initCompletedRef = useRef(false);
+  const scrollContainer = useRef<HTMLUListElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+  const [isLeftHovered, setIsLeftHovered] = useState(false);
+  const [isRightHovered, setIsRightHovered] = useState(false);
+  const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
+
+  // 假设主题色，如果项目中已有变量请使用已有的
+  const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
 
   useEffect(() => {
+    console.log(timeInterval)
+    
+    // 添加这段代码：将timeInterval转换为TradingView格式
+    let tvTimeInterval = timeInterval;
+    if (timeInterval === "1m") tvTimeInterval = "1";
+    if (timeInterval === "3m") tvTimeInterval = "3";
+    if (timeInterval === "5m") tvTimeInterval = "5";
+    if (timeInterval === "15m") tvTimeInterval = "15";
+    if (timeInterval === "30m") tvTimeInterval = "30";
+    if (timeInterval === "1h") tvTimeInterval = "60";
+    if (timeInterval === "2h") tvTimeInterval = "120";
+    if (timeInterval === "4h") tvTimeInterval = "240";
+    if (timeInterval === "6h") tvTimeInterval = "360";
+    if (timeInterval === "8h") tvTimeInterval = "480";
+    if (timeInterval === "12h") tvTimeInterval = "720";
+    if (timeInterval === "1D") tvTimeInterval = "D";
+    if (timeInterval === "1W") tvTimeInterval = "W";
+    if (timeInterval === "1M") tvTimeInterval = "M";
     
     // 保存初始数据但不触发重渲染
     if (klineData && klineData.length > 0) {
@@ -71,7 +129,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     try {
       if (chartContainerRef.current && !initCompletedRef.current) {
         const chartSymbol = symbol || "BTC_USDT_1";
-        datafeed = createDatafeed(wsDataRef.current, tradTime, symbol || "BTC_USDT_1");
+        datafeed = createDatafeed(wsDataRef.current, tvTimeInterval, symbol || "BTC_USDT_1", timeInterval);
         
         // 根据父组件参数决定禁用的功能
         const disabledFeatures = [
@@ -87,18 +145,15 @@ const Tradingview: React.FC<TradingviewProps> = ({
           "symbol_change",
         ];
         
-        // 如果不显示左侧工具栏，则添加到禁用列表
-        if (!showLeftToolbar) {
-          disabledFeatures.push("left_toolbar");
-        }
+        
         
         const widgetOptions = {
           symbol: chartSymbol,
           datafeed: datafeed,
-          interval: tradTime,
+          interval: tvTimeInterval,
           container: chartContainerRef.current,
           library_path: "/charting_library/",
-          locale: "en",
+          locale: "zh",
           charts_storage_url: "http://saveload.tradingview.com",
           charts_storage_api_version: "1.1",
           client_id: "tradingview.com",
@@ -108,6 +163,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
           enabled_features: ["study_templates"],
           timezone: "Asia/Shanghai",
           debug: false,
+          theme: isDayMode ? "light" : "dark",
           disabled_features: disabledFeatures,
         };
 
@@ -146,7 +202,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
         setTvWidget(null);
       }
     };
-  }, [symbol, tradTime, showLeftToolbar, chartType]);
+  }, [symbol, timeInterval, showLeftToolbar, chartType, isDayMode]);
 
   // 单独处理WebSocket数据更新
   useEffect(() => {
@@ -167,6 +223,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
   const setChartInterval = (interval: string) => {
     if (tvWidget) {
       let tvInterval = interval || "1";
+      
       if (interval === "1m") tvInterval = "1";
       if (interval === "3m") tvInterval = "3";
       if (interval === "5m") tvInterval = "5";
@@ -187,12 +244,111 @@ const Tradingview: React.FC<TradingviewProps> = ({
       setShowIntervalDialog(false);
     }
   };
-
+  //手动添加指标
   const addIndicator = (studyName: string) => {
-    if (tvWidget) {
-      tvWidget.chart().createStudy(studyName, false, true, [], null, {});
+    const studyMappings: any = {
+      "Moving Average": { name: "Moving Average" },
+      EMA: { name: "Moving Average Exponential" },
+      MACD: { name: "MACD" },
+      KDJ: { name: "Stochastic" }, // 更正为 Stochastic
+      BOLL: { name: "Bollinger Bands" },
+      "TD Sequential": { name: "TD Sequential" },
+      "RSI-S-I": { name: "Relative Strength Index" },
+      Stochastic: { name: "Stochastic" },
+      "S-RSI": { name: "Stochastic RSI" },
+      SMI: { name: "SMI" },
+      TRIX: { name: "TRIX" },
+      PO: { name: "Price Oscillator" },
+      PC: { name: "Price Channel" },
+      PVT: { name: "Price Volume Trend" },
+      CC: { name: "Commodity Channel Index" },
+      KST: { name: "Know Sure Thing" },
+      NV: { name: "Negative Volume Index" },
+      Momentum: { name: "Momentum" },
+      DM: { name: "Directional Movement" },
+      AO: { name: "Awesome Oscillator" },
+    };
+
+    if (tvWidget && studyMappings[studyName]) {
+      const chart = tvWidget.chart();
+      chart.createStudy(
+        studyMappings[studyName].name,
+        false,
+        true,
+        [], // Params depending on the study
+        {}, // Overrides depending on the study
+        {} // Inputs depending on the study
+      );
     }
   };
+
+  //图表截图
+  const handleChartScreenshot = () => {
+    if (tvWidget) {
+      tvWidget.chart().executeActionById('screenshot');
+    }
+  };
+
+
+  const toggleFullScreen = () => {
+    // const element = this.$refs.chartContainer;
+    const element = chartContainerRef.current;
+
+    // 首先检查element是否存在
+    if (!element) {
+      console.error("Element is undefined.");
+      return;
+    }
+
+    // 检查浏览器支持的全屏API
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } 
+  }
+
+
+  //技术指标搜索
+  const handleAddIndicator = () => {
+    if (tvWidget) {
+      tvWidget.chart().executeActionById('insertIndicator');
+    }
+  };
+
+  //成交量分布
+  const addVolumeDistribution = () => {
+    if (tvWidget) {
+      tvWidget
+        .chart()
+        .createStudy("Volume Profile Visible Range", false, false, [
+          /* ... 参数 ... */
+        ]);
+    }
+  };
+
+  //重置图表
+  const resetChart = () => {
+    if (tvWidget) {
+      tvWidget.chart().removeAllShapes();
+      tvWidget
+        .chart()
+        .getAllStudies()
+        .forEach((study: any) => {
+          // 移除指标
+          if (study.name != "Volume") {
+            tvWidget.chart().removeEntity(study.id);
+          }
+        });
+    }
+  };
+
+  // expose imperative handlers
+  useImperativeHandle(ref, () => ({
+    addVolumeDistribution,
+    resetChart,
+    handleAddIndicator,
+    handleChartScreenshot,
+    toggleFullScreen
+  }));
 
   const setChartType = (typeCode: number) => {
     if (tvWidget) {
@@ -201,8 +357,12 @@ const Tradingview: React.FC<TradingviewProps> = ({
     }
   };
 
-  const createDatafeed = (initialData: any, timeInterval: string,symbol:string) => {
+  const createDatafeed = (initialData: any, tvTimeInterval: string, symbol: string, originalInterval: string) => {
     const subscribers: any = {};
+    // 添加请求缓存对象
+    const requestCache: {[key: string]: {timestamp: number, data: any}} = {};
+    // 缓存过期时间(毫秒)
+    const CACHE_EXPIRY = 30000; // 30秒
     
     // 先定义时间格式化函数
     const formatTimeValue = (timeValue: any): number => {
@@ -300,7 +460,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
     return {
       onReady: (cb: any) => {
         setTimeout(() => cb({
-          supported_resolutions: intervals,
+          supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M"],
           supports_marks: false,
           supports_timescale_marks: false,
           supports_time: true
@@ -366,7 +526,7 @@ const Tradingview: React.FC<TradingviewProps> = ({
           has_intraday: true,
           has_no_volume: false,
           has_weekly_and_monthly: true,
-          supported_resolutions: intervals,
+          supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M"],
           volume_precision: 8,
           data_status: "streaming",
         }), 0);
@@ -382,27 +542,64 @@ const Tradingview: React.FC<TradingviewProps> = ({
         try {
           const startTime = periodParams.from * 1000;
           const endTime = periodParams.to * 1000;
-          const url = `https://ws81.imsaas.work/kline/${symbol}/${resolution}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
-
-          const response = await fetch(url);
-          console.log(response,'response');
-          if(response.status === 200) {}
-          const data = await response.json();
+          // 创建缓存键，使用原始格式
+          const cacheKey = `${symbol}_${originalInterval}_${startTime}_${endTime}`;
           
-          if(data.type === 'kline' && Array.isArray(data.data)) {
-            const formattedBars = data.data.map((kline: any) => ({
-              time: kline[0],
-              open: parseFloat(kline[1]),
-              high: parseFloat(kline[2]),
-              low: parseFloat(kline[3]),
-              close: parseFloat(kline[4]),
-              volume: parseFloat(kline[5])
-            }));
+          // 检查缓存中是否有有效数据
+          const now = Date.now();
+          if (requestCache[cacheKey] && 
+              now - requestCache[cacheKey].timestamp < CACHE_EXPIRY) {
+            console.log("使用缓存数据:", cacheKey);
+            const cachedData = requestCache[cacheKey].data;
             
-            onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+            if(cachedData.type === 'kline' && Array.isArray(cachedData.data)) {
+              const formattedBars = cachedData.data.map((kline: any) => ({
+                time: kline[0],
+                open: parseFloat(kline[1]),
+                high: parseFloat(kline[2]),
+                low: parseFloat(kline[3]),
+                close: parseFloat(kline[4]),
+                volume: parseFloat(kline[5])
+              }));
+              
+              onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+              return;
+            }
+          }
+          console.log('请求的',originalInterval)
+          // 使用原始的时间间隔格式构建URL
+          const url = `https://ws81.imsaas.work/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          
+          console.log("获取图表数据:", url);
+          const response = await fetch(url);
+          
+          if(response.status === 200) {
+            const data = await response.json();
+            
+            // 将结果存入缓存
+            requestCache[cacheKey] = {
+              timestamp: now,
+              data: data
+            };
+            
+            if(data.type === 'kline' && Array.isArray(data.data)) {
+              const formattedBars = data.data.map((kline: any) => ({
+                time: kline[0],
+                open: parseFloat(kline[1]),
+                high: parseFloat(kline[2]),
+                low: parseFloat(kline[3]),
+                close: parseFloat(kline[4]),
+                volume: parseFloat(kline[5])
+              }));
+              
+              onHistoryCallback(formattedBars, { noData: formattedBars.length === 0 });
+            } else {
+              console.error('获取历史数据格式错误:', data);
+              onHistoryCallback([], { noData: true });
+            }
           } else {
-            console.error('获取历史数据格式错误:', data);
+            console.error('API请求失败:', response.status);
             onHistoryCallback([], { noData: true });
           }
         } catch (error) {
@@ -411,6 +608,28 @@ const Tradingview: React.FC<TradingviewProps> = ({
         }
       },
     };
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainer.current) {
+      const scrollAmount = 200; // 可以根据需要调整滚动距离
+      const newScrollLeft = direction === 'left' 
+        ? scrollContainer.current.scrollLeft - scrollAmount
+        : scrollContainer.current.scrollLeft + scrollAmount;
+      
+      scrollContainer.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollContainer.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainer.current;
+      setShowLeftArrow(scrollLeft > 0);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px 容差
+    }
   };
 
   return (
@@ -456,10 +675,100 @@ const Tradingview: React.FC<TradingviewProps> = ({
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "500px", margin: "auto" }}
+        style={{ width: "100%", height: "550px", margin: "auto"}}
       ></div>
-
-
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        {showLeftArrow && (
+          <button 
+            onClick={() => scroll('left')}
+          
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              // background: isLeftHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isLeftHovered ? '#fff' : isDayMode ? '#333' : '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            &lt;
+          </button>
+        )}
+        
+        <div style={{ overflow: 'hidden', margin: '0 35px' }}>
+          <ul 
+            ref={scrollContainer}
+            onScroll={handleScroll}
+            style={{ 
+              display: "flex", 
+              overflow: "auto",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              whiteSpace: "nowrap",
+              padding: "10px 0",
+              margin: 0,
+              listStyle: "none",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+          >
+            {target.map((item, index) => (
+              <li 
+                key={index} 
+                style={{ 
+                  marginRight: index === target.length - 1 ? 0 : "20px",
+                  padding: "0 5px",
+                  color: hoveredItemIndex === index ? themeColor : 'inherit',
+                  transition: 'color 0.3s ease'
+                }}
+                onMouseEnter={() => setHoveredItemIndex(index)}
+                onMouseLeave={() => setHoveredItemIndex(null)}
+                onClick={() => addIndicator(item.text)}
+              >
+                {item.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        {showRightArrow && (
+          <button 
+            onClick={() => scroll('right')}
+            // onMouseEnter={() => setIsRightHovered(true)}
+            // onMouseLeave={() => setIsRightHovered(false)}
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              // background: isRightHovered ? themeColor : 'rgba(255,255,255,0.9)',
+              color: isRightHovered ? '#fff' : isDayMode ? '#333' : '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            &gt;
+          </button>
+        )}
+      </div>
     </div>
   );
 };
@@ -472,4 +781,4 @@ declare global {
   }
 }
 
-export default Tradingview;
+export default forwardRef(Tradingview);

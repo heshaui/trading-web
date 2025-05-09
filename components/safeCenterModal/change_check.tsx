@@ -98,6 +98,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
                     {/* 修改手机号 */}

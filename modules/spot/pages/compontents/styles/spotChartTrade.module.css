@@ -58,6 +58,7 @@
     text-align: end;
     background-color: var(--background7);
     color: var(--text-color5);
+    border-color: var(--border-color4) !important;
 }
 /* 输入框文本位置 */
 .mail_input .ant-input-number-input{

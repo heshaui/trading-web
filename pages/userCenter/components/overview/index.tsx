@@ -19,6 +19,9 @@ import { useTranslation } from 'next-i18next';
 import { getCarouselImageList } from '@/services/userCenter';
 import { getLoginInfo } from '@/services/overview';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { getKvObject } from '@/services/kv'
+
+
 const identityStyle: CSSProperties = {
     position: 'relative',
     // backgroundImage: "url('/images/userCenter/overview/icon_identity.png')",
@@ -100,6 +103,7 @@ const OverviewPage: React.FC = () => {
     const { copyFn } = useCopyToClipboard();
     const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
     const [codeValue, setcodeValue] = useState(`${BASE_URL}?inviteCode=${loginInfo?.inviteCode || '--'}`) //, setcodeValue
+    const [useInvite, setUseInvite] = useState(false)
 
     const { isDayMode } = useThemeMode(); // 使用 hook
     const getLoginInfoData = async () => {
@@ -191,12 +195,33 @@ const OverviewPage: React.FC = () => {
         }
         return imgRes[0]
     }
+    const picClick = (url:string) => {
+			window.open(url, '_blank', 'noopener')
+	}
+    const getUseBankKv = async () => {
+        const keys = ['account_configuration']
 
+        const res = await getKvObject(keys)
+        try {
+            if (res.code === '0') {
+                if(res.data.account_configuration==='1'){
+                    setUseInvite(true)
+                }else{
+                    setUseInvite(false)
+                }
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        }
+    }
     useEffect(() => {
         getLoginInfoData()
         getLoginLogListData()
         getUserDeviceNoListData()
         getCarouselPic()
+        getUseBankKv()
     }, []);
 
     return (<div className={`${styles.overview_page}`} >
@@ -385,7 +410,7 @@ const OverviewPage: React.FC = () => {
                         >审核中</button>} */}
                     </div>
                     {/* 安全认证 */}
-                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-4`}
+                    <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-6`}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_safe.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
                             {/* 安全认证 */}
@@ -571,7 +596,7 @@ const OverviewPage: React.FC = () => {
             </div>
             {/* content-aside */}
             <div className={`${styles.aside_box} ml-6 mt-6`}>
-                <div className={`${styles.aside_invite_box} `}>
+                <div className={`${styles.aside_invite_box} flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3`} >
 
                         {t('overview.recommend.title')}
@@ -587,15 +612,17 @@ const OverviewPage: React.FC = () => {
                         <Carousel autoplay>
                             {carouselPic.map((item: any) => (
                                 <div key={item.id} className={`${styles.bannerImg_box} w-full`}>
-                                    <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className='w-full'
-                                        alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260} />
+                                    <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className='w-full pointer'
+                                        alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260} 
+                                        onClick={()=>picClick(getLanguage(item.carouselImageContents)?.accessUrl)} />
                                 </div>
                             ))}
                         </Carousel>
                     </div>}
                 </div>
 
-                <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y `}>
+                {useInvite &&
+                 <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
                     <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
 
                         {t('overview.recommend.inviteFriend')}
@@ -628,6 +655,7 @@ const OverviewPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+}
             </div>
         </div>
     </div>);

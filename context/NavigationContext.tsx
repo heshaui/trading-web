@@ -5,6 +5,8 @@ import dayjs from 'dayjs';
 import { processMenuItems, formatMenus, formatAdaptiveMenus } from '@/utils/menuHooks';
 import { useDayModeChange } from '@/hooks/dayModeChange';
 import { useAuth } from '@/context/AuthContext';
+import { getKvObject } from '@/services/kv'
+import appStore from '@/store';
 
 // 创建上下文
 const NavigationContext = createContext<any>(null);
@@ -91,6 +93,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                     span: `${item.shortName} - ${item.symbol}`
                 }));
                 setRateData(formattedRateData);
+                appStore.setRateData(rateResponse.data);
             }
 
             setIsDataLoaded(true);

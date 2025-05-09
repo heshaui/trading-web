@@ -109,6 +109,7 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
                     body: styles.modal_body,
                     footer: styles.modal_footer,
                 }}
+                maskClosable={false}
             >
                 <div className={`flex-col  ${styles.msg_color}`} style={{ width: "100%" }}>
                     确认删除后不可恢复，是否确认删除？

@@ -1,16 +1,14 @@
 /* styles/OrderBook.module.css */
 .container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #fff;
-  border-radius: 4px;
   width: 30%;
   margin: 0 auto;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height:640px;
+  border-left: 3px solid #e5e7eb;
 }
 
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .tab {

@@ -31,6 +31,10 @@
     background-color: var( --homeground2); 
     padding: 24px 16px;
 }
+.card_bgc5{
+    background-color: var( --background7); 
+    padding: 24px 0;
+}
 
 .success_icon {
     color: #00C788;
@@ -127,7 +131,11 @@
     width: 75%;
     min-width: 760px;
 }
-
+.table_card2{
+    width: 100%;
+    min-width: 760px;
+    flex:1;
+}
 /* @media (max-width: 680px) {
     .card_mt {
         margin-top: 24px;

@@ -51,6 +51,8 @@ type Props = {
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
 function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
     const { t } = useTranslation(['spot']);
+    const [noRemind, setNoRemind] = useState(false);
+    
     const handCancel = () => {
         // form.resetFields();
         onCancel()
@@ -58,10 +60,20 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
 
     const handOk = async () => {
         console.log('提交订单');
+        
+        // 如果用户选择不再提醒，保存到本地存储
+        if (noRemind) {
+            localStorage.setItem('noRemind', 'true');
+        }
+        
         onOk(true)
         // onCancel()
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
-
+    };
+    
+    // 处理复选框选中状态变化
+    const handleCheckboxChange = (e: any) => {
+        setNoRemind(e.target.checked);
     };
 
     const ModalFooter: ModalProps["footer"] = () => {
@@ -120,6 +132,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                 },
                 token: {
                     // colorBgContainerDisabled: '#fff',
+                    colorBgContainer: 'var(--background5)',
                 }
             }}
         >
@@ -142,7 +155,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
             >
                 <div className="" style={{ width: "100%" }}>
                     {/* t() */}
-                    <p className="font-18 font-w-500">{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</p>
+                    <p className={`font-18 font-w-500 ${styles.title_color}`}>{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</p>
                     <p className={`${styles.success_icon} font-14 font-w-400 mt-1`}>
                         {/* 买入/市价 */}
                         {modalData.direction===0?t('spot.modal.buy'):t('spot.modal.sell')} / {modalData.type===0?t('spot.modal.market'):t('spot.select.limit')}
@@ -158,20 +171,26 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                                 {modalData.type===0?t('spot.modal.market'):modalData.price}{currentPair?.baseSymbol}
                             </p>
                         </li>
-                        <li className="flex-x align-center justify-between mt-3">
-                            <p>
-                                {/* 数量 */}
-                                {t('spot.modal.amount')}
-                            </p>
-                            <p className={`${styles.title_color}`}>{modalData.amount}{currentPair?.coinSymbol}</p>
-                        </li>
-                        <li className="flex-x align-center justify-between mt-3">
-                            <p>
-                                {/* 成交额 */}
-                                {t('spot.trade.amount2')}
-                            </p>
-                            <p className={`${styles.title_color}`}>{modalData.amount*modalData.price}{currentPair?.baseSymbol}</p>
-                        </li>
+                        {/* 市价买单不显示数量 */}
+                        {!(modalData.type===0 && modalData.direction===0) && (
+                            <li className="flex-x align-center justify-between mt-3">
+                                <p>
+                                    {/* 数量 */}
+                                    {t('spot.modal.amount')}
+                                </p>
+                                <p className={`${styles.title_color}`}>{modalData.amount}{currentPair?.coinSymbol}</p>
+                            </li>
+                        )}
+                        {/* 市价卖单不显示成交额 */}
+                        {!(modalData.type===0 && modalData.direction===1) && (
+                            <li className="flex-x align-center justify-between mt-3">
+                                <p>
+                                    {/* 成交额 */}
+                                    {t('spot.trade.amount2')}
+                                </p>
+                                <p className={`${styles.title_color}`}>{modalData.account}{currentPair?.baseSymbol}</p>
+                            </li>
+                        )}
                     </ul>
                   { modalData.type===0 && <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `} >
                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
@@ -180,7 +199,11 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                             {t('spot.modal.warning')}
                         </span>
                     </div>}
-                    <Checkbox className="custom-checkbox text-color-default mb-5" >
+                    <Checkbox 
+                        className="custom-checkbox text-color-default mb-5" 
+                        checked={noRemind}
+                        onChange={handleCheckboxChange}
+                    >
                         <p className={`${styles.title_color}`}>
                             {/* 不再提醒,可在交易设置中，开启或关闭提示。 */}
                             {t('spot.modal.noRemind')}

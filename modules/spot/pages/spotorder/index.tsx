@@ -216,6 +216,7 @@ const SpotOrderPage = () => {
                         borderColor: "transparent",
                         // stickyScrollBarBg:"transparent",
                         headerBorderRadius: 0, // 表头圆角
+                        // stickyScrollBarBg:"transparent",
                     },
                     Pagination: {
                         itemActiveBg: "transparent",
@@ -242,12 +243,13 @@ const SpotOrderPage = () => {
                     {t('spot.spotOrder')}
                 </h2>
             </div>
-            <div className={`${styles.card_bgc}  mt-3 `}>
+            <div className={`${styles.card_bgc5}  mt-3 `}>
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}>
                         <Tabs items={items} 
                         className="custom-tabs2" 
+                        destroyInactiveTabPane={true}
                         indicator={{ size: (origin) => origin - 35, align: 'center' }}/>
                     </div>
                     {/* <div className={`${styles.table_header} w-full my-4 flex align-center`}>

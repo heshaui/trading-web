@@ -1,6 +1,5 @@
 import { request } from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
-
 const fixUrl = `/${API_MODULE_NAME.AMBIT_USER_WEB}`
 
 interface createOrderType {
@@ -111,3 +110,12 @@ export function canalUserExchangeCoinType(data: any): Promise<any> {
         body:JSON.stringify(data)
     });
 }
+
+// 历史委托详情
+export function getOrderInfo(data:any): Promise<any> {
+    return request(`${fixUrl}/user-trade/v1/trades`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
+
