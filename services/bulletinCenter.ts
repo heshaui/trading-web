@@ -42,9 +42,10 @@ export function getBulletinMessageUnreadCount() {
 }
 
 
-export function getInformClassMenuList(data: { languageCode: string }) {
+// 修改接口定义，添加可选参数支持
+export function getInformClassMenuList(data: { languageCode: string, [key: string]: any }) {
     return request(`/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/open/class/getInformClassMenuList`, {
         method: 'POST',
-
+        body: JSON.stringify(data),
     });
 }
