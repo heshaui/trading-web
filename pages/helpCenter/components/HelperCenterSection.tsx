@@ -9,7 +9,7 @@ import { useThemeMode } from '@/hooks/useThemeMode'
 
 type Props = {
     helpCenterList: HelpCenterMenuProps[];
-    onButtonClick: (item: any) => void;
+    onButtonClick?: (item: any) => void;
     flag: boolean;
     configContentHeight?: number;
 };
@@ -44,7 +44,7 @@ const HelpCenterSection: React.FC<Props> = ({
     };
 
     return (
-        <div className={`${styles.helpCenterCard}`} style={flag?{ marginTop: configContentHeight }:{}}>
+        <div className={`${styles.helpCenterCard}`} style={flag?{ marginTop: configContentHeight }:{marginTop:50}}>
             {Array.isArray(helpCenterList) && helpCenterList.map((item, index) => (
                 <div key={index} className={styles.helpCenterCardContent}>
                     <Row>
@@ -57,7 +57,7 @@ const HelpCenterSection: React.FC<Props> = ({
                                 }}
                                 onClick={() => handleTitleClick(item)}
                             >
-                                {item.helpDescription}
+                                {item.articleTitle}
                             </h2>
                         </Col>
                     </Row>
@@ -82,15 +82,15 @@ const HelpCenterSection: React.FC<Props> = ({
                                     style={{ width: '100%' }}
                                 >
                                     <Col>
-                                        <Image
+                                        {child.whiteIcon&&child.blackIcon&&<Image
                                             src={isDayMode&&child.whiteIcon ? child.whiteIcon : child.blackIcon}
                                             alt={child.articleTitle}
                                             width={18}
                                             height={18}
-                                        />
+                                        />}
                                     </Col>
                                     <Col>
-                                        <span>{child.helpDescription}</span>
+                                        <span>{child.articleTitle}</span>
                                     </Col>
                                 </Row>
                             </Button>

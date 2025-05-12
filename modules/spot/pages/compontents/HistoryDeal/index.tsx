@@ -71,8 +71,8 @@ interface symbolSelectType {
 interface SelectParamType {
   startTime: number | string;
   endTime: number | string;
-  direction: string;
-  // type: string;
+  direction?: string;
+  type?: string;
   symbol: string;
   notStatus: string | number;
 }
@@ -100,7 +100,7 @@ const SpotMainPage = observer(() => {
     startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
     endTime: dayjs().endOf('day').valueOf(),
     direction: '',
-    // type: '',
+    type: '',
     symbol: '',
     notStatus: ''
   });
@@ -331,8 +331,8 @@ const SpotMainPage = observer(() => {
         symbol: `${symbol.split('/').join('_')}`,
         startTime: dayjs(selectParam.current.startTime).valueOf(),
         endTime: dayjs(selectParam.current.endTime).valueOf(),
-        sellUserId:  selectParam.current.direction?.toString() === '0' ? userInfo.userId : null,
-        buyUserId:  selectParam.current.direction?.toString() === '1' ? userInfo.userId : null,
+        // sellUserId:  selectParam.current.direction?.toString() === '0' ? userInfo.userId : null,
+        // buyUserId:  selectParam.current.direction?.toString() === '1' ? userInfo.userId : null,
       };
       const res = await getOrderInfo(params);
       if (res.code === '0') {
@@ -446,7 +446,7 @@ const SpotMainPage = observer(() => {
               />
             </Form.Item>
 
-            {/* <Form.Item name="type" >
+            <Form.Item name="type" >
               <Select allowClear
                 placeholder={t('spot.select.all')}
                 options={typeSelect}
@@ -457,8 +457,8 @@ const SpotMainPage = observer(() => {
                   getOrderListData();
                 }}
               />
-            </Form.Item> */}
-            <Form.Item name="direction" >
+            </Form.Item>
+            {/* <Form.Item name="direction" >
               <Select allowClear
                 placeholder={t('spot.select.all')}
                 options={directionSelect}
@@ -469,7 +469,7 @@ const SpotMainPage = observer(() => {
                   getOrderListData();
                 }}
               />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item name="symbol" >
               <Select allowClear={false}
                 placeholder={t('spot.select.all')}

@@ -252,6 +252,7 @@ export default function UserInfoIcon() {
             if (res.code === '0') {
                 if(res.data.account_configuration==='1'){
                     setUserItemsList(userItems)
+                    forbiddenPathManager.removeForbiddenPath('/invite');
                 }else{
                     forbiddenPathManager.addForbiddenPath('/invite');
                     const userItemsList = userItems.filter(item=>item.key!=='5')

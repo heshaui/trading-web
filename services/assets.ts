@@ -131,9 +131,15 @@ export function getUserBalance(coinId: string|number): Promise<any> {
     });
   }
 
-  // 查询用户余额日K线
+  // 查询用户余额以及充值金额 日K线
   export function getUserBalanceByDay(): Promise<any> {
     return request(`${fixUrl2}/assets-web/v1/user-wallet/getUserBalanceByDay`, {
+      method: 'GET'
+    });
+  }
+// 今日充值
+  export function getTodayEarnings(): Promise<any> {
+    return request(`${fixUrl2}/assets-web/v1/user-wallet/getTodayEarnings`, {
       method: 'GET'
     });
   }

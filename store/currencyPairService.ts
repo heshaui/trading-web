@@ -35,7 +35,27 @@ export interface CurrencyPairType {
     priceChangePercent?: number // 价格变化百分比
     quantity:number //成交数量
 }
-
+export interface CoinType {
+    balance: number,
+    frozenBalance: number,
+    releaseBalance: number,
+    isLock: number,
+    coinId: string,
+    coinName: string,
+    nameDefault: string,
+    iconUrl: string,
+    canRecharge: number,
+    canTransfer: number,
+    canWithdraw: number,
+    minWithdrawAmount: number,
+    sort: number,
+    status: number,
+    unit: string,
+    unitScale: number,
+    maxWithdrawAmount: number,
+    minTopUp: number
+    
+}
 // 获取所有币对数据
 export async function fetchAllCurrencyPairs() {
     try {
@@ -243,7 +263,7 @@ export async function fetchAllCoin(needPrice: boolean = false) {
         const coinList = coinListResponse.data || [];
         let processedCoins = coinList;
 
-        // 2. 如果需要价格数据，则获取并合并
+        // 2. 如果需要汇率价格数据，则获取并合并
         if (needPrice) {
             const priceResponse = await getExchangeCoinAllPrice();
             let priceData: any[] = [];
