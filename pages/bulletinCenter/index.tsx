@@ -763,8 +763,7 @@ export default function BulletinCenter() {
                                                         time={message.time || ''}
                                                         onClick={() => handleMessageClick(message)}
                                                         isClickable={selectedKeys[0] === 'all'}
-                                                        isRead={isMessageRead(message.id || '')}
-                                                    />
+                                                        isRead={isMessageRead(message.id || '')} classMenu={''}                                                    />
                                                 ))
                                             ) : (
                                                 <div style={{

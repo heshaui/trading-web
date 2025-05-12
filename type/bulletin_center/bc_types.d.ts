@@ -18,6 +18,7 @@ export interface MessageItemDetailProps {
     currentDetailKey: string;
     onLatestClick: () => void; // 添加点击最新动态的处理函数
     showArticle: boolean; // 添加状态来控制是否显示文章详情
+    isDetail: boolean;
 }
 // 面包屑
 export interface detailBreadCrumbProps {

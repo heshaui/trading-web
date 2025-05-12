@@ -1,6 +1,6 @@
 import { Col, Row, ConfigProvider, Menu, Card, Empty } from 'antd';
 import type { MenuProps } from 'antd';
-import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef, SetStateAction } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import MessageItem from './components/MessageItem';
@@ -47,7 +47,9 @@ export default function Notice() {
     const [isDataInitialized, setIsDataInitialized] = useState<boolean>(false); // 数据是否已初始化
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const [selectedLabel, setSelectedLabel] = useState<string>('公告中心');
-    const [menuList, setMenuList] = useState<Array<{id: number, classMenu: string, languageContent: string, serialNum: number}>>([]);
+    const [menuList, setMenuList] = useState<Array<{
+        classDesc: SetStateAction<string>;id: number, classMenu: string, languageContent: string, serialNum: number
+}>>([]);
     const [filteredAndSortedMessages, setFilteredAndSortedMessages] = useState<MessageData[]>([]);
     const [readMessageIds, setReadMessageIds] = useState<Set<string>>(new Set());
     const [showContent, setShowContent] = useState(false);
@@ -256,46 +258,47 @@ export default function Notice() {
     };
 
     
+    // 包装fetch函数以避免在依赖数组中添加内联函数
+    const fetchData = useCallback(async () => {
+        // 设置加载状态
+        setIsLoading(true);
+        setIsDataInitialized(false);
+        
+        try {
+            // 获取菜单数据
+            console.log('开始获取菜单数据');
+            const menus = await fetchMenuList();
+            console.log('成功获取菜单数据:', menus);
+            
+            // 获取公告详情
+            const noticeId = params?.index as string;
+            if (noticeId) {
+                await fetchAnnouncementDetail(noticeId);
+            } else if (menus && menus.length > 0) {
+                // 如果没有特定公告详情ID，获取第一个菜单的公告列表
+                const firstMenu = menus[0];
+                console.log('选中第一个菜单项:', firstMenu);
+                setSelectedKeys([firstMenu.serialNum.toString()]);
+                await fetchAnnouncementByMenuId({
+                    key: firstMenu.serialNum.toString(),
+                    id: firstMenu.id
+                });
+            }
+        } catch (error) {
+            console.error('加载数据失败:', error);
+        } finally {
+            // 设置延迟以避免状态频繁切换
+            setTimeout(() => {
+                setIsDataInitialized(true);
+                setIsLoading(false);
+            }, 500);
+        }
+    }, [fetchAnnouncementByMenuId, fetchAnnouncementDetail, fetchMenuList, params?.index]);
+
     // 初始化加载
     useEffect(() => {
-        const loadData = async () => {
-            // 设置加载状态
-            setIsLoading(true);
-            setIsDataInitialized(false);
-            
-            try {
-                // 获取菜单数据
-                console.log('开始获取菜单数据');
-                const menus = await fetchMenuList();
-                console.log('成功获取菜单数据:', menus);
-                
-                // 获取公告详情
-                const noticeId = params?.index as string;
-                if (noticeId) {
-                    await fetchAnnouncementDetail(noticeId);
-                } else if (menus && menus.length > 0) {
-                    // 如果没有特定公告详情ID，获取第一个菜单的公告列表
-                    const firstMenu = menus[0];
-                    console.log('选中第一个菜单项:', firstMenu);
-                    setSelectedKeys([firstMenu.serialNum.toString()]); // 直接设置选中的菜单项
-                    await fetchAnnouncementByMenuId({
-                        key: firstMenu.serialNum.toString(),
-                        id: firstMenu.id
-                    });
-                }
-            } catch (error) {
-                console.error('加载数据失败:', error);
-            } finally {
-                // 设置延迟以避免状态频繁切换
-                setTimeout(() => {
-                    setIsDataInitialized(true);
-                    setIsLoading(false);
-                }, 500);
-            }
-        };
-        
-        loadData();
-    }, []);
+        fetchData();
+    }, [fetchData]);
 
     // 准备菜单项 - 确保菜单项始终有内容
     const items = useMemo(() => {
@@ -414,13 +417,14 @@ export default function Notice() {
                                     ) : currentMessage ? (
                                         <Col span={24}>
                                             <MessageItemDetail
-                                                message={{
-                                                    ...currentMessage,
-                                                    content: currentMessageContent || currentMessage.content || '',
-                                                }}
-                                                isDetail={showContent}
-                                                onBack={handleBack}
-                                            />
+                                                    message={{
+                                                        ...currentMessage,
+                                                        content: currentMessageContent || currentMessage.content || '',
+                                                    }}
+                                                    isDetail={showContent}
+                                                    onBack={handleBack} currentDetailLabel={''} currentDetailKey={''} onLatestClick={function (): void {
+                                                        throw new Error('Function not implemented.');
+                                                    } } showArticle={false}                                            />
                                         </Col>
                                     ) : menuList.length === 0 ? (
                                         <Col span={24}>
@@ -440,13 +444,12 @@ export default function Notice() {
                                             {filteredAndSortedMessages.map((message) => (
                                                 <>
                                                 <MessageItem
-                                                    key={message.id}
-                                                    title={message.title || ''}
-                                                    time={message.time || ''}
-                                                    onClick={() => handleMessageClick(message)}
-                                                    isClickable={true}
-                                                    isRead={isMessageRead(message.id || '')}
-                                                />
+                                                        key={message.id}
+                                                        title={message.title || ''}
+                                                        time={message.time || ''}
+                                                        onClick={() => handleMessageClick(message)}
+                                                        isClickable={true}
+                                                        isRead={isMessageRead(message.id || '')} classMenu={''}                                                />
                                                 </>
                                             ))}
                                             <MessagePagination

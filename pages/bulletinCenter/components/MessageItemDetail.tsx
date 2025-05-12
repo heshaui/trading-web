@@ -56,8 +56,7 @@ export default function MessageItemDetail({
                             <MessageItem
                                 key={index}
                                 title={item.title}
-                                time={item.time}
-                            />
+                                time={item.time} classMenu={''}                            />
                         ))}
                     </div>
                     <MessagePagination
@@ -69,13 +68,12 @@ export default function MessageItemDetail({
                 </>
             ) : (
                 <MessageItem
-                    title={message.title}
-                    time={message.time}
-                    content={message.content}
-                    isClickable
-                    onClick={handleDetailClick}
-                    isDetail={showContent}
-                />
+                        title={message.title}
+                        time={message.time}
+                        content={message.content}
+                        isClickable
+                        onClick={handleDetailClick}
+                        isDetail={showContent} classMenu={''}                />
             )}
         </>
     );

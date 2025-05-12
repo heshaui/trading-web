@@ -43,13 +43,12 @@ export default function MessageItemDetail({
         <>
 
                 <MessageItem
-                    title={message.title}
-                    time={message.time}
-                    content={message.content}
-                    isClickable
-                    onClick={handleDetailClick}
-                    isDetail={isDetail}
-                />
+                title={message.title}
+                time={message.time}
+                content={message.content}
+                isClickable
+                onClick={handleDetailClick}
+                isDetail={isDetail} classMenu={''}                />
 
         </>
     );

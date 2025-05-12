@@ -231,7 +231,7 @@ export default function HomeMenu() {
         try {
             setAccountAssistantLoading(true);
             const response: any = await getInformUserMessageList({
-                languageCode: typeof selectedLanguage === 'object' && selectedLanguage?.langCode ? selectedLanguage.langCode : 'zh_CN',
+                languageCode: typeof selectedLanguage === 'object' && selectedLanguage ? selectedLanguage : 'zh_CN',
                 pageNum: 1,
                 pageSize: 20,
                 bizType:'account'

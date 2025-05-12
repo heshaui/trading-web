@@ -114,69 +114,17 @@ const detailListData: Record<string, Array<{ title: string; time: string; conten
 // 定义消息数据，使用 menuData 的 key 作为索引
 const messageData: Record<string, Messages> = {
   'all': [
-    {
-      id: '1',
-      title: '公告 1 标题XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-      time: '2024-12-12 12:12:12',
-      content: '公告 1 内容XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    },
-    {
-      id: '2',
-      title: '公告 2 标题YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
-      time: '2024-12-12 13:15:30',
-      content: '公告 2 内容YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
-    },
-    {
-      id: '3',
-      title: '公告 3 标题ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ',
-      time: '2024-12-12 14:20:45',
-      content: '公告 3 内容ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ'
-    },
-    {
-      id: '4',
-      title: '公告 4 标题AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      time: '2024-12-12 15:25:50',
-      content: '公告 4 内容AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-    },
-    {
-      id: '5',
-      title: '公告 5 标题BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
-      time: '2024-12-12 16:30:55',
-      content: '公告 5 内容BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
-    },
-    {
-      id: '6',
-      title: '公告 6 标题CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
-      time: '2024-12-12 17:35:00',
-      content: '公告 6 内容CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
-    },
-    {
-      id: '7',
-      title: '公告 7 标题DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD',
-      time: '2024-12-12 18:40:05',
-      content: '公告 7 内容DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
-    },
-    {
-      id: '8',
-      title: '公告 8 标题EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE',
-      time: '2024-12-12 19:45:10',
-      content: '公告 8 内容EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
-    },
+
 
   ],
   '2': [
-    { id: '1', title: '账户助手通知 1', time: '2024-12-13 14:30:00' },
-    { id: '2', title: '账户助手通知 2', time: '2024-12-13 15:45:20' },
+
   ],
   '3': [
-    { id: '1', title: '资产更新 1', time: '2024-12-14 09:00:00' },
-    { id: '2', title: '资产更新 2', time: '2024-12-14 10:15:30' },
-    { id: '3', title: '资产更新 3', time: '2024-12-14 11:30:45' },
-    { id: '4', title: '资产更新 4', time: '2024-12-14 12:45:10' },
+
   ],
   '4': [
-    { id: '1', title: '交易动态 1', time: '2024-12-15 16:45:00' },
-    { id: '2', title: '交易动态 2', time: '2024-12-15 17:50:15' },
+
   ],
 };
 
