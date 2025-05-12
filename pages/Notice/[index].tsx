@@ -298,7 +298,7 @@ export default function Notice() {
     // 初始化加载
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
+    }, []);
 
     // 准备菜单项 - 确保菜单项始终有内容
     const items = useMemo(() => {
