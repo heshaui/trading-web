@@ -12,12 +12,16 @@
 yarn.lock
 package-lock.json
 .history
+.env.local
+.env.production
+.env.development
 # testing
 /coverage
 
 # next.js
 /.next/
 /out/
+
 
 # production
 /build
