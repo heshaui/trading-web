@@ -22,6 +22,8 @@ import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
 import { getUserBalanceByDay } from '@/services/assets'
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
+import {LoginInfoType,LoginLogListType,carouselImageContentsType,CarouselPicType} from '@/type/userCenter/overview'
+import AssetsPage from "./assets"
 
 const identityStyle: CSSProperties = {
     position: 'relative',
@@ -30,69 +32,6 @@ const identityStyle: CSSProperties = {
     backgroundPosition: 'right 20px bottom 24px',
     backgroundSize: '58px'
 };
-interface LoginInfoType {
-    userId: number,
-    account: string,
-    status: number,
-    email: string,
-    password: string,
-    phone: string,
-    inviteCode: string,
-    parentUserId: number,
-    isGoogleAuth: number,
-    isPhoneAuth: number,
-    isEmailAuth: number,
-    realnessStatus: number,
-    addressStatus: number,
-    fundPassword: string,
-    countryCode: string,
-    userLevel: string,
-    createTime: number,
-    updateTime: number,
-    tenantId: string,
-    salt: string,
-    transactionStatus: number,
-    withdrawalStatus: number,
-    famousAphorisms: string,
-    registerAccount: string,
-    securityIntensity: number,
-    avatarUrl: string,
-    remark: string
-}
-interface LoginLogListType {
-    id: number,
-    userId: number,
-    platformType: number,
-    deviceNo: string,
-    ip: string,
-    address: string,
-    token: string,
-    tokenTime: string,
-    createTime: number,
-    updateTime: number,
-    tenantId: string
-}
-interface carouselImageContentsType {
-    id: number,
-    languageCode: string,
-    title: string,
-    carouselImageId: number,
-    createTime: number,
-    updateTime: number,
-    tenantId: string,
-    accessType: number,
-    accessUrl: string,
-    imageUrl: string
-}
-interface CarouselPicType {
-    id: number,
-    isShow: number,
-    sort: number,
-    createTime: number,
-    updateTime: number,
-    tenantId: string,
-    carouselImageContents: carouselImageContentsType[]
-}
 const OverviewPage: React.FC = () => {
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
     const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
@@ -467,16 +406,15 @@ const OverviewPage: React.FC = () => {
                     </div>
                 </div>
                 {/* 资产 */}
-                <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
+                <AssetsPage/>
+                {/* <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
                     <div className={`flex-row justify-between font-18 font-w-500`} >
-                        {/* 资产 */}
                         {t('overview.assets.title')}
                         <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
                     </div>
                     <div className={`flex-row justify-between align-center`}>
                         <div className={`${styles.assets_main}`} >
                             <div className={`${styles.tip_color} mt-2`} >
-                                {/* 总资产折合 */}
                                 {t('overview.assets.totalAssets')}
                                 <button type='button' className='ml-1' onClick={() => router.push(ROUTER_KEY_ASSETS.ACCOUNT)}>
                                     <Iconify icon="clarity:eye-show-line" size={20}
@@ -487,7 +425,6 @@ const OverviewPage: React.FC = () => {
                             <p className='font-32 font-w-700'>0.00 USDT</p>
                             <p className={`${styles.tip_color} font-14`}>≈￥0.00</p>
                             <div className='font-14 mt-4'>
-                                {/* 今日盈亏 */}
                                 {t('overview.assets.todayProfitLoss')}
                                 <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
                                 <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
@@ -496,13 +433,11 @@ const OverviewPage: React.FC = () => {
                                 <button type='button' className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`}
                                     onClick={() => router.push(ROUTER_KEY_ASSETS.TOP_UP)}
                                 >
-                                    {/* 充值 */}
                                     {t('overview.assets.deposit')}
                                 </button>
                                 <button type='button' className={`btn-disable font-14 font-w-500  ${styles.btn}`}
                                     onClick={() => router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)}
                                 >
-                                    {/* 提现 */}
                                     {t('overview.assets.withdraw')}
                                 </button>
                             </div>
@@ -511,7 +446,7 @@ const OverviewPage: React.FC = () => {
                             <AssetsAreaChart />
                         </div>
                     </div>
-                </div>
+                </div> */}
                 {/* 最近登录 */}
                 <div className={`${styles.card_bgc} mt-6`}>
                     <div className={`flex-row justify-between font-18 font-w-500`} >

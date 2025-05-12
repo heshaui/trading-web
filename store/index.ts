@@ -6,7 +6,8 @@ import {
     addToFavorites,
     removeFromFavorites,
     CurrencyPairType,
-    fetchAllCoin
+    fetchAllCoin,
+    CoinType
 } from './currencyPairService';
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 
@@ -92,6 +93,7 @@ class AppStore {
             this.initUserInfoFromStorage();
             this.initRateKeyFromStorage(); // 初始化汇率key
             this.initLangFromStorage(); // 初始化语言
+            // this.loadCoinList(); //加载币种数据
         }
     }
 
@@ -240,7 +242,7 @@ class AppStore {
             if (rateKey) {
                 this.rateKey = rateKey; 
                 // return rateKey;
-            }
+            }else{
             
             // 如果没有 rate_key，尝试从 rateData 获取第一项
             const rateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
@@ -251,7 +253,7 @@ class AppStore {
                     this.rateKey =parsedData[0].span;
                     // return parsedData[0].span;
                 }
-            }
+            }}
             
         } catch (error) {
             console.error('Error getting rate key:', error);
@@ -267,8 +269,7 @@ class AppStore {
             
             if (lang) {
                 this.lang = lang; 
-                // return lang;
-            }
+            }else{
             
             // 如果没有，尝试从 cachedLanguageList 获取第一项
             const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
@@ -280,7 +281,7 @@ class AppStore {
                     this.lang =parsedData[0].key;
                     // return parsedData[0].span;
                 }
-            }
+            }}
             
         } catch (error) {
             console.error('Error getting rate key:', error);
@@ -443,6 +444,7 @@ class AppStore {
             if (result.success) {
                 runInAction(() => {
                     this.coinList = result.data;
+                    this.setCoinList(result.data);
                 });
                 return result.data;
             } else {
@@ -465,7 +467,12 @@ class AppStore {
     getCoinList() {
         return this.coinList;
     }
-
+    setCoinList(coinList: CoinType[]) {
+        this.coinList = coinList;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENT_COIN, JSON.stringify(coinList));
+        }
+    }
     // 清除币种列表
     clearCoinList() {
         this.coinList = [];

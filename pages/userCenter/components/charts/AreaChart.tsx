@@ -9,40 +9,16 @@ import {
     Tooltip,
 } from "recharts";
 
-interface DataPoint {
-    name: string;
-    uv: number;
-    pv: number;
-    amt: number;
-}
 
-const data: DataPoint[] = [
-    {
-        name: "Page A",
-        uv: 4000,
-        pv: 2400,
-        amt: 2400,
-    },
-    {
-        name: "Page B",
-        uv: 3000,
-        pv: 1398,
-        amt: 2210,
-    },
-    {
-        name: "Page C",
-        uv: 2000,
-        pv: 9800,
-        amt: 2290,
-    },
-    {
-        name: "Page D",
-        uv: 2780,
-        pv: 3908,
-        amt: 2000,
-    },
-    // ... existing code ...
-];
+interface chartDataType {
+    balance: string,
+    time: string,
+    recharge: string,
+    symbol: string
+}
+type propsType = {
+    chartData: chartDataType[]
+}
 // 自定义 Tooltip 组件
 const CustomTooltip: React.FC<any> = ({ active, payload }) => {
     if (!active || !payload || !payload.length) return null;
@@ -51,22 +27,22 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
         <div
             className={`font-12 ${styles.area_tooltip}`}
         >
-            <p >{payload[0].payload.name}</p>
+            <p >{payload[0].payload.time}</p>
             <p >
                 <span
                     className={`mr-1 ${styles.tooltip_circle}`}
                 />
-                {payload[0].value}</p>
+                {payload[0].payload.symbol}&nbsp;{payload[0].payload.balance}</p>
         </div>
     );
 };
 
-const AssetsAreaChart: React.FC = (): React.JSX.Element => {
+const AssetsAreaChart: React.FC<propsType> = ({ chartData }) => {
     return (
         <AreaChart
             width={250}
             height={140}
-            data={data}
+            data={chartData}
             margin={{
                 top: 0,
                 right: 60,
@@ -84,7 +60,7 @@ const AssetsAreaChart: React.FC = (): React.JSX.Element => {
                 </linearGradient>
             </defs>
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="uv" stroke="var(--theme-color)"
+            <Area type="monotone" dataKey="balance" stroke="var(--theme-color)"
                 fill="url(#gradient)" />
         </AreaChart>
     );
