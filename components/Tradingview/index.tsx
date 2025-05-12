@@ -569,7 +569,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           }
           console.log('请求的',originalInterval)
           // 使用原始的时间间隔格式构建URL
-          const url = `https://ws81.imsaas.work/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
+          const url = `${process.env.NEXT_PUBLIC_WEB_API_BASE}/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
           
           console.log("获取图表数据:", url);
           const response = await fetch(url);

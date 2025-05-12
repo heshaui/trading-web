@@ -133,7 +133,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
 
-        const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@trade`);
         websocketRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -170,7 +170,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
-        const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -328,7 +328,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`https://ws81.imsaas.work/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 
@@ -365,7 +365,7 @@ const ExchangePage = () => {
         }
 
         try {
-            const websocket = new WebSocketService(`wss://ws80.imsaas.work/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
+            const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
             klineWsRef.current = websocket;
 
             websocket.connect((message: string) => {
