@@ -14,7 +14,11 @@ import { getInviteCount, getRewardConfiguration } from '@/services/invite'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'next-i18next';
 import { getKvObject } from '@/services/kv'
+
 import { toast } from 'sonner';
+import { getRate, getCoinRate } from '@/utils/getUseRate';
+import appStore from '@/store';
+
 type InviteContentProps = {
     onReturn: () => void;
 }
@@ -39,6 +43,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [rewardRouter, setRewardRouter] = useState<RewardRouterType>({} as RewardRouterType)
+    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
     const inviteContentList = [
         {
             key: 1,
@@ -122,7 +127,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
     useEffect(() => {
         setRewardRouterData()
         getInviteCountData()
-    }, [])
+    }, [rateKey])
     return (<>
         <div className={`${styles.header_banner} flex-y align-center`}>
             <div className={`${styles.main_page}`}>
@@ -193,8 +198,10 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                                 <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.accumulateMoney || 0}</p>
                             </li>
                             <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                                <p className={`font-14 font-w-400`}>{t('invite.myInvite2.tip4')}</p>
-                                <p className={`font-32 font-w-700 ${styles.title_color}`}>{'暂无'}
+                                <p className={`font-14 font-w-400`}>{`${t('invite.myInvite2.tip5')}(${rateKey.split('-')[0].trim() || '--'})`}</p>
+                                <p className={`font-32 font-w-700 ${styles.title_color}`}>
+                                    {/* {'暂无'} */}
+                                    {inviteCount?.accumulateMoney ? getRate('USDT', inviteCount?.accumulateMoney, rateKey.split('-')[0].trim()).rate : 0}
                                     {/* <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>≈  100.02 USDT</span> */}
                                 </p>
                             </li>
