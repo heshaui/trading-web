@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { Breadcrumb, ConfigProvider, Layout, Menu, Pagination } from 'antd';
 import Link from 'next/link';
-import styles from './styles/helpCenter.module.css';
+import styles from '../styles/helpCenter.module.css';
 import Image from 'next/image';
 import { getClassIdContent ,getCustomization,getHelpCenterMenu} from '@/services/helpCenter';
 import appStore from '@/store';
