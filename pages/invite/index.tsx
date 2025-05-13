@@ -12,6 +12,8 @@ import { useRouter } from 'next/router';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
+import appStore from '@/store';
+
 interface InviteInfoType {
     inviteCode: string,
     inviteLink: string,
@@ -58,6 +60,16 @@ const InvitePage = () => {
     useEffect(() => {
         getLoginInfoData();
     }, [])
+    useEffect(() => {
+        // 只在客户端执
+        if (typeof window === 'undefined') return;
+
+        try {
+            appStore.loadCurrencyPairs()
+        } catch (error) {
+            console.error('初始化货币对数据错误:', error);
+        }
+    }, []);
     return (<>
         <div className={`${styles.invite_page} flex-y align-center`}>
             <div className={`${styles.main_page_box} font-16 fontw-400`}>
@@ -72,7 +84,7 @@ const InvitePage = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {
-            ...(await serverSideTranslations(locale || 'en', ['invite','common'])),
+            ...(await serverSideTranslations(locale || 'en', ['invite', 'common'])),
         },
     };
 };

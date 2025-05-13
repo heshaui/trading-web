@@ -7,7 +7,7 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import { getUserBalanceAll, getUserBalanceByDay } from '@/services/assets';
+import { getUserBalanceAll, getUserBalanceByDay, getTodayEarnings } from '@/services/assets';
 import { toast } from "sonner";
 import { add, roundDown, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -20,16 +20,8 @@ import { useCoinList } from '@/hooks/use-coinList';
 import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
-interface DataType {
-    balance: number,
-    frozenBalance: number,
-    releaseBalance: number,
-    isLock: number,
-    coinId: string,
-    coinName: string,
-    iconUrl: string,
-    nameDefault: string
-}
+import { DataType } from '@/type/assets/assetsAccount/assets'
+
 const AssetsMainPage = observer(() => {
     const { t } = useTranslation(['assets']);
     const [initTableData, setInitTableData] = useState<DataType[]>([])
@@ -49,10 +41,15 @@ const AssetsMainPage = observer(() => {
         usdBalance: 0,
         cnyBalance: 0,
     });
+    const [todayEarnings, setTodayEarnings] = useState({
+        usdBalance: 0,
+        cnyBalance: 0,
+    });
 
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
-    const { coinList } = useCoinList(true);
+    // const { coinList } = useCoinList(true);
+    const coinList = appStore.getCoinList(); // 获取币种信息
     const [form] = Form.useForm();
     // 获取汇率数据
     const rateData = appStore.getRateData() || [];
@@ -232,6 +229,7 @@ const AssetsMainPage = observer(() => {
             setTableData(initTableData);
         }
     }
+    // 获取所有币种余额
     const getUserBalanceAllData = async () => {
         setTableLoading(true);
         try {
@@ -244,7 +242,7 @@ const AssetsMainPage = observer(() => {
                         add(curr.balance || 0, curr.releaseBalance || 0),
                         curr.frozenBalance || 0
                     );
-                    const coin = coinList.find((item: any) => item.coinName === curr.coinName);
+                    // const coin = coinList.find((item: any) => item.coinName === curr.coinName);
 
                     // let balance 
                     // if(curr.coinName === 'USDT'){
@@ -271,6 +269,7 @@ const AssetsMainPage = observer(() => {
             setTableLoading(false);
         }
     };
+    // 获取用户余额以及充值金额 日K线
     const getUserBalanceDay = async () => {
         try {
             const res = await getUserBalanceByDay();
@@ -288,21 +287,44 @@ const AssetsMainPage = observer(() => {
             toast.error(String(error));
         }
     };
+    // 获取今日充值
+    const getTodayEarningsData = async () => {
+        try {
+            const res = await getTodayEarnings();
+            if (res.code === '0') {
+                const rateKeyName = rateKey.split('-')[0].trim()
+                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
+                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                setTodayEarnings({
+                    usdBalance: Number(usdRate.rate) || 0,
+                    cnyBalance: Number(cnyRate.rate) || 0
+                });
+            }
+        } catch (error) {
+            toast.error(String(error));
+        }
+    };
+    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
+        // balance今日余额 balanceLastDay昨日余额 toUp今日充值
+        return cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+    }
 
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
+        getTodayEarningsData()
     }, [rateKey])
     useEffect(() => {
         // 只在客户端执
         if ( typeof window === 'undefined') return;
 
         try {
-            appStore.loadCurrencyPairs()
+            appStore.loadCurrencyPairs() //加载币对数据
+            appStore.loadCoinList() //加载币种数据
         } catch (error) {
             console.error('初始化货币对数据错误:', error);
         }
-    }, [isClient]);
+    }, []);
     return (<div>
         <ConfigProvider
             theme={{
@@ -384,11 +406,15 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {cut(balanceAll.usdBalance, balanceDay.usdBalance)}&nbsp;
+                                    {/* {cut(Number(cut(balanceAll.usdBalance, balanceDay.usdBalance)), Number(todayEarnings.usdBalance))}&nbsp; */}
+                                {waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)}&nbsp;
                                     {/* USD */}
                                     {rateKey.split('-')[0].trim() || '--'}
                                 </span>
-                                <span>≈  {cut(balanceAll.cnyBalance, balanceDay.cnyBalance)} CNY</span>
+                                <span>≈
+                                    {/* {cut(Number(cut(balanceAll.cnyBalance, balanceDay.cnyBalance)), Number(todayEarnings.cnyBalance))} */}
+                                    {waxAndWane(balanceAll.cnyBalance, balanceDay.cnyBalance, todayEarnings.cnyBalance)}
+                                    &nbsp;CNY</span>
                             </p>
                         </li>
                     </ul>

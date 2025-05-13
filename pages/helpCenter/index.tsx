@@ -15,6 +15,7 @@ export default function HelpCenter() {
     const lang = appStore.getLang();
     const [configContentHeight, setConfigContentHeight] = useState<number>(0);
     const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
+    const [initMenuData, setInitMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     // 测试数据
     const testDataFAQ = [
@@ -73,17 +74,25 @@ export default function HelpCenter() {
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             if (!searchValue.trim()) {
-                message.warning('请输入搜索内容');
+                toast.warning('请输入搜索内容');
                 return;
             }
 
             // 搜索逻辑
-            const filteredResults = allData.filter(item =>
-                item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-                item.content.toLowerCase().includes(searchValue.toLowerCase())
+            // const filteredResults = allData.filter(item =>
+            //     item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            //     item.content.toLowerCase().includes(searchValue.toLowerCase())
+            // );
+            // setSearchResults(filteredResults);
+            // setShowSearch(true);
+
+            // 搜索帮助中心
+            const filteredResults = initMenuData.filter(item =>
+                item.helpDescription.toLowerCase().includes(searchValue.toLowerCase()) ||
+                item.articleTitle.toLowerCase().includes(searchValue.toLowerCase())
             );
 
-            setSearchResults(filteredResults);
+            setHelpCenterMenuData(filteredResults);
             setShowSearch(true);
         }
     };
@@ -111,6 +120,7 @@ export default function HelpCenter() {
             const res = await getHelpCenterMenu({ lang: langName });
             if (res.code === '0') {
                 const sortedData = recursiveSort(res.data);
+                setInitMenuData(sortedData)
                 setHelpCenterMenuData(sortedData)
                 // setHelpCenterMenuData([...sortedData, {
                 //     id: 0,
@@ -329,8 +339,8 @@ export default function HelpCenter() {
                     <>
                         <HelpCenterSection
                             helpCenterList={helpCenterMenuData}
-                            flag={true}
-                            onButtonClick={handleButtonClick}
+                            flag={menuData.length > 0}
+                            // onButtonClick={handleButtonClick}
                             configContentHeight={configContentHeight}
                         />
                         <div className={`${styles.otherSupport} customCard`}>
