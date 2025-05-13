@@ -34,7 +34,7 @@ export type SearchCategory = '全部' | '常见问题' | '公告';
 // 帮助中心搜索 - 组件props
 export interface SearchDetailProps {
     searchValue: string;
-    searchResults: {
+    searchResults?: {
         title: string;
         content: string;
         time: string;
@@ -81,4 +81,19 @@ export interface HelpCenterMenuProps {
     articleTitle: string,
     languagePath?: string,
     children?: HelpCenterMenuProps[]
+}
+export interface HelpCenterMenuProps2 {
+    id: number,
+    helpDescription: string,
+    helpSort: number,
+    blackIcon: string,
+    whiteIcon: string,
+    parentId: number,
+    contentId: string,
+    languageCode: string,
+    articleTitle: string,
+    languagePath?: string,
+    label: string,
+    key: string,
+    children?: HelpCenterMenuProps2[]
 }

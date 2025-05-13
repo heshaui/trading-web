@@ -17,8 +17,8 @@ export function getCustomization({ lang }: { lang: string }): Promise<any> {
 }
 
 // 分类文章
-export function getClassIdContent({ classId, lang }: { classId: number, lang: string }): Promise<any> {
-    return request(`${baseUrl}/home-web/v1/help-center/classIdContent/${classId}/${lang}`, {
+export function getClassIdContent({ classId, lang, page, size }:    { classId: number|string, lang: string, page: number, size: number }): Promise<any> {
+    return request(`${baseUrl}/home-web/v1/help-center/classIdContent/${classId}/${lang}/${page}/${size}`, {
         method: 'POST',
     });
 }

@@ -22,15 +22,15 @@ const HelpCenterSection: React.FC<Props> = ({
     const { isDayMode } = useThemeMode();
 
     const router = useRouter();
-    const locale = router.query.locale || 'zh';
+    // const locale = router.query.locale || 'zh';
     
     // 处理标题点击事件
     const handleTitleClick = (item: any) => {
         router.push({
-            pathname: `/${locale}/helpCenter/detail`,
+            pathname: `/helpCenter/detail`,
             query: { 
-                title: item.title,
-                category: item.title 
+                classId: item.id,
+                parentId: item.parentId 
             }
         });
     };
@@ -55,7 +55,7 @@ const HelpCenterSection: React.FC<Props> = ({
                                     fontWeight: 500,
                                     cursor: 'pointer'
                                 }}
-                                onClick={() => handleTitleClick(item)}
+                                // onClick={() => handleTitleClick(item)}
                             >
                                 {item.articleTitle}
                             </h2>
@@ -73,7 +73,7 @@ const HelpCenterSection: React.FC<Props> = ({
                                     alignItems: 'center',
                                     }}
                                     
-                                onClick={() => clickButton(child?.languagePath || '')}
+                                onClick={() => handleTitleClick(child)}
                             >
                                 <Row
                                     gutter={18}

@@ -258,20 +258,28 @@ const SpotMainPage = observer(() => {
       align: "center",
       render: (_status) => {
         if (_status === 0) {
+          // 交易中
           return <span >{t('spot.select.trading') || '--'}</span>;
         } else if (_status === 1) {
+          // 完全成交
           return <span >{t('spot.select.completed') || '--'}</span>;
         } else if (_status === 2) {
+          // 拒绝
           return <span >{t('spot.select.failed') || '--'}</span>;
-        } else if (_status === 3) {
+        } else if (_status === 3||_status === 6) {
+          // 已撤销
           return <span >{t('spot.select.canceled') || '--'}</span>;
         } else if (_status === 4) {
+          // 创建订单
           return <span >{t('spot.select.created') || '--'}</span>;
         } else if (_status === 5) {
+          // 部分成交
           return <span >{t('spot.select.partial') || '--'}</span>;
-        } else if (_status === 6) {
-          return <span >{t('spot.select.canceled2') || '--'}</span>;
         }
+        // else if (_status === 6) {
+        //   // 订单已撤销，戳和未撤销
+        //   return <span >{t('spot.select.canceled2') || '--'}</span>;
+        // }
       },
     },
 
