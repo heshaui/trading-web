@@ -1,12 +1,8 @@
-import { Col, Row, ConfigProvider, Menu, Card, Empty } from 'antd';
+import { Col, Row, ConfigProvider, Menu, Card, Empty, Flex } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useMemo, useState, useEffect, useRef, SetStateAction } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-import MessageItem from './components/MessageItem';
-import MessagePagination from './components/MessagePagination';
-import MessageItemDetail from './components/MessageItemDetail';
-import RenderBulletinTop from './components/RenderBulletinTop';
 import styles from './styles/bulletinCenter.module.css';
 // 使用API获取菜单数据
 import { MessageData } from '@/type/bulletin_center/bc_types';
@@ -48,14 +44,14 @@ export default function Notice() {
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const [selectedLabel, setSelectedLabel] = useState<string>('公告中心');
     const [menuList, setMenuList] = useState<Array<{
-        classDesc: SetStateAction<string>;id: number, classMenu: string, languageContent: string, serialNum: number
-}>>([]);
+        classDesc: SetStateAction<string>; id: number, classMenu: string, languageContent: string, serialNum: number
+    }>>([]);
     const [filteredAndSortedMessages, setFilteredAndSortedMessages] = useState<MessageData[]>([]);
     const [readMessageIds, setReadMessageIds] = useState<Set<string>>(new Set());
     const [showContent, setShowContent] = useState(false);
     // 存储公告数据的映射关系，同时以id和serialNum为键存储，提高访问成功率
     const [announcementData, setAnnouncementData] = useState<Record<string, any>>({});
-      const { isDayMode } = useThemeMode();
+    const { isDayMode } = useThemeMode();
 
     // 获取菜单数据 - 加强错误处理和调试信息
     const fetchMenuList = useCallback(async () => {
@@ -63,22 +59,22 @@ export default function Notice() {
             console.log('已经有一个正在进行的菜单数据请求，等待完成');
             return Promise.resolve([]);
         }
-        
+
         console.log('开始请求菜单数据');
         apiRequestRef.current.menuDataLoading = true;
         try {
             const lang = localStorage.getItem('lang') || 'zh_CN';
             // 确保用户看到加载过程
             await new Promise(resolve => setTimeout(resolve, 300));
-            
+
             console.log('调用getInformClassMenuList API...');
             const response = await getInformClassMenuList({ languageCode: lang }) as any;
             console.log('完整API响应:', response);
-            
+
             if (response?.code === '0' && Array.isArray(response.data) && response.data.length > 0) {
                 console.log('获取菜单数据成功, 条目数:', response.data.length);
                 console.log('第一个菜单项:', response.data[0]);
-                
+
                 // 保存菜单数据
                 setMenuList(response.data);
                 return response.data;
@@ -102,11 +98,11 @@ export default function Notice() {
     // 获取公告详情
     const fetchAnnouncementDetail = useCallback(async (noticeId: string) => {
         if (!noticeId) return Promise.resolve();
-        
+
         try {
             const lang = localStorage.getItem('lang') || 'zh_CN';
             console.log(`获取公告详情, ID: ${noticeId}`);
-            
+
             const response = await getBulletinDetailLogined({
                 languageCode: lang,
                 id: parseInt(noticeId, 10)
@@ -114,7 +110,7 @@ export default function Notice() {
 
             if (response?.code === '0' && response.data) {
                 const detailData = response.data;
-                
+              
                 // 更新当前消息的内容
                 setCurrentMessage({
                     id: detailData.id.toString(),
@@ -124,16 +120,16 @@ export default function Notice() {
                     isRead: true,
                     classMenu: detailData.classMenu
                 });
-                
+
                 setCurrentMessageContent(detailData.content || '');
-                
+
                 // 找到匹配的菜单
                 const matchedMenu = menuList.find(menu => menu.id === detailData.classMenu);
                 if (matchedMenu) {
                     setSelectedKeys([matchedMenu.serialNum.toString()]);
                     setSelectedLabel(matchedMenu.classDesc);
                 }
-                
+
                 console.log('获取公告详情成功:', detailData);
             }
         } catch (error) {
@@ -144,16 +140,16 @@ export default function Notice() {
 
     // 根据菜单ID获取公告列表，修复serialNum和id混淆的问题
     const fetchAnnouncementByMenuId = useCallback(async ({ key, id }: { key: string, id: number }) => {
-        if (apiRequestRef.current.bulletinLoading) return;
-        
+
+
         // 先设置加载状态
         setIsLoading(true);
-        apiRequestRef.current.bulletinLoading = true;
-        
+
+
         try {
             const lang = localStorage.getItem('lang') || 'zh_CN';
             console.log(`[Notice] Fetching announcements for menu key: ${key}, ID: ${id}`);
-            
+
             const response = await getBulletinMessageLogined({
                 languageCode: lang,
                 classMenu: id  // 使用正确的菜单ID
@@ -194,14 +190,8 @@ export default function Notice() {
             console.error(`[Notice] Failed to fetch announcements for menu ID ${id}:`, error);
             // 出错时设置空数组，避免显示旧数据
             setFilteredAndSortedMessages([]);
-        } finally {
-            // 完成后关闭加载状态
-            setTimeout(() => {
-                setIsLoading(false);
-                apiRequestRef.current.bulletinLoading = false;
-                setIsDataInitialized(true);
-            }, 500);
         }
+
     }, []);
 
     // 处理返回公告列表页
@@ -213,14 +203,17 @@ export default function Notice() {
 
     // 处理菜单选择变化
     const handleMenuSelect = (info: { key: string }) => {
+        console.log(`[Notice] Menu selected: ${info.key}`);
         setCurrentMessage(null); // Clear current message to hide detail view
         setSelectedKeys([info.key]);
-        
+        setShowContent(false);
+
         // 找到选中的菜单项
         const selectedMenu = menuList.find(menu => menu.serialNum.toString() === info.key);
         if (selectedMenu) {
+            console.log(`[Notice] Selected menu: ${selectedMenu}`);
             setSelectedLabel(selectedMenu.languageContent);
-            
+
             // 使用包含正确key和id的对象调用fetchAnnouncementByMenuId
             fetchAnnouncementByMenuId({
                 key: info.key,  // serialNum作为key
@@ -257,22 +250,23 @@ export default function Notice() {
         router.push('/bulletinCenter');
     };
 
-    
+
     // 包装fetch函数以避免在依赖数组中添加内联函数
     const fetchData = useCallback(async () => {
         // 设置加载状态
         setIsLoading(true);
         setIsDataInitialized(false);
-        
+
         try {
             // 获取菜单数据
             console.log('开始获取菜单数据');
             const menus = await fetchMenuList();
             console.log('成功获取菜单数据:', menus);
-            
+
             // 获取公告详情
             const noticeId = params?.index as string;
             if (noticeId) {
+                setShowContent(true);
                 await fetchAnnouncementDetail(noticeId);
             } else if (menus && menus.length > 0) {
                 // 如果没有特定公告详情ID，获取第一个菜单的公告列表
@@ -286,13 +280,7 @@ export default function Notice() {
             }
         } catch (error) {
             console.error('加载数据失败:', error);
-        } finally {
-            // 设置延迟以避免状态频繁切换
-            setTimeout(() => {
-                setIsDataInitialized(true);
-                setIsLoading(false);
-            }, 500);
-        }
+        } 
     }, [fetchAnnouncementByMenuId, fetchAnnouncementDetail, fetchMenuList, params?.index]);
 
     // 初始化加载
@@ -311,7 +299,7 @@ export default function Notice() {
                 disabled: true
             }];
         }
-        
+
         // 使用API返回的菜单数据
         return menuList.map(menu => ({
             key: menu.serialNum.toString(),
@@ -365,118 +353,87 @@ export default function Notice() {
         >
             <div className={styles.bulletinContainer}>
                 <div className={`${styles.bulletinContent} customMenu`}>
-                      <div className={styles.bulletinTop}>
-                                    <Image
-                                        src={isDayMode
-                                            ? "/images/bulletin_center/icon_arrow_left.png"
-                                            : "/images/bulletin_center/icon_arrow_left_white.png"}
-                                        alt=""
-                                        width={24}
-                                        height={24}
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={onBack}  // 添加点击事件
-                                    />
-                                </div>
-                    <Row justify="space-between" gutter={16}>
-                        <Col flex={1}>
-                            <Menu
-                                selectedKeys={selectedKeys}
-                                onSelect={handleMenuSelect}
-                                mode="inline"
-                                items={items}
-                                className={styles.noticeMenu}
-                            />
-                        </Col>
-                        <Col flex={4}>
-                            <Card style={{ backgroundColor: 'transparent' }}>
-                                <Row>
-                                    <Col>
-                                    <h5 style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-color5)' ,marginBottom: 10}}>
-                                            公告中心
-                                        </h5>
-                                        <h5 style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-color5)' }}>
-                                            <span style={{ color: '#676867' }}>公告</span>  /  {selectedLabel}
-                                        </h5>
-                                    </Col>
-                                </Row>
-                                <Row>
+                    <div className={styles.bulletinTop}>
+                        <Image
+                            src={isDayMode
+                                ? "/images/bulletin_center/icon_arrow_left.png"
+                                : "/images/bulletin_center/icon_arrow_left_white.png"}
+                            alt=""
+                            width={24}
+                            height={24}
+                            style={{ cursor: 'pointer' }}
+                            onClick={onBack}  // 添加点击事件
+                        />
+                    </div>
+                        <Row wrap={false}>
+                            <Col span={5}>
+                                <Menu
+                                    selectedKeys={selectedKeys}
+                                    onSelect={handleMenuSelect}
+                                    mode="inline"
+                                    items={items}
+                                    className={styles.noticeMenu}
+                                />
+                            </Col>
+                            <Col flex={19}>
+                                <Card style={{ backgroundColor: 'transparent' }}>
+                                    <Row>
+                                        <Col>
+                                            <h5 style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-color5)', marginBottom: 10 }}>
+                                                公告中心
+                                            </h5>
+                                            <h5 style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-color5)' }}>
+                                                <span style={{ color: '#676867' }}>公告</span>  /  {selectedLabel}
+                                            </h5>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col flex={8}>
+                                            {
+                                                !showContent && (
+                                                    filteredAndSortedMessages.length > 0 ?
+                                                        filteredAndSortedMessages.map((message, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={`${styles.bulletinCenterContent}`}
+                                                                onClick={() => handleMessageClick(message)}
+                                                            >
+                                                                <h6>{message.title}</h6>
+                                                                <div className={styles.timeContent}>
+                                                                    <span>{dayjs(message.time).format('YYYY-MM-DD HH:mm')}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                        :
+                                                        <Col>
+                                                            <div style={{
+                                                                display: 'flex',
+                                                                justifyContent: 'center',
+                                                                padding: '40px 0'
+                                                            }}>
+                                                                <Empty image='/images/bulletin_center/chat.png' description='暂无通知' />
+                                                            </div>
 
-                                    {isLoading && !isDataInitialized ? (
-                                        <Col span={24}>
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '40px 0'
-                                            }}>
-                                                <Empty 
-                                                    image="/images/bulletin_center/chat.png" 
-                                                    description="正在加载数据..."
-                                                />
-                                            </div>
+                                                        </Col>
+                                                )
+                                            }
+                                            {
+                                                showContent && (
+                                                    <div >
+                                                        <h6 style={{ padding: '10px 0 0 0', fontWeight: 500 }}>{currentMessage?.title}</h6>
+                                                        <div style={{ borderBottom: '1px solid var(--border-color4)', padding: '10px 0 10px 0', fontSize: 12, color: 'var(--text-color6)' }}>
+                                                            <span>{dayjs(currentMessage?.time).format('YYYY-MM-DD HH:mm')}</span>
+                                                        </div>
+                                                        <div style={{ color: 'var(--text-color5)', padding: '10px 0 10px 0', }} dangerouslySetInnerHTML={{ __html: currentMessage?.content || '' }} />
+                                                    </div>
+                                                )
+                                            }
                                         </Col>
-                                    ) : currentMessage ? (
-                                        <Col span={24}>
-                                            <MessageItemDetail
-                                                    message={{
-                                                        ...currentMessage,
-                                                        content: currentMessageContent || currentMessage.content || '',
-                                                    }}
-                                                    isDetail={showContent}
-                                                    onBack={handleBack} currentDetailLabel={''} currentDetailKey={''} onLatestClick={function (): void {
-                                                        throw new Error('Function not implemented.');
-                                                    } } showArticle={false}                                            />
-                                        </Col>
-                                    ) : menuList.length === 0 ? (
-                                        <Col span={24}>
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '40px 0'
-                                            }}>
-                                                <Empty 
-                                                    image="/images/bulletin_center/chat.png" 
-                                                    description="暂无菜单数据"
-                                                />
-                                            </div>
-                                        </Col>
-                                    ) : filteredAndSortedMessages.length > 0 ? (
-                                        <Col span={24}>
-                                            {filteredAndSortedMessages.map((message) => (
-                                                <>
-                                                <MessageItem
-                                                        key={message.id}
-                                                        title={message.title || ''}
-                                                        time={message.time || ''}
-                                                        onClick={() => handleMessageClick(message)}
-                                                        isClickable={true}
-                                                        isRead={isMessageRead(message.id || '')} classMenu={''}                                                />
-                                                </>
-                                            ))}
-                                            <MessagePagination
-                                                current={1}
-                                                total={filteredAndSortedMessages.length}
-                                                onChange={() => {}}
-                                                pageSize={5}
-                                            />
-                                        </Col>
-                                    ) : (
-                                        <Col span={24}>
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '40px 0'
-                                            }}>
-                                                <Empty 
-                                                    image="/images/bulletin_center/chat.png" 
-                                                    description="暂无通知"
-                                                />
-                                            </div>
-                                        </Col>
-                                    )}
-                                </Row>
-                            </Card>
-                        </Col>
-                    </Row>
+                                    </Row>
+                                </Card>
+                            </Col>
+                        </Row>
+
                 </div>
             </div>
         </ConfigProvider>
