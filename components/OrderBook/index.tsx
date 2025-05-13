@@ -48,32 +48,90 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     if (bookData && (bookData.asks || bookData.bids)) {
       // 处理卖单数据 - 直接使用asks数据
       if (bookData.asks && Array.isArray(bookData.asks)) {
-        const processedSellOrders = bookData.asks.map((item: [number, number]) => {
+        // 获取当前卖单列表的副本
+        const currentSellOrders = [...sellOrders];
+        const updatedSellOrders: Order[] = [];
+        const priceMap = new Map<number, number>();
+        
+        // 首先将现有的价格和数量存入Map中
+        currentSellOrders.forEach(order => {
+          priceMap.set(order.price, order.amount);
+        });
+        
+        // 处理新的数据
+        bookData.asks.forEach((item: [number, number]) => {
           const price = Number(item[0]);
           const amount = Number(item[1]);
+          
+          if (amount < 0) {
+            // 如果数量为负，从现有数量中减去
+            const existingAmount = priceMap.get(price) || 0;
+            const newAmount = Math.max(0, existingAmount + amount); // 加上负数就是减去
+            if (newAmount > 0) {
+              priceMap.set(price, newAmount);
+            } else {
+              priceMap.delete(price); // 如果数量变为0或负数，删除此价格
+            }
+          } else {
+            // 如果数量为正，正常添加或更新
+            priceMap.set(price, amount);
+          }
+        });
+        
+        // 将Map转换回数组
+        priceMap.forEach((amount, price) => {
           const total = price * amount;
-          return { price, amount, total };
+          updatedSellOrders.push({ price, amount, total });
         });
         
         // 卖单按价格升序排列
-        processedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
+        updatedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
         
-        setSellOrders(processedSellOrders);
+        setSellOrders(updatedSellOrders);
       }
       
       // 处理买单数据 - 直接使用bids数据
       if (bookData.bids && Array.isArray(bookData.bids)) {
-        const processedBuyOrders = bookData.bids.map((item: [number, number]) => {
+        // 获取当前买单列表的副本
+        const currentBuyOrders = [...buyOrders];
+        const updatedBuyOrders: Order[] = [];
+        const priceMap = new Map<number, number>();
+        
+        // 首先将现有的价格和数量存入Map中
+        currentBuyOrders.forEach(order => {
+          priceMap.set(order.price, order.amount);
+        });
+        
+        // 处理新的数据
+        bookData.bids.forEach((item: [number, number]) => {
           const price = Number(item[0]);
-          const amount = Math.abs(Number(item[1])); // 确保数量为正值
+          const amount = Number(item[1]);
+          
+          if (amount < 0) {
+            // 如果数量为负，从现有数量中减去
+            const existingAmount = priceMap.get(price) || 0;
+            const newAmount = Math.max(0, existingAmount - Math.abs(amount));
+            if (newAmount > 0) {
+              priceMap.set(price, newAmount);
+            } else {
+              priceMap.delete(price); // 如果数量变为0或负数，删除此价格
+            }
+          } else {
+            // 如果数量为正，正常添加或更新
+            priceMap.set(price, amount);
+          }
+        });
+        
+        // 将Map转换回数组
+        priceMap.forEach((amount, price) => {
           const total = price * amount;
-          return { price, amount, total };
+          updatedBuyOrders.push({ price, amount, total });
         });
         
         // 买单按价格降序排列
-        processedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
+        updatedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
         
-        setBuyOrders(processedBuyOrders);
+        setBuyOrders(updatedBuyOrders);
       }
       
       console.log('处理后卖单数据:', sellOrders);
@@ -103,7 +161,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setCurrentPrice(Number(bookData.bids[0][0]));
       }
     }
-  }, [bookData, currentPrice, priceScale]); // 移除 sellOrders 和 buyOrders 依赖
+  }, [bookData, currentPrice, priceScale]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
+  // 注意：这里故意不将sellOrders和buyOrders添加到依赖数组中，因为每次更新这些状态会触发新的effect执行，造成无限循环
 
   // 添加处理交易数据的效果
   useEffect(() => {
@@ -171,6 +230,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setBuyRatio(Number(newBuyRatio.toFixed(2)));
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
+    }
+    if(!orderData || orderData.length === 0) {
+      setCurrentPrice(0);
     }
   }, [orderData]); // 保持正确的依赖项
 

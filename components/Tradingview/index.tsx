@@ -98,9 +98,9 @@ const Tradingview: React.ForwardRefRenderFunction<
 
   // 假设主题色，如果项目中已有变量请使用已有的
   const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
-
+  console.log(klineData,'klineDatak线数据')
   useEffect(() => {
-    console.log(timeInterval)
+
     
     // 添加这段代码：将timeInterval转换为TradingView格式
     let tvTimeInterval = timeInterval;
@@ -210,11 +210,22 @@ const Tradingview: React.ForwardRefRenderFunction<
     
     // 更新引用但不重新初始化图表
     wsDataRef.current = klineData;
-
     
-    // 如果需要，这里可以手动调用更新函数
+    console.log('处理新的klineData更新:', klineData);
+    
+    // 确保最新的数据点被传递给图表
     if (window.__handleTradingViewUpdate && klineData) {
-      window.__handleTradingViewUpdate(klineData);
+      // 检查数据格式并确保我们传递的是最新的数据点
+      if (klineData.type === 'kline' && Array.isArray(klineData.data) && klineData.data.length > 0) {
+        // 传递整个klineData对象以保持一致的处理
+        window.__handleTradingViewUpdate(klineData);
+      } else if (Array.isArray(klineData) && klineData.length > 0) {
+        // 如果是数组格式，确保我们传递整个数组
+        window.__handleTradingViewUpdate(klineData);
+      } else {
+        // 如果是单个数据点对象，直接传递
+        window.__handleTradingViewUpdate(klineData);
+      }
     }
   }, [klineData, tvWidget]);
 
@@ -399,44 +410,78 @@ const Tradingview: React.ForwardRefRenderFunction<
       if (!data) return;
       
       try {
-        let bar;
+        console.log('正在处理收到的数据:', data);
         
-        // 处理不同格式的数据
-        if (Array.isArray(data)) {
-          // 处理数组格式
-          bar = {
-            time: formatTimeValue(data[0]),
-            open: Number(data[1] || 0),
-            high: Number(data[2] || 0),
-            low: Number(data[3] || 0),
-            close: Number(data[4] || 0),
-            volume: Number(data[5] || 0)
-          };
-        } else if (data.data && Array.isArray(data.data)) {
-          // 处理{type: 'kline', data: [...]}格式
-          const klineData = data.data[data.data.length - 1];
-          if (Array.isArray(klineData)) {
-            bar = {
-              time: formatTimeValue(klineData[0]),
-              open: Number(klineData[1] || 0),
-              high: Number(klineData[2] || 0),
-              low: Number(klineData[3] || 0),
-              close: Number(klineData[4] || 0),
-              volume: Number(klineData[5] || 0)
+        // 处理数据并通知订阅者
+        if (data.type === 'kline' && Array.isArray(data.data) && data.data.length > 0) {
+          console.log('发现kline数组数据, 长度:', data.data.length);
+          
+          // 引入所有数据点
+          data.data.forEach((klineItem: any) => {
+            if (Array.isArray(klineItem) && klineItem.length >= 6) {
+              const bar = {
+                time: formatTimeValue(klineItem[0]),
+                open: Number(klineItem[1] || 0),
+                high: Number(klineItem[2] || 0),
+                low: Number(klineItem[3] || 0),
+                close: Number(klineItem[4] || 0),
+                volume: Number(klineItem[5] || 0)
+              };
+              
+              // 将每个数据点传给订阅者
+              Object.values(subscribers).forEach((callback: any) => {
+                if (typeof callback === 'function') {
+                  callback(bar);
+                }
+              });
+            }
+          });
+        } else if (Array.isArray(data)) {
+          // 如果是直接的数组格式
+          console.log('发现纯数组格式数据');
+          
+          // 分情况处理：如果是数组的数组，则遍历处理
+          if (data.length > 0 && Array.isArray(data[0])) {
+            // 这是一个数组的数组
+            data.forEach((item: any) => {
+              if (Array.isArray(item) && item.length >= 6) {
+                const bar = {
+                  time: formatTimeValue(item[0]),
+                  open: Number(item[1] || 0),
+                  high: Number(item[2] || 0),
+                  low: Number(item[3] || 0),
+                  close: Number(item[4] || 0),
+                  volume: Number(item[5] || 0)
+                };
+                
+                Object.values(subscribers).forEach((callback: any) => {
+                  if (typeof callback === 'function') {
+                    callback(bar);
+                  }
+                });
+              }
+            });
+          } else if (data.length >= 6) {
+            // 这是单个数据点数组
+            const bar = {
+              time: formatTimeValue(data[0]),
+              open: Number(data[1] || 0),
+              high: Number(data[2] || 0),
+              low: Number(data[3] || 0),
+              close: Number(data[4] || 0),
+              volume: Number(data[5] || 0)
             };
-          } else {
-            bar = {
-              time: formatTimeValue(data.timestamp || data.time),
-              open: Number(data.open || 0),
-              high: Number(data.high || 0),
-              low: Number(data.low || 0),
-              close: Number(data.close || 0),
-              volume: Number(data.volume || 0)
-            };
+            
+            Object.values(subscribers).forEach((callback: any) => {
+              if (typeof callback === 'function') {
+                callback(bar);
+              }
+            });
           }
         } else {
           // 处理对象格式
-          bar = {
+          console.log('发现对象格式数据');
+          const bar = {
             time: formatTimeValue(data.timestamp || data.time),
             open: Number(data.open || 0),
             high: Number(data.high || 0),
@@ -444,16 +489,16 @@ const Tradingview: React.ForwardRefRenderFunction<
             close: Number(data.close || 0),
             volume: Number(data.volume || 0)
           };
+          
+          Object.values(subscribers).forEach((callback: any) => {
+            if (typeof callback === 'function') {
+              callback(bar);
+            }
+          });
         }
-        
-        // 通知所有订阅者
-        Object.values(subscribers).forEach((callback: any) => {
-          if (typeof callback === 'function') {
-            callback(bar);
-          }
-        });
       } catch (error) {
         console.error('更新数据错误:', error);
+        console.error('错误数据:', data);
       }
     };
     

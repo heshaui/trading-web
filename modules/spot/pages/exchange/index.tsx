@@ -393,6 +393,7 @@ const ExchangePage = () => {
                         const data = JSON.parse(message);
                         if (data.type === 'kline' && Array.isArray(data.data)) {
                             setCoinData(data);
+                            console.log(data,'wsklineData')   
                             setKlineData((prevData: any) => {
                                 if (!prevData) return data;
 
@@ -403,6 +404,7 @@ const ExchangePage = () => {
                                 };
                             });
                         }
+
                     } else {
                         console.log('收到非JSON格式WebSocket消息:', message);
                     }
