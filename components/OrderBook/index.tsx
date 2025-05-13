@@ -172,6 +172,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
+    if(!orderData || orderData.length === 0) {
+      setCurrentPrice(0);
+    }
   }, [orderData]); // 保持正确的依赖项
 
   const renderColorModeButtons = () => {
