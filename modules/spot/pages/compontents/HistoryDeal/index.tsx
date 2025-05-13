@@ -99,8 +99,8 @@ const SpotMainPage = observer(() => {
   const selectParam = useRef<SelectParamType>({
     startTime: dayjs().subtract(6, 'day').startOf('day').valueOf(),
     endTime: dayjs().endOf('day').valueOf(),
-    direction: '',
-    type: '',
+    // direction: '',
+    // type: '',
     symbol: '',
     notStatus: ''
   });
@@ -446,7 +446,7 @@ const SpotMainPage = observer(() => {
               />
             </Form.Item>
 
-            <Form.Item name="type" >
+            {/* <Form.Item name="type" >
               <Select allowClear
                 placeholder={t('spot.select.all')}
                 options={typeSelect}
@@ -457,7 +457,7 @@ const SpotMainPage = observer(() => {
                   getOrderListData();
                 }}
               />
-            </Form.Item>
+            </Form.Item> */}
             {/* <Form.Item name="direction" >
               <Select allowClear
                 placeholder={t('spot.select.all')}
