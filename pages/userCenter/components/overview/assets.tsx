@@ -123,9 +123,12 @@ const AssetsPage: React.FC = observer(() => {
             toast.error(String(error));
         }
     };
-    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
-        // balance今日余额 balanceLastDay昨日余额 toUp今日充值
-        return cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+    const waxAndWane = () => {
+        // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
+        // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+        const banlanceShow = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalance))), Number(todayEarnings.usdBalance))
+
+        return banlanceShow
     }
 
     useEffect(() => {
@@ -174,10 +177,10 @@ const AssetsPage: React.FC = observer(() => {
                         {/* 今日盈亏 */}
                         {t('overview.assets.todayProfitLoss')}
                         <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
-                        {banlanceShow ? <span className={`${Number(waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)) > 0 ? styles.success_icon : Number(waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
-                            {Number(waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)) < 0 ? "-" : "+"}
+                        {banlanceShow ? <span className={`${Number(waxAndWane()) > 0 ? styles.success_icon : Number(waxAndWane()) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
+                            {Number(waxAndWane()) < 0 ? "-" : "+"}
                             &nbsp;{balanceAll.symbol}&nbsp;
-                            {waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)}
+                            {Math.abs(Number(waxAndWane()))}
                         </span> :
                             <span className={`${styles.tip_color} font-12 flex-x-cc`}>******</span>
                         }

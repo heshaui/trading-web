@@ -270,15 +270,17 @@ const SpotMainPage = observer(() => {
           return <span >{t('spot.select.completed') || '--'}</span>;
         } else if (_status === 2) {
           return <span >{t('spot.select.failed') || '--'}</span>;
-        } else if (_status === 3) {
+        } else if (_status === 3||_status === 6) {
           return <span >{t('spot.select.canceled') || '--'}</span>;
         } else if (_status === 4) {
           return <span >{t('spot.select.created') || '--'}</span>;
         } else if (_status === 5) {
           return <span >{t('spot.select.partial') || '--'}</span>;
-        } else if (_status === 6) {
-          return <span >{t('spot.select.canceled2') || '--'}</span>;
-        } else {
+        }
+        // else if (_status === 6) {
+        //   return <span >{t('spot.select.canceled2') || '--'}</span>;
+        // }
+        else {
           return <span >{_status}</span>;
         }
       },

@@ -17,29 +17,7 @@ export default function HelpCenter() {
     const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
     const [initMenuData, setInitMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
-    // 测试数据
-    const testDataFAQ = [
-        {
-            title: '如何修改密码',
-            content: '点击个人中心，找到修改密码选项1',
-            time: '2024-03-05',
-            category: '常见问题' as SearchCategory
-        },
-        // ... 更多常见问题数据
-    ];
-
-    const testDataAnnouncement = [
-        {
-            title: '系统升级公告',
-            content: '系统将于3月15日进行升级维护1',
-            time: '2024-03-01',
-            category: '公告' as SearchCategory
-        },
-        // ... 更多公告数据
-    ];
-    // 合并数组 - 全部分类数据
-    const allData = [...testDataFAQ, ...testDataAnnouncement];
-
+ 
     // 日夜间判断
     const { isDayMode } = useThemeMode();
     // 添加客户端渲染标记
@@ -48,28 +26,12 @@ export default function HelpCenter() {
     // 历史搜索
     const [historicalSearchList] = useState(['永续合约', '期货合约', '期权合约']);
 
-    // 帮助中心列表
-    const [helpCenterList, setHelpCenterList] = useState([
-        {
-            title: '新手帮助',
-            icon: '/images/help_center/icon_user.png',
-            buttonWord: '账户功能',
-            alt: 'user',
-        },
-        {
-            title: '常见问题',
-            icon: '/images/help_center/icon_user.png',
-            buttonWord: '账户功能',
-            alt: 'user',
-        },
-    ]);
-
     // 搜索框输入值
     const [searchValue, setSearchValue] = useState('');
     // 搜索框显示状态
     const [showSearch, setShowSearch] = useState(false);
     // 搜索结果
-    const [searchResults, setSearchResults] = useState<typeof allData>([]);
+    const [searchResults, setSearchResults] = useState<typeof initMenuData>([]);
     // 搜索事件
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -309,7 +271,7 @@ export default function HelpCenter() {
                     searchResults.length > 0 ? (
                         <SearchDetail
                             searchValue={searchValue}
-                            searchResults={searchResults}
+                            // searchResults={searchResults}
                             setShowSearch={setShowSearch}
                             setSearchValue={setSearchValue}
                         />

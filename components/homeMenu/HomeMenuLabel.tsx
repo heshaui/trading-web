@@ -7,8 +7,8 @@ import { MenuProps } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import Image from 'next/image';
-// import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-// import { Iconify } from "@/components/icon";
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { Iconify } from "@/components/icon";
 
 const LabelComponent: React.FC<LabelComponentProps> = ({
     src = "",
@@ -34,7 +34,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
     myWords_3,
     needHover = false,
 }) => {
-    // const { copyFn } = useCopyToClipboard();
+    const { copyFn } = useCopyToClipboard();
     return (
         <>
             {
@@ -164,7 +164,10 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                                 {/* <span>{nickName}</span> */}
                                                                 <div className='tip-color font-14'>{spanText}
-                                                                {/* <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer' size={18} onClick={() => copyFn(spanText?spanText:'')} /> */}
+                                                                                    <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer hover_theme' size={18} onClick={(e) => {
+                                                                                        e.stopPropagation()
+                                                                                        copyFn(spanText ? spanText : '')
+                                                                                    }} />
                                                                 </div>
                                                             </div>
                                                         ) : (

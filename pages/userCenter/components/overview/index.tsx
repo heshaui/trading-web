@@ -111,7 +111,7 @@ const OverviewPage: React.FC = () => {
     }
 
     const goIdentity = (status: number) => {
-        if (status === 1) {
+        if (status === 1||status === 0||status === 3) {
             router.push(`/userCenter/identity`)
         } else {
             localStorage.setItem('identity_authStatus', status.toString())
@@ -168,6 +168,33 @@ const OverviewPage: React.FC = () => {
         getUseBankKv()
     }, []);
 
+    useEffect(() => {
+        const updateBannerHeight = () => {
+            const identityElement = document.querySelector('.content_identity');
+            const bannerElements = document.querySelectorAll(`.${styles.bannerImg_box}`);
+            
+            if (identityElement && bannerElements.length > 0) {
+                const identityHeight = identityElement.clientHeight;
+                const newHeight = identityHeight - 42;
+                
+                bannerElements.forEach((element) => {
+                    (element as HTMLElement).style.height = `${newHeight}px`;
+                });
+            }
+        };
+
+        // 初始设置
+        updateBannerHeight();
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateBannerHeight);
+
+        // 清理函数
+        return () => {
+            window.removeEventListener('resize', updateBannerHeight);
+        };
+    }, []);
+
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
             <h2 className={`${styles.header_userName} font-20`}>
@@ -180,7 +207,7 @@ const OverviewPage: React.FC = () => {
             {/* </Skeleton> */}
         </div>
         {/* userInfo-header*/}
-        <div className={`${styles.card_bgc} ${styles.pt0} mt-3 flex-row justify-between `}>
+        <div className={`${styles.card_bgc} ${styles.pt0} ${styles.overview_header} mt-3 flex-row justify-between `}>
             {/* <Skeleton.Avatar active  shape={'circle'}  loading={loadingSkeleton} /> */}
             <Skeleton active title={false} loading={loadingSkeleton} paragraph={{ rows: 3 }} className='mt-6' avatar={{
                 shape: 'circle',
@@ -306,13 +333,13 @@ const OverviewPage: React.FC = () => {
             </Skeleton>
         </div>
         {/* userInfo-content */}
-        <div className={`flex flex-wrap`} >
+        <div className={`flex `} >
             {/* content-content */}
             <div className={`${styles.content_box}  flex-1`}>
                 {/* content-main */}
-                <div className={`flex-row justify-between flex-wrap ${styles.content_box_main}`} >
+                <div className={`flex-row justify-between flex-wrap ${styles.content_box_main} `} >
                     {/* 身份认证 */}
-                    <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6`}
+                    <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6 content_identity`}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_identity.png')", }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
                             {/* 身份认证 */}
@@ -567,10 +594,11 @@ const OverviewPage: React.FC = () => {
                     </div> : <div>
                         <Carousel autoplay>
                             {carouselPic.map((item: any) => (
-                                <div key={item.id} className={`${styles.bannerImg_box} w-full`}>
-                                    <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className='w-full pointer'
+                                <div key={item.id} className={`${styles.bannerImg_box} w-full`} onClick={() => picClick(getLanguage(item.carouselImageContents)?.accessUrl)}>
+                                    <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className={`w-full pointer ${styles.banner_mg}`}
                                         alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260}
-                                        onClick={() => picClick(getLanguage(item.carouselImageContents)?.accessUrl)} />
+                                        
+                                    />
                                 </div>
                             ))}
                         </Carousel>

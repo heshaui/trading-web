@@ -36,15 +36,19 @@ const AssetsMainPage = observer(() => {
     const [balanceAll, setBalanceAll] = useState({
         usdBalance: 0,
         cnyBalance: 0,
+        usdt:0
     });
     const [balanceDay, setBalanceDay] = useState({
         usdBalance: 0,
         cnyBalance: 0,
+        usdt:0
     });
     const [todayEarnings, setTodayEarnings] = useState({
         usdBalance: 0,
         cnyBalance: 0,
+        usdt:0
     });
+    const [rateKeyName, setRateKeyName] = useState('');
 
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
@@ -260,7 +264,8 @@ const AssetsMainPage = observer(() => {
                 const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
                 setBalanceAll({
                     usdBalance: Number(usdRate) || 0,
-                    cnyBalance: Number(cnyRate) || 0
+                    cnyBalance: Number(cnyRate) || 0,
+                    usdt:totalUsd||0
                 });
             }
         } catch (error) {
@@ -280,7 +285,8 @@ const AssetsMainPage = observer(() => {
                 const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
                 setBalanceDay({
                     usdBalance: Number(usdRate.rate) || 0,
-                    cnyBalance: Number(cnyRate.rate) || 0
+                    cnyBalance: Number(cnyRate.rate) || 0,
+                    usdt:res.data[0].balance||0,
                 });
             }
         } catch (error) {
@@ -297,7 +303,8 @@ const AssetsMainPage = observer(() => {
                 const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
                 setTodayEarnings({
                     usdBalance: Number(usdRate.rate) || 0,
-                    cnyBalance: Number(cnyRate.rate) || 0
+                    cnyBalance: Number(cnyRate.rate) || 0,
+                    usdt:res.data[0].balance||0
                 });
             }
         } catch (error) {
@@ -313,6 +320,9 @@ const AssetsMainPage = observer(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
         getTodayEarningsData()
+        if (rateKey) {
+            setRateKeyName(rateKey.split('-')[0].trim());
+        }
     }, [rateKey])
     useEffect(() => {
         // 只在客户端执
@@ -392,29 +402,33 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'}
+                                    {/* {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'} */}
+                                    {balanceAll.usdt}&nbsp;USDT
                                 </span>
                                 <span>
-                                    ≈  {balanceAll.cnyBalance} CNY
+                                    {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
+
+                                    ≈  {balanceAll.usdBalance}&nbsp;{rateKeyName}
                                 </span>
                             </p>
                         </li>
-                        <li className={`flex-y flex-wrap ${styles.header_content_item}`}>
+                        <li className={`flex-y flex-wrap ${styles.header_content_item} flex-1`}>
                             <p className={`${styles.tip_color} font-w-400 font-14`}>
                                 {/* 今日盈亏 */}
                                 {t('assetsAccount.todayProfit')}
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {/* {cut(Number(cut(balanceAll.usdBalance, balanceDay.usdBalance)), Number(todayEarnings.usdBalance))}&nbsp; */}
-                                {waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)}&nbsp;
-                                    {/* USD */}
-                                    {rateKey.split('-')[0].trim() || '--'}
+                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt)}&nbsp;
+                                    USDT
+                                    {/* {rateKey.split('-')[0].trim() || '--'} */}
                                 </span>
                                 <span>≈
-                                    {/* {cut(Number(cut(balanceAll.cnyBalance, balanceDay.cnyBalance)), Number(todayEarnings.cnyBalance))} */}
-                                    {waxAndWane(balanceAll.cnyBalance, balanceDay.cnyBalance, todayEarnings.cnyBalance)}
-                                    &nbsp;CNY</span>
+                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)}&nbsp;
+                                    {/* USD */}
+                                    {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
+                                    {rateKeyName|| '--'}
+                                </span>
                             </p>
                         </li>
                     </ul>
