@@ -83,6 +83,7 @@ class AppStore {
     rateData: any[] = [];
     rateKey: string = '';
     lang: string = '';
+    languageList: any[] = [];
     kvConfig: Record<string, any> = {};
     constructor() {
         // 使状态响应式
@@ -231,7 +232,7 @@ class AppStore {
 
         try {
             const rateDataJson = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_DATA);
-            
+
             if (rateDataJson) {
                 this.rateData = JSON.parse(rateDataJson);
             }
@@ -259,51 +260,55 @@ class AppStore {
         try {
             // 首先尝试从 rate_key 获取
             const rateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
-            
-            if (rateKey) {
-                this.rateKey = rateKey; 
-                // return rateKey;
-            }else{
-            
-            // 如果没有 rate_key，尝试从 rateData 获取第一项
-            const rateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
-            if (rateData) {
-                const parsedData = JSON.parse(rateData);
 
-                if (parsedData && parsedData.length > 0) {
-                    this.rateKey =parsedData[0].span;
-                    // return parsedData[0].span;
+            if (rateKey) {
+                this.rateKey = rateKey;
+                // return rateKey;
+            } else {
+
+                // 如果没有 rate_key，尝试从 rateData 获取第一项
+                const rateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
+                if (rateData) {
+                    const parsedData = JSON.parse(rateData);
+
+                    if (parsedData && parsedData.length > 0) {
+                        this.rateKey = parsedData[0].span;
+                        // return parsedData[0].span;
+                    }
                 }
-            }}
-            
+            }
+
         } catch (error) {
             console.error('Error getting rate key:', error);
         }
     }
-     // 从本地存储初始化lang
-     initLangFromStorage() {
+    // 从本地存储初始化lang
+    initLangFromStorage() {
         if (!isBrowser()) return;
 
         try {
-            // 首先尝试从 lang 获取
+            // 首先尝试从 lang 获取语言
             const lang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
-            
-            if (lang) {
-                this.lang = lang; 
-            }else{
-            
-            // 如果没有，尝试从 cachedLanguageList 获取第一项
             const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
-            
-            if (languageList) {
-                const parsedData = JSON.parse(languageList);
 
-                if (parsedData && parsedData.length > 0) {
-                    this.lang =parsedData[0].key;
-                    // return parsedData[0].span;
-                }
-            }}
-            
+            if (lang) {
+                this.lang = lang;
+            }
+            // else {
+            //     // 如果没有，尝试从 cachedLanguageList 获取第一项
+            //     if (languageList) {
+            //         const parsedData = JSON.parse(languageList);
+
+            //         if (parsedData && parsedData.length > 0) {
+            //             this.lang = parsedData[0].key;
+            //             // return parsedData[0].span;
+            //         }
+            //     }
+            // }
+            if (languageList) {
+                this.languageList = JSON.parse(languageList)
+            }
+
         } catch (error) {
             console.error('Error getting rate key:', error);
         }
@@ -529,12 +534,23 @@ class AppStore {
     getLang() {
         return this.lang;
     }
+     // 设置语言
+     setLanguageList(langList: string[]) {
+        this.languageList = langList;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST, JSON.stringify(langList));
+        }
+    }
+    // 获取语言
+    getLangList() {
+        return this.languageList;
+    }
     initKvConfig() {
         if (!isBrowser()) return;
         try {
             // 首先尝试从 kv_config 获取
             const kvConfig = localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG);
-            
+
             if (kvConfig) {
                 this.kvConfig = JSON.parse(kvConfig);
             } else {
@@ -571,8 +587,8 @@ class AppStore {
     getKvConfigAll() {
         return this.kvConfig;
     }
-      // 从API加载币种信息
-      async getKvConfigAllFromApi() {
+    // 从API加载币种信息
+    async getKvConfigAllFromApi() {
         try {
             this.isLoadingCoinData = true;
 
