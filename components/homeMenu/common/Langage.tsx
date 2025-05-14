@@ -1,42 +1,24 @@
 import styles from '@/styles/components/HomeMenu.module.css';
-// import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-// import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
-// import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
 import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, Badge } from 'antd';
 import { MenuProps } from 'antd';
 import MenuItem from '../HomeMenuItems'; // 顶部菜单
-import MenuAdaptiveItem from '../HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
 import MenuItemLabel from '../HomeMenuLabel';
-import MenuItemChildrenLabel from '../HomeMenuChildrenLabel';
-import TabsItem from '../TabsItem';
-import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
+import { IconName } from '@/type/types';
 import React, { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import store from "@/store"
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
-import dayjs from 'dayjs';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
-// import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
-import { useLogoImage } from '@/hooks/useKv'; // 获取logo
-import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 import { useThemeMode } from '@/hooks/useThemeMode'; // 导入 useThemeMode 获取当前主题状态
-import { getBulletinMessage } from '@/services/bulletinCenter';
 import ThemeIcon from '../ThemeIcon';
 import { useNavigation } from '@/context/NavigationContext';
 import { useAuth } from '@/context/AuthContext';
-import { getLoginInfo } from '@/services/overview';
-import { encryptString } from '@/utils/encrypt';
-import { toast } from 'sonner';
-import UserInfoMenu from '../common/UserInfo';
-import AssetsMenu from '../common/Assets';
 import {NoData} from '@/components/noData';
 import appStore from '@/store';
 export default function LangageMenuItems() {
     // 路由
     const router = useRouter();
+    const langKey=appStore.getLang();
 
     // t - 多语言
     const { t, i18n } = useTranslation('home_menu');
@@ -82,12 +64,27 @@ export default function LangageMenuItems() {
             localStorage.setItem('cachedBulletinData', JSON.stringify(bulletinData));
         }
         if (languageList.length > 0) {
-            localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
+            // 存储语言列表
+            appStore.setLanguageList(languageList);
+            
+            // 检查并设置当前语言
+            const storedLang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
+            
+            if (storedLang) {
+                // 如果本地存储有语言设置，使用它
+                appStore.setLang(storedLang);
+            } else if (langKey) {
+                // 如果有 langKey，使用它
+                appStore.setLang(langKey);
+            } else {
+                // 都不存在，设置默认值 en_US
+                appStore.setLang('en_US');
+            }
         }
         if (rateData.length > 0) {
             localStorage.setItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA, JSON.stringify(rateData));
         }
-    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData]);
+    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData, langKey]);
 
     // 从本地存储获取缓存的菜单数据
     const getCachedMenuData = useMemo(() => {
@@ -181,21 +178,22 @@ export default function LangageMenuItems() {
 
 
     // 语言
-    const [selectedLanguage, setSelectedLanguage] = useState(() => {
-        // 检查是否在浏览器环境
-        if (typeof window !== 'undefined') {
-            // 从localStorage获取已保存的语言设置
-            const savedLanguage = localStorage.getItem('selectedLanguage');
-            if (savedLanguage) return savedLanguage;
+    const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 
-            // 获取系统语言
-            const systemLang = navigator.language.toLowerCase();
-            return systemLang.includes('zh') ? '简体中文' : 'English';
+    // 初始化选中的语言显示
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const currentLang = appStore.getLang() || 'en_US';
+        // 从语言列表中找到对应的语言名称
+        const currentLanguage = mergedLanguageList.find((lang:any) => lang.key === currentLang);
+        if (currentLanguage) {
+            setSelectedLanguage(currentLanguage.span as string);
+        } else {
+            // 如果找不到对应的语言，使用默认值
+            setSelectedLanguage('English');
         }
-
-        // 服务器端渲染时的默认值
-        return '简体中文';
-    });
+    }, [mergedLanguageList]);
 
 
 
