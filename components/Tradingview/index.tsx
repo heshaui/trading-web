@@ -98,7 +98,6 @@ const Tradingview: React.ForwardRefRenderFunction<
 
   // 假设主题色，如果项目中已有变量请使用已有的
   const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
-  console.log(klineData,'klineDatak线数据')
   useEffect(() => {
 
     
@@ -214,7 +213,9 @@ const Tradingview: React.ForwardRefRenderFunction<
     // 更新引用但不重新初始化图表
     wsDataRef.current = klineData;
     
-    console.log('处理新的klineData更新:', klineData);
+    console.log('klineDatak线数据更新:', klineData);
+    console.log('数据类型:', typeof klineData);
+    console.log('数据结构:', klineData?.data ? `包含${klineData.data.length}个数据点` : '不包含data字段');
     
     // 每次收到新数据时，强制更新图表
     if (window.__handleTradingViewUpdate) {

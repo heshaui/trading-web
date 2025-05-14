@@ -31,6 +31,7 @@ import appStore from '@/store';
 import { set } from 'mobx';
 import { reaction } from 'mobx';
 import { useAuth } from '@/context/AuthContext';
+import { throttle } from 'lodash';
 
 interface DataType {
     id: number,
@@ -355,68 +356,57 @@ const ExchangePage = () => {
 
     // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
     const getKlineData = useCallback(() => {
-        // 确保只在客户端和有currentPair时执行
         if (typeof window === 'undefined' || !currentPair || !currentPair.coinSymbol) return;
-
-        // 先关闭已有连接
+    
         if (klineWsRef.current) {
             klineWsRef.current.close();
             klineWsRef.current = null;
         }
-
+    
         try {
             const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}@kline_${timeInterval.toLowerCase()}`);
             klineWsRef.current = websocket;
-
+    
+       
+            const updateKlineData = throttle((newData: any) => {
+                setKlineData((prevData: any) => {
+                    const newDataCopy = JSON.parse(JSON.stringify(newData));
+                    const combinedKlines = [...(prevData?.data || []), ...(newDataCopy.data || [])]
+                      .reduce((acc, curr) => {
+                        acc.push(curr);
+                        return acc;
+                      }, [])
+                      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+                    return { ...newDataCopy, data: combinedKlines };
+                });
+                console.log('更新k线执行')
+            }, 1000);
+    
             websocket.connect((message: string) => {
+                console.log(message,'homeklinedata数据1');
                 try {
-                    // 检查消息是否为系统消息（而非数据消息）
-                    if (message.startsWith('subscribe:') ||
-                        message.startsWith('ping') ||
-                        message.startsWith('pong') ||
-                        message.includes('subscribe') ||
-                        message.includes('joined') ||
-                        message.includes('left')) {
+                    if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong') || message.includes('subscribe') || message.includes('joined') || message.includes('left')) {
                         console.log('WebSocket系统消息:', message);
                         return;
                     }
-
-                    if (message.includes('error')) {
-                        console.log('WebSocket错误消息:', message);
-                        return;
-                    }
-
-                    
-
-                    // 确保消息是有效的JSON格式
-                    if (message.trim().startsWith('{') || message.trim().startsWith('[')) {
-                        const data = JSON.parse(message);
-                        if (data.type === 'kline' && Array.isArray(data.data)) {
-                            setCoinData(data);
-                            console.log(data,'wsklineData')   
-                            setKlineData((prevData: any) => {
-                                if (!prevData) return data;
-
-                                // 合并新数据和旧数据
-                                return {
-                                    ...data,
-                                    data: [...(data.data || []), ...(prevData.data || [])]
-                                };
-                            });
-                        }
-
-                    } else {
-                        console.log('收到非JSON格式WebSocket消息:', message);
-                    }
+    
+                    const data = JSON.parse(message);
+                    console.log(data,'homeklinedata数据2');
+                    setCoinData(data);
+                    updateKlineData(data);
                 } catch (err) {
                     console.error('解析K线数据失败:', err, '原始消息:', message);
                 }
             });
         } catch (err) {
             console.error('创建K线WebSocket连接失败:', err);
+            toast.error('无法建立K线数据连接');
         }
     }, [currentPair, timeInterval]);
 
+
+
+    
     useEffect(() => {
         // 设置客户端渲染标记
         setIsClient(true);
@@ -738,7 +728,6 @@ const ExchangePage = () => {
                                     
                                 {(activeChartType === 'basic') && (
                                     <div>
-
                                     <Tradingview
                                         ref={tradingviewRef}
                                         key={`${currentPair?.coinSymbol || ''}_${currentPair?.baseSymbol || ''}_${currentPair?.groupStatus || ''}_${timeInterval}`}
