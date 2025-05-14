@@ -7,7 +7,8 @@ import type { ThemeConfig } from 'antd';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import appStore from '@/store';
 import { KV_KEYS } from '@/config/apiConfig';
-import {parseJsonString} from "@/utils/parseJsonString";
+import { parseJsonString } from "@/utils/parseJsonString";
+
 // 检查图片URL是否可用
 const checkImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -17,48 +18,52 @@ const checkImageUrl = (url: string) => {
         img.src = url;
     });
 };
+
 // 获取网站配置
 export const useWebConfig = () => {
     const [config, setConfig] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true);
 
+    // 处理配置数据的函数
+    const processConfigData = (data: Record<string, any>) => {
+        const parsedConfig: Record<string, any> = {};
+        
+        Object.entries(data).forEach(([key, value]) => {
+            if (typeof value === 'string') {
+                const parsedValue = parseJsonString(value);
+                if (parsedValue || parsedValue?.toString() === '0') {
+                    parsedConfig[key] = parsedValue;
+                    appStore.setKvConfig(key, parsedValue);
+                }
+            } else {
+                parsedConfig[key] = value;
+                appStore.setKvConfig(key, value);
+            }
+        });
+
+        return parsedConfig;
+    };
+
     useEffect(() => {
-        let isMounted = true; // 添加组件挂载状态标志
+        let isMounted = true;
 
         const fetchConfig = async () => {
             try {
-                if (!isMounted) return; // 检查组件是否仍然挂载
+                if (!isMounted) return;
 
                 setLoading(true);
-                // 请求多个配置项
-                const keys =KV_KEYS
+                const response = await getKvObject(KV_KEYS) as { code: string; data: Record<string, any> };
 
-                const response = await getKvObject(keys) as { code: string; data: Record<string, any> };
-
-                if (!isMounted) return; // 再次检查组件是否仍然挂载
+                if (!isMounted) return;
 
                 if (response?.code === '0' && response.data) {
-                    const parsedConfig: Record<string, any> = {};
-
-                    // 处理每个配置项
-                    Object.entries(response.data).forEach(([key, value]) => {
-                        if (typeof value === 'string') {
-                            const parsedValue = parseJsonString(value);
-                            if (parsedValue ||parsedValue?.toString()==='0') {
-                                parsedConfig[key] = parsedValue;
-                                appStore.setKvConfig(key, parsedValue);
-                            }
-                        } else {
-                            parsedConfig[key] = value;
-                            appStore.setKvConfig(key, value);
-                        }
-                    });
-
+                    const parsedConfig = processConfigData(response.data);
                     setConfig(parsedConfig);
                 }
+
+                setLoading(false);
             } catch (error) {
-                console.error('获取网站配置失败:', error);
-            } finally {
+                console.error('获取配置时出错:', error);
                 if (isMounted) {
                     setLoading(false);
                 }
@@ -67,14 +72,15 @@ export const useWebConfig = () => {
 
         fetchConfig();
 
-        // 清理函数
         return () => {
             isMounted = false;
         };
-    }, []); // 确保依赖数组为空
+    }, []);
 
     return { config, loading };
 };
+
+export { checkImageUrl };
 
 // 保留原有的 Logo 获取逻辑，但使用新的配置获取方式
 export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
