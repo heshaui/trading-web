@@ -5,6 +5,9 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 import defaultTheme from '@/theme/themeConfig';
 import type { ThemeConfig } from 'antd';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import appStore from '@/store';
+import { KV_KEYS } from '@/config/apiConfig';
+import {parseJsonString} from "@/utils/parseJsonString";
 // 检查图片URL是否可用
 const checkImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -13,20 +16,6 @@ const checkImageUrl = (url: string) => {
         img.onerror = () => resolve(false);
         img.src = url;
     });
-};
-
-// 处理JSON字符串
-const parseJsonString = (jsonString: string) => {
-    try {
-        // 修复JSON格式问题
-        const fixedJsonString = jsonString.replace(/([{,]\s*)([a-zA-Z0-9_]+):/g, '$1"$2":')
-            .replace(/:\s*'([^']*?)'/g, ':"$1"');
-        
-        return JSON.parse(fixedJsonString);
-    } catch (error) {
-        console.error('解析JSON失败:', error);
-        return null;
-    }
 };
 // 获取网站配置
 export const useWebConfig = () => {
@@ -42,14 +31,7 @@ export const useWebConfig = () => {
 
                 setLoading(true);
                 // 请求多个配置项
-                const keys = [
-                    "theme",
-                    "logo",
-                    "footer_setting",
-                    "fee_direction",
-                    // "account_configuration",
-                    // 可以根据需要添加更多配置项
-                ];
+                const keys =KV_KEYS
 
                 const response = await getKvObject(keys) as { code: string; data: Record<string, any> };
 
@@ -62,11 +44,13 @@ export const useWebConfig = () => {
                     Object.entries(response.data).forEach(([key, value]) => {
                         if (typeof value === 'string') {
                             const parsedValue = parseJsonString(value);
-                            if (parsedValue) {
+                            if (parsedValue ||parsedValue?.toString()==='0') {
                                 parsedConfig[key] = parsedValue;
+                                appStore.setKvConfig(key, parsedValue);
                             }
                         } else {
                             parsedConfig[key] = value;
+                            appStore.setKvConfig(key, value);
                         }
                     });
 
@@ -117,7 +101,6 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
                     : logoConfig?.light?.headerLogo;
 
                 if (imageUrl) {
-                    console.log(imageUrl,'imageUrl');
                     const isValidUrl = await checkImageUrl(imageUrl);
                     setLogoUrl(isValidUrl ? imageUrl : defaultLogo);
                 }

@@ -206,25 +206,28 @@ const Tradingview: React.ForwardRefRenderFunction<
 
   // 单独处理WebSocket数据更新
   useEffect(() => {
-    if (!tvWidget || !klineData || klineData.length === 0) return;
+    if (!tvWidget || !klineData) return;
+    
+    // 仅在klineData有值时才进行处理
+    if (klineData.length === 0 && !klineData.data) return;
     
     // 更新引用但不重新初始化图表
     wsDataRef.current = klineData;
     
     console.log('处理新的klineData更新:', klineData);
     
-    // 确保最新的数据点被传递给图表
-    if (window.__handleTradingViewUpdate && klineData) {
+    // 每次收到新数据时，强制更新图表
+    if (window.__handleTradingViewUpdate) {
       // 检查数据格式并确保我们传递的是最新的数据点
       if (klineData.type === 'kline' && Array.isArray(klineData.data) && klineData.data.length > 0) {
         // 传递整个klineData对象以保持一致的处理
-        window.__handleTradingViewUpdate(klineData);
+        window.__handleTradingViewUpdate({...klineData, timestamp: Date.now()}); // 添加时间戳确保每次更新被识别为新数据
       } else if (Array.isArray(klineData) && klineData.length > 0) {
         // 如果是数组格式，确保我们传递整个数组
-        window.__handleTradingViewUpdate(klineData);
+        window.__handleTradingViewUpdate([...klineData]); // 创建新数组引用确保触发更新
       } else {
         // 如果是单个数据点对象，直接传递
-        window.__handleTradingViewUpdate(klineData);
+        window.__handleTradingViewUpdate({...klineData, timestamp: Date.now()}); // 添加时间戳确保每次更新被识别为新数据
       }
     }
   }, [klineData, tvWidget]);
@@ -412,11 +415,11 @@ const Tradingview: React.ForwardRefRenderFunction<
       try {
         console.log('正在处理收到的数据:', data);
         
-        // 处理数据并通知订阅者
+        // 处理不同的数据格式
         if (data.type === 'kline' && Array.isArray(data.data) && data.data.length > 0) {
           console.log('发现kline数组数据, 长度:', data.data.length);
           
-          // 引入所有数据点
+          // 处理每个数据点
           data.data.forEach((klineItem: any) => {
             if (Array.isArray(klineItem) && klineItem.length >= 6) {
               const bar = {
@@ -428,10 +431,12 @@ const Tradingview: React.ForwardRefRenderFunction<
                 volume: Number(klineItem[5] || 0)
               };
               
-              // 将每个数据点传给订阅者
-              Object.values(subscribers).forEach((callback: any) => {
+              // 将每个数据点传给所有订阅者
+              Object.keys(subscribers).forEach(key => {
+                const callback = subscribers[key];
                 if (typeof callback === 'function') {
-                  callback(bar);
+                  // 添加一个小延迟确保图表更新
+                  setTimeout(() => callback(bar), 0);
                 }
               });
             }
@@ -454,9 +459,11 @@ const Tradingview: React.ForwardRefRenderFunction<
                   volume: Number(item[5] || 0)
                 };
                 
-                Object.values(subscribers).forEach((callback: any) => {
+                Object.keys(subscribers).forEach(key => {
+                  const callback = subscribers[key];
                   if (typeof callback === 'function') {
-                    callback(bar);
+                    // 使用setTimeout确保每个回调独立执行
+                    setTimeout(() => callback(bar), 0);
                   }
                 });
               }
@@ -472,9 +479,10 @@ const Tradingview: React.ForwardRefRenderFunction<
               volume: Number(data[5] || 0)
             };
             
-            Object.values(subscribers).forEach((callback: any) => {
+            Object.keys(subscribers).forEach(key => {
+              const callback = subscribers[key];
               if (typeof callback === 'function') {
-                callback(bar);
+                setTimeout(() => callback(bar), 0);
               }
             });
           }
@@ -490,9 +498,10 @@ const Tradingview: React.ForwardRefRenderFunction<
             volume: Number(data.volume || 0)
           };
           
-          Object.values(subscribers).forEach((callback: any) => {
+          Object.keys(subscribers).forEach(key => {
+            const callback = subscribers[key];
             if (typeof callback === 'function') {
-              callback(bar);
+              setTimeout(() => callback(bar), 0);
             }
           });
         }

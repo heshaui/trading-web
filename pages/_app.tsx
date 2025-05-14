@@ -179,7 +179,7 @@ function App({ Component, pageProps }: AppProps) {
           }
           setLastUpdated(Date.now());
         } else if (!checkTimestamp) {
-          console.log('语言文件获取成功:', data);
+          // console.log('语言文件获取成功:', data);
           setLastUpdated(Date.now());
         } else {
           console.log('语言文件无更新');
