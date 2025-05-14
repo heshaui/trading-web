@@ -27,7 +27,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
   const [buyRatio, setBuyRatio] = useState(0);
   const [sellRatio, setSellRatio] = useState(0);
   const [activeTab, setActiveTab] = useState('orderbook');
-  const [priceScale, setPriceScale] = useState(currentPair?.depthOne);
+  const [priceScale, setPriceScale] = useState();
   const [colorMode, setColorMode] = useState(1);
   const [priceDirection, setPriceDirection] = useState<'up' | 'down' | ''>('');
   const [priceSource, setPriceSource] = useState<'buy' | 'sell' | ''>('');
@@ -359,8 +359,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
                     <span className={styles.price}>
-                      {order.price.toFixed(priceScale < 1 ? 
-                        Math.abs(Math.log10(priceScale)) : 
+                      {order.price.toFixed(currentPair?.coinScale < 1 ? 
+                        Math.abs(Math.log10(currentPair?.coinScale || 1)) : 
                         (order.price < 1 ? 4 : 1))}
                     </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
@@ -423,8 +423,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
                     <span className={styles.price}>
-                      {order.price.toFixed(priceScale < 1 ? 
-                        Math.abs(Math.log10(priceScale)) : 
+                      {order.price.toFixed(currentPair?.baseCoinScale < 1 ? 
+                        Math.abs(Math.log10(currentPair?.baseCoinScale)) : 
                         (order.price < 1 ? 4 : 1))}
                     </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
