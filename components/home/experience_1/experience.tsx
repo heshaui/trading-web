@@ -4,7 +4,7 @@
 // import { GetStaticProps } from 'next';
 
 import React from 'react';
-import styles from '@/styles/components/home/experience.module.css'
+import styles from '../styles/experience.module.css'
 import { Input, Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';

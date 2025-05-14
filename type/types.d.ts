@@ -97,9 +97,23 @@ export type IconName = string;
 // Footer
 export type FooterListProps = {
     title: string;
-    items: string[];
+    items: FooterProps[];
 };
-
+export type FooterProps = {
+    bottomId: number,
+    bottomDescription: string,
+    languageKey: string,
+    accessType: number,
+    accessPath: string,
+    orderIndex: number,
+    tenantId: string,
+    parentId: number,
+    translationId: number,
+    bottomName: string,
+    languageCode: string,
+    languagePath: string,
+    children?: FooterProps[]
+}
 // CurrencyTrading
 export interface CurrencyTradingProps {
     title: string;

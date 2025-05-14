@@ -48,9 +48,10 @@ interface DataType {
   baseSymbolCount: number
 }
 type Props = {
-  orderUpdateFlag?: number
+  orderUpdateFlag?: number,
+  returnNowOrder: (num: number) => void
 }
-const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
+const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
@@ -340,6 +341,7 @@ const SpotMainPage = observer(({ orderUpdateFlag }: Props) => {
     try {
       const res = await getOrderList(params)
       if (res.code === '0') {
+        returnNowOrder(res.data.count)
         const newData = res.data.list.map((item: any) => ({
           ...item
         }));

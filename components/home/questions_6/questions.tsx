@@ -1,6 +1,6 @@
 
 import React from 'react';
-import styles from '@/styles/components/home/questions.module.css';
+import styles from '../styles/questions.module.css';
 import { Collapse } from "antd";
 import type { CollapseProps } from 'antd';
 import type { CSSProperties } from 'react';

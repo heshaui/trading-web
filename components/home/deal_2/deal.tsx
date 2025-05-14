@@ -1,6 +1,6 @@
 
 import React from 'react';
-import styles from  '@/styles/components/home/deal.module.css'
+import styles from  '../styles/deal.module.css'
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
 export default function Experience() {

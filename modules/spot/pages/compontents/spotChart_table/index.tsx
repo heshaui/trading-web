@@ -40,19 +40,19 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
         selsect: ''
     });
     const [total, setTotal] = useState(0);
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10,
-    })
-    const paramdataRef = useRef(pageParam);
 
-console.log(orderUpdateFlag,123344);
 
     const items: TabsProps['items'] = [
         {
             key: '1',
-            label:t('spot.tabs.now') , //"当前委托",
-            children: isLoggedIn ? <SpotOrderNow orderUpdateFlag={orderUpdateFlag} /> : <div className='h-full' style={{paddingTop:'100px'}}>
+            label: <div>
+                {/* 当前委托 */}
+                {t('spot.tabs.now')}
+                {total>0&&<span className={styles.tabs_span}>{`(${total})`}</span>}
+            </div>,
+            children: isLoggedIn ? <SpotOrderNow orderUpdateFlag={orderUpdateFlag}
+                returnNowOrder={(num: number) => setTotal(num)} /> :
+                <div className='h-full' style={{ paddingTop: '100px' }}>
                 <NoLogin />
             </div>
         },
