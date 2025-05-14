@@ -19,7 +19,7 @@ import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useTranslation } from 'next-i18next';
 // import { encryptData } from "@/utils/encrypt";
 import { encryptData } from "@/hooks/user-encrypt";
-
+import { useWebConfig } from '@/hooks/useKv';
 interface acountType {
     type: string,
     email?: string,
@@ -175,6 +175,10 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         router.push('/')
                         // 获取用户信息
                         await getUserInfo()
+                        // 更新网站配置
+                        if (typeof window !== 'undefined') {
+                            store.getKvConfigAllFromApi()
+                        }
 
                     } else {
                         toast.error(res.message)

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import React from 'react';
-import styles from '@/styles/components/home/assistant.module.css';
+import styles from '../styles/assistant.module.css';
 // import { Input, Button } from "antd";
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
