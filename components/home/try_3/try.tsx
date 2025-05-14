@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '@/styles/components/home/try.module.css';
+import styles from '../styles/try.module.css';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 export default function Experience() {

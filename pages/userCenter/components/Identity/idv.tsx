@@ -242,6 +242,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                         className={`custom-input ${styles.input_box} modal-input2`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
+                                        maxLength={20}
                                     />
                                 </Form.Item>
                             </div>
@@ -257,6 +258,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                         className={`custom-input ${styles.input_box} modal-input2`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
+                                        maxLength={20}
                                     />
 
                                 </Form.Item>

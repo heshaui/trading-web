@@ -12,7 +12,9 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
-import { getKvObject } from "@/services/kv"
+// import { getKvObject } from "@/services/kv"
+import { useWebConfig } from '@/hooks/useKv';
+import appStore from '@/store';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
 	// backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png')`,
@@ -35,13 +37,8 @@ function Login() {
 	const router = useRouter();
 	const { t } = useTranslation(['login']);
 	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
-	// localStorage.getItem('localeLanguage')
-	let token = null;
-
-	// // 判断是否为浏览器环境
-	if (typeof window !== 'undefined') {
-		token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
-	}
+	const allConfig = appStore.getKvConfigAll();
+	const token = appStore.getToken();
 	const getBgc = async () => {
 		try {
 			// const res=await getPic(['pcLogin'])
@@ -49,7 +46,6 @@ function Login() {
 			if (res.code === '0') {
 
 				const resdata = JSON.parse(res.data)
-				console.log(resdata, 121);
 				let lang = '';
 				if (typeof window !== 'undefined') {
 					lang = localStorage.getItem('localeLanguage') || '';
@@ -78,17 +74,17 @@ function Login() {
 			window.open(loginPic?.login.url, '_blank', 'noopener')
 		}
 	}
-	const getUseBankKv = async () => {
-		const keys=['out_money']
+	// const getUseBankKv = async () => {
+	// 	const keys=['out_money']
 
-		const res=await getKvObject(keys)
-		if(res.code==='0'){
-			localStorage.setItem(LOCAL_STORAGE_KEY.OUT_MONEY,res.data.out_money)
-		}else{
-			console.log(res.msg,123);
-		}
+	// 	const res=await getKvObject(keys)
+	// 	if(res.code==='0'){
+	// 		localStorage.setItem(LOCAL_STORAGE_KEY.OUT_MONEY,res.data.out_money)
+	// 	}else{
+	// 		console.log(res.msg,123);
+	// 	}
 
-	}
+	// }
 	// 如果有授权，则跳转到首页
 	// useEffect(() => {
 	// 	if (token) {
@@ -97,8 +93,13 @@ function Login() {
 	// 	getBgc()
 	// }, [token, router]);
 	useEffect(() => {
+		if (!allConfig) {
+			useWebConfig();
+		}
+	}, [allConfig]);
+	useEffect(() => {
 		getBgc()
-		getUseBankKv()
+		// getUseBankKv()
 	}, []);
 
 	return (

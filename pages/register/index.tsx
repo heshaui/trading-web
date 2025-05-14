@@ -17,6 +17,8 @@ import {  getPic2 } from "@/services/open";
 import { useEffect, useState } from "react";
 import type { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useWebConfig } from '@/hooks/useKv';
+import appStore from '@/store';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
 	backgroundColor: "var(--background11)",
@@ -35,8 +37,7 @@ interface LoginPicType {
 }
 function Register() {
 	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
-	// const { t } = useTranslation();
-	// const token = appStore.userToken;
+	const allConfig = appStore.getKvConfigAll();
 	const getBgc = async () => {
 		try {
 			// const res=await getPic(['pcLogin'])
@@ -44,7 +45,6 @@ function Register() {
 			if (res.code === '0') {
 			
 				const resdata = JSON.parse(res.data)
-				console.log(resdata, 111)
 				
 				let lang = '';
                 if (typeof window !== 'undefined') {
@@ -73,6 +73,11 @@ function Register() {
 			window.open(loginPic?.register.url, '_blank','noopener')
 		}
 	}
+	useEffect(() => {
+		if (!allConfig) {
+			useWebConfig();
+		}
+	}, [allConfig]);
 	useEffect(() => {
 		getBgc()
 	}, []);

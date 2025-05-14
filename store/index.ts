@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import { getWebConfig } from "@/store/kvConfig";
 import {
     fetchAllCurrencyPairs,
     fetchUserFavorites,
@@ -82,21 +83,41 @@ class AppStore {
     rateData: any[] = [];
     rateKey: string = '';
     lang: string = '';
+    kvConfig: Record<string, any> = {};
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
 
         // 仅在浏览器环境中初始化
         if (isBrowser()) {
+            this.initToken();
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
             this.initRateKeyFromStorage(); // 初始化汇率key
             this.initLangFromStorage(); // 初始化语言
             // this.loadCoinList(); //加载币种数据
+            this.initKvConfig();
         }
     }
 
+    initToken() {
+        if (!isBrowser()) return;
+        this.userToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || null;
+    }
+    getToken() {
+        return this.userToken;
+    }
+    setToken(token: string) {
+        this.userToken = token;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
+        }
+    }
+    clearToken() {
+        this.userToken = null;
+        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+    }
     toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;
     }
@@ -507,6 +528,75 @@ class AppStore {
     // 获取语言
     getLang() {
         return this.lang;
+    }
+    initKvConfig() {
+        if (!isBrowser()) return;
+        try {
+            // 首先尝试从 kv_config 获取
+            const kvConfig = localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG);
+            
+            if (kvConfig) {
+                this.kvConfig = JSON.parse(kvConfig);
+            } else {
+                this.kvConfig = {};
+            }
+        } catch (error) {
+            console.error('Error getting kv config:', error);
+        }
+    }
+    // 设置kv配置
+    setKvConfig(key: string, value: any) {
+        runInAction(() => {
+            this.kvConfig[key] = value;
+            if (isBrowser()) {
+                localStorage.setItem(LOCAL_STORAGE_KEY.KV_CONFIG, JSON.stringify(this.kvConfig));
+            }
+        });
+    }
+    // 更新kv配置
+    updateKvConfig(data: Record<string, any>) {
+        runInAction(() => {
+            this.kvConfig = { ...this.kvConfig, ...data };
+            if (isBrowser()) {
+                localStorage.setItem(LOCAL_STORAGE_KEY.KV_CONFIG, JSON.stringify(this.kvConfig));
+            }
+        });
+    }
+
+    // 获取指定键名的KV配置
+    getKvConfig(key: string) {
+        return this.kvConfig[key];
+    }
+    // 获取所有KV配置
+    getKvConfigAll() {
+        return this.kvConfig;
+    }
+      // 从API加载币种信息
+      async getKvConfigAllFromApi() {
+        try {
+            this.isLoadingCoinData = true;
+
+            const result = await getWebConfig();
+
+            if (result?.success) {
+                runInAction(() => {
+                    this.kvConfig = result.data;
+                    this.updateKvConfig(result.data);
+                });
+            } else {
+                throw result?.error;
+            }
+        } catch (error) {
+            runInAction(() => {
+                // 可能需要设置错误状态
+            });
+            console.error('Error loading coin list:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingCoinData = false;
+            });
+        }
     }
 }
 

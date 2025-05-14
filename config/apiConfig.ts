@@ -41,8 +41,20 @@ export const LOCAL_STORAGE_KEY = {
     RATE_KEY: 'rate_key', // 汇率key
     CACHED_RATE_DATA: 'cachedRateData', // 缓存汇率数据
     LANG: 'lang', // 当前语言
-    LANGUAGE_LIST:'cachedLanguageList'//语言列表
+    LANGUAGE_LIST:'cachedLanguageList', //语言列表
+    KV_CONFIG:'kv_config', // kv配置
 };
+
+export const KV_KEYS = [
+    "theme", //主题色
+    "logo", //logo
+    "footer_setting", //底部设置
+    "fee_direction", //手续费方向
+    "out_money", //提现配置
+    "tenant_cache_name" //商户名称
+    // "account_configuration",
+    // 可以根据需要添加更多配置项
+];
 
 export const ROUTER_KEY_ASSETS = {
     ACCOUNT:"/assets/assetsAccount", //资产页面/现货账户
