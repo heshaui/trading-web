@@ -142,9 +142,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
         const topAskPrice = Number(bookData.asks[0][0]);
         const topBidPrice = Number(bookData.bids[0][0]);
         const midPrice = (topAskPrice + topBidPrice) / 2;
-        if (currentPrice === 0) {
-          setCurrentPrice(midPrice);
-        }
+        // if (currentPrice === 0) {
+        //   setCurrentPrice(midPrice);
+        // }
         
         // 计算买卖比例
         const totalSellAmount = bookData.asks.reduce((sum: number, item: [number, number]) => sum + Number(item[1]), 0);
@@ -177,7 +177,9 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           price: Number(tradeData?.buy_price) || 0, // 确保数值有效
           amount: Number(tradeData?.quantity) || 0,
           time: tradeData?.timestamp ? new Date(tradeData.timestamp).toLocaleTimeString() : '--',
-          type: tradeData?.taker_side === 'Buy' ? 'buy' : 'sell'
+          type: tradeData?.taker_side === 'Buy' ? 'buy' : 'sell',
+          tradePrice:tradeData?.trade_price || 0
+
         };
       }).filter(trade => trade !== null); // 过滤掉无效的交易数据
       
@@ -195,6 +197,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
       if (typedProcessedTrades.length > 0) {
         const newPrice = typedProcessedTrades[0].price;
         const newType = typedProcessedTrades[0].type;
+        const newTradePrice = typedProcessedTrades[0].tradePrice;
         
         setLastPrice(prevPrice => {
           if (prevPrice > 0) {
@@ -203,7 +206,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
           }
           
           // 更新当前价格为最新成交价
-          setCurrentPrice(newPrice);
+          setCurrentPrice(newTradePrice);
           setPriceSource(newType);
           
           return newPrice;
