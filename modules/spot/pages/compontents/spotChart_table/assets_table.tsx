@@ -245,6 +245,7 @@ const AssetsMainPage =observer(() => {
                 setTableData(res.data || []);
                 setTotal(res.data.total);
             }
+             console.log('assets_table',1234567);
         } catch (error) {
             toast.error(String(error));
         } finally {

@@ -1,7 +1,7 @@
-import store from '@/store';
 import router from 'next/router';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import appStore from '@/store';
 // 定义上下文类型
 type AuthContextType = {
     isLoggedIn: boolean;
@@ -18,20 +18,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 初始化检查登录状态
     useEffect(() => {
-        const userToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || sessionStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        const userToken = appStore.getUserToken()||localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
         setIsLoggedIn(!!userToken);
     }, []);
 
     // 登录方法
     const login = (userToken: string) => {
-        localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, userToken);
+        // localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, userToken);
         setIsLoggedIn(true);
+        appStore.setToken(userToken);
     };
 
     // 登出方法
     const logout = () => {
-        localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
-        sessionStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        // localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        // sessionStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+        appStore.clearToken();
         setIsLoggedIn(false);
         // 触发自定义事件
         window.dispatchEvent(new Event('loginStatusChanged'));

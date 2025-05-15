@@ -9,6 +9,7 @@ import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { NoData } from '@/components/noData';
 import Image from 'next/image'
 import { saveUserAddress, getCoinAll, getcoinExtList } from "@/services/assets";
+import appStore from '@/store';
 
 type Props = {
     open: boolean;
@@ -50,6 +51,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     const [coinExtLoading, setCoinExtLoading] = useState(false)
     const [coinExtSelect, setCoinExtSelect] = useState<coinExtSelectType[]>([])
     const [form] = Form.useForm();
+     const allConfig = appStore.getKvConfigAll();
 
     const handCancel = () => {
         form.resetFields();
@@ -279,7 +281,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 dropdownRender={(menu) => (<>
                                     {coinExtSelect.length > 0 && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
                                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                                        <span>请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
+                                        <span>请注意，这里仅展示了{allConfig?.tenant_cache_name || '--'}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
                                     </p>}
                                     {menu}
                                 </>

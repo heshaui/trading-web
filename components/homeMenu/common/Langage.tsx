@@ -64,27 +64,13 @@ export default function LangageMenuItems() {
             localStorage.setItem('cachedBulletinData', JSON.stringify(bulletinData));
         }
         if (languageList.length > 0) {
-            // 存储语言列表
+            // localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
             appStore.setLanguageList(languageList);
-            
-            // 检查并设置当前语言
-            const storedLang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
-            
-            if (storedLang) {
-                // 如果本地存储有语言设置，使用它
-                appStore.setLang(storedLang);
-            } else if (langKey) {
-                // 如果有 langKey，使用它
-                appStore.setLang(langKey);
-            } else {
-                // 都不存在，设置默认值 en_US
-                appStore.setLang('en_US');
-            }
         }
         if (rateData.length > 0) {
             localStorage.setItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA, JSON.stringify(rateData));
         }
-    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData, langKey]);
+    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData]);
 
     // 从本地存储获取缓存的菜单数据
     const getCachedMenuData = useMemo(() => {
@@ -178,22 +164,21 @@ export default function LangageMenuItems() {
 
 
     // 语言
-    const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    const [selectedLanguage, setSelectedLanguage] = useState(() => {
+        // 检查是否在浏览器环境
+        if (typeof window !== 'undefined') {
+            // 从localStorage获取已保存的语言设置
+            const savedLanguage = localStorage.getItem('selectedLanguage');
+            if (savedLanguage) return savedLanguage;
 
-    // 初始化选中的语言显示
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const currentLang = appStore.getLang() || 'en_US';
-        // 从语言列表中找到对应的语言名称
-        const currentLanguage = mergedLanguageList.find((lang:any) => lang.key === currentLang);
-        if (currentLanguage) {
-            setSelectedLanguage(currentLanguage.span as string);
-        } else {
-            // 如果找不到对应的语言，使用默认值
-            setSelectedLanguage('English');
+            // 获取系统语言
+            const systemLang = navigator.language.toLowerCase();
+            return systemLang.includes('zh') ? '简体中文' : 'English';
         }
-    }, [mergedLanguageList]);
+
+        // 服务器端渲染时的默认值
+        return '简体中文';
+    });
 
 
 

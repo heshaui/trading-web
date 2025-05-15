@@ -9,7 +9,10 @@ import { getCustomFooter, getLogo, getSocialMediaList, getSelectFooter } from '@
 import { getLanguage } from '@/services/header';
 import { useWebConfig } from '@/hooks/useKv';
 import appStore from '@/store';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { useTranslation } from 'next-i18next';
+import { transformDOMPurify } from "@/utils/transformDOMPurify"
 
 interface FooterSetting {
     statu: string;
@@ -38,13 +41,15 @@ interface SocialMediaItem {
 }
 
 export default function Footer() {
+    const { t, i18n } = useTranslation('footer');
     const langKey = appStore.getLang() || 'en_US';
     const allConfig = appStore.getKvConfigAll();
     const footerConfig = appStore.getKvConfig('footer_setting');
+    const languageList = appStore.getLangList();
     const router = useRouter()
     // 获取footer自定义数据
     const [customFooter, setCustomFooter] = useState<FooterProps[]>([]);
-    const [selectFooter, setSelectFooter] = useState<any>('');
+    const [selectFooter, setSelectFooter] = useState<string | null>(null);
 
     // 使用现有的 useWebConfig hook 获取所有配置
     const { loading } = useWebConfig();
@@ -55,7 +60,7 @@ export default function Footer() {
     const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
 
     // 语言
-    const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
+    // const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
     // 添加社交媒体列表状态
     const [socialMediaList, setSocialMediaList] = useState<SocialMediaItem[]>([]);
 
@@ -89,10 +94,11 @@ export default function Footer() {
     const getCustomFooterJson = async () => {
         try {
             const res = await getCustomFooter({ lang: langKey })
-            console.log(res.data, 111);
+            // console.log(res.data, 111);
 
             if (res.code === '0' && res.data) {
-                setCustomFooter(res.data);
+                const filteredData = filterFooterList(res.data);
+                setCustomFooter(filteredData);
             }
         } catch (error) {
             console.error('获取footer设置失败0:', error);
@@ -101,15 +107,25 @@ export default function Footer() {
     const getSelectFooterJson = async () => {
         try {
             const res = await getSelectFooter({ lang: langKey });
-            console.log(res.data, 122);
 
             if (res?.code === '0' && res.data) {
-                setSelectFooter(res.data);
+                const htmlString = transformDOMPurify(res.data);
+                // 设置净化后的 HTML
+                setSelectFooter(htmlString);
+                // console.log('转换后的 HTML:', htmlString);
             }
         } catch (error) {
             console.error('获取社交媒体列表失败1:', error);
         }
     }
+    const filterFooterList = (list: FooterProps[]): FooterProps[] => {
+        return list
+            .filter(item => item.show === 1)
+            .map(item => ({
+                ...item,
+                children: item.children ? filterFooterList(item.children) : undefined
+            }));
+    };
 
     useEffect(() => {
         fetchSocialMedia();
@@ -118,19 +134,74 @@ export default function Footer() {
     useEffect(() => {
         if (allConfig) {
             fetchFooterSetting()
+            setSelectedLang(languageList.find(item => item.key.includes(i18n.language))?.span || '');
         }
-    }, [allConfig, langKey])
+    }, [allConfig, langKey, languageList])
 
-    const itemsLan = [
-        {
-            label: '简体中文',
-            key: '1',
-        },
-        {
-            label: 'English',
-            key: '2',
-        },
-    ];
+
+    const setLangChange = async (key: string) => {
+        const selectedItem = languageList.find(item => item.key === key);
+        if (selectedItem) {
+            try {
+                // 保存选中的语言到状态和本地存储
+                setSelectedLang(selectedItem.span || '');
+                localStorage.setItem('lang', key);
+                localStorage.setItem('selectedLanguage', selectedItem.span || '');
+
+                // 清除缓存
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith('cached')) {
+                        localStorage.removeItem(k);
+                    }
+                });
+
+                // 添加时间戳使缓存失效
+                localStorage.setItem('cacheInvalidationTimestamp', Date.now().toString());
+
+                // 设置语言
+                appStore.setLang(key);
+
+                // 处理 i18n
+                if (typeof i18n.changeLanguage === 'function') {
+                    await i18n.changeLanguage(key.split('-')[0]);
+                }
+
+                // 设置 i18next 语言
+                // localStorage.setItem('i18nextLng', key.split('-')[0]);
+
+                // 刷新相关数据
+                await fetchFooterSetting();
+
+                // 处理 Next.js locale
+                let nextLocale = 'en';
+                if (key.startsWith('zh')) {
+                    nextLocale = 'zh';
+                } else if (key.startsWith('ja')) {
+                    nextLocale = 'ja';
+                } else if (key.startsWith('ko')) {
+                    nextLocale = 'ko';
+                }
+
+                // 使用 Next.js 路由更新 locale
+                const { pathname, asPath, query } = router;
+                await router.push({ pathname, query }, asPath, { locale: nextLocale });
+
+            } catch (error) {
+                console.error('语言切换失败:', error);
+            }
+        }
+    }
+
+    // const itemsLan = [
+    //     {
+    //         label: '简体中文',
+    //         key: '1',
+    //     },
+    //     {
+    //         label: 'English',
+    //         key: '2',
+    //     },
+    // ];
     const itemsDownLoad = [
         {
             label: (
@@ -149,16 +220,16 @@ export default function Footer() {
         },
     ];
     // 语言选择菜单
-    const menuProps1 = {
-        items: itemsLan,
-        onClick: ({ key }: { key: string }) => {
-            // 根据选中项的key更新显示的语言
-            const selectedItem = itemsLan.find(item => item.key === key);
-            if (selectedItem) {
-                setSelectedLang(selectedItem.label || '');
-            }
-        }
-    };
+    // const menuProps1 = {
+    //     items: itemsLan,
+    //     onClick: ({ key }: { key: string }) => {
+    //         // 根据选中项的key更新显示的语言
+    //         const selectedItem = itemsLan.find(item => item.key === key);
+    //         if (selectedItem) {
+    //             setSelectedLang(selectedItem.label || '');
+    //         }
+    //     }
+    // };
     const menuProps2 = {
         items: itemsDownLoad,
     };
@@ -192,10 +263,23 @@ export default function Footer() {
         if (customFooter?.length > 0) {
             return customFooter.map((item, index) => (
                 <div key={index} className={`flex-1`}>
-                    {renderFooterList({
+                    {/* {renderFooterList({
                         title: item.bottomName,
                         items: item.children || []
-                    })}
+                    })} */}
+                    <div className={`${styles.footerList}`} >
+                        <h5 className='tip-color'>{item.bottomName || '--'}</h5>
+                        <ul>
+                            {item.children?.map((childItem, index) => (
+                                <li key={index}>
+                                    <button onClick={() => goLink(childItem.accessPath)}>
+                                        {childItem.bottomName || '--'}
+                                    </button>
+
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
             ));
         }
@@ -265,7 +349,7 @@ export default function Footer() {
                             onError={() => setLogoUrl('/home_menu_logo.png')} // 图片加载失败时使用默认值
                         />
                     </div>
-                    <p>©2023 - 2024 {allConfig?.tenant_cache_name||''}.</p>
+                    <p suppressHydrationWarning>{`©2023 - 2024 ${allConfig?.tenant_cache_name || ''}.`}</p>
                     <Row className='mt-3'>
                         <Col><h6 style={{ color: '#FFFFFF', fontSize: 12 }}>社区</h6></Col>
                     </Row>
@@ -274,13 +358,13 @@ export default function Footer() {
                     </Row>
                     <Dropdown
                         menu={{
-                            items: itemsLan,
+                            items: languageList.map(item => ({
+                                ...item,
+                                label: item.span,
+                                key: item.key,
+                            })),
                             onClick: ({ key }: { key: string }) => {
-                                // 根据选中项的key更新显示的语言
-                                const selectedItem = itemsLan.find(item => item.key === key);
-                                if (selectedItem) {
-                                    setSelectedLang(selectedItem.label || '');
-                                }
+                                setLangChange(key);
                             }
                         }}
                         trigger={['click']}
@@ -343,8 +427,15 @@ export default function Footer() {
                         </Button>
                     </Dropdown>
                 </div>
-                <div className={`${styles.footer} flex-x`}>
-                    {renderCustomFooter()}
+                <div className={`${styles.footer} flex-x`} suppressHydrationWarning>
+                    {footerConfig && footerConfig.toString() === '0' ? renderCustomFooter() :
+                        (
+                            <div
+                                // style={{ color: 'pink' }}
+                                dangerouslySetInnerHTML={{ __html: selectFooter || '' }}
+                            />
+                        )
+                    }
                 </div>
             </div>
         </ConfigProvider>
