@@ -1,24 +1,19 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { getWebConfig } from "@/store/kvConfig";
+import {UserInfoType} from "@/type/userCenter/overview"
+
 import {
     fetchAllCurrencyPairs,
     fetchUserFavorites,
     addToFavorites,
     removeFromFavorites,
-    CurrencyPairType,
     fetchAllCoin,
-    CoinType
 } from './currencyPairService';
+import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 
-interface UserInfoType {
-    userId: number,
-    nickname?: string,
-    avatarUrl?: string,
-    token: string,
-}
-
+// const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
 
@@ -59,12 +54,7 @@ class AppStore {
             countryCode: "",
             code: ""
         };
-    userInfo: UserInfoType = {
-        userId: 0,
-        nickname: "",
-        avatarUrl: "",
-        token: ""
-    }
+    userInfo: UserInfoType = {} as UserInfoType;
 
     // 添加币对信息列表
     currencyPairs: CurrencyPairType[] = [];
@@ -92,6 +82,7 @@ class AppStore {
         // 仅在浏览器环境中初始化
         if (isBrowser()) {
             this.initToken();
+            this.initUserInfo();
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
@@ -119,6 +110,27 @@ class AppStore {
         this.userToken = null;
         localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
     }
+    initUserInfo() {
+        if (!isBrowser()) return;
+        const userInfo = localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO);
+        this.userInfo = userInfo ? JSON.parse(userInfo) : {} as UserInfoType;
+    }
+    getUserInfo() {
+        return this.userInfo;
+    }
+    setUserInfo(userInfo: UserInfoType) {
+        this.userInfo = userInfo;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(userInfo));
+        }
+    }
+    clearUserInfo() {
+        this.userInfo = {} as UserInfoType;
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
+        }
+    }
+
     toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;
     }
@@ -139,9 +151,7 @@ class AppStore {
     getUserToken() {
         return this.userToken;
     }
-    getUserInfo() {
-        return this.userInfo;
-    }
+
 
 
     setAuthcodeState(state: string | number, type: string | number) {
@@ -173,19 +183,7 @@ class AppStore {
             localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
         }
     }
-    clearUserInfo() {
-        this.userInfo = {
-            userId: 0,
-            nickname: "",
-            avatarUrl: "",
-            token: ""
-        };
-        if (isBrowser()) {
-            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
-        }
-        // 考虑是否需要重置自选状态
-        // this.loadFavoriteCoins();
-    }
+
 
     // 从本地存储初始化币对信息
     initCurrencyPairsFromStorage() {
@@ -290,9 +288,16 @@ class AppStore {
             // 首先尝试从 lang 获取语言
             const lang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
             const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
+            if (languageList) {
+                this.languageList = JSON.parse(languageList)
+            }else  {
+                this.languageList = []
+            }
 
             if (lang) {
                 this.lang = lang;
+            } else {
+                this.lang = '';
             }
             // else {
             //     // 如果没有，尝试从 cachedLanguageList 获取第一项
@@ -305,9 +310,7 @@ class AppStore {
             //         }
             //     }
             // }
-            if (languageList) {
-                this.languageList = JSON.parse(languageList)
-            }
+            
 
         } catch (error) {
             console.error('Error getting rate key:', error);

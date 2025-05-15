@@ -1,7 +1,7 @@
 import React from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../../styles/billDetails.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form ,Tabs} from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -15,7 +15,7 @@ import SpotOrderNow from '../compontents/NowOrder'
 import SpotOrderHistory from '../compontents/HistoryOrder'
 import SpotOrderDeal from '../compontents/HistoryDeal'
 import appStore from '@/store';
-
+import { useAuth } from '@/context/AuthContext';
 interface DataType {
     id: number,
     userId: number,
@@ -31,7 +31,7 @@ interface DataType {
 }
 const SpotOrderPage = () => {
     const { t } = useTranslation(['spot']);
-
+    const { isLoggedIn } = useAuth();
     const [isClient, setIsClient] = useState(false);
     const [pageParam, setPageParam] = useState({
         page: 1,
@@ -42,7 +42,7 @@ const SpotOrderPage = () => {
     const items: TabsProps['items'] = [
         {
             key: '1',
-            label:t('spot.tabs.now') , //"当前委托",
+            label: t('spot.tabs.now'), //"当前委托",
             children: <SpotOrderNow />,
         },
         {
@@ -53,19 +53,19 @@ const SpotOrderPage = () => {
         {
             key: '3',
             label: t('spot.tabs.historyDeal'), //'历史成交',
-            children: <SpotOrderDeal/>,
+            children: <SpotOrderDeal />,
         },
     ];
     useEffect(() => {
         // 只在客户端执行
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || !isLoggedIn) return;
 
         try {
             appStore.loadCurrencyPairs()
         } catch (error) {
             console.error('初始化货币对数据错误:', error);
         }
-    }, [isClient]);
+    }, [isClient, isLoggedIn]);
     return (<>
         <ConfigProvider
             theme={{
@@ -110,11 +110,11 @@ const SpotOrderPage = () => {
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}
-                    style={{minHeight:"50vh"}}>
-                        <Tabs items={items} 
-                        className="custom-tabs2" 
-                        destroyInactiveTabPane={true}
-                        indicator={{ size: (origin) => origin - 35, align: 'center' }}/>
+                        style={{ minHeight: "50vh" }}>
+                        <Tabs items={items}
+                            className="custom-tabs2"
+                            destroyInactiveTabPane={true}
+                            indicator={{ size: (origin) => origin - 35, align: 'center' }} />
                     </div>
                     {/* <div className={`${styles.table_header} w-full my-4 flex align-center`}>
                         <Form

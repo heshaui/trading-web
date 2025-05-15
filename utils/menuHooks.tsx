@@ -15,7 +15,7 @@ export const processMenuItems = (menuItems: any[]): any[] => {
 
     return menuItems.filter(item => {
         // 条件1: 如果menuName为null或为空或是空格，则不渲染
-        if (isEmptyOrWhitespace(item.menuName)) {
+        if (isEmptyOrWhitespace(item.menuName) || item.displayStatus === 0) {
             return false;
         }
 

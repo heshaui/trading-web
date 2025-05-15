@@ -38,6 +38,8 @@ interface RewardRouterType {
 }
 const InviteContent = ({ onReturn }: InviteContentProps) => {
     const { t } = useTranslation(['invite']);
+    const allConfig = appStore.getKvConfigAll();
+
     const [inviteCount, setInviteCount] = useState<InviteCountType>({})
     const [inviteCountLoading, setInviteCountLoading] = useState(true)
     const { isDayMode } = useThemeMode(); // 使用 hook
@@ -155,7 +157,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                         <li className="flex align-base ">
                             <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />
                             {/* 邀请好友加入Metawave，您可获得平台奖励 */}
-                            {t('invite.ruleDesc1')}
+                            {t('invite.ruleDesc12', { platformName: allConfig?.tenant_cache_name || '--' })}
                         </li>
                         <li className="flex align-base mt-3">
                             <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
@@ -165,8 +167,8 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                         <li className="flex align-base mt-2_5">
                             <Iconify icon="prime:circle-fill" className=" mr-2" size={8} />
                             {/* 第二步：好友成功注册后，在注册 14 天内累计充值不低于 100 USDT且完成实名认证。您就可以获取好友现货交易20%手续费返佣。您可在此页面追踪邀请进度和任务完成情况。 */}
-                            {rewardRouter.isRealname=='1' ? t('invite.ruleDesc31', { date: rewardRouter.validTime, count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName, rebateRatio: rewardRouter.rebateRatio }) 
-                            : t('invite.ruleDesc32', { date: rewardRouter.validTime, count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName, rebateRatio: rewardRouter.rebateRatio })}
+                            {rewardRouter.isRealname == '1' ? t('invite.ruleDesc31', { date: rewardRouter.validTime, count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName, rebateRatio: rewardRouter.rebateRatio })
+                                : t('invite.ruleDesc32', { date: rewardRouter.validTime, count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName, rebateRatio: rewardRouter.rebateRatio })}
                         </li>
                         <li className="flex align-base mt-6">
                             <Iconify icon="carbon:diamond-solid" className="theme_color mr-2" size={10} />

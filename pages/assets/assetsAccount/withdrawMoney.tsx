@@ -32,6 +32,7 @@ import { coinSelectType, coinExtAllListType, coinExtSelectType, addressSelectTyp
 
 const WithdrawMoneyPage = observer(() => {
     const { t } = useTranslation('assets');
+     const allConfig = appStore.getKvConfigAll();
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
     const rateData = appStore.getRateData() || [];
@@ -926,7 +927,7 @@ const WithdrawMoneyPage = observer(() => {
                                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                                         <span>
                                             {/* 请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。 */}
-                                            {t('withdrawMoney.networkWarning')}
+                                            {t('withdrawMoney.networkWarning2', { platformName: allConfig?.tenant_cache_name || '--' })}
                                         </span>
                                     </p>
                                     {menu}

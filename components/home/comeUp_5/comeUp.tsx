@@ -3,8 +3,10 @@ import React from 'react';
 import styles from '../styles/assistant.module.css';
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
+import appStore from '@/store';
 export default function Experience() {
     const { t } = useTranslation(['home']);
+     const allConfig = appStore.getKvConfigAll();
     return (
         <div className={`${styles.comup_page}`}>
             <div className={`${styles.assistant_main} flex-column flex-ai-center flex-jc-center`}>
@@ -12,7 +14,7 @@ export default function Experience() {
                     <div style={{width: '50%'}}>
                         <h2 className={`${styles.comup_main_title1}`}>
                             {/* 走近MetaWave */}
-                            {t('title1', {name: 'MetaWave'})}
+                            {t('title1', {name: allConfig?.tenant_cache_name || '--'})}
                         </h2>
                         <h3 className={`${styles.comup_main_title2}`}>
                             {/* 在我们世界级合作伙伴的帮助下，了解为什么IMBIT会是你最喜爱的数字货币交易 App */}
