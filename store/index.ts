@@ -1,24 +1,19 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { getWebConfig } from "@/store/kvConfig";
+import {UserInfoType} from "@/type/userCenter/overview"
+
 import {
     fetchAllCurrencyPairs,
     fetchUserFavorites,
     addToFavorites,
     removeFromFavorites,
-    CurrencyPairType,
     fetchAllCoin,
-    CoinType
 } from './currencyPairService';
+import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 
-interface UserInfoType {
-    userId: number,
-    nickname?: string,
-    avatarUrl?: string,
-    token: string,
-}
-
+// const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
 
@@ -59,12 +54,7 @@ class AppStore {
             countryCode: "",
             code: ""
         };
-    userInfo: UserInfoType = {
-        userId: 0,
-        nickname: "",
-        avatarUrl: "",
-        token: ""
-    }
+    userInfo: UserInfoType = {} as UserInfoType;
 
     // 添加币对信息列表
     currencyPairs: CurrencyPairType[] = [];
@@ -83,6 +73,7 @@ class AppStore {
     rateData: any[] = [];
     rateKey: string = '';
     lang: string = '';
+    languageList: any[] = [];
     kvConfig: Record<string, any> = {};
     constructor() {
         // 使状态响应式
@@ -91,6 +82,7 @@ class AppStore {
         // 仅在浏览器环境中初始化
         if (isBrowser()) {
             this.initToken();
+            this.initUserInfo();
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
@@ -118,6 +110,27 @@ class AppStore {
         this.userToken = null;
         localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
     }
+    initUserInfo() {
+        if (!isBrowser()) return;
+        const userInfo = localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO);
+        this.userInfo = userInfo ? JSON.parse(userInfo) : {} as UserInfoType;
+    }
+    getUserInfo() {
+        return this.userInfo;
+    }
+    setUserInfo(userInfo: UserInfoType) {
+        this.userInfo = userInfo;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(userInfo));
+        }
+    }
+    clearUserInfo() {
+        this.userInfo = {} as UserInfoType;
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
+        }
+    }
+
     toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;
     }
@@ -138,9 +151,7 @@ class AppStore {
     getUserToken() {
         return this.userToken;
     }
-    getUserInfo() {
-        return this.userInfo;
-    }
+
 
 
     setAuthcodeState(state: string | number, type: string | number) {
@@ -172,19 +183,7 @@ class AppStore {
             localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
         }
     }
-    clearUserInfo() {
-        this.userInfo = {
-            userId: 0,
-            nickname: "",
-            avatarUrl: "",
-            token: ""
-        };
-        if (isBrowser()) {
-            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_INFO);
-        }
-        // 考虑是否需要重置自选状态
-        // this.loadFavoriteCoins();
-    }
+
 
     // 从本地存储初始化币对信息
     initCurrencyPairsFromStorage() {
@@ -231,7 +230,7 @@ class AppStore {
 
         try {
             const rateDataJson = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_DATA);
-            
+
             if (rateDataJson) {
                 this.rateData = JSON.parse(rateDataJson);
             }
@@ -259,51 +258,60 @@ class AppStore {
         try {
             // 首先尝试从 rate_key 获取
             const rateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
-            
-            if (rateKey) {
-                this.rateKey = rateKey; 
-                // return rateKey;
-            }else{
-            
-            // 如果没有 rate_key，尝试从 rateData 获取第一项
-            const rateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
-            if (rateData) {
-                const parsedData = JSON.parse(rateData);
 
-                if (parsedData && parsedData.length > 0) {
-                    this.rateKey =parsedData[0].span;
-                    // return parsedData[0].span;
+            if (rateKey) {
+                this.rateKey = rateKey;
+                // return rateKey;
+            } else {
+
+                // 如果没有 rate_key，尝试从 rateData 获取第一项
+                const rateData = localStorage.getItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA);
+                if (rateData) {
+                    const parsedData = JSON.parse(rateData);
+
+                    if (parsedData && parsedData.length > 0) {
+                        this.rateKey = parsedData[0].span;
+                        // return parsedData[0].span;
+                    }
                 }
-            }}
-            
+            }
+
         } catch (error) {
             console.error('Error getting rate key:', error);
         }
     }
-     // 从本地存储初始化lang
-     initLangFromStorage() {
+    // 从本地存储初始化lang
+    initLangFromStorage() {
         if (!isBrowser()) return;
 
         try {
-            // 首先尝试从 lang 获取
+            // 首先尝试从 lang 获取语言
             const lang = localStorage.getItem(LOCAL_STORAGE_KEY.LANG);
-            
-            if (lang) {
-                this.lang = lang; 
-            }else{
-            
-            // 如果没有，尝试从 cachedLanguageList 获取第一项
             const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
-            
             if (languageList) {
-                const parsedData = JSON.parse(languageList);
+                this.languageList = JSON.parse(languageList)
+            }else  {
+                this.languageList = []
+            }
 
-                if (parsedData && parsedData.length > 0) {
-                    this.lang =parsedData[0].key;
-                    // return parsedData[0].span;
-                }
-            }}
+            if (lang) {
+                this.lang = lang;
+            } else {
+                this.lang = '';
+            }
+            // else {
+            //     // 如果没有，尝试从 cachedLanguageList 获取第一项
+            //     if (languageList) {
+            //         const parsedData = JSON.parse(languageList);
+
+            //         if (parsedData && parsedData.length > 0) {
+            //             this.lang = parsedData[0].key;
+            //             // return parsedData[0].span;
+            //         }
+            //     }
+            // }
             
+
         } catch (error) {
             console.error('Error getting rate key:', error);
         }
@@ -529,12 +537,23 @@ class AppStore {
     getLang() {
         return this.lang;
     }
+     // 设置语言
+     setLanguageList(langList: string[]) {
+        this.languageList = langList;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST, JSON.stringify(langList));
+        }
+    }
+    // 获取语言
+    getLangList() {
+        return this.languageList;
+    }
     initKvConfig() {
         if (!isBrowser()) return;
         try {
             // 首先尝试从 kv_config 获取
             const kvConfig = localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG);
-            
+
             if (kvConfig) {
                 this.kvConfig = JSON.parse(kvConfig);
             } else {
@@ -571,8 +590,8 @@ class AppStore {
     getKvConfigAll() {
         return this.kvConfig;
     }
-      // 从API加载币种信息
-      async getKvConfigAllFromApi() {
+    // 从API加载币种信息
+    async getKvConfigAllFromApi() {
         try {
             this.isLoadingCoinData = true;
 

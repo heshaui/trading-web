@@ -1,42 +1,24 @@
 import styles from '@/styles/components/HomeMenu.module.css';
-// import { DownOutlined, SmileOutlined, SearchOutlined, QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
-// import { QuestionCircleOutlined, DownloadOutlined, BellOutlined, GlobalOutlined } from '@ant-design/icons';
-// import { Dropdown, Space, Input, Button, Menu, Avatar, ConfigProvider, Row, Col, Drawer, Empty, MenuProps } from 'antd';
 import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, Badge } from 'antd';
 import { MenuProps } from 'antd';
 import MenuItem from '../HomeMenuItems'; // 顶部菜单
-import MenuAdaptiveItem from '../HomeMenuAdapiveItems'; // 自适应时顶部菜单变为侧边栏菜单
 import MenuItemLabel from '../HomeMenuLabel';
-import MenuItemChildrenLabel from '../HomeMenuChildrenLabel';
-import TabsItem from '../TabsItem';
-import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
+import { IconName } from '@/type/types';
 import React, { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import store from "@/store"
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
-import dayjs from 'dayjs';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-import { exchangeRate, homeMenu, getLanguage } from '@/services/header'; // 引入封装好的 homeMenu 方法
-// import { encryptWithPublicKey } from '@/utils/jsENcrypy'; // 引入加密方法
-import { useLogoImage } from '@/hooks/useKv'; // 获取logo
-import { useDayModeChange } from '@/hooks/dayModeChange'; // 使用 hook
 import { useThemeMode } from '@/hooks/useThemeMode'; // 导入 useThemeMode 获取当前主题状态
-import { getBulletinMessage } from '@/services/bulletinCenter';
 import ThemeIcon from '../ThemeIcon';
 import { useNavigation } from '@/context/NavigationContext';
 import { useAuth } from '@/context/AuthContext';
-import { getLoginInfo } from '@/services/overview';
-import { encryptString } from '@/utils/encrypt';
-import { toast } from 'sonner';
-import UserInfoMenu from '../common/UserInfo';
-import AssetsMenu from '../common/Assets';
 import {NoData} from '@/components/noData';
 import appStore from '@/store';
 export default function LangageMenuItems() {
     // 路由
     const router = useRouter();
+    const langKey=appStore.getLang();
 
     // t - 多语言
     const { t, i18n } = useTranslation('home_menu');
@@ -82,7 +64,8 @@ export default function LangageMenuItems() {
             localStorage.setItem('cachedBulletinData', JSON.stringify(bulletinData));
         }
         if (languageList.length > 0) {
-            localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
+            // localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
+            appStore.setLanguageList(languageList);
         }
         if (rateData.length > 0) {
             localStorage.setItem(LOCAL_STORAGE_KEY.CACHED_RATE_DATA, JSON.stringify(rateData));

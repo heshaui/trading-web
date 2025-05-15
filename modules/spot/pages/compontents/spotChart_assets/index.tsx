@@ -36,8 +36,9 @@ const SpotAssetsPage = observer(({orderUpdateFlag}:Props) => {
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const [userBalanceAllData, setUserBalanceAllData] = useState<any>([]);
     const [loading, setLoading] = useState(true);
-      const { isLoggedIn } = useAuth();
+     const userToken = appStore.getUserToken();
     const getUserBalanceAllData = async () => {
+        if(!userToken) return
         setLoading(true);
         try {
             const res = await getUserBalanceAll();
@@ -72,12 +73,12 @@ const SpotAssetsPage = observer(({orderUpdateFlag}:Props) => {
                     <li className='flex justify-between align-center mb-5'>
                         <div>{currentPair?.coinSymbol || '--'}可用资产</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.coinSymbol)?.balance || 0) || 0}</div> */}
-                       {isLoggedIn ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
+                       {userToken ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
                     </li>
                     <li className='flex justify-between align-center mb-5' >
                         <div>{currentPair?.baseSymbol || '--'}可用资产</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.baseSymbol)?.balance || 0) || 0}</div> */}
-                        {isLoggedIn ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
+                        {userToken ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
                     </li>
                 </Skeleton>
             </ul>

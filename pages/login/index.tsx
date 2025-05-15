@@ -94,7 +94,8 @@ function Login() {
 	// }, [token, router]);
 	useEffect(() => {
 		if (!allConfig) {
-			useWebConfig();
+			// useWebConfig();
+			appStore.getKvConfigAllFromApi()
 		}
 	}, [allConfig]);
 	useEffect(() => {

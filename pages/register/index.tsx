@@ -75,7 +75,8 @@ function Register() {
 	}
 	useEffect(() => {
 		if (!allConfig) {
-			useWebConfig();
+			// useWebConfig();
+			appStore.getKvConfigAllFromApi()
 		}
 	}, [allConfig]);
 	useEffect(() => {

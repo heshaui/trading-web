@@ -2,7 +2,7 @@ import React from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
-import { CSSProperties, useState, useEffect } from "react"
+import { CSSProperties, useState, useEffect, useRef } from "react"
 import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import { useCoinList } from '@/hooks/use-coinList';
 import { getRate, getCoinRate } from '@/utils/getUseRate';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
+import WebSocketService from '@/utils/websocket';
 
 interface chartDataType {
     balance: string,
@@ -34,23 +35,29 @@ const AssetsPage: React.FC = observer(() => {
     // 获取币种列表
     // const { coinList } = useCoinList();
     const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
-
+    const userInfo = appStore.getUserInfo();
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [balanceByDay, setBalanceByDay] = useState<chartDataType[]>([]);
-
+    // 添加客户端渲染标记
+    const [isClient, setIsClient] = useState(false);
     const [balanceAll, setBalanceAll] = useState({
         usdBalance: 0,
         usdt: 0,
         symbol: ''
     });
+    // 昨日结算及提现
     const [balanceDay, setBalanceDay] = useState({
         usdBalance: 0,
         // cnyBalance: 0,
+        withdraw: 0,
     });
+    // 今日充值
     const [todayEarnings, setTodayEarnings] = useState({
         usdBalance: 0,
         // cnyBalance: 0,
     });
+    const balanceDataRef = useRef<WebSocketService | null>(null);
+
     // 获取所有币种余额
     const getUserBalanceAllData = async () => {
         // setTableLoading(true);
@@ -87,6 +94,7 @@ const AssetsPage: React.FC = observer(() => {
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
+                const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -98,7 +106,8 @@ const AssetsPage: React.FC = observer(() => {
                 }).sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
                 setBalanceByDay(initData);
                 setBalanceDay({
-                    usdBalance: Number(usdRate.rate) || 0
+                    usdBalance: Number(usdRate.rate) || 0,
+                    withdraw: Number(withdraw.rate) || 0,
                     // cnyBalance: Number(cnyRate.rate) || 0
                 });
             }
@@ -126,11 +135,60 @@ const AssetsPage: React.FC = observer(() => {
     const waxAndWane = () => {
         // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
         // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlanceShow = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalance))), Number(todayEarnings.usdBalance))
+        const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalance))), Number(todayEarnings.usdBalance))
+        const banlanceShow = add(Number(banlance1), Number(balanceDay.withdraw))
 
         return banlanceShow
     }
+    const getBanlanceService = () => {
+        // 如果已经有连接，不要重复创建
+        if (balanceDataRef.current) return;
+        // const websocket = new WebSocketService(`wss://ambit-assets-web.imbit.work/ws/asset?userId=${userInfo.userId || ''}`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_ASSETS_API_BASE}/ws/asset?userId=${userInfo.userId || ''}`);
+        balanceDataRef.current = websocket;
+        websocket.connect((message: string) => {
+            try {
+                const data = JSON.parse(message);
+                console.log(data,9999);
+                // if(data.type === '__ping__'){
 
+                //     return;
+                // }
+                // 使用函数式更新来累积数据
+                // setTableData(data || []);
+                // const totalUsd = data.reduce((sum: number, curr: any) => {
+                //     const coinTotal = add(
+                //         add(curr.balance || 0, curr.releaseBalance || 0),
+                //         curr.frozenBalance || 0
+                //     );
+                //     const balance = getCoinRate(curr.coinName, coinTotal).coinRate
+                //     return sum + Number(balance) || 0;
+                // }, 0);
+                // const rateKeyName = rateKey.split('-')[0].trim()
+                // const usdRate = getRate('USDT', totalUsd, rateKeyName) //获取汇率
+                // setBalanceAll({
+                //     usdBalance: Number(usdRate.rate) || 0,
+                //     usdt: totalUsd,
+                //     symbol: usdRate.symbol
+                // });
+            } catch (error) {
+                console.log(error,9999);
+            }
+        });
+    }
+    useEffect(() => {
+        setIsClient(true);
+        // 组件卸载时清理所有WebSocket连接
+        return () => {
+            if (balanceDataRef.current) balanceDataRef.current.close();
+        };
+    }, []);
+    useEffect(() => {
+        if (!isClient||!userInfo || typeof window === 'undefined') return;
+
+        // 安全地使用currentPair
+        getBanlanceService();
+    }, [isClient,userInfo]);
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
@@ -167,7 +225,7 @@ const AssetsPage: React.FC = observer(() => {
                             {banlanceShow ? <Iconify icon={'clarity:eye-show-line'} size={20} /> : <Iconify icon={'ep:hide'} size={18} />}
                         </button>
                     </div>
-                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.usdt} USDT</p> 
+                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.usdt} USDT</p>
                         <p className={`${styles.tip_color} font-14`}>≈&nbsp;{balanceAll.symbol}&nbsp;{balanceAll.usdBalance}</p></> :
                         <>
                             <p className='font-32 font-w-700'>******</p>

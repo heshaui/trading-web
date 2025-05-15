@@ -1,63 +1,11 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
 import { getCoinAll } from '@/services/assets';
 import appStore from '@/store/index';
-// 币对接口数据类型
-export interface CurrencyPairType {
-    id: string,
-    symbol: string,
-    baseSymbol: string,
-    coinSymbol: string,
-    groupStatus: string,
-    isFavorite?: boolean,
-    baseCoinScale: number,
-    buyFee: number,
-    classLabel: string,
-    coinScale: number,
-    depthFour: number,
-    depthOne: number,
-    depthThree: number,
-    depthTwo: number,
-    enable: number,
-    enableBuy: number,
-    enableSell: number,
-    maxBaseVolume: number,
-    maxCurrentPrice: number,
-    maxMarketPrice: number,
-    maxVolume: number,
-    minBaseVolume: number,
-    minVolume: number,
-    openingPrice: number,
-    priceOffset: number,
-    sellFee: number,
-    show: number,
-    price?: number,             // 当前价格
-    yesterdayPrice?: number,    // 昨日价格
-    priceChangePercent?: number // 价格变化百分比
-    quantity:number //成交数量
-}
-export interface CoinType {
-    balance: number,
-    frozenBalance: number,
-    releaseBalance: number,
-    isLock: number,
-    coinId: string,
-    coinName: string,
-    nameDefault: string,
-    iconUrl: string,
-    canRecharge: number,
-    canTransfer: number,
-    canWithdraw: number,
-    minWithdrawAmount: number,
-    sort: number,
-    status: number,
-    unit: string,
-    unitScale: number,
-    maxWithdrawAmount: number,
-    minTopUp: number
-    
-}
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
+import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
 // 获取所有币对数据
 export async function fetchAllCurrencyPairs() {
+    const userToken = appStore.getUserToken();
     try {
         // 1. 获取币种列表
         const coinListResponse = await getExchangeCoinList();
@@ -66,7 +14,7 @@ export async function fetchAllCurrencyPairs() {
         }
         
         const coinList = coinListResponse.data || [];
-        console.log('coinList', coinList);
+        // console.log('coinList', coinList);
         
         // 2. 获取交易对组信息
         const groupResponse = await getExchangeGroup();
@@ -75,13 +23,12 @@ export async function fetchAllCurrencyPairs() {
         }
         
         const groups = groupResponse.data || [];
-        console.log('groups', groups);
+        // console.log('groups', groups);
         
         // 3. 获取用户自选币对（如果用户已登录）
         let favoriteCoins: any[] = [];
-        // const userToken = appStore.getUserToken();
-        // console.log('userToken', userToken);
-        // if(userToken){
+        
+        if(userToken){
         try {
             const favoriteResponse = await getUserExchangeCoinTypeList();
             if (favoriteResponse.code === '0') {
@@ -90,14 +37,14 @@ export async function fetchAllCurrencyPairs() {
         } catch (error) {
                 console.error('Error loading favorite coins:', error);
             }
-        // }
+        }
         
         // 4. 获取币对价格数据
         const priceResponse = await getExchangeCoinAllPrice();
         let priceData: any[] = [];
         if (priceResponse.code === '0') {
             priceData = priceResponse.data || [];
-            console.log('priceData', priceData);
+            // console.log('priceData', priceData);
         }
         
         // 5. 合并数据并转换为CurrencyPairType格式
@@ -164,7 +111,7 @@ export async function fetchAllCurrencyPairs() {
                 priceChangePercent:priceChangePercent
             };
             
-            console.log('currencyPair', currencyPair);
+            // console.log('currencyPair', currencyPair);
             processedPairs.push(currencyPair);
         });
         
@@ -253,6 +200,13 @@ export async function fetchCurrencyPairPrices() {
 // 获取所有币种
 // 获取所有币种
 export async function fetchAllCoin(needPrice: boolean = false) {
+    const userToken = appStore.getUserToken();
+    if(!userToken) return{
+        success: false,
+        data: [],
+        rawData: [],
+        error: new Error('未登录')
+    };
     try {
         // 1. 获取币种列表
         const coinListResponse = await getCoinAll();

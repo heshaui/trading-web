@@ -62,3 +62,34 @@ export interface CarouselPicType {
     tenantId: string,
     carouselImageContents: carouselImageContentsType[]
 }
+export interface UserInfoType {
+    userId: number,
+    nickname: string,
+    avatarUrl: string,
+    token: string,
+    tokenExpiration: number,
+    registerAccount: string,
+    account: string,
+    status: number,
+    email: string,
+    phone: string,
+    inviteCode: string,
+    parentUserId: number,
+    isGoogleAuth: number,
+    isPhoneAuth: number,
+    isEmailAuth: number,
+    realnessStatus: number,
+    addressStatus: number,
+    countryCode: string,
+    userLevel: string,
+    createTime: number,
+    updateTime: number,
+    tenantId: string,
+    transactionStatus: number,
+    withdrawalStatus: number,
+    famousAphorisms: string,
+    securityIntensity: number,
+    remark: string | null,
+    googleCode: boolean
+}
+

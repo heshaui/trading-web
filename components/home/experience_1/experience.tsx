@@ -12,7 +12,8 @@ import { CSSProperties } from "react";
 import { getPic2, getHomeImage } from "@/services/open";
 import { useEffect, useState } from "react";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-import {useThemeMode} from '@/hooks/useThemeMode'
+import { useThemeMode } from '@/hooks/useThemeMode'
+import appStore from '@/store';
 const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
     backgroundSize: 'cover',
@@ -36,11 +37,13 @@ interface LoginPicType {
 }
 export default function Experience() {
     // const { t } = useTranslation('common');
-    const { t } = useTranslation(['home']);
+    const { t, i18n } = useTranslation(['home']);
     const [homePic, setHomePic] = useState<LoginPicType | null>(null)
    const [homeImage,setHomeImage]=useState<string>('')
     // const [email, setEmail] = useState('');
-    const {isDayMode}=useThemeMode()
+    const { isDayMode } = useThemeMode()
+    const langKey = appStore.getLang() || 'en_US';
+    
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
         // setEmail(e.target.value)
@@ -52,12 +55,11 @@ export default function Experience() {
             const res = await getPic2('HomeBanner')
             if (res.code === '0') {
                 const resdata = JSON.parse(res.data)
-                console.log(resdata, 121);
 
-                let lang = '';
-                if (typeof window !== 'undefined') {
-                    lang = localStorage.getItem('lang') || '';
-                }
+                const lang = langKey
+                // if (typeof window !== 'undefined') {
+                //     lang = localStorage.getItem('lang') || '';
+                // }
                 if (lang === 'en'||lang === 'en_US') {
                     setHomePic(resdata['en_US'])
                 } else if (lang === 'zh_CN' || lang === 'zh') {
@@ -123,7 +125,7 @@ export default function Experience() {
     useEffect(() => {
         getBgc()
         // getHommePic()
-    }, []);
+    }, [i18n,langKey]);
 
     return (
         <div className={`${styles.experience_page} flex-y-cc`}>

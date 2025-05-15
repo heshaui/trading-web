@@ -112,6 +112,7 @@ export type FooterProps = {
     bottomName: string,
     languageCode: string,
     languagePath: string,
+    show: number,
     children?: FooterProps[]
 }
 // CurrencyTrading

@@ -69,6 +69,7 @@
         "addAddress": "添加地址",
         "selectNetwork2": "请选择网络",
         "networkWarning": "请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。",
+        "networkWarning2": "请注意，这里仅展示了{{platformName}}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。",
         "memoWarning": "提币至其他交易所时需要填写标签，否则提币将失败",
         "memoConfirm": "请确认收币地址是否要求填写MEMO",
         "memoPlaceholder": "MEMO(选填）",
