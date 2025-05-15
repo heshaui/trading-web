@@ -142,7 +142,6 @@ const ExchangePage = () => {
             try {
                 
                 const data = JSON.parse(message);
-
                 if(data.type === '__ping__'){
                    
                     return;

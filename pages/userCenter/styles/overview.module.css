@@ -111,15 +111,16 @@
 .bannerImg_box{
     width: 100%;
     border-radius: 8px;
-    max-height: 255px;
+    max-height: 200px;
     height: 100%;
     overflow: hidden;
 }
 .banner_mg{
     display:"inline-block";
+    border-radius: 8px;
     width: 100%;
-    height: 100%;
-    /* height:calc(100%-27px); */
+    /* height: 100%; */
+    height:calc(100%-42px);
     /* height:173px; */
 }
 .invite_code_box {

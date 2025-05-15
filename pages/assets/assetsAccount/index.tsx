@@ -36,17 +36,19 @@ const AssetsMainPage = observer(() => {
     const [balanceAll, setBalanceAll] = useState({
         usdBalance: 0,
         cnyBalance: 0,
-        usdt:0
+        usdt: 0
     });
     const [balanceDay, setBalanceDay] = useState({
         usdBalance: 0,
         cnyBalance: 0,
-        usdt:0
+        usdt: 0,
+        withdraw: 0,
+        usdtWithdraw:0
     });
     const [todayEarnings, setTodayEarnings] = useState({
         usdBalance: 0,
         cnyBalance: 0,
-        usdt:0
+        usdt: 0
     });
     const [rateKeyName, setRateKeyName] = useState('');
 
@@ -265,7 +267,7 @@ const AssetsMainPage = observer(() => {
                 setBalanceAll({
                     usdBalance: Number(usdRate) || 0,
                     cnyBalance: Number(cnyRate) || 0,
-                    usdt:totalUsd||0
+                    usdt: totalUsd || 0
                 });
             }
         } catch (error) {
@@ -283,10 +285,14 @@ const AssetsMainPage = observer(() => {
                 // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
                 const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
                 const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
+            
                 setBalanceDay({
                     usdBalance: Number(usdRate.rate) || 0,
                     cnyBalance: Number(cnyRate.rate) || 0,
-                    usdt:res.data[0].balance||0,
+                    usdt: res.data[0].balance || 0,
+                    withdraw: Number(withdraw.rate) || 0,
+                    usdtWithdraw: res.data[0].withdraw || 0
                 });
             }
         } catch (error) {
@@ -304,16 +310,18 @@ const AssetsMainPage = observer(() => {
                 setTodayEarnings({
                     usdBalance: Number(usdRate.rate) || 0,
                     cnyBalance: Number(cnyRate.rate) || 0,
-                    usdt:res.data[0].balance||0
+                    usdt: res.data[0].balance || 0
                 });
             }
         } catch (error) {
             toast.error(String(error));
         }
     };
-    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
-        // balance今日余额 balanceLastDay昨日余额 toUp今日充值
-        return cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string,withdraw: number | string) => {
+        // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw昨日提现
+        const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+         const banlanceShow=add(Number(banlance1),Number(withdraw))
+        return banlanceShow
     }
 
     useEffect(() => {
@@ -326,7 +334,7 @@ const AssetsMainPage = observer(() => {
     }, [rateKey])
     useEffect(() => {
         // 只在客户端执
-        if ( typeof window === 'undefined') return;
+        if (typeof window === 'undefined') return;
 
         try {
             appStore.loadCurrencyPairs() //加载币对数据
@@ -419,15 +427,15 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt)}&nbsp;
+                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt, balanceDay.usdtWithdraw)}&nbsp;
                                     USDT
                                     {/* {rateKey.split('-')[0].trim() || '--'} */}
                                 </span>
                                 <span>≈
-                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance)}&nbsp;
+                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance, balanceDay.withdraw)}&nbsp;
                                     {/* USD */}
                                     {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
-                                    {rateKeyName|| '--'}
+                                    {rateKeyName || '--'}
                                 </span>
                             </p>
                         </li>
