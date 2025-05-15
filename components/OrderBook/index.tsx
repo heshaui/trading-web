@@ -362,9 +362,8 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
                     <span className={styles.price}>
-                      {order.price.toFixed(currentPair?.coinScale < 1 ? 
-                        Math.abs(Math.log10(currentPair?.coinScale || 1)) : 
-                        (order.price < 1 ? 4 : 1))}
+                      {order.price.toFixed(currentPair?.coinScale)} 
+                        
                     </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
@@ -426,9 +425,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
                     <span className={styles.price}>
-                      {order.price.toFixed(currentPair?.baseCoinScale < 1 ? 
-                        Math.abs(Math.log10(currentPair?.baseCoinScale)) : 
-                        (order.price < 1 ? 4 : 1))}
+                      {order.price.toFixed(currentPair?.baseCoinScale)}
                     </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>
                     <div className={styles.totalColumn}>
