@@ -12,12 +12,12 @@ interface Order {
 }
 
 interface OrderBookProps {
-
   bookData: any;
   orderData: any;
+  priceClickHandler?: (price: number) => void;
 }
 
-const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
+const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) => {
   console.log(bookData, 'bookData');
   console.log(orderData, 'orderData');
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -309,6 +309,12 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
     );
   };
 
+  const handlePriceClick = (price: number) => {
+    if (priceClickHandler) {
+      priceClickHandler(price);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.tabContainer}>
@@ -361,7 +367,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...sellOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.sell}`} style={{fontSize:'12px'}}>
-                    <span className={styles.price}>
+                    <span className={styles.price} style={{ cursor:'pointer' }} onClick={() => handlePriceClick(order.price)}>
                       {order.price.toFixed(currentPair?.coinScale)} 
                         
                     </span>
@@ -424,7 +430,7 @@ const OrderBook = ({  bookData, orderData }: OrderBookProps) => {
                 const percentWidth = Math.min((order.total / Math.max(...buyOrders.map(o => o.total))) * 100, 100);
                 return (
                   <div key={index} className={`${styles.orderRow} ${styles.buy}`}>
-                    <span className={styles.price}>
+                    <span className={styles.price} style={{ cursor:'pointer' }} onClick={() => handlePriceClick(order.price)}>
                       {order.price.toFixed(currentPair?.baseCoinScale)}
                     </span>
                     <span className={styles.amount}>{order.amount.toFixed(5)}</span>

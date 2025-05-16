@@ -63,6 +63,7 @@ const ExchangePage = () => {
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
+    const [tradePrice, setTradePrice] = useState<number>(0);
     const router = useRouter();
 
     const [paramInfo, sePparamInfo] = useState({
@@ -546,6 +547,12 @@ const ExchangePage = () => {
         
     };
 
+    const handlePriceClick = (price: number) => {
+        console.log('Price clicked:', price);
+        setTradePrice(price);
+
+    };
+
     return (<div className={`${styles.page_box} w-full`}>
         {/* 使用客户端渲染标记来控制渲染 */}
         {!isClient ? (
@@ -747,12 +754,12 @@ const ExchangePage = () => {
                                 }
                             </Spin>
                         </div>
-                        <OrderBook bookData={depthData} orderData={orderData} />
+                        <OrderBook bookData={depthData} orderData={orderData} priceClickHandler={handlePriceClick} />
 
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" orderData={orderData} />
+                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" orderData={orderData} tradePrice={tradePrice} />
                         
                     </div>
 
