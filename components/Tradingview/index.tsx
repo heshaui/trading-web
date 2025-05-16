@@ -168,10 +168,19 @@ const Tradingview: React.ForwardRefRenderFunction<
 
         const newWidget = new widget(widgetOptions as any);
         setTvWidget(newWidget);
+
         
+
+    
         // 设置图表类型
         newWidget.onChartReady(() => {
           newWidget.chart().setChartType(chartType);
+          newWidget.chart().createStudy('Volume', false, false, [], null, {
+            "volume.color.0": "#00FF00", // Up volume color
+            "volume.color.1": "#FF0000", // Down volume color
+            "volume.transparency": 30,
+            "volume.width": 1
+        });
         });
         
         // 标记初始化已完成
@@ -286,6 +295,7 @@ const Tradingview: React.ForwardRefRenderFunction<
 
     if (tvWidget && studyMappings[studyName]) {
       const chart = tvWidget.chart();
+   
       chart.createStudy(
         studyMappings[studyName].name,
         false,
@@ -579,7 +589,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           minmov: 1,
           pricescale: 100000,
           has_intraday: true,
-          has_no_volume: false,
+          has_no_volume: true,
           has_weekly_and_monthly: true,
           supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M"],
           volume_precision: 8,
@@ -730,9 +740,9 @@ const Tradingview: React.ForwardRefRenderFunction<
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "550px", margin: "auto"}}
+        style={{ width: "100%", height: "580px", margin: "auto"}}
       ></div>
-      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+      {/* <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }} >
         {showLeftArrow && (
           <button 
             onClick={() => scroll('left')}
@@ -823,7 +833,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             &gt;
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

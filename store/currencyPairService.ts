@@ -107,7 +107,7 @@ export async function fetchAllCurrencyPairs() {
                 show: coin?.show,
                 price: priceInfo?.price,
                 yesterdayPrice: priceInfo?.yesterdayPrice,
-                quantity:priceInfo.quantity,
+                quantity: priceInfo?.quantity || 0,
                 priceChangePercent:priceChangePercent
             };
             

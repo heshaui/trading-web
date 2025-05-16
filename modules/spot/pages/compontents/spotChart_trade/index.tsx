@@ -44,8 +44,9 @@ type Props = {
     segmentedType: string,
     onOrderSuccess?: () => void  // 添加回调函数属性
     orderData?: DataType[]
+    tradePrice?: number
 }
-const SpotTradePage = ({ onOrderSuccess, orderData }: Props) => {
+const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
@@ -278,7 +279,13 @@ const SpotTradePage = ({ onOrderSuccess, orderData }: Props) => {
     useEffect(() => {
         // 初始化时计算一次总额
         calculateTotal();
-    }, [form]);
+        console.log('tradePrice', tradePrice);
+        if (tradePrice) {
+            form.setFieldsValue({
+                price: tradePrice
+            })
+        }
+    }, [form, tradePrice]);
 
 
 
