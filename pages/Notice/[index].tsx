@@ -74,10 +74,13 @@ export default function Notice() {
             if (response?.code === '0' && Array.isArray(response.data) && response.data.length > 0) {
                 console.log('获取菜单数据成功, 条目数:', response.data.length);
                 console.log('第一个菜单项:', response.data[0]);
-
-                // 保存菜单数据
-                setMenuList(response.data);
-                return response.data;
+                    
+                // 对菜单数据按serialNum排序
+                const sortedData = [...response.data].sort((a, b) => a.serialNum - b.serialNum);
+                
+                // 保存排序后的菜单数据
+                setMenuList(sortedData);
+                return sortedData;
             } else {
                 console.warn('菜单数据为空或格式错误:', response);
                 // 确保清空当前菜单列表，避免显示旧数据
