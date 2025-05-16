@@ -22,11 +22,6 @@ export default function LangageMenuItems() {
 
     // t - 多语言
     const { t, i18n } = useTranslation('home_menu');
-    // 添加调试日志
-    // console.log('Current language:', i18n.language);
-    // console.log('Router locale:', router.locale);
-    // console.log('Translation test:', t('title_1_1_h5'));
-
     // 使用全局导航数据
     const {
         menus = [],
@@ -38,6 +33,46 @@ export default function LangageMenuItems() {
         unreadCount = 0,
         changeLanguage = () => { }
     } = useNavigation() || {};
+    // Set initial language based on browser language and local storage
+    useEffect(() => {
+        const browserLang = navigator.language.split('-')[0];
+        const availableLanguages = appStore.getLangList();
+
+        let selectedLang = 'en_US'; // Default to English
+
+        // Convert short language code to long format
+        const getLongLangCode = (shortCode: string) => {
+            const langMap: { [key: string]: string } = {
+                'en': 'en_US',
+                'zh': 'zh_CN',
+                'ja': 'ja_JP',
+                'ko': 'ko_KR'
+            };
+            return langMap[shortCode] || 'en_US';
+        };
+
+        // First check local storage
+        if (langKey && availableLanguages.some(lang => lang.key === langKey)) {
+            selectedLang = langKey;
+        }
+        // Then check browser language
+        else {
+            const longBrowserLang = getLongLangCode(browserLang);
+            if (availableLanguages.some(lang => lang.key === longBrowserLang)) {
+                selectedLang = longBrowserLang;
+                appStore.setLang(selectedLang);
+            }
+        }
+
+        // Convert long format to short format for i18n
+        const shortLangCode = selectedLang.split('_')[0];
+        if (i18n.language !== shortLangCode) {
+            changeLanguage(shortLangCode);
+            appStore.setLang(selectedLang);
+        }
+    }, [i18n, langKey, changeLanguage]);
+
+
 
     // 使用 useAuth 钩子获取登录状态
     const { isLoggedIn, logout } = useAuth();
@@ -234,7 +269,8 @@ export default function LangageMenuItems() {
     const handleLanguageClick = async (language: string, langEncode: string) => {
         // 保存选中的语言到状态和本地存储
         setSelectedLanguage(language);
-        localStorage.setItem('lang', langEncode);
+        // localStorage.setItem('lang', langEncode);
+        appStore.setLang(langEncode);
         localStorage.setItem('selectedLanguage', language);
 
         try {

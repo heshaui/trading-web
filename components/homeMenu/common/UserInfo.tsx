@@ -1,7 +1,7 @@
 import styles from '@/styles/components/HomeMenu.module.css';
 import { Dropdown, Space, Button, Avatar, ConfigProvider, Row, Col, Drawer, Empty, Tabs, TabsProps, Badge } from 'antd';
 import { MenuProps } from 'antd';
-import MenuItemLabel from '../HomeMenuLabel';import React, { useState, useEffect, useMemo } from 'react';
+import MenuItemLabel from '../HomeMenuLabel'; import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
 import { forbiddenPathManager } from '@/middleware/forbiddenPathManager'; //禁止路径
+import appStore from '@/store';
 interface UserItemsListType {
     key: string,
     type: string,
@@ -24,7 +25,7 @@ export default function UserInfoIcon() {
     // 路由
     const router = useRouter();
     const [userItemsList, setUserItemsList] = useState<UserItemsListType[]>([])
-
+    const invite = appStore.getKvConfig('account_configuration');
     // t - 多语言
     const { t, i18n } = useTranslation('home_menu');
     // 获取主题状态
@@ -198,12 +199,20 @@ export default function UserInfoIcon() {
     ];
     const [userInfo, setUserInfo] = useState<any>({});
     const userInfoOpenChange = async (open: boolean) => {
-        if(open){
-            if(typeof window !== 'undefined'){
+        if (open) {
+            if (typeof window !== 'undefined') {
                 const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
                 setUserInfo(userInfo)
             }
-            getUseBankKv()
+            // getUseBankKv()
+            if (invite && invite.toString() === '0') {
+                forbiddenPathManager.addForbiddenPath('/invite');
+                const userItemsList = userItems.filter(item => item.key !== '5')
+                setUserItemsList(userItemsList)
+            } else if (invite && invite.toString() === '1') {
+                setUserItemsList(userItems)
+                forbiddenPathManager.removeForbiddenPath('/invite');
+            }
         }
         // const res = await getLoginInfo()
         // if (res.code === "0") {
@@ -244,18 +253,18 @@ export default function UserInfoIcon() {
             ),
         },
     ];
-        const getUseBankKv = async () => {
+    const getUseBankKv = async () => {
         const keys = ['account_configuration']
 
         const res = await getKvObject(keys)
         try {
             if (res.code === '0') {
-                if(res.data.account_configuration==='1'){
+                if (res.data.account_configuration === '1') {
                     setUserItemsList(userItems)
                     forbiddenPathManager.removeForbiddenPath('/invite');
-                }else{
+                } else {
                     forbiddenPathManager.addForbiddenPath('/invite');
-                    const userItemsList = userItems.filter(item=>item.key!=='5')
+                    const userItemsList = userItems.filter(item => item.key !== '5')
                     setUserItemsList(userItemsList)
                 }
             } else {

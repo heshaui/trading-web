@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { encryptData } from '@/utils/encrypt'
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useTranslation } from 'next-i18next';
+import appStore from "@/store"
+
 type Props = {
     open: boolean;
     // onOk?: (event: boolean) => void;
@@ -24,6 +26,7 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
     const { t } = useTranslation(['invite']);
     const [form] = Form.useForm();
     const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+    const rewardInfo=appStore.getInviteInfo()
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -112,8 +115,11 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                     <div className="flex-x align-center">
                         <p className={`${styles.title_color2} font-16 font-w-400 mr-9`}>
                             {/* 注册 14 天内累计充值不低于 100 USDT且完成实名认证，即可获得好友现货交易手续费 */}
-                            {t('invite.inviteModal.tip1')}
-                            <span className={styles.strong_color}>20%</span>
+                            {/* {t('invite.inviteModal.tip1')} */}
+                            {rewardInfo.isRealname?.toString() == '1' ? t('invite.inviteModal.tip11', { time: rewardInfo.validTime, count: rewardInfo.rechargeLimit, coinName: rewardInfo.coinName})
+                                : t('invite.inviteModal.tip12', { time: rewardInfo.validTime, count: rewardInfo.rechargeLimit, coinName: rewardInfo.coinName})}
+                        
+                            <span className={styles.strong_color}>{rewardInfo.rebateRatio}%</span>
                             {/* 返佣 */}
                             {t('invite.inviteModal.tip2')}
                         </p>

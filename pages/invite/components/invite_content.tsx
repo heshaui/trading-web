@@ -119,6 +119,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
         try {
             if (res.code === '0') {
                 setRewardRouter(res.data)
+                appStore.setInviteInfo(res.data)
             } else {
                 toast.error(res.message)
             }

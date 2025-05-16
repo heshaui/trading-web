@@ -204,28 +204,28 @@ const AssetsPage: React.FC = observer(() => {
         });
     }, [userInfo])
 
-    useEffect(() => {
-        if (!userInfo?.userId) return;
+    // useEffect(() => {
+    //     if (!userInfo?.userId) return;
 
-        // 初始化WebSocket连接
-        setupBalanceWebSocket();
+    //     // 初始化WebSocket连接
+    //     setupBalanceWebSocket();
 
-        // 组件卸载时清理WebSocket连接
-        return () => {
-            if (balanceDataRef.current) {
-                balanceDataRef.current.close();
-                balanceDataRef.current = null;
-            }
-        };
-    }, [userInfo?.userId, setupBalanceWebSocket]);
-    useEffect(() => {
-        if (!isClient || !userInfo || typeof window === 'undefined') return;
+    //     // 组件卸载时清理WebSocket连接
+    //     return () => {
+    //         if (balanceDataRef.current) {
+    //             balanceDataRef.current.close();
+    //             balanceDataRef.current = null;
+    //         }
+    //     };
+    // }, [userInfo?.userId, setupBalanceWebSocket]);
+    // useEffect(() => {
+    //     if (!isClient || !userInfo || typeof window === 'undefined') return;
 
-        // 安全地使用currentPair
-        setupBalanceWebSocket();
-    }, [isClient, userInfo]);
+    //     // 安全地使用currentPair
+    //     setupBalanceWebSocket();
+    // }, [isClient, userInfo]);
     useEffect(() => {
-        // getUserBalanceAllData();
+        getUserBalanceAllData();
         getUserBalanceDay()
         getTodayEarningsData()
     }, [rateKey]);
@@ -260,7 +260,9 @@ const AssetsPage: React.FC = observer(() => {
                             {banlanceShow ? <Iconify icon={'clarity:eye-show-line'} size={20} /> : <Iconify icon={'ep:hide'} size={18} />}
                         </button>
                     </div>
-                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.usdt} USDT {tableData?.[0]?.balance || '--'}</p>
+                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.usdt} USDT
+                        {/* {tableData?.[0]?.balance || '--'} */}
+                    </p>
                         <p className={`${styles.tip_color} font-14`}>≈&nbsp;{balanceAll.symbol}&nbsp;{balanceAll.usdBalance}</p></> :
                         <>
                             <p className='font-32 font-w-700'>******</p>

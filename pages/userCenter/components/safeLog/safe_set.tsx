@@ -48,7 +48,7 @@ function LoginRecord() {
             key: "platformType",
             // width: 120,
             align: "left",
-            render: (text, record) => <span>{`${text}`} </span>,
+            render: (text, record) => <span>{text||'--'} </span>,
         },
         {
             title: t('security.safeSet.time'), //"时间",
@@ -75,7 +75,25 @@ function LoginRecord() {
             // width: 128,
             align: "center",
             render: (_status) => {
-                return <span >{_status || '--'}</span>;
+                if (_status === "retrieve_password") {
+                    return <span >{t('security.findPassword')}</span>;
+                }else if(_status === "relieve_google") {
+                    return <span >{t('security.unbindGoogle2')}</span>;
+                }else if(_status === "bind_google") {
+                    return <span >{t('security.bindGoogle2')}</span>;
+                }else if(_status === "update_pwd") {
+                    return <span >{t('security.modifyPassword')}</span>;
+                }else if(_status === "identity_verification") {
+                    return <span >{t('security.identityAuth')}</span>;
+                }else if(_status === "phoneVerify") {
+                    return <span >{t('security.closePhone')}</span>;
+                }else if(_status === "bind_phone") {
+                    return <span >{t('security.bindPhone')}</span>;
+                }else if(_status === "bind_email") {
+                    return <span >{t('security.bindEmail')}</span>;
+                } else {
+                    return <span >{_status||'--'}</span>;
+                }
             },
         },
 

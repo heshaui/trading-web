@@ -149,7 +149,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
                     columns={columns}
                     dataSource={inviteData}
                     size="large"
-                    scroll={{ x: "max-content" }}
+                    // scroll={{ x: "max-content" }}
                     className={`${styles.table_box} table-box`}
                     pagination={{
                         position: ["bottomRight"],

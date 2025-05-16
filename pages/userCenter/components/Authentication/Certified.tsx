@@ -190,7 +190,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {/* 真实姓名 */}
                             {t('identity.certified.info.realName')}
                         </div>
-                        <div className={` font-w-500`}>{identityInfo?.surname} {identityInfo?.firstName}</div>
+                        <div className={` font-w-500`}>{'**'}&nbsp;{identityInfo?.firstName}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>

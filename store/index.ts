@@ -12,7 +12,8 @@ import {
 } from './currencyPairService';
 import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
-
+import { inviteInfoType } from "@/type/userCenter/overview"
+import { registerInfoType } from "@/type/store"
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
@@ -37,23 +38,7 @@ class AppStore {
     //         deviceType: '',
     //         password: ''
     //     };
-    registerInfo: {
-        type: string,
-        email?: string,
-        phone?: string,
-        password: string,
-        parentInviteCode?: string,
-        countryCode?: string,
-        code?: string
-    } = {
-            type: "",
-            email: "",
-            phone: "",
-            password: "",
-            parentInviteCode: "",
-            countryCode: "",
-            code: ""
-        };
+    registerInfo: registerInfoType = {} as registerInfoType;
     userInfo: UserInfoType = {} as UserInfoType;
 
     // 添加币对信息列表
@@ -75,6 +60,7 @@ class AppStore {
     lang: string = '';
     languageList: any[] = [];
     kvConfig: Record<string, any> = {};
+    inviteInfo: inviteInfoType = {} as inviteInfoType;
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -83,6 +69,7 @@ class AppStore {
         if (isBrowser()) {
             this.initToken();
             this.initUserInfo();
+            this.initInviteInfo();
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
             this.initUserInfoFromStorage();
@@ -183,7 +170,26 @@ class AppStore {
             localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
         }
     }
-
+    initInviteInfo() {
+        if (!isBrowser()) return;
+        const inviteInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.INVITE_INFO);
+        this.inviteInfo = inviteInfoJson ? JSON.parse(inviteInfoJson) : {} as inviteInfoType;
+    }
+    setInviteInfo(inviteInfo: inviteInfoType) {
+        this.inviteInfo = inviteInfo;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.INVITE_INFO, JSON.stringify(inviteInfo));
+        }
+    }
+    getInviteInfo() {
+        return this.inviteInfo;
+    }
+    clearInviteInfo() {
+        this.inviteInfo = {} as inviteInfoType;
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.INVITE_INFO);
+        }
+    }
 
     // 从本地存储初始化币对信息
     initCurrencyPairsFromStorage() {

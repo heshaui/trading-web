@@ -179,10 +179,13 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
       width: 128,
       align: "center",
       render: (_amount, record) => {
-        // amount/tradedAmount
+        const amount = getRound(record.symbol, _amount).scaleResult
+        const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-x align-center'>
-            {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}
+            {/* {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`} */}
+
+            {`${amount}/${amountDone}`}
             <Tooltip title={t('spot.modal.edit')}>
               <button
                 onClick={() => {
@@ -446,14 +449,14 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
           // scroll={{ x: 'max-content', y: 300 }}
           scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
-          pagination={{
+          pagination={total>10?{
             position: ["bottomRight"],
             // showSizeChanger: true,
             total: total,
             size: "default",
             simple: true,
             onChange: (page, pageSize) => pageChange(page, pageSize),
-          }}
+          }:false}
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />

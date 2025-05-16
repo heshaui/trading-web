@@ -196,7 +196,7 @@ const SpotMainPage =observer( () => {
           {_amount ? 
             <span className={`${styles.tip_color2}`}>
             {/* {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'} */}
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${baseScaleResult}%` : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(baseScaleResult, 2)}%` : '0%'}
             </span> : '0'
           }
         </ >

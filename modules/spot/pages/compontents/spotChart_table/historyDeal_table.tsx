@@ -153,9 +153,10 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const amount = division(_status, record.quantity)
-        const { baseScaleResult } = getRound(record.symbol, amount)
-        return <span >{amount ? baseScaleResult : '0'}</span>;
+        // const amount = division(_status, record.quantity)
+        // const { baseScaleResult } = getRound(record.symbol, amount)
+        const { baseScaleResult } = getRound(record.symbol, _status)
+        return <span >{_status ? baseScaleResult : '0'}</span>;
 
       },
     },
@@ -179,7 +180,8 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_status, record) => {
-        const { baseScaleResult } = getRound(record.symbol, _status)
+        const amount = nul(_status, record.quantity)
+        const { baseScaleResult } = getRound(record.symbol, amount)
         return <span >{_status ? baseScaleResult : '0'}</span>;
       },
     },
@@ -406,14 +408,14 @@ const SpotMainPage = observer(() => {
             // scroll={{ x: "max-content", y: 300 }}
             scroll={{ x: "max-content" }}
             className={`spot-table-box`}
-            pagination={{
+            pagination={total>10?{
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            }}
+            }:false}
             loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />

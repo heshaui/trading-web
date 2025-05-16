@@ -20,7 +20,8 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
     const [languageList, setLanguageList] = useState<any[]>([]);
     const [rateData, setRateData] = useState<any[]>([]);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
-    const [currentLang, setCurrentLang] = useState('');
+    // const [currentLang, setCurrentLang] = useState('');
+    const currentLang = useRef('')
     const { isDayMode } = useDayModeChange();
     const { isLoggedIn } = useAuth();
     
@@ -111,8 +112,10 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
 
     // 切换语言
     const changeLanguage = (lang: string) => {
-        if (lang !== currentLang) {
-            setCurrentLang(lang);
+        if (lang !== currentLang.current) {
+            // setCurrentLang(lang);
+            currentLang.current = lang;
+            // appStore.setLang(lang);
             // 切换语言时重置数据获取状态
             dataFetchStatusRef.current = {
                 loggedInFetched: false,
@@ -126,7 +129,8 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
     // 首次加载
     useEffect(() => {
         const lang = localStorage.getItem('lang') || 'zh_CN';
-        setCurrentLang(lang);
+        // setCurrentLang(lang);
+        currentLang.current = lang;
         initializeData(lang);
     }, []);
 
@@ -138,7 +142,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                 try {
                     if (isLoggedIn && !dataFetchStatusRef.current.loggedInFetched) {
                         // 登录状态变为已登录，且未获取过登录状态的数据
-                        const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang }) as any;
+                        const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang.current }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
                                 id: item.id,
@@ -150,7 +154,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
                         }
                     } else if (!isLoggedIn && !dataFetchStatusRef.current.loggedOutFetched) {
                         // 登录状态变为未登录，且未获取过未登录状态的数据
-                        const bulletinResponse = await getBulletinMessage({ languageCode: currentLang }) as any;
+                        const bulletinResponse = await getBulletinMessage({ languageCode: currentLang.current }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
                                 id: item.id,

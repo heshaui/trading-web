@@ -18,8 +18,7 @@ import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import  QuestionModal  from "@/components/myModal/questionModal";
 import { useTranslation } from 'next-i18next';
-import { platform } from "os";
-
+import appStore from "@/store";
 interface acountType {
     countryCode?: string;
     email?: string;
@@ -65,6 +64,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
     const [questionModalOpen, setQuestionModalOpen] = useState(false);
     const [form] = Form.useForm();
+    const kvConfigKey=appStore.getKvConfig('out_money')
     // console.log(acountInfo, 123);
 
     const handCancel = () => {
@@ -325,7 +325,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                 {t('security.unbindGoogle.warmTip')}
                             </p>
                             <p>
-                                {t('security.unbindGoogle.tipContent')}
+                                {t('security.unbindGoogle.tipContent2', {time:kvConfigKey||24})}
                             </p>
                         </div>
                     </div>
