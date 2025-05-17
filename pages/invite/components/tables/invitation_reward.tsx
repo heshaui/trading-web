@@ -19,7 +19,7 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 import { useTranslation } from 'next-i18next';
 import { getRecordList } from '@/services/invite';
 import appStore from '@/store';
-import { getRate, getCoinRate } from '@/utils/getUseRate';
+import { getRate, getCoinRate ,getRound} from '@/utils/getUseRate';
 
 interface DataType {
     createTime: number,

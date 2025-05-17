@@ -21,6 +21,7 @@ import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 import { DataType } from '@/type/assets/assetsAccount/assets'
+import { BalanceAllType } from '@/type/assets/assetsAccount/assets'
 
 const AssetsMainPage = observer(() => {
     const { t } = useTranslation(['assets']);
@@ -33,19 +34,19 @@ const AssetsMainPage = observer(() => {
         page: 1,
         pageSize: 10
     })
-    const [balanceAll, setBalanceAll] = useState({
+    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({
         usdBalance: 0,
         cnyBalance: 0,
         usdt: 0
     });
-    const [balanceDay, setBalanceDay] = useState({
+    const [balanceDay, setBalanceDay] = useState<BalanceAllType>({
         usdBalance: 0,
         cnyBalance: 0,
         usdt: 0,
         withdraw: 0,
         usdtWithdraw:0
     });
-    const [todayEarnings, setTodayEarnings] = useState({
+    const [todayEarnings, setTodayEarnings] = useState<BalanceAllType>({
         usdBalance: 0,
         cnyBalance: 0,
         usdt: 0
@@ -265,8 +266,8 @@ const AssetsMainPage = observer(() => {
                 // const usdRate = getRate('USDT', totalUsd, 'USD').rate
                 const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
                 setBalanceAll({
-                    usdBalance: Number(usdRate) || 0,
-                    cnyBalance: Number(cnyRate) || 0,
+                    usdBalance: usdRate || 0,
+                    cnyBalance: cnyRate || 0,
                     usdt: totalUsd || 0
                 });
             }
@@ -286,6 +287,7 @@ const AssetsMainPage = observer(() => {
                 const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
                 const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
                 const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
+                console.log(123,res.data[0].balance,usdRate.rate,withdraw.rate,res.data[0].withdraw)
             
                 setBalanceDay({
                     usdBalance: Number(usdRate.rate) || 0,
@@ -293,7 +295,7 @@ const AssetsMainPage = observer(() => {
                     usdt: res.data[0].balance || 0,
                     withdraw: Number(withdraw.rate) || 0,
                     usdtWithdraw: res.data[0].withdraw || 0
-                });
+                })
             }
         } catch (error) {
             toast.error(String(error));
@@ -427,12 +429,12 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt, balanceDay.usdtWithdraw)}&nbsp;
+                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt, balanceDay?.usdtWithdraw || 0)}&nbsp;
                                     USDT
                                     {/* {rateKey.split('-')[0].trim() || '--'} */}
                                 </span>
                                 <span>≈
-                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance, balanceDay.withdraw)}&nbsp;
+                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance, balanceDay?.withdraw || 0)}&nbsp;
                                     {/* USD */}
                                     {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                                     {rateKeyName || '--'}

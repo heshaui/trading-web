@@ -127,7 +127,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck2(false)
                 toast.success(res.message)
-                startCountdown2(res.data);
+                startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
             } else {
@@ -155,7 +155,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown(res.data);
+                startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
             } else {

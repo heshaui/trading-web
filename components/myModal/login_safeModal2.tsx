@@ -178,6 +178,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         // 更新网站配置
                         if (typeof window !== 'undefined') {
                             store.getKvConfigAllFromApi()
+                            store.loadCoinList()
                         }
 
                     } else {

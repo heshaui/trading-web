@@ -80,7 +80,8 @@ export interface HelpCenterMenuProps {
     languageCode: string,
     articleTitle: string,
     languagePath?: string,
-    children?: HelpCenterMenuProps[]
+    type: number,
+    children?: HelpCenterMenuProps[]|null
 }
 export interface HelpCenterMenuProps2 {
     id: number,
@@ -95,5 +96,6 @@ export interface HelpCenterMenuProps2 {
     languagePath?: string,
     label: string,
     key: string,
-    children?: HelpCenterMenuProps2[]
+    type: number,
+    children?: HelpCenterMenuProps2[]|null
 }

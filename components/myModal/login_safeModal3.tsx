@@ -264,7 +264,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -281,7 +281,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -362,11 +362,13 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
 
         // 使用新的时间开始倒计时
         if (acountInfo.type === 'm') {
-            startCountdown(acountInfo?.emailTime || 0);
-            startCountdown2(acountInfo?.phoneTime || 0);
+            // startCountdown(acountInfo?.emailTime || 0);
+            // startCountdown2(acountInfo?.phoneTime || 0);
+            startCountdown(60);
+            startCountdown2(60);
         } else if (acountInfo.type === 'p') {
-            startCountdown(acountInfo?.phoneTime || 0);
-            startCountdown2(acountInfo?.emailTime || 0);
+            startCountdown(60);
+            startCountdown2(60);
         }
 
         return () => {

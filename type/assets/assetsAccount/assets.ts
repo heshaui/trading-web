@@ -8,3 +8,10 @@ export interface DataType {
     iconUrl: string,
     nameDefault: string
 }
+export interface BalanceAllType {
+    usdBalance: number|string,
+    cnyBalance: number|string,
+    usdt: number | string
+    withdraw?: number | string,
+    usdtWithdraw?: number | string
+}

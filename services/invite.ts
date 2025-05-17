@@ -31,7 +31,8 @@ interface dataType{
     pageNo?:number,
     pageSize?:number,
     userId?: number,
-    actualCoinId?: number
+    actualCoinId?: number|string
+    actualCoinName?: string
 }
 // 返佣金额-邀请奖励列表
 export function getRecordList(data:dataType): Promise<any> {
