@@ -92,4 +92,12 @@ export interface UserInfoType {
     remark: string | null,
     googleCode: boolean
 }
-
+export interface inviteInfoType {
+    inviteCode: string,
+    coinId: number,
+    coinName: string,
+    rebateRatio: string,
+    validTime: string,
+    rechargeLimit: number,
+    isRealname: string
+}

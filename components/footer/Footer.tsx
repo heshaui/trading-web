@@ -134,7 +134,7 @@ export default function Footer() {
     useEffect(() => {
         if (allConfig) {
             fetchFooterSetting()
-            setSelectedLang(languageList.find(item => item.key.includes(i18n.language))?.span || '');
+            setSelectedLang(languageList.find(item => item.key.includes(i18n.language))?.span || i18n.language);
         }
     }, [allConfig, langKey, languageList])
 

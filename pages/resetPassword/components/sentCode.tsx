@@ -122,7 +122,7 @@ function ResetPassword() {
                 const res = await getResetMailCode(dataEncrypt)
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
                 }
@@ -140,7 +140,7 @@ function ResetPassword() {
                 const res = await getResetSmsCode(dataEncrypt)
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown2(res.data);
+                    startCountdown2(60);
                 } else if (res.code === "10044") {
                     toast.error(t('codeError') || res.message)
                 }
@@ -170,11 +170,13 @@ function ResetPassword() {
                 clearTimers()
                 // 根据类型启动不同的定时器
                 if (acount.type == 'p' || acount.type == 'phone') {
-                    startCountdown(data.phoneTime)
-                    startCountdown2(data.emailTime)
+                    // startCountdown(data.phoneTime)
+                    // startCountdown2(data.emailTime)
+                    startCountdown(60)
+                    startCountdown2(60)
                 } else if (acount.type == 'm' || acount.type == 'email') {
-                    startCountdown(data.emailTime)
-                    startCountdown2(data.phoneTime)
+                    startCountdown(60)
+                    startCountdown2(60)
                 }
             } else {
                 toast.error(res.message)
@@ -357,22 +359,7 @@ function ResetPassword() {
                                 value={codeInputValue}
                             />
                         </Form.Item> */}
-                        {(acount.isGoogleAuth == 1) && <>
-                            <div className={`${styles.title_color} mb-3`}>{t('googleCodeTitle')}</div>
-                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
-                                <Input
-                                    placeholder={t('inputCode')}
-                                    style={{ borderRadius: "8px", height: "50px" }}
-                                    // value={authCode}
-                                    allowClear
-                                    size='large'
-                                    className={`${styles.mail_input} modal-input`}
-                                    // className='custom-input'
-                                    maxLength={6}
-                                    onChange={(e) => handleInputChange(e, 'google')}
-                                    value={googleCodeInputValue}
-                                />
-                            </Form.Item></>}
+
                         {(acount.isEmailAuth == 1) && <>
                             <div className={`${styles.title_color} mb-3`}>{t('emailCodeTitle')}</div>
                             <Form.Item
@@ -381,8 +368,8 @@ function ResetPassword() {
                                 className="position-relative"
                             >
                                 <Input
-                                    className={`${styles.input_box} modal-input`}
-                                    style={{ width: "100%", height: "40px" }}
+                                    className={`${styles.mail_input} modal-input`}
+                                    style={{ width: "100%", height: "50px" }}
                                     placeholder={t('inputCode2')}
                                     allowClear
                                     suffix={
@@ -414,8 +401,8 @@ function ResetPassword() {
                                     className="position-relative"
                                 >
                                     <Input
-                                        className={`${styles.input_box} modal-input`}
-                                        style={{ width: "100%", height: "40px" }}
+                                        className={`${styles.mail_input} modal-input`}
+                                        style={{ width: "100%", height: "50px" }}
                                         placeholder={t('inputCode2')}
                                         allowClear
                                         value={phoneCodeInputValue}
@@ -435,7 +422,22 @@ function ResetPassword() {
                                         maxLength={6}
                                     />
                                 </Form.Item></>}
-
+                        {(acount.isGoogleAuth == 1) && <>
+                            <div className={`${styles.title_color} mb-3`}>{t('googleCodeTitle')}</div>
+                            <Form.Item noStyle name="googleCode" rules={[{ required: true, message: t('codeNull') }]}>
+                                <Input
+                                    placeholder={t('inputCode')}
+                                    style={{ borderRadius: "8px", height: "50px" }}
+                                    // value={authCode}
+                                    allowClear
+                                    size='large'
+                                    className={`${styles.mail_input} modal-input`}
+                                    // className='custom-input'
+                                    maxLength={6}
+                                    onChange={(e) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
+                                />
+                            </Form.Item></>}
 
                     </Form>
                 </ConfigProvider>

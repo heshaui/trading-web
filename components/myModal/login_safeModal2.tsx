@@ -137,7 +137,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             type: acountInfo.type,
                             email: acountInfo.email,
                             deviceType: fingerprint,
-                            platformType:"Web",
+                            platformType: "Web",
                             password: acountInfo.password,
 
                             authCodeMail: values.code || '',
@@ -151,14 +151,14 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                             type: acountInfo.type,
                             phone: acountInfo.phone,
                             deviceType: fingerprint,
-                            platformType:"Web",
+                            platformType: "Web",
                             password: acountInfo.password,
                             countryCode: acountInfo.countryCode,
 
                             // authCodePhone: values.code,
                             // authCodeMail: values.emailCode || '',
                             // authCodeGoogle: values.googleCode || '',
-                            authCodeMail: values.code|| '',
+                            authCodeMail: values.code || '',
                             authCodeGoogle: values.googleCode || '',
                             authCodePhone: values.phoneCode || ''
 
@@ -245,8 +245,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 //     // startCountdown(60);
                 //     // startCountdown2(60)
                 // }
-                startCountdown(acountInfo?.emailTime || 0);
-                startCountdown2(acountInfo?.phoneTime || 0);
+                startCountdown(60);
+                startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('safeModal.codeValid'))
             } else {
@@ -276,7 +276,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -293,7 +293,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
                     toast.success(res.message)
-                    startCountdown(res.data);
+                    startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
                 } else {
@@ -363,10 +363,10 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     };
     const handleOk = (event: boolean) => {
         if (event) {
-            if((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1&&(acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) || 
-            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)){
-            return
-            } else{
+            if ((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
+                (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) {
+                return
+            } else {
                 getLoginCode2()
             }
         }
@@ -385,8 +385,8 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
         //     startCountdown(acountInfo?.phoneTime || 0);
         //     startCountdown2(acountInfo?.emailTime || 0);
         // }
-        startCountdown(acountInfo?.emailTime || 0);
-        startCountdown2(acountInfo?.phoneTime || 0);
+        startCountdown(60);
+        startCountdown2(60);
         return () => {
             clearTimers();
         };
@@ -483,28 +483,11 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 </p> */}
                 <Form form={form} style={{ margin: "10px 0" }} colon={false}>
 
-                    {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
-                        <Form.Item
-                            name="googleCode"
-                            rules={[{ required: true, message: t('safeModal.codeNull') }]}
-                            className="position-relative"
-                        >
-                            <Input
-                                className={`${styles.input_box} modal-input`}
-                                style={{ width: "100%", height: "40px" }}
-                                placeholder={t('safeModal.inputPlaceholder')}
-                                allowClear
-                                maxLength={6}
-                                value={googleCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'google')}
-                            />
-                        </Form.Item>
-                    </>}
+
                     {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
                         (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1))
                         && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
+                            <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                             <Form.Item
                                 name="code"
                                 rules={[{ required: true, message: t('safeModal.codeNull') }]}
@@ -566,6 +549,25 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 />
                             </Form.Item>
                         </>}
+
+                    {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
+                        <Form.Item
+                            name="googleCode"
+                            rules={[{ required: true, message: t('safeModal.codeNull') }]}
+                            className="position-relative"
+                        >
+                            <Input
+                                className={`${styles.input_box} modal-input`}
+                                style={{ width: "100%", height: "40px" }}
+                                placeholder={t('safeModal.inputPlaceholder')}
+                                allowClear
+                                maxLength={6}
+                                value={googleCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'google')}
+                            />
+                        </Form.Item>
+                    </>}
                     {/* {(acountInfo.type === 'p' &&acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) 
                     && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
@@ -598,20 +600,20 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         </Form.Item>
                     </>} */}
                 </Form>
-                {!((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1&&(acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) || 
-            (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <QuestionModal
-                    open={pointout}
-                    onOk={handleOk}
-                    type={acountInfo.type}
-                    acount={
-                        acountInfo.type === "m"
-                            ? (acountInfo.email || "")
-                            : acountInfo.type === "p"
-                                ? (acountInfo.phone || "")
-                                : ""
-                    }
-                    onCancel={() => setPointout(false)}
-                />}
+                {!((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
+                    (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <QuestionModal
+                        open={pointout}
+                        onOk={handleOk}
+                        type={acountInfo.type}
+                        acount={
+                            acountInfo.type === "m"
+                                ? (acountInfo.email || "")
+                                : acountInfo.type === "p"
+                                    ? (acountInfo.phone || "")
+                                    : ""
+                        }
+                        onCancel={() => setPointout(false)}
+                    />}
             </Modal>
         </ConfigProvider>
     );

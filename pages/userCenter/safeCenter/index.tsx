@@ -7,7 +7,6 @@ import { getSafeCenter, getPhoneClose } from "@/services/safeCenter"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
-import store from "@/store/index"
 import { Skeleton } from 'antd'
 import { encryptString, encryptData } from '@/utils/encrypt'
 import SetPhoneModal from '@/components/safeCenterModal/setPhone_Modal'
@@ -25,6 +24,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import appStore from "@/store"
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -107,6 +107,7 @@ const SafeCenter: React.FC = () => {
     const [BindGoogleModalOpen, setBindGoogleModalOpen] = useState(false)
     const router = useRouter();
     const { t } = useTranslation(['userCenter']);
+    const kvConfigKey=appStore.getKvConfig('out_money')
 
     const initBaseSafeList: SafeListItem[] = [
         {
@@ -149,7 +150,7 @@ const SafeCenter: React.FC = () => {
             title: t('security.phoneAuth'),
             type: "phone",
             /* 短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。 */
-            desc: t('security.phoneAuthDesc'),
+            desc: t('security.phoneAuthDesc2', {time:kvConfigKey||24}),
             isBind: false,
             bindValue: "--",
             /* 未绑定 */
@@ -188,7 +189,7 @@ const SafeCenter: React.FC = () => {
             title: t('security.emailAuth'),
             type: "email",
             /* 邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。 */
-            desc: t('security.emailAuthDesc'),
+            desc: t('security.emailAuthDesc2', {time:kvConfigKey||24}),
             isBind: false,
             bindValue: "--",
             /* 未绑定 */
@@ -488,8 +489,8 @@ const SafeCenter: React.FC = () => {
     }
     // 修改密码成功后
     const changeLock = () => {
-        store.clearUserInfo()
-        store.clearUserToken()
+        appStore.clearUserInfo()
+        appStore.clearUserToken()
         router.push('/login')
     }
 

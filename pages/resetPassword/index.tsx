@@ -13,9 +13,11 @@ import { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import appStore from "@/store"
+
 function ResetPassword() {
     const { t } = useTranslation('resetPassword');
-
+const kvConfigKey=appStore.getKvConfig('out_money')
     // const [tabsProps, setTabsProps] = useState('email');
     // const signIn = useSignIn();
     // const { loginType, setLoginType } = useLoginTypeContext();
@@ -37,7 +39,7 @@ function ResetPassword() {
                     <div className={`mb-6 flex flex-ai-center  ${styles.warning_box}`} >
                         <Iconify icon="ep:warning-filled" className="mr-2" size={20}/>
                         {/* 为确保您的账户安全，在您更改密码后48小时内禁出金。 */}
-                        {t('resetTip2',{time:24})}
+                        {t('resetTip2',{time:kvConfigKey||24})}
                     </div>
                     <ResetStateProvider>
                         <InputAcount />

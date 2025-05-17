@@ -10,6 +10,7 @@ import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 import { useTranslation } from 'next-i18next';
+import appStore from "@/store"
 type Props = {
     open: boolean;
     type: string;
@@ -20,6 +21,7 @@ type Props = {
 // 0:修改手机号 1:关闭手机验证 2:修改邮箱 3:修改密码 4:关闭谷歌验证
 function CheckModal({ open, onCancel, type, onOk }: Props) {
     const { t } = useTranslation(['userCenter']);
+    const kvConfigKey=appStore.getKvConfig('out_money')
     const handCancel = () => {
         onCancel()
     };
@@ -109,7 +111,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                                 {t('security.changeCheck.title')}
                             </p>
                             <p className={`${styles.msg_color} mt-4 text-center` }>
-                                {t('security.changeCheck.msg')}
+                                {t('security.changeCheck.msg11',{time:kvConfigKey})}
                             </p>
                         </>
                     )}
@@ -133,7 +135,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                                 {t('security.changeCheck.title2')}
                             </p>
                             <p className={`${styles.msg_color} mt-4 text-center` } style={{width: '70%'}}>
-                                {t('security.changeCheck.msg2')}
+                                {t('security.changeCheck.msg21',{time:kvConfigKey})}
                             </p>
                         </>
                     )}
@@ -145,7 +147,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                                 {t('security.changeCheck.title3')}
                             </p>
                             <p className={`${styles.msg_color} mt-4 text-center` }>
-                                {t('security.changeCheck.msg3')}
+                                {t('security.changeCheck.msg31',{time:kvConfigKey})}
                             </p>
                         </>
                     )}
@@ -157,7 +159,7 @@ function CheckModal({ open, onCancel, type, onOk }: Props) {
                                 {t('security.changeCheck.title4')}
                             </p>
                             <p className={`${styles.msg_color} mt-4 text-center` }>
-                                {t('security.changeCheck.msg4')}
+                                {t('security.changeCheck.msg41',{time:kvConfigKey})}
                             </p>
                         </>
                     )}
