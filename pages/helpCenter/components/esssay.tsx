@@ -10,9 +10,16 @@ import { HelpCenterMenuProps, HelpCenterMenuProps2 } from '@/type/help_center/hc
 import { toast } from 'sonner';
 
 const { Sider, Content } = Layout;
+interface currentArticletype {
+    title: string;
+    content: string;
+    time: string;
+}
+type Props = {
+    currentArticle:currentArticletype
+}
 
-
-export default function EsssayPage() {
+export default function EsssayPage({currentArticle}:Props) {
     // 路由
     const router = useRouter();
     // 路由参数
@@ -20,14 +27,6 @@ export default function EsssayPage() {
     const langKey = appStore.getLang();
     // 路由参数
     const locale = router.query.locale || 'zh';
-
-    // 添加文章详情相关状态
-    const [showArticleDetail, setShowArticleDetail] = useState(false);
-    const [currentArticle, setCurrentArticle] = useState<{
-        title: string;
-        content: string;
-        time: string;
-    } | null>(null);
 
     return (
         <div className={styles.helpCenterContainer}>
@@ -42,7 +41,7 @@ export default function EsssayPage() {
 
                     <Layout style={{ background: 'transparent' }}>
 
-                        <Content style={{ padding: showArticleDetail ? 0 : '0 24px', minHeight: 280 }}>
+                        <Content style={{ padding:  '0 24px', minHeight: 280 }}>
                             <div className={styles.detailContent}>
                                 {/* {showArticleDetail && currentArticle ? ( */}
                                 <div className={styles.articleDetail}>

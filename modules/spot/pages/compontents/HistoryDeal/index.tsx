@@ -183,9 +183,10 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const amount = division(_status, record.quantity)
-        const { baseScaleResult } = getRound(record.symbol, amount)
-        return <span >{amount ? baseScaleResult : '0'}</span>;
+        // const amount = division(_status, record.quantity)
+        // const { baseScaleResult } = getRound(record.symbol, amount)
+        const { baseScaleResult } = getRound(record.symbol, _status)
+        return <span >{_status ? baseScaleResult : '0'}</span>;
 
       },
     },
@@ -210,7 +211,8 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         // const coin = coinList.find((item: any) => item.coinName === record.symbol.split('/')[1]);
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const { baseScaleResult } = getRound(record.symbol, _status)
+        const amount = nul(_status, record.quantity)
+        const { baseScaleResult } = getRound(record.symbol, amount)
         return <span >{_status ? baseScaleResult : '0'}</span>;
       },
     },
@@ -327,7 +329,7 @@ const SpotMainPage = observer(() => {
       // 请求数据
       const params = {
         page: paramdataRef.current.page,
-        pageSize:paramdataRef.current.pageSize,
+        pageSize: paramdataRef.current.pageSize,
         symbol: `${symbol.split('/').join('_')}`,
         startTime: dayjs(selectParam.current.startTime).valueOf(),
         endTime: dayjs(selectParam.current.endTime).valueOf(),
@@ -442,7 +444,7 @@ const SpotMainPage = observer(() => {
                 onChange={dateChange}
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
-                 defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
+                defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
               />
             </Form.Item>
 

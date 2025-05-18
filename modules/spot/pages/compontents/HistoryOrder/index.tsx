@@ -346,8 +346,8 @@ const SpotMainPage = observer(() => {
         const flag = record.takerSide
         // const price=nul(record.tradePrice,record.quantity)
         if (flag === 0) {
-          const { baseScaleResult, baseSymbol } = getRound(symbolName, _buyFee || 0)
-          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+          const { baseScaleResult, baseSymbol,coinSymbol } = getRound(symbolName, _buyFee || 0)
+          return <span>{`${baseScaleResult} ${coinSymbol || '--'}`}</span>
         } else if (flag === 1) {
           const { baseScaleResult, baseSymbol } = getRound(symbolName, record.sellFee || 0)
           return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
