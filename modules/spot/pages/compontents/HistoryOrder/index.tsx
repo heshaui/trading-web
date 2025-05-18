@@ -343,7 +343,7 @@ const SpotMainPage = observer(() => {
       width: 158,
       render: (_buyFee, record) => {
         const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
-        const flag = record.takerSide
+        const flag = userInfo.userId === record.buyerUserId ? 0 : userInfo.userId === record.sellerUserId ? 1 : 2
         // const price=nul(record.tradePrice,record.quantity)
         if (flag === 0) {
           const { baseScaleResult, baseSymbol,coinSymbol } = getRound(symbolName, _buyFee || 0)

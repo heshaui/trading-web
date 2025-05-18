@@ -226,10 +226,10 @@ const SpotMainPage = observer(() => {
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
         const buyRes = getRound(record.symbol, record.buyFee || 0)
         const sellRes = getRound(record.symbol, record.sellFee || 0)
-
-        if (record.takerSide === 0) {
-          return <span >{`${buyRes.baseScaleResult} ${buyRes.baseSymbol || '--'}`}</span>;
-        } else if (record.takerSide === 1) {
+        const flag = userInfo.userId === record.buyerUserId ? 0 : userInfo.userId === record.sellerUserId ? 1 : 2
+        if (flag === 0) {
+          return <span >{`${buyRes.baseScaleResult} ${buyRes.coinSymbol || '--'}`}</span>;
+        } else if (flag === 1) {
           return <span >{`${sellRes.baseScaleResult} ${sellRes.baseSymbol || '--'}`}</span>;
         } else {
           return <span >{'--'}</span>;
