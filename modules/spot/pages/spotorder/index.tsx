@@ -11,9 +11,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { TabsProps } from 'antd';
-import SpotOrderNow from '../compontents/NowOrder'
-import SpotOrderHistory from '../compontents/HistoryOrder'
-import SpotOrderDeal from '../compontents/HistoryDeal'
+import SpotOrderNow from '../compontents/SpotOrder/NowOrder'
+import SpotOrderHistory from '../compontents/SpotOrder/HistoryOrder'
+import SpotOrderDeal from '../compontents/SpotOrder/HistoryDeal'
 import appStore from '@/store';
 import { useAuth } from '@/context/AuthContext';
 interface DataType {

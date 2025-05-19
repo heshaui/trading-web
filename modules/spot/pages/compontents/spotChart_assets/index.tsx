@@ -26,9 +26,10 @@ interface DataType {
     tenantId: string,
 }
 type Props = {
-    orderUpdateFlag?: number
+    orderUpdateFlag?: number,
+    updateAssets?: number
 }
-const SpotAssetsPage = observer(({orderUpdateFlag}:Props) => {
+const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
     const { t } = useTranslation(['spot']);
     const router = useRouter();
     // 获取币种列表
@@ -58,7 +59,7 @@ const SpotAssetsPage = observer(({orderUpdateFlag}:Props) => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [orderUpdateFlag])
+    }, [orderUpdateFlag,updateAssets])
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
             资产

@@ -32,8 +32,9 @@ interface DataType {
 }
 type Props = {
     orderUpdateFlag?: number
+    updateAssets?: number
 }
-const AssetsMainPage = observer(() => {
+const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
     const { coinList } = useCoinList(true);
@@ -258,7 +259,7 @@ const AssetsMainPage = observer(() => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [rateKey])
+    }, [rateKey,orderUpdateFlag,updateAssets])
     return (<><ConfigProvider
         theme={{
             components: {
