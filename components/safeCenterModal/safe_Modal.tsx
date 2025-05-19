@@ -182,7 +182,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown(res.data);
+                startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error('验证码还在有效期内')
             } else {
@@ -210,7 +210,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown(res.data);
+                startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error('验证码还在有效期内')
             } else {
@@ -255,7 +255,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown(res.data);
+                startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error('验证码还在有效期内')
             } else {
@@ -283,7 +283,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             if (res.code === "0") {
                 setFirstCheck(false)
                 toast.success(res.message)
-                startCountdown(res.data);
+                startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error('验证码还在有效期内')
             } else {

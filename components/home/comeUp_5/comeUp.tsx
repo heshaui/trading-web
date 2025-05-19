@@ -4,9 +4,13 @@ import styles from '../styles/assistant.module.css';
 import Image from 'next/image'
 import { useTranslation } from 'next-i18next';
 import appStore from '@/store';
+import { useEffect } from 'react';
 export default function Experience() {
-    const { t } = useTranslation(['home']);
-     const allConfig = appStore.getKvConfigAll();
+    const { t,i18n } = useTranslation(['home']);
+    const allConfig = appStore.getKvConfigAll();
+    useEffect(() => {
+        
+    }, [i18n.language]);
     return (
         <div className={`${styles.comup_page}`}>
             <div className={`${styles.assistant_main} flex-column flex-ai-center flex-jc-center`}>

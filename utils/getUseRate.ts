@@ -1,5 +1,6 @@
 import appStore from '@/store';
-import { nul,roundDown,division } from '@/utils';
+import { nul, roundDown, division } from '@/utils';
+import BigNumber from 'bignumber.js';
 /*
 * @param symbolName 币种符号
 * @param num 数量
@@ -59,15 +60,19 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
         if (!exchangeRate) {
             return '--';
         }
+        // 使用 BigNumber 保持 priceNum 的精度
+        const priceNumBN = new BigNumber(priceNum);
         const num1 = nul(price, exchangeRate);
-        const num2 = nul(num1, Number(priceNum));
+        // console.log(num1, priceNumBN.toNumber(), priceNum, 999);
+        const num2 = nul(num1, priceNumBN.toNumber());
         // 使用 nul 函数计算最终结果
-        return roundDown(num2,accuracy||2);
+        // return roundDown(num2,accuracy||2);
+        return num2
     };
 
     return {
         ratetext:`${symbol} ${calculateRate()}`, // 汇率返回内容
-        rate:calculateRate(), // 汇率
+        rate:calculateRate(), // 汇率结果
         symbol:symbol, // 汇率符号
         shortName:shortName // 汇率名称
     };

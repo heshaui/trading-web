@@ -225,9 +225,12 @@ const SpotMainPage = observer(() => {
       width: 128,
       align: "center",
       render: (_amount, record) => {
+        const amount = getRound(record.symbol, _amount).scaleResult
+        const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
-            <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span>
+            {/* <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span> */}
+            <span>{`${amount}/${amountDone}`}</span>
             <span className={`${styles.tip_color2}`}>
               {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
             </span>
@@ -266,7 +269,7 @@ const SpotMainPage = observer(() => {
         } else if (_status === 2) {
           // 拒绝
           return <span >{t('spot.select.failed') || '--'}</span>;
-        } else if (_status === 3||_status === 6) {
+        } else if (_status === 3 || _status === 6) {
           // 已撤销
           return <span >{t('spot.select.canceled') || '--'}</span>;
         } else if (_status === 4) {
@@ -347,11 +350,11 @@ const SpotMainPage = observer(() => {
       width: 158,
       render: (_buyFee, record) => {
         const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
-        const flag = record.takerSide
+        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         // const price=nul(record.tradePrice,record.quantity)
         if (flag === 0) {
-          const { baseScaleResult, baseSymbol } = getRound(symbolName, _buyFee || 0)
-          return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
+          const { baseScaleResult, baseSymbol,coinSymbol } = getRound(symbolName, _buyFee || 0)
+          return <span>{`${baseScaleResult} ${coinSymbol || '--'}`}</span>
         } else if (flag === 1) {
           const { baseScaleResult, baseSymbol } = getRound(symbolName, record.sellFee || 0)
           return <span>{`${baseScaleResult} ${baseSymbol || '--'}`}</span>
@@ -371,6 +374,18 @@ const SpotMainPage = observer(() => {
       },
     }
   ]
+  const orderDirection = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
+    const userId = userInfo.userId
+    if (sellerUserId === userId && buyerUserId === userId) {
+      return takerSide
+    }else if(sellerUserId === userId){
+      return 1
+    }else if(buyerUserId === userId){
+      return 0
+    }else{
+      return '--'
+    }
+  }
   const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
     if (takerSide === 0) {
@@ -600,14 +615,14 @@ const SpotMainPage = observer(() => {
             className={`spot-table-box`}
             loading={loading}
             scroll={{ x: "max-content" }}
-            pagination={{
+            pagination={total>10?{
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            }}
+            }:false}
             // pagination={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{

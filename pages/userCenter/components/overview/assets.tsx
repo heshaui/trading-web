@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
-import { CSSProperties, useState, useEffect, useRef } from "react"
+import { CSSProperties } from "react"
 import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ import { getRate, getCoinRate } from '@/utils/getUseRate';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import WebSocketService from '@/utils/websocket';
+import { getToken } from '@/request';
+import { BalanceAllType, TodayEarningsType, YesterdayBalanceType } from '@/type/assets/assetsAccount/assets'
 
 interface chartDataType {
     balance: string,
@@ -28,7 +30,6 @@ interface chartDataType {
     symbol: string
 }
 const AssetsPage: React.FC = observer(() => {
-    const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
     const { t } = useTranslation('userCenter');
     const router = useRouter();
     const [banlanceShow, setBanlanceShow] = useState(true)
@@ -40,22 +41,9 @@ const AssetsPage: React.FC = observer(() => {
     const [balanceByDay, setBalanceByDay] = useState<chartDataType[]>([]);
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
-    const [balanceAll, setBalanceAll] = useState({
-        usdBalance: 0,
-        usdt: 0,
-        symbol: ''
-    });
-    // 昨日结算及提现
-    const [balanceDay, setBalanceDay] = useState({
-        usdBalance: 0,
-        // cnyBalance: 0,
-        withdraw: 0,
-    });
-    // 今日充值
-    const [todayEarnings, setTodayEarnings] = useState({
-        usdBalance: 0,
-        // cnyBalance: 0,
-    });
+    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
+    const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
+    const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const balanceDataRef = useRef<WebSocketService | null>(null);
 
     // 获取所有币种余额
@@ -74,10 +62,10 @@ const AssetsPage: React.FC = observer(() => {
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd, rateKeyName) //获取汇率
+                const usdRate = getRate('USDT', totalUsd||0, rateKeyName) //获取汇率
                 setBalanceAll({
                     usdBalance: Number(usdRate.rate) || 0,
-                    usdt: totalUsd,
+                    balance: totalUsd,
                     symbol: usdRate.symbol
                 });
             }
@@ -87,14 +75,20 @@ const AssetsPage: React.FC = observer(() => {
             // setTableLoading(false);
         }
     };
+
+
     // 获取用户余额以及充值金额 日K线
     const getUserBalanceDay = async () => {
         try {
             const res = await getUserBalanceByDay();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
-                const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
+                // const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
+                // const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
+
+                const usdBalance = await getRate('USDT', res.data[0].balance||0, rateKeyName);
+                const usdRecharge = await getRate('USDT', res.data[0].recharge||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data[0].withdraw||0, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -106,9 +100,12 @@ const AssetsPage: React.FC = observer(() => {
                 }).sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
                 setBalanceByDay(initData);
                 setBalanceDay({
-                    usdBalance: Number(usdRate.rate) || 0,
-                    withdraw: Number(withdraw.rate) || 0,
-                    // cnyBalance: Number(cnyRate.rate) || 0
+                    balanceAll: res.data[0].balance || 0,
+                    balance: res.data[0].recharge || 0,
+                    withdraw: res.data[0].withdraw || 0,
+                    usdBalanceAll: usdBalance.rate || 0,
+                    usdBalance: usdRecharge.rate || 0,
+                    usdWithdraw: usdWithdraw.rate || 0
                 });
             }
         } catch (error) {
@@ -121,11 +118,13 @@ const AssetsPage: React.FC = observer(() => {
             const res = await getTodayEarnings();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
-                // const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                const usdBalance = await getRate('USDT', res.data.balance||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data.withdraw||0, rateKeyName);
                 setTodayEarnings({
-                    usdBalance: Number(usdRate.rate) || 0
-                    // cnyBalance: Number(cnyRate.rate) || 0
+                    usdBalance: Number(usdBalance.rate) || 0,
+                    usdWithdraw: Number(usdWithdraw.rate) || 0,
+                    balance: res.data.balance || 0,
+                    withdraw: res.data.withdraw || 0
                 });
             }
         } catch (error) {
@@ -135,60 +134,92 @@ const AssetsPage: React.FC = observer(() => {
     const waxAndWane = () => {
         // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
         // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalance))), Number(todayEarnings.usdBalance))
-        const banlanceShow = add(Number(banlance1), Number(balanceDay.withdraw))
+        const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
+        const banlanceShow = add(Number(banlance1), Number(balanceDay.usdWithdraw))
 
         return banlanceShow
     }
-    const getBanlanceService = () => {
+    // 设置WebSocket连接
+    const setupBalanceWebSocket = useCallback(() => {
         // 如果已经有连接，不要重复创建
         if (balanceDataRef.current) return;
-        // const websocket = new WebSocketService(`wss://ambit-assets-web.imbit.work/ws/asset?userId=${userInfo.userId || ''}`);
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_ASSETS_API_BASE}/ws/asset?userId=${userInfo.userId || ''}`);
-        balanceDataRef.current = websocket;
-        websocket.connect((message: string) => {
-            try {
-                const data = JSON.parse(message);
-                console.log(data,9999);
-                // if(data.type === '__ping__'){
 
-                //     return;
-                // }
-                // 使用函数式更新来累积数据
-                // setTableData(data || []);
-                // const totalUsd = data.reduce((sum: number, curr: any) => {
-                //     const coinTotal = add(
-                //         add(curr.balance || 0, curr.releaseBalance || 0),
-                //         curr.frozenBalance || 0
-                //     );
-                //     const balance = getCoinRate(curr.coinName, coinTotal).coinRate
-                //     return sum + Number(balance) || 0;
-                // }, 0);
-                // const rateKeyName = rateKey.split('-')[0].trim()
-                // const usdRate = getRate('USDT', totalUsd, rateKeyName) //获取汇率
-                // setBalanceAll({
-                //     usdBalance: Number(usdRate.rate) || 0,
-                //     usdt: totalUsd,
-                //     symbol: usdRate.symbol
-                // });
-            } catch (error) {
-                console.log(error,9999);
+        // 创建新的WebSocket连接
+        const token = getToken();
+        if (!token) {
+            console.error('No token found');
+            return;
+        }
+
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_ASSETS_API_BASE}/ws/asset?userId=${userInfo.userId}`, {
+            headers: {
+                'Authorization': `${getToken()}`, // 获取 token（可选）
+                'sa-token': `${getToken()}`,
             }
         });
-    }
-    useEffect(() => {
-        setIsClient(true);
-        // 组件卸载时清理所有WebSocket连接
-        return () => {
-            if (balanceDataRef.current) balanceDataRef.current.close();
-        };
-    }, []);
-    useEffect(() => {
-        if (!isClient||!userInfo || typeof window === 'undefined') return;
+        balanceDataRef.current = websocket;
 
-        // 安全地使用currentPair
-        getBanlanceService();
-    }, [isClient,userInfo]);
+        websocket.connect((message: string) => {
+            console.log('收到WebSocket消息:', message);
+
+            try {
+                const data = JSON.parse(message);
+                console.log('解析后的数据:', data);
+
+                if (data.type === '__ping__') {
+                    websocket.send(JSON.stringify({ type: '__pong__' }));
+                    return;
+                }
+
+                // 更新余额数据
+                if (data && Array.isArray(data)) {
+                    setTableData(data);
+
+                    // 重新计算总余额
+                    const totalUsd = data.reduce((sum: number, curr: any) => {
+                        const coinTotal = add(
+                            add(curr.balance || 0, curr.releaseBalance || 0),
+                            curr.frozenBalance || 0
+                        );
+                        const balance = getCoinRate(curr.coinName, coinTotal).coinRate
+                        return sum + Number(balance) || 0;
+                    }, 0);
+
+                    const rateKeyName = rateKey.split('-')[0].trim()
+                    const usdRate = getRate('USDT', totalUsd, rateKeyName);
+
+                    setBalanceAll({
+                        usdBalance: Number(usdRate.rate) || 0,
+                        balance: totalUsd,
+                        symbol: usdRate.symbol
+                    });
+                }
+            } catch (error) {
+                console.error('WebSocket数据处理错误:', error);
+            }
+        });
+    }, [userInfo])
+
+    // useEffect(() => {
+    //     if (!userInfo?.userId) return;
+
+    //     // 初始化WebSocket连接
+    //     setupBalanceWebSocket();
+
+    //     // 组件卸载时清理WebSocket连接
+    //     return () => {
+    //         if (balanceDataRef.current) {
+    //             balanceDataRef.current.close();
+    //             balanceDataRef.current = null;
+    //         }
+    //     };
+    // }, [userInfo?.userId, setupBalanceWebSocket]);
+    // useEffect(() => {
+    //     if (!isClient || !userInfo || typeof window === 'undefined') return;
+
+    //     // 安全地使用currentPair
+    //     setupBalanceWebSocket();
+    // }, [isClient, userInfo]);
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
@@ -225,7 +256,9 @@ const AssetsPage: React.FC = observer(() => {
                             {banlanceShow ? <Iconify icon={'clarity:eye-show-line'} size={20} /> : <Iconify icon={'ep:hide'} size={18} />}
                         </button>
                     </div>
-                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.usdt} USDT</p>
+                    {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.balance} USDT
+                        {/* {tableData?.[0]?.balance || '--'} */}
+                    </p>
                         <p className={`${styles.tip_color} font-14`}>≈&nbsp;{balanceAll.symbol}&nbsp;{balanceAll.usdBalance}</p></> :
                         <>
                             <p className='font-32 font-w-700'>******</p>

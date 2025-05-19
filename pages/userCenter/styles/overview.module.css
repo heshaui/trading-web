@@ -85,7 +85,9 @@
     /* height: 199px; */
 }
 
-.assets_box,
+.assets_box{
+   min-height: 260px;
+}
 .aside_invite2 {
     height: 260px;
 }

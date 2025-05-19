@@ -22,7 +22,7 @@ import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
 import { getUserBalanceByDay } from '@/services/assets'
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
-import {LoginInfoType,LoginLogListType,carouselImageContentsType,CarouselPicType} from '@/type/userCenter/overview'
+import { LoginInfoType, LoginLogListType, carouselImageContentsType, CarouselPicType } from '@/type/userCenter/overview'
 import AssetsPage from "./assets"
 
 const identityStyle: CSSProperties = {
@@ -38,7 +38,7 @@ const OverviewPage: React.FC = () => {
     const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [loadingSkeleton, setLoadingSkeleton] = useState(true)
     const [carouselPic, setCarouselPic] = useState<CarouselPicType[]>([] as CarouselPicType[]);
-    const { t } = useTranslation('userCenter');
+    const { t, i18n } = useTranslation('userCenter');
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
     const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
@@ -111,7 +111,7 @@ const OverviewPage: React.FC = () => {
     }
 
     const goIdentity = (status: number) => {
-        if (status === 1||status === 0||status === 3) {
+        if (status === 1 || status === 0 || status === 3) {
             router.push(`/userCenter/identity`)
         } else {
             localStorage.setItem('identity_authStatus', status.toString())
@@ -156,27 +156,23 @@ const OverviewPage: React.FC = () => {
             toast.error(String(error))
         }
     }
-    const getUserBalanceList = async () => {
-        const res = await getUserBalanceByDay()
-        console.log(res)
-    }
     useEffect(() => {
         getLoginInfoData()
         getLoginLogListData()
         getUserDeviceNoListData()
         getCarouselPic()
         getUseBankKv()
-    }, []);
+    }, [i18n.language]);
 
     useEffect(() => {
         const updateBannerHeight = () => {
             const identityElement = document.querySelector('.content_identity');
             const bannerElements = document.querySelectorAll(`.${styles.bannerImg_box}`);
-            
+
             if (identityElement && bannerElements.length > 0) {
                 const identityHeight = identityElement.clientHeight;
                 const newHeight = identityHeight - 42;
-                
+
                 bannerElements.forEach((element) => {
                     (element as HTMLElement).style.height = `${newHeight}px`;
                 });
@@ -197,14 +193,15 @@ const OverviewPage: React.FC = () => {
 
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
-            <h2 className={`${styles.header_userName} font-20`}>
-                {/* 欢迎回来， */}
-                {t('overview.welcome')} {loginInfo?.account || `IMUSER-${loginInfo?.userId || '--'}`}
-            </h2>
-            <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
-                {loginInfo?.famousAphorisms || `"${t('overview.famousAphorisms')}"`}
-            </p>
-            {/* </Skeleton> */}
+            <Skeleton active={false} title={false} loading={loadingSkeleton} paragraph={{ rows: 2 }}>
+                <h2 className={`${styles.header_userName} font-20`}>
+                    {/* 欢迎回来， */}
+                    {t('overview.welcome')} {loginInfo?.account || `IMUSER-${loginInfo?.userId || '--'}`}
+                </h2>
+                <p className={`${styles.header_tip} ${styles.tip_color} font-14`}>
+                    {loginInfo?.famousAphorisms || `"${t('overview.famousAphorisms')}"`}
+                </p>
+            </Skeleton>
         </div>
         {/* userInfo-header*/}
         <div className={`${styles.card_bgc} ${styles.pt0} ${styles.overview_header} mt-3 flex-row justify-between `}>
@@ -433,7 +430,7 @@ const OverviewPage: React.FC = () => {
                     </div>
                 </div>
                 {/* 资产 */}
-                <AssetsPage/>
+                <AssetsPage />
                 {/* <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
                     <div className={`flex-row justify-between font-18 font-w-500`} >
                         {t('overview.assets.title')}
@@ -597,7 +594,7 @@ const OverviewPage: React.FC = () => {
                                 <div key={item.id} className={`${styles.bannerImg_box} w-full`} onClick={() => picClick(getLanguage(item.carouselImageContents)?.accessUrl)}>
                                     <Image src={getLanguage(item.carouselImageContents)?.imageUrl} className={`w-full pointer ${styles.banner_mg}`}
                                         alt={getLanguage(item.carouselImageContents)?.title || ''} width={100} height={260}
-                                        
+
                                     />
                                 </div>
                             ))}

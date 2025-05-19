@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList, revocationOrder } from '@/services/spot'
+import { getOrderList, revocationOrder,updateOrder } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, roundDown } from '@/utils'
 import { getRound } from '@/utils/getUseRate'
@@ -23,41 +23,22 @@ import ToastModal from '@/components/spotModal/Toast_modal';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
 // import { useCoinList } from '@/hooks/use-coinList';
 import type { MenuProps } from 'antd';
-interface DataType {
-  id: number,
-  orderId: string,
-  amount: number,
-  baseSymbol: string,
-  canceledTime: number,
-  coinSymbol: string,
-  completedTime: number,
-  direction: number,
-  userId: number,
-  price: number,
-  status: number,
-  symbol: string,
-  createTime: number,
-  updateTime: number,
-  tradedAmount: number,
-  turnover: number,
-  type: number,
-  useDiscount: number,
-  orderResource: number,
-  tenantId: string,
-  fee: number,
-  baseSymbolCount: number
-}
+import UpdateOrder from '../Modal/updateOrder';
+import { NowDataType } from '@/type/spot/table';
+// import 
+
 type Props = {
   orderUpdateFlag?: number,
   returnNowOrder: (num: number) => void
+  updateAssets: () => void
 }
-const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
+const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder,updateAssets}: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
   //  const {coinList} = useCoinList();
-  const [tableData, setTableData] = useState<DataType[]>([]);
-  const [initTableData, setInitTableData] = useState<DataType[]>([]);
+  const [tableData, setTableData] = useState<NowDataType[]>([]);
+  const [initTableData, setInitTableData] = useState<NowDataType[]>([]);
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -78,7 +59,9 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
   const [toastData, setToastData] = useState<any>({})
   const toastDataRef = useRef<any>({})
   const directionRef = useRef<string>('3')
-
+  const [upDataOpen, setUpdateOpen] = useState<boolean>(false)
+  // const [orderInfo, setOrderInfo] = useState<NowDataType>({} as NowDataType)
+const orderInfo=useRef<NowDataType>({} as NowDataType)
 
   const directionSelect: MenuProps['items'] = [
     {
@@ -96,7 +79,7 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
       label: <button className='w-full' onClick={() => directionChange('1')}>{t('spot.modal.sell')}</button>,
     }
   ];
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<NowDataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
       dataIndex: "updateTime",
@@ -162,7 +145,7 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
           <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
-                toast.error('接口：暂不做')
+                upDtaOrder(record)
               }}
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
@@ -179,14 +162,17 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
       width: 128,
       align: "center",
       render: (_amount, record) => {
-        // amount/tradedAmount
+        const amount = getRound(record.symbol, _amount).scaleResult
+        const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-x align-center'>
-            {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}
+            {/* {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`} */}
+
+            {`${amount}/${amountDone}`}
             <Tooltip title={t('spot.modal.edit')}>
               <button
                 onClick={() => {
-                  toast.error('接口：暂不做')
+                  upDtaOrder(record)
                 }}>
                 <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
@@ -261,6 +247,11 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
 
 
   ];
+  const upDtaOrder = (info: NowDataType) => {
+    // setOrderInfo(info)
+    orderInfo.current = info
+    setUpdateOpen(true)
+  }
   const directionChange = (key: string) => {
     if (key === directionRef.current) return
     if (loading) return toast.error('loading...')
@@ -299,6 +290,8 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
           ),
           duration: 3
         })
+    updateAssets()
+
         getOrderListData()
       } else {
         toast.error(res.message)
@@ -359,6 +352,11 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
     }
   }
   const handleDelectOk = () => {
+    updateAssets()
+    getOrderListData()
+  }
+  const handleUpdateOk = () => {
+    updateAssets()
     getOrderListData()
   }
   useEffect(() => {
@@ -446,14 +444,14 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
           // scroll={{ x: 'max-content', y: 300 }}
           scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
-          pagination={{
+          pagination={total>10?{
             position: ["bottomRight"],
             // showSizeChanger: true,
             total: total,
             size: "default",
             simple: true,
             onChange: (page, pageSize) => pageChange(page, pageSize),
-          }}
+          }:false}
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
@@ -466,6 +464,12 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder}: Props) => {
           open={toastModal}
           toastData={toastData}
           onCancel={() => setToastModal(false)}
+        />
+        <UpdateOrder
+          open={upDataOpen}
+          orderInfo={orderInfo.current}
+          onCancel={() => setUpdateOpen(false)}
+          onOk={handleUpdateOk}
         />
       </div>
       {/* </div> */}

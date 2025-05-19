@@ -2,6 +2,7 @@ import { request } from '@/request/index';
 import {API_MODULE_NAME} from '@/config/apiConfig';
 
 const fixUrl=`/${API_MODULE_NAME.AMBIT_USER_WEB}`
+const fixUrl2=`/${API_MODULE_NAME.AMBIT_HOME_WEB}`
 
 interface UpdateUserCenterType {
   userId: number|string;
@@ -64,7 +65,7 @@ export function getSafeCenter(): Promise<any> {
 
   // 个人中心总览
   export function getCarouselImageList(): Promise<any> {
-    return request(`${fixUrl}/user-web/v1/user/carouselImageList`, {
+    return request(`${fixUrl}/user-web/v1/open/carouselImage/carouselImageList`, {
       method: 'POST',
     });
   }

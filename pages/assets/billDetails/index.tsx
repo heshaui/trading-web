@@ -10,6 +10,10 @@ import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import InvitationTable from "../compontents/billDetailTable/inviteTable"
+import CashOutTable from "../compontents/billDetailTable/cashOutTable"
+
+
 interface DataType {
   id: number,
   userId: number,
@@ -64,31 +68,6 @@ const AssetsMainPage = () => {
   })
   const paramdataRef = useRef(pageParam);
 
-
-  const [paramInfo2,sePparamInfo2]=useState({
-    type:'',
-    selsect:''
-  });
-  const [total2, setTotal2] = useState(0);
-  const [pageParam2, setPageParam2] = useState({
-    page: 1,
-    pageSize: 10,
-  })
-  const paramdataRef2 = useRef(pageParam2);
-
-
-  const [paramInfo3,sePparamInfo3]=useState({
-    type:'',
-    selsect:''
-  });
-  const [total3, setTotal3] = useState(0);
-  const [pageParam3, setPageParam3] = useState({
-    page: 1,
-    pageSize: 10,
-    total:0
-  })
-  const paramdataRef3 = useRef(pageParam3);
-  
 
   const columns: ColumnsType<DataType> = [
     {
@@ -175,160 +154,8 @@ const AssetsMainPage = () => {
 
 
   ];
-  const columns2: ColumnsType<DataType> = [
-    {
-      title: t('assetsAccount.time'), //"时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
-      width: 158,
-      align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
-    },
-    {
-      title: t('assetsAccount.type'), //"类型",
-      dataIndex: "token",
-      key: "token",
-      align: "center",
-      width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
-    },
-    {
-      title: t('assetsAccount.currency'), //"币种",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
-      align: "center",
-      width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
-      },
-    },
-    {
-      title: t('assetsAccount.number'), //"数量",
-      key: "createTime",
-      dataIndex: "createTime",
-      width: 128,
-      align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.fee'), //"手续费",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.address'), //"地址",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: "TxID",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.status'), //"状态",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.operation'), //"操作",
-      key: "action",
-      dataIndex: "action",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <>
-          <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>
-            {/* 提现 */}
-            {t('assetsAccount.button.withdraw')}
-            </button>
-          <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>
-            {/* 充值 */}
-            {t('assetsAccount.button.deposit')}
-            </button>
-          <button className={`${styles.theme_color} font-12 font-w-500`}>
-            {/* 交易 */}
-            {t('assetsAccount.button.trade')}
-            </button>
-        </>
-      },
-    },
 
 
-  ];
-  const columns3: ColumnsType<DataType> = [
-    {
-      title: t('assetsAccount.time'), //"时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
-      width: 158,
-      align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
-    },
-    {
-      title: t('assetsAccount.type'), //"类型",
-      dataIndex: "token",
-      key: "token",
-      align: "center",
-      width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
-    },
-    {
-      title: t('assetsAccount.currency'), //"币种",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
-      align: "center",
-      width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
-      },
-    },
-    {
-      title: t('assetsAccount.number'), //"数量",
-      key: "createTime",
-      dataIndex: "createTime",
-      width: 128,
-      align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.status'), //"状态",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-
-  ];
   const cardTypeSeelect: { label: string, value: string }[] = [
     {
       label: '居民身份证',
@@ -427,7 +254,7 @@ const AssetsMainPage = () => {
               className={` table-box`}
               pagination={{
                 position: ["bottomRight"],
-                showSizeChanger: true,
+                // showSizeChanger: true,
                 total: total,
                 size: "default",
                 onChange: (page, pageSize) => pageChange(page, pageSize),
@@ -438,75 +265,9 @@ const AssetsMainPage = () => {
           </div>
         </div>
         {/* 提现 */}
-        <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-            <Input className={`${styles.input_box} modal-input mr-7`}
-              maxLength={25}
-              placeholder={t('assetsAccount.currency')}
-              allowClear
-              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
-            />
-            <Select allowClear
-              placeholder={t('assetsAccount.select')}
-              options={cardTypeSeelect}
-              className={`${styles.select_box} custom-select`}
-            />
-          </div>
-          <div className={`${styles.table_content} w-full `}>
-
-            <Table
-              columns={columns2}
-              dataSource={tableData}
-              size="large"
-              scroll={{ x: "max-content", y: 300 }}
-              className={` table-box`}
-              pagination={{
-                position: ["bottomRight"],
-                showSizeChanger: true,
-                total: total,
-                size: "default",
-                onChange: (page, pageSize) => pageChange(page, pageSize),
-              }}
-            // loading={loading}
-            />
-
-          </div>
-        </div>
+        <CashOutTable/>
         {/* 邀请奖励 */}
-        <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-            <Input className={`${styles.input_box} modal-input mr-7`}
-              maxLength={25}
-              placeholder={t('assetsAccount.currency')}
-              allowClear
-              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
-            />
-            <Select allowClear
-              placeholder={t('assetsAccount.select')}
-              options={cardTypeSeelect}
-              className={`${styles.select_box} custom-select`}
-            />
-          </div>
-          <div className={`${styles.table_content} w-full `}>
-
-            <Table
-              columns={columns3}
-              dataSource={tableData}
-              size="large"
-              scroll={{ x: "max-content", y: 300 }}
-              className={` table-box`}
-              pagination={{
-                position: ["bottomRight"],
-                showSizeChanger: true,
-                total: total3,
-                size: "default",
-                onChange: (page, pageSize) => pageChange(page, pageSize),
-              }}
-            // loading={loading}
-            />
-
-          </div>
-        </div>
+        <InvitationTable/>
       </div>
     </ConfigProvider>
   </>

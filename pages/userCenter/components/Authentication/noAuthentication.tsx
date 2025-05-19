@@ -30,6 +30,7 @@ interface levelBenefitType {
     value: string;
     benefitId: number;
     benefitName: string;
+    benefitValue: string;
     status0?: number;
     value0?: string;
     params0?: string;
@@ -81,6 +82,16 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
     //     return `${amountRes} ${text1.coin} ${text1.time}h`
 
     // }
+        const lableShow = (key: string) => {
+            if(key==='cyptocurrency_withdrawal'){
+                return t('identity.withdrawal')
+            } else if (key === 'cyptocurrency_recharge') {
+                return t('identity.recharge')
+            } else {
+                return key||'--'
+            }
+            
+        }
     return (< >
         <div className={`${styles.identity_content} flex-1`}>
             {/* 认证状态-未认证 */}
@@ -288,7 +299,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                     </li>
                     {levelBenefit && levelBenefit.length > 0 && levelBenefit.map((item: levelBenefitType) => (
                         <li key={item.id} className={`flex align-center justify-between mt-2_5 font-14 ${styles.rights_content}`}>
-                            <div className='ml-6 font-w-500'>{item.benefitName}</div>
+                            <div className='ml-6 font-w-500'>{lableShow(item.benefitValue)}</div>
                             <div className='flex-x-cc font-w-500'>
                                 {/* {item.value0 ?
                                    ( <span>{(item.value0 && item.params0) ? getBenefitValue(item.value0) : item.value0}</span>) :

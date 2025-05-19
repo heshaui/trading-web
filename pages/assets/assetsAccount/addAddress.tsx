@@ -394,12 +394,13 @@ const AddAdressPage = () => {
                                 optionRender={(option) => {
                                     return (
                                         <div className="flex items-center py-1">
-                                            {/* <Image src={option.data.iconUrl}
+                                            <Image src={option.data.iconUrl}
+                                                alt={'coin'} width={20} height={20}
+                                                style={{ borderRadius: '50%', height: '20px', width: '20px' }}
+                                                className={` mr-2`} />
+                                            {/* <Image src={`/images/assets/assets_account/icon_money.png`}
                                                 alt={'coin'} width={20} height={20}
                                                 className={` mr-2`} /> */}
-                                            <Image src={`/images/assets/assets_account/icon_money.png`}
-                                                alt={'coin'} width={20} height={20}
-                                                className={` mr-2`} />
 
                                             <span className="text-text-color7">{`${option.data.coinName}(${option.data.nameDefault})`}</span>
                                         </div>

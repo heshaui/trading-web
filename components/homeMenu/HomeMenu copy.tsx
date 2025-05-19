@@ -1190,6 +1190,7 @@ export default function HomeMenu() {
                                         />
                                     </Col>
                                 </Row>
+                                {JSON.stringify(listItems)}
                                 <Row align='middle' className={styles.collapsedMenu}>
                                     <Col>{listItems}</Col>
                                     {/* <Link href='/currencyTrading' style={{ marginRight: '20px', cursor: 'pointer' }}>

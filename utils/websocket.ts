@@ -24,11 +24,15 @@ class WebSocketService {
     url: string,
     options: {
       maxReconnectAttempts?: number; // 最大重试次数，默认 Infinity
+      headers?: Record<string, string>; // WebSocket 请求头
     } = {}
   ) {
     this.url = url;
     this.maxReconnectAttempts = options.maxReconnectAttempts || Infinity;
+    this.headers = options.headers;
   }
+
+  private readonly headers?: Record<string, string>;
 
   connect(onMessage: MessageCallback, onError?: ErrorCallback): void {
     if (this.state !== ConnectionState.CLOSED) {
@@ -40,7 +44,14 @@ class WebSocketService {
     this.errorCallback = onError;
     this.state = ConnectionState.CONNECTING;
 
-    this.socket = new WebSocket(this.url);
+    // 如果有请求头，将token添加到URL中
+    if (this.headers?.['sa-token']) {
+      const url = new URL(this.url);
+      url.searchParams.append('token', this.headers['sa-token']);
+      this.socket = new WebSocket(url.toString());
+    } else {
+      this.socket = new WebSocket(this.url);
+    }
     this.setupEventListeners();
   }
 
@@ -55,6 +66,7 @@ class WebSocketService {
     };
 
     this.socket.onmessage = (event: MessageEvent) => {
+      console.error('WebSocket 消息:', event);
       if (this.messageCallback) this.messageCallback(event.data);
     };
 

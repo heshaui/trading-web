@@ -12,6 +12,7 @@ export const useDayModeChange = () => {
 
     // 应用主题变量
     const applyTheme = (isDayMode: boolean) => {
+        localStorage.setItem('isDayMode', String(isDayMode));
         const theme = isDayMode ? themeVariables.light : themeVariables.dark;
         Object.entries(theme).forEach(([key, value]) => {
             document.documentElement.style.setProperty(key, value);
@@ -22,12 +23,18 @@ export const useDayModeChange = () => {
     const [isDayMode, setIsDayMode] = useState(() => {
         if (typeof window !== 'undefined') {
             const savedMode = localStorage.getItem('isDayMode');
-            // 如果没有保存过用户设置，直接使用系统主题
+            // 如果没有保存过用户设置，使用系统主题
             if (savedMode === null) {
-                return getSystemTheme();
+                const systemTheme = getSystemTheme();
+                // 应用系统主题
+                applyTheme(systemTheme);
+                return systemTheme;
             }
             // 如果有保存的设置，使用保存的设置
-            return savedMode === 'true';
+            const userTheme = savedMode === 'true';
+            // 应用用户保存的主题
+            applyTheme(userTheme);
+            return userTheme;
         }
         return true;
     });

@@ -32,8 +32,9 @@ interface DataType {
 }
 type Props = {
     orderUpdateFlag?: number
+    updateAssets?: number
 }
-const AssetsMainPage =observer(() => {
+const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
     const { coinList } = useCoinList(true);
@@ -64,7 +65,7 @@ const AssetsMainPage =observer(() => {
                     <Image src={record?.iconUrl} alt={''} width={28} height={28}
                         style={{ borderRadius: '50%', height: '28px', width: '28px' }}
                         className='mr-1' />
-                    <p className='font-w-500 font-14 flex-x'>
+                    <p className='font-w-500 font-14 flex-x pointer'>
                         {`${text}`}
                         <Tooltip title={
                             coinPairs.filter((item: any) =>
@@ -73,9 +74,13 @@ const AssetsMainPage =observer(() => {
                                 coinPairs.filter((item: any) =>
                                     item.coinSymbol === text || item.baseSymbol === text
                                 ).map((item: any) => (
-                                    <div key={item.id} className={`mb-1 font-12 font-w-400`} style={{ color: '#FFFFFF' }}>
+                                    <button key={item.id} className={`mb-1 font-12 font-w-400`} style={{ color: '#FFFFFF' }}
+                                        onClick={() => {
+                                            router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${item.symbol}`)
+                                        }}
+                                    >
                                         {item.symbol}
-                                    </div>
+                                    </button>
                                 ))
                             ) : '----'
                         }>
@@ -96,12 +101,12 @@ const AssetsMainPage =observer(() => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);  // 获取币种信息
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                const rateKeyName=rateKey.split('-')[0]; // 获取汇率key
-                const {ratetext} = getRate(record.coinName,text2,rateKeyName);
+                const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
+                const { ratetext } = getRate(record.coinName, text2, rateKeyName);
                 return <p className='flex-y align-end'>
                     <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
                     <span className='ltr-text'>{record.coinName ? ratetext : ''}
-                </span>
+                    </span>
                 </p>
             },
             sorter: (a, b) => {
@@ -227,9 +232,9 @@ const AssetsMainPage =observer(() => {
         const value = e.target.checked
         if (value && initTableData.length > 0) {
             const newData = initTableData.filter(item => {
-            const { rate } = getRate(item.coinName, item.balance);
-            // 确保 rate 是数字且大于 1
-            return  Number(rate) > 1;
+                const { rate } = getRate(item.coinName, item.balance);
+                // 确保 rate 是数字且大于 1
+                return Number(rate) > 1;
             });
             setTableData(newData);
         } else {
@@ -245,7 +250,7 @@ const AssetsMainPage =observer(() => {
                 setTableData(res.data || []);
                 setTotal(res.data.total);
             }
-             console.log('assets_table',1234567);
+            console.log('assets_table', 1234567);
         } catch (error) {
             toast.error(String(error));
         } finally {
@@ -254,7 +259,7 @@ const AssetsMainPage =observer(() => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [rateKey])
+    }, [rateKey,orderUpdateFlag,updateAssets])
     return (<><ConfigProvider
         theme={{
             components: {
@@ -325,6 +330,6 @@ const AssetsMainPage =observer(() => {
 
     </>
     );
-}) ;
+});
 
 export default AssetsMainPage;

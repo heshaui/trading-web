@@ -31,7 +31,8 @@ export interface identityInfoType {
 // 本地存储key
 export const LOCAL_STORAGE_KEY = {
 	USER_INFO:'imbit_userInfo' , // 用户信息
-	USER_TOKEN:"imbit_userToken", // 用户token
+    USER_TOKEN: "imbit_userToken", // 用户token
+    INVITE_INFO: "imbit_invite_info", // 邀请信息
     OUT_MONEY:"imbit_out_money", // 提现数据
     CURRENCY_PAIRS: 'currency_pairs', // 币对数据
     CURRENT_PAIR: 'current_pair', // 当前币对
@@ -51,8 +52,8 @@ export const KV_KEYS = [
     "footer_setting", //底部设置
     "fee_direction", //手续费方向
     "out_money", //提现配置
-    "tenant_cache_name" //商户名称
-    // "account_configuration",
+    "tenant_cache_name", //商户名称
+    "account_configuration",
     // 可以根据需要添加更多配置项
 ];
 

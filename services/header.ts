@@ -11,7 +11,15 @@ export function homeMenu(data: { lang: string }) {
   // }
 
   // 替换路径参数并发送请求
-  return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/menu/selectHomeMenuJson/${data.lang}`, {
+  let lang
+  if(data.lang==='en'){
+    lang='en_US'
+  }else if(data.lang==='zh'){
+    lang='zh_CN'
+  }else {
+    lang=data.lang
+  }
+  return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/menu/selectHomeMenuJson/${lang}`, {
     method: 'POST',
     body: JSON.stringify(data), // 将加密后的数据作为请求体
   });

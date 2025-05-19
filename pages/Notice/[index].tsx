@@ -10,7 +10,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@/context/NavigationContext';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount, getInformClassMenuList } from '@/services/bulletinCenter';
-import { set } from 'mobx';
 import { useThemeMode } from '@/hooks/useThemeMode';
 
 
@@ -74,10 +73,13 @@ export default function Notice() {
             if (response?.code === '0' && Array.isArray(response.data) && response.data.length > 0) {
                 console.log('获取菜单数据成功, 条目数:', response.data.length);
                 console.log('第一个菜单项:', response.data[0]);
-
-                // 保存菜单数据
-                setMenuList(response.data);
-                return response.data;
+                    
+                // 对菜单数据按serialNum排序
+                const sortedData = [...response.data].sort((a, b) => a.serialNum - b.serialNum);
+                
+                // 保存排序后的菜单数据
+                setMenuList(sortedData);
+                return sortedData;
             } else {
                 console.warn('菜单数据为空或格式错误:', response);
                 // 确保清空当前菜单列表，避免显示旧数据
@@ -158,16 +160,24 @@ export default function Notice() {
             console.log(`[Notice] Raw API response for menu ID ${id}:`, response);
 
             if (response?.code === '0') {
-                // 处理返回的数据
-                const announcements = Array.isArray(response.data.list) ? response.data.list.map((item: any) => ({
-                    id: item.id.toString(),
-                    title: item.title,
-                    time: item.releaseTime,
-                    content: item.content,
-                    isRead: item.isRead,
-                    onTop: item.onTop,
-                    classMenu: item.classMenu  // 保存classMenu属性以便后续匹配
-                })) : [];
+                // 处理返回的数据并排序
+                const announcements = Array.isArray(response.data.list) ? response.data.list
+                    .map((item: any) => ({
+                        id: item.id.toString(),
+                        title: item.title,
+                        time: item.releaseTime,
+                        content: item.content,
+                        isRead: item.isRead,
+                        onTop: item.onTop || 0,  // 确保onTop有默认值0
+                        classMenu: item.classMenu  // 保存classMenu属性以便后续匹配
+                    }))
+                    // 排序：onTop为1的排前面，其余按时间倒序
+                    .sort((a: any, b: any) => {
+                        if (a.onTop === b.onTop) {
+                            return new Date(b.time).getTime() - new Date(a.time).getTime();
+                        }
+                        return b.onTop - a.onTop;
+                    }) : [];
 
                 console.log(`[Notice] Processed announcements for menu ID ${id}:`, announcements);
 

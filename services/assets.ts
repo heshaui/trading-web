@@ -6,7 +6,8 @@ const fixUrl2 = `/${API_MODULE_NAME.AMBIT_ASSETS_WEB}`
 
 interface paramsType {
     pageNo: number
-    pageSize: number
+  pageSize: number
+  coinId?: string|null
 }
 interface encryptType {
   data: string,

@@ -54,6 +54,7 @@ interface coinSelectType {
     value: string,
     label: string,
 }
+
 const ExchangePage = () => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
@@ -63,6 +64,7 @@ const ExchangePage = () => {
     const [activeChartType, setActiveChartType] = useState<string>('basic');
     const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
+    const [tradePrice, setTradePrice] = useState<number>(0);
     const router = useRouter();
 
     const [paramInfo, sePparamInfo] = useState({
@@ -95,7 +97,9 @@ const ExchangePage = () => {
     const [coinData, setCoinData] = useState<any>();
     const [groupData, setGroupData] = useState<any[]>([]);
     const [currentPair, setCurrentPair] = useState<any>();
-    const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
+    // const [orderUpdateFlag, setOrderUpdateFlag] = useState<number>(0);
+    const orderUpdateFlag = useRef<number>(0);
+    const assetsUpdateFlag = useRef<number>(0);
     // ref to access Tradingview methods
     const tradingviewRef = useRef<TradingviewRefHandle>(null);
 
@@ -541,9 +545,18 @@ const ExchangePage = () => {
 
     const handleOrderSuccess = () => {
         // 更新标志，触发SpotChartTables组件重新获取数据
-        setOrderUpdateFlag(prev => prev + 1);
-        console.log(123456);
+        // setOrderUpdateFlag(prev => prev + 1);
+        orderUpdateFlag.current = orderUpdateFlag.current + 1;
         
+    };
+    const handleOrderDelect = () => {
+        assetsUpdateFlag.current = assetsUpdateFlag.current + 1;
+    };
+
+    const handlePriceClick = (price: number) => {
+        console.log('Price clicked:', price);
+        setTradePrice(price);
+
     };
 
     return (<div className={`${styles.page_box} w-full`}>
@@ -747,12 +760,16 @@ const ExchangePage = () => {
                                 }
                             </Spin>
                         </div>
-                        <OrderBook bookData={depthData} orderData={orderData} />
+                        <OrderBook bookData={depthData} orderData={orderData} priceClickHandler={handlePriceClick} />
 
                         {/* </div> */}
                     </div>
                     <div className={`${styles.card_bgc} mb-1 flex-1`} >
-                                <SpotChartTrade onOrderSuccess={handleOrderSuccess} segmentedType="limit" orderData={orderData} />
+                            <SpotChartTrade onOrderSuccess={handleOrderSuccess}
+                                segmentedType="limit" orderData={orderData}
+                                tradePrice={tradePrice}
+                                updateAssets={assetsUpdateFlag.current}
+                            />
                         
                     </div>
 
@@ -760,10 +777,10 @@ const ExchangePage = () => {
                     </div>
                     <div className='flex-x'>
                         <div className={`${styles.card_bgc1} mr-1 ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
-                            <SpotChartTables orderUpdateFlag={orderUpdateFlag}/>
+                            <SpotChartTables orderUpdateFlag={orderUpdateFlag.current} updateAssets={handleOrderDelect}/>
                         </div>
                         {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                            <SpotChartAssets orderUpdateFlag={orderUpdateFlag}/>
+                            <SpotChartAssets orderUpdateFlag={orderUpdateFlag.current} updateAssets={assetsUpdateFlag.current}/>
                         </div>}
                     </div>
 

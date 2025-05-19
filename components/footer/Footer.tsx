@@ -134,7 +134,7 @@ export default function Footer() {
     useEffect(() => {
         if (allConfig) {
             fetchFooterSetting()
-            setSelectedLang(languageList.find(item => item.key.includes(i18n.language))?.span || '');
+            setSelectedLang(languageList.find(item => item.key.includes(i18n.language))?.span || i18n.language);
         }
     }, [allConfig, langKey, languageList])
 
@@ -307,8 +307,9 @@ export default function Footer() {
                     <Image
                         src={item.imgUrl}
                         alt={item.nameText || '社交媒体'}
-                        width={20}
-                        height={20}
+                        width={24}
+                        height={24}
+                        style={{ borderRadius: '50%', height: '24px', width: '24px' }}
                     />
                 </button>
             </Col>

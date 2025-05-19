@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList, getExchangeCoinList,revocationOrder } from '@/services/spot'
+import { getOrderList, getExchangeCoinList,revocationOrder,updateOrder } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, division, lastD ,nul,roundDown,roundUp} from '@/utils'
 import ToastModal from '@/components/spotModal/Toast_modal';
@@ -153,7 +153,7 @@ const SpotMainPage =observer( () => {
         const {baseScaleResult} = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
           <p className='text-center '> {baseScaleResult}</p>
-          <Tooltip title={t('spot.modal.edit')}>
+          {/* <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
                 toast.error('接口：暂不做')
@@ -161,7 +161,7 @@ const SpotMainPage =observer( () => {
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
-          </Tooltip>
+          </Tooltip> */}
         </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
           
       },
@@ -196,7 +196,7 @@ const SpotMainPage =observer( () => {
           {_amount ? 
             <span className={`${styles.tip_color2}`}>
             {/* {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'} */}
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${baseScaleResult}%` : '0%'}
+            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(baseScaleResult, 2)}%` : '0%'}
             </span> : '0'
           }
         </ >

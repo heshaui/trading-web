@@ -27,9 +27,10 @@ interface DataType {
 
 type Props = {
     orderUpdateFlag?: number
+    updateAssets: () => void
 }
 
-const SpotTablePage = ({ orderUpdateFlag }: Props) => {
+const SpotTablePage = ({ orderUpdateFlag, updateAssets }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const { isLoggedIn} = useAuth();
@@ -40,7 +41,10 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
         selsect: ''
     });
     const [total, setTotal] = useState(0);
-
+    const getUpdateAssets = () => {
+         console.log(1111)
+        updateAssets()
+    }
 
     const items: TabsProps['items'] = [
         {
@@ -51,7 +55,9 @@ const SpotTablePage = ({ orderUpdateFlag }: Props) => {
                 {total>0&&<span className={styles.tabs_span}>{`(${total})`}</span>}
             </div>,
             children: isLoggedIn ? <SpotOrderNow orderUpdateFlag={orderUpdateFlag}
-                returnNowOrder={(num: number) => setTotal(num)} /> :
+                returnNowOrder={(num: number) => setTotal(num)}
+                updateAssets={getUpdateAssets}
+            /> :
                 <div className='h-full' style={{ paddingTop: '100px' }}>
                 <NoLogin />
             </div>

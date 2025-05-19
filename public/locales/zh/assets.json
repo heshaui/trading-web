@@ -30,6 +30,17 @@
          "nodata":"暂无记录",
          "withdrawTime":"提币时间",
          "walletProcessingTime":"钱包处理时间",
+         "inviteReward": "邀请奖励",
+         "cashout": "提现",
+         "noFind":"未找到对应币种",
+         "typelist":{
+            "create":"创建",
+            "pending":"待审核",
+            "completed":"完成",
+            "completed1":"已转出",
+            "rejected":"拒绝 ",
+            "canceled":"用户撤销"
+         },
          "button":{
             "withdraw":"提现",
             "deposit":"充值",

@@ -65,7 +65,7 @@ const ConfigurationCard: React.FC<ConfigurationCardProps> = ({ configurationList
                                                 <Row justify='center' onClick={() => handleButtonClick(item.languagePath)}>
                                                     <Col>
                                                         <Image
-                                                            src={isDayMode&&item.whiteIcon ? item.whiteIcon : item.blackIcon}
+                                                            src={isDayMode && item.whiteIcon ? item.whiteIcon : item.blackIcon}
                                                             alt="help"
                                                             width={50}
                                                             height={50}
