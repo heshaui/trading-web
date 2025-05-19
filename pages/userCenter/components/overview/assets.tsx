@@ -86,9 +86,9 @@ const AssetsPage: React.FC = observer(() => {
                 // const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
                 // const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
 
-                const usdBalance = await getRate('USDT', res.data[0].balance||0, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data[0].recharge||0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data[0].withdraw||0, rateKeyName)
+                const usdBalance = await getRate('USDT', res.data?.[0]?.balance || 0, rateKeyName);
+                const usdRecharge = await getRate('USDT', res.data?.[0].recharge||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.[0].withdraw||0, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -100,9 +100,9 @@ const AssetsPage: React.FC = observer(() => {
                 }).sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime());
                 setBalanceByDay(initData);
                 setBalanceDay({
-                    balanceAll: res.data[0].balance || 0,
-                    balance: res.data[0].recharge || 0,
-                    withdraw: res.data[0].withdraw || 0,
+                    balanceAll: res.data?.[0].balance || 0,
+                    balance: res.data?.[0].recharge || 0,
+                    withdraw: res.data?.[0].withdraw || 0,
                     usdBalanceAll: usdBalance.rate || 0,
                     usdBalance: usdRecharge.rate || 0,
                     usdWithdraw: usdWithdraw.rate || 0
@@ -118,8 +118,8 @@ const AssetsPage: React.FC = observer(() => {
             const res = await getTodayEarnings();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdBalance = await getRate('USDT', res.data.balance||0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data.withdraw||0, rateKeyName);
+                const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.withdraw||0, rateKeyName);
                 setTodayEarnings({
                     usdBalance: Number(usdBalance.rate) || 0,
                     usdWithdraw: Number(usdWithdraw.rate) || 0,

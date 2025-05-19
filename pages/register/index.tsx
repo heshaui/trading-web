@@ -73,12 +73,12 @@ function Register() {
 			window.open(loginPic?.register.url, '_blank','noopener')
 		}
 	}
-	useEffect(() => {
-		if (!allConfig) {
-			// useWebConfig();
-			appStore.getKvConfigAllFromApi()
-		}
-	}, [allConfig]);
+	// useEffect(() => {
+	// 	if (!allConfig) {
+	// 		// useWebConfig();
+	// 		appStore.getKvConfigAllFromApi()
+	// 	}
+	// }, [allConfig]);
 	useEffect(() => {
 		getBgc()
 	}, []);

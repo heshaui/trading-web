@@ -148,7 +148,25 @@ export const formatMenus = (menuData: MenuItem[], isDayMode: boolean): MenuListI
                     .flat();
             }
 
-            return [groupHeader];
+            // 如果父菜单有accessPath，也添加一个可点击的菜单项
+            const result: FormattedMenuItem[] = [];
+            if (menuItem.accessPath) {
+                result.push({
+                    key: `item_${menuItem.id}`,
+                    type: 'item' as const,
+                    label: (
+                        <MenuItemLabel
+                            src={getImagePath((isDayMode ? menuItem.iconUrlDay : menuItem.iconUrlNight) ?? null, isDayMode)}
+                            h5Text={menuItem.menuName || ''}
+                            spanText={menuItem.menuViceName || ''}
+                        />
+                    ),
+                    accessPath: menuItem.accessPath
+                });
+            }
+            
+            result.push(groupHeader);
+            return result;
         }
 
         // 创建菜单项
@@ -162,7 +180,8 @@ export const formatMenus = (menuData: MenuItem[], isDayMode: boolean): MenuListI
                     h5Text={menuItem.menuName || ''}
                     spanText={menuItem.menuViceName || ''}
                 />
-            )
+            ),
+            accessPath: menuItem.accessPath || undefined
         };
         
         // 处理子菜单
@@ -183,7 +202,8 @@ export const formatMenus = (menuData: MenuItem[], isDayMode: boolean): MenuListI
                                     h5Text={subChild.menuName || ''}
                                     spanText={subChild.menuViceName || ''}
                                 />
-                            )
+                            ),
+                            accessPath: subChild.accessPath || undefined
                         })) || []
                     };
                     return groupItem;
@@ -198,7 +218,8 @@ export const formatMenus = (menuData: MenuItem[], isDayMode: boolean): MenuListI
                             h5Text={child.menuName || ''}
                             spanText={child.menuViceName || ''}
                         />
-                    )
+                    ),
+                    accessPath: child.accessPath || undefined
                 };
             });
         }

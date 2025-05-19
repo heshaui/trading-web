@@ -763,7 +763,7 @@ export default function HomeMenu() {
         // Simple loading mock. You should add cleanup logic in real world.
         setTimeout(() => {
             setLoading(false);
-        }, 2000);
+        }, 1000);
     };
 
     // 使用两种不同的渲染策略来避免水合错误

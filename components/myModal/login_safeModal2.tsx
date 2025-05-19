@@ -19,7 +19,7 @@ import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useTranslation } from 'next-i18next';
 // import { encryptData } from "@/utils/encrypt";
 import { encryptData } from "@/hooks/user-encrypt";
-import { useWebConfig } from '@/hooks/useKv';
+// import { useWebConfig } from '@/hooks/useKv';
 interface acountType {
     type: string,
     email?: string,
