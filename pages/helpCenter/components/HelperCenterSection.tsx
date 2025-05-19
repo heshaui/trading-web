@@ -61,9 +61,9 @@ const HelpCenterSection: React.FC<Props> = ({
                             </h2>
                         </Col>
                     </Row>
-                    <Row style={{ marginTop: 40 }}>
+                    <Row style={{ marginTop: 26}}>
                         {item.children && item.children.map((child) => (
-                            <Col  key={child.id} style={{ width: '30%' }} className='mr-6'>
+                            <Col  key={child.id} style={{ width: '30%' }}  className='mr-6 mt-6'>
                                 <Button
                                     className={`${styles.helpCenterCardButton} flex-x `}
                                     style={{

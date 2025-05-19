@@ -1,16 +1,21 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
-import { Breadcrumb, ConfigProvider, Layout, Menu, Pagination } from 'antd';
+import { Breadcrumb, ConfigProvider, Layout, Menu, Pagination, Skeleton } from 'antd';
 import Link from 'next/link';
 import styles from './styles/helpCenter.module.css';
 import Image from 'next/image';
-import { getClassIdContent ,getCustomization,getHelpCenterMenu} from '@/services/helpCenter';
+import { getClassIdContent, getCustomization, getHelpCenterMenu } from '@/services/helpCenter';
 import appStore from '@/store';
-import { HelpCenterMenuProps ,HelpCenterMenuProps2} from '@/type/help_center/hc_types';
+import { HelpCenterMenuProps, HelpCenterMenuProps2 } from '@/type/help_center/hc_types';
 import { toast } from 'sonner';
+import EsssayPage from './components/esssay';
 
 const { Sider, Content } = Layout;
-
+interface currentArticletype {
+    title: string;
+    content: string;
+    time: string;
+}
 
 export default function HelperCenterDetail() {
     // 路由
@@ -20,9 +25,9 @@ export default function HelperCenterDetail() {
     const langKey = appStore.getLang();
     // 路由参数
     const locale = router.query.locale || 'zh';
-   
+
     // 
-     const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
+    const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
 
     const [menuData, setMenuData] = useState<HelpCenterMenuProps2>({} as HelpCenterMenuProps2);
     // 选中菜单
@@ -35,8 +40,13 @@ export default function HelperCenterDetail() {
         lang: langKey,
         page: 1,
         pageSize: 10,
+        total: 0
     })
-  // 帮助中心菜单
+    const [menuLoding, setMenuLoding] = useState(true)
+    const [essayLoding, setEssayLoding] = useState(true)
+    const [showDetail, setShowDetail] = useState(false)
+
+    // 帮助中心菜单
     // 递归查找指定id的菜单项
     const findMenuItemById = (items: HelpCenterMenuProps2[], targetId: number): HelpCenterMenuProps2 | null => {
         for (const item of items) {
@@ -55,70 +65,72 @@ export default function HelperCenterDetail() {
 
     // 获取菜单数据
     const getHelpCenterMenuData = async () => {
+        setMenuLoding(true);
         const langName = langKey || 'en_US'
         try {
             const res = await getHelpCenterMenu({ lang: langName });
             if (res.code === '0') {
-                const sortedData = recursiveSort([...res.data, 
-                    {
-                        id: 1,
-                        helpDescription: "账户管理",
-                        helpSort: 1,
-                        blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
-                        whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
-                        parentId: 0,
-                        contentId: "1",
-                        languageCode: "en-US",
-                        articleTitle: "账户管理",
-                        children: [
-                            {
-                                id: 11,
-                                helpDescription: "修改账户信息",
-                                helpSort: 10,
-                                blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
-                                whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
-                                parentId: 1,
-                                contentId: "1",
-                                languageCode: "en-US",
-                                articleTitle: "修改账户信息",
-                                children: [
-                                    {
-                                        id: 111,
-                                        helpDescription: "修改密码",
-                                        helpSort: 10,
-                                        blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
-                                        whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
-                                        parentId: 11,
-                                        contentId: "1",
-                                        languageCode: "en-US",
-                                        articleTitle: "修改密码",
-                                    },
-                                    {
-                                        id: 112,
-                                        helpDescription: "修改手机号",
-                                        helpSort: 10,
-                                        blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
-                                        whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
-                                        parentId: 11,
-                                        contentId: "1",
-                                        languageCode: "en-US",
-                                        articleTitle: "修改手机号",
-                                    },
-                                ]
-                            },
-                            {
-                                id: 12,
-                                helpDescription: "修改昵称",
-                                helpSort: 11,
-                                blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
-                                whiteIcon: "",
-                                parentId: 1,
-                                contentId: "1",
-                                languageCode: "en-US",
-                                articleTitle: "修改昵称",
-                            }]
-                    }
-                ]);
+                // const sortedData = recursiveSort([...res.data, 
+                //     {
+                //         id: 1,
+                //         helpDescription: "账户管理",
+                //         helpSort: 1,
+                //         blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //         whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //         parentId: 0,
+                //         contentId: "1",
+                //         languageCode: "en-US",
+                //         articleTitle: "账户管理",
+                //         children: [
+                //             {
+                //                 id: 11,
+                //                 helpDescription: "修改账户信息",
+                //                 helpSort: 10,
+                //                 blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //                 whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //                 parentId: 1,
+                //                 contentId: "1",
+                //                 languageCode: "en-US",
+                //                 articleTitle: "修改账户信息",
+                //                 children: [
+                //                     {
+                //                         id: 111,
+                //                         helpDescription: "修改密码",
+                //                         helpSort: 10,
+                //                         blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //                         whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //                         parentId: 11,
+                //                         contentId: "1",
+                //                         languageCode: "en-US",
+                //                         articleTitle: "修改密码",
+                //                     },
+                //                     {
+                //                         id: 112,
+                //                         helpDescription: "修改手机号",
+                //                         helpSort: 10,
+                //                         blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //                         whiteIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar2.png",
+                //                         parentId: 11,
+                //                         contentId: "1",
+                //                         languageCode: "en-US",
+                //                         articleTitle: "修改手机号",
+                //                     },
+                //                 ]
+                //             },
+                //             {
+                //                 id: 12,
+                //                 helpDescription: "修改昵称",
+                //                 helpSort: 11,
+                //                 blackIcon: "https://meta2025.oss-ap-northeast-2.aliyuncs.com/user/avatar1.png",
+                //                 whiteIcon: "",
+                //                 parentId: 1,
+                //                 contentId: "1",
+                //                 languageCode: "en-US",
+                //                 articleTitle: "修改昵称",
+                //             }]
+                //     }
+                // ]);
+                const sortedData = recursiveSort(res.data)
                 setHelpCenterMenuData(sortedData);
 
                 // 在所有菜单项中查找showMenuItem
@@ -179,71 +191,67 @@ export default function HelperCenterDetail() {
             }
         } catch (error) {
             toast.error(String(error))
+        } finally {
+            setMenuLoding(false)
         }
     };
     // 递归排序函数
     const recursiveSort = (data: HelpCenterMenuProps2[]): HelpCenterMenuProps2[] => {
         return data.map(item => {
-            if (item.children && item.children.length > 0) {
+            // if (item.children && item.children.length > 0) {
+            if (item.type === 2) {
+                if (item.children && item.children.length > 0) {
+                    return {
+                        ...item,
+                        key: String(item.id),
+                        label: item.articleTitle,
+                        children: recursiveSort(item.children)
+                    };
+                } else {
+                    return {
+                        ...item,
+                        key: String(item.id),
+                        label: item.articleTitle,
+                        children: []
+                    };
+                }
+            } else {
                 return {
                     ...item,
                     key: String(item.id),
                     label: item.articleTitle,
-                    children: recursiveSort(item.children)
-                };
-            }
-            return {
-                ...item,
-                key: String(item.id),
-                label: item.articleTitle,
+                    children: undefined
+                }
             }
         }).sort((a, b) => a.helpSort - b.helpSort);
     };
 
-   useEffect(() => {
+    useEffect(() => {
         if (classId && parentId) {
             getHelpCenterMenuData()
         }
-    }, [classId,parentId,langKey]);
+    }, [classId, parentId, langKey]);
 
 
     const [content, setContent] = useState<{
-        items: Array<{
-            title: string;
-            content: string;
-            time: string;
-        }>
+        items: currentArticletype[]
     }>({ items: [] });
     // 当前菜单标签
     const [currentMenuLabel, setCurrentMenuLabel] = useState<string>('');
     // 当前父菜单标签
     const [currentParentMenuLabel, setCurrentParentMenuLabel] = useState<string>('');
-    // 添加分页相关状态
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 5; // 每页显示的条目数
-
     // 添加文章详情相关状态
     const [showArticleDetail, setShowArticleDetail] = useState(false);
-    const [currentArticle, setCurrentArticle] = useState<{
-        title: string;
-        content: string;
-        time: string;
-    } | null>(null);
+    const [currentArticle, setCurrentArticle] = useState<currentArticletype >({} as currentArticletype);
 
- 
-    // 选中状态的初始化已移至 getHelpCenterMenuData 中处理
 
     // 处理分页变化
     const handlePageChange = (page: number) => {
-        setCurrentPage(page);
+        // setCurrentPage(page);
+        paramRef.current.page = page;
+        getContentList();
     };
 
-    // 计算当前页显示的内容
-    const getCurrentPageItems = () => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return content.items.slice(startIndex, endIndex);
-    };
 
     // 处理菜单点击
     const handleMenuClick = (info: any) => {
@@ -260,6 +268,7 @@ export default function HelperCenterDetail() {
 
         // 获取内容
         // setContent(getContent(info.key, category as string));
+        console.log(info, 999);
         paramRef.current.classId = String(info.key);
         // 重置页码并获取内容列表
         paramRef.current.page = 1;
@@ -297,6 +306,8 @@ export default function HelperCenterDetail() {
         return '';
     };
 
+
+
     // 处理文章点击
     const handleArticleClick = (article: {
         title: string;
@@ -305,12 +316,13 @@ export default function HelperCenterDetail() {
     }) => {
         setCurrentArticle(article);
         setShowArticleDetail(true);
+        setShowDetail(true)
     };
 
     // 返回文章列表
     const handleBackToList = () => {
         setShowArticleDetail(false);
-        setCurrentArticle(null);
+        setCurrentArticle({} as currentArticletype);
     };
 
     // 处理子菜单展开/收起
@@ -322,18 +334,21 @@ export default function HelperCenterDetail() {
     const handleBack = () => {
         router.push(`/helpCenter`);
     };
-// 文章列表
+    // 文章列表
     const getContentList = async () => {
+        setEssayLoding(true);
         try {
             const { classId, lang, page, pageSize } = paramRef.current;
             const res = await getClassIdContent({ classId: classId || '', lang, page, size: pageSize });
             if (res.code === '0') {
                 setContentList(res.data);
-            }else{
+            } else {
                 toast.error(res.message);
             }
         } catch (error) {
             toast.error(String(error))
+        } finally {
+            setEssayLoding(false);
         }
     }
 
@@ -381,14 +396,14 @@ export default function HelperCenterDetail() {
                             },
                             ...(currentParentMenuLabel ? [{
                                 title: <div
-                                    // onClick={showArticleDetail ? handleBackToList : undefined}
-                                    // href={showArticleDetail ? `/helpCenter/${parentId}` : `/helpCenter/${classId}`}
+                                // onClick={showArticleDetail ? handleBackToList : undefined}
+                                // href={showArticleDetail ? `/helpCenter/${parentId}` : `/helpCenter/${classId}`}
                                 >{currentParentMenuLabel}</div>,
                             }] : []),
                             ...(currentMenuLabel ? [{
                                 title: <div
-                                    // onClick={showArticleDetail ? handleBackToList : undefined}
-                                    // href={showArticleDetail ? `/helpCenter/${parentId}` : `/helpCenter/${classId}`}
+                                // onClick={showArticleDetail ? handleBackToList : undefined}
+                                // href={showArticleDetail ? `/helpCenter/${parentId}` : `/helpCenter/${classId}`}
                                 >{currentMenuLabel}</div>,
                             }] : []),
                             ...(showArticleDetail && currentArticle ? [{
@@ -397,16 +412,21 @@ export default function HelperCenterDetail() {
                         ]}
                     />
                     {/* 只在非文章详情页显示标题 */}
-                    {/* {!showArticleDetail && ( */}
-                        <h1 style={{ fontSize: 32, fontWeight: 600, marginTop: 20, marginBottom: 40 }}>
-                            {menuData?.articleTitle || '--'}
-                        </h1>
+                    {!showDetail ? <>
+                    <h1 style={{ fontSize: 32, fontWeight: 600, marginTop: 20, marginBottom: 40 }}>
+                        {menuLoding?<Skeleton.Input active={true} size='large' block={menuLoding} />:menuData?.articleTitle || '--'}
+                    </h1>
                     {/* )} */}
 
                     <Layout style={{ background: 'transparent' }}>
-                        {!showArticleDetail && (
+                        {!showDetail && (
                             <Sider width={240} style={{ background: 'transparent' }}>
-                                <Menu
+                                {menuLoding ? <><Skeleton.Input active={true}  block={menuLoding} />
+                                    <Skeleton.Input active={true}  block={menuLoding} className='mt-1' />
+                                    <Skeleton.Input active={true}  block={menuLoding} className='mt-1' />
+                                
+                                </> : (
+                                    <Menu
                                     mode="inline"
                                     selectedKeys={selectedKeys}
                                     openKeys={openKeys}
@@ -416,27 +436,28 @@ export default function HelperCenterDetail() {
                                         borderRight: 0,
                                         background: 'transparent'
                                     }}
-                                    items={ menuData.children as HelpCenterMenuProps2[] ||[]}
+                                    items={menuData.children as any[] || []}
                                 />
+                                )}
                             </Sider>
                         )}
-                        <Content style={{ padding: showArticleDetail ? 0 : '0 24px', minHeight: 280 }}>
+                        <Content style={{ padding: showDetail ? 0 : '0 24px', minHeight: 280 }}>
                             <div className={styles.detailContent}>
-                                {showArticleDetail && currentArticle ? (
-                                    <div className={styles.articleDetail}>
+                                {/* {showArticleDetail && currentArticle ? ( */}
+                                {/* <div className={styles.articleDetail}>
                                         <div className={styles.articleHeader}>
                                             <h1 className={styles.articleTitle}>
-                                                {currentArticle.title}
+                                                {currentArticle?.title || '--'}
                                             </h1>
                                             <div className={styles.articleTime}>
-                                                {currentArticle.time}
+                                                {currentArticle?.time || '--'}
                                             </div>
                                         </div>
                                         <div className={styles.articleContent}>
-                                            {currentArticle.content}
+                                            {currentArticle?.content || '--'}
                                         </div>
-                                    </div>
-                                ) : (
+                                    </div> */}
+                                {/* ) : (
                                     content.items.length > 0 ? (
                                         <>
                                             <div className={styles.searchResult}>
@@ -474,12 +495,51 @@ export default function HelperCenterDetail() {
                                     ) : (
                                         <div className={styles.emptyContent}>
                                             请选择左侧菜单查看详细内容
+                                        </div> */}
+                                {/* )
+                                )} */}
+                                <Skeleton active={true} loading={essayLoding} paragraph={{ rows: 2 }}>
+
+                                    {contentList.length > 0 ? <>
+                                        <div className={styles.searchResult}>
+                                            {contentList.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={styles.searchResultContent}
+                                                    onClick={() => handleArticleClick(item)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <h6 className={styles.title}>
+                                                        {item.articleTitle}
+                                                    </h6>
+                                                    <p className={styles.content}>
+                                                        {item.articleContent.length > 100 ? `${item.articleContent.substring(0, 100)}...` : item.articleContent}
+                                                    </p>
+                                                    <span className={styles.time}>{item.time}</span>
+                                                </div>
+                                            ))}
                                         </div>
-                                    )
-                                )}
+
+                                        {contentList.length > 0 && (
+                                            <div className={styles.pagination}>
+                                                <Pagination
+                                                    size="small"
+                                                    current={paramRef.current.page}
+                                                    pageSize={paramRef.current.pageSize}
+                                                    total={paramRef.current.total}
+                                                    onChange={handlePageChange}
+                                                    showSizeChanger={false}
+                                                />
+                                            </div>
+                                        )}
+                                    </> : <div className={styles.emptyContent}>
+                                        暂无内容
+                                    </div>}
+                                </Skeleton>
                             </div>
                         </Content>
                     </Layout>
+                </>:<EsssayPage currentArticle={currentArticle} />}
                 </div>
             </ConfigProvider>
         </div>

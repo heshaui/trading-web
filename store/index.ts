@@ -22,22 +22,7 @@ class AppStore {
     isDarkMode: boolean = false;
     userToken: string | null = null;
     authcodeState: { state: string | number | null, type: string | number | null } = { state: null, type: null };
-    // loginInfo: {
-    //     type: string,
-    //     email?: string,
-    //     phone?: string,
-    //     deviceType: string,
-    //     password: string,
-    //     authCodePhone?: string,
-    //     authCodeMail?: string,
-    //     authCodeGoogle?: string
-    // } = {
-    //         type: '',
-    //         email: '',
-    //         phone: '',
-    //         deviceType: '',
-    //         password: ''
-    //     };
+
     registerInfo: registerInfoType = {} as registerInfoType;
     userInfo: UserInfoType = {} as UserInfoType;
 
@@ -75,7 +60,7 @@ class AppStore {
             this.initUserInfoFromStorage();
             this.initRateKeyFromStorage(); // 初始化汇率key
             this.initLangFromStorage(); // 初始化语言
-            // this.loadCoinList(); //加载币种数据
+            this.initCoinList(); //加载币种数据
             this.initKvConfig();
         }
     }
@@ -497,7 +482,13 @@ class AppStore {
             });
         }
     }
-
+    initCoinList() {
+        if (!isBrowser()) return;
+        const coinListJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_COIN);
+        if (coinListJson) {
+            this.coinList = JSON.parse(coinListJson);
+        }
+    }
     // 获取币种列表
     getCoinList() {
         return this.coinList;

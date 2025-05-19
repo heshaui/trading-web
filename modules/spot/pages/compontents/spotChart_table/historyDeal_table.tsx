@@ -133,12 +133,13 @@ const SpotMainPage = observer(() => {
       key: "takerSide",
       align: "center",
       width: 158,
-      render: (_status) => {
+      render: (_status, record) => {
+        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         let text
-        if (_status === 0) {
+        if (flag === 0) {
           text = t('spot.trade.buy')
           return <span className={`${styles.success_icon}`} >{text || '--'}</span>;
-        } else if (_status === 1) {
+        } else if (flag === 1) {
           text = t('spot.trade.sell')
           return <span className={`${styles.error_icon}`} >{text || '--'}</span>;
         } else {
@@ -194,9 +195,10 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         const buyRes = getRound(record.symbol, record.buyFee || 0)
         const sellRes = getRound(record.symbol, record.sellFee || 0)
-        if (record.takerSide === 0) {
-          return <span >{`${buyRes.baseScaleResult} ${buyRes.baseSymbol}`}</span>;
-        } else if (record.takerSide === 1) {
+        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
+        if (flag === 0) {
+          return <span >{`${buyRes.baseScaleResult} ${buyRes.coinSymbol}`}</span>;
+        } else if (flag === 1) {
           return <span >{`${sellRes.baseScaleResult} ${sellRes.baseSymbol}`}</span>;
         } else {
           return <span >{'--'}</span>;
@@ -216,6 +218,18 @@ const SpotMainPage = observer(() => {
 
 
   ];
+  const orderDirection = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
+    const userId = userInfo.userId
+    if (sellerUserId === userId && buyerUserId === userId) {
+      return takerSide
+    }else if(sellerUserId === userId){
+      return 1
+    }else if(buyerUserId === userId){
+      return 0
+    }else{
+      return '--'
+    }
+  }
   const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
     if (takerSide === 0) {
