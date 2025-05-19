@@ -112,7 +112,7 @@ const IdentityPage: React.FC = () => {
       const result = {
         benefitId: item.benefitId,
         benefitName: item.benefitName,
-
+        benefitValue: item.benefitValue,
         // 初始化默认值
         status0: null,
         value0: null,
