@@ -272,6 +272,7 @@ export default function LangageMenuItems() {
         // localStorage.setItem('lang', langEncode);
         appStore.setLang(langEncode);
         localStorage.setItem('selectedLanguage', language);
+        localStorage.setItem('i18nextLng', language);
 
         try {
             // 强制清除所有缓存 - 使用更彻底的方式

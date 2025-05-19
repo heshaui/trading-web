@@ -21,7 +21,7 @@ import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 import { DataType } from '@/type/assets/assetsAccount/assets'
-import { BalanceAllType } from '@/type/assets/assetsAccount/assets'
+import { BalanceAllType,TodayEarningsType,YesterdayBalanceType } from '@/type/assets/assetsAccount/assets'
 
 const AssetsMainPage = observer(() => {
     const { t } = useTranslation(['assets']);
@@ -34,23 +34,9 @@ const AssetsMainPage = observer(() => {
         page: 1,
         pageSize: 10
     })
-    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({
-        usdBalance: 0,
-        cnyBalance: 0,
-        usdt: 0
-    });
-    const [balanceDay, setBalanceDay] = useState<BalanceAllType>({
-        usdBalance: 0,
-        cnyBalance: 0,
-        usdt: 0,
-        withdraw: 0,
-        usdtWithdraw:0
-    });
-    const [todayEarnings, setTodayEarnings] = useState<BalanceAllType>({
-        usdBalance: 0,
-        cnyBalance: 0,
-        usdt: 0
-    });
+    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
+    const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
+    const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const [rateKeyName, setRateKeyName] = useState('');
 
     const paramdataRef = useRef(pageParam);
@@ -264,11 +250,10 @@ const AssetsMainPage = observer(() => {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
                 // const usdRate = getRate('USDT', totalUsd, 'USD').rate
-                const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
+                // const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
                 setBalanceAll({
                     usdBalance: usdRate || 0,
-                    cnyBalance: cnyRate || 0,
-                    usdt: totalUsd || 0
+                    balance: totalUsd || 0
                 });
             }
         } catch (error) {
@@ -284,35 +269,48 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
-                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
-                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
-                const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
-                console.log(123,res.data[0].balance,usdRate.rate,withdraw.rate,res.data[0].withdraw)
+                const usdBalance = await getRate('USDT', res.data[0].balance, rateKeyName);
+                const usdRecharge = await getRate('USDT', res.data[0].recharge, rateKeyName);
+                const usdWithdraw =await getRate('USDT', res.data[0].withdraw, rateKeyName)
             
+                // setBalanceDay({
+                //     usdBalance: Number(usdRate.rate) || 0,
+                //     // usdWithdraw: Number(cnyRate.rate) || 0,
+                //     usdt: res.data[0].balance || 0,
+                //     withdraw: Number(withdraw.rate) || 0,
+                //     usdtWithdraw: res.data[0].withdraw || 0
+                // })
                 setBalanceDay({
-                    usdBalance: Number(usdRate.rate) || 0,
-                    cnyBalance: Number(cnyRate.rate) || 0,
-                    usdt: res.data[0].balance || 0,
-                    withdraw: Number(withdraw.rate) || 0,
-                    usdtWithdraw: res.data[0].withdraw || 0
+                    balanceAll: res.data[0].balance || 0,
+                    balance: res.data[0].recharge || 0,
+                    withdraw: res.data[0].withdraw || 0,
+                    usdBalanceAll: usdBalance.rate || 0,
+                    usdBalance: usdRecharge.rate || 0,
+                    usdWithdraw: usdWithdraw.rate || 0
                 })
             }
         } catch (error) {
             toast.error(String(error));
         }
     };
-    // 获取今日充值
+    // 获取今日充值及今日提现
     const getTodayEarningsData = async () => {
         try {
             const res = await getTodayEarnings();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
-                const cnyRate = await getRate('USDT', res.data[0].balance, 'CNY');
+                const usdBalance = await getRate('USDT', res.data.balance, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data.withdraw, rateKeyName);
+                // setTodayEarnings({
+                //     usdBalance: Number(usdRate.rate) || 0,
+                //     usdWithdraw: Number(usdtWithdraw.rate) || 0,
+                //     usdt: res.data[0].balance || 0,
+                // });
                 setTodayEarnings({
-                    usdBalance: Number(usdRate.rate) || 0,
-                    cnyBalance: Number(cnyRate.rate) || 0,
-                    usdt: res.data[0].balance || 0
+                    usdBalance: Number(usdBalance.rate) || 0,
+                    usdWithdraw: Number(usdWithdraw.rate) || 0,
+                    balance: res.data.balance || 0,
+                    withdraw: res.data.withdraw || 0
                 });
             }
         } catch (error) {
@@ -320,7 +318,7 @@ const AssetsMainPage = observer(() => {
         }
     };
     const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string,withdraw: number | string) => {
-        // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw昨日提现
+        // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
         const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
          const banlanceShow=add(Number(banlance1),Number(withdraw))
         return banlanceShow
@@ -413,7 +411,7 @@ const AssetsMainPage = observer(() => {
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
                                     {/* {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'} */}
-                                    {balanceAll.usdt}&nbsp;USDT
+                                    {balanceAll.balance}&nbsp;USDT
                                 </span>
                                 <span>
                                     {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
@@ -429,12 +427,12 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {waxAndWane(balanceAll.usdt, balanceDay.usdt, todayEarnings.usdt, balanceDay?.usdtWithdraw || 0)}&nbsp;
+                                    {waxAndWane(balanceAll?.balance||0, balanceDay?.balanceAll || 0, todayEarnings?.balance||0, todayEarnings?.withdraw|| 0 )}&nbsp;
                                     USDT
                                     {/* {rateKey.split('-')[0].trim() || '--'} */}
                                 </span>
                                 <span>≈
-                                    &nbsp;{waxAndWane(balanceAll.usdBalance, balanceDay.usdBalance, todayEarnings.usdBalance, balanceDay?.withdraw || 0)}&nbsp;
+                                    &nbsp;{waxAndWane(balanceAll?.usdBalance||0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance||0, todayEarnings?.usdWithdraw || 0)}&nbsp;
                                     {/* USD */}
                                     {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                                     {rateKeyName || '--'}

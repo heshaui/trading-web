@@ -10,7 +10,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 // import BuyPage from './buy_page';
 import type { TabsProps } from 'antd';
 import { createOrder } from '@/services/spot';
-import PlaceOrderModal from './placeOrder_modal';
+import PlaceOrderModal from '../Modal/placeOrder_modal';
 import { encryptData } from "@/hooks/user-encrypt";
 import ErrorModal from '@/components/spotModal/Error_modal';
 import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
@@ -45,13 +45,15 @@ type Props = {
     onOrderSuccess?: () => void  // 添加回调函数属性
     orderData?: DataType[]
     tradePrice?: number
+    updateAssets?:number
 }
-const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
+const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
     // 获取币种列表
-    const { coinList } = useCoinList();
+    // const coinList = appStore.getCoinList();
+    const {coinList} = useCoinList();
     const [segmentedvalue, setSegmentedValue] = useState('buy');
     const [priceDisabled, setPriceDisabled] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -473,7 +475,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
 
     useEffect(() => {
         getUserBalanceData()
-    }, [])
+    }, [updateAssets])
 
     // 添加函数获取最新交易价格
     const getLatestPrices = () => {

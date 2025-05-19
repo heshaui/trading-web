@@ -84,7 +84,13 @@ export function revocationOrder(data: encryptType): Promise<any> {
         body:JSON.stringify(data)
     });
 }
-
+// 修改订单
+export function updateOrder(data: encryptType): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/order/updateOrder`, {
+        method: 'POST',
+        body:JSON.stringify(data)
+    });
+}
 
 // 获取所有币对价格
 export function getExchangeCoinAllPrice(): Promise<any> {

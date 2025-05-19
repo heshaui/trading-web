@@ -65,7 +65,7 @@ export function getSafeCenter(): Promise<any> {
 
   // 个人中心总览
   export function getCarouselImageList(): Promise<any> {
-    return request(`${fixUrl2}/home-web/v1/open/carouselImage/carouselImageList`, {
+    return request(`${fixUrl}/user-web/v1/open/carouselImage/carouselImageList`, {
       method: 'POST',
     });
   }

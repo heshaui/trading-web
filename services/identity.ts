@@ -7,8 +7,9 @@ interface UserIdentityInfoType {
     userId: number|string;
 }
 //用户信息
+// 不传userId
 export function getUserIdentityInfo({userId}:UserIdentityInfoType): Promise<any> {
-    return request(`${fixUrl}/user-web/v1/user/userIdentityVerificationDetail?userId=${userId}`, {
+    return request(`${fixUrl}/user-web/v1/user/userIdentityVerificationDetail`, {
       method: 'POST',
     //   body:JSON.stringify({userId:userId})
     });
