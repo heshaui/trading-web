@@ -36,18 +36,17 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
     const initializeData = async (lang: string) => {
         try {
             // 获取菜单数据
-            const menuResponse = await homeMenu({ lang }) as { data: any[] };
-            // console.log(menuResponse, 'menuResponse');
-            if (menuResponse?.data) {
+            const menuResponse = await homeMenu({ lang }) as { code: string; data: any[] };
+             console.log(menuResponse, 'menuResponse');
+            if (menuResponse.code==='0') {
                 const processedMenuData = processMenuItems(menuResponse.data);
+                console.log('processedMenuData', processedMenuData);
                 setMenuData(processedMenuData);
                 // 传入 isDayMode 参数
                 setMenus(formatMenus(processedMenuData.slice(0, 6), isDayMode));
                 setAdaptiveMenuData(formatAdaptiveMenus(processedMenuData));
-                // console.log(processedMenuData, 'processedMenuData');
-                setTimeout(() => {  
-                    // console.log(menus, 'menus');
-                }, 1000);
+
+             
             }
 
             // 记录当前的登录状态

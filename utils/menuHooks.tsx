@@ -2,149 +2,208 @@ import React from 'react';
 import MenuItemLabel from '@/components/homeMenu/HomeMenuLabel';
 import { MenuListItem } from '@/type/types';
 
-// 检查字符串是否为空或只包含空格
+// 定义菜单项类型
+interface MenuItem {
+  id: number | string;
+  menuName: string | null;
+  menuViceName?: string | null;
+  menuDescription?: string;
+  typeId: number;
+  accessPath?: string | null;
+  iconUrlDay?: string | null;
+  iconUrlNight?: string | null;
+  displayStatus?: number;
+  children?: MenuItem[];
+  [key: string]: any;
+}
+
+// 定义格式化的菜单项类型
+interface FormattedMenuItem {
+  key: string;
+  type: 'group' | 'item' | 'divider';
+  label: React.ReactNode;
+  children?: FormattedMenuItem[];
+  [key: string]: any;
+}
+
+/**
+ * 检查字符串是否为空或只包含空格
+ * @param str 要检查的字符串
+ * @returns 如果字符串为null、undefined或只包含空格则返回true
+ */
 export const isEmptyOrWhitespace = (str: string | null | undefined): boolean => {
     return str === null || str === undefined || str.trim() === '';
 };
 
-// 处理菜单数据
-export const processMenuItems = (menuItems: any[]): any[] => {
+/**
+ * 处理菜单数据
+ * @param menuItems 原始菜单项数组
+ * @returns 处理后的菜单项数组
+ */
+/**
+ * 处理菜单数据
+ * @param menuItems 原始菜单项数组
+ * @returns 处理后的菜单项数组
+ */
+export const processMenuItems = (menuItems: MenuItem[]): MenuItem[] => {
     if (!menuItems || !Array.isArray(menuItems)) {
+        console.log('processMenuItems: 输入不是有效数组', menuItems);
         return [];
     }
 
-    return menuItems.filter(item => {
-        // 条件1: 如果menuName为null或为空或是空格，则不渲染
-        if (isEmptyOrWhitespace(item.menuName) || item.displayStatus === 0) {
+    // 首先处理子菜单
+    const processedItems = menuItems.map(item => {
+        // 创建新对象，避免直接修改原始数据
+        const newItem = { ...item };
+        
+        // 递归处理子菜单
+        if (newItem.children?.length) {
+            newItem.children = processMenuItems(newItem.children);
+        }
+        
+        return newItem;
+    });
+
+    // 然后过滤掉不需要的菜单项
+    const filteredItems = processedItems.filter(item => {
+        // 如果 displayStatus 为 0，则不显示
+        if (item.displayStatus === 0) {
+            console.log(`过滤掉 displayStatus=0 的菜单项:`, item);
             return false;
         }
-
-        // 处理子菜单（如果有）
-        if (item.children && Array.isArray(item.children)) {
-            item.children = processMenuItems(item.children);
+        
+        // 对于分组类型(typeId=1)且没有访问路径的菜单，只要有子菜单就保留
+        if (item.typeId === 1 && !item.accessPath) {
+            const hasValidChildren = item.children?.some(child => 
+                child.displayStatus !== 0 && !isEmptyOrWhitespace(child.menuName)
+            );
+            if (hasValidChildren) {
+                return true;
+            }
+            console.log(`过滤掉无效分组:`, item);
+            return false;
         }
-
+        
+        // 对于普通菜单项，检查 menuName 是否有效
+        if (isEmptyOrWhitespace(item.menuName)) {
+            console.log(`过滤掉 menuName 为空的菜单项:`, item);
+            return false;
+        }
+        
         return true;
-    }).map(item => {
-        // 创建一个新对象，避免直接修改原始数据
+    });
+    
+    console.log('处理后的菜单项:', filteredItems);
+    return filteredItems.map(item => {
         const processedItem = { ...item };
-
-        // 条件2: 如果menuName有效但menuViceName为空，则不给spanText赋值menuViceName
-        if (!isEmptyOrWhitespace(processedItem.menuName) && isEmptyOrWhitespace(processedItem.menuViceName)) {
-            processedItem.spanText = ''; // 不赋值menuViceName
-        } else {
-            processedItem.spanText = processedItem.menuViceName;
-        }
-
+        // 设置 spanText
+        processedItem.spanText = isEmptyOrWhitespace(processedItem.menuViceName) 
+            ? '' 
+            : processedItem.menuViceName;
         return processedItem;
     });
 };
 
-// 格式化菜单 - 接收 isDayMode 作为参数，而不是使用钩子
-export const formatMenus = (menuData: any[], isDayMode: boolean): MenuListItem[] => {
-    // 获取图标路径
-    const getImagePath = (path: string | null, isDayMode: boolean) => {
+/**
+ * 格式化菜单数据为UI可用的格式
+ * @param menuData 原始菜单数据
+ * @param isDayMode 是否为日间模式
+ * @returns 格式化后的菜单项数组
+ */
+export const formatMenus = (menuData: MenuItem[], isDayMode: boolean): MenuListItem[] => {
+    /**
+     * 获取图标路径
+     * @param path 图标路径
+     * @param isDayMode 是否为日间模式
+     * @returns 处理后的图标路径
+     */
+    const getImagePath = (path: string | null, isDayMode: boolean): string => {
         if (!path) {
-            // 返回默认图标
             return "/images/home_menu/Avatar.png";
         }
-        if (isDayMode) {
-            // 日间模式使用原始图标
-            return path;
-        } else {
-            // 夜间模式，使用夜间图标
-            return path;
-        }
+        // 如果是日间模式，使用日间图标，否则使用夜间图标
+        // 注意：这里假设夜间图标的路径与日间不同，需要根据实际项目结构调整
+        return isDayMode ? path : path.replace(/(\.\w+)$/, '_night$1');
     };
     
 
-    // 递归处理菜单项及其子项
-    const processMenuItem = (menuItem: any): any => {
-        // 如果是typeId=1（group类型）或者是带有子菜单且accessPath为null的菜单项，则将其处理为分组标题
-        if (menuItem.typeId === 1 || (menuItem.children && menuItem.children.length > 0 && menuItem.accessPath === null)) {
-            // 组标题
-            const groupHeader = {
-                key: `group_${String(menuItem.id)}`,
+    /**
+     * 递归处理菜单项及其子项
+     * @param menuItem 要处理的菜单项
+     * @returns 格式化后的菜单项数组
+     */
+    const processMenuItem = (menuItem: MenuItem): FormattedMenuItem[] => {
+        // 如果是分组类型或者是带有子菜单且没有访问路径的菜单项，则处理为分组标题
+        if (menuItem.typeId === 1 || (menuItem.children?.length && !menuItem.accessPath)) {
+            const groupHeader: FormattedMenuItem = {
+                key: `group_${menuItem.id}`,
                 type: 'group',
                 label: menuItem.menuName || ''
             };
 
-            // 如果有子菜单，递归处理每个子项
-            if (menuItem.children && menuItem.children.length > 0) {
-                // 将子菜单直接作为同级项返回，而非作为组的子项
-                const childItems = menuItem.children.map((child: any) => processMenuItem(child)).flat();
-                return [groupHeader, ...childItems];
+            // 处理子菜单项
+            if (menuItem.children?.length) {
+                groupHeader.children = menuItem.children
+                    .map(child => processMenuItem(child))
+                    .flat();
             }
 
-            // 如果没有子项，只返回组标题
             return [groupHeader];
         }
 
-        // 如果是普通菜单项
-        const result: any = {
+        // 创建菜单项
+        const result: FormattedMenuItem[] = [];
+        const menuItemObj: FormattedMenuItem = {
             key: String(menuItem.id),
             type: menuItem.typeId === 2 ? 'item' : 'divider',
             label: (
                 <MenuItemLabel
-                    src={getImagePath(isDayMode ? menuItem.iconUrlDay : menuItem.iconUrlNight, isDayMode)}
+                    src={getImagePath((isDayMode ? menuItem.iconUrlDay : menuItem.iconUrlNight) ?? null, isDayMode)}
                     h5Text={menuItem.menuName || ''}
                     spanText={menuItem.menuViceName || ''}
                 />
             )
         };
-
-        // 如果有子菜单，递归处理
-        if (menuItem.children && menuItem.children.length > 0) {
-            // 重要: 使用children属性存储子菜单项，而不是展平子项
-            // Ant Design Menu支持多级嵌套菜单，但需要正确的属性嵌套
-            result.children = menuItem.children.map((child: any) => {
-                // 对于子菜单中的group类型特殊处理
+        
+        // 处理子菜单
+        if (menuItem.children?.length) {
+            menuItemObj.children = menuItem.children.map(child => {
+                // 处理子菜单中的分组类型
                 if (child.typeId === 1) {
-                    return {
+                    const groupItem: FormattedMenuItem = {
                         key: String(child.id),
                         type: 'group',
                         label: child.menuName || '',
-                        // 如果该group有子项，递归处理子项
-                        children: child.children && child.children.length > 0 ?
-                            child.children.map((subChild: any) => processMenuItem(subChild)).flat() :
-                            undefined
+                        children: child.children?.map(subChild => ({
+                            key: String(subChild.id),
+                            type: subChild.typeId === 2 ? 'item' : 'divider',
+                            label: (
+                                <MenuItemLabel
+                                    src={getImagePath((isDayMode ? subChild.iconUrlDay : subChild.iconUrlNight) ?? null, isDayMode)}
+                                    h5Text={subChild.menuName || ''}
+                                    spanText={subChild.menuViceName || ''}
+                                />
+                            )
+                        })) || []
                     };
+                    return groupItem;
                 }
-
-                // 为普通子菜单项创建标准的菜单项结构
-                const childItem: any = {
+                // 普通子菜单项
+                return {
                     key: String(child.id),
                     type: child.typeId === 2 ? 'item' : 'divider',
                     label: (
                         <MenuItemLabel
-                            src={getImagePath(isDayMode ? child.iconUrlDay : child.iconUrlNight, isDayMode)}
+                            src={getImagePath((isDayMode ? child.iconUrlDay : child.iconUrlNight) ?? null, isDayMode)}
                             h5Text={child.menuName || ''}
                             spanText={child.menuViceName || ''}
                         />
                     )
                 };
-
-                // 继续递归处理更深层级的子菜单
-                if (child.children && child.children.length > 0) {
-                    childItem.children = child.children.map((grandChild: any) => {
-                        return {
-                            key: String(grandChild.id),
-                            type: grandChild.typeId === 2 ? 'item' : 'divider',
-                            label: (
-                                <MenuItemLabel
-                                    src={getImagePath(isDayMode ? grandChild.iconUrlDay : grandChild.iconUrlNight, isDayMode)}
-                                    h5Text={grandChild.menuName || ''}
-                                    spanText={grandChild.menuViceName || ''}
-                                />
-                            )
-                        };
-                    });
-                }
-
-                return childItem;
             });
         }
-
+        
+        result.push(menuItemObj);
         return result;
     };
 
@@ -159,21 +218,21 @@ export const formatMenus = (menuData: any[], isDayMode: boolean): MenuListItem[]
             items: [],
         };
 
-        // 如果完全没有子菜单，创建一个默认的子项
-        if (!menu.children || menu.children.length === 0) {
+        if (!menu.children?.length) {
+            // 对于没有子菜单的分组类型，创建一个组标签
             if (menu.typeId === 1) {
-                // 对于typeId=1，显示为组标签
-                menuItem.items = [
-                    {
-                        key: `group_${String(menu.id)}`,
-                        type: 'group',
-                        label: menu.menuName || ''
-                    },
-                ];
+                menuItem.items = [{
+                    key: `group_${menu.id}`,
+                    type: 'group' as const,
+                    label: menu.menuName || ''
+                }];
             }
         } else {
-            // 如果有子菜单，递归处理所有子项
-            const processedItems = menu.children.map((child: any) => processMenuItem(child)).flat();
+            // 处理子菜单项
+            const processedItems = menu.children
+                .map(child => processMenuItem(child))
+                .flat()
+                .filter(Boolean); // 过滤掉可能的空项
             menuItem.items = processedItems;
         }
 
@@ -181,38 +240,57 @@ export const formatMenus = (menuData: any[], isDayMode: boolean): MenuListItem[]
     });
 };
 
-// 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
-export const formatAdaptiveMenus = (menuData: any[]): MenuListItem[] => {
+/**
+ * 格式化自适应菜单数据
+ * @param menuData 原始菜单数据
+ * @returns 格式化后的自适应菜单项数组
+ */
+/**
+ * 格式化自适应菜单数据
+ * @param menuData 原始菜单数据
+ * @returns 格式化后的自适应菜单项数组
+ */
+export const formatAdaptiveMenus = (menuData: MenuItem[]): MenuListItem[] => {
     return menuData.map(menu => {
+        const items = menu.children?.length 
+            ? menu.children.map(child => ({
+                key: String(child.id),
+                type: 'item' as const,
+                label: (
+                    <MenuItemLabel
+                        src={child.iconUrlDay || "/images/home_menu/Avatar.png"}
+                        h5Text={child.menuName || child.menuDescription || ''}
+                        spanText={child.menuViceName || ''}
+                    />
+                )
+            }))
+            : [{
+                key: String(menu.id),
+                type: 'item' as const,
+                label: (
+                    <MenuItemLabel
+                        src={menu.iconUrlDay || "/images/home_menu/Avatar.png"}
+                        h5Text={menu.menuName || menu.menuDescription || ''}
+                        spanText={menu.menuViceName || ''}
+                    />
+                )
+            }];
+
         return {
             key: String(menu.id),
-            title: menu.menuName || menu.menuDescription, // 根据实际需求选择字段
-            linkHref: menu.accessPath,
-            items: (menu.children || []).length > 0
-                ? menu.children.map((child: any) => ({
-                    key: String(child.id),
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel
-                            src={child.iconUrlDay || "/images/home_menu/Avatar.png"}
-                            h5Text={child.menuName || child.menuDescription}
-                            spanText={child.menuViceName || ''}
-                        />
-                    )
-                }))
-                : [{
-                    key: String(menu.id),
-                    type: 'item',
-                    label: (
-                        <MenuItemLabel
-                            src="/images/home_menu/Avatar.png"
-                            h5Text={menu.menuName || menu.menuDescription}
-                            spanText={menu.menuViceName || ''}
-                        />
-                    )
-                }]
+            title: menu.menuName || menu.menuDescription || '',
+            linkHref: menu.accessPath || '',
+            items
         };
     });
 };
 
-// 新增格式化函数，按 HomeMenuAdaptiveItems 的 items 数据结构封装
+// 导出所有工具函数
+const menuUtils = {
+    isEmptyOrWhitespace,
+    processMenuItems,
+    formatMenus,
+    formatAdaptiveMenus
+};
+
+export default menuUtils;

@@ -10,7 +10,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@/context/NavigationContext';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount, getInformClassMenuList } from '@/services/bulletinCenter';
-import { set } from 'mobx';
 import { useThemeMode } from '@/hooks/useThemeMode';
 
 
