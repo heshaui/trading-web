@@ -194,7 +194,7 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         const buyRes = getRound(record.symbol, record.buyFee || 0)
         const sellRes = getRound(record.symbol, record.sellFee || 0)
-        const flag = userInfo.userId === record.buyerUserId ? 0 : userInfo.userId === record.sellerUserId ? 1 : 2
+        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         if (flag === 0) {
           return <span >{`${buyRes.baseScaleResult} ${buyRes.baseSymbol}`}</span>;
         } else if (flag === 1) {
@@ -217,6 +217,18 @@ const SpotMainPage = observer(() => {
 
 
   ];
+  const orderDirection = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
+    const userId = userInfo.userId
+    if (sellerUserId === userId && buyerUserId === userId) {
+      return takerSide
+    }else if(sellerUserId === userId){
+      return 1
+    }else if(buyerUserId === userId){
+      return 0
+    }else{
+      return '--'
+    }
+  }
   const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
     if (takerSide === 0) {

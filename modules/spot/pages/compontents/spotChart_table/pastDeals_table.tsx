@@ -350,7 +350,7 @@ const SpotMainPage = observer(() => {
       width: 158,
       render: (_buyFee, record) => {
         const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
-        const flag = userInfo.userId === record.buyerUserId ? 0 : userInfo.userId === record.sellerUserId ? 1 : 2
+        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         // const price=nul(record.tradePrice,record.quantity)
         if (flag === 0) {
           const { baseScaleResult, baseSymbol,coinSymbol } = getRound(symbolName, _buyFee || 0)
@@ -374,6 +374,18 @@ const SpotMainPage = observer(() => {
       },
     }
   ]
+  const orderDirection = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
+    const userId = userInfo.userId
+    if (sellerUserId === userId && buyerUserId === userId) {
+      return takerSide
+    }else if(sellerUserId === userId){
+      return 1
+    }else if(buyerUserId === userId){
+      return 0
+    }else{
+      return '--'
+    }
+  }
   const maskName = (takerSide: number, buyerUserId: number, sellerUserId: number) => {
     const userId = userInfo.userId
     if (takerSide === 0) {
