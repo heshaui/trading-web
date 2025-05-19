@@ -173,7 +173,7 @@ export default function Notice() {
                         classMenu: item.classMenu  // 保存classMenu属性以便后续匹配
                     }))
                     // 排序：onTop为1的排前面，其余按时间倒序
-                    .sort((a, b) => {
+                    .sort((a: any, b: any) => {
                         if (a.onTop === b.onTop) {
                             return new Date(b.time).getTime() - new Date(a.time).getTime();
                         }
