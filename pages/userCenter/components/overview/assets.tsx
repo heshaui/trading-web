@@ -62,7 +62,7 @@ const AssetsPage: React.FC = observer(() => {
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd, rateKeyName) //获取汇率
+                const usdRate = getRate('USDT', totalUsd||0, rateKeyName) //获取汇率
                 setBalanceAll({
                     usdBalance: Number(usdRate.rate) || 0,
                     balance: totalUsd,
@@ -86,9 +86,9 @@ const AssetsPage: React.FC = observer(() => {
                 // const usdRate = await getRate('USDT', res.data[0].balance, rateKeyName);
                 // const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
 
-                const usdBalance = await getRate('USDT', res.data[0].balance, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data[0].recharge, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data[0].withdraw, rateKeyName)
+                const usdBalance = await getRate('USDT', res.data[0].balance||0, rateKeyName);
+                const usdRecharge = await getRate('USDT', res.data[0].recharge||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data[0].withdraw||0, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -118,8 +118,8 @@ const AssetsPage: React.FC = observer(() => {
             const res = await getTodayEarnings();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdBalance = await getRate('USDT', res.data.balance, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data.withdraw, rateKeyName);
+                const usdBalance = await getRate('USDT', res.data.balance||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data.withdraw||0, rateKeyName);
                 setTodayEarnings({
                     usdBalance: Number(usdBalance.rate) || 0,
                     usdWithdraw: Number(usdWithdraw.rate) || 0,
@@ -190,7 +190,7 @@ const AssetsPage: React.FC = observer(() => {
 
                     setBalanceAll({
                         usdBalance: Number(usdRate.rate) || 0,
-                        usdt: totalUsd,
+                        balance: totalUsd,
                         symbol: usdRate.symbol
                     });
                 }

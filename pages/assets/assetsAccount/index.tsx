@@ -248,7 +248,7 @@ const AssetsMainPage = observer(() => {
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
+                const usdRate = getRate('USDT', totalUsd||0, rateKeyName).rate
                 // const usdRate = getRate('USDT', totalUsd, 'USD').rate
                 // const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
                 setBalanceAll({
@@ -269,9 +269,9 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
-                const usdBalance = await getRate('USDT', res.data[0].balance, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data[0].recharge, rateKeyName);
-                const usdWithdraw =await getRate('USDT', res.data[0].withdraw, rateKeyName)
+                const usdBalance = await getRate('USDT', res.data[0].balance||0, rateKeyName);
+                const usdRecharge = await getRate('USDT', res.data[0].recharge||0, rateKeyName);
+                const usdWithdraw =await getRate('USDT', res.data[0].withdraw||0, rateKeyName)
             
                 // setBalanceDay({
                 //     usdBalance: Number(usdRate.rate) || 0,
@@ -299,8 +299,8 @@ const AssetsMainPage = observer(() => {
             const res = await getTodayEarnings();
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdBalance = await getRate('USDT', res.data.balance, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data.withdraw, rateKeyName);
+                const usdBalance = await getRate('USDT', res.data.balance||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data.withdraw||0, rateKeyName);
                 // setTodayEarnings({
                 //     usdBalance: Number(usdRate.rate) || 0,
                 //     usdWithdraw: Number(usdtWithdraw.rate) || 0,

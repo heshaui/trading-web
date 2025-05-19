@@ -28,6 +28,7 @@ interface levelBenefitType {
     value: string;
     benefitId: number;
     benefitName: string;
+    benefitValue:string
     status0?: number;
     value0?: string;
     params0?: string;
@@ -104,6 +105,18 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
     //     return `${amountRes} ${text1.coin} ${text1.time}h`
 
     // }
+    const lableShow = (key: string) => {
+        console.log(key,999);
+        
+        if(key==='cyptocurrency_withdrawal'){
+            return t('identity.withdrawal')
+        } else if (key === 'cyptocurrency_recharge') {
+            return t('identity.recharge')
+        } else {
+            return key||'--'
+        }
+        
+    }
     return (< >
         <div className={`${styles.identity_content} flex-1`}>
             <div className={`${styles.content_header} `}>
@@ -152,7 +165,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                 <ul className={`${styles.border_btm} mt-3`}>
                     {levelBenefit && levelBenefit.map((item: levelBenefitType) => (
                         <li className={`flex align-center justify-between font-14 ${styles.certified_box}`} key={item.benefitId}>
-                            <div className={` font-w-400 ${styles.tip_color}`}>{item.benefitName||'--'}</div>
+                            <div className={` font-w-400 ${styles.tip_color}`}>{lableShow(item.benefitValue)}</div>
                             <div className={` font-w-500`}>
                                 {/* {(item.value1 && item.params1) ? getBenefitValue(item.value1) :
                                     item.status1 === 0 ? t('identity.certified.forbidden') : t('identity.certified.allow')
