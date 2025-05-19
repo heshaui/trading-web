@@ -1,20 +1,20 @@
-// import { ConfigProvider, Dropdown, Space, message } from 'antd';
 import { Dropdown, Space } from 'antd';
 import type { MenuProps } from 'antd';
-// import { DownOutlined } from '@ant-design/icons';
 import styles from '@/styles/components/HomeMenu.module.css';
-// import { MenuListItem } from '@/type/types';
-// import { Props, MenuListItem, IconName } from '@/type/types';
 import { Props, IconName } from '@/type/types';
-// import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useCallback } from 'react';
+import Link from 'next/link';
 
-const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
-    const hasChildren = menuList.items.some(item => {
+const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
+    const router = useRouter();
+    
+    // 检查是否有子菜单
+    const hasChildren = menuList.items?.some(item => {
         return item.children && item.children.length > 0;
-    })
-    // 定义一个函数来根据图标名称返回不同的 overlayStyle
+    });
+
+    // 获取下拉菜单的样式
     const getOverlayStyle = (icon: IconName | undefined) => {
         switch (icon) {
             case 'download':
@@ -29,22 +29,81 @@ const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
                 return { top: '80px', minWidth: '100px', maxWidth: '380px' };
         }
     };
-    // 点击提示
-    const onClick: MenuProps['onClick'] = ({ item }) => {
-        // // message.info(`Click on item ${key}`);
-        // const item = menuList.find(item => item.key === key);
-        // if (item) {
-        //     console.log('Item details:', item);
-        // }
-        console.log('item', (item as any).props);
-    };
-    // 点击跳转
-    const router = useRouter();
-    const onClickLink: MenuProps['onClick'] = ({ key }) => {
-        if (menuList && menuList.linkHref) {
+
+    // 处理菜单项点击
+    const handleMenuClick: MenuProps['onClick'] = useCallback(({ key, keyPath, domEvent }) => {
+        domEvent?.stopPropagation();
+        console.log('key', key);
+        console.log('keyPath', keyPath);
+        console.log('domEvent', domEvent);
+        console.log('menuList', menuList);
+        // 查找点击的菜单项
+        const findItem = (items: any[], targetKey: string): any => {
+            for (const item of items || []) {
+                if (item.key === targetKey) {
+                    return item;
+                }
+                if (item.children) {
+                    const found = findItem(item.children, targetKey);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+        
+        const clickedItem = findItem(menuList.items || [], key);
+        console.log('clickedItem', clickedItem);
+        if (clickedItem) {
+            // 如果有链接，则进行跳转
+            if (clickedItem.path || clickedItem.linkHref || clickedItem.accessPath) {
+                router.push(clickedItem.path || clickedItem.linkHref || clickedItem.accessPath);
+            } 
+            // 如果有点击处理函数，则执行
+            else if (clickedItem.onClick) {
+                clickedItem.onClick();
+            } else if (menuList.onClick) {
+                menuList.onClick();
+            }
+        }
+    }, [menuList, router]);
+    
+    // 处理主菜单项点击
+    const handleMainMenuClick = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (menuList.onClick) {
+            menuList.onClick();
+        } else if (menuList.linkHref) {
             router.push(menuList.linkHref);
         }
+    }, [menuList, router]);
+
+    // 处理菜单项渲染，确保每个菜单项都有正确的点击处理
+    const processMenuItems = (items: any[] = []) => {
+        return items.map(item => {
+            const newItem = { ...item };
+            
+            // 如果子项有子菜单，递归处理
+            if (newItem.children) {
+                newItem.children = processMenuItems(newItem.children);
+            }
+            
+            // 如果没有设置点击事件，但有路径、链接或访问路径，则添加点击事件
+            if (!newItem.onClick && (newItem.path || newItem.linkHref || newItem.accessPath)) {
+                newItem.onClick = () => {
+                    if (newItem.path || newItem.linkHref || newItem.accessPath) {
+                        router.push(newItem.path || newItem.linkHref || newItem.accessPath);
+                    }
+                };
+            }
+            
+            return newItem;
+        });
     };
+    
+    const processedItems = processMenuItems(menuList.items);
+
     return (
         <>
             {haveArrow ? (
@@ -52,9 +111,9 @@ const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
                     <Space wrap>
                         <Dropdown
                             menu={{
-                                items: menuList.items as MenuProps['items'],
+                                items: processedItems as MenuProps['items'],
                                 triggerSubMenuAction: 'click',
-                                onClick
+                                onClick: handleMenuClick
                             }}
                             placement="bottomLeft"
                             trigger={['click']}
@@ -62,10 +121,7 @@ const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
                             overlayStyle={getOverlayStyle(menuList.widthSet)}
                             overlayClassName={styles.buttonHover}
                         >
-                            <a onClick={(e) => {
-                                e.preventDefault();
-                                menuList.onClick?.(); // 调用点击事件
-                            }}>
+                            <a onClick={handleMainMenuClick}>
                                 <span style={{ color: '#000' }}>{menuList.title}</span>
                             </a>
                         </Dropdown>
@@ -74,23 +130,18 @@ const MenuItem = React.memo(({ menuList, haveArrow, }: Props) => {
             ) : (
                 <Dropdown
                     menu={{
-                        items: menuList.items as MenuProps['items'],
+                        items: processedItems as MenuProps['items'],
                         triggerSubMenuAction: 'click',
-                        onClick: !hasChildren ? onClickLink : undefined
+                        onClick: handleMenuClick
                     }}
                     trigger={['click']}
                     key={menuList.key}
                     className={styles.menuList}
                     overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}
-                // overlayStyle={ isCascading ? { left: '100px', top: '80px', maxWidth: '364px', minWidth: '300px' }: { top: '80px', maxWidth: '364px', minWidth: '300px' } }
                 >
-                    <a onClick={(e) => {
-                        e.preventDefault();
-                        menuList.onClick?.(); // 调用点击事件
-                    }}>
+                    <a onClick={handleMainMenuClick}>
                         <Space style={{ columnGap: '3px' }}>
                             <span style={{ color: '#FFF' }}>{menuList.title}</span>
-                            {/* <DownOutlined /> */}
                         </Space>
                     </a>
                 </Dropdown>
