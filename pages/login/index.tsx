@@ -92,12 +92,12 @@ function Login() {
 	// 	}
 	// 	getBgc()
 	// }, [token, router]);
-	useEffect(() => {
-		if (!allConfig) {
-			// useWebConfig();
-			appStore.getKvConfigAllFromApi()
-		}
-	}, [allConfig]);
+	// useEffect(() => {
+	// 	if (!allConfig) {
+	// 		// useWebConfig();
+	// 		appStore.getKvConfigAllFromApi()
+	// 	}
+	// }, [allConfig]);
 	useEffect(() => {
 		getBgc()
 		// getUseBankKv()
