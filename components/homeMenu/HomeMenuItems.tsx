@@ -31,7 +31,7 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
     };
 
     // 处理菜单项点击
-    const handleMenuClick: MenuProps['onClick'] = useCallback(({ key, keyPath, domEvent }) => {
+    const handleMenuClick: MenuProps['onClick'] = useCallback(({ key, keyPath, domEvent }:any) => {
         domEvent?.stopPropagation();
         console.log('key', key);
         console.log('keyPath', keyPath);
