@@ -161,16 +161,24 @@ export default function Notice() {
             console.log(`[Notice] Raw API response for menu ID ${id}:`, response);
 
             if (response?.code === '0') {
-                // 处理返回的数据
-                const announcements = Array.isArray(response.data.list) ? response.data.list.map((item: any) => ({
-                    id: item.id.toString(),
-                    title: item.title,
-                    time: item.releaseTime,
-                    content: item.content,
-                    isRead: item.isRead,
-                    onTop: item.onTop,
-                    classMenu: item.classMenu  // 保存classMenu属性以便后续匹配
-                })) : [];
+                // 处理返回的数据并排序
+                const announcements = Array.isArray(response.data.list) ? response.data.list
+                    .map((item: any) => ({
+                        id: item.id.toString(),
+                        title: item.title,
+                        time: item.releaseTime,
+                        content: item.content,
+                        isRead: item.isRead,
+                        onTop: item.onTop || 0,  // 确保onTop有默认值0
+                        classMenu: item.classMenu  // 保存classMenu属性以便后续匹配
+                    }))
+                    // 排序：onTop为1的排前面，其余按时间倒序
+                    .sort((a: any, b: any) => {
+                        if (a.onTop === b.onTop) {
+                            return new Date(b.time).getTime() - new Date(a.time).getTime();
+                        }
+                        return b.onTop - a.onTop;
+                    }) : [];
 
                 console.log(`[Notice] Processed announcements for menu ID ${id}:`, announcements);
 
