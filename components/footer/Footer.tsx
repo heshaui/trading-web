@@ -307,8 +307,9 @@ export default function Footer() {
                     <Image
                         src={item.imgUrl}
                         alt={item.nameText || '社交媒体'}
-                        width={20}
-                        height={20}
+                        width={24}
+                        height={24}
+                        style={{ borderRadius: '50%', height: '24px', width: '24px' }}
                     />
                 </button>
             </Col>
