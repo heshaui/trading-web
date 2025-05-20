@@ -32,19 +32,22 @@ export default function LanguageMenu() {
             await i18n.changeLanguage(langCode.split('_')[0]);
         }
 
-        // 使用 Next.js 路由进行导航，不刷新页面
-        const { pathname, asPath, query } = router;
+        // 获取 Next.js 的 locale
         const nextLocale = getNextJsLocale(langCode);
         
-        // 更新 URL 而不刷新页面
-        router.push(
-            { pathname, query },
-            asPath,
-            { locale: nextLocale, shallow: true }
-        );
-
         // 触发自定义事件，通知其他组件语言已更改
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: langCode }));
+        
+        // 刷新页面以应用语言更改
+        const { pathname, query } = router;
+        router.push(
+            { pathname, query },
+            undefined,
+            { locale: nextLocale }
+        ).then(() => {
+            // 强制刷新页面以确保所有内容使用新语言
+            window.location.reload();
+        });
     }, [i18n, router]);
 
     // 辅助函数：获取 Next.js 的 locale 值
