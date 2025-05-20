@@ -1,5 +1,5 @@
 import React from 'react';
-import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
+// import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/spotChartCom.module.css'
 import { Input, Tooltip, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
