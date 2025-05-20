@@ -4,6 +4,7 @@ import styles from './style/OrderBook.module.css';
 import Image from 'next/image';
 import appStore from '@/store';
 import { Tooltip,Select } from 'antd';
+import { add,cut,nul,roundDown } from '@/utils/index';
 // 定义订单类型
 interface Order {
   price: number;
@@ -80,14 +81,19 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         
         // 将Map转换回数组
         priceMap.forEach((amount, price) => {
-          const total = price * amount;
+          // const total = price * amount;
+         const total=nul(price,amount)
           updatedSellOrders.push({ price, amount, total });
         });
         
         // 卖单按价格升序排列
         updatedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
+         if(colorMode===1){
+          setSellOrders(updatedSellOrders.splice(0,10));
+         }else{
+          setSellOrders(updatedSellOrders.splice(0,20));
+         }
         
-        setSellOrders(updatedSellOrders.splice(0,20));
       }
       
       // 处理买单数据 - 直接使用bids数据
@@ -110,9 +116,10 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           if (amount < 0) {
             // 如果数量为负，从现有数量中减去
             const existingAmount = priceMap.get(price) || 0;
-            const newAmount = Math.max(0, existingAmount - Math.abs(amount));
-            if (newAmount > 0) {
-              priceMap.set(price, newAmount);
+            // const newAmount = Math.max(0, existingAmount - Math.abs(amount));
+           const  newAmount=cut(Number(existingAmount),Number(amount))
+            if (Number(newAmount) > 0) {  
+              priceMap.set(price,Number(newAmount));
             } else {
               priceMap.delete(price); // 如果数量变为0或负数，删除此价格
             }
@@ -124,14 +131,18 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         
         // 将Map转换回数组
         priceMap.forEach((amount, price) => {
-          const total = price * amount;
+          // const total = price * amount;
+          const total=nul(price,amount)
           updatedBuyOrders.push({ price, amount, total });
         });
         
         // 买单按价格降序排列
         updatedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
-        
-        setBuyOrders(updatedBuyOrders.splice(0,20));
+        if(colorMode===1){
+          setBuyOrders(updatedBuyOrders.splice(0,10));
+        }else{
+          setBuyOrders(updatedBuyOrders.splice(0,20));
+        }
       }
       
       console.log('处理后卖单数据:', sellOrders);
@@ -214,7 +225,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
       }
       
       // 计算最近20条交易的买卖单占比
-      const recentTrades = typedProcessedTrades.slice(0, 20);
+      const recentTrades = typedProcessedTrades;
       let buyCount = 0;
       let sellCount = 0;
       
