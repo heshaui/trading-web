@@ -27,32 +27,26 @@ const InvitePage = () => {
         inviteCode: '',
         inviteLink: ''
     });
-    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+    // const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+    const userInfo=appStore.getUserInfo()
 
     const onInviteReturn = () => {
         setOpen(true)
 
     }
     const inviteModalOK = () => {
-        console.log(1111);
 
         // router.push(`/register?inviteCode=${inviteInfo.inviteCode}`)
         setOpen(false)
     }
     const getLoginInfoData = async () => {
-        // const res = await getLoginInfo();
-        // if (res.code === '0') {
-        //     const param = {
-        //         inviteCode: res.data.inviteCode||'',
-        //         inviteLink: `${BASE_URL}/register?inviteCode=${res.data.inviteCode||''}`
-        //     }
-        //     setInviteInfo(param);
-        // }
+        const getBaseUrl = () => {
+            return window.location.origin;
+          };
         if (typeof window !== 'undefined') {
-            const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
             const param = {
                 inviteCode: userInfo.inviteCode || '',
-                inviteLink: `${BASE_URL}/register?inviteCode=${userInfo.inviteCode || ''}`
+                inviteLink: `${getBaseUrl()}/register?inviteCode=${userInfo.inviteCode || ''}`
             }
             setInviteInfo(param)
         }

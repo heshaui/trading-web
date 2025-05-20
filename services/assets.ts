@@ -56,14 +56,19 @@ export function deleteByIds(data: number[]): Promise<any> {
   });
 }
 
-// 币种查询
+// 币种查询-所有
 export function getCoinAll(): Promise<any> {
   return request(`${fixUrl2}/assets-web/v1/currency-coin/tenantCurrencyCoinAll`, {
     method: 'POST',
     // body: JSON.stringify(data)
   });
 }
-
+// 币种查询-单个
+export function getCoinById(coinId: number): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/currency-coin/tenantCurrencyCoin?coinId=${coinId}`, {
+    method: 'POST',
+  });
+}
 // 币种协议(网络)
 export function getcoinExtList(tenantId: number): Promise<any> {
     return request(`${fixUrl}/user-web/v1/withdraw-deposit/coinExtList?coinId=${tenantId}`, {

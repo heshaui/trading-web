@@ -45,9 +45,8 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
         return {
             ...rate,
             exchangeRate: Number(rate?.exchangeRate),
-            symbol: rate?.symbol,
-            // symbol: rateName,
-            shortName: rate?.shortName
+            symbol: rate?.symbol||'',
+            shortName: rate?.shortName||''
         }
     };
 
@@ -71,10 +70,10 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
     };
 
     return {
-        ratetext:`${symbol} ${calculateRate()}`, // 汇率返回内容
-        rate:calculateRate(), // 汇率结果
-        symbol:symbol, // 汇率符号
-        shortName:shortName // 汇率名称
+        ratetext:`${symbol||''} ${calculateRate()||0}`, // 汇率返回内容
+        rate:calculateRate()||0, // 汇率结果
+        symbol:symbol||'', // 汇率符号
+        shortName:shortName||'' // 汇率名称
     };
             
 } catch (error) {
@@ -82,9 +81,9 @@ export const getRate = (symbolName: string,priceNum:string|number, rateName: str
      console.error('Error in getRate:', error);
      return {
          ratetext: '--',
-         rate: '--',
-         symbol: '',
-         shortName: ''
+         rate: '0',
+         symbol: '--',
+         shortName: '--'
      };    
 }
 };
@@ -128,7 +127,7 @@ export const getCoinRate = (symbolName: string,priceNum:string|number, baseSymbo
         useRate = price === 0 ? 0 : division(Number(priceNum),price);
     }
     return {
-        coinRate:useRate, // 价格
+        coinRate:useRate||0, // 价格
         price:price||0,
     };
             

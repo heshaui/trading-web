@@ -174,11 +174,12 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         login(res.data.token)
                         router.push('/')
                         // 获取用户信息
-                        await getUserInfo()
+                        // await getUserInfo()
                         // 更新网站配置
                         if (typeof window !== 'undefined') {
                             store.getKvConfigAllFromApi()
                             store.loadCoinList()
+                            store.loadGetUserInfo()
                         }
 
                     } else {
