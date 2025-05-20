@@ -270,8 +270,8 @@ const AssetsMainPage = observer(() => {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
                 const usdBalance = await getRate('USDT', res.data?.[0]?.balance || 0, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data?.[0].recharge||0, rateKeyName);
-                const usdWithdraw =await getRate('USDT', res.data?.[0].withdraw||0, rateKeyName)
+                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge||0, rateKeyName);
+                const usdWithdraw =await getRate('USDT', res.data?.[0]?.withdraw||0, rateKeyName)
             
                 // setBalanceDay({
                 //     usdBalance: Number(usdRate.rate) || 0,
@@ -281,9 +281,9 @@ const AssetsMainPage = observer(() => {
                 //     usdtWithdraw: res.data[0].withdraw || 0
                 // })
                 setBalanceDay({
-                    balanceAll: res.data[0].balance || 0,
-                    balance: res.data[0].recharge || 0,
-                    withdraw: res.data[0].withdraw || 0,
+                    balanceAll: res.data?.[0]?.balance || 0,
+                    balance: res.data?.[0]?.recharge || 0,
+                    withdraw: res.data?.[0]?.withdraw || 0,
                     usdBalanceAll: usdBalance.rate || 0,
                     usdBalance: usdRecharge.rate || 0,
                     usdWithdraw: usdWithdraw.rate || 0
@@ -309,8 +309,8 @@ const AssetsMainPage = observer(() => {
                 setTodayEarnings({
                     usdBalance: Number(usdBalance.rate) || 0,
                     usdWithdraw: Number(usdWithdraw.rate) || 0,
-                    balance: res.data.balance || 0,
-                    withdraw: res.data.withdraw || 0
+                    balance: res.data?.balance || 0,
+                    withdraw: res.data?.withdraw || 0
                 });
             }
         } catch (error) {
