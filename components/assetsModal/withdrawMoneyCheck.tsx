@@ -71,7 +71,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
         const userInfo = getUserInfo()
         setUserInfo(userInfo)
         setSafeModalOpen(true)
-        onCancel()
+        // onCancel()
     };
     const safeModalOk = async (event: any) => {
         const params = {
@@ -95,7 +95,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                 setTotastMessage(`${withdrawInfo?.amount} ${withdrawInfo?.coinName}`)
                 setTotastType('loading')
                 onOk?.()
-                handCancel()
+                // handCancel()
             } else if(res.code==='1') {
                 setTotastOpen(true)
                 setTotastType('loading')

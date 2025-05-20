@@ -15,6 +15,7 @@
         "recommendDesc": "将您的邀请链接分享给好友",
         "inviteActive": "邀请激活",
         "inviteActiveDesc": "好友注册且累计充值至少50USDT",
+        "inviteActiveDesc2": "好友注册且累计充值至少 {{count}} {{coinName}}",
         "complete": "完成认证",
         "completeDesc": "好友完成身份认证",
         "myInvite": "我的邀请",

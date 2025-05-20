@@ -13,13 +13,14 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { NoData } from '@/components/noData'
-import { getUserBalanceAll } from '@/services/assets';
+import { getUserBalanceAll,getCoinById } from '@/services/assets';
 import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
 import Image from 'next/image';
 import { getRate } from '@/utils/getUseRate';
 import appStore from '@/store';
+
 interface DataType {
     balance: number,
     frozenBalance: number,
@@ -34,7 +35,7 @@ type Props = {
     orderUpdateFlag?: number
     updateAssets?: number
 }
-const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
+const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     const { t } = useTranslation(['spot']);
     // 获取币种列表
     const { coinList } = useCoinList(true);
@@ -165,13 +166,13 @@ const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
                 return <>
                     {/* 提现 */}
                     <button className={`${coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
-                        onClick={() => getCoinList('1', coin)}
+                        onClick={() => getCoinList('1', record.coinId)}
                     >
                         {t('spot.columns.withdraw')}
                     </button>
                     {/* 充值 */}
                     <button className={`${coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
-                        onClick={() => getCoinList('2', coin)}
+                        onClick={() => getCoinList('2', record.coinId)}
                     >
                         {t('spot.columns.deposit')}
                     </button>
@@ -187,27 +188,35 @@ const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
 
 
     ];
-    const getCoinList = async (type: string, coinData: any) => {
-        if (type === '1') {
-            if (coinData?.canWithdraw === 1) {
-                router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
-            } else {
-                toast.error(t('spot.columns.withdrawError'));
-            }
-        } else if (type === '2') {
-            if (coinData?.canRecharge === 1) {
-                router.push(ROUTER_KEY_ASSETS.TOP_UP);
-            } else {
-                toast.error(t('spot.columns.depositError'));
+    const getCoinList = async (type: string, coinId: any) => {
+        try {
+            const res = await getCoinById(coinId);
+            const { data, code } = res;
+            if (type === '1') {
+                if (data?.canWithdraw === 1) {
+                    router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+                } else {
+                    toast.error(t('spot.columns.withdrawError'));
+                }
+            } else if (type === '2') {
+                if (data?.canRecharge === 1) {
+                    router.push(ROUTER_KEY_ASSETS.TOP_UP);
+                } else {
+                    toast.error(t('spot.columns.depositError'));
+                }
+
             }
 
-        } else if (type === '3') {
-            if (coinData?.canRecharge === 1) {
-                router.push(ROUTER_KEY_SPOT.INDEX);
-            } else {
-                toast.error(t('spot.columns.tradeError'));
-            }
+        } catch (error) {
+            toast.error(String(error));
         }
+        // else if (type === '3') {
+        //     if (coinData?.canRecharge === 1) {
+        //         router.push(ROUTER_KEY_SPOT.INDEX);
+        //     } else {
+        //         toast.error(t('spot.columns.tradeError'));
+        //     }
+        // }
 
     }
     const pageChange = async (page: number, pageSize: number) => {
@@ -259,7 +268,7 @@ const AssetsMainPage = observer(({orderUpdateFlag,updateAssets}: Props) => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [rateKey,orderUpdateFlag,updateAssets])
+    }, [rateKey, orderUpdateFlag, updateAssets])
     return (<><ConfigProvider
         theme={{
             components: {
