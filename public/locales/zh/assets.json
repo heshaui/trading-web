@@ -48,8 +48,12 @@
             "bill":"现货账单",
             "cancel":"撤销",
             "withdrawError":"禁止提现",
+            "withdrawError2":"提现暂停",
             "depositError":"禁止充值",
-            "tradeError":"禁止交易"
+            "depositError2":"充值暂停",
+            "tradeError":"禁止交易",
+            "tradeError2":"无可交易币对"
+
          },
          "title2":"账单明细",
          "assets":"现货资产",
@@ -113,12 +117,17 @@
         "insufficientBalance": "现货可用余额不足",
         "exceedMaxLimit": "超出单笔最大限额 {{max}} {{currency}}",
         "exceedMaxLimit2": "超出单笔最大限额 ",
+        "exceedMaxLimit3": "超出单笔最大限额{{max}}",
         "belowMinLimit": "低于单笔最小限额 {{min}} {{currency}}",
         "belowMinLimit2": "低于单笔最小限额",
+        "belowMinLimit3": "低于单笔最小限额{{min}}",
         "belowMax24h": "高于24h限额 {{min}} {{currency}}",
         "belowMax24h2": "高于24h限额",
         "belowMin24h": "低于24h限额 {{min}} {{currency}}",
-        "belowMin24h2": "低于24h限额"
+        "belowMin24h2": "低于24h限额",
+        "belowMin24h3": "低于24h限额{{min}}",
+        "withdrawAmountMin":"提现金额不小于{{min}}",
+        "tipText":"请确认收币地址是否要求填写MEMO/Tag，不填或填错将导致资产丢失。其他交易所或钱包也把Tag叫做Meno、数字ID、标签、备注等名称。"
     
     },
     "withdrawTable":{

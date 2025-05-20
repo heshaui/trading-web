@@ -1,7 +1,7 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from '../styles/spotAccount.module.css'
-import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select, Form, AutoComplete } from 'antd';
+import { Input, Steps, Breadcrumb, ConfigProvider, Tooltip, Select, Form, AutoComplete } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -58,7 +58,7 @@ const WithdrawMoneyPage = observer(() => {
     const [addressSelect, setAddressSelect] = useState<addressSelectType[]>([])
     const [addressLoading, setAddressLoading] = useState(false)
 
-    const [amountNum, setAmountNum] = useState(0)
+    const [amountNum, setAmountNum] = useState<number | null>(null)
     // 提现信息
     const [withdrawInfo, setWithdrawInfo] = useState<any>(null)
 
@@ -77,6 +77,7 @@ const WithdrawMoneyPage = observer(() => {
     const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
 
     const [userAllLimit, setUserAllLimit] = useState<limitType>({} as limitType)
+    const [btnSumbitError, setBtnSumbitError] = useState(false);
 
     // 在 useEffect 中获取用户信息
     useEffect(() => {
@@ -512,8 +513,8 @@ const WithdrawMoneyPage = observer(() => {
             // 检查是否允许提现
             checkAllowWithdraw(filteredValue);
         } else {
-            setAmountNum(0)
-            form.setFieldValue('amount', 0)
+            setAmountNum(null)
+            form.setFieldValue('amount',null)
             setAllowWithdraw(false)
         }
 
@@ -540,11 +541,11 @@ const WithdrawMoneyPage = observer(() => {
 
                     // amountAfter:cut(amountNum, coninInfo.withdrawFee ?
                     //     nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee) || 0,
-                    amountAfter: countNum(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
+                    amountAfter: countNum(amountNum || 0, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
                     protocolName: coinExtSelect.find(item => item.value === values.protocolId)?.protocolName,
                     coinName: coninInfo.coinName,
                     // countWithdrawFee: nul(amountNum, coninInfo.withdrawFee) > coninInfo.minWithdrawFee ? nul(amountNum, coninInfo.withdrawFee) : coninInfo.minWithdrawFee,
-                    countWithdrawFee: withdrawFee(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
+                    countWithdrawFee: withdrawFee(amountNum || 0, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0,
 
                 }
                 setWithdrawInfo(params)
@@ -588,41 +589,47 @@ const WithdrawMoneyPage = observer(() => {
 
         // 检查是否为有效数字
         if (isNaN(amount)) {
+            setBtnSumbitError(true)
             return Promise.reject(t('withdrawMoney.invalidAmount'));
         }
 
         // 检查余额
         if (amount > coninInfo.balance) {
+            setBtnSumbitError(true)
             return Promise.reject(t('withdrawMoney.insufficientBalance'));
         }
 
         // 检查单笔最大限额
         if (amount > coninInfo.maxWithdraw) {
+            setBtnSumbitError(true)
             return Promise.reject(
-                t('withdrawMoney.exceedMaxLimit2')
+                t('withdrawMoney.exceedMaxLimit3',{max: coninInfo.maxWithdraw})
             );
         }
 
         // 检查单笔最小限额
         if (amount < coninInfo.minWithdraw) {
+            setBtnSumbitError(true)
             return Promise.reject(
-                t('withdrawMoney.belowMinLimit2')
+                t('withdrawMoney.belowMinLimit3',{min: coninInfo.minWithdraw})
             );
         }
         // 检查24h限额
         if (amount < getCoinRateData(coninInfo.coinName, userAllLimit.min)) {
+            setBtnSumbitError(true)
             return Promise.reject(
-                t('withdrawMoney.belowMin24h2')
+                t('withdrawMoney.belowMin24h3',{min:getCoinRateData(coninInfo.coinName, userAllLimit.min)})
             );
         }
         if (amount > getCoinRateData(coninInfo.coinName, userAllLimit.max)) {
+            setBtnSumbitError(true)
             return Promise.reject(
-                t('withdrawMoney.belowMax24h2')
+                t('withdrawMoney.belowMax24h3',{max:getCoinRateData(coninInfo.coinName, userAllLimit.max)})
             );
         }
 
-
         // 所有检查都通过
+        setBtnSumbitError(false)
         return Promise.resolve();
     }
     const maxWithdrawAmountBtn = () => {
@@ -662,6 +669,14 @@ const WithdrawMoneyPage = observer(() => {
         } else {
             return false
     }
+    }
+     // 提现最小值获取，提现最大值获取
+     const getMinWithdraw = (type: 'min' | 'max') => {
+        if (type === 'min') {
+            return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, userAllLimit.min))
+        } else {
+            return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, userAllLimit.max),Number(coninInfo.balance||0))
+        }
     }
     // 获取用户24小时限额
     const getUserALlLimitData = async () => {
@@ -708,7 +723,7 @@ const WithdrawMoneyPage = observer(() => {
     }
 
     useEffect(() => {
-        if (amountNum > 0) {
+        if (amountNum&&amountNum > 0) {
             checkAllowWithdraw(amountNum);
         }
     }, [coninInfo, userAllLimit, amountNum]);
@@ -958,13 +973,15 @@ const WithdrawMoneyPage = observer(() => {
                             />
 
                         </Form.Item>
+                        <Tooltip title={<p className='font-12'>{t('withdrawMoney.tipText')}</p>} placement="bottom">
                         <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb1 mt-2_5`}>
                             <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                             <span>
                                 {/* 请确认收币地址是否要求填写MEMO */}
                                 {t('withdrawMoney.memoConfirm')}
                             </span>
-                        </p>
+                            </p>
+                            </Tooltip>
                     </Form.Item> : null}
                 </>
                 }
@@ -981,7 +998,8 @@ const WithdrawMoneyPage = observer(() => {
                     <Form.Item name='amount'
                         rules={[{ validator: checkAmount }]}>
                         <Input className={`${styles.input_box3} modal-input mr-7`}
-                            placeholder={t('withdrawMoney.withdrawAmount')}
+                            // placeholder={t('withdrawMoney.withdrawAmount')}
+                            placeholder={t('withdrawMoney.withdrawAmountMin',{min:getMinWithdraw('min')})}
                             allowClear
                             suffix={<div className='flex-x align-center  font-14 font-w-400'>
                                 <p className={`${styles.tip_color2} pr-2`}>
@@ -994,7 +1012,7 @@ const WithdrawMoneyPage = observer(() => {
                                 >{t('withdrawMoney.max')}</button>
                             </div>}
                             onChange={amountChange}
-                            value={amountNum}
+                            value={amountNum || ''}
                         />
                     </Form.Item>
                     <div className={`${styles.card_bgc3} mt-5  font-14 font-w-400`}>
@@ -1029,7 +1047,7 @@ const WithdrawMoneyPage = observer(() => {
                                     {/* 1 USDT */}
                                     {/* {cut(amountNum, coninInfo.withdrawFee ?
                                         nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee) || 0} */}
-                                    {countNum(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
+                                    {countNum(amountNum||0, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
                                     {coninInfo.coinName || '--'}
 
                                 </p>
@@ -1037,7 +1055,7 @@ const WithdrawMoneyPage = observer(() => {
                                     {/* 1 USDT */}
 
                                     {/* {nul(amountNum, division(coninInfo.withdrawFee,100)) > coninInfo.minWithdrawFee ? nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee} */}
-                                    {withdrawFee(amountNum, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
+                                    {withdrawFee(amountNum||0, coninInfo.withdrawFee, coninInfo.minWithdrawFee) || 0}
                                     {coninInfo.coinName || '--'}
                                 </span></p>
                             </div>

@@ -137,7 +137,7 @@ const AssetsPage: React.FC = observer(() => {
         const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
         const banlanceShow = add(Number(banlance1), Number(balanceDay.usdWithdraw))
 
-        return banlanceShow
+        return banlanceShow||0
     }
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
@@ -271,7 +271,7 @@ const AssetsPage: React.FC = observer(() => {
                         {banlanceShow ? <span className={`${Number(waxAndWane()) > 0 ? styles.success_icon : Number(waxAndWane()) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
                             {Number(waxAndWane()) < 0 ? "-" : "+"}
                             &nbsp;{balanceAll.symbol}&nbsp;
-                            {Math.abs(Number(waxAndWane()))}
+                            {Number(waxAndWane())?Math.abs(Number(waxAndWane())):0}
                         </span> :
                             <span className={`${styles.tip_color} font-12 flex-x-cc`}>******</span>
                         }
