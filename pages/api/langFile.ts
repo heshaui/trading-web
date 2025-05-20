@@ -13,12 +13,14 @@ const langCodeMapping: Record<string, string> = {
 };
 
 // 从外部API获取语言包数据 - 修改为POST请求
-async function fetchLangPackageFromAPI() {
+async function fetchLangPackageFromAPI(req: NextApiRequest) {
   try {
-    const baseUrl = 'https://ljx.imsaas.work';
+    // 从请求头获取协议和主机名
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const host = req.headers.host;
+    const baseUrl = `${protocol}://${host}`;
     const headers = {
       'Content-Type': 'application/json',
-      'ambit-saas': '2e5bbf22907d4a31992e9641079af195'
     }
     
    
@@ -55,7 +57,7 @@ export default async function handler(
 
 
     // 直接获取语言数据
-    const langData = await getAllLangData();
+    const langData = await getAllLangData(req);
     
     // 始终返回完整数据
     return res.status(200).json({
@@ -71,10 +73,10 @@ export default async function handler(
 }
 
 // 获取所有语言文件数据 - 修改为从API获取实际文件内容，并保存到本地
-async function getAllLangData() {
+async function getAllLangData(req: NextApiRequest) {
   try {
     // 首先尝试从API获取语言文件列表
-    const apiResponse = await fetchLangPackageFromAPI();
+    const apiResponse = await fetchLangPackageFromAPI(req);
     
     if (apiResponse && apiResponse.code === '0' && Array.isArray(apiResponse.data)) {
       console.log('成功从API获取语言文件列表');
