@@ -436,7 +436,7 @@ export default function BulletinCenter() {
     const handleMessageClick = (message: MessageData) => {
         console.log(message)
        // 跳转到Notice
-   router.push(`/Notice/${message.id}`);
+   router.push(`/notice/${message.id}`);
        
     };
 
