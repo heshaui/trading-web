@@ -79,20 +79,21 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           }
         });
         
-        // 将Map转换回数组
+        // 将Map转换回数组并过滤掉数量为0的订单
         priceMap.forEach((amount, price) => {
-          // const total = price * amount;
-         const total=nul(price,amount)
-          updatedSellOrders.push({ price, amount, total });
+          if (amount > 0) {  // 只添加数量大于0的订单
+            const total = nul(price, amount);
+            updatedSellOrders.push({ price, amount, total });
+          }
         });
         
         // 卖单按价格降序排列
         updatedSellOrders.sort((a: Order, b: Order) => b.price - a.price);
-         if(colorMode===1){
-          setSellOrders(updatedSellOrders.splice(0,10));
-         }else{
-          setSellOrders(updatedSellOrders.splice(0,20));
-         }
+        if (colorMode === 1) {
+          setSellOrders(updatedSellOrders.splice(0, 10));
+        } else {
+          setSellOrders(updatedSellOrders.splice(0, 20));
+        }
         
       }
       
@@ -129,19 +130,20 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           }
         });
         
-        // 将Map转换回数组
+        // 将Map转换回数组并过滤掉数量为0的订单
         priceMap.forEach((amount, price) => {
-          // const total = price * amount;
-          const total=nul(price,amount)
-          updatedBuyOrders.push({ price, amount, total });
+          if (amount > 0) {  // 只添加数量大于0的订单
+            const total = nul(price, amount);
+            updatedBuyOrders.push({ price, amount, total });
+          }
         });
         
         // 买单按价格降序排列
         updatedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
-        if(colorMode===1){
-          setBuyOrders(updatedBuyOrders.splice(0,10));
-        }else{
-          setBuyOrders(updatedBuyOrders.splice(0,20));
+        if (colorMode === 1) {
+          setBuyOrders(updatedBuyOrders.splice(0, 10));
+        } else {
+          setBuyOrders(updatedBuyOrders.splice(0, 20));
         }
       }
       
