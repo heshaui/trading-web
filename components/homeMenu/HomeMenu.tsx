@@ -514,7 +514,7 @@ export default function HomeMenu() {
     const goNotice = (id: string) => {
         console.log(id);
         // 跳转到公告详情页面
-        router.push(`/Notice/${id}`);
+        router.push(`/notice/${id}`);
     }
 
     // 公告中心标签页 - 使用动态获取的数据
