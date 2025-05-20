@@ -7,7 +7,7 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import { getUserBalanceAll, getUserBalanceByDay, getTodayEarnings } from '@/services/assets';
+import { getUserBalanceAll, getUserBalanceByDay, getTodayEarnings, getCoinById } from '@/services/assets';
 import { toast } from "sonner";
 import { add, roundDown, cut, nul } from '@/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -21,7 +21,8 @@ import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 import { DataType } from '@/type/assets/assetsAccount/assets'
-import { BalanceAllType,TodayEarningsType,YesterdayBalanceType } from '@/type/assets/assetsAccount/assets'
+import { BalanceAllType, TodayEarningsType, YesterdayBalanceType } from '@/type/assets/assetsAccount/assets'
+import { NoData } from '@/components/noData';
 
 const AssetsMainPage = observer(() => {
     const { t } = useTranslation(['assets']);
@@ -144,22 +145,24 @@ const AssetsMainPage = observer(() => {
             align: "center",
             render: (_text, record) => {
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
+                const coinPairData = coinPair.find((item: any) => item.baseSymbol === record.coinName ||
+                    item.coinSymbol === record.coinName || record.coinId === item.baseSymbol || record.coinId === item.coinSymbol);
                 return <>
                     {/* 提现 */}
                     <button className={`${coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
-                        onClick={() => getCoinList('1', coin)}
+                        onClick={() => getCoinList('1', record.coinId, coin?.canWithdraw)}
                     >
                         {t('assetsAccount.button.withdraw')}
                     </button>
                     {/* 充值 */}
                     <button className={`${coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
-                        onClick={() => getCoinList('2', coin)}
+                        onClick={() => getCoinList('2', record.coinId, coin?.canRecharge)}
                     >
                         {t('assetsAccount.button.deposit')}
                     </button>
                     {/* 交易 */}
-                    <button className={`${coin?.canTransfer === 1 ? styles.theme_color : styles.tip_color2} font-12 font-w-500`}
-                        onClick={() => getCoinList('3', coin)}
+                    <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`}
+                        onClick={() => getCoinList('3', record.coinId, coinPairData ? 1 : 0, coinPairData ? true : false)}
                     >
                         {t('assetsAccount.button.trade')}
                     </button>
@@ -171,28 +174,69 @@ const AssetsMainPage = observer(() => {
     ];
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
-    const getCoinList = async (type: string, coinData: any) => {
-        // console.log(12345,coinList);
-        if (type === '1') {
-            if (coinData?.canWithdraw === 1) {
-                router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
-            } else {
-                toast.error(t('assetsAccount.button.withdrawError'));
+    const getCoinList = async (type: string, coinId: any, coinCan?: any, coinPair?: boolean) => {
+        if (type === '1' || type === '2') {
+            try {
+                const res = await getCoinById(coinId);
+                const { data, code } = res;
+                if (code === '0') {
+                    if (type === '1') {
+                        if (data?.canWithdraw === 1) {
+                            router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+                        } else {
+                            toast.error(t('assetsAccount.button.withdrawError2'));
+                        }
+                        // //重新加载币种数据
+                        // if (coinCan !== data?.canWithdraw) {
+                        //     appStore.loadCoinList() //加载币种数据
+                        // }
+                    } else if (type === '2') {
+                        if (data?.canRecharge === 1) {
+                            router.push(ROUTER_KEY_ASSETS.TOP_UP);
+                        } else {
+                            toast.error(t('assetsAccount.button.depositError2'));
+                        }
+                        // //重新加载币种数据
+                        // if (coinCan !== data?.canRecharge) {
+                        //     appStore.loadCoinList() //加载币种数据
+                        // }
+                    }
+                } else {
+                    toast.error(res.message);
+                }
+            } catch (error) {
+                toast.error(String(error));
             }
-        } else if (type === '2') {
-            if (coinData?.canRecharge === 1) {
-                router.push(ROUTER_KEY_ASSETS.TOP_UP);
-            } else {
-                toast.error(t('assetsAccount.button.depositError'));
-            }
-
         } else if (type === '3') {
-            if (coinData?.canTransfer === 1) {
+            if (coinPair) {
                 router.push(ROUTER_KEY_SPOT.INDEX);
             } else {
-                toast.error(t('assetsAccount.button.tradeError'));
+                toast.error(t('assetsAccount.button.tradeError2'));
             }
         }
+
+
+        // console.log(12345,coinList);
+        // if (type === '1') {
+        //     if (coinData?.canWithdraw === 1) {
+        //         router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
+        //     } else {
+        //         toast.error(t('assetsAccount.button.withdrawError'));
+        //     }
+        // } else if (type === '2') {
+        //     if (coinData?.canRecharge === 1) {
+        //         router.push(ROUTER_KEY_ASSETS.TOP_UP);
+        //     } else {
+        //         toast.error(t('assetsAccount.button.depositError'));
+        //     }
+
+        // } else if (type === '3') {
+        //     if (coinData?.canTransfer === 1) {
+        //         router.push(ROUTER_KEY_SPOT.INDEX);
+        //     } else {
+        //         toast.error(t('assetsAccount.button.tradeError'));
+        //     }
+        // }
 
     }
     const pageChange = async (page: number, pageSize: number) => {
@@ -248,7 +292,7 @@ const AssetsMainPage = observer(() => {
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd||0, rateKeyName).rate
+                const usdRate = getRate('USDT', totalUsd || 0, rateKeyName).rate
                 // const usdRate = getRate('USDT', totalUsd, 'USD').rate
                 // const cnyRate = getRate('USDT', totalUsd, 'CNY').rate
                 setBalanceAll({
@@ -270,9 +314,9 @@ const AssetsMainPage = observer(() => {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 // const usdRate = getRate('USDT', totalUsd, rateKeyName).rate
                 const usdBalance = await getRate('USDT', res.data?.[0]?.balance || 0, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge||0, rateKeyName);
-                const usdWithdraw =await getRate('USDT', res.data?.[0]?.withdraw||0, rateKeyName)
-            
+                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge || 0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.[0]?.withdraw || 0, rateKeyName)
+
                 // setBalanceDay({
                 //     usdBalance: Number(usdRate.rate) || 0,
                 //     // usdWithdraw: Number(cnyRate.rate) || 0,
@@ -300,7 +344,7 @@ const AssetsMainPage = observer(() => {
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.withdraw||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
                 // setTodayEarnings({
                 //     usdBalance: Number(usdRate.rate) || 0,
                 //     usdWithdraw: Number(usdtWithdraw.rate) || 0,
@@ -317,11 +361,11 @@ const AssetsMainPage = observer(() => {
             toast.error(String(error));
         }
     };
-    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string,withdraw: number | string) => {
+    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string, withdraw: number | string) => {
         // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
         const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-         const banlanceShow=add(Number(banlance1),Number(withdraw))
-        return banlanceShow
+        const banlanceShow = add(Number(banlance1), Number(withdraw))
+        return banlanceShow||0
     }
 
     useEffect(() => {
@@ -416,7 +460,7 @@ const AssetsMainPage = observer(() => {
                                 <span>
                                     {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
 
-                                    ≈  {balanceAll.usdBalance}&nbsp;{rateKeyName}
+                                    ≈  {balanceAll.usdBalance||0}&nbsp;{rateKeyName||'--'}
                                 </span>
                             </p>
                         </li>
@@ -427,12 +471,12 @@ const AssetsMainPage = observer(() => {
                             </p>
                             <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                 <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {waxAndWane(balanceAll?.balance||0, balanceDay?.balanceAll || 0, todayEarnings?.balance||0, todayEarnings?.withdraw|| 0 )}&nbsp;
+                                    {waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0)}&nbsp;
                                     USDT
                                     {/* {rateKey.split('-')[0].trim() || '--'} */}
                                 </span>
                                 <span>≈
-                                    &nbsp;{waxAndWane(balanceAll?.usdBalance||0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance||0, todayEarnings?.usdWithdraw || 0)}&nbsp;
+                                    &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0)||'0'}&nbsp;
                                     {/* USD */}
                                     {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                                     {rateKeyName || '--'}
@@ -480,6 +524,7 @@ const AssetsMainPage = observer(() => {
                             // }}
                             pagination={false}
                             loading={tableLoading}
+                            locale={{ emptyText: <NoData /> }}
                         />
 
                     </div>

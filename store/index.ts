@@ -1,8 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { getWebConfig } from "@/store/kvConfig";
+import {getUserInfo} from "@/store/userInfo"
 import {UserInfoType} from "@/type/userCenter/overview"
-
 import {
     fetchAllCurrencyPairs,
     fetchUserFavorites,
@@ -53,7 +53,6 @@ class AppStore {
         // 仅在浏览器环境中初始化
         if (isBrowser()) {
             this.initToken();
-            this.initUserInfo();
             this.initInviteInfo();
             this.initCurrencyPairsFromStorage();
             this.initRateDataFromStorage();
@@ -82,11 +81,6 @@ class AppStore {
         this.userToken = null;
         localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
     }
-    initUserInfo() {
-        if (!isBrowser()) return;
-        const userInfo = localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO);
-        this.userInfo = userInfo ? JSON.parse(userInfo) : {} as UserInfoType;
-    }
     getUserInfo() {
         return this.userInfo;
     }
@@ -94,6 +88,15 @@ class AppStore {
         this.userInfo = userInfo;
         if (isBrowser()) {
             localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(userInfo));
+        }
+    }
+    updateUserInfo(newUserInfo: Partial<typeof this.userInfo>) {
+        this.userInfo = {
+            ...this.userInfo,
+            ...newUserInfo
+        };
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
         }
     }
     clearUserInfo() {
@@ -146,15 +149,7 @@ class AppStore {
             ...newRegisterInfo
         };
     }
-    updateUserInfo(newUserInfo: Partial<typeof this.userInfo>) {
-        this.userInfo = {
-            ...this.userInfo,
-            ...newUserInfo
-        };
-        if (isBrowser()) {
-            localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(this.userInfo));
-        }
-    }
+
     initInviteInfo() {
         if (!isBrowser()) return;
         const inviteInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.INVITE_INFO);
@@ -305,6 +300,17 @@ class AppStore {
 
         } catch (error) {
             console.error('Error getting rate key:', error);
+        }
+    }
+    // 获取用户信息
+    async loadGetUserInfo(type:string='init') {
+        const result = await getUserInfo();
+        if (result.success) {
+            if (type === 'init') { 
+            this.setUserInfo(result.data);
+            } else if (type === 'upData') {
+                this.updateUserInfo(result.data);
+        }
         }
     }
     // 从API加载币对信息
