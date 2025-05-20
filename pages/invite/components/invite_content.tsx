@@ -56,7 +56,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
         {
             key: 2,
             title: t('invite.inviteActive'), //'邀请激活',
-            desc: t('invite.inviteActiveDesc'), //'好友注册且累计充值至少50USDT',
+            desc: t('invite.inviteActiveDesc2',{ count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName}), //'好友注册且累计充值至少50USDT',
             icon: '/images/invite/icon_Invitation2.png'
         },
         {

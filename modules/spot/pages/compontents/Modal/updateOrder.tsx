@@ -36,7 +36,7 @@ function UpdateOrder({ open, onCancel, orderInfo, onOk }: Props) {
     // const router = useRouter();
     const [form] = Form.useForm();
     // const [inputValue, setInputValue] = useState(orderInfo.amount || '');
-
+    // console.log(orderInfo, 9992)
     useEffect(() => {
         // setInputValue(orderInfo.amount || '');
         form.setFieldsValue({
@@ -46,7 +46,7 @@ function UpdateOrder({ open, onCancel, orderInfo, onOk }: Props) {
         });
     }, [orderInfo, form]);
     const handCancel = () => {
-        form.resetFields();
+        // form.resetFields();
         onCancel()
     };
 
@@ -61,8 +61,10 @@ function UpdateOrder({ open, onCancel, orderInfo, onOk }: Props) {
                         amount: values.amount || 0,
                         price: values.price || 0,
                         symbol: orderInfo.symbol,
-                        coinSymbol: orderInfo.coinSymbol,
-                        baseSymbol: orderInfo.baseSymbol,
+                        // coinSymbol: orderInfo.coinSymbol,
+                        // baseSymbol: orderInfo.baseSymbol,
+                        coinSymbol: orderInfo.symbol.split('/')[0] ,
+                        baseSymbol: orderInfo.symbol.split('/')[1] ,
                         direction: orderInfo.direction,
                         type: orderInfo.type,
                     }
@@ -71,16 +73,19 @@ function UpdateOrder({ open, onCancel, orderInfo, onOk }: Props) {
                         orderId: orderInfo.orderId,
                         amount: values.amount || 0,
                         symbol: orderInfo.symbol,
-                        coinSymbol: orderInfo.coinSymbol,
-                        baseSymbol: orderInfo.baseSymbol,
+                        // coinSymbol: orderInfo.coinSymbol,
+                        // baseSymbol: orderInfo.baseSymbol,
+                        coinSymbol: orderInfo.symbol.split('/')[0] ,
+                        baseSymbol: orderInfo.symbol.split('/')[1] ,
                         direction: orderInfo.direction,
                         type: orderInfo.type,
                     }
                 }
-                console.log(info, 999)
+
                 const encrypt = await encryptData(info)
                 const res = await updateOrder(encrypt)
                 if (res.code === '0') {
+                    onOk()
                     toast.success(res.message)
                     handCancel()
                 } else {

@@ -282,6 +282,8 @@ const WithdrawMoneyPage = observer(() => {
             // 7. 如果在第一步，进入下一步
             if (current === 0 || (coinId.toString() !== coinIdHistory.toString())) {
                 setCurrent(1);
+            }else{
+                returnStep(2)
             }
 
             // 8. 获取并更新余额信息
@@ -304,6 +306,7 @@ const WithdrawMoneyPage = observer(() => {
             toast.error(t('withdrawMoney.setCoinError'));
         }
     };
+ 
     // 链名称(网络名称)
     const getCoinExtList = async () => {
         const tenantId = form.getFieldValue('tenantId')
@@ -363,7 +366,7 @@ const WithdrawMoneyPage = observer(() => {
         if (value) {
             setConinInfo(Object.assign(coninInfo, option))
             form.setFieldValue('amount', coninInfo.minWithdrawAmount)
-            console.log(Object.assign(coninInfo, option), 1235);
+            // console.log(Object.assign(coninInfo, option), 1235);
         } else {
             // form.setFieldValue('amount',coninInfo.minWithdrawAmount)
             // setCurrent(1)
@@ -462,13 +465,16 @@ const WithdrawMoneyPage = observer(() => {
         setInputInitialValues()
     }
     const setInputInitialValues = () => {
-        setAmountNum(coninInfo.minRecharge || 0)
-        form.setFieldValue('amount', coninInfo.minRecharge || 0)
+        // setAmountNum(coninInfo.minWithdraw || 0)
+        // form.setFieldValue('amount', coninInfo.minWithdraw || 0)
+           setAmountNum(getMinWithdraw('min') || 0)
+        form.setFieldValue('amount', getMinWithdraw('min') || 0)
+        
     }
     const isMemo = () => {
         // memoTag
         const coinId = form.getFieldValue('tenantId')
-        const data = coinSelect.filter((item: any) => item.coinId.toString() === coinId.toString())
+        const data = coinSelect.filter((item: any) => item.coinId == coinId)
         return data[0]?.memoTag
 
     }
@@ -693,6 +699,7 @@ const WithdrawMoneyPage = observer(() => {
         // resetState
         form.resetFields()
         setCurrent(1);
+        setCheckOpen(false)
         // setAmountNum(0)
 
     }
