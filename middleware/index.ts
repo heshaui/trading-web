@@ -10,7 +10,7 @@ export const publicPaths = [
     '/register',
     '/resetPassword',
     '/exchange',
-    '/notice',
+    '/Notice',
     '/helpCenter',
     '/bulletinCenter'
 
