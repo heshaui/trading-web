@@ -87,7 +87,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         // 卖单按价格升序排列
         updatedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
         
-        setSellOrders(updatedSellOrders);
+        setSellOrders(updatedSellOrders.splice(0,20));
       }
       
       // 处理买单数据 - 直接使用bids数据
@@ -131,7 +131,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         // 买单按价格降序排列
         updatedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
         
-        setBuyOrders(updatedBuyOrders);
+        setBuyOrders(updatedBuyOrders.splice(0,20));
       }
       
       console.log('处理后卖单数据:', sellOrders);
