@@ -86,8 +86,8 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           updatedSellOrders.push({ price, amount, total });
         });
         
-        // 卖单按价格升序排列
-        updatedSellOrders.sort((a: Order, b: Order) => a.price - b.price);
+        // 卖单按价格降序排列
+        updatedSellOrders.sort((a: Order, b: Order) => b.price - a.price);
          if(colorMode===1){
           setSellOrders(updatedSellOrders.splice(0,10));
          }else{
