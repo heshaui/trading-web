@@ -205,13 +205,15 @@ export default function UserInfoIcon() {
                 setUserInfo(userInfo)
             }
             // getUseBankKv()
-            if (invite && invite.toString() === '0') {
+            if (invite && invite.toString() === '1') {
+                setUserItemsList(userItems)
+                forbiddenPathManager.removeForbiddenPath('/invite');
+
+                // } else if (invite && invite.toString() === '0') 
+            } else {
                 forbiddenPathManager.addForbiddenPath('/invite');
                 const userItemsList = userItems.filter(item => item.key !== '5')
                 setUserItemsList(userItemsList)
-            } else if (invite && invite.toString() === '1') {
-                setUserItemsList(userItems)
-                forbiddenPathManager.removeForbiddenPath('/invite');
             }
         }
         // const res = await getLoginInfo()
@@ -233,13 +235,13 @@ export default function UserInfoIcon() {
                     nickName={`${t('overview.nickname')}：${userInfo.nickname ? userInfo.nickname : `IMUSER-${userInfo.userId || '--'}`}`} level='V0' />
             ),
         },
-        {
-            key: '2',
-            type: 'group',
-            label: (
-                <MenuItemLabel myWords_1='近30天交易量' myWords_2='0.00' myWords_3='USD' h5Text="切换账户" isUser />
-            ),
-        },
+        // {
+        //     key: '2',
+        //     type: 'group',
+        //     label: (
+        //         <MenuItemLabel myWords_1='近30天交易量' myWords_2='0.00' myWords_3='USD' h5Text="切换账户" isUser />
+        //     ),
+        // },
         {
             key: '3',
             type: 'divider',

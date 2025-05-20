@@ -229,7 +229,7 @@ const AssetsMainPage = () => {
       </div>
       <div className={`${styles.card_bgc}  mt-3 `}>
         {/* 充值 */}
-        <div className={`${styles.table_box} w-full `}>
+        {/* <div className={`${styles.table_box} w-full `}>
           <div className={`${styles.table_header} w-full my-4 flex align-center`}>
             <Input className={`${styles.input_box} modal-input mr-7`}
               maxLength={25}
@@ -263,7 +263,7 @@ const AssetsMainPage = () => {
             />
 
           </div>
-        </div>
+        </div> */}
         {/* 提现 */}
         <CashOutTable/>
         {/* 邀请奖励 */}

@@ -99,7 +99,7 @@ const coninList=appStore.getCoinList()
       const res = await getRecordList({
         pageNo: pageParam.current.page,
         pageSize: pageParam.current.pageSize,
-        actualCoinName:search
+        actualCoinName:search||null
       });
       if (res.code === '0') {
         setTableData(res.data.list)

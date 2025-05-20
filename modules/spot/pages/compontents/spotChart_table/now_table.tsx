@@ -249,6 +249,7 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
   ];
   const upDtaOrder = (info: NowDataType) => {
     // setOrderInfo(info)
+    
     orderInfo.current = info
     setUpdateOpen(true)
   }
