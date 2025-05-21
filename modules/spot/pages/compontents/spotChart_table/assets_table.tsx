@@ -13,7 +13,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { NoData } from '@/components/noData'
-import { getUserBalanceAll,getCoinById } from '@/services/assets';
+import { getUserBalanceAll, getCoinById } from '@/services/assets';
 import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
@@ -54,6 +54,8 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     const paramdataRef = useRef(pageParam);
     const [hideZero, setHideZero] = useState(false);
     const [form] = Form.useForm();
+    const updateOrder = appStore.getUpdateFlag() 
+
     const columns: ColumnsType<DataType> = [
         {
             title: t('spot.columns.coin'), //"币种",
@@ -259,16 +261,17 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
                 setTableData(res.data || []);
                 setTotal(res.data.total);
             }
-            console.log('assets_table', 1234567);
         } catch (error) {
             toast.error(String(error));
         } finally {
             setTableLoading(false);
         }
     }
+    // 将订单更新效果单独提取
     useEffect(() => {
         getUserBalanceAllData();
-    }, [rateKey, orderUpdateFlag, updateAssets])
+    }, [updateOrder.orderPlace, rateKey, updateAssets]);
+    
     return (<><ConfigProvider
         theme={{
             components: {

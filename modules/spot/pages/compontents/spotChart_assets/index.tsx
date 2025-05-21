@@ -32,6 +32,8 @@ type Props = {
 const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
     const { t } = useTranslation(['spot']);
     const router = useRouter();
+    const updateOrder = appStore.getUpdateFlag()
+
     // 获取币种列表
     const { coinList } = useCoinList();
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -59,7 +61,7 @@ const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [orderUpdateFlag,updateAssets])
+    }, [updateOrder.orderPlace,updateAssets])
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
             资产

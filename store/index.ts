@@ -1,8 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { getWebConfig } from "@/store/kvConfig";
-import {getUserInfo} from "@/store/userInfo"
-import {UserInfoType} from "@/type/userCenter/overview"
+import { getUserInfo } from "@/store/userInfo"
+import { UserInfoType } from "@/type/userCenter/overview"
 import {
     fetchAllCurrencyPairs,
     fetchUserFavorites,
@@ -10,7 +10,7 @@ import {
     removeFromFavorites,
     fetchAllCoin,
 } from './currencyPairService';
-import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
+import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 import { inviteInfoType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
@@ -22,6 +22,13 @@ class AppStore {
     isDarkMode: boolean = false;
     userToken: string | null = null;
     authcodeState: { state: string | number | null, type: string | number | null } = { state: null, type: null };
+    // 订单更新标志
+    // @observable
+    updateFlag: { orderPlace: number, orderUpdate: number, orderDelect: number } = {
+        orderPlace: 0,
+        orderUpdate: 0,
+        orderDelect: 0
+    };
 
     registerInfo: registerInfoType = {} as registerInfoType;
     userInfo: UserInfoType = {} as UserInfoType;
@@ -80,6 +87,39 @@ class AppStore {
     clearToken() {
         this.userToken = null;
         localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
+    }
+
+    // 更新订单标志
+    updateOrderFlag(type: number = 0) {
+        // 1 下单更新 2 修改更新  3 撤销更新 
+        if (type === 0) {
+            this.updateFlag = {
+                orderUpdate: this.updateFlag.orderUpdate + 1,
+                orderDelect: this.updateFlag.orderDelect + 1,
+                orderPlace: this.updateFlag.orderPlace + 1
+            };
+        } else if (type === 1) {
+            this.updateFlag = {
+                ...this.updateFlag,
+                orderPlace: this.updateFlag.orderPlace + 1
+            };
+        } else if (type === 2) {
+            this.updateFlag = {
+                ...this.updateFlag,
+                orderUpdate: this.updateFlag.orderUpdate + 1
+            };
+        }else if (type === 3) {
+            this.updateFlag = {
+                ...this.updateFlag,
+                orderDelect: this.updateFlag.orderDelect + 1
+            };
+        }
+
+    }
+
+    // 获取订单标志
+    getUpdateFlag() {
+        return this.updateFlag;
     }
     getUserInfo() {
         return this.userInfo;
@@ -276,7 +316,7 @@ class AppStore {
             const languageList = localStorage.getItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST);
             if (languageList) {
                 this.languageList = JSON.parse(languageList)
-            }else  {
+            } else {
                 this.languageList = []
             }
 
@@ -296,21 +336,21 @@ class AppStore {
             //         }
             //     }
             // }
-            
+
 
         } catch (error) {
             console.error('Error getting rate key:', error);
         }
     }
     // 获取用户信息
-    async loadGetUserInfo(type:string='init') {
+    async loadGetUserInfo(type: string = 'init') {
         const result = await getUserInfo();
         if (result.success) {
-            if (type === 'init') { 
-            this.setUserInfo(result.data);
+            if (type === 'init') {
+                this.setUserInfo(result.data);
             } else if (type === 'upData') {
                 this.updateUserInfo(result.data);
-        }
+            }
         }
     }
     // 从API加载币对信息
@@ -540,8 +580,8 @@ class AppStore {
     getLang() {
         return this.lang;
     }
-     // 设置语言
-     setLanguageList(langList: string[]) {
+    // 设置语言
+    setLanguageList(langList: string[]) {
         this.languageList = langList;
         if (isBrowser()) {
             localStorage.setItem(LOCAL_STORAGE_KEY.LANGUAGE_LIST, JSON.stringify(langList));

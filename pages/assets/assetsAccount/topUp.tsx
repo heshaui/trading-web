@@ -12,50 +12,11 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import {NoData,NoAddress} from '@/components/noData';
+import { NoData, NoAddress } from '@/components/noData';
 import NoUseCom from '../compontents/noSM'
-
-interface DataType {
-    id: number,
-    userId: number,
-    platformType: number,
-    deviceNo: string,
-    ip: string,
-    address: string,
-    token: number,
-    tokenTime: number,
-    createTime: number,
-    updateTime: number,
-    tenantId: string,
-}
+import RechargeTable from "../compontents/rechargeTable"
 const TopUpPage = () => {
-    const [tableData, setTableData] = useState<DataType[]>([
-        // {
-        //     id: 1,
-        //     userId: 1,
-        //     platformType: 1,
-        //     deviceNo: 'BTC',
-        //     ip: '123.45.67.89',
-        //     address: '123.45.67.89',
-        //     token: 23.3,
-        //     tokenTime: 123,
-        //     createTime: 1234567890,
-        //     updateTime: 1234567890,
-        //     tenantId: '1234567890'
-        // }, {
-        //     id: 2,
-        //     userId: 1,
-        //     platformType: 1,
-        //     deviceNo: 'POINT',
-        //     ip: '123.45.67.89',
-        //     address: '123.45.67.89',
-        //     token: 1234567890,
-        //     tokenTime: 23.0,
-        //     createTime: 1234567892,
-        //     updateTime: 1234567889,
-        //     tenantId: '1234567890'
-        // }
-    ]);
+ const { t } = useTranslation('assets');
     const { isDayMode } = useThemeMode(); // 使用 hook
 
     const [searchHistory, setSearchHistory] = useState<string[]>(['BTC', 'ETH', 'FIL', 'USDT']);
@@ -63,83 +24,8 @@ const TopUpPage = () => {
     const [total, setTotal] = useState(0);
     const [current, setCurrent] = useState(1);
 
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10
-    })
-    const paramdataRef = useRef(pageParam);
+    const [showTopUp, setShowTopUp] = useState(false);
 
-    const columns: ColumnsType<DataType> = [
-        {
-            title: "币种",
-            dataIndex: "deviceNo",
-            key: "deviceNo",
-            width: 158,
-            align: "left",
-            render: (text, record) => <div>{`${text}`} </div>,
-        },
-        {
-            title: "充值时间",
-            dataIndex: "token",
-            key: "token",
-            align: "center",
-            width: 128,
-            render: (_text) => <span>{_text || '--'}</span>,
-        },
-        {
-            title: "充值地址",
-            dataIndex: "tokenTime",
-            key: "tokenTime",
-            align: "center",
-            width: 158,
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-
-            },
-        },
-        {
-            title: "TxID",
-            key: "createTime",
-            dataIndex: "createTime",
-            width: 128,
-            align: "center",
-            render: (_ip) => {
-                return <span >{_ip || '--'}</span>;
-            },
-        },
-        {
-            title: "确认次数",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-        {
-            title: "数量",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-        {
-            title: "状态",
-            key: "updateTime",
-            dataIndex: "updateTime",
-            width: 128,
-            align: "center",
-            render: (_status) => {
-                return <span >{_status || '--'}</span>;
-            },
-        },
-
-
-    ];
     const cardTypeSeelect: { label: string, value: string }[] = [
         {
             label: '居民身份证',
@@ -179,9 +65,9 @@ const TopUpPage = () => {
                         optionRender={(option) => {
                             return (
                                 <div className="flex items-center py-1">
-                                    <Image src={`/images/assets/assets_account/icon_money.png`} 
-                                    alt={option.data.label} width={20} height={20}
-                                     className={` mr-2`} />
+                                    <Image src={`/images/assets/assets_account/icon_money.png`}
+                                        alt={option.data.label} width={20} height={20}
+                                        className={` mr-2`} />
                                     <span className="text-text-color7">{option.data.label}</span>
                                 </div>
                             );
@@ -200,8 +86,8 @@ const TopUpPage = () => {
                         </>
 
                         )}
-                        notFoundContent={<NoData title="暂无记录"/>}
-                        
+                        notFoundContent={<NoData title="暂无记录" />}
+
                     />
                     <div className='mt-2_5'>
                         <button className={`${styles.btn_style} cancel_btn5 mr-2`}>
@@ -245,7 +131,7 @@ const TopUpPage = () => {
                     </>
 
                     )}
-                    notFoundContent={<NoData title="暂无记录"/>}
+                    notFoundContent={<NoData title="暂无记录" />}
                 />}
             </div>,
 
@@ -264,140 +150,112 @@ const TopUpPage = () => {
         },
 
     ]
-    const pageChange = async (page: number, pageSize: number) => {
-        const pageData = {
-            page: page,
-            pageSize: pageSize
-        }
-        setPageParam(pageData)
-        paramdataRef.current = pageData;
-    }
+
     return (<div className={` page-h w-full page-box flex-y align-center`}>
         <div className={`${styles.spot_auth_box}`} >
             <div className='flex justify-between align-center'>
-            <Breadcrumb items={[
+                <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>现货账户</span></Link>,
+                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                            {/* 现货账户 */}
+                            {t('assets.assetsAccount')}
+                        </span></Link>,
                     },
                     {
-                        title: <span className={`${styles.title_color}`}>充值</span>,
+                        title: <span className={`${styles.title_color}`}>
+                            {/* 充值 */}
+                            {t('assets.deposit')}
+                        </span>,
                     },
                 ]} style={{ fontSize: 14 }} />
 
             </div>
-            <div className={`${styles.card_box}  mt-6  `}>
-                <NoUseCom type='1' />
-                <NoUseCom type='2' />
-                <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
-                    <div className={`${styles.step_box}`}>
-                        <ConfigProvider
-                            theme={{
-                                components: {
-                                    Select: {
-                                        clearBg: "#ffffff",
-                                        selectorBg: 'var(--background7)',
-                                        singleItemHeightLG: 50,
-                                        paddingXXS: 10, // 下拉框选项最小内边距
-                                        optionHeight: 40, //选项高度
-                                        optionLineHeight: 2, //选项行高
-                                    },
-                                    Steps: {
-                                        navArrowColor: "var(--text-color6)",
-                                    }
-
-                                }
-                            }}
-                        >
-                            <Steps
-                                direction="vertical"
-                                current={current}
-                                labelPlacement="vertical"
-                                items={steps}
-                                className='custom-steps' />
-                        </ConfigProvider>
+            {!showTopUp ? <div className={`${styles.card_box}  mt-6  `}>
+                <div className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}>
+                    <div className={`flex-x align-center ${styles.card_content}`}>
+                        <Image src={'/images/assets/assets_account/icon_nosm_2.png'}
+                            alt="logo" width={80} height={74} className={`${styles.icon_sm} mr-6`} />
+                        <p className='flex-y'>
+                            <span className={` font-w-500 font-18`}>
+                                {/* 充值功能暂不可用 */}
+                                {t('assetsAccount.button.topuptip1')}
+                                </span>
+                            <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>
+                                {/* 交易所充值功能暂不可用，如有问题请与客服联系！ */}
+                                {t('assetsAccount.button.tip4')}
+                            </span>
+                        </p>
                     </div>
-                    <div className={`${styles.notice_box}`}>
-                        <div>
-                            <h5 className={`font-w-500 font-16 mb-4`}>常见问题</h5>
-                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>如何在IMBIT上充值和提现？</li>
-                                <li className={`mb-2_5`}>充值步骤指南</li>
-                                <li className={`mb-2_5`}>充值常见问题</li>
-                                <li className={`mb-2_5`}>为何我的充值尚未到账</li>
-                                <li className={`mb-2_5`}>如何提交充错币找回申请</li>
-                            </ul>
-                        </div>
-                        <div className=''>
-                            <h5 className={`font-w-500 font-16 mb-4`}>充值须知</h5>
-                            <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                <li className={`mb-2_5`}>1. 请通过客户端或在线钱包将您需要充值的相应币种数目发送到该地址</li>
-                                <li className={`mb-2_5`}>2. 发送完成后，系统会自动在此交易获得相应数量，确认后将该笔数字货币充值到您在本站的账户,相应数量的确认需要大约 30分钟 到 1 小时间，请耐心等待。</li>
-                                <li className={`mb-2_5`}>3. 同一个地址可多次充值，不影响到账</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div className={`${styles.table_box} w-full `}>
-                    <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-                        <h5 className={`font-w-500 font-18`}>最近充值记录</h5>
-                        {/* <Radio
-                        defaultChecked
-                    ><span className={`${styles.title_color}`}>隐藏0资产</span></Radio> */}
-                    </div>
-                    <ConfigProvider
-                        theme={{
-                            components: {
-                                Table: {
-                                    // bodySortBg: "pink",
-                                    headerBg: "transparent",
-                                    headerColor: "var(--text-color6)",
-                                    headerSplitColor: "transparent", // 表头分割线颜色
-                                    rowExpandedBg: "var(--background10)", // 表格行展开背景色
-                                    borderColor: "transparent",
-                                    headerBorderRadius:0, // 表头圆角
-                                },
-                                Pagination: {
-                                    itemActiveBg: "transparent",
-                                    itemBg: "transparent",
-                                },
-
-                                Select: {
-                                    activeBorderColor: "var(--border-color4)",
-                                    optionActiveBg: "transparent",
-                                    selectorBg: "transparent", //选框背景色
-                                }
-                            },
-                        }}
-                    >
-                        <Table
-                            columns={columns}
-                            dataSource={tableData}
-                            size="large"
-                            scroll={{ x: "max-content", y: 500 }}
-                            className={` table-box`}
-                            pagination={{
-                                position: ["bottomRight"],
-                                showSizeChanger: true,
-                                total: total,
-                                size: "default",
-                                onChange: (page, pageSize) => pageChange(page, pageSize),
-                            }}
-                        // loading={loading}
-                        locale={{ emptyText:<NoData title="暂无记录"/> }}
-                        />
-                    </ConfigProvider>
                 </div>
             </div>
+                :
+                <div className={`${styles.card_box}  mt-6  `}>
+                    <NoUseCom type='1' />
+                    <NoUseCom type='2' />
+                    <div className={` w-full flex-x justify-between ${styles.card_content2}`}>
+                        <div className={`${styles.step_box}`}>
+                            <ConfigProvider
+                                theme={{
+                                    components: {
+                                        Select: {
+                                            clearBg: "#ffffff",
+                                            selectorBg: 'var(--background7)',
+                                            singleItemHeightLG: 50,
+                                            paddingXXS: 10, // 下拉框选项最小内边距
+                                            optionHeight: 40, //选项高度
+                                            optionLineHeight: 2, //选项行高
+                                        },
+                                        Steps: {
+                                            navArrowColor: "var(--text-color6)",
+                                        }
+
+                                    }
+                                }}
+                            >
+                                <Steps
+                                    direction="vertical"
+                                    current={current}
+                                    labelPlacement="vertical"
+                                    items={steps}
+                                    className='custom-steps' />
+                            </ConfigProvider>
+                        </div>
+                        <div className={`${styles.notice_box}`}>
+                            <div>
+                                <h5 className={`font-w-500 font-16 mb-4`}>常见问题</h5>
+                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                    <li className={`mb-2_5`}>如何在IMBIT上充值和提现？</li>
+                                    <li className={`mb-2_5`}>充值步骤指南</li>
+                                    <li className={`mb-2_5`}>充值常见问题</li>
+                                    <li className={`mb-2_5`}>为何我的充值尚未到账</li>
+                                    <li className={`mb-2_5`}>如何提交充错币找回申请</li>
+                                </ul>
+                            </div>
+                            <div className=''>
+                                <h5 className={`font-w-500 font-16 mb-4`}>充值须知</h5>
+                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
+                                    <li className={`mb-2_5`}>1. 请通过客户端或在线钱包将您需要充值的相应币种数目发送到该地址</li>
+                                    <li className={`mb-2_5`}>2. 发送完成后，系统会自动在此交易获得相应数量，确认后将该笔数字货币充值到您在本站的账户,相应数量的确认需要大约 30分钟 到 1 小时间，请耐心等待。</li>
+                                    <li className={`mb-2_5`}>3. 同一个地址可多次充值，不影响到账</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={`${styles.table_box} w-full `}>
+                        <RechargeTable />
+                    </div>
+                </div>
+            }
         </div>
     </div>
     );
 };
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['assets', 'common'])),
+        },
+    };
 };
 
 export default TopUpPage;
