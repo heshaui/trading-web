@@ -15,6 +15,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import appStore from '@/store';
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -45,6 +46,7 @@ interface UserCenterData {
 const UserSettingsPage: React.FC = () => {
   const { t } = useTranslation('userCenter');
   const [loadingSkeleton, setLoadingSkeleton] = useState(true)
+  const langKey = appStore.getLang();
   const userInfoList: SafeListItem[] = [
     {
       title: t('account.nickname'),
@@ -159,7 +161,7 @@ const UserSettingsPage: React.FC = () => {
 
   useEffect(() => {
     getUserCenterData();
-  }, [])
+  }, [langKey])
   return (<div className={`${styles.safe_page}`} >
     <div style={{width:'100%'}}>
       <h2 className={`font-w-500 font-20`}>

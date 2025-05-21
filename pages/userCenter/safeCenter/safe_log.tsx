@@ -29,9 +29,7 @@ function SafeLog() {
             children: <SafeSet />,
         },
     ];
-    useEffect(() => {
 
-    }, [])
     return (
         <div className={` page-h w-full page-box flex-y align-center`} >
             <div className={`${styles.identity_auth_box}`} >

@@ -20,6 +20,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useTranslation } from 'next-i18next';
+import appStore from "@/store";
 interface DataLogsType {
     id: number,
     userId: number,
@@ -54,7 +55,6 @@ interface DataType {
 function Equipment() {
     const router = useRouter();
     const { t } = useTranslation(['userCenter','common']);
-    const [current, setCurrent] = useState(0);
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [deviceNoData, setDeviceNoData] = useState<DataType[]>([]);
     const [childDeviceNoData, setChildDeviceNoData] = useState<DataLogsType[]>([]);
@@ -63,7 +63,7 @@ function Equipment() {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { userId, deviceId } = router.query;
-
+    const langKey = appStore.getLang();
     // 标记是否已经处理过URL参数
     const [initialUrlProcessed, setInitialUrlProcessed] = useState(false);
 

@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import {NoData} from "@/components/noData";
-
+import appStore from "@/store";
 interface DataType {
     id: number,
     userId: number,
@@ -36,7 +36,7 @@ function LoginRecord() {
     const [loginData, setLoginData] = useState<DataType[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
-
+    const langKey = appStore.getLang();
     const { userId } = router.query;
     const [pageParam, setPageParam] = useState({
         page: 1,
@@ -131,7 +131,7 @@ function LoginRecord() {
     }
     useEffect(() => {
         getLoginData()
-    }, [])
+    }, [langKey])
     return (
         <div className={`${styles.table_box}`}>
             <ConfigProvider

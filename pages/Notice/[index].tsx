@@ -11,11 +11,14 @@ import { useNavigation } from '@/context/NavigationContext';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount, getInformClassMenuList } from '@/services/bulletinCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';
-
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function Notice() {
+    const { t } = useTranslation('notice');
     // 获取登录状态
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
@@ -41,7 +44,7 @@ export default function Notice() {
     const [isLoading, setIsLoading] = useState<boolean>(true); // 初始状态设为加载中
     const [isDataInitialized, setIsDataInitialized] = useState<boolean>(false); // 数据是否已初始化
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-    const [selectedLabel, setSelectedLabel] = useState<string>('公告中心');
+    const [selectedLabel, setSelectedLabel] = useState<string>(t('notice.title'));
     const [menuList, setMenuList] = useState<Array<{
         classDesc: SetStateAction<string>; id: number, classMenu: string, languageContent: string, serialNum: number
     }>>([]);
@@ -305,7 +308,7 @@ export default function Notice() {
             return [{
                 key: 'loading',
                 icon: <Image src="/images/bulletin_center/icon_notice.png" alt="" width={20} height={20} />,
-                label: '加载中...',
+                label: t('notice.menu.loading'),
                 disabled: true
             }];
         }
@@ -390,10 +393,10 @@ export default function Notice() {
                                     <Row>
                                         <Col>
                                             <h5 style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-color5)', marginBottom: 10 }}>
-                                                公告中心
+                                                {t('notice.title')}
                                             </h5>
                                             <h5 style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-color5)' }}>
-                                                <span style={{ color: '#676867' }}>公告</span>  /  {selectedLabel}
+                                                <span style={{ color: '#676867' }}>{t('notice.menu.announcement')}</span>  /  {selectedLabel}
                                             </h5>
                                         </Col>
                                     </Row>
@@ -421,7 +424,7 @@ export default function Notice() {
                                                                 justifyContent: 'center',
                                                                 padding: '40px 0'
                                                             }}>
-                                                                <Empty image='/images/bulletin_center/chat.png' description='暂无通知' />
+                                                                <Empty image='/images/bulletin_center/chat.png' description={t('notice.empty.description')} />
                                                             </div>
 
                                                         </Col>

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import dayjs from 'dayjs';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import appStore from "@/store";
 interface DataType {
     id: number,
     userId: number,
@@ -40,7 +41,7 @@ function LoginRecord() {
         pageSize: 10
     })
     const paramdataRef = useRef(pageParam);
-
+    const langKey = appStore.getLang();
     const columns: ColumnsType<DataType> = [
         {
             title: t('security.safeSet.type'), //"类型",
@@ -133,7 +134,7 @@ function LoginRecord() {
     }
     useEffect(() => {
         getLoginData()
-    }, [])
+    }, [langKey])
     return (
         <div className={`${styles.table_box}`}>
             <ConfigProvider

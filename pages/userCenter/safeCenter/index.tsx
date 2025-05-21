@@ -108,7 +108,7 @@ const SafeCenter: React.FC = () => {
     const router = useRouter();
     const { t } = useTranslation(['userCenter']);
     const kvConfigKey=appStore.getKvConfig('out_money')
-
+ const langKey = appStore.getLang();
     const initBaseSafeList: SafeListItem[] = [
         {
             title: t('security.googleAuth'),
@@ -496,7 +496,7 @@ const SafeCenter: React.FC = () => {
 
     useEffect(() => {
         getSafeCenterData()
-    }, [])
+    }, [langKey])
 
     return (<div className={`${styles.safe_page}`} >
         {/* <Spin size="large" spinning={loading} /> */}
