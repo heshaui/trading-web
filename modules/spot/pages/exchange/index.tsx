@@ -545,12 +545,12 @@ const ExchangePage = () => {
 
     const handleOrderSuccess = () => {
         // 更新标志，触发SpotChartTables组件重新获取数据
-        // setOrderUpdateFlag(prev => prev + 1);
-        orderUpdateFlag.current = orderUpdateFlag.current + 1;
+        appStore.updateOrderFlag(1);
         
     };
     const handleOrderDelect = () => {
         assetsUpdateFlag.current = assetsUpdateFlag.current + 1;
+        appStore.updateOrderFlag(1);
     };
 
     const handlePriceClick = (price: number) => {
@@ -777,10 +777,10 @@ const ExchangePage = () => {
                     </div>
                     <div className='flex-x'>
                         <div className={`${styles.card_bgc1} mr-1 ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
-                            <SpotChartTables orderUpdateFlag={orderUpdateFlag.current} updateAssets={handleOrderDelect}/>
+                            <SpotChartTables />
                         </div>
                         {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
-                            <SpotChartAssets orderUpdateFlag={orderUpdateFlag.current} updateAssets={assetsUpdateFlag.current}/>
+                            <SpotChartAssets />
                         </div>}
                     </div>
 
