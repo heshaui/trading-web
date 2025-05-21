@@ -1,16 +1,15 @@
 'use client'
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
 import styles from '../../styles/billDetails.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { TabsProps } from 'antd';
 import SpotChartTables from '../compontents/spotChart_table'
 import SpotChartAssets from '../compontents/spotChart_assets'

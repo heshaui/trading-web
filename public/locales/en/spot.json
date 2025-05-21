@@ -1,5 +1,16 @@
 {
     "spot": {
+        "orderBook": {
+            "title": "Order Book",
+            "latestTrades": "Latest Trades",
+            "price": "Price",
+            "amount": "Amount",
+            "total": "Total",
+            "time": "Time",
+            "bothOrders": "Show Both Orders",
+            "buyOrders": "Show Buy Orders Only",
+            "sellOrders": "Show Sell Orders Only"
+        },
         "spotOrder": "Spot Orders",
         "tabs": {
             "now": "Open Orders",

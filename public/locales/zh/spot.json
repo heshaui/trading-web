@@ -1,5 +1,16 @@
 {
     "spot": {
+        "orderBook": {
+            "title": "盘口",
+            "latestTrades": "最新成交",
+            "price": "价格",
+            "amount": "数量",
+            "total": "累计",
+            "time": "时间",
+            "bothOrders": "买卖盘",
+            "buyOrders": "买盘",
+            "sellOrders": "卖盘"
+        },
         "spotOrder": "现货订单",
         "tabs": {
             "now": "当前委托",
