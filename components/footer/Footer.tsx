@@ -268,7 +268,7 @@ export default function Footer() {
                         items: item.children || []
                     })} */}
                     <div className={`${styles.footerList}`} >
-                        <h5 className='tip-color'>{item.bottomName || '--'}</h5>
+                        <button className='tip-color' onClick={() => goLink(item.accessPath)}>{item.bottomName || '--'}</button>
                         <ul>
                             {item.children?.map((childItem, index) => (
                                 <li key={index}>
