@@ -768,7 +768,6 @@ const ExchangePage = () => {
                             <SpotChartTrade onOrderSuccess={handleOrderSuccess}
                                 segmentedType="limit" orderData={orderData}
                                 tradePrice={tradePrice}
-                                updateAssets={assetsUpdateFlag.current}
                             />
                         
                     </div>

@@ -5,6 +5,7 @@ import DetailBreadCrumb from './DetailBreadCrumb';
 import MessagePagination from './MessagePagination';
 import { MessageItemDetailProps } from '@/type/bulletin_center/bc_types';
 import { detailListData } from '@/data/bulletinCenter/getItemsMessage';
+import { useTranslation } from 'next-i18next';
 
 export default function MessageItemDetail({
     message,
@@ -14,6 +15,7 @@ export default function MessageItemDetail({
     onLatestClick,
     showArticle
 }: MessageItemDetailProps) {
+    const { t } = useTranslation('builetinCenter');
     const [showContent, setShowContent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5; // 每页显示的数量
@@ -37,14 +39,14 @@ export default function MessageItemDetail({
     }
 
     const items = [
-        { title: '公告', onClick: onBack },
+        { title: t('bulletinCenter.menu.announcement'), onClick: onBack },
         {
             title: currentDetailKey === 'latest'
-                ? (showArticle ? '最新动态' : currentDetailLabel)
+                ? (showArticle ? t('bulletinCenter.menu.latest') : currentDetailLabel)
                 : currentDetailLabel,
             onClick: currentDetailKey === 'latest' && showArticle ? onLatestClick : undefined
         },
-        ...(currentDetailKey === 'latest' && showArticle ? [{ title: '文章' }] : [])
+        ...(currentDetailKey === 'latest' && showArticle ? [{ title: t('bulletinCenter.menu.article') }] : [])
     ];
     return (
         <>

@@ -292,7 +292,6 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
           duration: 3
         })
         appStore.updateOrderFlag(3)
-
         getOrderListData()
       } else {
         toast.error(res.message)
@@ -354,16 +353,18 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
   }
   const handleDelectOk = () => {
     appStore.updateOrderFlag(3)
+
     getOrderListData()
   }
   const handleUpdateOk = () => {
     appStore.updateOrderFlag(2)
     getOrderListData()
+    
   }
   useEffect(() => {
     getOrderListData()
 
-  }, [updateOrder])
+  }, [updateOrder.orderPlace])
   return (<>
     <ConfigProvider
       theme={{

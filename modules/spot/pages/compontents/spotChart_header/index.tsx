@@ -12,15 +12,16 @@ import SelfSelect from './SelfSelect';
 import SpotSelect from './SpotSelect';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
-import { addUserExchangeCoinType,canalUserExchangeCoinType } from '@/services/spot';
+import { addUserExchangeCoinType, canalUserExchangeCoinType } from '@/services/spot';
 import DrawerPop from '../DrawerPop';
 import { useRouter } from 'next/router';
 
 
 
-const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
-    
+const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
     const { t } = useTranslation(['spot']);
+
+
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState<boolean>(false);
@@ -29,11 +30,11 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false); // 添加收藏状态
     const [dawerPopOpen, setDawerPopOpen] = useState(false); // 侧边抽屉
-   
+
     // 解析K线数据
     const klineData = coinData?.data?.[0] || [];
     const [timestamp, open_price, high_price, low_price, close_price, volume] = klineData;
-    
+
     // 计算涨跌幅
     const priceChange = close_price && open_price ? close_price - open_price : 0;
     const priceChangePercent = open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00';
@@ -58,7 +59,16 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const currencyPairsArray = appStore.currencyPairs || [];
-    
+    // 辅助函数：格式化大额数字
+    const formatAmount = (amount: number) => {
+        if (amount >= 100000000) {
+            return (amount / 100000000).toFixed(2) + t('spot.header.billion');
+        } else if (amount >= 10000) {
+            return (amount / 10000).toFixed(2) + t('spot.header.tenThousand');
+        } else {
+            return amount.toFixed(2);
+        }
+    };
     // 当currentPair变化时同步收藏状态
     useEffect(() => {
         if (currentPair) {
@@ -71,15 +81,15 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         if (!router.isReady) return;
 
         const { symbol } = router.query;
-        
+
         if (symbol && typeof symbol === 'string') {
             // 解析symbol参数 (格式: BTC/USDT)
             const [coinSymbol, baseSymbol] = symbol.split('/');
-            
+
             if (coinSymbol && baseSymbol) {
                 // 使用store的方法获取匹配的币对
                 const matchedPairs = appStore.getCurrencyPairsByBase(baseSymbol);
-                const matchedPair = matchedPairs.find(pair => 
+                const matchedPair = matchedPairs.find(pair =>
                     pair.coinSymbol === coinSymbol && pair.baseSymbol === baseSymbol
                 );
 
@@ -88,7 +98,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                     appStore.setCurrentPair(matchedPair);
                 }
             }
-            
+
             // 清除路由中的 symbol 参数
             const newQuery = { ...router.query };
             delete newQuery.symbol;
@@ -104,7 +114,7 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
         if (currentPair && router.isReady) {
             const newSymbol = `${currentPair.coinSymbol}/${currentPair.baseSymbol}`;
             const currentSymbol = router.query.symbol;
-            
+
             // 只有当URL中的symbol与当前币对不匹配时才更新
             if (currentSymbol !== newSymbol) {
                 router.push({
@@ -138,19 +148,19 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const tabsItem: TabsProps['items'] = [
         {
             key: 'favorites',
-            label: '自选',
-            children: <SelfSelect 
-                currencyPairs={currencyPairsArray} 
-                onPairSelect={handlePairSelect} 
+            label: t('spot.header.favorites'),
+            children: <SelfSelect
+                currencyPairs={currencyPairsArray}
+                onPairSelect={handlePairSelect}
                 searchValue={searchValue}
             />
         },
         {
             key: 'spot',
-            label: '现货',
-            children: <SpotSelect 
-                currencyPairs={currencyPairsArray} 
-                onPairSelect={handlePairSelect} 
+            label: t('spot.header.spot'),
+            children: <SpotSelect
+                currencyPairs={currencyPairsArray}
+                onPairSelect={handlePairSelect}
                 searchValue={searchValue}
             />
         },
@@ -159,12 +169,12 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     const handleToggleFavorite = async () => {
         const newFavoriteState = !isFavorite;
         setIsFavorite(newFavoriteState); // 先更新UI状态，提高响应速度
-        
+
         const data = {
             exchangeCoinId: currentPair.id,
             type: 1
         };
-        
+
         try {
             let res;
             if (newFavoriteState) {
@@ -174,14 +184,14 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                 // 取消收藏
                 res = await canalUserExchangeCoinType(data);
             }
-            
+
             if (res.code === '0') {
                 // 请求成功后更新store中的状态
                 appStore.setCurrentPair({
                     ...currentPair,
                     isFavorite: newFavoriteState
                 });
-                
+
                 // 更新币对列表中的收藏状态
                 const updatedPairs = [...appStore.currencyPairs];
                 const pairIndex = updatedPairs.findIndex(item => item.id === currentPair.id);
@@ -203,63 +213,45 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
             console.error('收藏操作发生错误:', error);
         }
     };
-        const tabsItems: TabsProps['items'] = [
-            // 主流区、创新区、新币区、AI、Meme、NFT、DeFi、NFT、Web3、Payments、Launchpad、Layer2、Solana、RWA、Launchpool、游戏元宇宙、存储
-            { key: '1', label: '主流区' },
-            { key: '2', label: '创新区' },
-            { key: '3', label: '新币区' },
-            { key: '4', label: 'AI' },
-            { key: '5', label: 'Meme' },
-            { key: '6', label: 'NFT' },
-            { key: '7', label: 'DeFi' },
-            { key: '8', label: 'Web3' },
-            { key: '9', label: 'Payments' },
-            { key: '10', label: 'Launchpad' },
-            { key: '11', label: 'Layer2' },
-            { key: '12', label: 'Solana' },
-            { key: '13', label: 'RWA' },
-            { key: '14', label: 'Launchpool' },
-            { key: '15', label: '游戏元宇宙' },
-            { key: '16', label: '存储' },
-        ];
+
 
     // 只在客户端渲染 Dropdown
     const renderDropdown = () => {
-        
+
 
         return (
 
 
             <div>
-            <Dropdown
-                trigger={['hover']}
-                open={open}
-                onOpenChange={handleOpenChange}
-                dropdownRender={() => (
-                    <div className={styles.dropdown_container}>
-                        <div className={`${styles.search_container} w-full`} >
-                            <Input
-                                placeholder="搜索"
-                                prefix={<SearchOutlined />}
-                                value={searchValue}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className={`${styles.input_box} modal-input w-full`}
-                                style={{width: '100%'}}
-                            />
-                        </div>
-
-                        <div className={`${styles.tabs_container} w-full`}>
-                            <div className={`${styles.tabs_list} w-full`}>
-                                <Tabs items={tabsItem}
-                                    className="custom-tabs2 w-full"
-                                    activeKey={activeTab}
-                                    onChange={handleTabClick}
-                                    // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                <Dropdown
+                    trigger={['hover']}
+                    open={open}
+                    onOpenChange={handleOpenChange}
+                    dropdownRender={() => (
+                        <div className={styles.dropdown_container}>
+                            <div className={`${styles.search_container} w-full`} >
+                                <Input
+                                    placeholder={t('spot.header.search')} // "搜索"
+                                    prefix={<SearchOutlined />}
+                                    value={searchValue}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    className={`${styles.input_box} modal-input w-full`}
+                                    style={{ width: '100%' }}
                                 />
-  
-
                             </div>
-                            {/* <div className={styles.content_container}>
+
+                            <div className={`${styles.tabs_container} w-full`}>
+                                <div className={`${styles.tabs_list} w-full`}>
+                                    <Tabs items={tabsItem}
+                                        className="custom-tabs2 w-full"
+                                        activeKey={activeTab}
+                                        onChange={handleTabClick}
+                                    // indicator={{ size: (origin) => origin - 35, align: 'center' }} 
+                                    />
+
+
+                                </div>
+                                {/* <div className={styles.content_container}>
                                 <div className={styles.pair_list}>
                                     <div className={styles.pair_header}>
                                         <span>名称</span>
@@ -268,31 +260,31 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                                     </div>
                                 </div>
                             </div> */}
+                            </div>
                         </div>
-                    </div>
-                )}
-            >
-                <Space className={styles.dropdown_trigger}>
-                    {isLoading ? (
-                        <Spin size="small" />
-                    ) : (
-                        <span>{currentPair?.coinSymbol}/{currentPair?.baseSymbol }</span>
                     )}
-                    <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
-                       
+                >
+                    <Space className={styles.dropdown_trigger}>
+                        {isLoading ? (
+                            <Spin size="small" />
+                        ) : (
+                            <span>{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</span>
+                        )}
+                        <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
 
-                </Space>
-            </Dropdown>
-                
-            <Tooltip title={currentPair?.isFavorite ? "取消收藏" : "添加收藏"}>
-                <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
-                    <Iconify 
-                        icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"} 
-                        size={20} 
-                        color={currentPair?.isFavorite ? "#FFD700" : "var(--text-color6)"} 
-                    />
-                </div>
-            </Tooltip>
+
+                    </Space>
+                </Dropdown>
+
+                <Tooltip title={currentPair?.isFavorite ? t('spot.header.removeFromFavorites') : t('spot.header.addToFavorites')}>
+                    <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
+                        <Iconify
+                            icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"}
+                            size={20}
+                            color={currentPair?.isFavorite ? "#FFD700" : "var(--text-color6)"}
+                        />
+                    </div>
+                </Tooltip>
             </div>
         );
     };
@@ -331,14 +323,14 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                             activeBorderColor: 'var(--theme-color)',
                             hoverBorderColor: 'var(--theme-color)',
                             controlHeightLG: 50,
-                            activeBg:'var(--background5)',
-                            hoverBg:'var(--background5)',
+                            activeBg: 'var(--background5)',
+                            hoverBg: 'var(--background5)',
                         },
                     },
                 }}
             >
-                   
- 
+
+
                 {renderDropdown()}
                 <ul className={`${styles.tip_color} ${styles.header_content_msg} font-14 font-w-400 flex-x align-center  ml-5 flex-1`}>
                     <li className='mr-9'>
@@ -348,25 +340,25 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
                         <p>¥{close_price ? (close_price * 7.2).toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 涨跌</p>
+                        <p>{t('spot.header.change24h')}</p>
                         <p className={`${priceChange === 0 ? styles.default_icon : (isPriceUp ? styles.success_icon : styles.error_icon)} font-14`}>
                             {priceChange && !isNaN(priceChange) && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChange.toFixed(2) : '--'} {priceChangePercent && priceChangePercent !== 'NaN' && priceChange !== 0 ? (isPriceUp ? '+' : '') + priceChangePercent + '%' : '--'}
                         </p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 最高价</p>
+                        <p>{t('spot.header.high24h')}</p>
                         <p className={`${styles.title_color}`}>{high_price ? high_price.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 最低价</p>
+                        <p>{t('spot.header.low24h')}</p>
                         <p className={`${styles.title_color}`}>{low_price ? low_price.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 成交量({currentPair?.coinSymbol})</p>
+                        <p>{t('spot.header.volume24h')}({currentPair?.coinSymbol})</p>
                         <p className={`${styles.title_color}`}>{volume ? volume.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>24H 交易额({currentPair?.baseSymbol})</p>
+                        <p>{t('spot.header.amount24h')}({currentPair?.baseSymbol})</p>
                         <p className={`${styles.title_color}`}>
                             {volume && close_price ? formatAmount(volume * close_price) : '--'}
                         </p>
@@ -381,15 +373,6 @@ const SpotHeaderPage = observer( ({coinData}:{coinData:any}) => {
     );
 });
 
-// 辅助函数：格式化大额数字
-const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-        return (amount / 100000000).toFixed(2) + '亿';
-    } else if (amount >= 10000) {
-        return (amount / 10000).toFixed(2) + '万';
-    } else {
-        return amount.toFixed(2);
-    }
-};
+
 
 export default SpotHeaderPage;

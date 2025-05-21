@@ -61,14 +61,14 @@ function DelectModal({ open, onCancel, onOk, errMsg, orderId }: Props) {
                     className={`${styles.modal_footerBtn} cancel_btn2 mr-5`}
                     onClick={handCancel}
                 >
-                    取消
+                    {t('spot.cancelOrderModal.cancel')}
                 </button>
                 <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn `}
                     onClick={handOk}
                 >
-                    确认
+                    {t('spot.cancelOrderModal.confirm')}
                 </button>
             </div>
         );
@@ -129,7 +129,7 @@ function DelectModal({ open, onCancel, onOk, errMsg, orderId }: Props) {
                 <div className="flex-col flex-ai-center " style={{ minHeight: "230px" }}>
                     <div className="flex-y-cc w-full">
                         <Image src="/images/pubic_icon/icon_spot_err3.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                        <p className={`${styles.title_color} mt-4 font-20 font-w-500 text-center`}>{errMsg || '确定取消全部订单？'}</p>
+                        <p className={`${styles.title_color} mt-4 font-20 font-w-500 text-center`}>{errMsg || t('spot.cancelOrderModal.title2')}</p>
                     </div>
 
                 </div>

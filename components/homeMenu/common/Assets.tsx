@@ -18,7 +18,7 @@ export default function AssetsMenuItems() {
     const router = useRouter();
 
     // t - 多语言
-    const { t, i18n } = useTranslation('home_menu');
+    const { t, i18n } = useTranslation('common');
     // 获取主题状态
     const { isDayMode } = useThemeMode();
   
@@ -31,7 +31,7 @@ export default function AssetsMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_coin_line.png"
                         : "/images/home_menu/icon_coin_line_dark.png"}
-                    h5Text="我的资产"
+                    h5Text={t('router.myAssets')} //'我的资产'
                     spanText=""
                     onClick={()=>{
                         router.push(ROUTER_KEY_ASSETS.ACCOUNT)
@@ -46,7 +46,7 @@ export default function AssetsMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_deposit.png"
                         : "/images/home_menu/icon_deposit_dark.png"}
-                    h5Text="充币"
+                    h5Text={t('router.recharge')} //'充币'
                     spanText=""
                     onClick={()=>{
                         router.push(ROUTER_KEY_ASSETS.TOP_UP)
@@ -61,7 +61,7 @@ export default function AssetsMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_cash.png"
                         : "/images/home_menu/icon_cash_dark.png"}
-                    h5Text="提币"
+                    h5Text={t('router.withdraw')} //'提币'
                     spanText=""
                     onClick={()=>{
                         router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)
@@ -76,7 +76,7 @@ export default function AssetsMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_bill_line.png"
                         : "/images/home_menu/icon_bill_line_dark.png"}
-                    h5Text="账单明细"
+                    h5Text={t('router.bill')} //'账单明细'
                     spanText=""
                     onClick={()=>{
                         router.push(ROUTER_KEY_ASSETS.BILL)

@@ -1,17 +1,15 @@
-import React from 'react';
-// import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
+import React, { useState, useRef } from "react";
 import styles from '../styles/spotAccount.module.css'
 import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
-import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from "react";
+import { useTranslation } from 'next-i18next';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import Image from 'next/image'
 import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
-import { useTranslation } from 'next-i18next';
+import dayjs from 'dayjs';
 import { NoData, NoAddress } from '@/components/noData';
 import NoUseCom from '../compontents/noSM'
 
@@ -29,33 +27,8 @@ interface DataType {
     tenantId: string,
 }
 const RechargeTable = () => {
-    const [tableData, setTableData] = useState<DataType[]>([
-        // {
-        //     id: 1,
-        //     userId: 1,
-        //     platformType: 1,
-        //     deviceNo: 'BTC',
-        //     ip: '123.45.67.89',
-        //     address: '123.45.67.89',
-        //     token: 23.3,
-        //     tokenTime: 123,
-        //     createTime: 1234567890,
-        //     updateTime: 1234567890,
-        //     tenantId: '1234567890'
-        // }, {
-        //     id: 2,
-        //     userId: 1,
-        //     platformType: 1,
-        //     deviceNo: 'POINT',
-        //     ip: '123.45.67.89',
-        //     address: '123.45.67.89',
-        //     token: 1234567890,
-        //     tokenTime: 23.0,
-        //     createTime: 1234567892,
-        //     updateTime: 1234567889,
-        //     tenantId: '1234567890'
-        // }
-    ]);
+    const { t } = useTranslation(['assets']);
+    const [tableData, setTableData] = useState<DataType[]>([]);
 
 
     const paramdataRef = useRef({
@@ -66,7 +39,7 @@ const RechargeTable = () => {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: "币种",
+            title: t('assetsAccount.coin'),
             dataIndex: "deviceNo",
             key: "deviceNo",
             width: 158,
@@ -74,7 +47,7 @@ const RechargeTable = () => {
             render: (text, record) => <div>{`${text}`} </div>,
         },
         {
-            title: "充值时间",
+            title: t('assetsAccount.depositTime'),
             dataIndex: "token",
             key: "token",
             align: "center",
@@ -82,7 +55,7 @@ const RechargeTable = () => {
             render: (_text) => <span>{_text || '--'}</span>,
         },
         {
-            title: "充值地址",
+            title: t('assetsAccount.depositAddress'),
             dataIndex: "tokenTime",
             key: "tokenTime",
             align: "center",
@@ -93,7 +66,7 @@ const RechargeTable = () => {
             },
         },
         {
-            title: "TxID",
+            title: t('assetsAccount.txId'),
             key: "createTime",
             dataIndex: "createTime",
             width: 128,
@@ -103,7 +76,7 @@ const RechargeTable = () => {
             },
         },
         {
-            title: "确认次数",
+            title: t('assetsAccount.confirmations'),
             key: "updateTime",
             dataIndex: "updateTime",
             width: 128,
@@ -113,7 +86,7 @@ const RechargeTable = () => {
             },
         },
         {
-            title: "数量",
+            title: t('assetsAccount.number'),
             key: "updateTime",
             dataIndex: "updateTime",
             width: 128,
@@ -123,7 +96,7 @@ const RechargeTable = () => {
             },
         },
         {
-            title: "状态",
+            title: t('assetsAccount.status'),
             key: "updateTime",
             dataIndex: "updateTime",
             width: 128,
@@ -142,7 +115,7 @@ const RechargeTable = () => {
     }
     return (<>
             <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-                <h5 className={`font-w-500 font-18`}>最近充值记录</h5>
+                <h5 className={`font-w-500 font-18`}>{t('assetsAccount.recentDepositRecords')}</h5>
                 {/* <Radio
                         defaultChecked
                     ><span className={`${styles.title_color}`}>隐藏0资产</span></Radio> */}
@@ -186,7 +159,7 @@ const RechargeTable = () => {
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     // loading={loading}
-                    locale={{ emptyText: <NoData title="暂无记录" /> }}
+                    locale={{ emptyText: <NoData title={t('assetsAccount.nodata')} /> }}
                 />
             </ConfigProvider>
     </>

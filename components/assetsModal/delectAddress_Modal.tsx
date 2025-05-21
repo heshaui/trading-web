@@ -10,6 +10,7 @@ import { Iconify } from "@/components/icon/index";
 import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 import { deleteByIds } from '@/services/assets'
+import { useTranslation } from 'next-i18next';
 type Props = {
     open: boolean;
     onOk: () => void;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 function NicknameModal({ open, onCancel, onOk, info }: Props) {
+    const { t } = useTranslation(['assets']);
 
     const handCancel = () => {
         onCancel()
@@ -31,7 +33,7 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
         try {
             const res = await deleteByIds(info)
             if (res.code === '0') {
-                toast.success('删除成功')
+                toast.success(t('modal.deleteAddress.success'))
                 onOk()
                 onCancel()
             }
@@ -48,14 +50,14 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
                     className={`${styles.modal_footerBtn} cancel_btn2 mr-5 font-14 font-w-500`}
                     onClick={handCancel}
                 >
-                    取消
+                    {t('modal.deleteAddress.cancel')}
                 </button>
                 <button
                     type="submit"
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    确认
+                    {t('modal.deleteAddress.confirm')}
                 </button>
             </div>
         );
@@ -98,7 +100,7 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >确认删除</p>}
+                title={<p className={`${styles.title}`}>{t('modal.deleteAddress.title')}</p>}
                 centered
                 onCancel={handCancel}
                 footer={ModalFooter}
@@ -112,7 +114,7 @@ function NicknameModal({ open, onCancel, onOk, info }: Props) {
                 maskClosable={false}
             >
                 <div className={`flex-col  ${styles.msg_color}`} style={{ width: "100%" }}>
-                    确认删除后不可恢复，是否确认删除？
+                    {t('modal.deleteAddress.message')}
 
                 </div>
             </Modal>

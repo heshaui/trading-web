@@ -15,7 +15,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@/context/NavigationContext';
 import { useRouter } from 'next/navigation';
 import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount } from '@/services/bulletinCenter';
-
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { calc } from 'antd/es/theme/internal';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -24,6 +27,7 @@ export default function BulletinCenter() {
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
     const { bulletinData } = useNavigation();
+    const { t } = useTranslation(['builetinCenter']);
 
     // API请求状态跟踪
     const apiRequestRef = useRef({
@@ -85,17 +89,17 @@ export default function BulletinCenter() {
     // 定义本地详情页数据
     const localDetailListData: Record<string, Array<DetailListItem>> = {
         'latest': [
-            { title: '最新动态公告 1', time: '2024-12-16 10:00:00', content: '最新动态内容 1...' },
-            { title: '最新动态公告 2', time: '2024-12-16 09:30:00', content: '最新动态内容 2...' }
+            { title: t('bulletinCenter.test.latest1.title'), time: '2024-12-16 10:00:00', content: t('bulletinCenter.test.latest1.content') },
+            { title: t('bulletinCenter.test.latest2.title'), time: '2024-12-16 09:30:00', content: t('bulletinCenter.test.latest2.content') }
         ],
         'new': [
-            { title: '新币上线公告 1', time: '2024-12-15 11:00:00', content: '新币上线内容 1...' }
+            { title: t('bulletinCenter.test.new1.title'), time: '2024-12-15 11:00:00', content: t('bulletinCenter.test.new1.content') }
         ],
         'delist': [
-            { title: '币对下线公告 1', time: '2024-12-14 15:30:00', content: '币对下线内容 1...' }
+            { title: t('bulletinCenter.test.delist1.title'), time: '2024-12-14 15:30:00', content: t('bulletinCenter.test.delist1.content') }
         ],
         'suspension': [
-            { title: '充提暂停/恢复公告 1', time: '2024-12-13 17:45:00', content: '充提暂停/恢复内容 1...' }
+            { title: t('bulletinCenter.test.suspension1.title'), time: '2024-12-13 17:45:00', content: t('bulletinCenter.test.suspension1.content') }
         ]
     };
     
@@ -143,7 +147,7 @@ export default function BulletinCenter() {
                 const updatedMenuData = [...staticMenuData];
                 updatedMenuData[0] = {
                     ...updatedMenuData[0],
-                    label: `公告（${response.data}）`
+                    label: t('bulletinCenter.message.unreadCount', { count: response.data })
                 };
                 setMenuData(updatedMenuData);
             }
@@ -254,25 +258,25 @@ export default function BulletinCenter() {
     const localDetailMenuItems = [
         {
             key: 'latest',
-            label: '最新动态',
+            label: t('bulletinCenter.menu.latest'),
             defaultIcon: '/images/bulletin_center/icon_Dynamic state.png',
             hoverIcon: '/images/bulletin_center/icon_Dynamic state_hover.png',
         },
         {
             key: 'new',
-            label: '新币上线',
+            label: t('bulletinCenter.menu.new'),
             defaultIcon: '/images/bulletin_center/icon_Top line.png',
             hoverIcon: '/images/bulletin_center/icon_Top line_hover.png',
         },
         {
             key: 'delist',
-            label: '币对下线',
+            label: t('bulletinCenter.menu.delist'),
             defaultIcon: '/images/bulletin_center/icon_downline.png',
             hoverIcon: '/images/bulletin_center/icon_downline_hover.png',
         },
         {
             key: 'suspension',
-            label: '充提暂停/恢复',
+            label: t('bulletinCenter.menu.suspension'),
             defaultIcon: '/images/bulletin_center/icon_charging.png',
             hoverIcon: '/images/bulletin_center/icon_charging_hover.png',
         }
@@ -415,19 +419,19 @@ export default function BulletinCenter() {
             setShowArticle(false); // 切换到列表视图
             // 在详情页时的菜单选择逻辑
             if (info.key === 'latest') {
-                setSelectedLabel('公告中心');
+                setSelectedLabel(t('bulletinCenter.menu.announcement'));
             } else {
                 // 根据 key 设置对应的 label
                 const selectedItem = localDetailMenuItems.find((item) => item.key === info.key);
-                setSelectedLabel(selectedItem ? selectedItem.label : '公告中心');
+                setSelectedLabel(selectedItem ? selectedItem.label : t('bulletinCenter.menu.announcement'));
             }
         } else {
             // 原有的菜单选择逻辑
             if (info.key === 'all') {
-                setSelectedLabel('全部公告');
+                setSelectedLabel(t('bulletinCenter.menu.all'));
             } else {
                 const selectedItem = menuData.find((item) => item.key === info.key);
-                setSelectedLabel(selectedItem ? selectedItem.label : '全部公告');
+                setSelectedLabel(selectedItem ? selectedItem.label : t('bulletinCenter.menu.all'));
             }
         }
     };
@@ -454,7 +458,7 @@ export default function BulletinCenter() {
     // 处理点击最新动态
     const handleLatestClick = () => {
         setDetailSelectedKey('latest'); // 设置为最新动态菜单项
-        setSelectedLabel('公告中心'); // 设置标签为最新动态
+        setSelectedLabel(t('bulletinCenter.menu.announcement')); // 设置标签为最新动态
         setShowArticle(false);  // 切换到列表视图
     };
 
@@ -714,7 +718,7 @@ export default function BulletinCenter() {
                 },
             }}
         >
-            <div className={styles.bulletinContainer}>
+            <div className={styles.bulletinContainer} >
                 {/* <RenderBulletinTop
                     showDetail={showDetail}
                     onBack={handleBack}
@@ -753,7 +757,7 @@ export default function BulletinCenter() {
                                                     justifyContent: 'center',
                                                     padding: '40px 0'
                                                 }}>
-                                                    正在加载...
+                                                    {t('bulletinCenter.message.loading')}
                                                 </div>
                                             ) : filteredAndSortedMessages.length > 0 ? (
                                                 filteredAndSortedMessages.map((message) => (
@@ -771,7 +775,7 @@ export default function BulletinCenter() {
                                                     justifyContent: 'center',
                                                     padding: '40px 0'
                                                 }}>
-                                                    <Empty image='/images/bulletin_center/chat.png' description='暂无通知' />
+                                                    <Empty image='/images/bulletin_center/chat.png' description={t('bulletinCenter.message.noData')} />
                                                 </div>
                                             )}
                                             <MessagePagination
@@ -791,3 +795,10 @@ export default function BulletinCenter() {
         </ConfigProvider>
     );
 }
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['builetinCenter', 'common'])),
+        },
+    };
+};

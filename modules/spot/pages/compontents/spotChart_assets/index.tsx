@@ -61,10 +61,10 @@ const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
     }
     useEffect(() => {
         getUserBalanceAllData();
-    }, [updateOrder.orderPlace,updateAssets])
+    }, [updateOrder.orderPlace, updateOrder.orderDelect,updateOrder.orderUpdate,updateAssets])
     return (<>
         <div className={`${styles.card_header} flex align-center w-full`}>
-            资产
+            {t('spot.assets.title')}
         </div>
         <div className={`px-6 py-6 w-full ${styles.spot_main}`}>
             <ul className={`${styles.tip_color1} font-14 font-w-400`}>
@@ -74,12 +74,12 @@ const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
                     paragraph={{ rows: 2 }}
                     className={`mb-4`} >
                     <li className='flex justify-between align-center mb-5'>
-                        <div>{currentPair?.coinSymbol || '--'}可用资产</div>
+                        <div>{currentPair?.coinSymbol || '--'}{t('spot.assets.availableAssets')}</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.coinSymbol)?.balance || 0) || 0}</div> */}
                        {userToken ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
                     </li>
                     <li className='flex justify-between align-center mb-5' >
-                        <div>{currentPair?.baseSymbol || '--'}可用资产</div>
+                        <div>{currentPair?.baseSymbol || '--'}{t('spot.assets.availableAssets')}</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.baseSymbol)?.balance || 0) || 0}</div> */}
                         {userToken ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
                     </li>

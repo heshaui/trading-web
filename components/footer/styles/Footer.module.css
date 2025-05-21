@@ -25,9 +25,12 @@
     white-space: nowrap;
 }
 .footerContainer .footer {
-    width: 100vw;
+    width: 100%;
     display: flex;
     justify-content: space-between;
+}
+.footer_content{
+    width: 25%;
 }
 .footerContainer .footerList h5 {
     font-size: 14px;
@@ -45,4 +48,8 @@
 }
 .footerContainer .footerList ul li:hover {
     color: #F4F4F4;
+}
+.footer {
+    flex-wrap: wrap;
+    justify-content:flex-start !important;
 }

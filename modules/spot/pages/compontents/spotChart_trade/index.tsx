@@ -45,12 +45,12 @@ type Props = {
     onOrderSuccess?: () => void  // 添加回调函数属性
     orderData?: DataType[]
     tradePrice?: number
-    updateAssets?:number
 }
-const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: Props) => {
+const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     const { t } = useTranslation(['spot']);
     const [form] = Form.useForm();
     const router = useRouter();
+      const updateOrder = appStore.getUpdateFlag();
     // 获取币种列表
     // const coinList = appStore.getCoinList();
     const {coinList} = useCoinList();
@@ -83,18 +83,18 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         // 检查最小下单金额
         const minBaseVolume = currentPair?.minBaseVolume || 0;
         if (inputValue < minBaseVolume) {
-            return Promise.reject(new Error(`最小成交额 ${minBaseVolume} ${currentPair?.baseSymbol}`));
+            return Promise.reject(new Error(t('spot.error.minTradeAmount', { amount: minBaseVolume, symbol: currentPair?.baseSymbol })));
         }
 
         // 检查最大下单金额
         const maxBaseVolume = currentPair?.maxBaseVolume || 0;
         if (maxBaseVolume > 0 && inputValue > maxBaseVolume) {
-            return Promise.reject(new Error(`最大成交额 ${maxBaseVolume} ${currentPair?.baseSymbol}`));
+            return Promise.reject(new Error(t('spot.error.maxTradeAmount', { amount: maxBaseVolume, symbol: currentPair?.baseSymbol })));
         }
 
         // 检查余额是否充足
         if (segmentedvalue === 'buy' && inputValue > baseBalance) {
-            return Promise.reject(new Error(`可用${currentPair?.baseSymbol}余额不足`));
+            return Promise.reject(new Error(t('spot.error.insufficientBalance', { symbol: currentPair?.baseSymbol })));
         }
 
         return Promise.resolve();
@@ -109,13 +109,13 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         // 检查最小下单数量
         const minVolume = currentPair?.minVolume || 0;
         if (inputValue < minVolume) {
-            return Promise.reject(new Error(`最小下单数量为 ${minVolume} ${currentPair?.coinSymbol}`));
+            return Promise.reject(new Error(t('spot.error.minOrderAmount', { amount: minVolume, symbol: currentPair?.coinSymbol })));
         }
 
         // 检查最大下单数量
         const maxVolume = currentPair?.maxVolume || 0;
         if (maxVolume > 0 && inputValue > maxVolume) {
-            return Promise.reject(new Error(`最大下单数量为 ${maxVolume} ${currentPair?.coinSymbol}`));
+            return Promise.reject(new Error(t('spot.error.maxOrderAmount', { amount: maxVolume, symbol: currentPair?.coinSymbol })));
         }
 
         return Promise.resolve();
@@ -272,7 +272,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
                 });
             } else {
                 // 如果价格为0或不存在，不更新数量字段
-                message.info('请先输入有效的价格');
+                message.info(t('spot.error.enterValidPrice'));
             }
         }
     }
@@ -300,7 +300,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         if (!priceDisabled && (!values.price || values.price === '')) {
             form.setFields([{
                 name: 'price',
-                errors: ['请输入价格']
+                errors: [t('spot.error.enterPrice')]
             }]);
             hasError = true;
         }
@@ -309,7 +309,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
             form.setFields([{
                 name: 'amount',
-                errors: ['请输入交易数量']
+                errors: [t('spot.error.enterAmount')]
             }]);
             hasError = true;
         }
@@ -319,7 +319,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
             if (!values.account || values.account === '') {
                 form.setFields([{
                     name: 'account',
-                    errors: ['请输入交易金额']
+                    errors: [t('spot.error.enterTotal')]
                 }]);
                 hasError = true;
             }
@@ -351,12 +351,12 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
                     if (typeof onOrderSuccess === 'function') {
                         onOrderSuccess()
                         notification.success({
-                            message: '已挂单',
+                            message: t('spot.success.orderPlaced'),
                             description: (
                                 <div>
-                                    <div>币种：{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
-                                    {values.amount && <div>数量：{values.amount} {currentPair?.coinSymbol}</div>}
-                                    <div>价格：{priceDisabled ?
+                                    <div>{t('spot.label.pair')}: {currentPair?.coinSymbol}/{currentPair?.baseSymbol}</div>
+                                    {values.amount && <div>{t('spot.label.amount')}: {values.amount} {currentPair?.coinSymbol}</div>}
+                                    <div>{t('spot.label.price')}: {priceDisabled ?
                                         formatWithPrecision(res.data[1], currentPair?.baseCoinScale || 8) + ' ' + currentPair?.baseSymbol :
                                         formatWithPrecision(values.price, currentPair?.baseCoinScale || 8) + ' ' + currentPair?.baseSymbol
                                     }</div>
@@ -377,7 +377,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         if (segmentedvalue === 'sell') {
             const availableCoin = userBalance.find(item => item.coinName === currentPair?.coinSymbol)?.balance || 0;
             if (availableCoin <= 0) {
-                toast.error(`${currentPair?.coinSymbol}余额不足，无法卖出`);
+                toast.error(t('spot.error.insufficientSellBalance', { symbol: currentPair?.coinSymbol }));
                 return;
             }
         }
@@ -390,7 +390,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         if (!priceDisabled && (!values.price || values.price === '')) {
             form.setFields([{
                 name: 'price',
-                errors: ['请输入价格']
+                errors: [t('spot.error.enterPrice')]
             }]);
             hasError = true;
         }
@@ -399,7 +399,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
         if ((!priceDisabled || (priceDisabled && segmentedvalue === 'sell')) && (!values.amount || values.amount === '')) {
             form.setFields([{
                 name: 'amount',
-                errors: ['请输入交易数量']
+                errors: [t('spot.error.enterAmount')]
             }]);
             hasError = true;
         }
@@ -409,7 +409,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
             if (!values.account || values.account === '') {
                 form.setFields([{
                     name: 'account',
-                    errors: ['请输入交易金额']
+                    errors: [t('spot.error.enterTotal')]
                 }]);
                 hasError = true;
             }
@@ -475,7 +475,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
 
     useEffect(() => {
         getUserBalanceData()
-    }, [updateAssets])
+    }, [updateOrder.orderDelect,updateOrder.orderUpdate])
 
     // 添加函数获取最新交易价格
     const getLatestPrices = () => {
@@ -850,7 +850,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
                         </Form.Item>
                         <ul className={`font-14 ${styles.tip_color1} mb-5`}>
                             <li className='flex justify-between align-center mb-1'>
-                                <p>可用</p>
+                                <p>{t('spot.trade.available')}</p>
                                 {/* <p>{userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || '--'} {currentPair?.baseSymbol}</p> */}
                                 {isLoggedIn ? <p>{roundNum(currentPair?.baseSymbol || '')} {currentPair?.baseSymbol} <PlusCircleOutlined onClick={() => {
                                     setSpotModal(true)
@@ -860,12 +860,12 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
                             <li className='flex justify-between align-center'>
                                 <Tooltip title={!priceDisabled ?
                                     (segmentedvalue === 'buy' ?
-                                        '可买取决于您买入时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可买将自动计算得出' :
-                                        '可卖取决于您卖出时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可卖将自动计算得出') :
+                                        t('spot.tooltip.buyAvailableLimit') :
+                                        t('spot.tooltip.sellAvailableLimit')) :
                                     (segmentedvalue === 'buy' ?
-                                        '可买取决于您买入时的可用余额，以及市场最优价格。' :
-                                        '可卖取决于您卖出时的可用余额，以及市场最优价格。')}>
-                                    <p>{segmentedvalue === 'buy' ? '可买' : '可卖'}</p>
+                                        t('spot.tooltip.buyAvailableMarket') :
+                                        t('spot.tooltip.sellAvailableMarket'))}>
+                                    <p>{segmentedvalue === 'buy' ? t('spot.trade.canBuy') : t('spot.trade.canSell')}</p>
                                 </Tooltip>
 
                                 {
@@ -909,11 +909,11 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice,updateAssets }: P
                         <div className={styles.fee_icon} style={{ marginRight: '4px', verticalAlign: 'middle' }}>
                             <Iconify icon="mdi:percent-circle-outline" size={16} />
                         </div>
-                        <span className={styles.fee_text} style={{ fontSize: '12px', paddingTop: '2px' }}>手续费</span>
+                        <span className={styles.fee_text} style={{ fontSize: '12px', paddingTop: '2px' }}>{t('spot.label.fee')}</span>
                         <div className={styles.fee_tooltip}>
                             <div className={styles.fee_tooltip_content}>
-                                <div className={styles.fee_tooltip_title}>手续费</div>
-                                <div className={styles.fee_tooltip_details}>挂单{currentPair?.buyFee}% / 吃单{currentPair?.sellFee}%</div>
+                                <div className={styles.fee_tooltip_title}>{t('spot.label.fee')}</div>
+                                <div className={styles.fee_tooltip_details}>{t('spot.label.feeDetails', { maker: currentPair?.buyFee, taker: currentPair?.sellFee })}</div>
                             </div>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import styles from '../styles/bulletinCenter.module.css';
 import { RenderBulletinTopProps } from '@/type/bulletin_center/bc_types';
 import { useState } from 'react';
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { useTranslation } from 'next-i18next';
 
 const { Search } = Input;
 
@@ -21,6 +22,7 @@ export default function RenderBulletinTop({
     const [searchValue, setSearchValue] = useState('');
     // 日夜间判断
     const { isDayMode } = useThemeMode();
+    const { t } = useTranslation('builetinCenter');
 
     const handleSearch = (value: string) => {
         setSearchValue(value);
@@ -33,10 +35,10 @@ export default function RenderBulletinTop({
                 <Row align='middle' justify='space-between'>
                     <Col>
                         <Row gutter={16} align='middle'>
-                            <Col><h5>通知</h5></Col>
+                            <Col><h5>{t('bulletinCenter.menu.notification')}</h5></Col>
                             <Col>
                                 <Search
-                                    placeholder="搜索"
+                                    placeholder={t('bulletinCenter.action.search')}
                                     allowClear
                                     style={{ width: 200 }}
                                     value={searchValue}
@@ -54,7 +56,7 @@ export default function RenderBulletinTop({
                         >
                             <span className={styles.themeText} style={{ 
                                 opacity: disableUnreadCheckbox ? 0.6 : 1 
-                            }}>只看未读</span>
+                            }}>{t('bulletinCenter.action.unreadOnly')}</span>
                         </Checkbox>
                         <span 
                             style={{ 
@@ -65,7 +67,7 @@ export default function RenderBulletinTop({
                             }} 
                             onClick={hasUnreadMessages ? onReadAll : undefined}
                         >
-                            全部已读
+                            {t('bulletinCenter.action.markAllRead')}
                         </span>
                     </Col>
                 </Row>

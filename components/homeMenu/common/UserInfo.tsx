@@ -27,7 +27,7 @@ export default function UserInfoIcon() {
     const [userItemsList, setUserItemsList] = useState<UserItemsListType[]>([])
     const invite = appStore.getKvConfig('account_configuration');
     // t - 多语言
-    const { t, i18n } = useTranslation('home_menu');
+    const { t, i18n } = useTranslation('common');
     // 获取主题状态
     const { isDayMode } = useThemeMode();
     // 使用 useAuth 钩子获取登录状态
@@ -50,7 +50,7 @@ export default function UserInfoIcon() {
                     src={isDayMode
                         ? '/images/home_menu/icon_layout_line.png'
                         : '/images/home_menu/icon_layout_line_dark.png'}
-                    h5Text="总览"
+                    h5Text={t('router.overView')} //'总览'
                     onClick={() => {
                         router.push('/userCenter')
                     }}
@@ -65,7 +65,7 @@ export default function UserInfoIcon() {
                     src={isDayMode
                         ? '/images/home_menu/icon_safety_certificate_line.png'
                         : '/images/home_menu/icon_safety_certificate_line_dark.png'}
-                    h5Text="安全中心"
+                    h5Text={t('router.safetyCenter')} //'安全中心'
                     onClick={() => {
                         router.push('/userCenter/safeCenter')
                     }}
@@ -80,7 +80,7 @@ export default function UserInfoIcon() {
                     src={isDayMode
                         ? '/images/home_menu/icon_IDcard_line.png'
                         : '/images/home_menu/icon_IDcard_line_dark.png'}
-                    h5Text="身份认证"
+                    h5Text={t('router.identity')} //'身份认证'
                     onClick={() => {
                         router.push('/userCenter/identity')
                     }}
@@ -95,7 +95,7 @@ export default function UserInfoIcon() {
                     src={isDayMode
                         ? '/images/home_menu/icon_user_day.png'
                         : '/images/home_menu/icon_user_dark2.png'}
-                    h5Text="邀请好友"
+                    h5Text={t('router.inviteFriend')} //'邀请好友'
                     onClick={() => {
                         router.push('/invite')
                     }}
@@ -110,7 +110,7 @@ export default function UserInfoIcon() {
                     src={isDayMode
                         ? '/images/home_menu/icon_setting_day.png'
                         : '/images/home_menu/icon_setting_dark.png'}
-                    h5Text="设置"
+                    h5Text={t('router.setting')} //'设置'
                     onClick={() => {
                         router.push('/userCenter/userSettings')
                     }}
@@ -191,7 +191,7 @@ export default function UserInfoIcon() {
                         ? '/images/home_menu/icon_exit.png'
                         // : '/images/home_menu/icon_exit_dark.png'} 
                         : '/images/home_menu/icon_exit_dark.png'}
-                    h5Text="退出登录"
+                    h5Text={t('router.logout')} //'退出登录'
                     onClick={() => handleLogout()}
                 />
             ),

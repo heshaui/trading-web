@@ -3,13 +3,14 @@ import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/address.module.css";
 import { Iconify } from "@/components/icon/index";
 import { useState } from "react";
-
+import { useTranslation } from 'next-i18next';
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { NoData } from '@/components/noData';
 import Image from 'next/image'
 import { saveUserAddress, getCoinAll, getcoinExtList } from "@/services/assets";
 import appStore from '@/store';
+
 
 type Props = {
     open: boolean;
@@ -52,7 +53,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     const [coinExtSelect, setCoinExtSelect] = useState<coinExtSelectType[]>([])
     const [form] = Form.useForm();
      const allConfig = appStore.getKvConfigAll();
-
+ const { t } = useTranslation(['assets']);
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -67,14 +68,14 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                 const params = {
                     protocolId: values.protocolId  ,
                     addressName: values.address,
-                    addressTitle: values.addressName||'用户地址',
+                    addressTitle: values.addressName || t('modal.addAddress.title'),
                     coinId: values.tenantId,
                 }
                 setLoading(true)
                 try {
                     const res = await saveUserAddress(params)
                     if(res.code==='0'){
-                        toast.success('新增成功')
+                        toast.success(t('modal.addAddress.addSuccess'))
                         onOk()
                         handCancel()
                     }else{
@@ -120,7 +121,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     }
     const getCoinExtList = async () => {
         const tenantId = form.getFieldValue('tenantId')
-        if (!tenantId) return toast.error('请先选择币种')
+        if (!tenantId) return toast.error(t('modal.addAddress.coinEmpty'))
         // 判断同币种不重复请求
         if (coinId === tenantId||coinExtLoading) return
         setCoinId(tenantId)
@@ -159,7 +160,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                     className={`${styles.modal_footerBtn} default_btn`}
                     onClick={handOk}
                 >
-                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : '确认'}
+                    {loading ? <Iconify icon="tabler:loader" size={24} className={`loading`} /> : t('modal.addAddress.confirm')}
                 </button>
                 {/* <Button type="primary" onClick={handOk}
                 className={`${styles.modal_footerBtn} default_btn`}
@@ -209,7 +210,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
         >
             <Modal
                 open={open}
-                title={<p className={`${styles.title}`} >新增地址
+                title={<p className={`${styles.title}`} >{t('modal.addAddress.title')}
                     {/* {type}{acountInfo.type}  */}
                 </p>}
                 centered
@@ -233,11 +234,11 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                         style={{ width: '100%' }}
                         
                     >
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>币种</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.coin')}</div>
 
-                        <Form.Item name="tenantId" rules={[{ required: true, message: "币种不能为空！" }]}>
+                        <Form.Item name="tenantId" rules={[{ required: true, message: t('modal.addAddress.coinEmpty') }]}>
                             <Select allowClear
-                                placeholder="请选择"
+                                placeholder={t('modal.addAddress.selectPlaceholder')}
                                 options={coinSelect}
                                 className={`${styles.select_box} custom-select`}
                                 optionRender={(option) => {
@@ -257,15 +258,15 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 // optionLabelProp="children"
                                 onFocus={getCoinAllList}
                                 loading={coinLoading}
-                                notFoundContent={<NoData title="暂无记录" />}
+                                notFoundContent={<NoData title={t('assetsAccount.nodata')} />}
 
                             />
                         </Form.Item>
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>链名称</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.chainName')}</div>
 
-                        <Form.Item name="protocolId" rules={[{ required: true, message: "链名称不能为空！" }]}>
+                        <Form.Item name="protocolId" rules={[{ required: true, message: t('modal.addAddress.chainEmpty') }]}>
                             <Select allowClear
-                                placeholder="请选择"
+                                placeholder={t('modal.addAddress.selectPlaceholder')}
                                 options={coinExtSelect}
                                 className={`${styles.select_box} custom-select`}
                                 optionRender={(option) => {
@@ -281,24 +282,27 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 dropdownRender={(menu) => (<>
                                     {coinExtSelect.length > 0 && <p className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}>
                                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
-                                        <span>请注意，这里仅展示了{allConfig?.tenant_cache_name || '--'}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。</span>
+                                        <span>
+                                            {/* 请注意，这里仅展示了{allConfig?.tenant_cache_name || '--'}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。 */}
+                                            {t('modal.addAddress.chainWarning', { platformName: allConfig?.tenant_cache_name || '--' })}
+                                        </span>
                                     </p>}
                                     {menu}
                                 </>
                                 )}
-                                notFoundContent={<NoData title="暂无记录" />}
+                                notFoundContent={<NoData title={t('assetsAccount.nodata')} />}
                                 onFocus={getCoinExtList}
                                 loading={coinExtLoading}
                             />
                         </Form.Item>
 
 
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>提现地址</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.withdrawAddress')}</div>
 
-                        <Form.Item name="address" rules={[{ required: true, message: "提现地址不能为空！" }]}>
+                        <Form.Item name="address" rules={[{ required: true, message: t('modal.addAddress.addressEmpty') }]}>
                             <Input
                                 allowClear
-                                placeholder="地址"
+                                placeholder={t('modal.addAddress.withdrawAddress')}
 
                                 className={`${styles.input_box} modal-input2`}
                                 style={{ borderRadius: "8px" }}
@@ -306,9 +310,9 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                             />
                         </Form.Item>
 
-                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>备注</div>
+                        <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.remark')}</div>
                         <Form.Item name="addressName" >
-                            <Input placeholder="备注" allowClear className={`${styles.input_box} modal-input2`}
+                            <Input placeholder={t('modal.addAddress.remarkPlaceholder')} allowClear className={`${styles.input_box} modal-input2`}
 
                                 // maxLength={6}
                             />

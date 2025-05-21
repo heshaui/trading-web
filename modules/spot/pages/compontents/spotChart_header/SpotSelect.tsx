@@ -28,9 +28,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
-        { key: '1', label: '主流区' },
-        { key: '2', label: '创新区' },
-        { key: '3', label: '新币区' },
+        { key: '1', label: t('spot.header.mainArea') },
+        { key: '2', label: t('spot.header.innovationArea') },
+        { key: '3', label: t('spot.header.newCoinArea') },
         { key: '4', label: 'AI' },
         { key: '5', label: 'Meme' },
         { key: '6', label: 'NFT' },
@@ -42,8 +42,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
         { key: '12', label: 'Solana' },
         { key: '13', label: 'RWA' },
         { key: '14', label: 'Launchpool' },
-        { key: '15', label: '游戏元宇宙' },
-        { key: '16', label: '存储' },
+        { key: '15', label: t('spot.header.gameMetaverse') },
+        { key: '16', label: t('spot.header.storage') },
     ];
 
     const handleTabChange = (key: string) => {
@@ -198,14 +198,14 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
              onChange={handleTabClick} 
              defaultActiveKey={activeTab}
              showAllTab={true}
-             allTabLabel="全部"
+             allTabLabel={t('spot.header.all')}
             />
                 <div className={`${styles.list_header} px-4 py-4 flex-x align-center`}>
                     <div 
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('name')}
                     >
-                        <span>名称</span>
+                        <span>{t('spot.header.name')}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
@@ -224,7 +224,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('price')}
                     >
-                        <span>最新价</span>
+                        <span>{t('spot.header.lastPrice')}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 
@@ -243,7 +243,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         className={`${styles.tip_color} font-12 flex-1 flex-x align-center pointer`}
                         onClick={() => handleSort('change')}
                     >
-                        <span>{showVolume ? '24H成交量' : '24H涨跌'}</span>
+                        <span>{showVolume ? t('spot.header.volume24h') : t('spot.header.change24h')}</span>
                         <div className='ml-1 flex-y-cc'>
                             <Iconify 
                                 icon="fluent-mdl2:flick-down" 

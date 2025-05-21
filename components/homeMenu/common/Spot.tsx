@@ -18,7 +18,7 @@ export default function SpotMenuItems() {
     const router = useRouter();
 
     // t - 多语言
-    const { t, i18n } = useTranslation('home_menu');
+    const { t, i18n } = useTranslation('common');
     // 获取主题状态
     const { isDayMode } = useThemeMode();
 
@@ -31,7 +31,7 @@ export default function SpotMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_spot_day.png"
                         : "/images/home_menu/icon_spot_dark.png"}
-                    h5Text="现货交易"
+                    h5Text={t('router.spotTrade')} //'现货交易'
                     spanText=""
                     onClick={() => {
                         router.push(ROUTER_KEY_SPOT.INDEX)
@@ -46,7 +46,7 @@ export default function SpotMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_bill_line.png"
                         : "/images/home_menu/icon_bill_line_dark.png"}
-                    h5Text="现货订单"
+                    h5Text={t('router.spotOrder')} //'现货订单'
                     spanText=""
                     onClick={() => {
                         router.push(ROUTER_KEY_SPOT.SPOT_ORDER)

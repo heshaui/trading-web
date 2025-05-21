@@ -49,6 +49,7 @@ const FundingTable = <T extends BaseTableData>({ columns, tableData, pieData, ex
                         dataSource={tableData}
                         onChange={onChange}
                         style={{ flex: '3' }}
+                        showSorterTooltip={false}
                     />
                 </ConfigProvider>
                 {
