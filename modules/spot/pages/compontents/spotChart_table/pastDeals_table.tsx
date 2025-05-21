@@ -230,7 +230,9 @@ const SpotMainPage = observer(() => {
         return < div className='flex-x-cc'>
           {_amount ? <div className='flex-y align-center'>
             {/* <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span> */}
-            <span>{`${amount}/${amountDone}`}</span>
+            {(!Number(record.turnover) && record.type === 0) ? <span>{`-/${amountDone}`}</span> :
+              <span>
+                {`${amount}/${amountDone}`}</span>}
             <span className={`${styles.tip_color2}`}>
               {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
             </span>
@@ -350,10 +352,10 @@ const SpotMainPage = observer(() => {
       width: 158,
       render: (_buyFee, record) => {
         const symbolName = tableData.find((item: any) => item.orderId === expandedRowKeys[0])?.symbol || ''
-        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
+        const flag = orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         // const price=nul(record.tradePrice,record.quantity)
         if (flag === 0) {
-          const { baseScaleResult, baseSymbol,coinSymbol } = getRound(symbolName, _buyFee || 0)
+          const { baseScaleResult, baseSymbol, coinSymbol } = getRound(symbolName, _buyFee || 0)
           return <span>{`${baseScaleResult} ${coinSymbol || '--'}`}</span>
         } else if (flag === 1) {
           const { baseScaleResult, baseSymbol } = getRound(symbolName, record.sellFee || 0)
@@ -378,11 +380,11 @@ const SpotMainPage = observer(() => {
     const userId = userInfo.userId
     if (sellerUserId === userId && buyerUserId === userId) {
       return takerSide
-    }else if(sellerUserId === userId){
+    } else if (sellerUserId === userId) {
       return 1
-    }else if(buyerUserId === userId){
+    } else if (buyerUserId === userId) {
       return 0
-    }else{
+    } else {
       return '--'
     }
   }
@@ -615,14 +617,14 @@ const SpotMainPage = observer(() => {
             className={`spot-table-box`}
             loading={loading}
             scroll={{ x: "max-content" }}
-            pagination={total>10?{
+            pagination={total > 10 ? {
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            }:false}
+            } : false}
             // pagination={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{

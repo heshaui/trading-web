@@ -315,7 +315,7 @@ export default function Footer() {
             </Col>
         ));
     };
-    return (
+    return <> {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ?
         <ConfigProvider
             theme={{
                 components: {
@@ -429,16 +429,20 @@ export default function Footer() {
                     </Dropdown>
                 </div>
                 <div className={`${styles.footer} flex-x`} suppressHydrationWarning>
-                    {footerConfig && footerConfig.toString() === '0' ? renderCustomFooter() :
+                    {/* {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ? renderCustomFooter() :
                         (
                             <div
                                 // style={{ color: 'pink' }}
                                 dangerouslySetInnerHTML={{ __html: selectFooter || '' }}
                             />
                         )
-                    }
+                    } */}
+                    {renderCustomFooter()}
                 </div>
             </div>
-        </ConfigProvider>
-    )
+        </ConfigProvider> : (
+            <div dangerouslySetInnerHTML={{ __html: selectFooter || '' }}
+            />
+        )}
+    </>
 }

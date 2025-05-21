@@ -47,13 +47,21 @@
             "trade":"交易",
             "bill":"现货账单",
             "cancel":"撤销",
+            "toset":"去设置",
             "withdrawError":"禁止提现",
             "withdrawError2":"提现暂停",
             "depositError":"禁止充值",
             "depositError2":"充值暂停",
             "tradeError":"禁止交易",
-            "tradeError2":"无可交易币对"
-
+            "tradeError2":"无可交易币对",
+            "withdrawtip1":"提币功能暂不可用",
+            "topuptip1":"充值功能暂不可用",
+            "tip1":"启用2FA以继续提现。为了您的资产安全起见，我们建议您尽快启用",
+            "withdrawtip2":"未完成身份认证",
+            "tip2":"完成身份认证，解锁全部功能",
+            "tip3":"交易所禁止提现，如有问题请与客服联系！",
+            "tip4":"交易所充值功能暂不可用，如有问题请与客服联系！",
+            "toAuthentication":"立即认证"
          },
          "title2":"账单明细",
          "assets":"现货资产",

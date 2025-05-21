@@ -10,7 +10,7 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList, revocationOrder,updateOrder } from '@/services/spot'
+import { getOrderList, revocationOrder, updateOrder } from '@/services/spot'
 import { toast } from 'sonner';
 import { add, cut, nul, division, roundDown } from '@/utils'
 import { getRound } from '@/utils/getUseRate'
@@ -28,11 +28,9 @@ import { NowDataType } from '@/type/spot/table';
 // import 
 
 type Props = {
-  orderUpdateFlag?: number,
   returnNowOrder: (num: number) => void
-  updateAssets: () => void
 }
-const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder,updateAssets}: Props) => {
+const SpotMainPage = observer(({ returnNowOrder }: Props) => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   // 获取币种列表
@@ -61,7 +59,9 @@ const SpotMainPage = observer(({ orderUpdateFlag ,returnNowOrder,updateAssets}: 
   const directionRef = useRef<string>('3')
   const [upDataOpen, setUpdateOpen] = useState<boolean>(false)
   // const [orderInfo, setOrderInfo] = useState<NowDataType>({} as NowDataType)
-const orderInfo=useRef<NowDataType>({} as NowDataType)
+  const orderInfo = useRef<NowDataType>({} as NowDataType)
+
+  const updateOrder = appStore.getUpdateFlag();
 
   const directionSelect: MenuProps['items'] = [
     {
@@ -107,7 +107,7 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
       title: <>
         <Dropdown menu={{ items: directionSelect }} trigger={['hover']} >
           <div>
-            <span className='ml-4'>{directionRef.current==='3' ?t('spot.columns.direction') :directionRef.current==='0' ? t('spot.modal.buy') : directionRef.current==='1' ? t('spot.modal.sell') : '--'}</span>
+            <span className='ml-4'>{directionRef.current === '3' ? t('spot.columns.direction') : directionRef.current === '0' ? t('spot.modal.buy') : directionRef.current === '1' ? t('spot.modal.sell') : '--'}</span>
             <Iconify icon="mingcute:down-line" className={`${styles.tip_color} ml-1`} size={16} />
           </div>
 
@@ -249,7 +249,7 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
   ];
   const upDtaOrder = (info: NowDataType) => {
     // setOrderInfo(info)
-    
+
     orderInfo.current = info
     setUpdateOpen(true)
   }
@@ -291,7 +291,7 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
           ),
           duration: 3
         })
-    updateAssets()
+        appStore.updateOrderFlag(3)
 
         getOrderListData()
       } else {
@@ -329,7 +329,7 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
       orderType: 0,
       coinSymbol: hideElse.current ? `${currentPair?.coinSymbol}` : null,
       baseSymbol: hideElse.current ? `${currentPair?.baseSymbol}` : null,
-      direction:directionRef.current!=='3' ? directionRef.current : null
+      direction: directionRef.current !== '3' ? directionRef.current : null
     }
     setLoading(true)
     try {
@@ -353,16 +353,17 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
     }
   }
   const handleDelectOk = () => {
-    updateAssets()
+    appStore.updateOrderFlag(3)
     getOrderListData()
   }
   const handleUpdateOk = () => {
-    updateAssets()
+    appStore.updateOrderFlag(2)
     getOrderListData()
   }
   useEffect(() => {
     getOrderListData()
-  }, [orderUpdateFlag])
+
+  }, [updateOrder])
   return (<>
     <ConfigProvider
       theme={{
@@ -445,14 +446,14 @@ const orderInfo=useRef<NowDataType>({} as NowDataType)
           // scroll={{ x: 'max-content', y: 300 }}
           scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
-          pagination={total>10?{
+          pagination={total > 10 ? {
             position: ["bottomRight"],
             // showSizeChanger: true,
             total: total,
             size: "default",
             simple: true,
             onChange: (page, pageSize) => pageChange(page, pageSize),
-          }:false}
+          } : false}
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
