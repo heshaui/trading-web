@@ -735,7 +735,7 @@ const ExchangePage = () => {
                         
                           
                                   
-                            <Spin spinning={loading} tip="加载中...">
+
                                     
                                 {(activeChartType === 'basic') && (
                                     <div>
@@ -757,7 +757,6 @@ const ExchangePage = () => {
                                         data={depthData}
                                     />
                                 }
-                            </Spin>
                         </div>
                         <OrderBook bookData={depthData} orderData={orderData} priceClickHandler={handlePriceClick} />
 
