@@ -225,5 +225,6 @@
             "fee": "手续费",
             "feeDetails": "挂单{{maker}}% / 吃单{{taker}}%"
         }
+       
     }
 }
