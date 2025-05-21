@@ -1,6 +1,7 @@
 'use client';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
+import { useTranslation } from 'next-i18next';
 
 interface DepthChartProps { 
   data: {
@@ -11,6 +12,7 @@ interface DepthChartProps {
 }
 
 const DepthChart = ({ data }: DepthChartProps) => {
+  const { t } = useTranslation(['common']);
 
   console.log("DepthChartProps", data);
   
@@ -124,7 +126,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
     },
     series: [
       {
-        name: '买盘',
+        name: t('depthChart.buyOrders'),
         type: 'line',
         data: processedBids,
         step: 'start',
@@ -142,7 +144,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
         symbol: 'none'
       },
       {
-        name: '卖盘',
+        name: t('depthChart.sellOrders'),
         type: 'line',
         data: processedAsks,
         step: 'start',
@@ -160,7 +162,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
         symbol: 'none'
       },
       {
-        name: '中间价格',
+        name: t('depthChart.midPrice'),
         type: 'line',
         markLine: {
           symbol: 'none',

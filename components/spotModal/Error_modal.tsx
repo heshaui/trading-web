@@ -46,7 +46,7 @@ function ErrorModal({ open, onCancel, onOk, errMsg, type }: Props) {
                     onClick={handOk}
                 >
                     {/* 确认 */}
-                    我知道了
+                    {t('spot.errorModal.iKnow')}
                 </button>
             </div>
         );
@@ -107,12 +107,12 @@ function ErrorModal({ open, onCancel, onOk, errMsg, type }: Props) {
                 <div className="flex-col flex-ai-center " style={{ minHeight: "230px" }}>
                     {type === "1" ? <div className="flex-y-cc w-full">
                         <Image src="/images/pubic_icon/icon_spot_err1.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
-                        <p className={`${styles.title_color} mt-4 font-20 font-w-500 text-center`}>{errMsg || '下单成交额需要大于5 USDT。'}</p>
+                        <p className={`${styles.title_color} mt-4 font-20 font-w-500 text-center`}>{errMsg || t('spot.errorModal.minAmount')}</p>
                         </div> :
                         <div className="flex-y align-center w-full">
                             <Image src="/images/pubic_icon/icon_spot_err1.png" alt="" className={`${styles.icon_box}`} width={160} height={160} />
                             <p className={`${styles.title_color} mt-4 font-20 font-w-500 flex-1 text-center`}>
-                                {errMsg || '您的下单价格与市场价格偏离值超过2%，调整价格后，重新加单。'}
+                                {errMsg || t('spot.errorModal.priceDeviation')}
                                 </p>
                         </div>}
 

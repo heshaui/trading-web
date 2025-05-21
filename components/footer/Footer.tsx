@@ -41,7 +41,7 @@ interface SocialMediaItem {
 }
 
 export default function Footer() {
-    const { t, i18n } = useTranslation('footer');
+    const { t, i18n } = useTranslation('common');
     const langKey = appStore.getLang() || 'en_US';
     const allConfig = appStore.getKvConfigAll();
     const footerConfig = appStore.getKvConfig('footer_setting');
@@ -206,7 +206,10 @@ export default function Footer() {
         {
             label: (
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <h5>扫码下载APP</h5>
+                    <h5>
+                        {/* 扫码下载APP */}
+                        {t('footer.scanDownloadApp')}
+                    </h5>
                     {/* <img src="/images/home_menu/QR_code.png" /> */}
                     <Image
                         src="/images/home_menu/QR_code.png"
@@ -262,14 +265,14 @@ export default function Footer() {
     const renderCustomFooter = () => {
         if (customFooter?.length > 0) {
             return customFooter.map((item, index) => (
-                <div key={index} className={`flex-1`}>
+                <div key={index} className={`${styles.footer_content}`}>
                     {/* {renderFooterList({
                         title: item.bottomName,
                         items: item.children || []
                     })} */}
                     <div className={`${styles.footerList}`} >
-                        <button className='tip-color' onClick={() => goLink(item.accessPath)}>{item.bottomName || '--'}</button>
-                        <ul>
+                        <button className='tip-color font-16' onClick={() => goLink(item.accessPath)}>{item.bottomName || '--'}</button>
+                        <ul className='mt-3'>
                             {item.children?.map((childItem, index) => (
                                 <li key={index}>
                                     <button onClick={() => goLink(childItem.accessPath)}>
@@ -302,7 +305,7 @@ export default function Footer() {
         // }
 
         return socialMediaList.map((item, index) => (
-            <Col key={item.id || index} style={{ marginBottom: '6px' }} className='mr-3 mt-2_5' >
+            <Col key={item.id || index} style={{ marginBottom: '6px' }} className='mr-2 mt-2_5' >
                 <button onClick={() => goLink(item.linkUrl)}>
                     <Image
                         src={item.imgUrl}
@@ -315,6 +318,7 @@ export default function Footer() {
             </Col>
         ));
     };
+
     return <> {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ?
         <ConfigProvider
             theme={{
@@ -352,7 +356,10 @@ export default function Footer() {
                     </div>
                     <p suppressHydrationWarning>{`©2023 - 2024 ${allConfig?.tenant_cache_name || ''}.`}</p>
                     <Row className='mt-3'>
-                        <Col><h6 style={{ color: '#FFFFFF', fontSize: 12 }}>社区</h6></Col>
+                        <Col><h6 style={{ color: '#FFFFFF', fontSize: 12 }}>
+                            {/* 社区 */}
+                            {t('footer.community')}
+                        </h6></Col>
                     </Row>
                     <Row align='middle' className='mb-2'>
                         {renderSocialMediaIcons()}
@@ -416,7 +423,9 @@ export default function Footer() {
                                             />
                                         </Col>
                                         <Col>
-                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>下载APP</span>
+                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>
+                                                {/* 下载APP */}
+                                                {t('footer.downloadApp')}</span>
                                         </Col>
                                     </Row>
                                 </Col>

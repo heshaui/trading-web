@@ -28,14 +28,14 @@ const FeeCoin = observer(() => {
         {
             label:
                 <div className={`${styles.title_color} ml-1`}>
-                    接收币种
+                    {t('spot.feeCoin.receivedCoin')}
                 </div>,
             value: '1'
         },
         {
             label:
                 <div className={`${styles.title_color} ml-1`}>
-                    计价币种
+                    {t('spot.feeCoin.quotedCoin')}
                 </div>,
             value: '2'
         },
@@ -62,10 +62,10 @@ const FeeCoin = observer(() => {
        </ConfigProvider>     
             <ul className={`${styles.tip_color} px-5 mt-5 font-14 font-w-400`}>
                 <li className={`mt-5`}>
-                    接收币种：现货交易时手续费币种按照成交到账的币种作为手续费，即卖出得到usdt就是按照usdt收取，买入得到币种就按币种收取；
+                    {t('spot.feeCoin.receivedDesc')}
                 </li>
                 <li className={`mt-5`}>
-                    计价币种：现货交易时买卖手续费币种均按照计价币种收取。用户在买单时计算数量或成交额需包含手续费。</li>
+                    {t('spot.feeCoin.quotedDesc')}</li>
             </ul>
         </>
     )

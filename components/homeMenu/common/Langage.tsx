@@ -13,7 +13,7 @@ import styles from '@/styles/components/HomeMenu.module.css';
 // 修复拼写错误：Langage -> Language
 export default function LanguageMenu() {
     const router = useRouter();
-    const { i18n } = useTranslation('home_menu');
+    const { t,i18n } = useTranslation('common');
     const { languageList = [], rateData = [] } = useNavigation() || {};
     const { isLoggedIn } = useAuth();
     // 使用全局状态中的语言列表
@@ -67,7 +67,7 @@ export default function LanguageMenu() {
             return [{
                 key: 'empty-language',
                 type: 'group' as const,
-                label: <NoData title="暂无语言数据" />
+                label: <NoData title={t('header.noLanguageData')} />
             }];
         }
 
@@ -97,7 +97,7 @@ export default function LanguageMenu() {
             return [{
                 key: 'empty-rate',
                 type: 'group' as const,
-                label: <NoData title="暂无汇率数据" />
+                label: <NoData title={t('header.noRateData')} />
             }];
         }
         
@@ -167,7 +167,8 @@ export default function LanguageMenu() {
                 type: 'group' as const,
                 label: (
                     <h6 style={{ color: 'var(--text-color5)', marginBottom: '8px' }}>
-                        语言
+                        {/* 语言 */}
+                        {t('header.language')}
                     </h6>
                 ),
                 children: [
@@ -178,7 +179,7 @@ export default function LanguageMenu() {
                             <MenuItemLabel 
                                 isInput 
                                 onInputChange={setSearchLanguageValue} 
-                                h5Text='搜索语言' 
+                                h5Text={t('header.searchLanguage')} 
                             />
                         ),
                         children: filteredLanguageItems
@@ -190,7 +191,8 @@ export default function LanguageMenu() {
                 type: 'group' as const,
                 label: (
                     <h6 style={{ color: 'var(--text-color5)', margin: '16px 0 8px 0' }}>
-                        汇率
+                        {/* 汇率 */}
+                        {t('header.rate')}
                     </h6>
                 ),
                 children: [
@@ -201,7 +203,7 @@ export default function LanguageMenu() {
                             <MenuItemLabel 
                                 isInput 
                                 onInputChange={setSearchRateValue} 
-                                h5Text='搜索汇率' 
+                                h5Text={t('header.searchRate')} 
                             />
                         ),
                         children: filteredRateItems

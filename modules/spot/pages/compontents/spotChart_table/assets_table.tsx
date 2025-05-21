@@ -270,7 +270,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     // 将订单更新效果单独提取
     useEffect(() => {
         getUserBalanceAllData();
-    }, [updateOrder.orderPlace, rateKey, updateAssets]);
+    }, [updateOrder.orderPlace, updateOrder.orderDelect,updateOrder.orderUpdate,rateKey, updateAssets]);
     
     return (<><ConfigProvider
         theme={{
@@ -336,6 +336,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
                 pagination={false}
                 loading={tableLoading}
                 locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                showSorterTooltip={false}
             />
         </div>
     </ConfigProvider>

@@ -39,39 +39,39 @@ const TradeRule = observer(() => {
         <>
             <ul className={`${styles.title_color} px-5 mt-5 font-16 font-w-500`}>
                 <li className='flex-x align-center justify-between '>
-                    最大下单金额
+                    {t('spot.tradeRule.maxOrderAmount')}
                     <span className={`${styles.tip_color} font-w-400 mx-1 font-14`}>
                         {currentPair?.maxBaseVolume}{currentPair?.baseSymbol}
                     </span>
 
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
-                    最小下单金额
+                    {t('spot.tradeRule.minOrderAmount')}
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
                         {currentPair?.minBaseVolume}{currentPair?.baseSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
-                    最大下单数量
+                    {t('spot.tradeRule.maxOrderQuantity')}
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
                         {currentPair?.maxVolume}{currentPair?.coinSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
-                    最小下单数量
+                    {t('spot.tradeRule.minOrderQuantity')}
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
                         {currentPair?.minVolume}{currentPair?.coinSymbol}
                     </span>
                 </li>
 
                  <li className='flex-x align-center justify-between mt-5'>
-                    最小价格波动
+                    {t('spot.tradeRule.minPriceFluctuation')}
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
                        {getMinimumDecimal(currentPair?.coinScale)}{currentPair?.coinSymbol}
                     </span>
                 </li>
                 <li className='flex-x align-center justify-between mt-5'>
-                    最小数量波动
+                    {t('spot.tradeRule.minQuantityFluctuation')}
                     <span className={`${styles.tip_color} font-w-400  mx-1 font-14`}>
                      {currentPair?.baseCoinScale}{currentPair?.baseSymbol}
                     </span>

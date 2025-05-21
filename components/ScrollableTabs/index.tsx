@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Iconify } from "@/components/icon";
 import styles from './styles.module.css';
-
+import { useTranslation } from 'next-i18next';
 interface TabItem {
     key: string;
     label: React.ReactNode;
@@ -16,13 +16,13 @@ interface CustomTabsProps {
     allTabLabel?: string;
     className?: string;
 }
-
+// const { t } = useTranslation(['common']);
 const CustomTabs: React.FC<CustomTabsProps> = ({
     items = [],
     onChange,
     defaultActiveKey = 'all',
     showAllTab = true,
-    allTabLabel = '全部',
+    allTabLabel = 'All' , //
     className = ''
 
 

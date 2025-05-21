@@ -15,7 +15,7 @@ type Props = {
 
 function NoteModal({ open, onCancel }: Props) {
     // const router = useRouter();
-    const { t } = useTranslation('login');
+    const { t } = useTranslation('common');
     const handCancel = () => {
         onCancel()
     };
@@ -40,7 +40,7 @@ function NoteModal({ open, onCancel }: Props) {
                     className={`${styles.errModal_btn} btn-color`}
                     onClick={handCancel}
                 >
-                    我知道了
+                    {t('beSure')}
                 </button>
             </div>
         );

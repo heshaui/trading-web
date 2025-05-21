@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import styles from '../styles/bulletinCenter.module.css';
 import { MessageItemDetailProps } from '@/type/bulletin_center/bc_types';
+import { useTranslation } from 'next-i18next';
 
 export default function MessageItemDetail({
     content
 }: MessageItemDetailProps) {
+    const { t } = useTranslation('builetinCenter');
     const [showContent, setShowContent] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5; // 每页显示的数量

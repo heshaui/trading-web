@@ -227,23 +227,56 @@ const SpotMainPage = observer(() => {
       render: (_amount, record) => {
         const amount = getRound(record.symbol, _amount).scaleResult
         const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-y align-center'>
-            {/* <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span> */}
-            {(!Number(record.turnover) && record.type === 0) ? <span>{`-/${amountDone}`}</span> :
-              <span>
-                {`${amount}/${amountDone}`}</span>}
-            <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
-            </span>
-
-          </div>
-            : '0'
+        if (record.type === 0) {
+          if (record.status === 1 || record.status === 5) {
+            return < div className='flex-x-cc'>
+              {_amount ? <div className='flex-y align-center'>
+                <span>{`-/${amountDone}`}</span>
+                <span className={`${styles.tip_color2}`}>
+                  {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+                </span>
+              </div>
+                : '0'}
+            </div >
+          } else {
+            return < div className='flex-x-cc'>
+              {_amount ? <div className='flex-y align-center'>
+                <span>{`${amountDone}/${amountDone}`}</span>
+                <span className={`${styles.tip_color2}`}>
+                  {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+                </span>
+              </div>
+                : '0'}
+            </div >
           }
-        </div >
-      },
-    },
+        } else {
+          return < div className='flex-x-cc'>
+            {_amount ? <div className='flex-y align-center'>
+              <span>
+                {`${amount}/${amountDone}`}</span>
+              <span className={`${styles.tip_color2}`}>
+                {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+              </span>
+            </div>
+              : '0'}
+          </div >
+          // return < div className='flex-x-cc'>
+          //   {_amount ? <div className='flex-y align-center'>
+          //     {/* <span>{`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`}</span> */}
+          //     {(!Number(record.turnover) && record.type === 0) ? <span>{`-/${amountDone}`}</span> :
+          //       <span>
+          //         {`${amount}/${amountDone}`}</span>}
+          //     <span className={`${styles.tip_color2}`}>
+          //       {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+          //     </span>
 
+          //   </div>
+          //     : '0'
+          //   }
+          // </div >
+        }
+      }
+    },
     {
       title: t('spot.columns.amount2'), //"成交金额",
       key: "turnover",

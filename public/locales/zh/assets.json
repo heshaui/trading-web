@@ -29,6 +29,11 @@
          "delete":"删除",
          "nodata":"暂无记录",
          "withdrawTime":"提币时间",
+         "recentDepositRecords":"最近充值记录",
+         "depositTime":"充值时间",
+         "depositAddress":"充值地址",
+         "txId":"TxID",
+         "confirmations":"确认次数",
          "walletProcessingTime":"钱包处理时间",
          "inviteReward": "邀请奖励",
          "cashout": "提现",
@@ -169,7 +174,29 @@
         "warning":"请确保您输入了正确的提现地址并且您选择的转账网络与地址相匹配"
     },
     "modal":{
-
+        "deleteAddress": {
+            "title": "确认删除",
+            "message": "确认删除后不可恢复，是否确认删除？",
+            "cancel": "取消",
+            "confirm": "确认",
+            "success": "删除成功"
+        },
+        "addAddress": {
+            "title": "新增地址",
+            "coin": "币种",
+            "coinEmpty": "币种不能为空！",
+            "chainName": "链名称",
+            "chainEmpty": "链名称不能为空！",
+            "withdrawAddress": "提现地址",
+            "addressEmpty": "提现地址不能为空！",
+            "remark": "备注",
+            "remarkPlaceholder": "备注",
+            "selectPlaceholder": "请选择",
+            "confirm": "确认",
+            "addSuccess": "新增成功",
+            "coinEmpty2": "请先选择币种",
+            "chainWarning": "请注意，这里仅展示了{{platformName}}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。"
+        },
         "confirm":"我知道了",
         "goTrade":"去交易",
         "checkAsset":"查看资产",
@@ -207,6 +234,17 @@
     },
     "futureAccount":{
         "title":"合约账户"
+    },
+    "orderBook": {
+        "title": "盘口",
+        "latestTrades": "最新成交",
+        "buyOrders": "买盘",
+        "sellOrders": "卖盘",
+        "bothOrders": "买卖盘",
+        "price": "价格",
+        "amount": "数量",
+        "total": "总额",
+        "time": "时间"
     },
     "billDetails":{
         "title":"账单明细",

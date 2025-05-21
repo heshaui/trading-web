@@ -525,6 +525,7 @@ const AssetsMainPage = observer(() => {
                             pagination={false}
                             loading={tableLoading}
                             locale={{ emptyText: <NoData /> }}
+                            showSorterTooltip={false}
                         />
 
                     </div>

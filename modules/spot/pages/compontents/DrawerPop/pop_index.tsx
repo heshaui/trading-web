@@ -80,16 +80,16 @@ const goFeeCoin = () => {
                 <Tooltip 
                 placement="right"
                 title={<div className='font-16 ml-3 py-2'>
-                    开启下单确认功能后，每次提交订单时需要进行二次确认。
+                    {t('spot.preferences.orderConfirmTip')}
                 </div>}
                 >
-                    下单确认
+                    {t('spot.preferences.orderConfirm')}
                     <Iconify icon="mingcute:warning-line" className={`${styles.tip_color} mx-1`} size={14} />
                 </Tooltip>
                 </div>
                 <ul className={`${styles.title_color} ${styles.swith_box} font-16 font-w-500`}>
                     <li className='flex-x align-center justify-between '>
-                        限价单 
+                        {t('spot.preferences.limitOrder')} 
                         <Switch 
                         size='small'
                         checked={limitOrderConfirm}
@@ -97,7 +97,7 @@ const goFeeCoin = () => {
                         />
                     </li>
                     <li className='flex-x align-center justify-between mt-5'>
-                        市价单 <Switch
+                        {t('spot.preferences.marketOrder')} <Switch
                             size='small'
                             checked={marketOrderConfirm}
                             onChange={handleMarketOrderChange}
@@ -106,18 +106,18 @@ const goFeeCoin = () => {
                 </ul>
                 <ul className={`${styles.title_color} ${styles.swith_box} font-16 font-w-500`}>
                     {/* <li className='flex-x align-center justify-between '>
-                    手续费币种 
+                    {t('spot.preferences.feeCoin')} 
                     <button className={`${styles.tip_color} font-w-400 mx-1`}
                     onClick={goFeeCoin}
                     >
-                    接收币种
+                    {t('spot.preferences.receivedCoin')}
                     <Iconify icon="icon-park-outline:right" className={`${styles.tip_color} ml-1`} size={24} />
 
                     </button> */}
                         
                     {/* </li> 暂时注释 2025.04.30 -zyj */}
                     <li className='flex-x align-center justify-between mt-5'>
-                    交易规则 
+                    {t('spot.preferences.tradeRule')} 
                     <button className={`${styles.tip_color} font-w-400  mx-1`}
                     onClick={goRule}
                     >
@@ -129,7 +129,7 @@ const goFeeCoin = () => {
                 </ul></> : <>
                 <ul className={`${styles.title_color} px-5  font-16 font-w-500`}>
                     <li className='flex-x align-center justify-between mt-5'>
-                    交易规则 
+                    {t('spot.preferences.tradeRule')} 
                     <button className={`${styles.tip_color} font-w-400  mx-1`}
                     onClick={goRule}
                     >

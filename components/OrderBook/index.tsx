@@ -4,6 +4,7 @@ import styles from './style/OrderBook.module.css';
 import Image from 'next/image';
 import appStore from '@/store';
 import { Tooltip,Select } from 'antd';
+import { useTranslation } from 'next-i18next';
 import { add,cut,nul,roundDown } from '@/utils/index';
 // 定义订单类型
 interface Order {
@@ -19,6 +20,7 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) => {
+  const { t } = useTranslation(['assets']);
   console.log(bookData, 'bookData');
   console.log(orderData, 'orderData');
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -256,7 +258,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
     return (
       <div className='flex' style={{gap:'10px'}}>
         {/* 显示买卖盘 */}
-        <Tooltip title="买卖盘" overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('orderBook.bothOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 1 ? '/images/exchange/icon_order_hover.png' : '/images/exchange/icon_order.png'} 
           alt="color-mode" 
@@ -267,7 +269,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         /> 
         </Tooltip>
         {/* 显示买盘 */}
-        <Tooltip title="买盘" overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('orderBook.buyOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 2 ? '/images/exchange/icon_green_hover.png' : '/images/exchange/icon_green.png'} 
           alt="color-mode" 
@@ -278,7 +280,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         />
         </Tooltip>
         {/* 显示卖盘 */}
-        <Tooltip title="卖盘" overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('orderBook.sellOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 3 ? '/images/exchange/icon_red_hover.png' : '/images/exchange/icon_red.png'} 
           alt="color-mode" 
@@ -297,9 +299,9 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
     return (
       <div className={styles.tradesContainer}>
         <div className={styles.labels} style={{fontSize:'12px'}}>
-          <span>价格({currentPair?.baseSymbol})</span>
-          <span>数量({currentPair?.coinSymbol})</span>
-          <span>时间</span>
+          <span>{t('orderBook.price')}({currentPair?.baseSymbol})</span>
+          <span>{t('orderBook.amount')}({currentPair?.coinSymbol})</span>
+          <span>{t('orderBook.time')}</span>
         </div>
         <div className={styles.tradesList} style={{ height: '450px', overflowY: 'auto' }}>
           {trades.map((trade, index) => (
@@ -335,13 +337,13 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           className={`${styles.tab} ${activeTab === 'orderbook' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('orderbook')}
         >
-          盘口
+          {t('orderBook.title')}
         </div>
         <div 
           className={`${styles.tab} ${activeTab === 'trades' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('trades')}
         >
-          最新成交
+          {t('orderBook.latestTrades')}
         </div>
       </div>
       
@@ -368,9 +370,9 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
       {activeTab === 'orderbook' ? (
         <>
           <div className={styles.labels} style={{fontSize:'12px'}}>
-            <span>价格({currentPair?.baseSymbol}) </span>
-            <span>数量({currentPair?.coinSymbol})</span>
-            <span>总额({currentPair?.baseSymbol}) </span>
+            <span>{t('orderBook.price')}({currentPair?.baseSymbol}) </span>
+            <span>{t('orderBook.amount')}({currentPair?.coinSymbol})</span>
+            <span>{t('orderBook.total')}({currentPair?.baseSymbol}) </span>
           </div>
 
           {/* 卖单 */}

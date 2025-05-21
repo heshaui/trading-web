@@ -6,7 +6,7 @@ module.exports = {
     locales: ['en', 'zh', 'ja', 'ko', 'tw'],
 
   },
-  ns: ['common', 'home_menu', 'home', 'login', 'userCenter','resetPassword','assets','invite','spot'],
+  ns: ['common', 'home_menu', 'home', 'login', 'userCenter','resetPassword','assets','invite','spot','builetinCenter','helpCenter'],
   defaultNS: 'common',
   localePath: typeof window === 'undefined' ? path.resolve('./public/locales') : '/locales',
 };

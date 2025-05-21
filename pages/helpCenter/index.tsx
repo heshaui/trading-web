@@ -11,7 +11,9 @@ import { Card, Col, ConfigProvider, Empty, Input, message, Row } from 'antd';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { toast } from 'sonner';
+import { useTranslation } from 'next-i18next';
 export default function HelpCenter() {
+    const { t } = useTranslation('helpCenter');
     const lang = appStore.getLang();
     const [configContentHeight, setConfigContentHeight] = useState<number>(0);
     const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
@@ -36,7 +38,7 @@ export default function HelpCenter() {
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             if (!searchValue.trim()) {
-                toast.warning('请输入搜索内容');
+                toast.warning(t('helpCenter.search.placeholder'));
                 return;
             }
 
@@ -199,13 +201,13 @@ export default function HelpCenter() {
                     <div className={styles.bannerContent}>
                         <Row>
                             <Col>
-                                <h1 style={{ color: 'var(--text-color5)', fontSize: 32, fontWeight: 600 }}>我们能帮您什么？</h1>
+                                <h1 style={{ color: 'var(--text-color5)', fontSize: 32, fontWeight: 600 }}>{t('helpCenter.title')}</h1>
                             </Col>
                         </Row>
                         <Row style={{ marginTop: 16 }}>
                             <Col flex={1}>
                                 <Input
-                                    placeholder="请输入您的问题"
+                                    placeholder={t('helpCenter.search.placeholder')}
                                     prefix={<Image
                                         src={isDayMode
                                             ? "/images/help_center/icon_search.png"
@@ -308,7 +310,7 @@ export default function HelpCenter() {
                         <div className={`${styles.otherSupport} customCard`}>
                             <Row>
                                 <Col>
-                                    <h2 style={{ fontSize: 24, fontWeight: 500 }}>其他支持</h2>
+                                    <h2 style={{ fontSize: 24, fontWeight: 500 }}>{t('helpCenter.otherSupport.title')}</h2>
                                 </Col>
                             </Row>
                             <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
@@ -316,12 +318,12 @@ export default function HelpCenter() {
                                     <Card style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color4)' }}>
                                         <Row>
                                             <Col>
-                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>在线沟通</h3>
+                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.onlineCommunication.title')}</h3>
                                             </Col>
                                         </Row>
                                         <Row style={{ marginTop: 20 }}>
                                             <Col>
-                                                <p style={{ color: 'var(--text-color6)', fontSize: 14 }}>我们提供全天候服务，始终满足您的需求。</p>
+                                                <p style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.onlineCommunication.description')}</p>
                                             </Col>
                                         </Row>
                                     </Card>
@@ -337,7 +339,7 @@ export default function HelpCenter() {
                                     >
                                         <Row>
                                             <Col>
-                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>通过电子邮件联系我们</h3>
+                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.email.title')}</h3>
                                             </Col>
                                         </Row>
                                         <Row style={{ marginTop: 20 }}>
@@ -347,7 +349,7 @@ export default function HelpCenter() {
                                                         <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
                                                     </Col>
                                                     <Col>
-                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>商户洽谈: 11123@qq.com</span>
+                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.business')}</span>
                                                     </Col>
                                                 </Row>
                                                 <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
@@ -355,7 +357,7 @@ export default function HelpCenter() {
                                                         <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
                                                     </Col>
                                                     <Col>
-                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>法律合规: 123@qq.com</span>
+                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.legal')}</span>
                                                     </Col>
                                                 </Row>
                                             </Col>

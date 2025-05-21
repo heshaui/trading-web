@@ -4,6 +4,7 @@
   "home1": "IMBIT数字货币交易所更快、更好、更强",
   "home2": "更多",
   "nickname": "昵称",
+  "login":"已有账号？",
   "userCenter":{
     "overView":"总览",
     "account":"用户设置",
@@ -84,5 +85,40 @@
   },
   "modal":{
     "confirmCancel":"确认撤销后，提现订单将被取消。"
+  },
+  "footer":{
+    "scanDownloadApp":"扫码下载APP",
+    "downloadApp":"下载APP",
+    "community":"社区"
+  },
+  "depthChart": {
+    "buyOrders": "买盘",
+    "sellOrders": "卖盘",
+    "midPrice": "中间价格"
+  },
+  "router":{
+    "myAssets":"我的资产",
+    "recharge":"充币",
+    "withdraw":"提币",
+    "bill":"账单明细",
+    "spotTrade":"现货交易",
+    "spotOrder":"现货订单",
+    "overView":"总览",
+    "safetyCenter":"安全中心",
+    "identity":"身份认证",
+    "inviteFriend":"邀请好友",
+    "setting":"设置",
+    "logout":"退出登录"
+  },
+  "header":{
+    "noLanguageData": "暂无语言数据",
+    "noRateData": "暂无汇率数据",
+    "language": "语言",
+    "searchLanguage": "搜索语言",
+    "rate": "汇率",
+    "searchRate": "搜索汇率"
+  },
+  "scrollableTabs":{
+    "all": "全部"
   }
 }

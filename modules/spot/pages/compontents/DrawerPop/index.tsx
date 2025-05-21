@@ -36,14 +36,14 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
         <Drawer
             title={
                 <div className={`font-16 font-w-500 px-5 flex-x align-center ${styles.title_color}`}>
-                    {popType === PopTypeEnum.INDEX && "偏好设置"}
+                    {popType === PopTypeEnum.INDEX && t('spot.drawer.preferences')}
                     {popType === PopTypeEnum.TRADE_RULE && (
                         <div className='flex-x align-center justify-between w-full'>
                             <div className='flex-x align-center'>
                                 <button onClick={goIndex}>
                                     <Iconify icon="icon-park-outline:left" className={`${styles.tip_color}`} size={24} />
                                 </button>
-                                交易规则
+                                {t('spot.drawer.tradeRule')}
                             </div>
                             <button onClick={handClose}>
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />
@@ -56,7 +56,7 @@ const DrawerContent = observer(({ open, onClose }: DrawerPopProps) => {
                                 <button onClick={goIndex}>
                                     <Iconify icon="icon-park-outline:left" className={`${styles.tip_color}`} size={24} />
                                 </button>
-                                手续费币种
+                                {t('spot.drawer.feeCoin')}
                             </div>
                             <button onClick={handClose}>
                                 <Iconify icon="eva:close-outline" className={`${styles.tip_color} ml-1`} size={24} />

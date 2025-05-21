@@ -25,7 +25,7 @@ export default function Experience() {
                         {t('tip1')}
                         </h3>
                     </div>
-                    <Image className={`${styles.logo_pic}`} src="/images/home/logo.png" alt="" width={300} height={71}/>
+                    {/* <Image className={`${styles.logo_pic}`} src="/images/home/logo.png" alt="" width={300} height={71}/> */}
                 </div>
 
                 <div className={`${styles.comup_main_pic} flex flex-jc-between`}>

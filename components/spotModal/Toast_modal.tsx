@@ -115,20 +115,20 @@ function ToastModal({ open, onCancel, onOk, toastData, type }: Props) {
                         <Image src="/images/pubic_icon/icon_success.png" alt="" className={`${styles.icon_box2}`} width={38} height={38} />
                         <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
                             <li className={` mt-2_5 font-16 font-w-500 `}>
-                                {type.toString() === '0' && '已撤单' }
-                                {type.toString() === '1' && '已挂单'}
-                                {type.toString() === '2' && '已成交'}
+                                {type.toString() === '0' && t('spot.toastModal.canceled')}
+                                {type.toString() === '1' && t('spot.toastModal.placed')}
+                                {type.toString() === '2' && t('spot.toastModal.completed')}
                             </li>
                             <li className={` mt-5 font-14 font-w-400 `}>
-                                币对：{toastData.symbol}
+                                {t('spot.toastModal.pair')}：{toastData.symbol}
                             </li>
                             <li className={` mt-3 font-14 font-w-400 `}>
-                                价格：{toastData.price}&nbsp;{toastData.symbol?.split('/')?.[1] || '--'}
+                                {t('spot.toastModal.price')}：{toastData.price}&nbsp;{toastData.symbol?.split('/')?.[1] || '--'}
                             </li>
                             <li className={` mt-3 font-14 font-w-400 `}>
-                            {type.toString() === '0' && `撤单量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
-                            {type.toString() === '1' && `挂单量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}        
-                            {type.toString() === '2' && `成交量：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
+                            {type.toString() === '0' && `${t('spot.toastModal.cancelAmount')}：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
+                            {type.toString() === '1' && `${t('spot.toastModal.placeAmount')}：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}        
+                            {type.toString() === '2' && `${t('spot.toastModal.completedAmount')}：${toastData.amount}&nbsp;${toastData.symbol?.split('/')?.[0] || '--'}`}
                             </li>
                         </ul>
                     </div>

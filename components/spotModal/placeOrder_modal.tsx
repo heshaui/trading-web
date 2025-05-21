@@ -118,7 +118,7 @@ function SpotBuyModal({ open, onCancel, onOk ,orderInfo}: Props) {
             <Modal
                 open={open}
                 title={<p className={`${styles.title}`} >
-                    账户入金
+                    {t('spot.placeOrderModal.title')}
                 </p>}
                 centered
                 onCancel={handCancel}
@@ -133,14 +133,14 @@ function SpotBuyModal({ open, onCancel, onOk ,orderInfo}: Props) {
             >
                 <div className="" style={{ width: "100%" ,minHeight: "230px"}}>
                     {/* t() */}
-                    <p className={`font-14 font-w-400 ${styles.tip_color} mb-3`}>选择最适合您的方式入金。</p>
+                    <p className={`font-14 font-w-400 ${styles.tip_color} mb-3`}>{t('spot.placeOrderModal.tip')}</p>
                     <button className={`${styles.msg_btn_item} w-full flex-x align-center`} onClick={()=>{
                           router.push(ROUTER_KEY_ASSETS.TOP_UP)
                     }}>
                         <Iconify icon="mingcute:tether-usdt-fill" className={`${styles.theme_color}`} size={48}/>
                         <div className="flex-y align-start ml-2_5">
-                            <p className={`font-16 font-w-500 ${styles.title_color}`}>充值USDT</p>
-                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>通过区块链将其他交易所资产转入</p>
+                            <p className={`font-16 font-w-500 ${styles.title_color}`}>{t('spot.placeOrderModal.depositUsdt')}</p>
+                            <p className={`font-14 font-w-400 ${styles.tip_color}`}>{t('spot.placeOrderModal.depositDesc')}</p>
                         </div>
                     </button>
                 </div>
