@@ -2,40 +2,35 @@ import { useState, useEffect } from 'react';
 import { themeVariables } from './themes';
 
 export const useDayModeChange = () => {
-    // 获取系统主题偏好
-    const getSystemTheme = () => {
-        if (typeof window !== 'undefined') {
-            return window.matchMedia('(prefers-color-scheme: light)').matches;
-        }
-        return true;
-    };
-
     // 应用主题变量
     const applyTheme = (isDayMode: boolean) => {
-        localStorage.setItem('isDayMode', String(isDayMode));
-        const theme = isDayMode ? themeVariables.light : themeVariables.dark;
-        Object.entries(theme).forEach(([key, value]) => {
-            document.documentElement.style.setProperty(key, value);
-        });
+        try {
+            localStorage.setItem('isDayMode', String(isDayMode));
+            const theme = isDayMode ? themeVariables.light : themeVariables.dark;
+            Object.entries(theme).forEach(([key, value]) => {
+                document.documentElement.style.setProperty(key, value);
+            });
+        } catch (e) {
+            console.error('Failed to apply theme:', e);
+        }
     };
 
-    // 初始化主题状态
-    const [isDayMode, setIsDayMode] = useState(() => {
+    // 初始化主题状态，默认为白天模式
+    const [isDayMode, setIsDayMode] = useState<boolean>(() => {
         if (typeof window !== 'undefined') {
-            const savedMode = localStorage.getItem('isDayMode');
-            // 如果没有保存过用户设置，使用系统主题
-            if (savedMode === null) {
-                const systemTheme = getSystemTheme();
-                // 应用系统主题
-                applyTheme(systemTheme);
-                return systemTheme;
+            try {
+                const savedMode = localStorage.getItem('isDayMode');
+                if (savedMode !== null) {
+                    const userTheme = savedMode === 'true';
+                    applyTheme(userTheme);
+                    return userTheme;
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
             }
-            // 如果有保存的设置，使用保存的设置
-            const userTheme = savedMode === 'true';
-            // 应用用户保存的主题
-            applyTheme(userTheme);
-            return userTheme;
         }
+        // 默认返回白天模式
+        applyTheme(true);
         return true;
     });
 
@@ -56,10 +51,10 @@ export const useDayModeChange = () => {
 
             const handleSystemThemeChange = (e: MediaQueryListEvent) => {
                 // 只有在没有用户手动设置时才跟随系统
-                if (localStorage.getItem('isDayMode') === null) {
-                    setIsDayMode(e.matches);
-                    applyTheme(e.matches);
-                }
+                // if (localStorage.getItem('isDayMode') === null) {
+                //     setIsDayMode(e.matches);
+                //     applyTheme(e.matches);
+                // }
             };
 
             // 初始化主题
