@@ -44,7 +44,7 @@ export default function Notice() {
     const [isLoading, setIsLoading] = useState<boolean>(true); // 初始状态设为加载中
     const [isDataInitialized, setIsDataInitialized] = useState<boolean>(false); // 数据是否已初始化
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-    const [selectedLabel, setSelectedLabel] = useState<string>(t('notice.title'));
+    const [selectedLabel, setSelectedLabel] = useState<string>(t('bulletinCenter.title'));
     const [menuList, setMenuList] = useState<Array<{
         classDesc: SetStateAction<string>; id: number, classMenu: string, languageContent: string, serialNum: number
     }>>([]);
@@ -308,7 +308,7 @@ export default function Notice() {
             return [{
                 key: 'loading',
                 icon: <Image src="/images/bulletin_center/icon_notice.png" alt="" width={20} height={20} />,
-                label: t('notice.menu.loading'),
+                label: t('bulletinCenter.message.loading'),
                 disabled: true
             }];
         }
@@ -393,10 +393,10 @@ export default function Notice() {
                                     <Row>
                                         <Col>
                                             <h5 style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-color5)', marginBottom: 10 }}>
-                                                {t('notice.title')}
+                                                {t('bulletinCenter.title')}
                                             </h5>
                                             <h5 style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-color5)' }}>
-                                                <span style={{ color: '#676867' }}>{t('notice.menu.announcement')}</span>  /  {selectedLabel}
+                                                <span style={{ color: '#676867' }}>{t('bulletinCenter.announcement')}</span>  /  {selectedLabel}
                                             </h5>
                                         </Col>
                                     </Row>
@@ -452,3 +452,12 @@ export default function Notice() {
         </ConfigProvider>
     );
 }
+import { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['builetinCenter', 'common'])),
+        },
+    };
+};

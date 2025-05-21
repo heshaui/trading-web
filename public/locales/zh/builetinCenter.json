@@ -1,5 +1,8 @@
 {
     "bulletinCenter": {
+        "title": "公告中心",
+        "announcement":"公告",
+
         "menu": {
             "all": "全部公告",
             "latest": "最新动态",

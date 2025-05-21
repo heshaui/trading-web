@@ -20,7 +20,7 @@ interface OrderBookProps {
 }
 
 const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) => {
-  const { t } = useTranslation(['assets']);
+  const { t } = useTranslation(['spot']);
   console.log(bookData, 'bookData');
   console.log(orderData, 'orderData');
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
@@ -258,7 +258,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
     return (
       <div className='flex' style={{gap:'10px'}}>
         {/* 显示买卖盘 */}
-        <Tooltip title={t('orderBook.bothOrders')} overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('spot.orderBook.bothOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 1 ? '/images/exchange/icon_order_hover.png' : '/images/exchange/icon_order.png'} 
           alt="color-mode" 
@@ -269,7 +269,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         /> 
         </Tooltip>
         {/* 显示买盘 */}
-        <Tooltip title={t('orderBook.buyOrders')} overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('spot.orderBook.buyOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 2 ? '/images/exchange/icon_green_hover.png' : '/images/exchange/icon_green.png'} 
           alt="color-mode" 
@@ -280,7 +280,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         />
         </Tooltip>
         {/* 显示卖盘 */}
-        <Tooltip title={t('orderBook.sellOrders')} overlayInnerStyle={{fontSize: '12px'}}>
+        <Tooltip title={t('spot.orderBook.sellOrders')} overlayInnerStyle={{fontSize: '12px'}}>
         <Image 
           src={colorMode === 3 ? '/images/exchange/icon_red_hover.png' : '/images/exchange/icon_red.png'} 
           alt="color-mode" 
@@ -299,9 +299,9 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
     return (
       <div className={styles.tradesContainer}>
         <div className={styles.labels} style={{fontSize:'12px'}}>
-          <span>{t('orderBook.price')}({currentPair?.baseSymbol})</span>
-          <span>{t('orderBook.amount')}({currentPair?.coinSymbol})</span>
-          <span>{t('orderBook.time')}</span>
+          <span>{t('spot.orderBook.price')}({currentPair?.baseSymbol})</span>
+          <span>{t('spot.orderBook.amount')}({currentPair?.coinSymbol})</span>
+          <span>{t('spot.orderBook.time')}</span>
         </div>
         <div className={styles.tradesList} style={{ height: '450px', overflowY: 'auto' }}>
           {trades.map((trade, index) => (
@@ -337,13 +337,13 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           className={`${styles.tab} ${activeTab === 'orderbook' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('orderbook')}
         >
-          {t('orderBook.title')}
+          {t('spot.orderBook.title')}
         </div>
         <div 
           className={`${styles.tab} ${activeTab === 'trades' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('trades')}
         >
-          {t('orderBook.latestTrades')}
+          {t('spot.orderBook.latestTrades')}
         </div>
       </div>
       
@@ -370,9 +370,9 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
       {activeTab === 'orderbook' ? (
         <>
           <div className={styles.labels} style={{fontSize:'12px'}}>
-            <span>{t('orderBook.price')}({currentPair?.baseSymbol}) </span>
-            <span>{t('orderBook.amount')}({currentPair?.coinSymbol})</span>
-            <span>{t('orderBook.total')}({currentPair?.baseSymbol}) </span>
+            <span>{t('spot.orderBook.price')}({currentPair?.baseSymbol}) </span>
+            <span>{t('spot.orderBook.amount')}({currentPair?.coinSymbol})</span>
+            <span>{t('spot.orderBook.total')}({currentPair?.baseSymbol}) </span>
           </div>
 
           {/* 卖单 */}

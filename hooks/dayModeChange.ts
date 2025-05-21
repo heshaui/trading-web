@@ -1,43 +1,52 @@
 import { useState, useEffect } from 'react';
 import { themeVariables } from './themes';
 
-export const useDayModeChange = () => {
-    // 获取系统主题偏好
-    const getSystemTheme = () => {
-        if (typeof window !== 'undefined') {
-            return window.matchMedia('(prefers-color-scheme: light)').matches;
-        }
-        return true;
-    };
+const isClient = typeof window !== 'undefined';
 
+const getSystemTheme = (): boolean => {
+    if (!isClient) return true; // Default to light mode for SSR
+    return window.matchMedia('(prefers-color-scheme: light)').matches;
+};
+
+export const useDayModeChange = () => {
     // 应用主题变量
     const applyTheme = (isDayMode: boolean) => {
-        localStorage.setItem('isDayMode', String(isDayMode));
-        const theme = isDayMode ? themeVariables.light : themeVariables.dark;
-        Object.entries(theme).forEach(([key, value]) => {
-            document.documentElement.style.setProperty(key, value);
-        });
+        if (!isClient) return; // Skip during SSR
+        
+        try {
+            localStorage.setItem('isDayMode', String(isDayMode));
+            const theme = isDayMode ? themeVariables.light : themeVariables.dark;
+            Object.entries(theme).forEach(([key, value]) => {
+                document.documentElement.style.setProperty(key, value);
+            });
+        } catch (e) {
+            console.error('Failed to apply theme:', e);
+        }
     };
 
-    // 初始化主题状态
-    const [isDayMode, setIsDayMode] = useState(() => {
-        if (typeof window !== 'undefined') {
+    // 初始化主题状态，默认为白天模式
+    const [isDayMode, setIsDayMode] = useState<boolean>(true); // Default to light mode initially
+
+    // Initialize theme on mount (client-side only)
+    useEffect(() => {
+        if (!isClient) return;
+        
+        try {
             const savedMode = localStorage.getItem('isDayMode');
-            // 如果没有保存过用户设置，使用系统主题
-            if (savedMode === null) {
+            if (savedMode !== null) {
+                const userTheme = savedMode === 'true';
+                setIsDayMode(userTheme);
+                applyTheme(userTheme);
+            } else {
+                // If no saved preference, use system theme
                 const systemTheme = getSystemTheme();
-                // 应用系统主题
+                setIsDayMode(systemTheme);
                 applyTheme(systemTheme);
-                return systemTheme;
             }
-            // 如果有保存的设置，使用保存的设置
-            const userTheme = savedMode === 'true';
-            // 应用用户保存的主题
-            applyTheme(userTheme);
-            return userTheme;
+        } catch (e) {
+            console.error('Failed to load theme preference:', e);
         }
-        return true;
-    });
+    }, []);
 
     // 切换主题
     const toggleTheme = () => {
@@ -51,33 +60,28 @@ export const useDayModeChange = () => {
 
     // 监听系统主题变化
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+        if (!isClient) return;
+        
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
 
-            const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-                // 只有在没有用户手动设置时才跟随系统
+        const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+            // Only follow system theme if user hasn't set a preference
+            try {
                 if (localStorage.getItem('isDayMode') === null) {
-                    setIsDayMode(e.matches);
-                    applyTheme(e.matches);
+                    const systemTheme = e.matches;
+                    setIsDayMode(systemTheme);
+                    applyTheme(systemTheme);
                 }
-            };
-
-            // 初始化主题
-            const savedMode = localStorage.getItem('isDayMode');
-            if (savedMode === null) {
-                // 如果没有保存的设置，应用系统主题
-                applyTheme(getSystemTheme());
-            } else {
-                // 如果有保存的设置，应用保存的设置
-                applyTheme(savedMode === 'true');
+            } catch (e) {
+                console.error('Error handling system theme change:', e);
             }
+        };
 
-            mediaQuery.addEventListener('change', handleSystemThemeChange);
+        mediaQuery.addEventListener('change', handleSystemThemeChange);
 
-            return () => {
-                mediaQuery.removeEventListener('change', handleSystemThemeChange);
-            };
-        }
+        return () => {
+            mediaQuery.removeEventListener('change', handleSystemThemeChange);
+        };
     }, []);
 
     return { isDayMode, toggleTheme };

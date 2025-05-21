@@ -2,28 +2,30 @@
   "title": "Security Center",
   "basic_security": "Basic Security",
   "google_auth": {
-    "title": "Google Authenticator (Recommended)",
-    "desc": "It is used for security verification such as login, withdrawal, and modification of security settings. If you often fail to receive SMS verification codes, it is recommended to bind the Google Authenticator."
+      "title": "Google Authenticator (Recommended)",
+      "desc": "Used for security verification during login, withdrawals, and security settings changes. Recommended if you frequently don't receive SMS codes."
   },
   "phone_verify": {
-    "title": "Phone Verification",
-    "desc": "The SMS verification code will protect the security of your account and transactions. After changing the bound phone number, functions such as payment and withdrawal will be disabled for 24 hours."
+      "title": "Phone Verification",
+      "desc": "SMS codes protect your account and transactions. After changing your phone number, features like payments and withdrawals will be disabled for 24 hours.",
+      "desc2": "SMS codes protect your account and transactions. After changing your phone number, features like payments and withdrawals will be disabled for {{time}} hours."
   },
   "email_verify": {
-    "title": "Email Verification",
-    "desc": "The email verification code will protect the security of your account and transactions. After changing the bound email address, functions such as payment and withdrawal will be disabled for 24 hours."
+      "title": "Email Verification",
+      "desc": "Email codes protect your account and transactions. After changing your email, features like payments and withdrawals will be disabled for 24 hours.",
+      "desc2": "Email codes protect your account and transactions. After changing your email, features like payments and withdrawals will be disabled for {{time}} hours."
   },
   "login_password": {
-    "title": "Login Password",
-    "desc": "You will be automatically logged out of the current account when resetting the password."
+      "title": "Login Password",
+      "desc": "You will be automatically logged out after resetting."
   },
-  "security_log": "Security Log",
+  "security_log": "Security Logs",
   "security_device": {
-    "title": "Security Devices",
-    "desc": "Manage the devices that have been authorized to log in."
+      "title": "Trusted Devices",
+      "desc": "Manage devices authorized to access your account."
   },
   "security_log_item": {
-    "title": "Security Log",
-    "desc": "It is used for the security of IP addresses during login, etc."
+      "title": "Security Logs",
+      "desc": "Monitor login IP addresses and security events."
   }
 }

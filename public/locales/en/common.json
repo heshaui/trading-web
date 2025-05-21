@@ -1,15 +1,16 @@
 {
-  "title": "Welcome-Chinese (Simplified)",
-  "description": "This is the homepage-Chinese (Simplified)",
-  "home1": "IMBIT cryptocurrency exchange is faster, better, and stronger",
+  "title": "Welcome",
+  "description": "This is the homepage",
+  "home1": "IMBIT Digital Currency Exchange: Faster, Better, Stronger",
   "home2": "More",
   "nickname": "Nickname",
-"userCenter":{
-"overView": "Full Stack Overview",
-"account": "User Settings",
-"identity": "Identity Verification",
-"security": "Security Center"
-},
+  "login": "Already have an account?",
+  "userCenter": {
+    "overView": "Overview",
+    "account": "User Settings",
+    "identity": "Identity Verification",
+    "security": "Security Center"
+  },
   "search": "Search",
   "filter": "Filter",
   "ok": "Confirm",
@@ -27,52 +28,96 @@
   "cut": "Cut",
   "undo": "Undo",
   "redo": "Redo",
-  "note": "Important Notice",
+  "note": "Important Note",
   "err": "Operation Failed",
   "success": "Operation Successful",
   "inputCode": "Please enter",
-  "resend": "Resend the verification code",
-  "cantReceive": "Can't receive the verification code?",
-  "check": "If you haven't received the verification code for a long time, please check the following items:",
-  "check1": "Make sure your email is",
-  "check2": "Make sure your mobile phone is",
-  "check3": "Make sure your mobile phone/email is",
-  "check4": "Check if the verification code is in the spam folder",
+  "resend": "Resend Verification Code",
+  "cantReceive": "Can't receive the code?",
+  "check": "If you haven't received the verification code for a long time, please check the following:",
+  "check1": "Ensure your email is",
+  "check2": "Ensure your phone number is",
+  "check3": "Ensure your phone/email is",
+  "check4": "Check if the verification code is in the spam/junk folder",
   "check5": "The verification code may be delayed. Please try again after 10 minutes.",
   "nodata": "No data available",
   "noaddress": "No address available",
   "safeVerification": "Security Verification",
-  "usersetting":{
+  "noLogin": {
+    "tip1": "Start Trading",
+    "tip2": "Login",
+    "tip3": "Register Now",
+    "or": "or"
+  },
+  "usersetting": {
     "modifyOnce": "Can only be modified once within 24 hours",
     "modifySuccess": "Nickname modified successfully",
     "modifyNickname": "Modify Nickname",
-    "nicknameRequired": "Please enter your nickname",
+    "nicknameRequired": "Please enter a nickname",
     "modifyNicknameOnce": "Nickname can be modified",
     "modifyNicknameOnceTip": "Can only be modified once within 24 hours.",
-    "modifyNicknameOnceTip2": "The nickname only supports numbers and letters and should not exceed 25 characters.",
-    "modifyNicknameOnceTip3": "Personal real names and contact information, etc. should not be used to prevent the leakage of your privacy.",
-    "modifyNicknameOnceTip4": "The content of the nickname must comply with the laws and regulations of the country or region where you are located. In case of violations, IMBIT has the right to modify it or impose punitive measures such as muting or blocking the account.",
-    "modifyNicknameOnceTip5": "Due to version differences, historical nicknames may not conform to the above specifications and will not be synchronized to the domain name URL.",
+    "modifyNicknameOnceTip2": "Nickname can only contain numbers and letters, and must not exceed 25 characters.",
+    "modifyNicknameOnceTip3": "Do not use your real name or contact information to protect your privacy.",
+    "modifyNicknameOnceTip4": "Nickname must comply with local laws and regulations. IMBIT reserves the right to modify or impose penalties such as account suspension for violations.",
+    "modifyNicknameOnceTip5": "Historical nicknames that do not meet the above standards due to version issues will not be synced to the domain URL.",
     "modifyAvatar": "Modify Avatar",
     "modifyAvatarSuccess": "Avatar modified successfully",
     "uploadAvatar": "Upload",
-    "avatarFormatTip": "Profile pictures only support jpg/jpeg, png, and gif formats",
+    "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats.",
     "avatarFilter": {
       "all": "All",
       "male": "Male",
       "female": "Female",
-      "avatarFormatTip": "Profile pictures only support jpg/jpeg, png, and gif formats",
+      "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats.",
       "invalidFileType": "Invalid file type"
     },
-    "selectAvatar": "Please select or choose an avatar",
+    "selectAvatar": "Please select an avatar",
     "avatarSuccess": "Avatar modified successfully",
     "birthday": {
       "title": "Add Birthday",
-      "placeholder": "Year/Month/Day",
+      "placeholder": "YYYY/MM/DD",
       "required": "Please enter your birthday!",
-      "invalidFormat": "Please enter a valid date format (Year/Month/Day)!",
+      "invalidFormat": "Please enter a valid date format (YYYY/MM/DD)!",
       "modifySuccess": "Birthday modified successfully",
-      "tip": "Please enter the correct date. Once filled in, it cannot be modified."
+      "tip": "Please enter the correct date. It cannot be modified after submission."
     }
+  },
+  "modal": {
+    "confirmCancel": "After confirmation, the withdrawal order will be canceled."
+  },
+  "footer": {
+    "scanDownloadApp": "Scan to download the app",
+    "downloadApp": "Download App",
+    "community": "Community"
+  },
+  "depthChart": {
+    "buyOrders": "Buy Orders",
+    "sellOrders": "Sell Orders",
+    "midPrice": "Mid Price"
+  },
+  "router": {
+    "myAssets": "My Assets",
+    "recharge": "Deposit",
+    "withdraw": "Withdraw",
+    "bill": "Transaction History",
+    "spotTrade": "Spot Trading",
+    "spotOrder": "Spot Orders",
+    "overView": "Overview",
+    "safetyCenter": "Security Center",
+    "identity": "Identity Verification",
+    "inviteFriend": "Invite Friends",
+    "setting": "Settings",
+    "logout": "Logout"
+  },
+  "header": {
+    "noLanguageData": "No language data available",
+    "noRateData": "No exchange rate data available",
+    "language": "Language",
+    "searchLanguage": "Search Language",
+    "rate": "Exchange Rate",
+    "searchRate": "Search Exchange Rate"
+  },
+  "scrollableTabs": {
+    "all": "All"
   }
-} 
+}
