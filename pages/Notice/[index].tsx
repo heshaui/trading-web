@@ -452,7 +452,9 @@ export default function Notice() {
         </ConfigProvider>
     );
 }
-export const getServerSideProps = async ({ locale }) => {
+import { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
         props: {
             ...(await serverSideTranslations(locale || 'en', ['builetinCenter', 'common'])),
