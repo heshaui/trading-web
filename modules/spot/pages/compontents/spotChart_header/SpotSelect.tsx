@@ -294,7 +294,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          <div
                              className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
                          >
-                             {showVolume ? pair.quantity : `${pair.priceChangePercent}%`}
+                             {showVolume ? pair.quantity: `${pair.priceChangePercent.toFixed(2)}%`}
                          </div>
                      </div>
                     ))}
