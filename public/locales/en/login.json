@@ -65,7 +65,9 @@
     "agreeText": "I have read and agree to",
     "goLogin": "Login",
     "repeat": "Account already exists.",
-    "repeat2": "Login to this account?"
+    "repeat2": "Login to this account?",
+    "agreeErr": "Please agree to the User Agreement and Privacy Policy first",
+    "passwordNull": "Password cannot be empty!"
   },
   "authCodeForm": {
     "title": "Verification code sent to",
