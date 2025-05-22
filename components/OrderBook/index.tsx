@@ -6,6 +6,8 @@ import appStore from '@/store';
 import { Tooltip,Select } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { add,cut,nul,roundDown } from '@/utils/index';
+import { getRate } from '@/utils/getUseRate';
+import { getRound } from '@/utils/getUseRate'
 // 定义订单类型
 interface Order {
   price: number;
@@ -41,6 +43,17 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
   // 添加最新成交数据状态
   const [trades, setTrades] = useState<{price: number; amount: number; time: string; type: 'buy' | 'sell'}[]>([]);
   const [lastPrice, setLastPrice] = useState(0);
+
+  // 当币对变化时，重置所有订单数据
+  useEffect(() => {
+    setSellOrders([]);
+    setBuyOrders([]);
+    setCurrentPrice(0);
+    setTrades([]);
+    setLastPrice(0);
+    setPriceDirection('');
+    setPriceSource('');
+  }, [currentPair]);
 
   useEffect(() => {
 

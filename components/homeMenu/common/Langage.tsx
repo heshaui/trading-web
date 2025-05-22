@@ -81,8 +81,9 @@ export default function LanguageMenu() {
                         cursor: 'pointer',
                         display: 'block',
                         width: '100%',
-                        height: '100%'
+                        height: '30px'
                     }}
+                    className='flex-x align-center'
                     onClick={() => handleLanguageChange(item.key as string)}
                 >
                     {item.span}
@@ -111,8 +112,9 @@ export default function LanguageMenu() {
                         cursor: 'pointer',
                         display: 'block',
                         width: '100%',
-                        height: '100%'
+                        height: '30px'
                     }}
+                    className='flex-x align-center'
                     onClick={() => appStore.setRateKey(item.key as string)}
                 >
                     {item.span}
@@ -129,11 +131,18 @@ export default function LanguageMenu() {
         if (!searchLanguageValue) return languageItems;
         
         const regex = new RegExp(searchLanguageValue.trim(), 'i');
-        return languageItems.filter((item: any) => 
+        const filtered= languageItems.filter((item: any) => 
             item.type === 'group' || 
             (typeof item.label?.props?.children === 'string' && 
              regex.test(item.label.props.children))
-        );
+         );
+         return filtered.length === 0 ? [
+            {
+                key: 'empty-language',
+                type: 'group',
+                label: <NoData title={t('header.noLanguageData')} />,
+            },
+        ]:filtered;
     }, [languageItems, searchLanguageValue]);
     
     // 过滤汇率选项
@@ -141,11 +150,18 @@ export default function LanguageMenu() {
         if (!searchRateValue) return rateItems;
         
         const regex = new RegExp(searchRateValue.trim(), 'i');
-        return rateItems.filter((item: any) => 
+       const filtered=  rateItems.filter((item: any) => 
             item.type === 'group' || 
             (typeof item.label?.props?.children === 'string' && 
              regex.test(item.label.props.children))
-        );
+         );
+         return filtered.length === 0 ? [
+            {
+                key: 'empty-rate',
+                type: 'group',
+                label: <NoData title={t('header.noRateData')} />,
+            },
+        ]:filtered;
     }, [rateItems, searchRateValue]);
     
     // 构建菜单项

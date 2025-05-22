@@ -100,7 +100,6 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const getFingerprint = async () => {
         const result = await FingerprintJS.load();
         const visitorId = await result.get();
-        console.log(visitorId);
         return visitorId.visitorId;
     };
     // 过滤输入，只允许数字和字母
@@ -213,17 +212,20 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     const getLoginCheckList = async () => {
         if (isCounting || isCounting2 || loading || codeLoading) return toast.error(t('safeModal.codeValid'))
         setCodeLoading(true);
+        const fingerprint = await getFingerprint();
         let param = {};
         if (acountInfo.type === 'm') {
             param = {
                 account: acountInfo.email,
-                type: acountInfo.type
+                type: acountInfo.type,
+                deviceType: fingerprint,
             }
 
         } else if (acountInfo.type === 'p') {
             param = {
                 account: acountInfo.phone,
-                type: acountInfo.type
+                type: acountInfo.type,
+                deviceType: fingerprint,
             }
         }
         const dataEncrypt = await encryptData(param)

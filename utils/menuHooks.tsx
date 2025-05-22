@@ -47,7 +47,7 @@ export const isEmptyOrWhitespace = (str: string | null | undefined): boolean => 
  */
 export const processMenuItems = (menuItems: MenuItem[]): MenuItem[] => {
     if (!menuItems || !Array.isArray(menuItems)) {
-        console.log('processMenuItems: 输入不是有效数组', menuItems);
+        // console.log('processMenuItems: 输入不是有效数组', menuItems);
         return [];
     }
 
@@ -68,7 +68,7 @@ export const processMenuItems = (menuItems: MenuItem[]): MenuItem[] => {
     const filteredItems = processedItems.filter(item => {
         // 如果 displayStatus 为 0，则不显示
         if (item.displayStatus === 0) {
-            console.log(`过滤掉 displayStatus=0 的菜单项:`, item);
+            // console.log(`过滤掉 displayStatus=0 的菜单项:`, item);
             return false;
         }
         
@@ -80,20 +80,20 @@ export const processMenuItems = (menuItems: MenuItem[]): MenuItem[] => {
             if (hasValidChildren) {
                 return true;
             }
-            console.log(`过滤掉无效分组:`, item);
+            // console.log(`过滤掉无效分组:`, item);
             return false;
         }
         
         // 对于普通菜单项，检查 menuName 是否有效
         if (isEmptyOrWhitespace(item.menuName)) {
-            console.log(`过滤掉 menuName 为空的菜单项:`, item);
+            // console.log(`过滤掉 menuName 为空的菜单项:`, item);
             return false;
         }
         
         return true;
     });
     
-    console.log('处理后的菜单项:', filteredItems);
+    // console.log('处理后的菜单项:', filteredItems);
     return filteredItems.map(item => {
         const processedItem = { ...item };
         // 设置 spanText

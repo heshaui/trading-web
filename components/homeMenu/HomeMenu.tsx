@@ -147,7 +147,7 @@ export default function HomeMenu() {
 
     // 合并API数据和缓存数据
     const mergedMenus = useMemo(() => menus.length > 0 ? menus : getCachedMenuData.cachedMenus, [menus, getCachedMenuData.cachedMenus]);
-    console.log('mergedMenus', mergedMenus)
+    // console.log('mergedMenus', mergedMenus)
     const mergedAdaptiveMenuData = useMemo(() => adaptiveMenuData.length > 0 ? adaptiveMenuData : getCachedMenuData.cachedAdaptiveMenuData, [adaptiveMenuData, getCachedMenuData.cachedAdaptiveMenuData]);
     const bulletinDataList = useMemo(() => bulletinData.length > 0 ? bulletinData : getCachedMenuData.cachedBulletinData, [bulletinData, getCachedMenuData.cachedBulletinData]);
     const mergedLanguageList = useMemo(() => languageList.length > 0 ? languageList : getCachedMenuData.cachedLanguageList, [languageList, getCachedMenuData.cachedLanguageList]);
@@ -348,7 +348,7 @@ export default function HomeMenu() {
         if (typeof i18n.changeLanguage === 'function') {
             i18n.changeLanguage(langEncode.split('-')[0]);
         } else {
-            // console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
+            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
             // 使用替代方法
             localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
         }
@@ -512,7 +512,7 @@ export default function HomeMenu() {
     ];
 
     const goNotice = (id: string) => {
-        console.log(id);
+        // console.log(id);
         // 跳转到公告详情页面
         router.push(`/Notice/${id}`);
     }

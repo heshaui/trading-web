@@ -172,7 +172,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_1051@depth`);
         depthWsRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -237,13 +237,25 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 不是累加，而是直接替换数量
-                                if (quantity === '0' || quantity === '0') {
-                                    // 如果数量为0，移除该档位
+                                const currentQuantity = Number(newData.bids[existingIndex][1]);
+                                const quantityNum = Number(quantity);
+                                let newQuantity;
+                                
+                                // 如果数量为负数，进行减法操作
+                                if (quantityNum < 0) {
+                                    console.log('买单负数quantityNum', quantityNum);
+                                    newQuantity = currentQuantity - Math.abs(quantityNum);
+                                } else {
+                                    // 否则进行累加
+                                    newQuantity = currentQuantity + quantityNum;
+                                }
+                                
+                                if (newQuantity <= 0) {
+                                    // 如果计算后小于等于0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
                                 } else {
-                                    // 更新数量
-                                    newData.bids[existingIndex][1] = quantity;
+                                    // 否则更新为计算后的数量
+                                    newData.bids[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
                             // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
@@ -281,25 +293,25 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 不是累加，而是直接替换数量
-                                if (Number(quantity) === 0) {
-                                    // 如果数量为0，移除该档位
-                                    newData.asks.splice(existingIndex, 1);
-                                } else if (Number(quantity) < 0) {
-                                    // 处理负数数量的情况：减去总额
-                                    const currentQuantity = Number(newData.asks[existingIndex][1]);
-                                    const newQuantity = currentQuantity + Number(quantity); // 加上负数 = 减去绝对值
-                                    
-                                    if (newQuantity <= 0) {
-                                        // 如果减完后小于等于0，移除该档位
-                                        newData.asks.splice(existingIndex, 1);
-                                    } else {
-                                        // 否则更新为新数量
-                                        newData.asks[existingIndex][1] = newQuantity.toString();
-                                    }
+                                const currentQuantity = Number(newData.asks[existingIndex][1]);
+                                const quantityNum = Number(quantity);
+                                let newQuantity;
+                                
+                                // 如果数量为负数，进行减法操作
+                                if (quantityNum < 0) {
+                                    console.log('负数quantityNum',quantityNum)
+                                    newQuantity = currentQuantity - Math.abs(quantityNum);
                                 } else {
-                                    // 常规情况：直接替换数量
-                                    newData.asks[existingIndex][1] = quantity;
+                                    // 否则进行累加
+                                    newQuantity = currentQuantity + quantityNum;
+                                }
+                                
+                                if (newQuantity <= 0) {
+                                    // 如果计算后小于等于0，移除该档位
+                                    newData.asks.splice(existingIndex, 1);
+                                } else {
+                                    // 否则更新为计算后的数量
+                                    newData.asks[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
                             // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
@@ -333,7 +345,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_1051`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 

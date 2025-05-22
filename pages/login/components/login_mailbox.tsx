@@ -14,6 +14,7 @@ import SafeModal from "@/components/myModal/login_safeModal2"
 import { encryptData } from "@/hooks/user-encrypt";
 import { getLoginCheck } from "@/services/login";
 import { toast } from "sonner";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -44,7 +45,12 @@ function Mailbox() {
     const [options, setOptions] = useState<AutoCompleteProps['options']>([]);
     const [loginInfo, setLoginInfo] = useState<useInfoType>({} as useInfoType);
     const [loading, setLoading] = useState(false);
-
+        // 获取浏览器指纹
+        const getFingerprint = async () => {
+            const result = await FingerprintJS.load();
+            const visitorId = await result.get();
+            return visitorId.visitorId;
+        };
     useEffect(() => {
         const storedEmails = localStorage.getItem('emailHistory');
         if (storedEmails) {

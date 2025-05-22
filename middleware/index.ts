@@ -12,7 +12,6 @@ export const publicPaths = [
     '/exchange',
     '/Notice',
     '/helpCenter',
-    '/bulletinCenter'
 
 ];
 

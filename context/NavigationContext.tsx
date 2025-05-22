@@ -97,7 +97,8 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
             const rateResponse = await exchangeRate({ id: 0, shortName: "", status: 1 }) as any;
             if (rateResponse?.data) {
                 const formattedRateData = rateResponse.data.map((item: any) => ({
-                    span: `${item.shortName} - ${item.symbol}`
+                    span: `${item.shortName} - ${item.symbol}`,
+                    key: `${item.shortName}`
                 }));
                 setRateData(formattedRateData);
                 appStore.setRateData(rateResponse.data);

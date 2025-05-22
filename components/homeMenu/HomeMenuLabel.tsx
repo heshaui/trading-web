@@ -89,7 +89,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                     isInput ? (
                                         <div className={`${styles.inputBox} customInput`}>
                                             <Input
-                                                style={{ width: 200 }}
+                                                style={{ width: 200 ,height:40,borderRadius:'8px' }}
                                                 placeholder={h5Text}
                                                 prefix={
                                                     <Image

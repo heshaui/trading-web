@@ -39,7 +39,7 @@ function InvitationReward({onReturn}:InviteProps) {
     const [loading, setLoading] = useState(false);
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { userId } = router.query;
-    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
+    const rateKey = appStore.getRateKey()?.replace(/\s+/g, ''); // 汇率key
     const pageParam = useRef({
         page: 1,
         pageSize: 10,
