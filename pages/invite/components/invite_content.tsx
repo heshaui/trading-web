@@ -45,7 +45,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
     const [rewardRouter, setRewardRouter] = useState<RewardRouterType>({} as RewardRouterType)
-    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
+    const rateKey = appStore.getRateKey()?.replace(/\s+/g, ''); // 汇率key
     const inviteContentList = [
         {
             key: 1,

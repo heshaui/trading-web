@@ -57,7 +57,7 @@ export default function RegisterMail() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
-                console.log(values, 111);
+                // console.log(values, 111);
                 // "请先同意用户协议和隐私政策"
                 if (!values.agree) return toast.error(t('registerForm.agreeErr'))
                 const data = {

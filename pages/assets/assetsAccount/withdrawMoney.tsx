@@ -35,7 +35,7 @@ const WithdrawMoneyPage = observer(() => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const [checkOpen, setCheckOpen] = useState(false);
     const rateData = appStore.getRateData() || [];
-    const rateKey = appStore.getRateKey().replace(/\s+/g, '')
+    const rateKey = appStore.getRateKey()?.replace(/\s+/g, '')
     const [current, setCurrent] = useState(0);
 
     // 商户支持的币种协议(网络)

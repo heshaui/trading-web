@@ -44,13 +44,19 @@ class WebSocketService {
     this.errorCallback = onError;
     this.state = ConnectionState.CONNECTING;
 
-    // 如果有请求头，将token添加到URL中
-    if (this.headers?.['sa-token']) {
-      const url = new URL(this.url);
-      url.searchParams.append('token', this.headers['sa-token']);
-      this.socket = new WebSocket(url.toString());
-    } else {
+    try {
+      // 直接创建 WebSocket 连接，请求头将由服务端代理处理
       this.socket = new WebSocket(this.url);
+    } catch (error) {
+      console.error('WebSocket connection error:', error);/*  */
+      this.state = ConnectionState.CLOSED;
+      if (this.errorCallback) {
+        const event = new Event('error');
+        Object.defineProperty(event, 'error', {
+          value: new Error('Failed to establish WebSocket connection')
+        });
+        this.errorCallback(event);
+      }
     }
     this.setupEventListeners();
   }
@@ -79,7 +85,7 @@ class WebSocketService {
       this.state = ConnectionState.CLOSED;
       this.clearTimers();
       this.socket = null;
-
+      console.error('WebSocket 关闭:', event);
       if (!event.wasClean && this.shouldReconnect()) {
         this.handleReconnect();
       }

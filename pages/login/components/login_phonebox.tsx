@@ -11,6 +11,7 @@ import SafeModal from "@/components/myModal/login_safeModal2"
 import { encryptData } from "@/hooks/user-encrypt";
 import { getLoginCheck } from "@/services/login";
 import { toast } from "sonner";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
@@ -48,7 +49,12 @@ function Phonebox() {
 	const handCodeCancel = () => {
 		setCodeModelOpen(false)
 	}
-
+  // 获取浏览器指纹
+  const getFingerprint = async () => {
+	const result = await FingerprintJS.load();
+	const visitorId = await result.get();
+	return visitorId.visitorId;
+};
 	const onFinish = async () => {
 		form
 			.validateFields()
@@ -66,9 +72,11 @@ function Phonebox() {
 				// }
 				// setLoginInfo(data)
 				// setCodeModelOpen(true)
+				const fingerprint = await getFingerprint();
 				const param = {
 					type: "p",
 					account: values.phoneNumber,
+					deviceType: fingerprint,
 				}
 				const dataEncrypt = await encryptData(param)
 				setLoading(true)

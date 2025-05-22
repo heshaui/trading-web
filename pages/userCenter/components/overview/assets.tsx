@@ -35,7 +35,7 @@ const AssetsPage: React.FC = observer(() => {
     const [banlanceShow, setBanlanceShow] = useState(true)
     // 获取币种列表
     // const { coinList } = useCoinList();
-    const rateKey = appStore.getRateKey().replace(/\s+/g, ''); // 汇率key
+    const rateKey = appStore.getRateKey()?.replace(/\s+/g, ''); // 汇率key
     const userInfo = appStore.getUserInfo();
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [balanceByDay, setBalanceByDay] = useState<chartDataType[]>([]);

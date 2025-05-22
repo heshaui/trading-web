@@ -11,8 +11,6 @@ import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
-// import {goLogin} from "@/store/loginEnum"
-
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -39,13 +37,6 @@ function RegisterPhone() {
 	const [form] = Form.useForm();
 	// 当注册类型不为 PHONE 时不渲染组件
 
-	// 获取浏览器指纹
-	// const getFingerprint = async () => {
-	// 	const result = await FingerprintJS.load();
-	// 	const visitorId = await result.get();
-	// 	console.log(visitorId.components.vendor);
-	// 	return visitorId.visitorId;
-	// };
     useEffect(() => {
         // 确保路由已准备好
         if (router.isReady) {
