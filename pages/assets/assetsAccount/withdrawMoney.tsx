@@ -29,7 +29,6 @@ import { observer } from 'mobx-react-lite';
 import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { coinSelectType, coinExtAllListType, coinExtSelectType, addressSelectType, SearchHistoryItem, coinInfoType, limitType } from '@/type/assets/assetsAccount/withdraw';
 
-
 const WithdrawMoneyPage = observer(() => {
     const { t } = useTranslation('assets');
      const allConfig = appStore.getKvConfigAll();
@@ -906,7 +905,7 @@ const WithdrawMoneyPage = observer(() => {
                                     <button
                                         type='button'
                                         className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
-                                        onClick={() => router.push('/assets/assetsAccount/addAddress')}
+                                        onClick={() => router.push(ROUTER_KEY_ASSETS.ADDADRESS)}
                                     >
                                         {t('withdrawMoney.addAddress')}
                                     </button>
