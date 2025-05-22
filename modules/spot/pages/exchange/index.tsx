@@ -237,13 +237,16 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 不是累加，而是直接替换数量
-                                if (quantity === '0' || quantity === '0') {
-                                    // 如果数量为0，移除该档位
+                                // 累加数量
+                                const currentQuantity = Number(newData.bids[existingIndex][1]);
+                                const newQuantity = currentQuantity + Number(quantity);
+                                
+                                if (newQuantity <= 0) {
+                                    // 如果累加后小于等于0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
                                 } else {
-                                    // 更新数量
-                                    newData.bids[existingIndex][1] = quantity;
+                                    // 否则更新为累加后的数量
+                                    newData.bids[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
                             // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
@@ -281,25 +284,16 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 不是累加，而是直接替换数量
-                                if (Number(quantity) === 0) {
-                                    // 如果数量为0，移除该档位
+                                // 累加数量
+                                const currentQuantity = Number(newData.asks[existingIndex][1]);
+                                const newQuantity = currentQuantity + Number(quantity);
+                                
+                                if (newQuantity <= 0) {
+                                    // 如果累加后小于等于0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
-                                } else if (Number(quantity) < 0) {
-                                    // 处理负数数量的情况：减去总额
-                                    const currentQuantity = Number(newData.asks[existingIndex][1]);
-                                    const newQuantity = currentQuantity + Number(quantity); // 加上负数 = 减去绝对值
-                                    
-                                    if (newQuantity <= 0) {
-                                        // 如果减完后小于等于0，移除该档位
-                                        newData.asks.splice(existingIndex, 1);
-                                    } else {
-                                        // 否则更新为新数量
-                                        newData.asks[existingIndex][1] = newQuantity.toString();
-                                    }
                                 } else {
-                                    // 常规情况：直接替换数量
-                                    newData.asks[existingIndex][1] = quantity;
+                                    // 否则更新为累加后的数量
+                                    newData.asks[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
                             // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
