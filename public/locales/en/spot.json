@@ -232,7 +232,9 @@
             "amount": "Amount",
             "price": "Price",
             "fee": "Fee",
-            "feeDetails": "Maker {{maker}}% / Taker {{taker}}%"
+            "feeDetails": "Maker {{maker}}% / Taker {{taker}}%",
+            "kline": "Tradingview",
+            "depth": "Depth"
         }
     }
 }

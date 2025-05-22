@@ -6,7 +6,7 @@ import { Input, Tabs, ConfigProvider } from "antd";
 // import { SearchOutlined } from '@ant-design/icons';
 import TabsItem from './TabsItem';
 import Image from 'next/image';
-
+import { useTranslation } from 'next-i18next';
 const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
     isTabs = false,
     isSearch = false,
@@ -16,6 +16,7 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
     isMargin = false,
     onInputChange,
 }) => {
+    const { t } = useTranslation('common');
     return (
         <>
             <a
@@ -46,7 +47,7 @@ const HomeMenuChildrenLabel: React.FC<HomeMenuChildrenLabelProps> = ({
                                     >
                                         <Input
                                             style={{ marginTop: isMargin ? '16px' : '0', marginBottom: '10px' }}
-                                            placeholder="搜索"
+                                            placeholder={t('search')}
                                             prefix={
                                                 <Image
                                                     src="/images/home_menu/icon_search.png"

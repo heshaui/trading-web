@@ -460,7 +460,8 @@ const AssetsMainPage = observer(() => {
                                 <span>
                                     {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
 
-                                    ≈  {balanceAll.usdBalance||0}&nbsp;{rateKeyName||'--'}
+                                    ≈  {balanceAll.usdBalance || 0}&nbsp;
+                                    {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
                                 </span>
                             </p>
                         </li>
@@ -479,7 +480,7 @@ const AssetsMainPage = observer(() => {
                                     &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0)||'0'}&nbsp;
                                     {/* USD */}
                                     {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
-                                    {rateKeyName || '--'}
+                                    {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
                                 </span>
                             </p>
                         </li>

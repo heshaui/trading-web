@@ -4,15 +4,20 @@ import { Menu } from 'antd';
 // import { MenuListItem, LabelComponentProps } from '@/type/types';
 import { MenuListItem } from '@/type/types';
 import styles from '@/styles/components/HomeMenu.module.css';
+import { useTranslation } from 'next-i18next';
 
 interface MenuAdaptiveItemProps {
     menuList: MenuListItem[];
 }
 
 export default function MenuAdaptiveItem({ menuList }: MenuAdaptiveItemProps) {
+    const { t } = useTranslation('common');
     // 防护：如果 menuList 未定义或不是数组，返回空内容
     if (!menuList || !Array.isArray(menuList)) {
-        return <div>暂无菜单数据</div>;
+        return <div>
+            {/* 暂无菜单数据 */}
+            {t('header.noMenuData')}
+        </div>;
     }
 
     const menuItems = menuList.map(menu => ({

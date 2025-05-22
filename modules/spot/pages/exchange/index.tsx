@@ -61,7 +61,6 @@ const ExchangePage = () => {
     const [klineData, setKlineData] = useState<any>();
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
-    const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [tradePrice, setTradePrice] = useState<number>(0);
     const router = useRouter();
@@ -85,9 +84,9 @@ const ExchangePage = () => {
         '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        { label: 'K线图', value: 'basic' },
+        { label: t('spot.label.kline'), value: 'basic' },
         // { label: 'TradingView', value: 'tradingview' },
-        { label: '深度图', value: 'depth' }
+        { label: t('spot.label.depth'), value: 'depth' }
     ]);
  
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
@@ -192,7 +191,7 @@ const ExchangePage = () => {
                 if (message.includes('error')) {
                     return;
                 }
-
+                console.log('getWsDepthData',message)
                 const data = JSON.parse(message);
 
                 console.log(data, 'getWsDepthData');
@@ -225,6 +224,7 @@ const ExchangePage = () => {
                         
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
+                            console.log('买单',newBid)
                             const priceFloat = parseFloat(price);
                             
                             // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
@@ -238,7 +238,7 @@ const ExchangePage = () => {
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
                                 // 不是累加，而是直接替换数量
-                                if (quantity === '0') {
+                                if (quantity === '0' || quantity === '0') {
                                     // 如果数量为0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
                                 } else {
@@ -261,7 +261,9 @@ const ExchangePage = () => {
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        // 卖单按价格降序排列
+                        console.log('当前卖单1',data.asks)
+                        console.log('当前卖单2',newData)
+                        // 卖单按价格降序排列   
                         const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
                         const minPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : 0;
                         
@@ -280,13 +282,13 @@ const ExchangePage = () => {
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
                                 // 不是累加，而是直接替换数量
-                                if (quantity === '0') {
+                                if (Number(quantity) === 0) {
                                     // 如果数量为0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
-                                } else if (parseFloat(quantity) < 0) {
+                                } else if (Number(quantity) < 0) {
                                     // 处理负数数量的情况：减去总额
-                                    const currentQuantity = parseFloat(newData.asks[existingIndex][1]);
-                                    const newQuantity = currentQuantity + parseFloat(quantity); // 加上负数 = 减去绝对值
+                                    const currentQuantity = Number(newData.asks[existingIndex][1]);
+                                    const newQuantity = currentQuantity + Number(quantity); // 加上负数 = 减去绝对值
                                     
                                     if (newQuantity <= 0) {
                                         // 如果减完后小于等于0，移除该档位
@@ -560,12 +562,12 @@ const ExchangePage = () => {
 
     return (<div className={`${styles.page_box} w-full`}>
         {/* 使用客户端渲染标记来控制渲染 */}
-        {!isClient ? (
+        {/* {!isClient ? (
             // 服务器端渲染占位符
             <div className="w-full h-screen flex items-center justify-center">
                 <Spin size="large" tip="加载中..." />
             </div>
-        ) : (
+        ) : ( */}
             <ConfigProvider
                 theme={{
                     components: {
@@ -783,7 +785,7 @@ const ExchangePage = () => {
 
 
             </ConfigProvider>
-        )}
+        {/* )} */}
     </div>);
 }
 

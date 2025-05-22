@@ -42,7 +42,7 @@ export default function HomeMenu() {
     const router = useRouter();
 
     // t - 多语言
-    const { t, i18n } = useTranslation('home_menu');
+    const { t, i18n } = useTranslation('common');
     // 添加调试日志
     // console.log('Current language:', i18n.language);
     // console.log('Router locale:', router.locale);
@@ -469,7 +469,7 @@ export default function HomeMenu() {
                 {
                     key: 'empty',
                     type: 'group',
-                    label: <NoData title="暂无匹配结果" />,
+                    label: <NoData title={t('header.noRateData')} />,
                 },
             ];
         }
@@ -491,7 +491,7 @@ export default function HomeMenu() {
                 {
                     key: 'empty',
                     type: 'group',
-                    label: <NoData title="暂无匹配结果" />,
+                    label: <NoData title={t('header.noMatchResult')} />,
                 },
             ];
         }
@@ -521,7 +521,7 @@ export default function HomeMenu() {
     const bulletinItems: TabsProps['items'] = [
         {
             key: '1',
-            label: '公告',
+            label: t('header.notice.notice'), //"公告"
             children:
                 // 如果有公告数据则使用，否则使用默认数据
                 bulletinDataList.length > 0
@@ -534,13 +534,13 @@ export default function HomeMenu() {
                             justifyContent: 'center',
                             padding: '40px 0'
                         }}>
-                            <NoData title="暂无新的通知" />
+                            <NoData title={t('header.noNewNotice')} />
                         </div>
                     )
         },
         {
             key: '2',
-            label: '账户助手',
+            label: t('header.notice.accountAssistant'), //"账户助手"
             children: (
                 accountAssistantLoading ? (
                     <div style={{
@@ -548,7 +548,8 @@ export default function HomeMenu() {
                         justifyContent: 'center',
                         padding: '40px 0'
                     }}>
-                        加载中...
+                        {/* 加载中... */}
+                        {t('header.loading')}
                     </div>
                 ) : accountAssistantData.length > 0 ? (
                     accountAssistantData.map((item: any, index: number) => (
@@ -569,34 +570,34 @@ export default function HomeMenu() {
                         justifyContent: 'center',
                         padding: '40px 0'
                     }}>
-                        <NoData title="暂无新的通知" />
+                        <NoData title={t('header.noNewNotice')} />
                     </div>
                 )
             ),
         },
         {
             key: '3',
-            label: '资产',
+            label: t('header.notice.assets'), //"资产"
             children: (
                 <div style={{
                     display: 'flex',
                     justifyContent: 'center',
                     padding: '40px 0'
                 }}>
-                    <NoData title="暂无新的通知" />
+                    <NoData title={t('header.noNewNotice')} />
                 </div>
             ),
         },
         {
             key: '4',
-            label: '交易',
+            label: t('header.notice.transaction'), //"交易"
             children: (
                 <div style={{
                     display: 'flex',
                     justifyContent: 'center',
                     padding: '40px 0'
                 }}>
-                    <NoData title="暂无新的通知" />
+                    <NoData title={t('header.noNewNotice')} />
                 </div>
             ),
         },
@@ -636,7 +637,8 @@ export default function HomeMenu() {
                                     fontSize: '16px',
                                     color: 'var(--text-color5)'
                                 }}>
-                                    消息
+                                    {/* 消息 */}
+                                    {t('header.notice.message')}
                                 </span>
                             </Col>
                             <Col>
@@ -648,7 +650,8 @@ export default function HomeMenu() {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        查看全部
+                                        {/* 查看全部 */}
+                                        {t('header.notice.viewAll')}
                                     </span>
                                 </Link>
                             </Col>
@@ -917,8 +920,8 @@ export default function HomeMenu() {
                                             </>
                                         ) : (
                                             <>
-                                                <Col><Link href='/login' className={styles.register}><span style={{ color: '#FFF' }}>注册</span></Link></Col>
-                                                <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>登录</span></Link></Col>
+                                                <Col><Link href='/register' className={styles.register}><span style={{ color: '#FFF' }}>{t('header.register')}</span></Link></Col>
+                                                <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>{t('header.login')}</span></Link></Col>
                                                 <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
 
                                                 {iconItemsLogin}
