@@ -42,6 +42,17 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
   const [trades, setTrades] = useState<{price: number; amount: number; time: string; type: 'buy' | 'sell'}[]>([]);
   const [lastPrice, setLastPrice] = useState(0);
 
+  // 当币对变化时，重置所有订单数据
+  useEffect(() => {
+    setSellOrders([]);
+    setBuyOrders([]);
+    setCurrentPrice(0);
+    setTrades([]);
+    setLastPrice(0);
+    setPriceDirection('');
+    setPriceSource('');
+  }, [currentPair]);
+
   useEffect(() => {
 
     
