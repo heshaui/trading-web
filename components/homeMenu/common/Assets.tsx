@@ -39,21 +39,21 @@ export default function AssetsMenuItems() {
                 />
             ),
         },
-        {
-            key: '2',
-            label: (
-                <MenuItemLabel
-                    src={isDayMode
-                        ? "/images/home_menu/icon_deposit.png"
-                        : "/images/home_menu/icon_deposit_dark.png"}
-                    h5Text={t('router.recharge')} //'充币'
-                    spanText=""
-                    onClick={()=>{
-                        router.push(ROUTER_KEY_ASSETS.TOP_UP)
-                    }}
-                />
-            ),
-        },
+        // {
+        //     key: '2',
+        //     label: (
+        //         <MenuItemLabel
+        //             src={isDayMode
+        //                 ? "/images/home_menu/icon_deposit.png"
+        //                 : "/images/home_menu/icon_deposit_dark.png"}
+        //             h5Text={t('router.recharge')} //'充币'
+        //             spanText=""
+        //             onClick={()=>{
+        //                 router.push(ROUTER_KEY_ASSETS.TOP_UP)
+        //             }}
+        //         />
+        //     ),
+        // },
         {
             key: '3',
             label: (
@@ -69,21 +69,21 @@ export default function AssetsMenuItems() {
                 />
             ),
         },
-        {
-            key: '4',
-            label: (
-                <MenuItemLabel
-                    src={isDayMode
-                        ? "/images/home_menu/icon_bill_line.png"
-                        : "/images/home_menu/icon_bill_line_dark.png"}
-                    h5Text={t('router.bill')} //'账单明细'
-                    spanText=""
-                    onClick={()=>{
-                        router.push(ROUTER_KEY_ASSETS.BILL)
-                    }}
-                />
-            ),
-        }
+        // {
+        //     key: '4',
+        //     label: (
+        //         <MenuItemLabel
+        //             src={isDayMode
+        //                 ? "/images/home_menu/icon_bill_line.png"
+        //                 : "/images/home_menu/icon_bill_line_dark.png"}
+        //             h5Text={t('router.bill')} //'账单明细'
+        //             spanText=""
+        //             onClick={()=>{
+        //                 router.push(ROUTER_KEY_ASSETS.BILL)
+        //             }}
+        //         />
+        //     ),
+        // }
     ];
 
     return (

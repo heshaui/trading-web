@@ -1,23 +1,21 @@
 
 import { Form, ConfigProvider, Upload } from 'antd';
-// import type { AutoCompleteProps } from 'antd';
-// import { useState } from "react";
-// import { toast } from "sonner";
 // import store from "@/store";
 import { useRouter } from 'next/router';
 import styles from "../../styles/identityAuth.module.css"
-// import ResetSuccessModal from "@/components/myModal/ressetSuccessModal"
-// import { encryptData } from "@/utils/encrypt";
-// import { getResetPassword } from "@/services/resetPassword"
-// import { Iconify } from "@/components/icon/index";
-// import dayjs from 'dayjs';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
+import appStore from '@/store';
+import { getUserIdentityInfo } from '@/services/identity';
+import { useState ,useEffect} from 'react';
+import { toast } from 'sonner';
+import { ROUTER_KEY_USERCENTER } from '@/config/apiConfig';
+
 interface IDVProps {
     onNext: () => void;
     onPrev: () => void;
 }
-
+// const [userIdentityInfo, setUserIdentityInfo] = useState<any>({} as any);
 
 function SumbitPage() {
     const router = useRouter();
@@ -34,9 +32,27 @@ function SumbitPage() {
     //         });
     // }
     const onNext = () => {
-        router.push('/userCenter')
+        router.push(ROUTER_KEY_USERCENTER.USERCENTER)
     }
-
+      const getUserIdentityInfoData = async () => {
+        const userInfo =appStore.getUserInfo()
+        try {
+          const res = await getUserIdentityInfo({
+            userId: userInfo.userId || ''
+          });
+          if (res.code === '0') {
+            // setUserIdentityInfo(res.data);
+            if (res.data.authStatus !== 3) {
+                router.push(ROUTER_KEY_USERCENTER.IDENTITY)
+            }
+          }
+        } catch (error) {
+          toast.error(String(error));
+        }
+      }
+    useEffect(() => {
+        getUserIdentityInfoData()
+    }, [])
     return (
         <div className="flex-col" style={{ width: "100%" }}>
 

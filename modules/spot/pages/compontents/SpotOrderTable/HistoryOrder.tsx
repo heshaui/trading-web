@@ -233,7 +233,7 @@ const SpotMainPage = observer(() => {
       render: (_status: any, record: DataType) => {
         const { scaleResult } = getRound(record.symbol, _status);
         const res = getRound(record.symbol, record.tradedAmount);
-        if (record.type === 0) {
+        if (record.type === 0&& record.direction === 0) {
           if (record.status === 1 || record.status === 5) {
             return <span>{res.scaleResult}</span>;
           } else {

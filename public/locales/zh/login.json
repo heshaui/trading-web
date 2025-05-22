@@ -65,7 +65,9 @@
     "agreeText": "我已阅读并同意",
     "goLogin": "去登录",
     "repeat": "账号已存在，",
-    "repeat2": "是否登录该账号？"
+    "repeat2": "是否登录该账号？",
+    "agreeErr": "请先同意用户协议和隐私政策",
+    "passwordNull": "密码不能为空！"
   },
   "authCodeForm": {
     "title": "已发送验证码至",

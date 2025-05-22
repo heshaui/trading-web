@@ -163,17 +163,17 @@ export default function CashOutTable() {
   const getStatus = (status: number) => {
     switch (status) {
       case 0:
-        return t('assetsAccount.typeList.create') //'创建';
+        return t('withdrawTable.create') //'创建';
       case 1:
-        return t('assetsAccount.typeList.pending') //'待审核'
+        return t('withdrawTable.pending') //'待审核'
       case 2:
-        return t('assetsAccount.typeList.completed1') //已转出 //'完成'
+        return t('withdrawTable.completed1') //已转出 //'完成'
       case 3:
-        return t('assetsAccount.typeList.rejected') //'拒绝 '
+        return t('withdrawTable.rejected') //'拒绝 '
       case 4:
-        return t('assetsAccount.typeList.canceled') //'用户撤销'
+        return t('withdrawTable.canceled') //'用户撤销'
       default:
-        return '--'
+        return status||'--'
     }
   }
   const pageChange = async (page: number, pageSize: number) => {
