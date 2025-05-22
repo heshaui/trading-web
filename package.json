@@ -4,10 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build ",
-    "start:prod": "NODE_ENV=production next start",
-    "build:dev": "NODE_ENV=development next build",
-    "build:prod": "NODE_ENV=production next build",
+    "build": "ANALYZE=true next build", 
     "start": "next start",
     "lint": "next lint"
   },
@@ -49,6 +46,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
     "@babel/preset-env": "^7.26.9",
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.3.2",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^19",

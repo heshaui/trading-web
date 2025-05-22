@@ -145,14 +145,14 @@ const Tradingview: React.ForwardRefRenderFunction<
           ];
 
 
-
+          const lang = localStorage.getItem("lang") || "zh";
           const widgetOptions = {
             symbol: chartSymbol,
             datafeed: datafeed,
             interval: tvTimeInterval,
             container: chartContainerRef.current,
             library_path: "/charting_library/",
-            locale: "zh",
+            locale: lang,
             charts_storage_url: "http://saveload.tradingview.com",
             charts_storage_api_version: "1.1",
             client_id: "tradingview.com",

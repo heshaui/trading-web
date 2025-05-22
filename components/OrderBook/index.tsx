@@ -21,8 +21,6 @@ interface OrderBookProps {
 
 const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) => {
   const { t } = useTranslation(['spot']);
-  console.log(bookData, 'bookData');
-  console.log(orderData, 'orderData');
   const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
   const [sellOrders, setSellOrders] = useState<Order[]>([]);
   const [buyOrders, setBuyOrders] = useState<Order[]>([]);
@@ -45,7 +43,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
   const [lastPrice, setLastPrice] = useState(0);
 
   useEffect(() => {
-    console.log('原始数据:', bookData); // 添加日志输出查看原始数据
+
     
     // 直接使用bookData中的asks和bids数据
     if (bookData && (bookData.asks || bookData.bids)) {
@@ -63,9 +61,11 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         
         // 处理新的数据
         bookData.asks.forEach((item: [number, number]) => {
+          console.log('原始数量',item[1])
           const price = Number(item[0]);
           const amount = Number(item[1]);
-          
+
+          console.log("数量",amount)
           if (amount < 0) {
             // 如果数量为负，从现有数量中减去
             const existingAmount = priceMap.get(price) || 0;
@@ -121,6 +121,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
             const existingAmount = priceMap.get(price) || 0;
             // const newAmount = Math.max(0, existingAmount - Math.abs(amount));
            const  newAmount=cut(Number(existingAmount),Number(amount))
+
             if (Number(newAmount) > 0) {  
               priceMap.set(price,Number(newAmount));
             } else {
@@ -149,8 +150,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         }
       }
       
-      console.log('处理后卖单数据:', sellOrders);
-      console.log('处理后买单数据:', buyOrders);
+
 
       // 计算当前价格
       if (bookData.asks?.length > 0 && bookData.bids?.length > 0) {
@@ -176,7 +176,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         setCurrentPrice(Number(bookData.bids[0][0]));
       }
     }
-  }, [bookData, currentPrice, priceScale]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
+  }, [bookData, currentPrice, priceScale,colorMode]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
   // 注意：这里故意不将sellOrders和buyOrders添加到依赖数组中，因为每次更新这些状态会触发新的effect执行，造成无限循环
 
   // 添加处理交易数据的效果
