@@ -84,9 +84,9 @@ const ExchangePage = () => {
         '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1D', '3D', '1W', '1M', '1Y'
     ]);
     const [chartType, setChartType] = useState<any[]>([
-        { label: 'K线图', value: 'basic' },
+        { label: t('spot.label.kline'), value: 'basic' },
         // { label: 'TradingView', value: 'tradingview' },
-        { label: '深度图', value: 'depth' }
+        { label: t('spot.label.depth'), value: 'depth' }
     ]);
  
     const [chartDisplayType, setChartDisplayType] = useState<number>(1);
