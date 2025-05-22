@@ -1,5 +1,5 @@
 import { Form, Input, Checkbox, AutoComplete, ConfigProvider } from "antd";
-import { type CSSProperties, useState, useEffect} from "react";
+import { type CSSProperties, useState, useEffect } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 import type { AutoCompleteProps } from 'antd';
@@ -23,7 +23,7 @@ const fromStyle: CSSProperties = {
 export default function RegisterMail() {
     const { t } = useTranslation(['login']);
     const router = useRouter();
-    const { inviteCode } = router.query; 
+    const { inviteCode } = router.query;
     const [preCheck, setpreCheck] = useState(false); //是否需要二次验证
     const [isOpen, setIsOpen] = useState(true); //是否展开
     const { setLoginState } = useLoginStateContext();
@@ -38,7 +38,7 @@ export default function RegisterMail() {
     const [charValid, setCharValid] = useState(false)
     const [showLengthCheck, setShowLengthCheck] = useState(false);
     const [showCharCheck, setShowCharCheck] = useState(false);
-   
+
 
     useEffect(() => {
         // 确保路由已准备好
@@ -58,13 +58,13 @@ export default function RegisterMail() {
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
                 console.log(values, 111);
-
-                if (!values.agree) return toast.error("请先同意用户协议和隐私政策")
+                // "请先同意用户协议和隐私政策"
+                if (!values.agree) return toast.error(t('registerForm.agreeErr'))
                 const data = {
                     type: "m",
                     email: values.email,
                     password: values.password,
-                    parentInviteCode: isOpen?values.referee:"",
+                    parentInviteCode: isOpen ? values.referee : "",
                 }
                 store.updateRegisterInfo(data)
 
@@ -113,7 +113,7 @@ export default function RegisterMail() {
             value = value.trim();
         }
         if (!value) {
-            return Promise.reject(new Error("密码不能为空！"));
+            return Promise.reject(new Error(t('registerForm.passwordNull')));
         }
         // 检查长度是否在 8 - 30 位之间
         if (value.length < 8 || value.length > 30) {
@@ -182,7 +182,7 @@ export default function RegisterMail() {
                             activeBorderColor: 'var(--theme-color)',
                             // hoverBorderColor: 'var(--theme-color)',
                             hoverBorderColor: 'var(--theme-color)',
-                            
+
                             activeBg: 'var(--background11)',
                             hoverBg: 'var(--background11)',
                         },
@@ -192,7 +192,7 @@ export default function RegisterMail() {
                     },
                     token: {
                         colorBgContainer: 'transparent',
-                      }
+                    }
                 }}
             >
                 <Form
@@ -212,10 +212,10 @@ export default function RegisterMail() {
                         {t('registerForm.emailTitle')}
                     </div>
 
-                    <Form.Item 
-                        name="email" 
+                    <Form.Item
+                        name="email"
                         rules={[
-                            { required: true, message: t('emailNull') }, 
+                            { required: true, message: t('emailNull') },
                             { type: "email", message: t('emailErr') }
                         ]}
                     >
@@ -234,14 +234,14 @@ export default function RegisterMail() {
                         {t('registerForm.passwordTitle')}
                     </div>
                     <Form.Item name="password" rules={[{ validator: validatePassword }]}>
-                        <Input.Password 
-                            type="password" 
+                        <Input.Password
+                            type="password"
                             placeholder={t('registerForm.passwordPlaceholder')}
-                            maxLength={30} 
-                            allowClear={true} 
-                            size="large" 
+                            maxLength={30}
+                            allowClear={true}
+                            size="large"
                             className={`${styles.mail_input} modal-input`}
-                            onChange={handlePasswordChange} 
+                            onChange={handlePasswordChange}
                         />
                     </Form.Item>
                     <div className={`mt-1`}>
@@ -269,26 +269,26 @@ export default function RegisterMail() {
                             </div>
                         )}
                     </div>
-                    <div 
+                    <div
                         className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
-                        
+
                     >
                         {/* 推荐人的邀请码(选填) */}
                         {t('registerForm.refereeTitle')}
-                        <Iconify 
+                        <Iconify
                             icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
-                            className={`${styles.tip_icon} ml-1 `} 
-                            size={20} 
+                            className={`${styles.tip_icon} ml-1 `}
+                            size={20}
                             onClick={() => { setIsOpen(!isOpen) }}
                         />
                     </div>
                     {isOpen && (
                         <Form.Item name="referee">
-                            <Input 
-                                type="referee" 
+                            <Input
+                                type="referee"
                                 placeholder={t('registerForm.refereePlaceholder')}
-                                allowClear={true} 
-                                size="large" 
+                                allowClear={true}
+                                size="large"
                                 className={`${styles.mail_input} modal-input`}
                                 maxLength={8}
                             />
@@ -304,8 +304,8 @@ export default function RegisterMail() {
                         </Checkbox>
                     </Form.Item>
                 </Form>
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     className={`${styles.login_button} w-full button-color mt-8`}
                     onClick={handleFinish}
                 >

@@ -74,5 +74,8 @@ export const ROUTER_KEY_OPEN = {
     LOGIN:"/login", //登录页面
     REGISTER:"/register", //注册页面
 };
-
+export const ROUTER_KEY_USERCENTER = {
+    USERCENTER:"/userCenter", //用户中心
+    IDENTITY:"/userCenter/identity", //身份认证
+};
 

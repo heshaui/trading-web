@@ -64,8 +64,10 @@ function RealName() {
     useEffect(() => {
         // 处理 localStorage 变化的函数
         const handleStorageChange = () => {
-            const authStatus = localStorage.getItem('identity_authStatus');
-            if (authStatus === '3') {
+            const { authStatus } = router.query;
+            const authStatu = localStorage.getItem('identity_authStatus') || authStatus
+            
+            if (authStatu === '3'||authStatu === '1') {
                 setCurrent(2);
             } else {
                 setCurrent(0);
