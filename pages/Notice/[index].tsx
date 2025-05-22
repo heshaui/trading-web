@@ -18,7 +18,7 @@ import type { GetStaticProps } from 'next';
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function Notice() {
-    const { t } = useTranslation('notice');
+    const { t } = useTranslation('builetinCenter');
     // 获取登录状态
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
@@ -320,7 +320,7 @@ export default function Notice() {
         }));
     }, [menuList]);
 
-    // 判断是否有未读消息 (未实现)
+    // 判断是否有未读消息 (未实现)bulletinCenter
     const hasUnreadMessages = false;
 
     return (
