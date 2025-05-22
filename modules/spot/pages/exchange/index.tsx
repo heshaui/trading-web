@@ -61,7 +61,6 @@ const ExchangePage = () => {
     const [klineData, setKlineData] = useState<any>();
     const [statusMessage, setStatusMessage] = useState<string>('');
     const [activeChartType, setActiveChartType] = useState<string>('basic');
-    const [loading, setLoading] = useState<boolean>(false);
     const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
     const [tradePrice, setTradePrice] = useState<number>(0);
     const router = useRouter();
@@ -560,12 +559,12 @@ const ExchangePage = () => {
 
     return (<div className={`${styles.page_box} w-full`}>
         {/* 使用客户端渲染标记来控制渲染 */}
-        {!isClient ? (
+        {/* {!isClient ? (
             // 服务器端渲染占位符
             <div className="w-full h-screen flex items-center justify-center">
                 <Spin size="large" tip="加载中..." />
             </div>
-        ) : (
+        ) : ( */}
             <ConfigProvider
                 theme={{
                     components: {
@@ -783,7 +782,7 @@ const ExchangePage = () => {
 
 
             </ConfigProvider>
-        )}
+        {/* )} */}
     </div>);
 }
 
