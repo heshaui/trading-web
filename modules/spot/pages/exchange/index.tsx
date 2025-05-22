@@ -172,7 +172,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_1051@depth`);
         depthWsRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -237,15 +237,24 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 累加数量
                                 const currentQuantity = Number(newData.bids[existingIndex][1]);
-                                const newQuantity = currentQuantity + Number(quantity);
+                                const quantityNum = Number(quantity);
+                                let newQuantity;
+                                
+                                // 如果数量为负数，进行减法操作
+                                if (quantityNum < 0) {
+                                    console.log('买单负数quantityNum', quantityNum);
+                                    newQuantity = currentQuantity - Math.abs(quantityNum);
+                                } else {
+                                    // 否则进行累加
+                                    newQuantity = currentQuantity + quantityNum;
+                                }
                                 
                                 if (newQuantity <= 0) {
-                                    // 如果累加后小于等于0，移除该档位
+                                    // 如果计算后小于等于0，移除该档位
                                     newData.bids.splice(existingIndex, 1);
                                 } else {
-                                    // 否则更新为累加后的数量
+                                    // 否则更新为计算后的数量
                                     newData.bids[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
@@ -284,15 +293,24 @@ const ExchangePage = () => {
 
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
-                                // 累加数量
                                 const currentQuantity = Number(newData.asks[existingIndex][1]);
-                                const newQuantity = currentQuantity + Number(quantity);
+                                const quantityNum = Number(quantity);
+                                let newQuantity;
+                                
+                                // 如果数量为负数，进行减法操作
+                                if (quantityNum < 0) {
+                                    console.log('负数quantityNum',quantityNum)
+                                    newQuantity = currentQuantity - Math.abs(quantityNum);
+                                } else {
+                                    // 否则进行累加
+                                    newQuantity = currentQuantity + quantityNum;
+                                }
                                 
                                 if (newQuantity <= 0) {
-                                    // 如果累加后小于等于0，移除该档位
+                                    // 如果计算后小于等于0，移除该档位
                                     newData.asks.splice(existingIndex, 1);
                                 } else {
-                                    // 否则更新为累加后的数量
+                                    // 否则更新为计算后的数量
                                     newData.asks[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
@@ -327,7 +345,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_1051`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 
