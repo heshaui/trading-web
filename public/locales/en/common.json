@@ -109,13 +109,31 @@
     "setting": "Settings",
     "logout": "Logout"
   },
-  "header": {
+  "header":{
+    "login":"login",
+    "register":"register",
     "noLanguageData": "No language data available",
     "noRateData": "No exchange rate data available",
     "language": "Language",
     "searchLanguage": "Search Language",
     "rate": "Exchange Rate",
-    "searchRate": "Search Exchange Rate"
+    "searchRate": "Search Exchange Rate",
+    "noMatchResult": "No matching results",
+    "noNewNotice": "No new notifications",
+    "loading": "Loading...",
+    "noMenuData": "No menu data available",
+    "notice":{
+      "notice": "Notice",
+      "accountAssistant": "Account Assistant",
+      "assets": "Assets",
+      "transaction": "Transaction",
+      "message": "Message",
+      "viewAll": "View All"
+    },
+    "dayMode":{
+      "day":"日间模式",
+      "night":"夜间模式"
+    }
   },
   "scrollableTabs": {
     "all": "All"

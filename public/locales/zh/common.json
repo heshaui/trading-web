@@ -111,12 +111,30 @@
     "logout":"退出登录"
   },
   "header":{
+    "login":"登录",
+    "register":"注册",
     "noLanguageData": "暂无语言数据",
     "noRateData": "暂无汇率数据",
     "language": "语言",
     "searchLanguage": "搜索语言",
     "rate": "汇率",
-    "searchRate": "搜索汇率"
+    "searchRate": "搜索汇率",
+    "noMatchResult": "暂无匹配结果",
+    "noNewNotice": "暂无新的通知",
+    "loading": "加载中...",
+    "noMenuData": "暂无菜单数据",
+    "notice":{
+      "notice": "公告",
+      "accountAssistant": "账户助手",
+      "assets": "资产",
+      "transaction": "交易",
+      "message": "消息",
+      "viewAll": "查看全部"
+    },
+    "dayMode":{
+      "day":"日间模式",
+      "night":"夜间模式"
+    }
   },
   "scrollableTabs":{
     "all": "全部"

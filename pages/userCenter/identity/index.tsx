@@ -178,7 +178,7 @@ const IdentityPage: React.FC = () => {
             <Collapse
               bordered={false}
               defaultActiveKey={['1']}
-              expandIcon={({ isActive }) => <CaretRightOutlined style={{ color: 'var(--text-color6)' }} rotate={isActive ? 90 : -90} />}
+              expandIcon={({ isActive }) => <CaretRightOutlined style={{ color: 'var(--text-color6)' }} rotate={isActive ? -90 : 90} />}
               expandIconPosition="end"
               style={{ background: 'var(--background8)' }}
               items={getItems(panelStyle)}
