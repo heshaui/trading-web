@@ -25,7 +25,8 @@ type InviteContentProps = {
 interface InviteCountType {
     userInviteCount?: number,
     userInviteSuccessCount?: number,
-    accumulateMoney?: number,
+    accumulateMoney: number,
+    coinName: string
 }
 interface RewardRouterType {
     inviteCode: string,
@@ -40,7 +41,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
     const { t } = useTranslation(['invite']);
     const allConfig = appStore.getKvConfigAll();
 
-    const [inviteCount, setInviteCount] = useState<InviteCountType>({})
+    const [inviteCount, setInviteCount] = useState<InviteCountType>({} as InviteCountType)
     const [inviteCountLoading, setInviteCountLoading] = useState(true)
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { copyFn } = useCopyToClipboard();
@@ -56,7 +57,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
         {
             key: 2,
             title: t('invite.inviteActive'), //'邀请激活',
-            desc: t('invite.inviteActiveDesc2',{ count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName}), //'好友注册且累计充值至少50USDT',
+            desc: t('invite.inviteActiveDesc2', { count: rewardRouter.rechargeLimit, coinName: rewardRouter.coinName }), //'好友注册且累计充值至少50USDT',
             icon: '/images/invite/icon_Invitation2.png'
         },
         {
@@ -196,18 +197,25 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                                 <p className={`font-14 font-w-400`}>{t('invite.myInvite2.tip2')}</p>
                                 <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.userInviteSuccessCount || 0}</p>
                             </li>
-                            <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
+                            {inviteCount?.coinName==='USDT'? <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
                                 <p className={`font-14 font-w-400`}>{t('invite.myInvite2.tip3')}</p>
                                 <p className={`font-32 font-w-700 ${styles.title_color}`}>{inviteCount?.accumulateMoney || 0}</p>
                             </li>
+                                :
                             <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                                <p className={`font-14 font-w-400`}>{`${t('invite.myInvite2.tip5')}(${rateKey.split('-')[0].trim() || '--'})`}</p>
+                                <p className={`font-14 font-w-400`}>{`${t('invite.myInvite2.tip5')}(${inviteCount?.coinName || '--'})`}</p>
                                 <p className={`font-32 font-w-700 ${styles.title_color}`}>
                                     {/* {'暂无'} */}
-                                    {inviteCount?.accumulateMoney ? getRate('USDT', inviteCount?.accumulateMoney, rateKey.split('-')[0].trim()).rate : 0}
+                                    <span> {inviteCount?.accumulateMoney || 0}</span>&nbsp;
+                                    <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>
+                                        ≈&nbsp;
+                                        {inviteCount?.accumulateMoney ? getCoinRate(inviteCount?.coinName, inviteCount?.accumulateMoney).coinRate : '0'}
+                                        &nbsp;USDT
+                                    </span>
+
                                     {/* <span className={`font-14 font-w-500 ml-1 ${styles.tip_color}`}>≈  100.02 USDT</span> */}
                                 </p>
-                            </li>
+                            </li>}
                         </ul>
                     </Skeleton>
 

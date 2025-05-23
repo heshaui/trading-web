@@ -284,7 +284,7 @@ const SafeCenter: React.FC = () => {
             icon: "/images/userCenter/safe/icon_security_og.svg",
             type: "recentIp",
             button: () => {
-                if (!safeData) return toast.warning('加载中请重试')
+                if (!safeData) return toast.warning('loading...')
                 router.push(`/userCenter/safeCenter/safe_log`)
             }
         }

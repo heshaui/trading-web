@@ -181,6 +181,10 @@ function BirthdayModal({ open, onCancel, userId, onOk }: Props) {
                                 style={{ width: '100%', height: '50px' }}
                                 placeholder={t('usersetting.birthday.placeholder')}
                                 allowClear
+                                disabledDate={(current) => {
+                                    // 使用dayjs禁用当前日期以后的日期
+                                    return  current > dayjs().endOf('day');
+                                }}
                                 suffixIcon={
                                     <Iconify icon="cuida:calendar-outline"
                                         className={`${styles.suffix_icon} mr-1`}

@@ -1,10 +1,12 @@
 {
   "helpCenter": {
+    "helpCenter":"Help Center",
     "title": "How can we help you?",
     "search": {
       "history": ["Perpetual Contracts", "Futures Contracts", "Options Contracts"],
       "placeholder": "Please enter your question",
-      "noResults": "No search results"
+      "noResults": "No search results",
+       "results": "Search results"
     },
     "otherSupport": {
       "title": "Other Support",

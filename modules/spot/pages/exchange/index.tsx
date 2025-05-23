@@ -536,19 +536,31 @@ const ExchangePage = () => {
     const chartTypeItems: MenuProps['items'] = [
         {
             key: 1,
-            label: <span style={{ fontSize: '12px' }}>K线图</span>,
+            label: <span style={{ fontSize: '12px' }}>
+                {/* K线图 */}
+                {t('spot.exchange.kLine')}
+            </span>,
         },
         {
             key: 8,
-            label: <span style={{ fontSize: '12px' }}>美国线</span>,
+            label: <span style={{ fontSize: '12px' }}>
+                {/* 美国线 */}
+                {t('spot.exchange.usdLine')}
+            </span>,
         },
         {
             key: 13,
-            label: <span style={{ fontSize: '12px' }}>面积图</span>,
+            label: <span style={{ fontSize: '12px' }}>
+                {/* 面积图 */}
+                {t('spot.exchange.areaLine')}
+            </span>,
         },
         {
             key: 3,
-            label: <span style={{ fontSize: '12px' }}>线型图</span>,
+            label: <span style={{ fontSize: '12px' }}>
+                {/* 线型图 */}
+                {t('spot.exchange.lineType')}
+            </span>,
         },
     ];
 
@@ -704,16 +716,16 @@ const ExchangePage = () => {
                                         >
                                             <Image src="/images/exchange/icon_stock.png" alt="exchange" width={20} height={20} style={{ cursor: 'pointer' }} />
                                         </Dropdown>
-                                        <Tooltip title="技术指标" overlayInnerStyle={{fontSize: '12px'}}>
+                                        <Tooltip title={t('spot.exchange.technicalIndicators')} overlayInnerStyle={{fontSize: '12px'}}>
                                             <Image src="/images/exchange/icon_chart.png" alt="exchange" width={20} height={20} onClick={() => tradingviewRef.current?.handleAddIndicator()}  style={{cursor: 'pointer'}}/>
                                         </Tooltip>
-                                        <Tooltip title="图表重置" overlayInnerStyle={{fontSize: '12px'}}>
+                                        <Tooltip title={t('spot.exchange.resetChart')} overlayInnerStyle={{fontSize: '12px'}}>
                                             <Image src="/images/exchange/icon_delete.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.resetChart()} style={{cursor: 'pointer'}}/>
                                         </Tooltip>
                                         {/* <Tooltip title="图表截图">
                                             <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
                                         </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
-                                        <Tooltip title="成交量分布" overlayInnerStyle={{fontSize: '12px'}}>
+                                        <Tooltip title={t('spot.exchange.volumeDistribution')} overlayInnerStyle={{fontSize: '12px'}}>
                                             <Image
                                                 src="/images/exchange/icon_value.png"
                                                 alt="exchange"
@@ -741,7 +753,7 @@ const ExchangePage = () => {
                                         </Button>
                                     ))}
 
-                                    <Tooltip title="全屏" overlayInnerStyle={{fontSize: '12px'}}>
+                                    <Tooltip title={t('spot.exchange.fullscreen')} overlayInnerStyle={{fontSize: '12px'}}>
                                         <Button type="text" icon={<FullscreenOutlined />}  onClick={() => tradingviewRef.current?.toggleFullScreen()} />
                                     </Tooltip>
                                 </div>

@@ -272,17 +272,17 @@ const SpotMainPage =observer( () => {
             // toast.success(res.message)
             // setToastModal(true)
             notification.success({
-              message: '已撤单',
+              message: t('spot.toastModal.canceled'), //'已撤单',
               description: (
                 <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
                   <li className={` mt-5 font-14 font-w-400 `}>
-                    币对：{toastDataRef.current?.symbol}
+                    {t('spot.toastModal.pair')}: {toastDataRef.current?.symbol}
                   </li>
                   <li className={` mt-3 font-14 font-w-400 `}>
-                    价格：{toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
+                    {t('spot.toastModal.price')}: {toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
                   </li>
                   <li className={` mt-3 font-14 font-w-400 `}>
-                    撤单量：{toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
+                    {t('spot.toastModal.cancelAmount')}: {toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
                   </li>
                 </ul>
               ),
