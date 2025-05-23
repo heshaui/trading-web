@@ -2,13 +2,13 @@ import { Modal, ConfigProvider, Form, Input, Button, Select } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 import styles from "./styles/address.module.css";
 import { Iconify } from "@/components/icon/index";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from 'next-i18next';
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { NoData } from '@/components/noData';
 import Image from 'next/image'
-import { saveUserAddress, getCoinAll, getcoinExtList,getProtocolTypeAll } from "@/services/assets";
+import { saveUserAddress, getCoinAll, getcoinExtList, getProtocolTypeAll } from "@/services/assets";
 import appStore from '@/store';
 
 
@@ -61,9 +61,10 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     const [coinId, setCoinId] = useState(0)
     const [coinExtLoading, setCoinExtLoading] = useState(false)
     const [coinExtSelect, setCoinExtSelect] = useState<ProtocolType[]>([])
+    const [initialValues, setInitialValues] = useState<ProtocolType[]>([]);
     const [form] = Form.useForm();
-     const allConfig = appStore.getKvConfigAll();
- const { t } = useTranslation(['assets']);
+    const allConfig = appStore.getKvConfigAll();
+    const { t } = useTranslation(['assets']);
     const handCancel = () => {
         form.resetFields();
         onCancel()
@@ -74,9 +75,9 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
         form.validateFields()
             .then(async (values) => {
                 // console.log(values);
-                if(loading) return
+                if (loading) return
                 const params = {
-                    protocolId: values.protocolId  ,
+                    protocolId: values.protocolId,
                     addressName: values.address,
                     addressTitle: values.addressName || t('modal.addAddress.title'),
                     coinId: values.tenantId,
@@ -84,11 +85,11 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                 setLoading(true)
                 try {
                     const res = await saveUserAddress(params)
-                    if(res.code==='0'){
+                    if (res.code === '0') {
                         toast.success(t('modal.addAddress.addSuccess'))
                         onOk()
                         handCancel()
-                    }else{
+                    } else {
                         toast.error(res.message)
                     }
                 } catch (error) {
@@ -101,7 +102,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
 
     };
     const getCoinAllList = async () => {
-        if (coinSelect.length > 0||coinLoading) return
+        if (coinSelect.length > 0 || coinLoading) return
         await getCoinAllData()
     }
     // 币种
@@ -133,23 +134,26 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
         const tenantId = form.getFieldValue('tenantId')
         if (!tenantId) return toast.error(t('modal.addAddress.coinEmpty'))
         // 判断同币种不重复请求
-        if (coinId === tenantId||coinExtLoading) return
+        if (coinId === tenantId || coinExtLoading) return
         setCoinId(tenantId)
         await getCoinExt(tenantId)
 
     }
-    // 链名称
+    // 链名称-通过币种协议获取网络id进行匹配
     const getCoinExt = async (coninId: number) => {
-        if(coinExtSelect.length>0) return
         setCoinExtLoading(true)
         try {
-            const res = await getProtocolTypeAll()
+            const res = await getcoinExtList(coninId)
             if (res.code === '0') {
-                const coinExtList = res.data.map((item: any) => ({
-                    ...item,
-                    label: item.protocolName,
-                    value: item.id,
-                }))
+                const coinExtList = res.data.map((item: any) => {
+                    const protocol = initialValues.find((protocol: any) => protocol.id === item.protocolId)
+                    return {
+                        ...item,
+                        label: item.protocolName,
+                        value: item.id,
+                        ...protocol
+                    }
+                })
                 setCoinExtSelect(coinExtList)
             } else {
                 toast.error(res.message)
@@ -160,8 +164,23 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
             setCoinExtLoading(false)
         }
     }
-
-
+    const getProtocolTypeDtat = async () => {
+        try {
+            const res = await getProtocolTypeAll()
+            if (res.code === '0') {
+                setInitialValues(res.data)
+            } else {
+                toast.error(res.message)
+            }
+        } catch (error) {
+            toast.error(String(error))
+        } finally {
+            setCoinExtLoading(false)
+        }
+    }
+    useEffect(() => {
+        getProtocolTypeDtat()
+    }, [])
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -243,7 +262,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                         form={form}
                         size="large"
                         style={{ width: '100%' }}
-                        
+
                     >
                         <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.coin')}</div>
 
@@ -261,7 +280,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                             <Image src={option.data.iconUrl}
                                                 alt={'coin'} width={20} height={20}
                                                 className={` mr-2`}
-                                                style={{width:20,height:20,borderRadius:'50%'}}
+                                                style={{ width: 20, height: 20, borderRadius: '50%' }}
                                             />
 
                                             <span className="text-text-color7">{`${option.data.coinName}(${option.data.nameDefault})`}</span>
@@ -320,7 +339,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
 
                                 className={`${styles.input_box} modal-input2`}
                                 style={{ borderRadius: "8px" }}
-                                // maxLength={6}
+                            // maxLength={6}
                             />
                         </Form.Item>
 
@@ -328,7 +347,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                         <Form.Item name="addressName" >
                             <Input placeholder={t('modal.addAddress.remarkPlaceholder')} allowClear className={`${styles.input_box} modal-input2`}
 
-                                // maxLength={6}
+                            // maxLength={6}
                             />
                         </Form.Item>
 

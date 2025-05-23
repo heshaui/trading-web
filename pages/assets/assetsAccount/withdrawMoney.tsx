@@ -335,7 +335,7 @@ const WithdrawMoneyPage = observer(() => {
         }
 
     }
-    // 币种对应的协议（网络）
+    // 币种对应的协议（网络）-通过币种协议获取网络id进行匹配
     const getCoinExt = async (tenantId: number) => {
         setCoinExtLoading(true)
         try {
