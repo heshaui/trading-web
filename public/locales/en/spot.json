@@ -7,9 +7,9 @@
             "amount": "Amount",
             "total": "Total",
             "time": "Time",
-            "bothOrders": "Show Both Orders",
-            "buyOrders": "Show Buy Orders Only",
-            "sellOrders": "Show Sell Orders Only"
+            "bothOrders": "Both Orders",
+            "buyOrders": "Buy Orders",
+            "sellOrders": "Sell Orders"
         },
         "spotOrder": "Spot Orders",
         "tabs": {
@@ -22,16 +22,16 @@
             "uploadTime": "Update Time",
             "symbol": "Trading Pair",
             "type": "Type",
-            "direction": "Side",
+            "direction": "Direction",
             "price": "Price",
-            "quantity": "Amount",
-            "completion": "Filled",
-            "amount": "Total",
+            "quantity": "Quantity",
+            "completion": "Completion",
+            "amount": "Amount",
             "cancel": "Cancel All",
-            "averagePrice": "Avg. Price",
-            "price2": "Price",
-            "count": "Filled Amount",
-            "amount2": "Filled Total",
+            "averagePrice": "Average Price",
+            "price2": "Trade Price",
+            "count": "Trade Quantity",
+            "amount2": "Trade Amount",
             "status": "Status",
             "fee": "Fee",
             "role": "Role",
@@ -53,10 +53,10 @@
             "tradeError": "User is not allowed to trade",
             "tradeTime": "Trade Time",
             "tradePrice": "Trade Price",
-            "tradeCount": "Trade Amount",
-            "tradeAmount": "Trade Total",
-            "tradeFee": "Trade Fee",
-            "tradeRole": "Trade Role"
+            "tradeCount": "Trade Quantity",
+            "tradeAmount": "Trade Amount",
+            "tradeFee": "Fee",
+            "tradeRole": "Role"
         },
         "select": {
             "all": "All",
@@ -74,20 +74,21 @@
             "limit": "Limit",
             "market": "Market",
             "stopLoss": "Stop Loss",
-            "placeholder": "Select",
+            "placeholder": "Please Select",
             "trading": "Trading",
             "completed": "Completed",
-            "failed": "Failed",
-            "canceled": "Canceled",
-            "created": "Created",
-            "partial": "Partially Filled"
+            "failed": "Rejected",
+            "canceled": "Canceled by User",
+            "created": "Order Created",
+            "partial": "Partially Filled",
+            "canceled2": "Order Canceled, Filled and Unfilled"
         },
         "trade": {
             "buy": "Buy",
             "sell": "Sell",
             "price": "Price",
             "amount": "Amount",
-            "amount2": "Trade Total",
+            "amount2": "Trade Amount",
             "fee": "Fee",
             "available": "Available",
             "canBuy": "Can Buy",
@@ -107,17 +108,17 @@
         },
         "preferences": {
             "orderConfirm": "Order Confirmation",
-            "orderConfirmTip": "Enable order confirmation to require a second confirmation for each order submission.",
+            "orderConfirmTip": "After enabling order confirmation, each order submission will require a second confirmation.",
             "limitOrder": "Limit Order",
             "marketOrder": "Market Order",
-            "feeCoin": "Fee Coin",
-            "receivedCoin": "Received Coin",
-            "tradeRule": "Trade Rule"
+            "feeCoin": "Fee Currency",
+            "receivedCoin": "Received Currency",
+            "tradeRule": "Trading Rules"
         },
         "drawer": {
             "preferences": "Preferences",
-            "tradeRule": "Trade Rule",
-            "feeCoin": "Fee Coin"
+            "tradeRule": "Trading Rules",
+            "feeCoin": "Fee Currency"
         },
         "header": {
             "favorites": "Favorites",
@@ -128,10 +129,11 @@
             "newCoinArea": "New Coin Area",
             "ai": "AI",
             "meme": "Meme",
-            "defi": "DeFi",
             "nft": "NFT",
-            "gamefi": "GameFi",
-            "layer1": "Layer1",
+            "defi": "DeFi",
+            "web3": "Web3",
+            "payments": "Payments",
+            "launchpad": "Launchpad",
             "layer2": "Layer2",
             "solana": "Solana",
             "rwa": "RWA",
@@ -159,10 +161,10 @@
             "all": "All"
         },
         "feeCoin": {
-            "receivedCoin": "Received Coin",
-            "quotedCoin": "Quoted Coin",
-            "receivedDesc": "Received Coin: The fee currency for spot trading is based on the currency received. For example, if you receive USDT from a sale, the fee will be charged in USDT; if you receive another cryptocurrency from a purchase, the fee will be charged in that cryptocurrency.",
-            "quotedDesc": "Quoted Coin: For spot trading, both buy and sell fees are charged in the quoted currency. Users need to include fees when calculating the quantity or amount for buy orders."
+            "receivedCoin": "Received Currency",
+            "quotedCoin": "Quoted Currency",
+            "receivedDesc": "Received Currency: The fee for spot trading is based on the currency received. If you receive USDT from selling, the fee will be charged in USDT; if you receive a coin from buying, the fee will be charged in that coin.",
+            "quotedDesc": "Quoted Currency: For spot trading, both buy and sell fees are charged in the quoted currency. Users need to include fees when calculating the quantity or amount for buy orders."
         },
         "toastModal": {
             "canceled": "Order Canceled",
@@ -186,15 +188,15 @@
             "priceDeviation": "Your order price deviates from the market price by more than 2%. Please adjust the price and try again."
         },
         "cancelOrderModal": {
-            "title": "Confirm Cancellation",
-            "title2": "Are you sure to cancel all orders?",
+            "title": "Cancel Confirmation",
+            "title2": "Are you sure you want to cancel all orders?",
             "cancel": "Cancel",
             "confirm": "Confirm"
         },
         "modal": {
             "title": "Order Confirmation",
             "warning": "Market conditions are constantly changing. Market orders are subject to slippage, and the final execution price may be lower/higher than the latest price. Please pay attention to market depth and price fluctuations.",
-            "noRemind": "Don't show again. You can enable or disable this notification in the trading settings.",
+            "noRemind": "Don't remind me again. You can enable or disable this notification in trading settings.",
             "buy": "Buy",
             "sell": "Sell",
             "price": "Price",
@@ -204,7 +206,7 @@
             "cancel": "Cancel",
             "edit": "Edit",
             "login": "Login",
-            "errmax": "Max buy {{max}}"
+            "errmax": "Maximum buy {{max}}"
         },
         "tooltip": {
             "buyAvailableLimit": "Available to buy depends on your available balance and the price at which you want to trade. When you enter your desired price, the available amount will be calculated automatically.",
@@ -213,28 +215,29 @@
             "sellAvailableMarket": "Available to sell depends on your available balance and the best market price."
         },
         "error": {
-            "minTradeAmount": "Minimum trade amount is {{amount}} {{symbol}}",
-            "maxTradeAmount": "Maximum trade amount is {{amount}} {{symbol}}",
+            "minTradeAmount": "Minimum trade amount {{amount}} {{symbol}}",
+            "maxTradeAmount": "Maximum trade amount {{amount}} {{symbol}}",
             "insufficientBalance": "Insufficient {{symbol}} balance",
-            "minOrderAmount": "Minimum order amount is {{amount}} {{symbol}}",
-            "maxOrderAmount": "Maximum order amount is {{amount}} {{symbol}}",
+            "minOrderAmount": "Minimum order quantity is {{amount}} {{symbol}}",
+            "maxOrderAmount": "Maximum order quantity is {{amount}} {{symbol}}",
             "enterPrice": "Please enter a price",
-            "enterAmount": "Please enter a trade amount",
-            "enterTotal": "Please enter a trade total",
-            "enterValidPrice": "Please enter a valid price",
-            "insufficientSellBalance": "Insufficient {{symbol}} balance to sell"
+            "enterAmount": "Please enter a trade quantity",
+            "enterTotal": "Please enter a trade amount",
+            "enterValidPrice": "Please enter a valid price first",
+            "insufficientSellBalance": "Insufficient {{symbol}} balance, unable to sell"
         },
         "success": {
             "orderPlaced": "Order Placed"
         },
         "label": {
-            "pair": "Pair",
+            "pair": "Coin",
             "amount": "Amount",
             "price": "Price",
             "fee": "Fee",
             "feeDetails": "Maker {{maker}}% / Taker {{taker}}%",
-            "kline": "Tradingview",
-            "depth": "Depth"
+            "kline": "K-Line",
+            "depth": "Depth Chart"
         }
+       
     }
 }

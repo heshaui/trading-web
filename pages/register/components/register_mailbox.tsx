@@ -36,8 +36,13 @@ export default function RegisterMail() {
     // 密码校验状态
     const [lengthValid, setLengthValid] = useState(false);
     const [charValid, setCharValid] = useState(false)
+    const [numValid, setNumValid] = useState(false);
+
     const [showLengthCheck, setShowLengthCheck] = useState(false);
     const [showCharCheck, setShowCharCheck] = useState(false);
+    const [showNumCheck, setShowNumCheck] = useState(false);
+    
+    const [showRules, setShowRules]=useState(false);
 
 
     useEffect(() => {
@@ -115,16 +120,18 @@ export default function RegisterMail() {
         if (!value) {
             return Promise.reject(new Error(t('registerForm.passwordNull')));
         }
-        // 检查长度是否在 8 - 30 位之间
-        if (value.length < 8 || value.length > 30) {
+        // 检查长度是否在 8 - 100 位之间
+        if (value.length < 8 || value.length > 100) {
             return Promise.reject();
         }
-        // 检查是否包含字母和数字
-        // const hasLetter = /[a-zA-Z]/.test(value);
-        // const hasNumber = /\d/.test(value);
-        const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
-        // console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
-        if (!hasRegex.test(value)) {
+        // 检查是否包含数字
+        const hasNumber = /.*\d+.*/
+        if (!hasNumber.test(value)) {
+            return Promise.reject();
+        }
+        // 检查是否包含大写字母
+        const hasUpperCase = /.*[A-Z].*/
+        if (!hasUpperCase.test(value)) {
             return Promise.reject();
         }
 
@@ -133,38 +140,46 @@ export default function RegisterMail() {
     // 监听密码输入变化
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-
-        // 检查长度
-        const isLengthValid = value.length >= 8 && value.length <= 30;
-
-        // 检查是否包含字母和数字
-        const hasUpperLetter = /[a-zA-Z]/.test(value);
-        const hasNumber = /\d/.test(value);
-        const isCharValid = hasUpperLetter && hasNumber;
-
-        // 更新状态
-        setLengthValid(isLengthValid);
-        setCharValid(isCharValid);
-
-        // 显示长度校验，隐藏字符校验
-        setShowLengthCheck(true);
-        setShowCharCheck(false);
-
-        // 如果长度校验通过，1秒后切换到字符校验
-        if (isLengthValid) {
-            setTimeout(() => {
-                setShowLengthCheck(false);
-                setShowCharCheck(true);
-
-                // 如果字符校验也通过，1秒后隐藏
-                if (isCharValid) {
-                    setTimeout(() => {
-                        setShowCharCheck(false);
-                    }, 1000);
-                }
-            }, 1000);
+        if(value.length > 0) {
+            setShowRules(true);
+        }
+        
+        // 检查长度是否在 8 - 100 位之间
+        if (value.length < 8 || value.length > 100) {
+            setLengthValid(false);
+        } else {
+            setLengthValid(true);
+        }
+        
+        // 检查是否包含数字
+        const hasNumber = /.*\d+.*/
+        if (!hasNumber.test(value)) {
+            setNumValid(false);
+        } else {
+            setNumValid(true);
+        }
+        
+        // 检查是否包含大写字母
+        const hasUpperCase = /.*[A-Z].*/
+        if (!hasUpperCase.test(value)) {
+            setCharValid(false);
+        } else {
+            setCharValid(true);
         }
     };
+    
+    const showRule = () => {
+        setShowLengthCheck(true);
+        setShowCharCheck(true);
+        setShowNumCheck(true);
+    }
+    
+    const hideRule = () => {
+        setShowRules(false);
+        setShowLengthCheck(false);
+        setShowCharCheck(false);
+        setShowNumCheck(false);
+    }
 
 
 
@@ -237,14 +252,16 @@ export default function RegisterMail() {
                         <Input.Password
                             type="password"
                             placeholder={t('registerForm.passwordPlaceholder')}
-                            maxLength={30}
+                            maxLength={100}
                             allowClear={true}
                             size="large"
                             className={`${styles.mail_input} modal-input`}
                             onChange={handlePasswordChange}
+                            onFocus={showRule}
+                            onBlur={hideRule}
                         />
                     </Form.Item>
-                    <div className={`mt-1`}>
+                   {showRules && <div className={`mt-1`}>
                         {showLengthCheck && (
                             <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
                                 <Iconify
@@ -252,23 +269,33 @@ export default function RegisterMail() {
                                     size={16}
                                     className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
                                 />
-                                {/* 8-30个字符 */}
+                                {/* 8-100个字符 */}
                                 {t('registerForm.passwordRule1')}
                             </div>
                         )}
-
+                        {showNumCheck && (
+                            <div className={`font-12 mt0_5 font-w-400 ${styles.ruleItem} ${numValid ? styles.tip_title : styles.tip_color}`}>
+                                <Iconify
+                                    icon="iconoir:check-circle-solid"
+                                    size={16}
+                                    className={`mr-1 ${numValid ? styles.tip_title : styles.tip_color}`}
+                                />
+                                {/* 至少包含一个数字 */}
+                                {t('registerForm.passwordnum')}
+                            </div>
+                        )}
                         {showCharCheck && (
-                            <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+                            <div className={`font-12 mt0_5 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
                                 <Iconify
                                     icon="iconoir:check-circle-solid"
                                     size={16}
                                     className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
                                 />
-                                {/* 必须包含字母和数字 */}
-                                {t('registerForm.passwordRule2')}
+                                {/* 至少包含一个大写字母 */}
+                                {t('registerForm.passwordletter')}
                             </div>
                         )}
-                    </div>
+                    </div>}
                     <div
                         className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
 

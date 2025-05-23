@@ -62,6 +62,8 @@
     "hasAccount": "Already have an account?",
     "passwordRule1": "8-30 characters",
     "passwordRule2": "Must contain letters and numbers",
+    "passwordnum": "At least one number",
+"passwordletter": "At least one letter",
     "agreeText": "I have read and agree to",
     "goLogin": "Login",
     "repeat": "Account already exists.",

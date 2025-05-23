@@ -27,9 +27,13 @@ function ResetPassword() {
     // 密码校验状态
     const [lengthValid, setLengthValid] = useState(false);
     const [charValid, setCharValid] = useState(false)
+    const [numValid, setNumValid] = useState(false);
+
     const [showLengthCheck, setShowLengthCheck] = useState(false);
     const [showCharCheck, setShowCharCheck] = useState(false);
-    // 当状态不为 INPUT 时不渲染组件
+    const [showNumCheck, setShowNumCheck] = useState(false);
+    
+    const [showRules, setShowRules]=useState(false);
 
 
 
@@ -53,7 +57,7 @@ function ResetPassword() {
                         account: acount.acount,
                         password: values.newPassword,
                         passwordConfirm: values.checkPassword,
-                        platformType:'Web'
+                        platformType: 'Web'
                     }
                     const dataEncrypt = await encryptData(dataInfo)
                     const res = await getResetPassword(dataEncrypt)
@@ -81,15 +85,17 @@ function ResetPassword() {
             return Promise.reject(new Error(t('passwordNull')));
         }
         // 检查长度是否在 8 - 30 位之间
-        if (value.length < 8 || value.length > 30) {
+        if (value.length < 8 || value.length > 100) {
             return Promise.reject();
         }
         // 检查是否包含字母和数字
-        // const hasLetter = /[a-zA-Z]/.test(value);
-        // const hasNumber = /\d/.test(value);
-        const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
-        // console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
-        if (!hasRegex.test(value)) {
+        // const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
+        const hasNumber = /.*\d+.*/
+        if (!hasNumber.test(value)) {
+            return Promise.reject();
+        }
+        const hasUpperCase = /.*[A-Z].*/
+        if (!hasUpperCase.test(value)) {
             return Promise.reject();
         }
 
@@ -99,39 +105,46 @@ function ResetPassword() {
     // 监听密码输入变化
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-
-        // 检查长度
-        const isLengthValid = value.length >= 8 && value.length <= 30;
-
+        if(value.length > 0) {
+            setShowRules(true);
+        }
+        if (value.length < 8 || value.length > 100) {
+            setLengthValid(false);
+        } else {
+            setLengthValid(true);
+        }
         // 检查是否包含字母和数字
-        const hasUpperLetter = /[a-zA-Z]/.test(value);
-        const hasNumber = /\d/.test(value);
-        const isCharValid = hasUpperLetter && hasNumber;
-
-        // 更新状态
-        setLengthValid(isLengthValid);
-        setCharValid(isCharValid);
+        // const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
+        const hasNumber = /.*\d+.*/
+        if (!hasNumber.test(value)) {
+            setNumValid(false);
+        } else {
+            setNumValid(true);
+        }
+        const hasUpperCase = /.*[A-Z].*/
+        if (!hasUpperCase.test(value)) {
+            setCharValid(false);
+        } else {
+            setCharValid(true);
+        }
 
         // 显示长度校验，隐藏字符校验
-        setShowLengthCheck(true);
-        setShowCharCheck(false);
-
-        // 如果长度校验通过，1秒后切换到字符校验
-        if (isLengthValid) {
-            setTimeout(() => {
-                setShowLengthCheck(false);
-                setShowCharCheck(true);
-
-                // 如果字符校验也通过，1秒后隐藏
-                if (isCharValid) {
-                    setTimeout(() => {
-                        setShowCharCheck(false);
-                    }, 1000);
-                }
-            }, 1000);
-        }
+        // setShowLengthCheck(false);
+        // setShowCharCheck(false);
+        // setShowNumCheck(false)
     };
+    const showRule = () => {
+        setShowLengthCheck(true);
+        setShowCharCheck(true);
+        setShowNumCheck(true)
+    }
+    const hideRule = () => {
+        setShowRules(false);
 
+        setShowLengthCheck(false);
+        setShowCharCheck(false);
+        setShowNumCheck(false)
+    }
 
 
 
@@ -164,9 +177,12 @@ function ResetPassword() {
                             allowClear
                             visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
                             onChange={handlePasswordChange}
+                            maxLength={100}
+                            onFocus={showRule}
+                            onBlur={hideRule}
                         />
                     </Form.Item>
-                    <div className={`mt-1`}>
+                    {showRules&&<div className={`mt-1`}>
                         {showLengthCheck && (
                             <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
                                 <Iconify
@@ -174,22 +190,33 @@ function ResetPassword() {
                                     size={16}
                                     className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
                                 />
+                                {/* 8-100字符 */}
                                 {t('passwordLength')}
                             </div>
                         )}
-
+                        {showNumCheck && (
+                            <div className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${numValid ? styles.tip_title : styles.tip_color}`}>
+                                <Iconify
+                                    icon="iconoir:check-circle-solid"
+                                    size={16}
+                                    className={`mr-1 ${numValid ? styles.tip_title : styles.tip_color}`}
+                                />
+                                {/* 至少一个大写字母 */}
+                                {t('passwordNum')}
+                            </div>
+                        )}
                         {showCharCheck && (
-                            <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+                            <div className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
                                 <Iconify
                                     icon="iconoir:check-circle-solid"
                                     size={16}
                                     className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
                                 />
-                                {/* 必须包含字母和数字 */}
-                                {t('passwordChar')}
+                                {/* 至少一个大写字母 */}
+                                {t('passwordChar2')}
                             </div>
                         )}
-                    </div>
+                    </div>}
 
                     <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>
                         {/* 确认密码 */}
@@ -223,9 +250,9 @@ function ResetPassword() {
                     <button
                         className={`${styles.goBack_btn} mr-4`}
                         onClick={() => goLast()}>
-                            {/* 上一步 */}
-                            {t('goBack')}
-                            </button>
+                        {/* 上一步 */}
+                        {t('goBack')}
+                    </button>
                     <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={onSubmit}>
                         {/* 确认 */}
                         {t('confirm')}
