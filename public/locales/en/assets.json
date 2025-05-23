@@ -78,7 +78,8 @@
             "add":"Add Address",
             "isSelect":"Selected {count} addresses",
             "selected":"Selected",
-            "selected2":"addresses"
+            "selected2":"addresses",
+             "selectCoin":"Please Select Currency"
          }
     },
     "withdrawMoney":{
@@ -114,9 +115,9 @@
         "network": "Network",
         "faqList": {
             "item1": "How to Deposit and Withdraw on IMBIT",
-            "item2": "Withdrawal Step Guide",
-            "item3": "Withdrawal FAQ",
-            "item4": "Why My Withdrawal Has Not Arrived",
+            "item2": "Deposit Step Guide",
+            "item3": "Deposit FAQ",
+            "item4": "Why My Deposit Has Not Arrived",
             "item5": "How to Submit a Recovery Request for Incorrect Deposits"
         },
         "notice": "Withdrawal Notice",

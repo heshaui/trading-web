@@ -9,6 +9,7 @@ import appStore from '@/store';
 import { HelpCenterMenuProps, HelpCenterMenuProps2 } from '@/type/help_center/hc_types';
 import { toast } from 'sonner';
 import EsssayPage from './components/esssay';
+import { useTranslation } from 'next-i18next';
 
 const { Sider, Content } = Layout;
 interface currentArticletype {
@@ -18,6 +19,7 @@ interface currentArticletype {
 }
 
 export default function HelperCenterDetail() {
+    const { t } = useTranslation('helpCenter');
     // 路由
     const router = useRouter();
     // 路由参数
@@ -389,7 +391,8 @@ export default function HelperCenterDetail() {
                             {
                                 title: <Link
                                     // onClick={handleBack}
-                                    href="/helpCenter">帮助中心</Link>,
+                                    href="/helpCenter">
+                                    {t('helpCenter.helpCenter')}</Link>,
                             },
                             {
                                 title: menuData?.articleTitle || '--',

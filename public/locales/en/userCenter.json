@@ -166,7 +166,8 @@
         "sumbit": {
             "title": "Under Review",
             "content": "We are reviewing your application. We will notify you via email once approved. Feel free to browse our website/app while you wait.",
-            "next": "Next"
+            "next": "Next",
+            "goHome":"goHome"
         },
         "upload": {
             "title": "Upload Photos",

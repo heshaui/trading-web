@@ -1,5 +1,15 @@
 {
     "spot": {
+        "exchange": {
+            "kLine": "K-line",
+            "usdLine": "USD line",
+            "areaLine": "Area line",
+            "lineType": "Line type",
+            "technicalIndicators":"technicalIndicators",
+            "resetChart":"resetChart",
+            "volumeDistribution":"volumeDistribution",
+            "fullscreen":"fullscreen"
+        },
         "orderBook": {
             "title": "Order Book",
             "latestTrades": "Latest Trades",

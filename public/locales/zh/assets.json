@@ -78,7 +78,8 @@
             "add":"添加地址",
             "isSelect":"已选中{count}个地址",
             "selected":"已选中",
-            "selected2":"个地址"
+            "selected2":"个地址",
+            "selectCoin":"请选择币种"
          }
     },
     "withdrawMoney":{
@@ -114,9 +115,9 @@
         "network": "网络",
         "faqList": {
             "item1": "如何在IMBIT上充值和提现",
-            "item2": "提现步骤指南",
-            "item3": "提现常见问题",
-            "item4": "为何我的提现尚未到账",
+            "item2": "充值步骤指南",
+            "item3": "充值常见问题",
+            "item4": "为何我的充值尚未到账",
             "item5": "如何提交充错币找回申请"
         },
         "notice": "提现须知",
@@ -185,8 +186,8 @@
             "title": "新增地址",
             "coin": "币种",
             "coinEmpty": "币种不能为空！",
-            "chainName": "链名称",
-            "chainEmpty": "链名称不能为空！",
+            "chainName": "网络",
+            "chainEmpty": "网络不能为空！",
             "withdrawAddress": "提现地址",
             "addressEmpty": "提现地址不能为空！",
             "remark": "备注",

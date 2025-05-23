@@ -133,7 +133,7 @@ function InvitationReward({onReturn}:InviteProps) {
                     columns={columns}
                     dataSource={recordList}
                     size="large"
-                    scroll={{ x: "max-content" }}
+                    // scroll={{ x: "max-content" }}
                     className={` table-box`}
                     pagination={{
                         position: ["bottomRight"],

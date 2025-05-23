@@ -6,28 +6,6 @@ export const API_MODULE_NAME = {
 	AMBIT_OSS:"ambit-oss",
 	AMBIT_ASSETS_WEB:"ambit-assets-web",//资产接口
 };
-
-export interface identityInfoType {
-	id: number;
-    userId: number;
-    surname: string;
-    firstName: string;
-    countryId: number;
-    cardType: number;
-    cardCode: string;
-    cardName: string;
-    birthday: string;
-    currentLanguage: string;
-    firstCheckTime: number;
-    currentCheckTime: number;
-    authStatus: number;
-    frontUrl: string;
-    backUrl: string;
-    selfieUrl: string;
-    createTime: number;
-    updateTime: number;
-    tenantId: string;
-}
 // 本地存储key
 export const LOCAL_STORAGE_KEY = {
 	USER_INFO:'imbit_userInfo' , // 用户信息

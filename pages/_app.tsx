@@ -149,8 +149,10 @@ function App({ Component, pageProps }: AppProps) {
   };
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
   const excludePaths = ['/resetPassword'];
+  const excludePathsFooter = ['/resetPassword','/exchange'];
 
-  const shouldShowMenuAndFooter = !excludePaths.includes(router.pathname);
+  const shouldShowMenu = !excludePaths.includes(router.pathname);
+  const shouldShowFooter = !excludePathsFooter.includes(router.pathname);
 
   // 添加最后更新时间状态
   const [lastUpdated, setLastUpdated] = useState<number>(0);
@@ -207,11 +209,11 @@ function App({ Component, pageProps }: AppProps) {
       <NavigationProvider>
         <ConfigProvider theme={theme}>
           <div className={isDarkMode ? 'dark' : ''}>
-            {shouldShowMenuAndFooter && <HomeMenu />}
+            {shouldShowMenu && <HomeMenu />}
 
             <Component {...pageProps} isLoggedIn={isLoggedIn} />
 
-            {shouldShowMenuAndFooter && <Footer />}
+            {shouldShowFooter && <Footer />}
             <Toaster />
           </div>
         </ConfigProvider>

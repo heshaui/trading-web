@@ -7,11 +7,11 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    max-width: 200px;
+    max-width: 250px;
     margin-right: 60px;
 }
 .footerContainer .logoAndButton .logo {
-    width: 126px;
+    width: 145px;
     height: 30px;
 }
 .footerContainer .logoAndButton .logo img {
@@ -52,4 +52,7 @@
 .footer {
     flex-wrap: wrap;
     justify-content:flex-start !important;
+}
+.title_color{
+    color: #F4F4F4;
 }

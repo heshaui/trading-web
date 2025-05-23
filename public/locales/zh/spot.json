@@ -1,5 +1,15 @@
 {
     "spot": {
+        "exchange":{
+            "kLine":"K线图",
+            "usdLine":"美国线",
+            "areaLine":"面积图",
+            "lineType":"线型图",
+            "technicalIndicators":"技术指标",
+            "resetChart":"图表重置",
+            "volumeDistribution":"成交量分布",
+            "fullscreen":"全屏"
+        },
         "orderBook": {
             "title": "盘口",
             "latestTrades": "最新成交",

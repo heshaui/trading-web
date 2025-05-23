@@ -166,7 +166,7 @@ const LabelComponent: React.FC<LabelComponentProps> = ({
                                                                 <div className='tip-color font-14'>{spanText}
                                                                                     <Iconify icon="icon-park-solid:copy" className='ml-1 cursor-pointer hover_theme' size={18} onClick={(e) => {
                                                                                         e.stopPropagation()
-                                                                                        copyFn(spanText ? spanText : '')
+                                                                                        copyFn(spanText ? spanText.split('：')[1] : '')
                                                                                     }} />
                                                                 </div>
                                                             </div>

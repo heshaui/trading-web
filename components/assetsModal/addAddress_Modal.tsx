@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import { NoData } from '@/components/noData';
 import Image from 'next/image'
-import { saveUserAddress, getCoinAll, getcoinExtList } from "@/services/assets";
+import { saveUserAddress, getCoinAll, getcoinExtList,getProtocolTypeAll } from "@/services/assets";
 import appStore from '@/store';
 
 
@@ -41,7 +41,17 @@ interface coinExtSelectType {
     value: string,
     label: string,
 }
-
+interface ProtocolType {
+    id: number,
+    protocol: string,
+    protocolName: string,
+    browser: string,
+    symbol: string,
+    chainId: number,
+    protocolUrl: string | null,
+    value: string,
+    label: string,
+}
 function AddAddressModal({ open, onCancel, onOk, }: Props) {
     // const router = useRouter();
     const [loading, setLoading] = useState(false); // 按钮loading
@@ -50,7 +60,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     const [coinLoading, setCoinLoading] = useState(false)
     const [coinId, setCoinId] = useState(0)
     const [coinExtLoading, setCoinExtLoading] = useState(false)
-    const [coinExtSelect, setCoinExtSelect] = useState<coinExtSelectType[]>([])
+    const [coinExtSelect, setCoinExtSelect] = useState<ProtocolType[]>([])
     const [form] = Form.useForm();
      const allConfig = appStore.getKvConfigAll();
  const { t } = useTranslation(['assets']);
@@ -129,15 +139,16 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
 
     }
     // 链名称
-    const getCoinExt = async (tenantId: number) => {
+    const getCoinExt = async (coninId: number) => {
+        if(coinExtSelect.length>0) return
         setCoinExtLoading(true)
         try {
-            const res = await getcoinExtList(tenantId)
+            const res = await getProtocolTypeAll()
             if (res.code === '0') {
                 const coinExtList = res.data.map((item: any) => ({
                     ...item,
-                    label: item.coinName,
-                    value: item.protocolId,
+                    label: item.protocolName,
+                    value: item.id,
                 }))
                 setCoinExtSelect(coinExtList)
             } else {
@@ -247,9 +258,11 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                             {/* <Image src={option.data.iconUrl}
                                                 alt={'coin'} width={20} height={20}
                                                 className={` mr-2`} /> */}
-                                            <Image src={`/images/assets/assets_account/icon_money.png`}
+                                            <Image src={option.data.iconUrl}
                                                 alt={'coin'} width={20} height={20}
-                                                className={` mr-2`} />
+                                                className={` mr-2`}
+                                                style={{width:20,height:20,borderRadius:'50%'}}
+                                            />
 
                                             <span className="text-text-color7">{`${option.data.coinName}(${option.data.nameDefault})`}</span>
                                         </div>
@@ -271,11 +284,12 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 className={`${styles.select_box} custom-select`}
                                 optionRender={(option) => {
                                     return (
-                                        <div className="flex items-center py-1">
+                                        <div className="flex-y  py-1">
                                             {/* <Image src={`/images/assets/assets_account/icon_money.png`}
                                                 alt={'coin'} width={20} height={20}
                                                 className={` mr-2`} /> */}
-                                            <span className="text-text-color7">{option.data.label}</span>
+                                            <p className="text-text-color7">{option.data.protocol}</p>
+                                            <p className="text-text-color7">{option.data.label}</p>
                                         </div>
                                     );
                                 }}

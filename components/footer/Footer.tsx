@@ -271,7 +271,7 @@ export default function Footer() {
                         items: item.children || []
                     })} */}
                     <div className={`${styles.footerList}`} >
-                        <button className='tip-color font-16' onClick={() => goLink(item.accessPath)}>{item.bottomName || '--'}</button>
+                        <button className={`${styles.title_color} font-16 mb-2`} onClick={() => goLink(item.accessPath)}>{item.bottomName || '--'}</button>
                         <ul className='mt-3'>
                             {item.children?.map((childItem, index) => (
                                 <li key={index}>
@@ -305,11 +305,11 @@ export default function Footer() {
         // }
 
         return socialMediaList.map((item, index) => (
-            <Col key={item.id || index} style={{ marginBottom: '6px' }} className='mr-2 mt-2_5' >
+            <Col key={item.id || index} className='mr-2 mt-0_5' >
                 <button onClick={() => goLink(item.linkUrl)}>
                     <Image
                         src={item.imgUrl}
-                        alt={item.nameText || '社交媒体'}
+                        alt={item.nameText || ''}
                         width={24}
                         height={24}
                         style={{ borderRadius: '50%', height: '24px', width: '24px' }}
@@ -361,7 +361,7 @@ export default function Footer() {
                             {t('footer.community')}
                         </h6></Col>
                     </Row>
-                    <Row align='middle' className='mb-2'>
+                    <Row align='middle' className='mb-2 pt-4'>
                         {renderSocialMediaIcons()}
                     </Row>
                     <Dropdown
@@ -377,32 +377,33 @@ export default function Footer() {
                         }}
                         trigger={['click']}
                     >
-                        <Button>
-                            <Row justify='space-between' align='middle' gutter={32}>
-                                <Col>
-                                    <Row align='middle' gutter={4}>
-                                        <Col>
-                                            <Image
-                                                src="/images/footer/icon_earth_line.png"
-                                                alt=''
-                                                width={20}
-                                                height={20}
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>{selectedLang}</span>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col>
+                        <Button className='px-4'>
+                            <div className='flex-x-cc w-full'>
+                                <div className='flex-x-cc  flex-1'>
+                                    <div className='mr-1'>
+                                        <Image
+                                            src="/images/footer/icon_earth_line.png"
+                                            alt=''
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </div>
+                                    <div className='flex-1 text-left'
+                                        style={{
+                                            fontSize: '12px', color: '#FFFFFF'
+                                         }}>
+                                       {selectedLang}
+                                    </div>
+                                </div>
+                                <div className='flex-x align-center justify-end'>
                                     <Image
                                         src="/images/footer/icon_down_line.png"
                                         alt=''
                                         width={20}
                                         height={20}
                                     />
-                                </Col>
-                            </Row>
+                                </div>
+                            </div>
                         </Button>
                     </Dropdown>
                     <div style={{ marginTop: '10px' }}></div>
@@ -410,30 +411,22 @@ export default function Footer() {
                         menu={menuProps2}
                         trigger={['click']}
                     >
-                        <Button>
-                            <Row justify='start' align='middle' gutter={32}>
-                                <Col>
-                                    <Row align='middle' gutter={4}>
-                                        <Col>
-                                            <Image
-                                                src="/images/footer/icon_download_line.png"
-                                                alt=''
-                                                width={20}
-                                                height={20}
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <span style={{ fontSize: '12px', color: '#FFFFFF' }}>
-                                                {/* 下载APP */}
-                                                {t('footer.downloadApp')}</span>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                {/* 占位 */}
-                                <Col>
-                                    <div style={{ width: '20px', height: '20px' }}></div>
-                                </Col>
-                            </Row>
+                        <Button className='px-4'>
+                            <div className='flex-x-cc w-full'>
+                                <div className='mr-1'>
+                                    <Image
+                                        src="/images/footer/icon_download_line.png"
+                                        alt=''
+                                        width={20}
+                                        height={20}
+                                    />
+                                </div>
+                                <div className='flex-1 text-left'>
+                                    <span style={{ fontSize: '12px', color: '#FFFFFF' }}>
+                                        {/* 下载APP */}
+                                        {t('footer.downloadApp')}</span>
+                                </div>
+                            </div>
                         </Button>
                     </Dropdown>
                 </div>

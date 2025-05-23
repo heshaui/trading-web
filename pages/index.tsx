@@ -96,7 +96,15 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
       'common',
       'home_menu',
       'home',
-      'login'
+      'login',
+      'userCenter',
+      'resetPassword',
+      'assets',
+      'invite',
+      'spot',
+      'builetinCenter',
+      'helpCenter',
+      'notice'
     ]);
     
     console.log('Server-side props - translations loaded successfully');

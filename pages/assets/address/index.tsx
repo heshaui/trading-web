@@ -388,7 +388,7 @@ const AddAdressPage = () => {
                     <div className={`${styles.table_header} w-full my-4 flex align-center justify-between`}>
                         <div className='flex-x align-center'>
                             <Select allowClear
-                                placeholder="请选择币种"
+                                placeholder={t('assetsAccount.addAddress.selectCoin')}
                                 options={coinSelect}
                                 className={`${styles.select_box} custom-select`}
                                 optionRender={(option) => {

@@ -70,7 +70,7 @@ function SumbitPage() {
                 <div className='mt-10 flex justify-between' style={{width:'60%'}}>
                     <button type='submit' className={`default_btn ${styles.btn_style}`} onClick={onNext}>
                         {/* 下一步 */}
-                        {t('identity.sumbit.next')}
+                        {t('identity.sumbit.goHome')}
                     </button>
                 </div>
             </div>

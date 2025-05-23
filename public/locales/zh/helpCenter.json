@@ -1,10 +1,12 @@
 {
   "helpCenter": {
+    "helpCenter":"帮助中心",
     "title": "我们能帮您什么？",
     "search": {
       "history": ["永续合约", "期货合约", "期权合约"],
       "placeholder": "请输入您的问题",
-      "noResults": "暂无搜索结果"
+      "noResults": "暂无搜索结果",
+      "results": "搜索结果"
     },
     "otherSupport": {
       "title": "其他支持",
