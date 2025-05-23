@@ -1,6 +1,6 @@
 "use client";
 import { Form, Input, Checkbox, ConfigProvider } from "antd";
-import { type CSSProperties, useState ,useEffect} from "react";
+import { type CSSProperties, useState, useEffect } from "react";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
 import { toast } from "sonner";
 // import "@/styles/components/login/login.css"
@@ -11,6 +11,7 @@ import store from "@/store";
 import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
+import { useTranslation } from 'next-i18next';
 const fromStyle: CSSProperties = {
 	borderRadius: "5px",
 	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
@@ -22,14 +23,20 @@ const fromStyle: CSSProperties = {
 
 
 function RegisterPhone() {
-    const [isOpen, setIsOpen] = useState(true); //是否展开
+	const [isOpen, setIsOpen] = useState(true); //是否展开
+	const { t } = useTranslation(['login']);
+	// 密码校验状态
+	const [lengthValid, setLengthValid] = useState(false);
+    const [charValid, setCharValid] = useState(false)
+    const [numValid, setNumValid] = useState(false);
 
-	  // 密码校验状态
-	  const [lengthValid, setLengthValid] = useState(false);
-	  const [charValid, setCharValid] = useState(false)
-	  const [showLengthCheck, setShowLengthCheck] = useState(false);
-	  const [showCharCheck, setShowCharCheck] = useState(false);
-	  const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
+    const [showLengthCheck, setShowLengthCheck] = useState(false);
+    const [showCharCheck, setShowCharCheck] = useState(false);
+    const [showNumCheck, setShowNumCheck] = useState(false);
+    
+    const [showRules, setShowRules]=useState(false);
+
+	const [phoneCodeInputValue, setPhoneCodeInputValue] = useState('');
 	const router = useRouter();
 	const { setLoginState } = useLoginStateContext();
 	const { registerType } = useRegisterTypeContext();
@@ -37,16 +44,16 @@ function RegisterPhone() {
 	const [form] = Form.useForm();
 	// 当注册类型不为 PHONE 时不渲染组件
 
-    useEffect(() => {
-        // 确保路由已准备好
-        if (router.isReady) {
-            const { inviteCode } = router.query;
-            // 如果 URL 中有 inviteCode，设置到表单的 referee 字段
-            if (inviteCode) {
-                form.setFieldValue('referee', inviteCode);
-            }
-        }
-    }, [router.isReady, form]);
+	useEffect(() => {
+		// 确保路由已准备好
+		if (router.isReady) {
+			const { inviteCode } = router.query;
+			// 如果 URL 中有 inviteCode，设置到表单的 referee 字段
+			if (inviteCode) {
+				form.setFieldValue('referee', inviteCode);
+			}
+		}
+	}, [router.isReady, form]);
 	const goLogin = () => {
 		// setLoginState(LoginStateEnum.LOGIN)
 		router.push("/login")
@@ -64,7 +71,7 @@ function RegisterPhone() {
 					type: "p",
 					phone: values.phoneNumber,
 					password: values.password,
-					parentInviteCode: isOpen?values.referee:"",
+					parentInviteCode: isOpen ? values.referee : "",
 					countryCode: values.areaCode
 				}
 				store.updateRegisterInfo(data)
@@ -90,58 +97,68 @@ function RegisterPhone() {
 			value = value.trim();
 		}
 		if (!value) {
-			return Promise.reject(new Error("密码不能为空！"));
+			return Promise.reject(new Error(t('registerForm.passwordNull')));
 		}
-		// 检查长度是否在 8 - 30 位之间
-		if (value.length < 8 || value.length > 30) {
+		// 检查长度是否在 8 - 100 位之间
+		if (value.length < 8 || value.length > 100) {
 			return Promise.reject();
 		}
-		// 检查是否包含字母和数字
-		// const hasLetter = /[a-zA-Z]/.test(value);
-		// const hasNumber = /\d/.test(value);
-		const hasRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,30}$/;
-		// console.log('密码是否通过正则校验:',value,1, hasRegex.test(value),111); // 新增调试信息
-		if (!hasRegex.test(value)) {
+		// 检查是否包含数字
+		const hasNumber = /.*\d+.*/
+		if (!hasNumber.test(value)) {
+			return Promise.reject();
+		}
+		// 检查是否包含大写字母
+		const hasUpperCase = /.*[A-Z].*/
+		if (!hasUpperCase.test(value)) {
 			return Promise.reject();
 		}
 
 		return Promise.resolve();
 	};
-    // 监听密码输入变化
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-
-        // 检查长度
-        const isLengthValid = value.length >= 8 && value.length <= 30;
-
-        // 检查是否包含字母和数字
-        const hasUpperLetter = /[a-zA-Z]/.test(value);
-        const hasNumber = /\d/.test(value);
-        const isCharValid = hasUpperLetter && hasNumber;
-
-        // 更新状态
-        setLengthValid(isLengthValid);
-        setCharValid(isCharValid);
-
-        // 显示长度校验，隐藏字符校验
-        setShowLengthCheck(true);
-        setShowCharCheck(false);
-
-        // 如果长度校验通过，1秒后切换到字符校验
-        if (isLengthValid) {
-            setTimeout(() => {
-                setShowLengthCheck(false);
-                setShowCharCheck(true);
-
-                // 如果字符校验也通过，1秒后隐藏
-                if (isCharValid) {
-                    setTimeout(() => {
-                        setShowCharCheck(false);
-                    }, 1000);
-                }
-            }, 1000);
-        }
-    };
+	// 监听密码输入变化
+	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		if(value.length > 0) {
+			setShowRules(true);
+		}
+		
+		// 检查长度是否在 8 - 100 位之间
+		if (value.length < 8 || value.length > 100) {
+			setLengthValid(false);
+		} else {
+			setLengthValid(true);
+		}
+		
+		// 检查是否包含数字
+		const hasNumber = /.*\d+.*/
+		if (!hasNumber.test(value)) {
+			setNumValid(false);
+		} else {
+			setNumValid(true);
+		}
+		
+		// 检查是否包含大写字母
+		const hasUpperCase = /.*[A-Z].*/
+		if (!hasUpperCase.test(value)) {
+			setCharValid(false);
+		} else {
+			setCharValid(true);
+		}
+	};
+	
+	const showRule = () => {
+		setShowLengthCheck(true);
+		setShowCharCheck(true);
+		setShowNumCheck(true);
+	}
+	
+	const hideRule = () => {
+		setShowRules(false);
+		setShowLengthCheck(false);
+		setShowCharCheck(false);
+		setShowNumCheck(false);
+	}
 
 
 	// 过滤输入，只允许数字和字母
@@ -177,7 +194,7 @@ function RegisterPhone() {
 					},
 					token: {
 						colorBgContainer: 'transparent',
-					  }
+					}
 				}}
 			>
 				<Form
@@ -189,71 +206,93 @@ function RegisterPhone() {
 					initialValues={{ areaCode: "+1" }}
 				// onValuesChange={usernameChange}
 				>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>手机号</div>
+					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+						{/* 手机号 */}
+						{t('phoneTitle')}
+					</div>
 					<Form.Item >
 						<div className="flex">
 							<PhoneCodeSelector />
-							<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: "手机号不能为空！" }]}>
-								<Input placeholder="请输入手机号" 
-								allowClear={true} className={`${styles.mail_input} ml-2 modal-input`} 
-								onChange={handleInputChange}
+							<Form.Item noStyle name="phoneNumber" rules={[{ required: true, message: t('phoneNull') }]}>
+								<Input placeholder={t('phoneInputPlaceholder')}
+									allowClear={true} className={`${styles.mail_input} ml-2 modal-input`}
+									onChange={handleInputChange}
 									value={phoneCodeInputValue}
 								/>
 							</Form.Item>
 						</div>
 					</Form.Item>
-					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>密码</div>
+					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>
+						{/* 密码 */}
+						{t('passwordTitle')}
+					</div>
 					<Form.Item name="password"
 						rules={[{ validator: validatePassword }]}
 					>
-						<Input.Password type="password" 
-						placeholder="请输入8-30位密码"
-						 maxLength={30} allowClear={true} 
-						 size="large" className={`${styles.mail_input} modal-input`}
-						 onChange={handlePasswordChange} 
+						<Input.Password type="password"
+							placeholder={t('registerForm.passwordPlaceholder')}
+							maxLength={100} allowClear={true}
+							size="large" className={`${styles.mail_input} modal-input`}
+							onChange={handlePasswordChange}
+							onFocus={showRule}
+							onBlur={hideRule}
 						// prefix={
 						// 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
 						// }
 						/>
 					</Form.Item>
-					<div className={`mt-1`}>
-                            {showLengthCheck && (
-                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
-                                    <Iconify
-                                        icon="iconoir:check-circle-solid"
-                                        size={16}
-                                        className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
-                                    />
-                                    8-30个字符
-                                </div>
-                            )}
-
-                            {showCharCheck && (
-                                <div className={`font-12 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
-                                    <Iconify
-                                        icon="iconoir:check-circle-solid"
-                                        size={16}
-                                        className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
-                                    />
-                                    必须包含字母和数字
-                                </div>
-                            )}
-                        </div>
+					{showRules && <div className={`mt-1`}>
+						{showLengthCheck && (
+							<div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
+								<Iconify
+									icon="iconoir:check-circle-solid"
+									size={16}
+									className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color}`}
+								/>
+								{/* 8-100个字符 */}
+								{t('registerForm.passwordRule1')}
+							</div>
+						)}
+						{showNumCheck && (
+							<div className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${numValid ? styles.tip_title : styles.tip_color}`}>
+								<Iconify
+									icon="iconoir:check-circle-solid"
+									size={16}
+									className={`mr-1 ${numValid ? styles.tip_title : styles.tip_color}`}
+								/>
+								{/* 至少包含一个数字 */}
+								{t('registerForm.passwordnum')}
+							</div>
+						)}
+						{showCharCheck && (
+							<div className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color}`}>
+								<Iconify
+									icon="iconoir:check-circle-solid"
+									size={16}
+									className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color}`}
+								/>
+								{/* 至少包含一个大写字母 */}
+								{t('registerForm.passwordletter')}
+							</div>
+						)}
+					</div>}
 
 					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
-					>推荐人的邀请码(选填)
-                        <Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"} 
-						className={`${styles.tip_icon} ml-1`} size={20} onClick={()=>{setIsOpen(!isOpen)}}/>
+					>
+						{/* 推荐人的邀请码(选填) */}
+						{t('registerForm.refereeTitle')}
+						<Iconify icon={isOpen ? "cuida:caret-up-outline" : "cuida:caret-down-outline"}
+							className={`${styles.tip_icon} ml-1`} size={20} onClick={() => { setIsOpen(!isOpen) }} />
 
-                    </div>
+					</div>
 					{isOpen && (
-                        <Form.Item name="referee" rules={[{ required: false }]}>
-                            <Input type="referee" placeholder="不区分大小写" allowClear={true} 
-							size="large" className={`${styles.mail_input} modal-input`}
-							maxLength={8}
-                        />
-                        </Form.Item>
-                    )}
+						<Form.Item name="referee" rules={[{ required: false }]}>
+							<Input type="referee" placeholder="不区分大小写" allowClear={true}
+								size="large" className={`${styles.mail_input} modal-input`}
+								maxLength={8}
+							/>
+						</Form.Item>
+					)}
 					<ConfigProvider
 						theme={{
 							token: {
@@ -263,10 +302,11 @@ function RegisterPhone() {
 					>
 						<Form.Item noStyle name="agree" valuePropName="checked" rules={[{ required: false }]}>
 							<Checkbox className="custom-checkbox  text-color-default " >
-							<p className={`${styles.title_color}`}>
-								我已阅读并同意 <span className="text-color">用户协议</span> 和 <span className="text-color">隐私政策</span>
+								<p className={`${styles.title_color}`}>
+									{/* 我已阅读并同意 */}
+									{t('agree')} <span className="text-color">{t('protocol')}</span> {t('and')} <span className="text-color">{t('policy')}</span>
 								</p>
-								</Checkbox>
+							</Checkbox>
 						</Form.Item>
 					</ConfigProvider>
 				</Form>
@@ -276,7 +316,7 @@ function RegisterPhone() {
 			</Button> */}
 				<button type="submit" className={`${styles.login_button} w-full button-color mt-8`}
 					onClick={onFinish}>
-					{"注册"}
+					{t('registerForm.registerButton')}
 				</button>
 				{/* <p className="tip-color2 mt-5">或者</p>
 			<Button className="w-full google-btn mt-5" loading={loading}
@@ -287,13 +327,15 @@ function RegisterPhone() {
 			</Button> */}
 				<div className="flex-cc mt-4">
 					<p>
-						{"已有账号？"}
+						{/* {"已有账号？"} */}
+						{t('registerForm.hasAccount')}
 						<button
 							type="button"
 							className="text-color"
 							onClick={goLogin}
 						>
-							{"登录"}
+							{/* {"登录"} */}
+							{t('login')}
 						</button>
 					</p>
 				</div>

@@ -302,6 +302,9 @@ const AssetsMainPage = observer(() => {
                     usdBalance: usdRate || 0,
                     balance: totalUsd || 0
                 });
+
+                 // 初始化WebSocket连接
+                 setupBalanceWebSocket();
             }
         } catch (error) {
             toast.error(String(error));
@@ -335,8 +338,7 @@ const AssetsMainPage = observer(() => {
                     usdBalance: usdRecharge.rate || 0,
                     usdWithdraw: usdWithdraw.rate || 0
                 })
-                // 初始化WebSocket连接
-                setupBalanceWebSocket();
+               
             }
         } catch (error) {
             toast.error(String(error));
@@ -463,6 +465,14 @@ const AssetsMainPage = observer(() => {
         }
     }, []);
 
+  
+    useEffect(() => {
+        if (!isClient || !userInfo || typeof window === 'undefined') return;
+
+        // 安全地使用currentPair
+        setupBalanceWebSocket();
+    }, [isClient, userInfo]);
+
     useEffect(() => {
         if (!userInfo?.userId) return;
 
@@ -477,14 +487,6 @@ const AssetsMainPage = observer(() => {
             }
         };
     }, [userInfo?.userId, setupBalanceWebSocket]);
-    useEffect(() => {
-        if (!isClient || !userInfo || typeof window === 'undefined') return;
-
-        // 安全地使用currentPair
-        setupBalanceWebSocket();
-    }, [isClient, userInfo]);
-
-
 
     return (<div>
         <ConfigProvider

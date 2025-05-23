@@ -227,6 +227,16 @@ function ResetPassword({ onNext }: IDVProps) {
                                 className={`custom-input ${styles.input_box} modal-input2`}
                                 placeholder={t('identity.idv.idNumber.placeholder')}
                                 allowClear
+                                maxLength={50}
+                                onChange={(e) => {
+                                    // 过滤中文字符
+                                    const value = e.target.value;
+                                    const filteredValue = value.replace(/[\u4e00-\u9fa5]/g, '');
+                                    if (value !== filteredValue) {
+                                        // 如果有中文字符被过滤掉，则更新输入框的值
+                                        form.setFieldsValue({ cardCode: filteredValue });
+                                    }
+                                }}
                             />
                         </Form.Item>
                         <div className="flex">
@@ -242,7 +252,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                         className={`custom-input ${styles.input_box} modal-input2`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
-                                        maxLength={20}
+                                        maxLength={100}
                                     />
                                 </Form.Item>
                             </div>
@@ -258,7 +268,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                         className={`custom-input ${styles.input_box} modal-input2`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
-                                        maxLength={20}
+                                        maxLength={100}
                                     />
 
                                 </Form.Item>

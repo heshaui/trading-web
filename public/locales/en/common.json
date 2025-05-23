@@ -63,12 +63,12 @@
     "modifyAvatar": "Modify Avatar",
     "modifyAvatarSuccess": "Avatar modified successfully",
     "uploadAvatar": "Upload",
-    "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats.",
+    "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats",
     "avatarFilter": {
       "all": "All",
       "male": "Male",
       "female": "Female",
-      "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats.",
+      "avatarFormatTip": "Avatar images only support JPG/JPEG, PNG, GIF formats",
       "invalidFileType": "Invalid file type"
     },
     "selectAvatar": "Please select an avatar",
@@ -81,13 +81,14 @@
       "modifySuccess": "Birthday modified successfully",
       "tip": "Please enter the correct date. It cannot be modified after submission."
     }
+   
   },
   "modal": {
     "confirmCancel": "After confirmation, the withdrawal order will be canceled."
   },
   "footer": {
-    "scanDownloadApp": "Scan to download the app",
-    "downloadApp": "Download App",
+    "scanDownloadApp": "Scan to download the APP",
+    "downloadApp": "Download APP",
     "community": "Community"
   },
   "depthChart": {
@@ -109,9 +110,9 @@
     "setting": "Settings",
     "logout": "Logout"
   },
-  "header":{
-    "login":"login",
-    "register":"register",
+  "header": {
+    "login": "Login",
+    "register": "Register",
     "noLanguageData": "No language data available",
     "noRateData": "No exchange rate data available",
     "language": "Language",
@@ -122,7 +123,7 @@
     "noNewNotice": "No new notifications",
     "loading": "Loading...",
     "noMenuData": "No menu data available",
-    "notice":{
+    "notice": {
       "notice": "Notice",
       "accountAssistant": "Account Assistant",
       "assets": "Assets",
@@ -130,9 +131,9 @@
       "message": "Message",
       "viewAll": "View All"
     },
-    "dayMode":{
-      "day":"日间模式",
-      "night":"夜间模式"
+    "dayMode": {
+      "day": "Day Mode",
+      "night": "Night Mode"
     }
   },
   "scrollableTabs": {

@@ -1,21 +1,22 @@
 {
     "bulletinCenter": {
-        "title": "Announcement Center",
-        "announcement": "Announcement",
+        "title": "Bulletin Center",
+        "announcement":"Announcement",
+
         "menu": {
             "all": "All Announcements",
             "latest": "Latest Updates",
-            "new": "New Listings",
-            "delist": "Delistings",
-            "suspension": "Deposit/Withdrawal Status",
-            "announcement": "Announcement",
-            "notification": "Notification",
+            "new": "New Coin Listings",
+            "delist": "Coin Pair Delistings",
+            "suspension": "Deposit/Withdrawal Suspension/Resumption",
+            "announcement": "Announcements",
+            "notification": "Notifications",
             "article": "Articles"
         },
         "message": {
             "unreadCount": "Announcements ({count})",
-            "title": "Latest Updates",
-            "noData": "No records found",
+            "title": "Latest Update Announcements",
+            "noData": "No Records",
             "loading": "Loading..."
         },
         "action": {
@@ -26,24 +27,24 @@
     },
     "test": {
         "latest1": {
-            "title": "Latest Update 1",
+            "title": "Latest Update Announcement 1",
             "content": "Latest update content 1..."
         },
         "latest2": {
-            "title": "Latest Update 2",
+            "title": "Latest Update Announcement 2",
             "content": "Latest update content 2..."
         },
         "new1": {
-            "title": "New Listing Announcement 1",
-            "content": "New listing content 1..."
+            "title": "New Coin Listing Announcement 1",
+            "content": "New coin listing content 1..."
         },
         "delist1": {
-            "title": "Delisting Announcement 1",
-            "content": "Delisting content 1..."
+            "title": "Coin Pair Delisting Announcement 1",
+            "content": "Coin pair delisting content 1..."
         },
         "suspension1": {
-            "title": "Deposit/Withdrawal Notice 1",
-            "content": "Deposit/withdrawal status update 1..."
+            "title": "Deposit/Withdrawal Suspension/Resumption Announcement 1",
+            "content": "Deposit/Withdrawal suspension/resumption content 1..."
         }
     }
 }
