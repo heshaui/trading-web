@@ -25,6 +25,7 @@ interface coinSelectType {
     nameDefault: string,
     value: string,
     label: string,
+    sort: number,
 }
 interface coinExtSelectType {
     coinId: number,
@@ -118,8 +119,17 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                     coinName: item.coinName,
                     iconUrl: item.iconUrl,
                     nameDefault: item.nameDefault,
-                }))
+                    sort: item.sort,
+                })).sort((a: any, b: any) => {
+                    return a.sort - b.sort
+                })
                 setCoinSelect(coinList)
+                if (coinList.length > 0) {
+                    setCoinId(coinList[0].value)
+                    form.setFieldsValue({
+                        tenantId: coinList[0].value
+                    })
+                }
             } else {
                 toast.error(res.message)
             }
@@ -181,6 +191,11 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
     useEffect(() => {
         getProtocolTypeDtat()
     }, [])
+    useEffect(() => {
+        if (open) {
+            getCoinAllData()
+        }
+    }, [open])
     const ModalFooter: ModalProps["footer"] = () => {
 
         return (
@@ -267,7 +282,8 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                         <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.coin')}</div>
 
                         <Form.Item name="tenantId" rules={[{ required: true, message: t('modal.addAddress.coinEmpty') }]}>
-                            <Select allowClear
+                            <Select
+                                // allowClear
                                 placeholder={t('modal.addAddress.selectPlaceholder')}
                                 options={coinSelect}
                                 className={`${styles.select_box} custom-select`}

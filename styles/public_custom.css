@@ -457,7 +457,12 @@
 .spot-table-box .ant-pagination-prev button {
     color: var(--text-color5) !important;
 }
-
+/* 分页样式-下拉箭头 */
+.spot-table-box .ant-select-arrow,
+.table-box .ant-select-arrow
+{
+    color: var(--text-color5) !important;
+}
 /* 表格分页选择框背景色及颜色 */
 .table-box .ant-select-selector,
 .spot-table-box .ant-select-selector {

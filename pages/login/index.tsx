@@ -50,16 +50,15 @@ function Login() {
 				if (typeof window !== 'undefined') {
 					lang = localStorage.getItem('localeLanguage') || '';
 				}
-				if (lang === 'en' || lang === 'en_US') {
+				if (lang === 'en' || lang === 'en_US'||lang.includes('en')) {
 					setLoginPic(resdata['en_US'])
-				} else if (lang === 'zh_CN' || lang === 'zh') {
+				} else if (lang === 'zh_CN' || lang === 'zh'||lang.includes('zh')) {
 					setLoginPic(resdata['zh_CN'])
-				} else if (lang === 'ko' || lang === 'ko-KR') {
+				} else if (lang === 'ko' || lang === 'ko-KR'||lang.includes('ko')) {
 					setLoginPic(resdata['ko_KR'])
-				} else if (lang === 'ja' || lang === 'jp' || lang === 'ja-JP') {
+				} else if (lang === 'ja' || lang === 'jp' || lang === 'ja-JP'||lang.includes('ja')) {
 					setLoginPic(resdata['ja_JP'])
-				}
-				else if (lang) {
+				}else if (lang) {
 					setLoginPic(resdata[lang])
 				} else {
 					setLoginPic(resdata['en_US'])
@@ -110,7 +109,7 @@ function Login() {
 			<div
 				className="isHidden flex-1"
 				// style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
-				style={{ ...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})` }}
+				style={{ ...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image?loginPic?.login.image:'/images/login/banner.png'})` }}
 				// style={loginBgcStyle}'
 				onClick={picClick}
 			>
