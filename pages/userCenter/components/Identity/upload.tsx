@@ -274,7 +274,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 {/* </div> */}
 
                 {/* 证件反面 */}
-                <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
+                <div className={`${styles.upload_content} flex-y-cc mt-10 relative`}
                     style={{
                         ...uploadBgcStyle,
                         backgroundImage: `url(${isDayMode ? '/images/userCenter/identity/back_day2.png' : '/images/userCenter/identity/back_night2.png'})`,
@@ -318,7 +318,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
 
 
                 {/* 手持证件照 */}
-                <div className={`${styles.upload_content} flex-y-cc mt-2_5 relative`}
+                <div className={`${styles.upload_content} flex-y-cc mt-10 relative`}
                     style={{
                         ...uploadBgcStyle,
                         backgroundImage: `url(${isDayMode ? '/images/userCenter/identity/handcard_day3.png' : '/images/userCenter/identity/handcard_night3.png'})`,
@@ -361,7 +361,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 </div>
             </div>
 
-            <ul className={`font-14 font-w-400 mt-5 ${styles.tip_color}`}>
+            <ul className={`font-14 font-w-400 mt-7 ${styles.tip_color}`}>
                 <li className="flex items-center mb-1">
                     <Iconify icon="emojione-monotone:small-blue-diamond" className={`${styles.error_icon} mr-2`} size={15} />
                     {/* 支持小于8M的JPG、JPEG或PNG格式图片。 */}
