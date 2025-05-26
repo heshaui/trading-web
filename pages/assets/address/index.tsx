@@ -1,7 +1,7 @@
 import React from 'react';
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from '../styles/addAddress.module.css'
-import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
+import { Input, Pagination, Breadcrumb, ConfigProvider, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -41,6 +41,7 @@ interface coinSelectType {
     nameDefault: string,
     value: string,
     label: string,
+    sort: number,
 }
 const AddAdressPage = () => {
     const { t } = useTranslation('assets');
@@ -54,35 +55,7 @@ const AddAdressPage = () => {
     const [coinId, setCoinId] = useState('')
     const [addressName, setAddressName] = useState('')
     const [inittableData, setInitTableData] = useState<DataType[]>([]);
-    const [tableData, setTableData] = useState<DataType[]>([
-        // {
-        //     id: 1,
-        //     userId: 1,
-        //     platformType: 1,
-        //     deviceNo: '1234567890',
-        //     ip: '123.45.67.89',
-        //     address: '1234567890',
-        //     token: 1,
-        //     tokenTime: 1,
-        //     createTime: 1,
-        //     updateTime: 1,
-        //     tenantId: '1234567890',
-        // },
-        // {
-        //     id: 2,
-        //     userId: 2,
-        //     platformType: 2,
-        //     deviceNo: '2234567890',
-        //     ip: '203.45.67.89',
-        //     address: '2234567890',
-        //     token: 2,
-        //     tokenTime: 2,
-        //     createTime: 2,
-        //     updateTime: 2,
-        //     tenantId: '2234567890',
-        // }
-
-    ]);
+    const [tableData, setTableData] = useState<DataType[]>([]);
     const [selectDelect, setSelectDelect] = useState(false)
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const { isDayMode } = useThemeMode(); // 使用 hook
@@ -215,7 +188,10 @@ const AddAdressPage = () => {
                     coinName: item.coinName,
                     iconUrl: item.iconUrl,
                     nameDefault: item.nameDefault,
-                }))
+                    sort: item.sort,
+                })).sort((a: coinSelectType, b: coinSelectType) => {
+                    return a.sort - b.sort
+                })
                 
                 setCoinSelect(coinList)
             } else {
@@ -436,13 +412,14 @@ const AddAdressPage = () => {
                             size="large"
                             scroll={{ x: "max-content", y: 500 }}
                             className={` table-box`}
-                            pagination={{
-                                position: ["bottomRight"],
-                                showSizeChanger: true,
-                                total: total,
-                                size: "default",
-                                onChange: (page, pageSize) => pageChange(page, pageSize),
-                            }}
+                            // pagination={{
+                            //     position: ["bottomRight"],
+                            //     showSizeChanger: true,
+                            //     total: total,
+                            //     size: "default",
+                            //     onChange: (page, pageSize) => pageChange(page, pageSize),
+                            // }}
+                            pagination={false}
                             loading={tableLoading}
                             locale={{ emptyText: <NoAddress /> }}
                             // rowSelection={{ type: 'checkbox', ...rowSelection }}
@@ -453,7 +430,7 @@ const AddAdressPage = () => {
                                 onChange: selectRow
                             }}
                         />
-                        {selectDelect && <div className={` w-full flex-x align-center justify-between`}>
+                        {selectDelect && <div className={` w-full flex-x align-center justify-between mt-3`}>
                             <p>
                                 {/* 已选中{delectInfo.length}个地址 */}
                                 {/* {t('assetsAccount.addAddress.isSelect', { count: delectInfo.length })} */}
@@ -465,7 +442,18 @@ const AddAdressPage = () => {
                                 {t('assetsAccount.delete')}
                                 </button>
                         </div>}
-
+                        <div className='w-full flex-x align-center justify-end mt-3'>
+                            <Pagination
+                                // simple
+                                // position={['bottomRight']}
+                                className='spot-table-box'
+                                showSizeChanger
+                                defaultCurrent={pageParam.page}
+                                pageSize={pageParam.pageSize}
+                                size='default'
+                                total={total} onChange={pageChange} />
+                        </div>
+                        
                     </div>
                 </div>
 

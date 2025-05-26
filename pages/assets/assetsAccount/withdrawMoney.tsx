@@ -727,6 +727,24 @@ const WithdrawMoneyPage = observer(() => {
         const { coinRate, price } = getCoinRate(coinName, Number(number), 'USDT', 1)
         return coinRate || 0
     }
+    // 自定义提现网络校验规则
+    const validateProtocol = (rule: any, value: any, callback: any) => {
+        if (typeof value === 'string') {
+            value = value.trim();
+        }
+        if (!value) {
+            return Promise.reject(new Error(t('withdrawMoney.selectNetwork2')));
+        }
+        // const a=addressId
+        const addressId = form.getFieldValue('addressId');
+        const address=filteredAddressOptions.find((item: any) => item.addressName === addressId);
+        if (address?.protocolId !== value) {
+            return Promise.reject(new Error(t('withdrawMoney.selectNetwork2Error')));
+        }
+
+        return Promise.resolve();
+    }
+
 
     useEffect(() => {
         if (amountNum&&amountNum > 0) {
@@ -748,6 +766,7 @@ const WithdrawMoneyPage = observer(() => {
             console.error('初始化货币对数据错误:', error);
         }
     }, []);
+
     const steps = [
         {
             title: <p className={`${styles.tip_title}`}>
@@ -924,7 +943,10 @@ const WithdrawMoneyPage = observer(() => {
                         </AutoComplete>
                     </Form.Item>
                     <Form.Item >
-                        <Form.Item name='protocolId' rules={[{ required: true, message: t('withdrawMoney.selectNetwork2') }]} noStyle>
+                        <Form.Item name='protocolId'
+                            rules={[{ validator: validateProtocol }]}
+                            // rules={[{ required: true, message: t('withdrawMoney.selectNetwork2') }]}
+                            noStyle>
                             <Select allowClear
                                 placeholder={t('withdrawMoney.selectNetwork2')}
                                 options={coinExtSelect}
