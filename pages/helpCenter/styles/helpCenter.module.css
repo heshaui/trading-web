@@ -129,22 +129,30 @@
 
 /* 帮助中心详情 */
 /* 详情页容器 */
-.helpCenterDetailContainer {
+/* .helpCenterDetailContainer {
     margin: 20px 120px;
+} */
+.helpCenterContainer2{
+    background: var(--background16);
+    padding: 20px 120px;
 }
 
 .breadcrumb {
     margin-bottom: 20px;
+    min-width: 550px;
+    /* background-color: pink; */
 }
 
 .detailContent {
-    background-color: var(--background8);
+    background-color: var(--background9);
     padding: 24px;
     border-radius: 8px;
     min-height: 400px;
     color: var(--text-color5);
 }
-
+.detail_container{
+    /* min-width: 550px; */
+}
 /* 帮助中心配置的详情页 */
 /* 详情页内容样式 */
 .searchResult {
@@ -215,12 +223,14 @@
 
 /* 文章详情样式 */
 .articleDetail {
+    width: 100%;
+    height: 100%;
     margin-top: 20px;
     padding: 20px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    background-color: var(--background8);
-    height: 60vw;
+    background-color: transparent;
+    min-height: 60vw;
 }
 
 .articleHeader {
@@ -247,17 +257,23 @@
     color: var(--text-color5);
     white-space: pre-line;
 }
-
+.pageTitle{
+    min-width: 550px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    min-width: 200px;
+}
 /* 调整内容区域样式 */
 .detailContent {
-    padding: 0;
-    background-color: transparent;
+    min-width: 550px;
+    /* padding: 0; */
+    background-color: var(--background9);
 }
 
 /* 当显示文章详情时，移除内容区域的背景和内边距 */
 .showArticleDetail .detailContent {
-    background-color: transparent;
-    padding: 0;
+    background-color: var(--background9);
+    /* padding: 0; */
 }
 
 /* .boxLayout {

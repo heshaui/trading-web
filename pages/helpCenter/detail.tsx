@@ -10,6 +10,8 @@ import { HelpCenterMenuProps, HelpCenterMenuProps2 } from '@/type/help_center/hc
 import { toast } from 'sonner';
 import EsssayPage from './components/esssay';
 import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import type { GetStaticProps } from 'next';
 
 const { Sider, Content } = Layout;
 interface currentArticletype {
@@ -244,7 +246,7 @@ export default function HelperCenterDetail() {
     const [currentParentMenuLabel, setCurrentParentMenuLabel] = useState<string>('');
     // 添加文章详情相关状态
     const [showArticleDetail, setShowArticleDetail] = useState(false);
-    const [currentArticle, setCurrentArticle] = useState<currentArticletype >({} as currentArticletype);
+    const [currentArticle, setCurrentArticle] = useState<currentArticletype>({} as currentArticletype);
 
 
     // 处理分页变化
@@ -318,11 +320,11 @@ export default function HelperCenterDetail() {
     }) => {
         setCurrentArticle(article);
         setShowArticleDetail(true);
-        setShowDetail(true)
+        // setShowDetail(true)
     };
 
     // 返回文章列表
-    const handleBackToList = () => {
+    const handleBack = () => {
         setShowArticleDetail(false);
         setCurrentArticle({} as currentArticletype);
     };
@@ -332,10 +334,10 @@ export default function HelperCenterDetail() {
         setOpenKeys(keys);
     };
 
-    // 返回帮助中心
-    const handleBack = () => {
-        router.push(`/helpCenter`);
-    };
+    // 返回
+    // const handleBack = () => {
+        // router.push(`/helpCenter`);
+    // };
     // 文章列表
     const getContentList = async () => {
         setEssayLoding(true);
@@ -355,7 +357,7 @@ export default function HelperCenterDetail() {
     }
 
     return (
-        <div className={styles.helpCenterContainer}>
+        <div className={styles.helpCenterContainer2} >
             <ConfigProvider
                 theme={{
                     components: {
@@ -395,11 +397,13 @@ export default function HelperCenterDetail() {
                                     {t('helpCenter.helpCenter')}</Link>,
                             },
                             {
-                                title: menuData?.articleTitle || '--',
+                                title: <button 
+                                    onClick={() =>handleBack()}>
+                                    {menuData?.articleTitle || '--'}
+                                </button>,
                             },
                             ...(currentParentMenuLabel ? [{
                                 title: <div
-                                // onClick={showArticleDetail ? handleBackToList : undefined}
                                 // href={showArticleDetail ? `/helpCenter/${parentId}` : `/helpCenter/${classId}`}
                                 >{currentParentMenuLabel}</div>,
                             }] : []),
@@ -415,56 +419,41 @@ export default function HelperCenterDetail() {
                         ]}
                     />
                     {/* 只在非文章详情页显示标题 */}
-                    {!showDetail ? <>
-                    <h1 style={{ fontSize: 32, fontWeight: 600, marginTop: 20, marginBottom: 40 }}>
-                        {menuLoding?<Skeleton.Input active={true} size='large' block={menuLoding} />:menuData?.articleTitle || '--'}
-                    </h1>
-                    {/* )} */}
+                    {!showArticleDetail ? <>
+                        <h1 className={`${styles.pageTitle} font-32 font-weight-600`}>
+                            {menuLoding ? <Skeleton.Input active={true} size='large' block={menuLoding} /> : menuData?.articleTitle || '--'}
+                        </h1>
+                        {/* )} */}
+                        <Layout style={{ background: 'transparent' }}>
+                            {!showDetail && (
+                                <Sider width={240} style={{ background: 'var(--background9)', borderRadius: 8, padding: 20 }}>
+                                    {menuLoding ? <><Skeleton.Input active={true} block={menuLoding} />
+                                        <Skeleton.Input active={true} block={menuLoding} className='mt-1' />
+                                        <Skeleton.Input active={true} block={menuLoding} className='mt-1' />
 
-                    <Layout style={{ background: 'transparent' }}>
-                        {!showDetail && (
-                            <Sider width={240} style={{ background: 'transparent' }}>
-                                {menuLoding ? <><Skeleton.Input active={true}  block={menuLoding} />
-                                    <Skeleton.Input active={true}  block={menuLoding} className='mt-1' />
-                                    <Skeleton.Input active={true}  block={menuLoding} className='mt-1' />
-                                
-                                </> : (
-                                    <Menu
-                                    mode="inline"
-                                    selectedKeys={selectedKeys}
-                                    openKeys={openKeys}
-                                    onOpenChange={handleOpenChange}
-                                    onClick={handleMenuClick}
-                                    style={{
-                                        borderRight: 0,
-                                        background: 'transparent'
-                                    }}
-                                    items={menuData.children as any[] || []}
-                                />
-                                )}
-                            </Sider>
-                        )}
-                        <Content style={{ padding: showDetail ? 0 : '0 24px', minHeight: 280 }}>
-                            <div className={styles.detailContent}>
-                                {/* {showArticleDetail && currentArticle ? ( */}
-                                {/* <div className={styles.articleDetail}>
-                                        <div className={styles.articleHeader}>
-                                            <h1 className={styles.articleTitle}>
-                                                {currentArticle?.title || '--'}
-                                            </h1>
-                                            <div className={styles.articleTime}>
-                                                {currentArticle?.time || '--'}
-                                            </div>
-                                        </div>
-                                        <div className={styles.articleContent}>
-                                            {currentArticle?.content || '--'}
-                                        </div>
-                                    </div> */}
-                                {/* ) : (
-                                    content.items.length > 0 ? (
-                                        <>
+                                    </> : (
+                                        <Menu
+                                            mode="inline"
+                                            selectedKeys={selectedKeys}
+                                            openKeys={openKeys}
+                                            onOpenChange={handleOpenChange}
+                                            onClick={handleMenuClick}
+                                            style={{
+                                                borderRight: 0,
+                                                background: 'transparent'
+                                            }}
+                                            items={menuData.children as any[] || []}
+                                        />
+                                    )}
+                                </Sider>
+                            )}
+                            <Content style={{ padding: showDetail ? 0 : '0 24px', minHeight: 280 }}>
+                                <div className={styles.detailContent}>
+                                    <Skeleton active={true} loading={essayLoding} paragraph={{ rows: 2 }}>
+
+                                        {contentList.length > 0 ? <>
                                             <div className={styles.searchResult}>
-                                                {getCurrentPageItems().map((item, index) => (
+                                                {contentList.map((item, index) => (
                                                     <div
                                                         key={index}
                                                         className={styles.searchResultContent}
@@ -472,79 +461,48 @@ export default function HelperCenterDetail() {
                                                         style={{ cursor: 'pointer' }}
                                                     >
                                                         <h6 className={styles.title}>
-                                                            {item.title}
+                                                            {item.articleTitle}
                                                         </h6>
                                                         <p className={styles.content}>
-                                                            {item.content.length > 100 ? `${item.content.substring(0, 100)}...` : item.content}
+                                                            {item.articleContent.length > 100 ? `${item.articleContent.substring(0, 100)}...` : item.articleContent}
                                                         </p>
                                                         <span className={styles.time}>{item.time}</span>
                                                     </div>
                                                 ))}
                                             </div>
 
-                                            {content.items.length > pageSize && (
+                                            {contentList.length > 0 && (
                                                 <div className={styles.pagination}>
                                                     <Pagination
                                                         size="small"
-                                                        current={currentPage}
-                                                        pageSize={pageSize}
-                                                        total={content.items.length}
+                                                        current={paramRef.current.page}
+                                                        pageSize={paramRef.current.pageSize}
+                                                        total={paramRef.current.total}
                                                         onChange={handlePageChange}
                                                         showSizeChanger={false}
                                                     />
                                                 </div>
                                             )}
-                                        </>
-                                    ) : (
-                                        <div className={styles.emptyContent}>
-                                            请选择左侧菜单查看详细内容
-                                        </div> */}
-                                {/* )
-                                )} */}
-                                <Skeleton active={true} loading={essayLoding} paragraph={{ rows: 2 }}>
-
-                                    {contentList.length > 0 ? <>
-                                        <div className={styles.searchResult}>
-                                            {contentList.map((item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={styles.searchResultContent}
-                                                    onClick={() => handleArticleClick(item)}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <h6 className={styles.title}>
-                                                        {item.articleTitle}
-                                                    </h6>
-                                                    <p className={styles.content}>
-                                                        {item.articleContent.length > 100 ? `${item.articleContent.substring(0, 100)}...` : item.articleContent}
-                                                    </p>
-                                                    <span className={styles.time}>{item.time}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {contentList.length > 0 && (
-                                            <div className={styles.pagination}>
-                                                <Pagination
-                                                    size="small"
-                                                    current={paramRef.current.page}
-                                                    pageSize={paramRef.current.pageSize}
-                                                    total={paramRef.current.total}
-                                                    onChange={handlePageChange}
-                                                    showSizeChanger={false}
-                                                />
-                                            </div>
-                                        )}
-                                    </> : <div className={styles.emptyContent}>
-                                        暂无内容
-                                    </div>}
-                                </Skeleton>
-                            </div>
-                        </Content>
-                    </Layout>
-                </>:<EsssayPage currentArticle={currentArticle} />}
+                                        </> : <div className={styles.emptyContent}>
+                                            {/* 暂无内容 */}
+                                            {t('helpCenter.detail.noData')}
+                                        </div>}
+                                    </Skeleton>
+                                </div>
+                            </Content>
+                        </Layout>
+                    </>
+                        :
+                        <EsssayPage currentArticle={currentArticle} handleBackToList={handleBack}/>}
                 </div>
             </ConfigProvider>
         </div>
     );
 }
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['common', 'helpCenter'])),
+        },
+    };
+};

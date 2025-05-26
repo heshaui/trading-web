@@ -376,6 +376,7 @@
         "add":"添加",
         "address":"提现地址",
         "addressDesc":"添加并信任提币地址后，提币时将不再验证邮箱/短信/谷歌",
-        "manage":"管理"
+        "manage":"管理",
+        "withdraw":"提现"
        }
 }

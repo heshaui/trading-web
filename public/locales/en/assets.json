@@ -97,6 +97,7 @@
         "inputAddress": "Please Enter Address",
         "addAddress": "Add Address",
         "selectNetwork2": "Please Select Network",
+        "selectNetwork2Error": "Selected network does not match address network",
         "networkWarning": "Please note that only deposit networks supported by Metawave platform are shown here. Using unsupported networks may result in asset loss.",
         "networkWarning2": "Please note that only deposit networks supported by {{platformName}} platform are shown here. Using unsupported networks may result in asset loss.",
         "memoWarning": "When withdrawing to other exchanges, a tag must be filled in, otherwise the withdrawal will fail",

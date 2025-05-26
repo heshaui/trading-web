@@ -194,6 +194,7 @@ const AddAdressPage = () => {
                 })
                 
                 setCoinSelect(coinList)
+                
             } else {
                 toast.error(res.message)
             }

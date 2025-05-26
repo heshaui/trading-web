@@ -1,13 +1,10 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
-import { Breadcrumb, ConfigProvider, Layout, Menu, Pagination } from 'antd';
+import { Tooltip , Layout,  } from 'antd';
 import Link from 'next/link';
 import styles from '../styles/helpCenter.module.css';
-import Image from 'next/image';
-import { getClassIdContent, getCustomization, getHelpCenterMenu } from '@/services/helpCenter';
-import appStore from '@/store';
-import { HelpCenterMenuProps, HelpCenterMenuProps2 } from '@/type/help_center/hc_types';
-import { toast } from 'sonner';
+import {Iconify} from '@/components/icon/index'
+import { useTranslation } from 'next-i18next';
 
 const { Sider, Content } = Layout;
 interface currentArticletype {
@@ -16,32 +13,33 @@ interface currentArticletype {
     time: string;
 }
 type Props = {
-    currentArticle:currentArticletype
+    currentArticle:currentArticletype;
+    handleBackToList: () => void;
 }
 
-export default function EsssayPage({currentArticle}:Props) {
+export default function EsssayPage({currentArticle, handleBackToList}:Props) {
     // 路由
     const router = useRouter();
-    // 路由参数
-    const { classId, parentId } = router.query;
-    const langKey = appStore.getLang();
-    // 路由参数
-    const locale = router.query.locale || 'zh';
+    const { t } = useTranslation('helpCenter');
 
     return (
         <div className={styles.helpCenterContainer}>
-                <div className={`${styles.helpCenterDetailContainer} customHelperMenu`}>
+                <div className={`${styles.helpCenterDetailContainer} ${styles.detail_container} customHelperMenu `}>
                    
                     {/* 只在非文章详情页显示标题 */}
-                    {/* {!showArticleDetail && ( */}
-                    <h1 style={{ fontSize: 32, fontWeight: 600, marginTop: 20, marginBottom: 40 }}>
-                        { '--'}
-                    </h1>
+                {/* {!showArticleDetail && ( */}
+                <Tooltip title={t('helpCenter.detail.back')}>
+                    <button onClick={() => handleBackToList()}
+                    className='font-32 font-weight-600 mt-5 mb-5'>
+                        <Iconify icon="mingcute:arrow-left-fill" size={32} />
+                    </button>
+                </Tooltip>
                     {/* )} */}
 
                     <Layout style={{ background: 'transparent' }}>
 
-                        <Content style={{ padding:  '0 24px', minHeight: 280 }}>
+                    <Content className='w-full h-full'
+                        style={{ padding: '0 24px', minHeight: 280 }}>
                             <div className={styles.detailContent}>
                                 {/* {showArticleDetail && currentArticle ? ( */}
                                 <div className={styles.articleDetail}>

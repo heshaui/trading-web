@@ -22,7 +22,7 @@ export default function HelpCenter() {
     const [menuData, setMenuData] = useState<CustomizationProps[]>([]); // 配置列表
     const [initMenuData, setInitMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
     const [helpCenterMenuData, setHelpCenterMenuData] = useState<HelpCenterMenuProps[]>([]); // 帮助中心菜单
- 
+
     // 日夜间判断
     const { isDayMode } = useThemeMode();
     // 添加客户端渲染标记
@@ -40,10 +40,10 @@ export default function HelpCenter() {
     // 搜索事件
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            if (!searchValue.trim()) {
-                toast.warning(t('helpCenter.search.placeholder'));
-                return;
-            }
+            // if (!searchValue.trim()) {
+            //     toast.warning(t('helpCenter.search.placeholder'));
+            //     return;
+            // }
 
             // 搜索逻辑
             // const filteredResults = allData.filter(item =>
@@ -54,13 +54,13 @@ export default function HelpCenter() {
             // setShowSearch(true);
 
             // 搜索帮助中心
-            const filteredResults = initMenuData.filter(item =>
-                item.helpDescription.toLowerCase().includes(searchValue.toLowerCase()) ||
-                item.articleTitle.toLowerCase().includes(searchValue.toLowerCase())
-            );
+            // const filteredResults = initMenuData.filter(item =>
+            //     item.helpDescription.toLowerCase().includes(searchValue.toLowerCase()) ||
+            //     item.articleTitle.toLowerCase().includes(searchValue.toLowerCase())
+            // );
 
-            setHelpCenterMenuData(filteredResults);
-            setShowSearch(true);
+            // setHelpCenterMenuData(filteredResults);
+            // setShowSearch(true);
         }
     };
     // 按钮点击事件
@@ -207,7 +207,8 @@ export default function HelpCenter() {
                                 <h1 style={{ color: 'var(--text-color5)', fontSize: 32, fontWeight: 600 }}>{t('helpCenter.title')}</h1>
                             </Col>
                         </Row>
-                        <Row style={{ marginTop: 16 }}>
+                        {/* 2025.5.26 */}
+                        {/* <Row style={{ marginTop: 16 }}>
                             <Col flex={1}>
                                 <Input
                                     placeholder={t('helpCenter.search.placeholder')}
@@ -226,8 +227,8 @@ export default function HelpCenter() {
                                     className={styles.input}
                                 />
                             </Col>
-                        </Row>
-                        <Row align='middle'>
+                        </Row> */}
+                        {/* <Row align='middle'>
                             <Col>
                                 <Row gutter={8} align='middle' style={{ marginTop: 10 }}>
                                     {
@@ -259,118 +260,84 @@ export default function HelpCenter() {
                                     </Col>
                                 </Row>
                             </Col>
-                        </Row>
+                        </Row> */}
                     </div>
                     {
                         showSearch ? <></> :
                             Array.isArray(menuData) && menuData.length > 0 && (
-                                <ConfigurationCard 
-                                    configurationList={menuData} 
+                                <ConfigurationCard
+                                    configurationList={menuData}
                                     onHeightChange={setConfigContentHeight}
                                 />
                             )
                     }
                 </div>
-
-                {showSearch ? (
-                    searchResults.length > 0 ? (
-                        <SearchDetail
-                            searchValue={searchValue}
-                            // searchResults={searchResults}
-                            setShowSearch={setShowSearch}
-                            setSearchValue={setSearchValue}
-                        />
-                    ) : (
-                        <div style={{ margin: '60px 0' }}>
-                            <ConfigProvider
-                                theme={{
-                                    components: {
-                                        Empty: {
-                                            colorTextDescription: '#A4A5AC'
-                                        }
-                                    },
+                <HelpCenterSection
+                    helpCenterList={helpCenterMenuData}
+                    flag={menuData.length > 0}
+                    // onButtonClick={handleButtonClick}
+                    configContentHeight={configContentHeight}
+                />
+                <div className={`${styles.otherSupport} customCard`}>
+                    <Row>
+                        <Col>
+                            <h2 style={{ fontSize: 24, fontWeight: 500 }}>{t('helpCenter.otherSupport.title')}</h2>
+                        </Col>
+                    </Row>
+                    <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
+                        <Col span={12}>
+                            <Card style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color4)' }}>
+                                <Row>
+                                    <Col>
+                                        <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.onlineCommunication.title')}</h3>
+                                    </Col>
+                                </Row>
+                                <Row style={{ marginTop: 20 }}>
+                                    <Col>
+                                        <p style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.onlineCommunication.description')}</p>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card
+                                style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color4)' }}
+                                styles={{
+                                    body: {
+                                        padding: '20px'
+                                    }
                                 }}
                             >
-                                <Empty
-                                    image='/images/help_center/no_data.png'
-                                    imageStyle={{
-                                        width: '156px',
-                                        height: '156px',
-                                        margin: '0px auto'
-                                    }}
-                                />
-                            </ConfigProvider>
-                        </div>
-                    )
-                ) : (
-                    <>
-                        <HelpCenterSection
-                            helpCenterList={helpCenterMenuData}
-                            flag={menuData.length > 0}
-                            // onButtonClick={handleButtonClick}
-                            configContentHeight={configContentHeight}
-                        />
-                        <div className={`${styles.otherSupport} customCard`}>
-                            <Row>
-                                <Col>
-                                    <h2 style={{ fontSize: 24, fontWeight: 500 }}>{t('helpCenter.otherSupport.title')}</h2>
-                                </Col>
-                            </Row>
-                            <Row gutter={24} justify='space-between' align='middle' style={{ marginTop: 40 }}>
-                                <Col span={12}>
-                                    <Card style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color4)' }}>
-                                        <Row>
+                                <Row>
+                                    <Col>
+                                        <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.email.title')}</h3>
+                                    </Col>
+                                </Row>
+                                <Row style={{ marginTop: 20 }}>
+                                    <Col>
+                                        <Row align='middle' gutter={4}>
                                             <Col>
-                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.onlineCommunication.title')}</h3>
+                                                <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
+                                            </Col>
+                                            <Col>
+                                                <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.business')}</span>
                                             </Col>
                                         </Row>
-                                        <Row style={{ marginTop: 20 }}>
+                                        <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
                                             <Col>
-                                                <p style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.onlineCommunication.description')}</p>
+                                                <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
+                                            </Col>
+                                            <Col>
+                                                <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.legal')}</span>
                                             </Col>
                                         </Row>
-                                    </Card>
-                                </Col>
-                                <Col span={12}>
-                                    <Card
-                                        style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color4)' }}
-                                        styles={{
-                                            body: {
-                                                padding: '20px'
-                                            }
-                                        }}
-                                    >
-                                        <Row>
-                                            <Col>
-                                                <h3 style={{ color: 'var(--text-color5)', fontSize: 20, fontWeight: 500 }}>{t('helpCenter.otherSupport.email.title')}</h3>
-                                            </Col>
-                                        </Row>
-                                        <Row style={{ marginTop: 20 }}>
-                                            <Col>
-                                                <Row align='middle' gutter={4}>
-                                                    <Col>
-                                                        <Image src="/images/help_center/icon_briefcase.png" alt="email" width={20} height={20} />
-                                                    </Col>
-                                                    <Col>
-                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.business')}</span>
-                                                    </Col>
-                                                </Row>
-                                                <Row style={{ marginTop: 20 }} align='middle' gutter={4}>
-                                                    <Col>
-                                                        <Image src="/images/help_center/icon_auction.png" alt="email" width={20} height={20} />
-                                                    </Col>
-                                                    <Col>
-                                                        <span style={{ color: 'var(--text-color6)', fontSize: 14 }}>{t('helpCenter.otherSupport.email.legal')}</span>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Col>
-                            </Row>
-                        </div>
-                    </>
-                )}
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+
             </ConfigProvider>
         </div>
 
@@ -379,7 +346,7 @@ export default function HelpCenter() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {
-            ...(await serverSideTranslations(locale || 'en', ['common','notice'])),
+            ...(await serverSideTranslations(locale || 'en', ['common', 'helpCenter'])),
         },
     };
 };

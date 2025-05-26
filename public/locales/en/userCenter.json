@@ -376,6 +376,7 @@
         "add": "Add",
         "address": "Withdrawal Address",
         "addressDesc": "After adding and trusting a withdrawal address, email/SMS/Google verification will no longer be required for withdrawals",
-        "manage": "Manage"
+        "manage": "Manage",
+        "withdraw":"withdraw"
     }
 }

@@ -304,7 +304,7 @@ const AssetsMainPage = observer(() => {
                 });
 
                  // 初始化WebSocket连接
-                 setupBalanceWebSocket();
+                // await setupBalanceWebSocket();
             }
         } catch (error) {
             toast.error(String(error));
@@ -394,15 +394,15 @@ const AssetsMainPage = observer(() => {
 
             try {
                 const data = JSON.parse(message);
-                console.log('解析后的数据:', data);
+                // console.log('解析后的数据:', data);
 
                 if (data.type === '__ping__') {
                     websocket.send(JSON.stringify({ type: '__pong__' }));
                     return;
                 }
-
                 // 更新余额数据
                 if (data && Array.isArray(data)) {
+                    // 初始化表格数据
                     const filteredData = initTableData.map(item => {
                         // 在 data 数组中查找匹配的项目
                         const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
@@ -417,9 +417,23 @@ const AssetsMainPage = observer(() => {
                         }
                         // 如果没有找到匹配项，则返回原始项目
                         return item;
+                    });
+                    // 更新表格数据
+                    const filteredTableData = tableData.map(item => {
+                        const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
+                        if (matchedItem) {
+                          return {
+                            ...item,
+                            balance: matchedItem.balance,
+                            frozenBalance: matchedItem.frozen_balance,
+                            releaseBalance: matchedItem.release_balance
+                          };
+                        }
+                        return item;
                       });
                     setInitTableData(filteredData);
-                    setTableData(filteredData);
+                    setTableData(filteredTableData);
+                    // 更新余额
                     const totalUsd = filteredData.reduce((sum: number, curr: any) => {
                         const coinTotal = add(
                             add(curr.balance || 0, curr.releaseBalance || 0),
@@ -439,7 +453,7 @@ const AssetsMainPage = observer(() => {
                 console.error('WebSocket数据处理错误:', error);
             }
         });
-    }, [userInfo.userId])
+    }, [userInfo.userId,initTableData])
 
 
     useEffect(() => {

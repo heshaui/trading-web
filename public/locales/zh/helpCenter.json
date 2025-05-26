@@ -19,6 +19,10 @@
         "business": "商户洽谈: 11123@qq.com",
         "legal": "法律合规: 123@qq.com"
       }
+    },
+    "detail": {
+      "noData": "暂无内容",
+      "back": "返回"
     }
   }
 }
