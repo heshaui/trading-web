@@ -555,7 +555,8 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
 
         if (deviation > maxDeviation) {
             return Promise.reject(
-                new Error(`价格偏差不能超过${maxDeviation}%，当前偏差${deviation.toFixed(2)}%`)
+                // new Error(`价格偏差不能超过${maxDeviation}%，当前偏差${deviation.toFixed(2)}%`)
+                new Error(t('spot.error.priceDeviation', { maxDeviation: maxDeviation, deviation: deviation.toFixed(2) }))
             );
         }
 
@@ -657,7 +658,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                 />
             </div>
             {/* <BuyPage segmentedType={segmentedvalue} /> */}
-            <div className='flex-y align-center'>
+            <div className='flex-y align-center w-full'>
 
                 <div className={`w-full`}>
                     <Tabs items={items}
@@ -667,7 +668,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                         onChange={onChange} />
                 </div>
 
-                <div className={`mt-4`} >
+                <div className={`mt-4 w-full`} >
                     <Form
                         form={form}
                         style={{ width: '100%' }}
@@ -742,7 +743,8 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                                         // 检查最小下单数量
                                         const minVolume = currentPair?.minVolume || 0;
                                         if (inputValue < minVolume) {
-                                            message.error(`最小下单数量为 ${minVolume} ${currentPair?.coinSymbol}`);
+                                            // message.error(`最小下单数量为 ${minVolume} ${currentPair?.coinSymbol}`);
+                                            message.error(t('spot.tooltip.minOrderAmount', { amount: minVolume, symbol: currentPair?.coinSymbol }));
                                             correctedValue = minVolume;
                                             needCorrection = true;
                                         }
@@ -750,7 +752,8 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                                         // 检查最大下单数量
                                         const maxVolume = currentPair?.maxVolume || 0;
                                         if (maxVolume > 0 && inputValue > maxVolume) {
-                                            message.error(`最大下单数量为 ${maxVolume} ${currentPair?.coinSymbol}`);
+                                            // message.error(`最大下单数量为 ${maxVolume} ${currentPair?.coinSymbol}`);
+                                            message.error(t('spot.tooltip.maxOrderAmount', { amount: maxVolume, symbol: currentPair?.coinSymbol }));
                                             correctedValue = maxVolume;
                                             needCorrection = true;
                                         }
@@ -815,7 +818,8 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                                         // 检查余额是否充足
                                         const baseBalance = userBalance.find(item => item.coinName === currentPair?.baseSymbol)?.balance || 0;
                                         if (segmentedvalue === 'buy' && inputValue > baseBalance) {
-                                            message.error(`可用${currentPair?.baseSymbol}余额不足`);
+                                            // message.error(`可用${currentPair?.baseSymbol}余额不足`);
+                                            message.error(t('spot.tooltip.insufficientBalance', { symbol: currentPair?.baseSymbol }));
                                             // 自动将金额调整为可用余额
                                             form.setFieldsValue({
                                                 account: formatWithPrecision(baseBalance, currentPair?.baseCoinScale || 8)

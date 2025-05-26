@@ -105,7 +105,7 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                     // mask: styles.modal_mask,
                 }}
             >
-                <div className="flex-col flex-ai-center" style={{ width: "100%" }}>
+                <div className="flex-col flex-ai-center  pb-5" style={{ width: "100%" }}>
                     <p className={`${styles.title_color2} font-32 font-w-500`}>
                         {/* 邀请好友获得 */}
                         {t('invite.inviteModal.title')}
@@ -123,8 +123,13 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                             {/* 返佣 */}
                             {t('invite.inviteModal.tip2')}
                         </p>
-                        <QRCode value={`${BASE_URL}/register`}
-                            style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }} size={68} />
+                        <div
+                            className={`${styles.modal_QRCode}`}
+                            style={{ padding: "5px" }}>
+                            <QRCode value={`${BASE_URL}/register`}
+                            style={{ backgroundColor: "#fff", padding: "5px", minWidth: "68px" }} size={68} /> 
+                        </div>
+                       
                     </div>
                 </div>
             </Modal>

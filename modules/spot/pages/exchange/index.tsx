@@ -788,7 +788,7 @@ const ExchangePage = () => {
 
                         {/* </div> */}
                     </div>
-                    <div className={`${styles.card_bgc} mb-1 flex-1`} >
+                    <div className={`${styles.card_bgc0} py-5 px-4 mb-1 flex-1`} >
                             <SpotChartTrade onOrderSuccess={handleOrderSuccess}
                                 segmentedType="limit" orderData={orderData}
                                 tradePrice={tradePrice}

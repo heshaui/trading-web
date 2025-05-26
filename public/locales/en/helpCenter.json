@@ -19,6 +19,10 @@
         "business": "Business Inquiries: 11123@qq.com",
         "legal": "Legal Compliance: 123@qq.com"
       }
+    },
+    "detail": {
+      "noData": "No content",
+      "back": "Back"
     }
   }
 }

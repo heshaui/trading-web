@@ -37,6 +37,7 @@
     width: 100%;
     padding: 20px;
     border-radius: 0 0 10px 10px;
+    border-top: 1px solid #37373A;
 }
 
 .modal_footerBtn {
@@ -50,4 +51,8 @@
 .modal_header,
 .modal_footer_box {
     background-color: var(--background13) !important;
+}
+.modal_QRCode{
+    border: 1px solid #37373A;
+    border-radius: 8px;
 }

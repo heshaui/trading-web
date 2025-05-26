@@ -15,6 +15,9 @@
     /* border-radius: 8px; */
     padding: 20px;
 }
+.card_bgc0{
+    background-color: var(--background9);
+}
 .card_bgc1{
     background-color: var(--background9);
 }

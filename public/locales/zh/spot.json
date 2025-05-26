@@ -222,7 +222,11 @@
             "buyAvailableLimit": "可买取决于您买入时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可买将自动计算得出",
             "sellAvailableLimit": "可卖取决于您卖出时的可用余额，以及您想要交易的价格。当您输入想要交易的价格时，可卖将自动计算得出",
             "buyAvailableMarket": "可买取决于您买入时的可用余额，以及市场最优价格。",
-            "sellAvailableMarket": "可卖取决于您卖出时的可用余额，以及市场最优价格。"
+            "sellAvailableMarket": "可卖取决于您卖出时的可用余额，以及市场最优价格。",
+            "insufficientBalance":"可用{{symbolName}}余额不足",
+            "maxOrderAmount":"最大下单数量为 {{amount}} {{symbol}}",
+            "minOrderAmount":"最小下单数量为 {{amount}} {{symbol}}",
+            "priceDeviation":"价格偏差不能超过{{maxDeviation}}%，当前偏差{{deviation}}%"
         },
         "error": {
             "minTradeAmount": "最小成交额 {{amount}} {{symbol}}",

@@ -16,6 +16,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import appStore from '@/store';
+import { useRouter } from 'next/router';
+import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
+
 // 按钮配置接口
 interface ButtonConfig {
   title: string;
@@ -47,6 +50,7 @@ const UserSettingsPage: React.FC = () => {
   const { t } = useTranslation('userCenter');
   const [loadingSkeleton, setLoadingSkeleton] = useState(true)
   const langKey = appStore.getLang();
+   const router = useRouter();
   const userInfoList: SafeListItem[] = [
     {
       title: t('account.nickname'),
@@ -98,7 +102,10 @@ const UserSettingsPage: React.FC = () => {
       icon: "/images/userCenter/userSettings/icon_location.svg",
       bindBtn: [{
         title: t('account.manage'),
-        onok: () => { }
+        onok: () => {
+          
+          router.push(ROUTER_KEY_ASSETS.ADDADRESS)
+        }
       }
       ]
     },
@@ -152,7 +159,6 @@ const UserSettingsPage: React.FC = () => {
     }
   };
   const handOk = async (bool: boolean) => {
-    console.log(bool);
 
     // if (bool) {
     await getUserCenterData();
@@ -242,11 +248,14 @@ const UserSettingsPage: React.FC = () => {
 
     </div>
     {/* withdraw box*/}
-    {/* <div className={` mt-6 `}>
-      <div className={`flex-row justify-between font-18 font-w-500 pl-6`} >提现
+    <div className={` mt-6 `}>
+      <div className={`flex-row justify-between font-18 font-w-500 pl-6`} >
+        {/* 提现 */}
+        {t('account.withdraw')}
       </div>
       <ul className={`${styles.content_ul} ${styles.card_bgc} mt-6`} >
         {withdrawList.map((item: SafeListItem) => (
+           <Skeleton active title={false} loading={loadingSkeleton} key={item.type} className='px-6 py-6'>
           <li className={`flex-row align-center justify-between px-4`} key={item.type}>
             <div className={`flex-row align-center`}>
               <Image src={item.icon}
@@ -263,7 +272,7 @@ const UserSettingsPage: React.FC = () => {
             </div>
             <div className={`flex-row align-center justify-between ${styles.log_box}`}>
 
-              <div className='flex-y font-16 font-w-500'>
+              {/* <div className='flex-y font-16 font-w-500'>
 
                 <div className={`flex-row align-center`}>
                   {item.type === "avatarUrl" ?
@@ -278,22 +287,25 @@ const UserSettingsPage: React.FC = () => {
                 </div>
 
 
-              </div>
+              </div> */}
               <div className={`flex-row align-center justify-end flex-1`}>
 
                 {item.bindBtn?.map((btn: ButtonConfig, index: number) => (
-                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}>{btn.title}</button>
+                  <button className={`${styles.btn_style} btn-color-default ml-2`} key={index}
+                    onClick={btn.onok}
+                  >{btn.title}</button>
                 ))}
 
 
               </div>
             </div>
 
-          </li>
+            </li>
+            </Skeleton>
         ))}
       </ul>
 
-    </div> */}
+    </div>
     {/* 修改昵称 */}
     <NeckNameModal
       open={necknameOpen}
