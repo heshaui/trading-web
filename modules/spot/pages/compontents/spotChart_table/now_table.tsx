@@ -142,7 +142,7 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
         const { baseScaleResult } = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
           <p className='text-center '> {baseScaleResult}</p>
-          <Tooltip title={t('spot.modal.edit')}>
+          {/* <Tooltip title={t('spot.modal.edit')}>
             <button
               onClick={() => {
                 upDtaOrder(record)
@@ -150,7 +150,7 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
             >
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
-          </Tooltip>
+          </Tooltip> */}
         </div> : <p className='text-center '> {t('spot.select.market')}</p>}</>
 
       },
@@ -169,14 +169,15 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
             {/* {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`} */}
 
             {`${amount}/${amountDone}`}
-            <Tooltip title={t('spot.modal.edit')}>
+            {/* <Tooltip title={t('spot.modal.edit')}>
               <button
                 onClick={() => {
                   upDtaOrder(record)
                 }}>
                 <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
               </button>
-            </Tooltip>
+            </Tooltip> */}
+            &nbsp;&nbsp;
             <span className={`${styles.tip_color2}`}>
               {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
             </span>
