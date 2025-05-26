@@ -12,7 +12,7 @@ export const publicPaths = [
     '/exchange',
     '/Notice',
     '/helpCenter',
-
+    '/helpCenter/*',
 ];
 
 // 检查路径是否匹配公开路径

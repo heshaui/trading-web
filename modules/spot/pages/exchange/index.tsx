@@ -799,10 +799,10 @@ const ExchangePage = () => {
 
                     </div>
                     <div className='flex-x'>
-                        <div className={`${styles.card_bgc1} mr-1 ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
+                        <div className={`${styles.card_bgc1} ${isLoggedIn?styles.table_card:styles.table_card2}`} style={{ minHeight: '57.5vh' }}>
                             <SpotChartTables />
                         </div>
-                        {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1 flex-y align-center`} >
+                        {isLoggedIn&&<div className={`${styles.card_bgc1} ${styles.assets_card} flex-1  ml-1 flex-y align-center`} >
                             <SpotChartAssets />
                         </div>}
                     </div>
