@@ -13,12 +13,13 @@ interface OptionItem {
 }
 
 interface CountryCodeItem {
+    sort: string;
     areaCode: string;
     countryName: string;
     countryCode: string;
     id: number;
     status: number;
-    areaName:string
+    areaName: string
 }
 
 const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
@@ -26,81 +27,35 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
     const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const { t } = useTranslation(['common']);
-    // 按字母分组的选项
+    // 国家选项列表
     const groupedOptions = useMemo(() => {
         if (!countryCodeList.length) return [];
 
-        // 按国家代码首字母排序
-        const sortedList = [...countryCodeList].sort((a, b) => 
-            a.countryCode.localeCompare(b.countryCode)
+        // 按国家名称排序
+        const sortedList = [...countryCodeList].sort((a, b) =>
+            // a.countryName.localeCompare(b.countryName)
+            Number(a.sort) - Number(b.sort)
         );
 
-        // 按首字母分组
-        const groups: { [key: string]: CountryCodeItem[] } = {};
-        
-        sortedList.forEach(item => {
-            const firstLetter = item.countryCode[0].toUpperCase();
-            if (!groups[firstLetter]) {
-                groups[firstLetter] = [];
-            }
-            groups[firstLetter].push(item);
-        });
-
         // 转换为Select需要的格式
-        const result: any[] = [];
-        
-        // 按字母顺序添加分组
-        for (let i = 65; i <= 90; i++) {
-            const letter = String.fromCharCode(i);
-            if (groups[letter] && groups[letter].length > 0) {
-                // 添加字母标题
-                result.push({
-                    type: 'group',
-                    label: <div className="letter-title">{letter}</div>,
-                    key: `group-${letter}`
-                });
-                
-                // 添加该字母下的国家
-                groups[letter].forEach(item => {
-                    result.push({
-                        label: `${item.countryName} ${item.areaCode}`,
-                        value: item.areaCode,
-                        countryName: item.countryName,
-                        areaCode: item.areaCode,
-                        countryCode: item.countryCode,
-                        areaName:item.areaName
-                    });
-                });
-            }
-        }
-        
-        return result;
+        return sortedList.map(item => ({
+            label: `${item.countryName} ${item.areaCode}`,
+            value: item.areaCode,
+            countryName: item.countryName,
+            areaCode: item.areaCode,
+            countryCode: item.countryCode,
+            areaName: item.areaName
+        }));
     }, [countryCodeList]);
 
     // 过滤选项
     const filteredOptions = useMemo(() => {
         if (!searchValue) return groupedOptions;
-        
-        const filtered: any[] = [];
-        let currentGroup: any = null;
-        
-        groupedOptions.forEach(option => {
-            if (option.type === 'group') {
-                currentGroup = option;
-                // 暂时不添加组标题，等确认有匹配项再添加
-            } else if (
-                option.countryName?.toLowerCase().includes(searchValue.toLowerCase()) ||
-                option.areaCode?.includes(searchValue)
-            ) {
-                // 如果还没添加当前组的标题，先添加
-                if (currentGroup && !filtered.some(item => item.key === currentGroup.key)) {
-                    filtered.push(currentGroup);
-                }
-                filtered.push(option);
-            }
-        });
-        
-        return filtered;
+
+        return groupedOptions.filter(option =>
+            option.countryName?.toLowerCase().includes(searchValue.toLowerCase()) ||
+            option.areaCode?.includes(searchValue)
+        );
     }, [groupedOptions, searchValue]);
 
     const handleFocus = () => {
@@ -121,13 +76,14 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                 const data = res.data.map((item: any) => {
                     return {
                         areaCode: "+" + item.areaCode,
+                        sort: item.areaCode,
                         countryName: item.countryName,
                         countryCode: item.countryCode,
-                        areaName:item.areaName,
+                        areaName: item.areaName,
                         id: item.id,
                         status: item.status
                     };
-                });
+                })
                 setCountryCodeList(data);
             }
         } catch (error) {
@@ -171,39 +127,23 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                     allowClear={false}
                     placeholder="Please select"
                     className={`custom-select `}
-                    style={{height:"50px",maxWidth:"115px"}}
+                    style={{ height: "50px", maxWidth: "115px" }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     options={filteredOptions}
                     optionLabelProp="value"
                     dropdownStyle={{ width: '320px' }}  // 设置下拉框宽度
-                    optionRender={(option) => {
-                        // 如果是分组标题
-                        if (option.data.type === 'group') {
-                            return (
-                                <div className="group-title font-w-500 py-1 sticky top-0 bg-background11 z-10 default_icon">
-                                    {option.data.label}
-                                </div>
-                            );
-                        }
-                        
-                        // 如果是常规选项
-                        return (
-                            <div className="flex justify-between items-center py-1">
-                                {/* <p className='flex-y'>
-                                  <span>{`${option.data.countryName}`}</span>  
-                                  <span>{`${option.data.areaName}`}</span>  
-                                </p> */}
-                                <span>{`${option.data.countryName}(${option.data.areaName})`}</span>  
-                                
-                                <span className="text-text-color7">{option.data.areaCode}</span>
-                            </div>
-                        );
-                    }}
+                    optionRender={(option) => (
+                        <div className="flex justify-between items-center py-1">
+                            <span>{`${option.data.countryName}(${option.data.areaName})`}</span>
+                            <span className="text-text-color7">{option.data.areaCode}</span>
+                        </div>
+                    )}
                     dropdownRender={(menu) => (
                         <>
                             <div className="font-14 font-w-400 mb-2_5 px-2 mt-2_5">
-                                <Input 
+                                <Input
+                                    allowClear
                                     placeholder={t('search')}
                                     value={searchValue}
                                     onChange={(e) => handleSearch(e.target.value)}
