@@ -66,7 +66,10 @@ function RegisterForm() {
 		<>
 
 			<div className="flex-col" >
-				<div className="w-full mb-6"><p className={`${styles.title_box}`}>注册</p> </div>
+				<div className="w-full mb-6"><p className={`${styles.title_box}`}>
+					{/* 注册 */}
+					{t('register')}
+				</p> </div>
 				<ConfigProvider
 					theme={{
 						components: {

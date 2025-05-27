@@ -18,7 +18,7 @@ import type { GetStaticProps } from 'next';
 type MenuItem = Required<MenuProps>['items'][number];
 
 export default function Notice() {
-    const { t } = useTranslation('builetinCenter');
+    const { t } = useTranslation(['builetinCenter','notice', 'common']);
     // 获取登录状态
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
@@ -65,7 +65,7 @@ export default function Notice() {
         console.log('开始请求菜单数据');
         apiRequestRef.current.menuDataLoading = true;
         try {
-            const lang = localStorage.getItem('lang') || 'zh_CN';
+            const lang = localStorage.getItem('lang') || 'en_US';
             // 确保用户看到加载过程
             await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -105,7 +105,7 @@ export default function Notice() {
         if (!noticeId) return Promise.resolve();
 
         try {
-            const lang = localStorage.getItem('lang') || 'zh_CN';
+            const lang = localStorage.getItem('lang') || 'en_US';
             console.log(`获取公告详情, ID: ${noticeId}`);
 
             const response = await getBulletinDetailLogined({
@@ -152,7 +152,7 @@ export default function Notice() {
 
 
         try {
-            const lang = localStorage.getItem('lang') || 'zh_CN';
+            const lang = localStorage.getItem('lang') || 'en_US';
             console.log(`[Notice] Fetching announcements for menu key: ${key}, ID: ${id}`);
 
             const response = await getBulletinMessageLogined({
@@ -457,7 +457,7 @@ import { GetServerSideProps } from 'next';
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
         props: {
-            ...(await serverSideTranslations(locale || 'en', ['builetinCenter', 'common'])),
+            ...(await serverSideTranslations(locale || 'en', ['builetinCenter','notice', 'common'])),
         },
     };
 };

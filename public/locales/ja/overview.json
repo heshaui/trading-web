@@ -1,54 +1,54 @@
 {
-    "welcome": "欢迎回来，IMUSER-NavyXU",
-    "quote": "'崩盘通常以暴涨为前导，而暴涨都以崩盘收尾，一再重复'",
-    "user": {
-      "uid": "UID：---",
-      "register": "注册账号",
-      "identity": "身份认证",
-      "status": {
-        "title": "账号状态",
-        "normal": "正常",
-        "verified": "已认证",
-        "rejected": "已驳回",
-        "verifying": "认证中",
-        "unverified": "未认证"
-      }
-    },
-    "profile": {
-      "button": "个人资料"
-    },
-    "identity_verify": {
-      "title": "身份认证",
-      "desc": "完成身份认证后可以享受交易所完整服务",
-      "button": "去认证"
-    },
-    "security_verify": {
-      "title": "安全认证",
-      "desc": "启用双重认证提高账户安全性",
-      "button": "去绑定"
-    },
-    "assets": {
-      "title": "资产",
-      "total": "总资产折合",
-      "today_profit": "今日盈亏",
-      "deposit": "充值",
-      "withdraw": "提现"
-    },
-    "recent_login": {
-      "title": "最近登录",
-      "location": "中国香港"
-    },
-    "authorized_devices": {
-      "title": "授权设备",
-      "manage": "管理"
-    },
-    "recommendation": {
-      "title": "为你推荐",
-      "invite": {
-        "title": "邀请新用户",
-        "desc": "邀请加入我们一起开启数字货币之旅吧 ！",
-        "rewards": "邀请好友获得",
-        "code": "邀请码"
-      }
+  "welcome": "ようこそ、IMUSER-NavyXU",
+  "quote": "'ボムは通常暴騰で先導され、暴騰はいつもボムで終わり、繰り返される'",
+  "user": {
+    "uid": "UID：---",
+    "register": "登録アカウント",
+    "identity": "本人確認",
+    "status": {
+      "title": "アカウント状態",
+      "normal": "正常",
+      "verified": "認証済み",
+      "rejected": "却下済み",
+      "verifying": "認証中",
+      "unverified": "未認証"
+    }
+  },
+  "profile": {
+    "button": "プロフィール"
+  },
+  "identity_verify": {
+    "title": "本人確認",
+    "desc": "本人確認を完了すると、取引所の完全なサービスを利用できます",
+    "button": "認証に進む"
+  },
+  "security_verify": {
+    "title": "セキュリティ認証",
+    "desc": "2段階認証を有効にしてアカウントのセキュリティを向上させます",
+    "button": "バインドに進む"
+  },
+  "assets": {
+    "title": "資産",
+    "total": "総資産換算",
+    "today_profit": "今日の損益",
+    "deposit": "入金",
+    "withdraw": "引き出し"
+  },
+  "recent_login": {
+    "title": "最近のログイン",
+    "location": "中国香港"
+  },
+  "authorized_devices": {
+    "title": "認証デバイス",
+    "manage": "管理"
+  },
+  "recommendation": {
+    "title": "あなたにおすすめ",
+    "invite": {
+      "title": "新規ユーザーを招待",
+      "desc": "一緒にデジタル通貨の旅を始めましょう！",
+      "rewards": "友人を招待して獲得",
+      "code": "招待コード"
     }
   }
+}

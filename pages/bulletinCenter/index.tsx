@@ -27,7 +27,7 @@ export default function BulletinCenter() {
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
     const { bulletinData } = useNavigation();
-    const { t } = useTranslation(['builetinCenter']);
+    const { t, i18n } = useTranslation(['builetinCenter','common']);
 
     // API请求状态跟踪
     const apiRequestRef = useRef({
@@ -40,7 +40,7 @@ export default function BulletinCenter() {
     // 状态管理：跟踪悬浮的菜单项和选中的菜单项
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
     const [selectedKeys, setSelectedKeys] = useState<string[]>(['all']); // 默认选中 'all'
-    const [selectedLabel, setSelectedLabel] = useState<string>('全部公告'); // 跟踪选中的菜单项标签，默认为"全部公告"
+    const [selectedLabel, setSelectedLabel] = useState<string>(t('bulletinCenter.menu.all')); // 跟踪选中的菜单项标签，默认为"全部公告"
     // 使用对象存储每个菜单项的页码状态
     const [pagesState, setPagesState] = useState<Record<string, number>>({});
     // 每页显示的消息数量
@@ -147,7 +147,7 @@ export default function BulletinCenter() {
                 const updatedMenuData = [...staticMenuData];
                 updatedMenuData[0] = {
                     ...updatedMenuData[0],
-                    label: t('bulletinCenter.message.unreadCount', { count: response.data })
+                    label: t('bulletinCenter.message.unreadCount', { count: response.data||0 })
                 };
                 setMenuData(updatedMenuData);
             }
@@ -156,7 +156,7 @@ export default function BulletinCenter() {
         } finally {
             apiRequestRef.current.unreadCountLoading = false;
         }
-    }, [isLoggedIn]);
+    }, [isLoggedIn,i18n.language]);
 
     // 使用NavigationContext中的数据初始化公告数据
     useEffect(() => {
@@ -196,7 +196,7 @@ export default function BulletinCenter() {
         // 如果未登录，或者选择的菜单不是公告（key='all'），则重置为公告菜单
         if (!isLoggedIn && selectedKeys[0] !== 'all') {
             setSelectedKeys(['all']);
-            setSelectedLabel('全部公告');
+            setSelectedLabel(t('bulletinCenter.menu.all'));
             // 重置页码
             setPagesState(prev => ({
                 ...prev,

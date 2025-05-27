@@ -10,12 +10,14 @@ import MenuItemLabel from '../HomeMenuLabel';
 import { NoData } from '@/components/noData';
 import appStore from '@/store';
 import styles from '@/styles/components/HomeMenu.module.css';
-// 修复拼写错误：Langage -> Language
+import {getNextJsLocale} from '@/utils/filterLang';
+import { useLangChange } from '@/hooks/useLangChange';
 export default function LanguageMenu() {
     const router = useRouter();
     const { t,i18n } = useTranslation('common');
     const { languageList = [], rateData = [] } = useNavigation() || {};
     const { isLoggedIn } = useAuth();
+    const { handleLanguageChange } = useLangChange();
     // 使用全局状态中的语言列表
     const mergedLanguageList = useMemo(() => 
         languageList.length > 0 ? languageList : appStore.languageList, 
@@ -23,40 +25,37 @@ export default function LanguageMenu() {
     );
 
     // 处理语言切换
-    const handleLanguageChange = useCallback(async (langCode: string) => {
-        // 更新全局状态
-        appStore.setLang(langCode);
+    const languageChange = useCallback(async (langCode: string) => {
+        handleLanguageChange(langCode);
+    }, [handleLanguageChange]);
+    // const handleLanguageChange = useCallback(async (langCode: string) => {
+    //     // 更新全局状态
+    //     appStore.setLang(langCode);
         
-        // 更新 i18n
-        if (i18n.changeLanguage) {
-            await i18n.changeLanguage(langCode.split('_')[0]);
-        }
+    //     // 更新 i18n
+    //     if (i18n.changeLanguage) {
+    //         await i18n.changeLanguage(langCode.split('_')[0]);
+    //     }
 
-        // 获取 Next.js 的 locale
-        const nextLocale = getNextJsLocale(langCode);
+    //     // 获取 Next.js 的 locale
+    //     const nextLocale = getNextJsLocale(langCode);
         
-        // 触发自定义事件，通知其他组件语言已更改
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: langCode }));
+    //     // 触发自定义事件，通知其他组件语言已更改
+    //     window.dispatchEvent(new CustomEvent('languageChanged', { detail: langCode }));
         
-        // 刷新页面以应用语言更改
-        const { pathname, query } = router;
-        router.push(
-            { pathname, query },
-            undefined,
-            { locale: nextLocale }
-        ).then(() => {
-            // 强制刷新页面以确保所有内容使用新语言
-            window.location.reload();
-        });
-    }, [i18n, router]);
+    //     // 刷新页面以应用语言更改
+    //     const { pathname, query } = router;
+    //     router.push(
+    //         { pathname, query },
+    //         undefined,
+    //         { locale: nextLocale }
+    //     ).then(() => {
+    //         // 强制刷新页面以确保所有内容使用新语言
+    //         window.location.reload();
+    //     });
+    // }, [i18n, router]);
 
-    // 辅助函数：获取 Next.js 的 locale 值
-    const getNextJsLocale = (langCode: string) => {
-        if (langCode.startsWith('zh')) return 'zh';
-        if (langCode.startsWith('ja')) return 'ja';
-        if (langCode.startsWith('ko')) return 'ko';
-        return 'en';
-    };
+
 
 
 
@@ -84,7 +83,7 @@ export default function LanguageMenu() {
                         height: '30px'
                     }}
                     className='flex-x align-center'
-                    onClick={() => handleLanguageChange(item.key as string)}
+                    onClick={() => languageChange(item.key as string)}
                 >
                     {item.span}
                 </span>

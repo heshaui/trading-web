@@ -283,6 +283,7 @@
         },
         "delect": {
             "title": "Confirm deleting this device?",
+            "btn":"Delete",
             "msg": "After removal, this device will be logged out!"
         },
         "lockSafe": {

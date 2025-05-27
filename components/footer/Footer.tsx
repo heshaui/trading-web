@@ -4,7 +4,7 @@ import { ApiResponse, FooterListProps, FormattedLanguage, LanguageParams, Footer
 
 import { Button, Col, ConfigProvider, Dropdown, Row } from 'antd';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState ,useCallback} from 'react';
 import { getCustomFooter, getLogo, getSocialMediaList, getSelectFooter } from '@/services/footer';
 import { getLanguage } from '@/services/header';
 import { useWebConfig } from '@/hooks/useKv';
@@ -13,7 +13,8 @@ import { useRouter } from 'next/router';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { useTranslation } from 'next-i18next';
 import { transformDOMPurify } from "@/utils/transformDOMPurify"
-
+import { getNextJsLocale } from '@/utils/filterLang';
+import { useLangChange } from '@/hooks/useLangChange';
 interface FooterSetting {
     statu: string;
     // 添加其他可能的字段
@@ -50,7 +51,7 @@ export default function Footer() {
     // 获取footer自定义数据
     const [customFooter, setCustomFooter] = useState<FooterProps[]>([]);
     const [selectFooter, setSelectFooter] = useState<string | null>(null);
-
+    const { handleLanguageChange } = useLangChange();
     // 使用现有的 useWebConfig hook 获取所有配置
     const { loading } = useWebConfig();
 
@@ -79,7 +80,7 @@ export default function Footer() {
     // 获取 footer 设置
     const fetchFooterSetting = async () => {
         try {
-            if (footerConfig?.status === '1' || footerConfig.toString() === '1') {
+            if (footerConfig?.status === '1' || footerConfig?.toString() === '1') {
                 // kv为1
                 getSelectFooterJson()
 
@@ -145,52 +146,44 @@ export default function Footer() {
             try {
                 // 保存选中的语言到状态和本地存储
                 setSelectedLang(selectedItem.span || '');
-                localStorage.setItem('lang', key);
-                localStorage.setItem('selectedLanguage', selectedItem.span || '');
+                // localStorage.setItem('lang', key);
+                // localStorage.setItem('selectedLanguage', selectedItem.span || '');
 
-                // 清除缓存
-                Object.keys(localStorage).forEach(k => {
-                    if (k.startsWith('cached')) {
-                        localStorage.removeItem(k);
-                    }
-                });
+                // // 清除缓存
+                // Object.keys(localStorage).forEach(k => {
+                //     if (k.startsWith('cached')) {
+                //         localStorage.removeItem(k);
+                //     }
+                // });
+                // // 设置语言
+                // appStore.setLang(key);
 
-                // 添加时间戳使缓存失效
-                localStorage.setItem('cacheInvalidationTimestamp', Date.now().toString());
+                // // 处理 i18n
+                // if (typeof i18n.changeLanguage === 'function') {
+                //     await i18n.changeLanguage(key.split('-')[0]);
+                // }
 
-                // 设置语言
-                appStore.setLang(key);
+                // // 设置 i18next 语言
+                // // localStorage.setItem('i18nextLng', key.split('-')[0]);
 
-                // 处理 i18n
-                if (typeof i18n.changeLanguage === 'function') {
-                    await i18n.changeLanguage(key.split('-')[0]);
-                }
+                // // 刷新相关数据
+                // await fetchFooterSetting();
 
-                // 设置 i18next 语言
-                // localStorage.setItem('i18nextLng', key.split('-')[0]);
+                // // 处理 Next.js locale
+                // const nextLocale = getNextJsLocale(key);
 
-                // 刷新相关数据
+                // // 使用 Next.js 路由更新 locale
+                // const { pathname, asPath, query } = router;
+                // await router.push({ pathname, query }, asPath, { locale: nextLocale });
+
+                await handleLanguageChange(key);
                 await fetchFooterSetting();
-
-                // 处理 Next.js locale
-                let nextLocale = 'en';
-                if (key.startsWith('zh')) {
-                    nextLocale = 'zh';
-                } else if (key.startsWith('ja')) {
-                    nextLocale = 'ja';
-                } else if (key.startsWith('ko')) {
-                    nextLocale = 'ko';
-                }
-
-                // 使用 Next.js 路由更新 locale
-                const { pathname, asPath, query } = router;
-                await router.push({ pathname, query }, asPath, { locale: nextLocale });
-
             } catch (error) {
                 console.error('语言切换失败:', error);
             }
         }
     }
+
 
     // const itemsLan = [
     //     {
