@@ -37,10 +37,10 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
         try {
             // 获取菜单数据
             const menuResponse = await homeMenu({ lang }) as { code: string; data: any[] };
-             console.log(menuResponse, 'menuResponse');
+            //  console.log(menuResponse, 'menuResponse');
             if (menuResponse.code==='0') {
                 const processedMenuData = processMenuItems(menuResponse.data);
-                console.log('processedMenuData', processedMenuData);
+                // console.log('processedMenuData', processedMenuData);
                 setMenuData(processedMenuData);
                 // 传入 isDayMode 参数
                 setMenus(formatMenus(processedMenuData.slice(0, 6), isDayMode));
@@ -128,7 +128,7 @@ export const NavigationProvider: React.FC<{children: React.ReactNode}> = ({ chil
 
     // 首次加载
     useEffect(() => {
-        const lang = localStorage.getItem('lang') || 'zh_CN';
+        const lang = localStorage.getItem('lang') || 'en_US';
         // setCurrentLang(lang);
         currentLang.current = lang;
         initializeData(lang);
