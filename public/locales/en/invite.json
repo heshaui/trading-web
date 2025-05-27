@@ -32,7 +32,7 @@
         "ruleDesc3": "Step 2: After successful registration, your friend must accumulate deposits ≥100 USDT and complete identity verification within 14 days. You'll receive 20% rebate on their spot trading fees. Track progress here.",
         "ruleDesc31": "Step 2: After successful registration, your friend must accumulate deposits ≥{{count}} {{coinName}} and complete identity verification within {{date}} days. You'll receive {{rebateRatio}}% rebate on their spot trading fees. Track progress here.",
         "ruleDesc32": "Step 2: After successful registration, your friend must accumulate deposits ≥{{count}} {{coinName}} within {{date}} days. You'll receive {{rebateRatio}}% rebate on their spot trading fees. Track progress here.",
-        "ruleDesc4": "Reward Distribution: Rebates from the previous day will be deposited to your spot account daily at 02:00 (UTC+8). Contact客服 if not received.",
+        "ruleDesc4": "Reward distribution time: We will distribute the previous day's invitation rewards to your spot account at 02:00 (UTC+8) daily. If you do not receive the rewards, please contact our customer service in a timely manner.",
         "myInvite2": {
             "title": "My Invitations",
             "tip1": "Total Invites",
