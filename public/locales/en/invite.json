@@ -62,9 +62,9 @@
             "okBtn": "I Understand",
             "title": "Invite Friends to Earn",
             "title2": "Trading Rewards",
-            "tip1": "Get {{rebateRatio}}% rebate on friends' spot trading fees when they accumulate deposits ≥100 USDT and complete verification within 14 days",
-            "tip11": "Get {{rebateRatio}}% rebate when friends accumulate deposits ≥{{count}} {{coinName}} and complete verification within {{time}} days",
-            "tip12": "Get {{rebateRatio}}% rebate when friends accumulate deposits ≥{{count}} {{coinName}} within {{time}} days",
+            "tip1": "Within 14 days of registration, if the cumulative recharge is not less than 100 USDT and identity verification is completed, you can obtain the spot trading commission from referrals.",
+            "tip11": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}} **and identity verification is completed**, you can obtain the spot trading commission from referrals.",
+            "tip12": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}}, you can get the spot trading fee of friends.",
             "tip2": "Rebate",
             "qrCode": "Invite Friends to Earn Trading Rewards"
         }

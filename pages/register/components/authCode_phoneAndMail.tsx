@@ -67,7 +67,7 @@ function AuthCode() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
-                console.log(values, 111);
+                // console.log(values, 111);
                 setLoading(true);
                 try {
 
