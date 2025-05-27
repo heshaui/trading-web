@@ -1,10 +1,11 @@
 import type { ThemeConfig } from 'antd';
-// import { getThemeColor } from '@/services/theme';
+import appStore from "@/store";
+import { getThemeColorFromStorage } from '@/hooks/themes';
 // 默认主题配置
 const defaultTheme: ThemeConfig = {
   token: {
     fontSize: 16,
-    colorPrimary: '#FF5F1F',
+    colorPrimary: getThemeColorFromStorage(),
   },
 };
 

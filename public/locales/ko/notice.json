@@ -1,20 +1,20 @@
 {
   "notice": {
-    "title": "公告中心",
+    "title": "공지 센터",
     "menu": {
-      "loading": "加载中...",
-      "announcement": "公告"
+      "loading": "로딩 중...",
+      "announcement": "공지사항"
     },
     "top": {
-      "notification": "通知",
+      "notification": "알림",
       "search": {
-        "placeholder": "搜索"
+        "placeholder": "검색"
       },
-      "unread": "只看未读",
-      "markAllRead": "全部已读"
+      "unread": "미읽은 것만 보기",
+      "markAllRead": "모두 읽음 처리"
     },
     "empty": {
-      "description": "暂无通知"
+      "description": "알림이 없습니다"
     }
   }
 }

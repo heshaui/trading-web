@@ -95,6 +95,7 @@ function Mailbox() {
             .validateFields()
             .then(async (values) => {
                 // form.resetFields(); // 重置表单
+                if(loading) return;
                 saveEmailToHistory(values.email)
                 // console.log(values);
 

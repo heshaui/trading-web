@@ -26,7 +26,8 @@ export async function request<T>(
     // 'Content-Type': '',
     'Authorization': `${getToken()}`, // 获取 token（可选）
     'sa-token': `${getToken()}`,
-    'lang':localStorage.getItem('lang') || 'en_US'
+    'lang': localStorage.getItem('lang') || 'en_US',
+    // 'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||'',
   };
   
   // 仅在开发环境下添加 ambit-saas 头部

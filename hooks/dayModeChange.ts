@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { themeVariables } from './themes';
+// import { themeVariables } from './themes';
+import {getThemeVariables} from '@/hooks/themes';
+
 
 const isClient = typeof window !== 'undefined';
 
@@ -15,7 +17,7 @@ export const useDayModeChange = () => {
         
         try {
             localStorage.setItem('isDayMode', String(isDayMode));
-            const theme = isDayMode ? themeVariables.light : themeVariables.dark;
+            const theme = isDayMode ? getThemeVariables().light : getThemeVariables().dark;
             Object.entries(theme).forEach(([key, value]) => {
                 document.documentElement.style.setProperty(key, value);
             });

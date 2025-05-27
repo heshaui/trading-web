@@ -206,7 +206,6 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                                 <Input 
                                     placeholder={t('search')}
                                     value={searchValue}
-
                                     onChange={(e) => handleSearch(e.target.value)}
                                     prefix={<Iconify icon="eva:search-fill" size={16} />}
                                 />

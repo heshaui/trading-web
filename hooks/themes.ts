@@ -1,9 +1,56 @@
+import appStore from "@/store";
+import {LOCAL_STORAGE_KEY} from "@/config/apiConfig";
+// 从本地存储获取主题色
+export const getThemeColorFromStorage = (): string => {
+  if (typeof window !== 'undefined') {
+    try {
+      const themeData = appStore.getKvConfigAll() || localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG)
+      if (themeData) {
+        const parsedTheme = themeData
+        if (parsedTheme && parsedTheme.theme && parsedTheme.theme.color) {
+          return parsedTheme.theme.color as string;
+        }
+      }
+    } catch (error) {
+        console.error('获取主题色失败,使用默认主题色:', error);
+        return '#FF5F1F'; // 默认主题色
+    }
+  }
+  return '#FF5F1F'; // 默认主题色
+};
+
+// 生成带有透明度的颜色
+export const getColorWithOpacity = (color: string, opacity: number): string => {
+  // 如果是十六进制颜色
+  if (color.startsWith('#')) {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+  // 如果已经是 rgba 格式
+  if (color.startsWith('rgba')) {
+    return color.replace(/[\d\.]+\)$/, `${opacity})`); 
+  }
+  // 如果是 rgb 格式
+  if (color.startsWith('rgb')) {
+    return color.replace('rgb', 'rgba').replace(')', `, ${opacity})`);
+  }
+  return color;
+};
+
 // 定义主题变量映射
-export const themeVariables = {
+export const getThemeVariables = () => {
+  const themeColor = getThemeColorFromStorage();
+  const themeColorWithOpacity = getColorWithOpacity(themeColor, 0.3); // 30% 透明度
+  const warningColor = '#FF8A26'; // 警告色
+  const warningBgColor = getColorWithOpacity(warningColor, 0.08); // 8% 透明度的警告色背景
+  
+  return {
     light: {
         '--background': '#ffffff',
-        '--theme-color': '#FF5F1F',
-        '--theme-shadow': '#FF5F1F4D',
+        '--theme-color': themeColor,
+        '--theme-shadow': themeColorWithOpacity,
         '--background2': 'rgb(245, 245, 245)',
         '--background3': '#ffffff',
         '--background4': '#0a0a0a',
@@ -22,8 +69,8 @@ export const themeVariables = {
         '--foreground': '#171717',
         '--homeground': '#000000',
         '--homeground2': '#FFFFFF',
-        '--btnbgcolor': '#FF5F1F',
-        '--btnbgcolor1': '#FFAF8F',
+        '--btnbgcolor': themeColor,
+        '--btnbgcolor1': getColorWithOpacity(themeColor, 0.5),
         '--btnbgcolor2': '#FFFFFF',
         '--btnbgcolor3': '#F5F5F5',
         '--textcolor': '#0a0a0a',
@@ -35,7 +82,7 @@ export const themeVariables = {
         '--btncolor2': '#000317',
         '--btncolor3': '#E1E1E4',
         '--btncolor4': 'linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%)',
-        '--btncolor5': '#FF5F1F',
+        '--btncolor5': themeColor,
         '--btncolor6': '#F3F3F3',
         '--btncolor7': '#FFFFFF',
         '--btncolor8': '#E6E6E6',
@@ -44,14 +91,14 @@ export const themeVariables = {
         '--tip-color2': '#A4A5AC',
         '--text-color': '#1F40FF',
         '--text-color2': '#373949',
-        '--text-color3': '#FF5F1F',
+        '--text-color3': themeColor,
         '--text-color4': '#9E9E9E',
         '--text-color5': '#0C0D0C',
         '--text-color6': '#676867',
         '--text-color7': '#0C0D0C',
         '--text-color8': '#ffffff',
-        '--waring-color': '#FF8A26',
-        '--waring-bg': '#FF8A2614',
+        '--waring-color': warningColor,
+        '--waring-bg': warningBgColor,
         '--cancel-btn': '#F3F3F3',
         '--cancel-color': '#0C0D0C',
         '--cancel-btn2': '#F3F3F3',
@@ -70,12 +117,12 @@ export const themeVariables = {
         '--segmented-item-bgc': '#F6F7FB',
         '--background-menu': '#FFFFFF',
         '--background-menu-item': '#F4F4F4',
-        '--card-shadow': '#A5A5A533',
+        '--card-shadow': '#A5A5A533'
     },
     dark: {
         '--background': '#0a0a0a',
-        '--theme-color': '#FF5F1F',
-        '--theme-shadow': '#FF5F1F4D',
+        '--theme-color': themeColor,
+        '--theme-shadow': getColorWithOpacity(themeColor, 0.3),
         '--background2': '#0C0B19',
         '--background3': '#333333',
         '--background4': '#0a0a0a',
@@ -94,8 +141,8 @@ export const themeVariables = {
         '--foreground': '#ededed',
         '--homeground': '#000000',
         '--homeground2': '#000000',
-        '--btnbgcolor': '#FF5F1F',
-        '--btnbgcolor1': '#FFAF8F',
+        '--btnbgcolor': themeColor,
+        '--btnbgcolor1': getColorWithOpacity(themeColor, 0.5),
         '--btnbgcolor2': '#1a1a1a',
         '--btnbgcolor3': '#141414',
         '--textcolor': '#ffffff',
@@ -107,7 +154,7 @@ export const themeVariables = {
         '--btncolor2': '#ffffff',
         '--btncolor3': '#1E1E20',
         '--btncolor4': 'linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%)',
-        '--btncolor5': '#FF5F1F',
+        '--btncolor5': themeColor,
         '--btncolor6': '#333333',
         '--btncolor7': '#272727',
         '--btncolor8': '#333333',
@@ -116,14 +163,14 @@ export const themeVariables = {
         '--tip-color2': '#979897',
         '--text-color': '#1F40FF',
         '--text-color2': '#ededed',
-        '--text-color3': '#FF5F1F',
+        '--text-color3': themeColor,
         '--text-color4': '#9E9E9E',
         '--text-color5': '#ffffff',
         '--text-color6': '#A4A5AC',
         '--text-color7': '#A4A5AC',
         '--text-color8': '#0C0D0C',
-        '--waring-color': '#FF8A26',
-        '--waring-bg': '#FF8A2614',
+        '--waring-color': warningColor,
+        '--waring-bg': warningBgColor,
         '--cancel-btn': '#3D3D3F',
         '--cancel-color': '#ffffff',
         '--cancel-btn2': '#333333',
@@ -142,6 +189,7 @@ export const themeVariables = {
         '--segmented-item-bgc': '#141414',
         '--background-menu': '#232328',
         '--background-menu-item': '#0C0D0C',
-        '--card-shadow': '#01367433',
+        '--card-shadow': '#01367433'
     }
-};
+  };
+}

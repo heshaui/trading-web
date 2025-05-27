@@ -1,22 +1,28 @@
 {
   "helpCenter": {
-    "title": "我们能帮您什么？",
+    "helpCenter":"도움말 센터",
+    "title": "무엇을 도와드릴까요?",
     "search": {
-      "history": ["永续合约", "期货合约", "期权合约"],
-      "placeholder": "请输入您的问题",
-      "noResults": "暂无搜索结果"
+      "history": ["무기한 계약", "선물 계약", "옵션 계약"],
+      "placeholder": "질문을 입력해주세요",
+      "noResults": "검색 결과가 없습니다",
+      "results": "검색 결과"
     },
     "otherSupport": {
-      "title": "其他支持",
+      "title": "기타 지원",
       "onlineCommunication": {
-        "title": "在线沟通",
-        "description": "我们提供全天候服务，始终满足您的需求。"
+        "title": "온라인 상담",
+        "description": "저희는 24시간 서비스를 제공하며, 항상 고객님의 요구를 충족시켜 드립니다."
       },
       "email": {
-        "title": "通过电子邮件联系我们",
-        "business": "商户洽谈: 11123@qq.com",
-        "legal": "法律合规: 123@qq.com"
+        "title": "이메일로 문의하기",
+        "business": "비즈니스 문의: XXXXXXXXX",
+        "legal": "법무 및 커플라이언스: XXXXXXXXX"
       }
+    },
+    "detail": {
+      "noData": "콘텐츠가 없습니다",
+      "back": "돌아가기"
     }
   }
 }

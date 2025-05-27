@@ -1,22 +1,28 @@
 {
   "helpCenter": {
-    "title": "我们能帮您什么？",
+    "helpCenter":"ヘルプセンター",
+    "title": "何をお手伝いしましょうか？",
     "search": {
-      "history": ["永续合约", "期货合约", "期权合约"],
-      "placeholder": "请输入您的问题",
-      "noResults": "暂无搜索结果"
+      "history": ["無期限契約", "先物契約", "オプション契約"],
+      "placeholder": "ご質問を入力してください",
+      "noResults": "検索結果がありません",
+      "results": "検索結果"
     },
     "otherSupport": {
-      "title": "其他支持",
+      "title": "その他のサポート",
       "onlineCommunication": {
-        "title": "在线沟通",
-        "description": "我们提供全天候服务，始终满足您的需求。"
+        "title": "オンラインチャット",
+        "description": "当社は24時間サービスを提供し、お客様のニーズに常にお応えします。"
       },
       "email": {
-        "title": "通过电子邮件联系我们",
-        "business": "商户洽谈: 11123@qq.com",
-        "legal": "法律合规: 123@qq.com"
+        "title": "メールでお問い合わせ",
+        "business": "ビジネスのお問い合わせ: XXXXXXXXX",
+        "legal": "法務・コンプライアンス: XXXXXXXXX"
       }
+    },
+    "detail": {
+      "noData": "コンテンツがありません",
+      "back": "戻る"
     }
   }
 }

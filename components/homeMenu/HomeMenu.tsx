@@ -37,6 +37,7 @@ import { getKvObject } from '@/services/kv'
 import { NoData } from '@/components/noData';
 import SpotMenu from './common/Spot';
 import { getInformUserMessageList } from '@/services/bulletinCenter';
+import appStore from '@/store';
 export default function HomeMenu() {
     // 路由
     const router = useRouter();
@@ -84,13 +85,15 @@ export default function HomeMenu() {
         if (bulletinData.length > 0) {
             localStorage.setItem('cachedBulletinData', JSON.stringify(bulletinData));
         }
-        if (languageList.length > 0) {
-            localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
-        }
+        // if (languageList.length > 0) {
+        //     // localStorage.setItem('cachedLanguageList', JSON.stringify(languageList));
+        //     appStore.setLanguageList(languageList);
+
+        // }
         if (rateData.length > 0) {
             localStorage.setItem('cachedRateData', JSON.stringify(rateData));
         }
-    }, [menus, adaptiveMenuData, bulletinData, languageList, rateData]);
+    }, [menus, adaptiveMenuData, bulletinData, rateData]);
 
     // 从本地存储获取缓存的菜单数据
     const getCachedMenuData = useMemo(() => {
@@ -297,220 +300,6 @@ export default function HomeMenu() {
         return getIconByKey(icon);
     };
 
-    // 语言菜单
-    const spanArr = mergedLanguageList.length > 0 ? mergedLanguageList : []
-
-    // 使用实际数据替换静态数据
-    const spanRateArr = mergedRateData.length > 0 ? mergedRateData : [];
-    // 语言点击
-    const [selectedRate, setSelectedRate] = useState<string>('');
-    const handleLanguageClick = async (language: string, langEncode: string) => {
-        // 保存选中的语言到状态和本地存储
-        setSelectedLanguage(language);
-        localStorage.setItem('lang', langEncode);
-        localStorage.setItem('selectedLanguage', language);
-
-        try {
-            // 强制清除所有缓存 - 使用更彻底的方式
-            // console.log('开始清除缓存数据...');
-
-            // 方法1: 直接删除指定的缓存项
-            const keysToRemove = [
-                'cachedMenus',
-                'cachedAdaptiveMenuData',
-                'cachedBulletinData',
-                'cachedLanguageList',
-                'cachedRateData'
-            ];
-
-            keysToRemove.forEach(key => {
-                localStorage.removeItem(key);
-                // console.log(`已删除缓存: ${key}`);
-            });
-
-            // 方法2: 添加时间戳使缓存失效
-            localStorage.setItem('cacheInvalidationTimestamp', Date.now().toString());
-
-            // 方法3: 如果有必要，也可以考虑清除所有以'cached'开头的项
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('cached')) {
-                    localStorage.removeItem(key);
-                    // console.log(`已删除额外缓存: ${key}`);
-                }
-            });
-
-            // console.log('缓存清除完成');
-        } catch (error) {
-            console.error('清除缓存时出错:', error);
-        }
-
-        // 直接设置i18n实例的语言
-        if (typeof i18n.changeLanguage === 'function') {
-            i18n.changeLanguage(langEncode.split('-')[0]);
-        } else {
-            console.warn('i18n.changeLanguage 不是一个函数，可能需要检查 i18n 的初始化');
-            // 使用替代方法
-            localStorage.setItem('i18nextLng', langEncode.split('-')[0]);
-        }
-
-        // 根据语言编码确定Next.js的locale值
-        let nextLocale = 'en';
-        if (langEncode.startsWith('zh')) {
-            nextLocale = 'zh'; // 简体中文 / 繁体中文
-        } else if (langEncode.startsWith('ja')) {
-            nextLocale = 'ja';
-        } else if (langEncode.startsWith('ko')) {
-            nextLocale = 'ko';
-        }
-
-        // 分发自定义事件
-        const event = new CustomEvent('langChange', { detail: langEncode });
-        window.dispatchEvent(event);
-
-        // 添加调试信息
-        // console.log(`切换语言: ${language}, 编码: ${langEncode}, Next.js locale: ${nextLocale}, 数据缓存已清除`);
-
-        // 使用硬刷新确保语言切换生效并保持路径
-        const currentPath = router.asPath;
-        const baseUrl = window.location.origin;
-
-        // 保存当前路径到会话存储，以便在重定向后恢复
-        sessionStorage.setItem('lastPath', currentPath);
-
-        // 添加标志表明这是一个语言切换，需要刷新数据
-        sessionStorage.setItem('languageChanged', 'true');
-
-        // 构建新URL时保留查询参数和哈希，并添加时间戳以防止缓存
-        const url = new URL(`${baseUrl}/${nextLocale}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`);
-        url.searchParams.append('t', Date.now().toString()); // 添加时间戳参数
-        window.location.href = url.toString();
-    };
-    // 汇率点击
-    const handleRateClick = (rate: string) => {
-        setSelectedRate(rate);
-        
-        // 获取当前汇率数据
-        const currentRateData = store.getRateData();
-        
-        // 查找选中的汇率数据
-        const selectedRateData = currentRateData.find(item => item.rate === rate);
-        
-        // 如果找到了匹配的汇率数据，则更新它为当前选中的汇率
-        if (selectedRateData) {
-            // 将选中的汇率数据设置为当前汇率
-            store.setRateData([
-                // 将选中的汇率数据放在数组的第一位
-                selectedRateData,
-                // 过滤掉已选中的汇率，添加其他汇率数据
-                ...currentRateData.filter(item => item.rate !== rate)
-            ]);
-        }
-    };
-    // 定义语言菜单项
-    const languageItems = spanArr.length > 0 ? spanArr.map((item: { span: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; key: any; }, index: number) => ({
-        key: `1-${index + 1}`, // 动态生成 key
-        type: 'item',
-        title: `${item.span}`,
-        label: (
-            <span style={{
-                fontWeight: selectedLanguage === item.span ? '500' : '400',
-                cursor: 'pointer',
-                display: 'block',
-                width: '100%',
-                height: '100%'
-            }}
-                onClick={() => handleLanguageClick(item.span as string, item.key as string)}
-            >
-                {item.span}
-            </span> // 动态赋值
-        ),
-    })) : [
-        {
-            key: 'empty-language',
-            type: 'group',
-            label: <NoData title="暂无语言数据" />
-        }
-    ];
-    // 定义汇率菜单项
-    const rateItems = spanRateArr.length > 0 ? spanRateArr.map((item: { span: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; key: any; }, index: number) => ({
-        key: `3-${index + 1}`, // 动态生成 key
-        type: 'item',
-        title: `${item.span}`,
-        label: (
-            <span style={{
-                fontWeight: selectedRate === item.span ? '500' : '400',
-                cursor: 'pointer',
-                display: 'block',
-                width: '100%',
-                height: '100%'
-            }}
-                onClick={() => handleRateClick(item.span as string)}>{item.span}
-            </span> // 动态赋值
-        ),
-    })) : [
-        {
-            key: 'empty-rate',
-            type: 'group',
-            label: <NoData title="暂无汇率数据" />
-        }
-    ];
-    // 语言过滤(模糊搜索)
-    const filterLanguages = (languages: any[], searchValue: string) => {
-        if (!searchValue) return languages; // 如果没有搜索值，直接返回所有语言项
-
-        const regex = new RegExp(searchValue.trim(), 'i');
-        const filtered = languages.filter((lang) => {
-            return regex.test(lang.label.props.children); // 匹配 label 中的 <span> 内容
-        });
-
-        // 如果过滤后的结果为空，返回空状态组件
-        if (filtered.length === 0) {
-            return [
-                {
-                    key: 'empty',
-                    type: 'group',
-                    label: <NoData title={t('header.noRateData')} />,
-                },
-            ];
-        }
-
-        return filtered;
-    };
-    // 汇率过滤(模糊搜索)
-    const filterRates = (rates: any[], searchValue: string) => {
-        if (!searchValue) return rates; // 如果没有搜索值，直接返回所有语言项
-
-        const regex = new RegExp(searchValue.trim(), 'i');
-        const filtered = rates.filter((lang) => {
-            return regex.test(lang.label.props.children); // 匹配 label 中的 <span> 内容
-        });
-
-        // 如果过滤后的结果为空，返回空状态组件
-        if (filtered.length === 0) {
-            return [
-                {
-                    key: 'empty',
-                    type: 'group',
-                    label: <NoData title={t('header.noMatchResult')} />,
-                },
-            ];
-        }
-
-        return filtered;
-    };
-    // 定义语言状态变量
-    const [searchLanguageValue, setSearchLanguageValue] = useState<string>("");
-    // 定义汇率状态变量
-    const [searchRateValue, setSearchRateValue] = useState<string>("");
-    // 公告中心 - 公告部分测试数据
-    const bulletinArr = [
-        { h5Text: "IMBIT关于上线 Pendle (PENDLE) 现货交易的公告", spanText: "2024/09/27 11:00:00" },
-        { h5Text: "ETH/BTC 币对现已上线双币赢！", spanText: "2024/09/27 14:30:00" },
-        { h5Text: "IMBIT关于延迟上线 USDC 交易币对的公告", spanText: "2024/09/27 14:30:00" },
-        { h5Text: "IMBIT关于 HMSTR 杠杆交易、永续合约及简单赚币正式上线的公告", spanText: "2024/09/27 14:30:00" },
-        { h5Text: "IMBIT关于完成发放 Hamster Kombat (HMSTR) 空投币的公告", spanText: "2024/09/27 11:00:00" },
-    ];
-
     const goNotice = (id: string) => {
         // console.log(id);
         // 跳转到公告详情页面
@@ -694,49 +483,7 @@ export default function HomeMenu() {
             widthSet: 'question',
             items: [],
         },
-        // {
-        //     key: '3',
-        //     title: <IconHtml icon="img_global" />,
-        //     widthSet: 'global',
-        //     items: [
-        //         {
-        //             key: '0',
-        //             type: 'group',
-        //             label: (
-        //                 <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>语言</h6>
-        //             )
-        //         },
-        //         {
-        //             key: '1',
-        //             type: 'group',
-        //             label: (
-        //                 <MenuItemLabel isInput onInputChange={(value) => setSearchLanguageValue(value)} h5Text='中文' />
-        //             ),
-        //             children: [
-        //                 ...filterLanguages(languageItems, searchLanguageValue),
-        //             ],
-        //         },
-        //         {
-        //             key: '2',
-        //             type: 'group',
-        //             label: (
-        //                 <h6 style={{ color: 'var(--text-color5)', marginBottom: '-10px' }}>汇率</h6>
-        //             )
-        //         },
-        //         {
-        //             key: '3',
-        //             type: 'group',
-        //             label: (
-        //                 <MenuItemLabel isInput onInputChange={(value) => setSearchRateValue(value)} h5Text='搜索' />
-        //             ),
-        //             children: [
-        //                 ...filterRates(rateItems, searchRateValue),
-        //             ],
-        //         },
-
-        //     ],
-        // },
-    ], [isLogin, loginAwareBulletinItems, languageItems, searchLanguageValue, rateItems, searchRateValue]); // 添加所有需要的依赖
+    ], [isLogin, loginAwareBulletinItems]); // 添加所有需要的依赖
 
     // 使用 useMemo 缓存渲染结果
     const iconItemsLogin = useMemo(() =>

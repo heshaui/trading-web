@@ -72,6 +72,7 @@ function Phonebox() {
 				// }
 				// setLoginInfo(data)
 				// setCodeModelOpen(true)
+				if(loading) return;
 				const fingerprint = await getFingerprint();
 				const param = {
 					type: "p",

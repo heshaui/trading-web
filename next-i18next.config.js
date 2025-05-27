@@ -2,9 +2,9 @@ const path = typeof window === 'undefined' ? require('path') : null;
 
 module.exports = {
   i18n: {
-    defaultLocale: 'zh',
+    defaultLocale: 'en',
     locales: ['en', 'zh', 'ja', 'ko', 'tw'],
-
+    localeDetection: false,
   },
   ns: ['common',  'home', 'login', 'userCenter','resetPassword','assets','invite','spot','builetinCenter','helpCenter','notice'],
   defaultNS: 'common',

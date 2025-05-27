@@ -129,7 +129,9 @@ function Equipment() {
             width: 150,
             align: "center",
             render: (_status, record) => {
-                return <button className={`${styles.error_icon}`} onClick={(e) => { e.stopPropagation(); delectDeviceNo(record.id) }}>删除</button>;
+                return <button className={`${styles.error_icon}`} onClick={(e) => { e.stopPropagation(); delectDeviceNo(record.id) }}>
+                    {t('security.delect.btn')}
+                </button>;
             },
         },
     ];
