@@ -74,6 +74,9 @@ const WithdrawMoneyPage = observer(() => {
     const { resetState } = useResetStateContext();
     const [addressInput, setAddressInput] = useState('');
     const [filteredAddressOptions, setFilteredAddressOptions] = useState(addressSelect);
+    
+    // 控制地址下拉菜单的显示状态
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const [userAllLimit, setUserAllLimit] = useState<limitType>({} as limitType)
     const [btnSumbitError, setBtnSumbitError] = useState(false);
@@ -326,7 +329,12 @@ const WithdrawMoneyPage = observer(() => {
         try {
             const res = await getProtocolTypeAll()
             if (res.code === '0') {
-                setProtocolTypeList(res.data)
+                const protocolList = res.data.map((item: any) => ({
+                    ...item,
+                    label: item.protocolName,
+                    value: item.id,
+                }))
+                setProtocolTypeList(protocolList)
             } else {
                 toast.error(res.message)
             }
@@ -736,12 +744,22 @@ const WithdrawMoneyPage = observer(() => {
             return Promise.reject(new Error(t('withdrawMoney.selectNetwork2')));
         }
         // const a=addressId
-        const addressId = form.getFieldValue('addressId');
-        const address=filteredAddressOptions.find((item: any) => item.addressName === addressId);
-        if (address?.protocolId !== value) {
-            return Promise.reject(new Error(t('withdrawMoney.selectNetwork2Error')));
-        }
+        // const addressId = form.getFieldValue('addressId');
+        // const address=filteredAddressOptions.find((item: any) => item.addressName === addressId);
+        // if (address?.protocolId !== value) {
+        //     return Promise.reject(new Error(t('withdrawMoney.selectNetwork2Error')));
+        // }
 
+        return Promise.resolve();
+    }
+    // 提现地址校验规则
+    const validateAddress = (rule: any, value: any, callback: any) => {
+        if (typeof value === 'string') {
+            value = value.trim();
+        }
+        if (!value) {
+            return Promise.reject(new Error(t('withdrawMoney.inputAddress')));
+        }
         return Promise.resolve();
     }
 
@@ -897,9 +915,13 @@ const WithdrawMoneyPage = observer(() => {
             </p>,
             description: <div className={`${styles.steps_item_content2} mt-2`}>
                 {current >= 1 && <>
-                    <Form.Item name='addressId' rules={[{ required: true, message: t('withdrawMoney.selectAddress') }]} >
+                    <Form.Item name='addressId'
+                        // rules={[{ required: true, message: t('withdrawMoney.selectAddress') }]}
+                        rules={[{ validator: validateAddress }]}
+                    >
                         <AutoComplete
                             style={{ height: 50 }}
+                            open={dropdownOpen} // 控制下拉菜单的显示状态
                             options={filteredAddressOptions.map(item => ({
                                 ...item,
                                 key: item.id,
@@ -916,7 +938,12 @@ const WithdrawMoneyPage = observer(() => {
                                 ),
                                 value: item.addressName
                             }))}
-                            onFocus={getUserAddressList}
+                            onFocus={(e) => {
+                                // 在输入框聚焦时获取地址列表，但不显示下拉菜单
+                                getUserAddressList();
+                                // 阻止默认的下拉菜单显示行为
+                                e.preventDefault();
+                            }}
                             notFoundContent={<NoAddress />}
                             dropdownRender={(menu) => (
                                 <>
@@ -930,15 +957,29 @@ const WithdrawMoneyPage = observer(() => {
                                     </button>
                                 </>
                             )}
-                            onChange={addressChange}
-                            onSearch={handleAddressSearch} // 关键：输入变化时过滤
+                            onChange={(value, option) => {
+                                addressChange(value, option);
+                                setDropdownOpen(false); // 选择后关闭下拉菜单
+                            }}
+                            // onSearch={handleAddressSearch} // 关键：输入变化时过滤
                         >
                             <Input
                                 type="text"
                                 className={`${styles.input_box3} modal-input`}
                                 placeholder={t('withdrawMoney.inputAddress')}
                                 allowClear
-                                suffix={<Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color}`} />}
+                                suffix={
+                                    <div 
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // 阻止事件冒泡
+                                            getUserAddressList(); // 点击图标时获取地址列表
+                                            setDropdownOpen(!dropdownOpen); // 切换下拉菜单的显示状态
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Iconify icon="mdi:map-outline" size={24} className={`${styles.title_color}`} />
+                                    </div>
+                                }
                             />
                         </AutoComplete>
                     </Form.Item>
@@ -949,7 +990,7 @@ const WithdrawMoneyPage = observer(() => {
                             noStyle>
                             <Select allowClear
                                 placeholder={t('withdrawMoney.selectNetwork2')}
-                                options={coinExtSelect}
+                                options={coinExtSelect} //protocolTypeList coinExtSelect
                                 className={`${styles.select_box}  custom-select `}
                                 optionRender={(option) => {
                                     return (

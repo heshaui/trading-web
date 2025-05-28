@@ -94,7 +94,7 @@
         "coinList": "币种列表",
         "noRecord": "暂无记录",
         "selectAddress": "请选择提现地址",
-        "inputAddress": "请输入地址",
+        "inputAddress": "请输入提现地址",
         "addAddress": "添加地址",
         "selectNetwork2": "请选择网络",
         "selectNetwork2Error": "所选网络与地址对应网络不匹配",

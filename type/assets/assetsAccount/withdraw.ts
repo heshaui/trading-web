@@ -17,7 +17,9 @@ export interface coinExtAllListType {
     protocolName: string,
     browser: string,
     symbol: string,
-    chainId: number
+    chainId: number,
+    value: string,
+    label: string,
 }
 export interface coinExtSelectType {
     coinId: number,
