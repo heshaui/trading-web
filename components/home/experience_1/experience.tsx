@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useThemeMode } from '@/hooks/useThemeMode'
 import appStore from '@/store';
+import { getNextJsLocale } from '@/utils/filterLang';
 const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
     backgroundSize: 'cover',
@@ -106,22 +107,14 @@ export default function Experience() {
 			window.open(url, '_blank', 'noopener')
 		}
 	}
-    // const getHommePic=async()=>{
-    //     const params={
-    //         key:'HomeBanner',
-    //         languageCode:'zh-CN',
-    //         dayType:'1', //1:日间 2:夜间
-    //         loginType:'1' //1:未登录 2:登录
-    //     }
-    //     try {
-    //      const res=await getHomeImage(params)
-    //     if(res.code==='0'){
-    //         setHomeImage(res.data)
-    //     }   
-    //     } catch (error) {
-            
-    //     }  
-    // }
+    const defaultPic=() => {
+        const lang = getNextJsLocale(langKey)
+        if (lang === 'zh') {
+            return 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/homePic/zh_spot.png'
+        } else {
+            return 'https://meta2025.oss-ap-northeast-2.aliyuncs.com/homePic/en_spot.png'
+        }
+    }
     useEffect(() => {
         getBgc()
         // getHommePic()
@@ -137,7 +130,7 @@ export default function Experience() {
                     <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
                         <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />
                         <Button className={`${styles.experience_main_btn}`}
-                        onClick={()=>picClick(bgUrl()?.url||'')}
+                        onClick={()=>picClick(bgUrl()?.url||defaultPic())}
                         >{bgUrl()?.buttonText}</Button>
                     </div>
                 </div>

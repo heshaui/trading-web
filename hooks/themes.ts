@@ -9,6 +9,8 @@ export const getThemeColorFromStorage = (): string => {
         const parsedTheme = themeData
         if (parsedTheme && parsedTheme.theme && parsedTheme.theme.color) {
           return parsedTheme.theme.color as string;
+        }   else  {
+          return '#FF5F1F'
         }
       }
     } catch (error) {

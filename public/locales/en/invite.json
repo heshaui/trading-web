@@ -63,9 +63,11 @@
             "title": "Invite Friends to Earn",
             "title2": "Trading Rewards",
             "tip1": "Within 14 days of registration, if the cumulative recharge is not less than 100 USDT and identity verification is completed, you can obtain the spot trading commission from referrals.",
-            "tip11": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}} **and identity verification is completed**, you can obtain the spot trading commission from referrals.",
-            "tip12": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}}, you can get the spot trading fee of friends.",
-            "tip2": "Rebate",
+            "tip11": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}} and identity verification is completed, you can obtain the spot trading commission from referrals.",
+            "tip12": "Within {{time}} days of registration, if the cumulative recharge is not less than {{count}} {{coinName}}, you can get the spot trading fee of friends ",
+            "tip13": "If you recharge no less than {{count}} {{coinName}} in total within {{time}} days of registration, you can get a ",
+            "tip14": "If you recharge no less than {{count}} {{coinName}} in total within {{time}} days of registration and complete the real - name authentication, you will be eligible for a ",
+            "tip2": " rebate on the spot trading fees for transactions with friends.",
             "qrCode": "Invite Friends to Earn Trading Rewards"
         }
     }
