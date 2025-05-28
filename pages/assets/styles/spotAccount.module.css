@@ -30,7 +30,7 @@
 }
 
 .warning_color {
-    color: var(--theme-color);
+    color:var(--waring-color);
 }
 
 .default_icon {

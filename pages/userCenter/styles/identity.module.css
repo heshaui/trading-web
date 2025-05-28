@@ -21,7 +21,7 @@
 }
 
 .warning_color {
-    color: #F8A145;
+    color: var(--waring-color);
 }
 
 
@@ -31,7 +31,7 @@
 
 .svgIcon {
     fill: currentColor;
-    color: #FF5F1F;
+    color: var(--theme-color);
     margin-right: 14px;
 }
 

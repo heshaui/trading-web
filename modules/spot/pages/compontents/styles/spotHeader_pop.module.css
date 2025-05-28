@@ -22,7 +22,7 @@
 }
 
 .warning_color {
-    color: #FF5F1F;
+    color: var(--waring-color);
 }
 
 .default_icon {

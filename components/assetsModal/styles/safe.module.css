@@ -73,7 +73,7 @@
     border-color: var(--text-color3);
 }
 .default_color{
-    color: #FF5F1F;
+    color:  var(--theme-color);
 }
 .tip_color {
     color: var(--text-color4);

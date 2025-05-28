@@ -188,7 +188,7 @@
     padding: 2px 6px;
     justify-content: center;
     align-items: center;
-    background-color: #FF5F1F;
+    background-color: var(--theme-color);
     color: #FFFFFF;
     font-size: 10px;
     border-radius: 24px;
@@ -230,7 +230,7 @@
 }
 
 .childrenItemContainer h5 {
-    color: #FF5F1F;
+    color: var(--theme-color);
     font-weight: 600;
     font-size: 14px;
 }
@@ -274,8 +274,9 @@
 }
 
 .childrenItemBox .leftItem span.orangeSpan {
-    background-color: #FFF2ED;
-    color: #FF5F1F;
+    background-color:var(--theme-005); 
+    /* // #FFF2ED; */
+    color: var(--theme-color);
 }
 
 .childrenItemBox .rightItem {

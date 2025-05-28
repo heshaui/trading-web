@@ -75,7 +75,7 @@
 .customHelperMenu .ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-submenu-arrow,
 .customHelperMenu .ant-menu-submenu-title:hover .ant-menu-title-content,
 .customHelperMenu .ant-menu-submenu-title:hover .ant-menu-submenu-arrow {
-    color: #FF5F1F;
+    color: var(--theme-color);
 }
 
 .customHelperMenu .ant-menu .ant-menu-item {
@@ -86,7 +86,7 @@
 .customHelperMenu .ant-menu .ant-menu-item-selected,
 .customHelperMenu .ant-menu .ant-menu-item.ant-menu-item-active,
 .customHelperMenu .ant-menu .ant-menu-item.ant-menu-item-active:hover {
-    background-color: #FF5F1F;
+    background-color: var(--theme-color);
 }
 /* 分页 */
 .customMenu .ant-pagination .ant-pagination-item,
