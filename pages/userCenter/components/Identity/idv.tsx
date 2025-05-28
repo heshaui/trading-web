@@ -14,6 +14,7 @@ import { getCountryCode } from "@/services/open";
 import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { useTranslation } from 'next-i18next';
+import { NoData } from "@/components/noData";
 
 interface IDVProps {
     onNext: (event: eventType) => void;
@@ -71,15 +72,16 @@ function ResetPassword({ onNext }: IDVProps) {
         //     value: '6'
         // }
     ]
+    const [countryLoading, setCountryLoading] = useState(false);
 
 
     // const goNext = () => {
     //     router.push('/login');
     // }
-   // 保存表单数据到localStorage
-   const saveFormData = (values: any) => {
-    sessionStorage.setItem('idvFormData', JSON.stringify(values));
-};
+    // 保存表单数据到localStorage
+    const saveFormData = (values: any) => {
+        sessionStorage.setItem('idvFormData', JSON.stringify(values));
+    };
 
     const onSubmit = () => {
         form
@@ -97,8 +99,8 @@ function ResetPassword({ onNext }: IDVProps) {
                 console.log("Validate Failed:", info);
             });
     }
-      // 从localStorage加载表单数据
-      const loadFormData = () => {
+    // 从localStorage加载表单数据
+    const loadFormData = () => {
         const savedData = sessionStorage.getItem('idvFormData');
         if (savedData) {
             const parsedData = JSON.parse(savedData);
@@ -124,15 +126,24 @@ function ResetPassword({ onNext }: IDVProps) {
         });
     }
     const getCountryCodeData = async () => {
-        const res = await getCountryCode();
-        if (res.code === '0') {
-            const info = res.data.map((item: ICountryData) => {
-                return {
-                    label: item.countryName,
-                    value: item.areaCode
-                }
-            })
-            setCountryData(info);
+        setCountryLoading(true);
+        try {
+
+            const res = await getCountryCode();
+            if (res.code === '0') {
+                const info = res.data.map((item: ICountryData) => {
+                    return {
+                        label: item.countryName,
+                        value: item.areaCode
+                    }
+                })
+                setCountryData(info);
+            }
+
+        } catch (error) {
+            toast.error(String(error));
+        } finally {
+            setCountryLoading(false);
         }
     }
 
@@ -205,6 +216,8 @@ function ResetPassword({ onNext }: IDVProps) {
                                 placeholder={t('identity.idv.country.placeholder')}
                                 options={countryData}
                                 className={`custom-select`}
+                                notFoundContent={<NoData />}
+                                loading={countryLoading}
                             />
                         </Form.Item>
                         <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
@@ -295,7 +308,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                 allowClear
                                 disabledDate={(current) => {
                                     // 使用dayjs禁用当前日期以后的日期
-                                    return  current > dayjs().endOf('day');
+                                    return current > dayjs().endOf('day');
                                 }}
                                 suffixIcon={
                                     <Iconify icon="cuida:calendar-outline"
@@ -308,7 +321,7 @@ function ResetPassword({ onNext }: IDVProps) {
 
                 </ConfigProvider>
                 <div className='mt-10'>
-                    
+
                     {!isNext ? (
                         <button
                             className={`${styles.btn_style} disabled_btn2 cursor-not-allowed`}
