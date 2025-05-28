@@ -273,7 +273,7 @@ const UserCenterSidebar = ({menuItems}: SidebarProps) => {
                         },
                     },
                     token: {
-                        padding: 120,
+                        // padding: 120,
                     },
                 }}
             >
