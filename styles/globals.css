@@ -53,6 +53,8 @@
   --text-color7: #0C0D0C;
   --waring-color: #FF8A26;
   --waring-bg: #FF8A2614;
+  --error-bg: #F73710;
+  --success-bg: #00C788;
   --cancel-btn: #F3F3F3;
   --cancel-btn2: #F3F3F3;
   --cancel-color: #0C0D0C;
@@ -123,6 +125,8 @@
     --text-color7: #A4A5AC;
     --waring-color: #FF8A26;
     --waring-bg: #FF8A2614;
+    --error-bg: #F73710;
+    --success-bg: #00C788;
     --cancel-btn: #3D3D3F;
     --cancel-btn2: #333333;
     --cancel-color: #ffffff;

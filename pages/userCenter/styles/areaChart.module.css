@@ -9,6 +9,6 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: #FF5F1F;
+    background-color: var(--theme-color);
     display: inline-block;
 }

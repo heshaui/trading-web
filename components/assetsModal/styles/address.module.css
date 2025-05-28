@@ -55,7 +55,7 @@
     color: var(--text-color6) !important;
 }
 .default_color{
-    color: #FF5F1F;
+    color: var(--theme-color);
 }
 .tip_color {
     color: var(--text-color4);

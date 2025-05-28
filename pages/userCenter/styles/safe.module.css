@@ -21,7 +21,7 @@
 }
 
 .warning_color {
-    color: #FF5F1F;
+    color: var(--waring-color);
 }
 
 
@@ -30,7 +30,7 @@
 }
 .svgIcon {
     fill: currentColor;
-    color:#FF5F1F;
+    color:var(--theme-color);
     margin-right: 14px;
   }
 .btn_style{

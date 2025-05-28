@@ -42,7 +42,46 @@ export const getColorWithOpacity = (color: string, opacity: number): string => {
     }
     return color;
 };
-
+// 明暗度
+export const getColorWithLowerBrightness = (color: string, brightnessFactor: number): string => {
+    // 如果是十六进制颜色
+    if (color.startsWith('#')) {
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+        const newR = Math.max(0, Math.min(255, Math.floor(r * brightnessFactor)));
+        const newG = Math.max(0, Math.min(255, Math.floor(g * brightnessFactor)));
+        const newB = Math.max(0, Math.min(255, Math.floor(b * brightnessFactor)));
+        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+    }
+    // 如果已经是 rgba 格式
+    if (color.startsWith('rgba')) {
+        const parts = color.match(/rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/);
+        if (parts) {
+            const r = parseInt(parts[1]);
+            const g = parseInt(parts[2]);
+            const b = parseInt(parts[3]);
+            const newR = Math.max(0, Math.min(255, Math.floor(r * brightnessFactor)));
+            const newG = Math.max(0, Math.min(255, Math.floor(g * brightnessFactor)));
+            const newB = Math.max(0, Math.min(255, Math.floor(b * brightnessFactor)));
+            return `rgba(${newR}, ${newG}, ${newB}, ${parts[4]})`;
+        }
+    }
+    // 如果是 rgb 格式
+    if (color.startsWith('rgb')) {
+        const parts = color.match(/rgb\((\d+), (\d+), (\d+)\)/);
+        if (parts) {
+            const r = parseInt(parts[1]);
+            const g = parseInt(parts[2]);
+            const b = parseInt(parts[3]);
+            const newR = Math.max(0, Math.min(255, Math.floor(r * brightnessFactor)));
+            const newG = Math.max(0, Math.min(255, Math.floor(g * brightnessFactor)));
+            const newB = Math.max(0, Math.min(255, Math.floor(b * brightnessFactor)));
+            return `rgb(${newR}, ${newG}, ${newB})`;
+        }
+    }
+    return color;
+};
 // 定义主题变量映射
 export const getThemeVariables = () => {
     const themeColor = getThemeColorFromStorage();
@@ -55,6 +94,7 @@ export const getThemeVariables = () => {
             '--theme-color': themeColor,
             '--theme-03': getColorWithOpacity(themeColor, 0.3),
             '--theme-05': getColorWithOpacity(themeColor, 0.5),
+            '--theme-005': getColorWithOpacity(themeColor, 0.05),
             '--theme-shadow': getColorWithOpacity(themeColor, 0.3),
             '--background2': 'rgb(245, 245, 245)',
             '--background3': '#ffffff',
@@ -104,6 +144,9 @@ export const getThemeVariables = () => {
             '--text-color8': '#ffffff',
             '--waring-color': warningColor,
             '--waring-bg': warningBgColor,
+            '--error-color': '#F73710',
+            '--success-color': '#00C788',
+            '--warning-color2': '#F8A145',
             '--cancel-btn': '#F3F3F3',
             '--cancel-color': '#0C0D0C',
             '--cancel-btn2': '#F3F3F3',
@@ -113,7 +156,7 @@ export const getThemeVariables = () => {
             '--border-color4': '#DCDCDC',
             '--border-color5': '#E5E5E5',
             '--border-color6': '#E5E5E5',
-            '--bgc-color': '#FFF5F1',
+            '--bgc-color':getColorWithOpacity(themeColor, 0.05), // '#FFF5F1',
             '--help-center-banner': 'url("/images/help_center/banner.png")',
             '--help-center-input-text': '#9E9E9E',
             '--help-center-card-bg': '#FFFFFF',
@@ -129,6 +172,7 @@ export const getThemeVariables = () => {
             '--theme-color': themeColor,
             '--theme-03': getColorWithOpacity(themeColor, 0.3),
             '--theme-05': getColorWithOpacity(themeColor, 0.5),
+            '--theme-005': getColorWithOpacity(themeColor, 0.05),
             '--theme-shadow': getColorWithOpacity(themeColor, 0.3),
             '--background2': '#0C0B19',
             '--background3': '#333333',
@@ -178,6 +222,9 @@ export const getThemeVariables = () => {
             '--text-color8': '#0C0D0C',
             '--waring-color': warningColor,
             '--waring-bg': warningBgColor,
+            '--error-color': '#F73710',
+            '--success-color': '#00C788',
+            '--warning-color2': '#F8A145',
             '--cancel-btn': '#3D3D3F',
             '--cancel-color': '#ffffff',
             '--cancel-btn2': '#333333',
@@ -187,7 +234,7 @@ export const getThemeVariables = () => {
             '--border-color4': '#37373A',
             '--border-color5': '#29292F',
             '--border-color6': '#37373A',
-            '--bgc-color': '#281D1A',
+            '--bgc-color': getColorWithLowerBrightness(themeColor, 0.3), //'#281D1A',
             '--help-center-banner': 'url("/images/help_center/banner_dark.png")',
             '--help-center-input-text': '#979897',
             '--help-center-card-bg': '#232328',

@@ -39,7 +39,7 @@
 
 .svgIcon {
     fill: currentColor;
-    color: #FF5F1F;
+    color: var(--theme-color);
     margin-right: 14px;
 }
 
@@ -117,7 +117,7 @@ border-radius: 4px;
 
 }
 .upload_text {
-    color: #FF5F1F;
+    color: var(--theme-color);
     font-size: 14px;
 }
 
