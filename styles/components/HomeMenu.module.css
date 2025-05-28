@@ -317,7 +317,7 @@
 }
 
 .login {
-    background-color: #FF5F1F;
+    background-color: var(--theme-color);
     display: inline-block;
     width: 80px;
     height: 36px;

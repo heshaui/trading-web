@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-// import { themeVariables } from './themes';
-import {getThemeVariables} from '@/hooks/themes';
+import { getThemeVariables } from '@/hooks/themes';
 
 
 const isClient = typeof window !== 'undefined';
@@ -10,6 +9,7 @@ const getSystemTheme = (): boolean => {
     return window.matchMedia('(prefers-color-scheme: light)').matches;
 };
 
+// 确保导出 useDayModeChange 函数
 export const useDayModeChange = () => {
     // 应用主题变量
     const applyTheme = (isDayMode: boolean) => {
@@ -17,12 +17,19 @@ export const useDayModeChange = () => {
         
         try {
             localStorage.setItem('isDayMode', String(isDayMode));
-            const theme = isDayMode ? getThemeVariables().light : getThemeVariables().dark;
+            // 获取主题变量并立即应用
+            const themeVars = getThemeVariables();
+            const theme = isDayMode ? themeVars.light : themeVars.dark;
+            
+            // 将主题变量应用到 CSS 变量
             Object.entries(theme).forEach(([key, value]) => {
                 document.documentElement.style.setProperty(key, value);
             });
+            
+            // 触发主题变更事件，通知其他组件
+            window.dispatchEvent(new Event('themeChange'));
         } catch (e) {
-            console.error('Failed to apply theme:', e);
+            console.error('应用主题变量失败:', e);
         }
     };
 
@@ -88,3 +95,30 @@ export const useDayModeChange = () => {
 
     return { isDayMode, toggleTheme };
 };
+// 初始化主题函数
+export const initTheme = () => {
+    if (typeof window !== 'undefined') {
+        // 获取暗色模式状态
+        const savedMode = localStorage.getItem("darkMode") === "true";
+        // 获取当前主题模式（白天/黑夜）
+        const isDayMode = localStorage.getItem('isDayMode') === 'true' || true; // 默认为白天模式
+        
+        // 应用主题变量
+        try {
+          const themeVars = getThemeVariables();
+          const theme = isDayMode ? themeVars.light : themeVars.dark;
+          
+          // 将主题变量应用到 CSS 变量
+          Object.entries(theme).forEach(([key, value]) => {
+            document.documentElement.style.setProperty(key, value);
+          });
+        
+          // 触发主题变更事件，通知其他组件
+          window.dispatchEvent(new Event('themeChange'));
+          
+          console.log('初始化主题变量成功');
+        } catch (e) {
+          console.error('初始化应用主题变量失败:', e);
+        }
+      }
+}

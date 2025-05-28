@@ -6,6 +6,7 @@ import '@/styles/bulletinCenterPublic.css';
 import type { AppProps } from "next/app";
 import { ConfigProvider } from 'antd';
 import { useState, useEffect } from 'react';
+import { getThemeVariables } from '@/hooks/themes';
 import { appWithTranslation, useTranslation } from 'next-i18next';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import Footer from '@/components/footer/Footer';
@@ -22,6 +23,7 @@ import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { useAuthGuard } from '@/middleware';
+import { initTheme } from '@/hooks/dayModeChange';
 // 定义公开路径（不需要登录即可访问的页面）
 // const publicPaths = [
 //   '/',
@@ -83,10 +85,9 @@ function App({ Component, pageProps }: AppProps) {
   // console.log('App - pageProps:', pageProps);
   // console.log('App - Translation test:', t('title'));
 
-  // 在客户端同步暗色模式状态
+  // 在客户端同步暗色模式状态并应用主题变量
   useEffect(() => {
-    const savedMode = localStorage.getItem("darkMode") === "true";
-    setIsDarkMode(savedMode);
+    initTheme()
   }, []);
   // 监听登录状态变化
   useAuthGuard({
@@ -144,6 +145,11 @@ function App({ Component, pageProps }: AppProps) {
     setIsDarkMode((prev) => {
       const newMode = !prev;
       localStorage.setItem("darkMode", newMode.toString());
+      
+      // 切换暗色模式时不需要改变 isDayMode，因为它们是两个独立的设置
+      // 但可以在这里触发主题变更事件，以便其他组件可以响应
+      window.dispatchEvent(new Event('themeChange'));
+      
       return newMode;
     });
   };
