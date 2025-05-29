@@ -192,9 +192,9 @@ const AddAdressPage = () => {
                 })).sort((a: coinSelectType, b: coinSelectType) => {
                     return a.sort - b.sort
                 })
-                
+
                 setCoinSelect(coinList)
-                
+
             } else {
                 toast.error(res.message)
             }
@@ -228,7 +228,7 @@ const AddAdressPage = () => {
         const newAddressName = value.toString() || '';
         setAddressName(newAddressName);
         filterRef.current.addressName = newAddressName;
-        filterTableData();
+        // filterTableData();
     }
     // 筛选函数
     const filterTableData = async () => {
@@ -266,10 +266,10 @@ const AddAdressPage = () => {
     useEffect(() => {
         if (selectedRowKeys.length > 0) {
             // 获取当前表格中存在的选中行
-            const validSelectedKeys = selectedRowKeys.filter(key => 
+            const validSelectedKeys = selectedRowKeys.filter(key =>
                 tableData.some(item => item.id === key)
             );
-            
+
             // 如果选中的行不在当前表格中，更新选中状态
             if (validSelectedKeys.length !== selectedRowKeys.length) {
                 setSelectedRowKeys(validSelectedKeys);
@@ -320,19 +320,19 @@ const AddAdressPage = () => {
                         title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
                             {/* 现货账户 */}
                             {t('assets.assetsAccount')}
-                            </span></Link>,
+                        </span></Link>,
                     },
                     {
                         title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>
                             {/* 提现 */}
                             {t('assets.withdraw')}
-                            </span></Link>,
+                        </span></Link>,
                     },
                     {
                         title: <span className={`${styles.title_color}`}>
                             {/* 地址管理 */}
                             {t('assetsAccount.address')}
-                            </span>,
+                        </span>,
                     },
                 ]} style={{ fontSize: 14 }} />
 
@@ -393,9 +393,10 @@ const AddAdressPage = () => {
                                 // maxLength={25}
                                 placeholder={t('assetsAccount.addAddress.search')}
                                 allowClear
-                                prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.tip_color} `} />}
+                                prefix={<button onClick={onSearch}>
+                                    <Iconify icon="garden:search-26" size={20} className={`${styles.tip_color} `} /></button>}
                                 onChange={addressChange}
-                            // onPressEnter={onSearch}
+                                onPressEnter={onSearch}
                             />
                         </div>
                         <button type='button' className={`default_btn font-16 font-w-500 ${styles.btn_style} flex-x-cc`}
@@ -436,12 +437,12 @@ const AddAdressPage = () => {
                                 {/* 已选中{delectInfo.length}个地址 */}
                                 {/* {t('assetsAccount.addAddress.isSelect', { count: delectInfo.length })} */}
                                 {t('assetsAccount.addAddress.selected')}{delectInfo.length}{t('assetsAccount.addAddress.selected2')}
-                                </p>
+                            </p>
                             <button type='button' className={`default_btn font-16 font-w-500 ${styles.delect_btn} flex-x-cc`}
                                 onClick={delectAllAddress}>
                                 {/* 删除 */}
                                 {t('assetsAccount.delete')}
-                                </button>
+                            </button>
                         </div>}
                         <div className='w-full flex-x align-center justify-end mt-3'>
                             <Pagination
@@ -454,7 +455,7 @@ const AddAdressPage = () => {
                                 size='default'
                                 total={total} onChange={pageChange} />
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -475,10 +476,10 @@ const AddAdressPage = () => {
     );
 };
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
+    return {
+        props: {
+            ...(await serverSideTranslations(locale || 'en', ['assets', 'common'])),
+        },
+    };
 };
 export default AddAdressPage;
