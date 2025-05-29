@@ -608,7 +608,10 @@ const SpotMainPage = observer(() => {
       {/* 充值 */}
       <div className={`${styles.table_box} w-full `}>
         <div className={`${styles.table_header2} w-full mb-6 flex align-center px-6 flex-wrap`}>
-          <button className={`default_btn mt-6 ${styles.btn_style} mr-10`}>限价 | 市价</button>
+          <button className={`default_btn mt-6 ${styles.btn_style} mr-10`}>
+            {/* 限价 | 市价 */}
+            {t('spot.select.limit')} | {t('spot.select.market')}
+          </button>
           <RangePicker
             className={`${styles.rangePicker_box} custom-range-picker mt-6 mr-6`}
             suffixIcon={<Iconify icon="cuida:calendar-outline"

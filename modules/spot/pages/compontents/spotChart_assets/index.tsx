@@ -74,12 +74,12 @@ const SpotAssetsPage = observer(({orderUpdateFlag,updateAssets}:Props) => {
                     paragraph={{ rows: 2 }}
                     className={`mb-4`} >
                     <li className='flex justify-between align-center mb-5'>
-                        <div>{currentPair?.coinSymbol || '--'}{t('spot.assets.availableAssets')}</div>
+                        <div>{currentPair?.coinSymbol || '--'}&nbsp;{t('spot.assets.availableAssets')}</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.coinSymbol)?.balance || 0) || 0}</div> */}
                        {userToken ? <div>{roundNum(currentPair?.coinSymbol || '--')}</div> : <div>--</div>}
                     </li>
                     <li className='flex justify-between align-center mb-5' >
-                        <div>{currentPair?.baseSymbol || '--'}{t('spot.assets.availableAssets')}</div>
+                        <div>{currentPair?.baseSymbol || '--'}&nbsp;{t('spot.assets.availableAssets')}</div>
                         {/* <div>{lastD(userBalanceAllData.find((item: any) => item.coinName === currentPair?.baseSymbol)?.balance || 0) || 0}</div> */}
                         {userToken ? <div>{roundNum(currentPair?.baseSymbol || '--')}</div> : <div>--</div>}
                     </li>
