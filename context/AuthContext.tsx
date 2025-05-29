@@ -15,12 +15,11 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // 创建 Provider 组件
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
+    const userToken = appStore.getToken()
     // 初始化检查登录状态
     useEffect(() => {
-        const userToken = appStore.getUserToken()||localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
         setIsLoggedIn(!!userToken);
-    }, []);
+    }, [userToken]);
 
     // 登录方法
     const login = (userToken: string) => {

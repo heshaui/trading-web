@@ -264,6 +264,21 @@ const AssetsMainPage = () => {
 
           </div>
         </div> */}
+        <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+            <Input className={`${styles.input_box} modal-input mr-7`}
+              maxLength={25}
+              placeholder={t('assetsAccount.currency')}
+              allowClear
+              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
+            />
+            <Select allowClear
+              placeholder={t('assetsAccount.select')}
+              options={cardTypeSeelect}
+              className={`${styles.select_box} custom-select`}
+              onChange={topUpTypeChange}
+            />
+          </div>
+          <div className={`${styles.table_content} w-full `}></div>
         {/* 提现 */}
         <CashOutTable/>
         {/* 邀请奖励 */}
