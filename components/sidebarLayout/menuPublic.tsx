@@ -252,7 +252,7 @@ const UserCenterSidebar = ({menuItems}: SidebarProps) => {
     }, [collapsed]);
 
     return (
-        <div className={styles.sidebar_container} style={{
+        <div className={`${styles.sidebar_container}`} style={{
             width: collapsed ? '68px' : '260px',
             transition: 'width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s'
         }}>
@@ -265,7 +265,7 @@ const UserCenterSidebar = ({menuItems}: SidebarProps) => {
                             collapsedWidth: 68,
                             itemHoverBg: 'var(--bgc-color)', //白天模式下鼠标滑过bg
                             darkItemHoverBg: 'var(--bgc-color)', //黑夜模式下鼠标滑过bg
-                            darkItemHoverColor: "rgba(255, 95, 31, 0.5)",
+                            darkItemHoverColor:'var(--bgc-color)', //"rgba(255, 95, 31, 0.5)",
                             darkItemBg: "var(--background9)",
                             itemBg: "var(--background9)",
                             darkItemColor: "var(--text-color7)",

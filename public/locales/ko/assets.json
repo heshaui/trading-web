@@ -245,6 +245,14 @@
     },
     "billDetails": {
         "title": "청구 내역",
-        "select": "유형을 선택하세요"
+        "select": "유형을 선택하세요",
+        "recharge": "충전",
+        "withdraw": "출금",
+        "rebate": "수수료 환급",
+        "transfer": "송금"
+    },
+    "recharge": {
+        "rechargeStatus0": "充電中",
+        "rechargeStatus1": "充電完了"
     }
 }

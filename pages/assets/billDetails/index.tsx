@@ -1,18 +1,22 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/billDetails.module.css'
-import { Input, Radio, ConfigProvider, Table, Select } from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Pagination } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
-import dayjs from 'dayjs';
+import { toast } from 'sonner';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import InvitationTable from "../compontents/billDetailTable/inviteTable"
-import CashOutTable from "../compontents/billDetailTable/cashOutTable"
+import WithdrawTable from "../compontents/billDetailTable/withdrawtTable"
+import RechargeTable from "../compontents/billDetailTable/rechargeTable"
+import { getOrderList } from '@/services/assets'
 
+
+import { WithdrawDataType, RebateDataType, RechargeDataType } from "@/type/assets/billDetails/table"
 
 interface DataType {
   id: number,
@@ -29,172 +33,95 @@ interface DataType {
 }
 const AssetsMainPage = () => {
   const { t } = useTranslation(['assets']);
-  const [tableData, setTableData] = useState<DataType[]>([
-    {
-      id: 1,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'BTC',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 23.3,
-      tokenTime: 123,
-      createTime: 1234567890,
-      updateTime: 1234567890,
-      tenantId: '1234567890'
-    }, {
-      id: 2,
-      userId: 1,
-      platformType: 1,
-      deviceNo: 'POINT',
-      ip: '123.45.67.89',
-      address: '123.45.67.89',
-      token: 1234567890,
-      tokenTime: 23.0,
-      createTime: 1234567892,
-      updateTime: 1234567889,
-      tenantId: '1234567890'
-    }
-  ]);
+  const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
-  const [paramInfo,sePparamInfo]=useState({
-    type:'',
-    selsect:''
-  });
-  const [total, setTotal] = useState(0);
-  const [pageParam, setPageParam] = useState({
+  const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
-  })
-  const paramdataRef = useRef(pageParam);
+    total: 0,
+    type: 'RECHARGE',
+    search: ''
+  });
+  const [rechargeData, setRechargeData] = useState<RechargeDataType[]>([]);
+  const [withdrawData, setWithdrawData] = useState<WithdrawDataType[]>([]);
+  const [rebateData, setRebateData] = useState<RebateDataType[]>([]);
 
+  const [orderType, setOrderType] = useState('RECHARGE');
+  const [search, setSearch] = useState('');
 
-  const columns: ColumnsType<DataType> = [
-    {
-      title: t('assetsAccount.time'), //"时间",
-      dataIndex: "deviceNo",
-      key: "deviceNo",
-      width: 158,
-      align: "left",
-      render: (text, record) => <div>{`${text}`} </div>,
-    },
-    {
-      title: t('assetsAccount.type'), //"类型",
-      dataIndex: "token",
-      key: "token",
-      align: "center",
-      width: 128,
-      render: (_text) => <span>{_text || '--'}</span>,
-    },
-    {
-      title: t('assetsAccount.currency'), //"币种",
-      dataIndex: "tokenTime",
-      key: "tokenTime",
-      align: "center",
-      width: 158,
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-
-      },
-    },
-    {
-      title: t('assetsAccount.number'), //"数量",
-      key: "createTime",
-      dataIndex: "createTime",
-      width: 128,
-      align: "center",
-      render: (_ip) => {
-        return <span >{_ip || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.address'), //"地址",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: "TxID",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.status'), //"状态",
-      key: "updateTime",
-      dataIndex: "updateTime",
-      width: 128,
-      align: "center",
-      render: (_status) => {
-        return <span >{_status || '--'}</span>;
-      },
-    },
-    // {
-    //   title: "操作",
-    //   key: "action",
-    //   dataIndex: "action",
-    //   width: 128,
-    //   align: "center",
-    //   render: (_status) => {
-    //     return <>
-    //       <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>提现</button>
-    //       <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>充值</button>
-    //       <button className={`${styles.theme_color} font-12 font-w-500`}>交易</button>
-    //     </>
-    //   },
-    // },
-
-
-  ];
-
-
+  const [tableLoading, setTableLoading] = useState(false);
   const cardTypeSeelect: { label: string, value: string }[] = [
     {
-      label: '居民身份证',
-      value: '1'
+      label: t('billDetails.recharge'), //'充值',
+      value: 'RECHARGE'
     },
     {
-      label: '普通护照',
-      value: '2'
+      label: t('billDetails.withdraw'), //'提现',
+      value: 'WITHDRAW'
     },
     {
-      label: '港澳通行证',
-      value: '3'
+      label: t('billDetails.rebate'), //'返佣',
+      value: 'REBATE'
     },
-    {
-      label: '台湾通行证',
-      value: '4'
-    },
-    {
-      label: '台湾身份证',
-      value: '5'
-    },
-    {
-      label: '外国人永久居住身份证',
-      value: '6'
-    }
+    // {
+    //   label: t('billDetails.transfer'), //'转账',
+    //   value: 'TRANSFER'
+    // }
   ]
   const pageChange = async (page: number, pageSize: number) => {
-    const pageData = {
-      page: page,
-      pageSize: pageSize
-    }
-    setPageParam(pageData)
-    paramdataRef.current = pageData;
+    paramdataRef.current.page = page;
+    paramdataRef.current.pageSize = pageSize;
   }
-  const topUpTypeChange=(value:any,options:any)=>{
-    console.log(value,123,options);
-    
+  const topUpTypeChange = (value: any, options: any) => {
+    // console.log(value, 123, options);
+    setOrderType(value)
+    paramdataRef.current.type = value
+    searchChange()
+  }
+  const coinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+    paramdataRef.current.search = e.target.value
+  }
 
+  const getBillDetails = async () => {
+    const pageParam = {
+      pageNo: paramdataRef.current.page,
+      pageSize: paramdataRef.current.pageSize,
+      symbol: paramdataRef.current.search ? paramdataRef.current.search : null,
+      billType: paramdataRef.current.type
+    }
+    setTableLoading(true)
+    try {
+      const res = await getOrderList(pageParam)
+      if (res.code === '0') {
+        setTableData(res.data.list)
+        paramdataRef.current.total = res.data.count
+        if (paramdataRef.current.type === 'RECHARGE') {
+          setRechargeData(res.data.list)
+        } else if (paramdataRef.current.type === 'WITHDRAW') {
+          setWithdrawData(res.data.list)
+        } else if (paramdataRef.current.type === 'REBATE') {
+          setRebateData(res.data.list)
+        }
+      } else {
+        toast.error(res.message)
+      }
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setTableLoading(false)
+    }
   }
+  const searchChange = async () => {
+    paramdataRef.current.page = 1;
+    await getBillDetails()
+  }
+
+
+  useEffect(() => {
+    getBillDetails()
+  }, [])
+
   return (<>
     <ConfigProvider
       theme={{
@@ -207,7 +134,7 @@ const AssetsMainPage = () => {
             rowExpandedBg: "var(--background10)", // 表格行展开背景色
             borderColor: "transparent",
             // stickyScrollBarBg:"transparent",
-            headerBorderRadius:0, // 表头圆角
+            headerBorderRadius: 0, // 表头圆角
           },
           Pagination: {
             itemActiveBg: "transparent",
@@ -225,74 +152,55 @@ const AssetsMainPage = () => {
       <div className='flex justify-between align-center'>
         <h2 className={`font-w-500 font-20`}>
           {t('billDetails.title')}
-          </h2>
+        </h2>
       </div>
-      <div className={`${styles.card_bgc}  mt-3 `}>
-        {/* 充值 */}
-        {/* <div className={`${styles.table_box} w-full `}>
-          <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-            <Input className={`${styles.input_box} modal-input mr-7`}
-              maxLength={25}
-              placeholder={t('assetsAccount.currency')}
-              allowClear
-              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
-            />
-            <Select allowClear
-              placeholder={t('assetsAccount.select')}
-              options={cardTypeSeelect}
-              className={`${styles.select_box} custom-select`}
-              onChange={topUpTypeChange}
-            />
-          </div>
-          <div className={`${styles.table_content} w-full `}>
-
-            <Table
-              columns={columns}
-              dataSource={tableData}
-              size="large"
-              scroll={{ x: "max-content", y: 300 }}
-              className={` table-box`}
-              pagination={{
-                position: ["bottomRight"],
-                // showSizeChanger: true,
-                total: total,
-                size: "default",
-                onChange: (page, pageSize) => pageChange(page, pageSize),
-              }}
-            // loading={loading}
-            />
-
-          </div>
-        </div> */}
+      <div className={`${styles.card_bgc}  mt-3 h-full`}>
         <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-            <Input className={`${styles.input_box} modal-input mr-7`}
-              maxLength={25}
-              placeholder={t('assetsAccount.currency')}
-              allowClear
-              prefix={<Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />}
-            />
-            <Select allowClear
-              placeholder={t('assetsAccount.select')}
-              options={cardTypeSeelect}
-              className={`${styles.select_box} custom-select`}
-              onChange={topUpTypeChange}
-            />
-          </div>
-          <div className={`${styles.table_content} w-full `}></div>
+          <Input className={`${styles.input_box} modal-input mr-7`}
+            maxLength={25}
+            placeholder={t('assetsAccount.currency')}
+            allowClear
+            prefix={<button type="button" onClick={searchChange}>
+              <Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />
+            </button>}
+            onChange={coinInputChange}
+            onPressEnter={searchChange}
+
+          />
+          <Select allowClear={false}
+            placeholder={t('assetsAccount.select')}
+            options={cardTypeSeelect}
+            className={`${styles.select_box} custom-select`}
+            onChange={topUpTypeChange}
+            defaultValue={'RECHARGE'}
+          />
+        </div>
+        {/* 充值 */}
+        {orderType === 'RECHARGE' && <RechargeTable tableData={rechargeData} loading={tableLoading} />}
         {/* 提现 */}
-        <CashOutTable/>
-        {/* 邀请奖励 */}
-        <InvitationTable/>
+        {orderType === 'WITHDRAW' && <WithdrawTable tableData={withdrawData} loading={tableLoading} />}
+        {/* 邀请奖励-邀请返佣 */}
+        {orderType === 'REBATE' && <InvitationTable tableData={rebateData} loading={tableLoading} />}
+        <div className='w-full flex-x align-center justify-end mt-3'>
+          <Pagination
+            // position={['bottomRight']}
+            className='spot-table-box'
+            // showSizeChanger
+            defaultCurrent={paramdataRef.current.page}
+            pageSize={paramdataRef.current.pageSize}
+            size='default'
+            total={paramdataRef.current.total} onChange={pageChange} />
+        </div>
       </div>
     </ConfigProvider>
   </>
   );
 };
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(locale || 'en', ['assets','common'])),
-		},
-	};
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['assets', 'common'])),
+    },
+  };
 };
 export default withAssetsLayout(AssetsMainPage);
