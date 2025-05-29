@@ -234,7 +234,7 @@ export const getThemeVariables = () => {
             '--border-color4': '#37373A',
             '--border-color5': '#29292F',
             '--border-color6': '#37373A',
-            '--bgc-color': getColorWithLowerBrightness(themeColor, 0.3), //'#281D1A',
+            '--bgc-color': getColorWithLowerBrightness(themeColor, 0.2), //'#281D1A',
             '--help-center-banner': 'url("/images/help_center/banner_dark.png")',
             '--help-center-input-text': '#979897',
             '--help-center-card-bg': '#232328',

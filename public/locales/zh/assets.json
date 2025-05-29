@@ -245,6 +245,14 @@
     },
     "billDetails": {
         "title": "账单明细",
-        "select": "请选择类型"
+        "select": "请选择类型",
+        "recharge": "充值",
+        "withdraw": "提现",
+        "rebate": "返佣",
+        "transfer": "转账"
+    },
+    "recharge": {
+      "rechargeStatus0": "充值中",
+      "rechargeStatus1": "充值完成"
     }
 }

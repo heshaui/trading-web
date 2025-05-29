@@ -250,6 +250,14 @@
     },
     "billDetails":{
         "title":"Bill Details",
-        "select":"Please Select Type"
+        "select":"Please Select Type",
+        "recharge": "recharge",
+        "withdraw": "withdraw",
+        "rebate": "rebate",
+        "transfer": "transfer"
+    },
+    "recharge": {
+      "rechargeStatus0": "Recharging",
+      "rechargeStatus1": "Success"
     }
 }
