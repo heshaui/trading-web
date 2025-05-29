@@ -28,3 +28,12 @@ export interface RechargeDataType {
     txHash: string,
     fee: string,
 }
+export interface coinSelectType {
+    coinId: string,
+    coinName: string,
+    iconUrl: string,
+    nameDefault: string,
+    value: string,
+    label: string,
+    sort: number,
+}

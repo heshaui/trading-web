@@ -13,10 +13,10 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import InvitationTable from "../compontents/billDetailTable/inviteTable"
 import WithdrawTable from "../compontents/billDetailTable/withdrawtTable"
 import RechargeTable from "../compontents/billDetailTable/rechargeTable"
-import { getOrderList } from '@/services/assets'
+import { getCoinAll, getOrderList } from '@/services/assets'
+import Image from 'next/image'
 
-
-import { WithdrawDataType, RebateDataType, RechargeDataType } from "@/type/assets/billDetails/table"
+import { WithdrawDataType, RebateDataType, RechargeDataType, coinSelectType } from "@/type/assets/billDetails/table"
 
 interface DataType {
   id: number,
@@ -50,6 +50,8 @@ const AssetsMainPage = () => {
   const [search, setSearch] = useState('');
 
   const [tableLoading, setTableLoading] = useState(false);
+  const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
+
   const cardTypeSeelect: { label: string, value: string }[] = [
     {
       label: t('billDetails.recharge'), //'充值',
@@ -78,9 +80,13 @@ const AssetsMainPage = () => {
     paramdataRef.current.type = value
     searchChange()
   }
-  const coinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-    paramdataRef.current.search = e.target.value
+  const coinInputChange = (value: any, options: any) => {
+    // setSearch(e.target.value)
+    // paramdataRef.current.search = e.target.value
+
+    setSearch(value)
+    paramdataRef.current.search = value
+    searchChange()
   }
 
   const getBillDetails = async () => {
@@ -116,9 +122,32 @@ const AssetsMainPage = () => {
     paramdataRef.current.page = 1;
     await getBillDetails()
   }
+  const getCoinAllData = async () => {
+    try {
+      const res = await getCoinAll()
+      if (res.code === '0') {
+        const coinList = res.data.map((item: any) => ({
+          label: item.coinName,
+          value: item.coinName,
+          coinId: item.coinId,
+          coinName: item.coinName,
+          iconUrl: item.iconUrl,
+          nameDefault: item.nameDefault,
+          sort: item.sort,
+        })).sort((a: any, b: any) => {
+          return a.sort - b.sort
+        })
 
+        setCoinSelect(coinList)
+
+      }
+
+    } catch (error) {
+    }
+  }
 
   useEffect(() => {
+    getCoinAllData()
     getBillDetails()
   }, [])
 
@@ -156,16 +185,32 @@ const AssetsMainPage = () => {
       </div>
       <div className={`${styles.card_bgc}  mt-3 h-full`}>
         <div className={`${styles.table_header} w-full my-4 flex align-center`}>
-          <Input className={`${styles.input_box} modal-input mr-7`}
-            maxLength={25}
-            placeholder={t('assetsAccount.currency')}
+          <Select
             allowClear
-            prefix={<button type="button" onClick={searchChange}>
-              <Iconify icon="garden:search-26" size={20} className={`${styles.title_color} `} />
-            </button>}
+            placeholder={t('billDetails.selectCoin')}
+            options={coinSelect}
+            className={`${styles.select_box} custom-select mr-3`}
             onChange={coinInputChange}
-            onPressEnter={searchChange}
-
+            optionRender={(option) => {
+              if (!option?.data) return null;  // 添加空值检查
+              return (<div className='flex-x align-center justify-between'>
+                <div className="flex items-center py-1">
+                  <Image
+                    // src={`/images/assets/assets_account/icon_money.png`}
+                    src={option.data.iconUrl}
+                    alt={option.data.label}
+                    width={20}
+                    height={20}
+                    className={`mr-2`}
+                    style={{ borderRadius: '50%', height: '20px', width: '20px' }}
+                  />
+                  <span className="text-text-color7">
+                    {`${option.data.coinName}(${option.data.nameDefault})`}
+                  </span>
+                </div>
+              </div>
+              );
+            }}
           />
           <Select allowClear={false}
             placeholder={t('assetsAccount.select')}
@@ -181,7 +226,7 @@ const AssetsMainPage = () => {
         {orderType === 'WITHDRAW' && <WithdrawTable tableData={withdrawData} loading={tableLoading} />}
         {/* 邀请奖励-邀请返佣 */}
         {orderType === 'REBATE' && <InvitationTable tableData={rebateData} loading={tableLoading} />}
-        <div className='w-full flex-x align-center justify-end mt-3'>
+        {paramdataRef.current.total > 0 && <div className='w-full flex-x align-center justify-end mt-3'>
           <Pagination
             // position={['bottomRight']}
             className='spot-table-box'
@@ -190,7 +235,7 @@ const AssetsMainPage = () => {
             pageSize={paramdataRef.current.pageSize}
             size='default'
             total={paramdataRef.current.total} onChange={pageChange} />
-        </div>
+        </div>}
       </div>
     </ConfigProvider>
   </>

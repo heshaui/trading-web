@@ -249,10 +249,11 @@
         "recharge": "充電",
         "withdraw": "引き出し",
         "rebate": "返金",
-        "transfer": "振り込み"
+        "transfer": "振り込み",
+        "selectCoin": "通貨種を選択"
     },
     "recharge": {
-       "rechargeStatus0": "充電中",
+        "rechargeStatus0": "充電中",
         "rechargeStatus1": "充電完了"
     }
 }
