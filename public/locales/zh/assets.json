@@ -249,7 +249,8 @@
         "recharge": "充值",
         "withdraw": "提现",
         "rebate": "返佣",
-        "transfer": "转账"
+        "transfer": "转账",
+        "selectCoin": "筛选币种"
     },
     "recharge": {
       "rechargeStatus0": "充值中",

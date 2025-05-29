@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
+:root {
   --background: #ffffff;
   --theme-color: #FF5F1F;
   --theme-shadow: #FF5F1F4D;
@@ -145,7 +145,7 @@
   --card-shadow: #01367433;
 
   }
-} */
+}
 
 body {
   color: var(--foreground);
