@@ -159,9 +159,9 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                     const protocol = initialValues.find((protocol: any) => protocol.id === item.protocolId)
                     return {
                         ...item,
-                        label: item.protocolName,
-                        value: item.id,
-                        ...protocol
+                        ...protocol,
+                        label: protocol?.symbol,
+                        value: item.protocolId,
                     }
                 })
                 setCoinExtSelect(coinExtList)
@@ -307,6 +307,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 onFocus={getCoinAllList}
                                 loading={coinLoading}
                                 notFoundContent={<NoData title={t('assetsAccount.nodata')} />}
+                               
 
                             />
                         </Form.Item>
@@ -323,8 +324,9 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                             {/* <Image src={`/images/assets/assets_account/icon_money.png`}
                                                 alt={'coin'} width={20} height={20}
                                                 className={` mr-2`} /> */}
-                                            <p className="text-text-color7">{option.data.protocol}</p>
                                             <p className="text-text-color7">{option.data.label}</p>
+                                            <p className="text-text-color7">{option.data.protocol}</p>
+
                                         </div>
                                     );
                                 }}
@@ -342,6 +344,8 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 notFoundContent={<NoData title={t('assetsAccount.nodata')} />}
                                 onFocus={getCoinExtList}
                                 loading={coinExtLoading}
+                                optionLabelProp="label"
+                                onChange={(value,position)  => { console.log(value,9876,position); }}
                             />
                         </Form.Item>
 
