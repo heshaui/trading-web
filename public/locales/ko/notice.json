@@ -2,7 +2,7 @@
   "notice": {
     "title": "공지 센터",
     "menu": {
-      "loading": "로딩 중...",
+      "loading": "불러오는 중...",
       "announcement": "공지사항"
     },
     "top": {
@@ -10,7 +10,7 @@
       "search": {
         "placeholder": "검색"
       },
-      "unread": "미읽은 것만 보기",
+      "unread": "읽지 않은 항목만 보기",
       "markAllRead": "모두 읽음 처리"
     },
     "empty": {

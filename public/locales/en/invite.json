@@ -38,7 +38,7 @@
             "tip1": "Total Invites",
             "tip2": "Successful Invites",
             "tip3": "Total Rebates (USDT)",
-            "tip4": "Total Rebates (TRX)",
+            "tip4": "Total Rebates ({{coinName}})",
             "tip5": "Total Rebates"
         },
         "inviteDetail": {

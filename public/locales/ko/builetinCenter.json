@@ -1,50 +1,50 @@
 {
     "bulletinCenter": {
-        "title": "공지사항 센터",
-        "announcement":"공지사항",
+        "title": "공지",
+        "announcement": "공지사항",
 
         "menu": {
-            "all": "전체 공지사항",
+            "all": "전체 공지",
             "latest": "최신 소식",
             "new": "신규 코인 상장",
-            "delist": "코인페어 하장",
-            "suspension": "입출금 일시중지/재개",
+            "delist": "거래쌍 상장 폐지",
+            "suspension": "입출금 중단/재개",
             "announcement": "공지사항",
             "notification": "알림",
-            "article": "글"
+            "article": "기사"
         },
         "message": {
-            "unreadCount": "공지사항（{count}）",
+            "unreadCount": "공지사항 ({count})",
             "title": "최신 소식 공지사항",
-            "noData": "기록이 없습니다",
-            "loading": "로딩중..."
+            "noData": "기록 없음",
+            "loading": "불러오는 중..."
         },
         "action": {
             "search": "검색",
-            "unreadOnly": "읽지 않은 글만 보기",
-            "markAllRead": "모두 읽음으로 표시"
+            "unreadOnly": "안 읽은 것만 보기",
+            "markAllRead": "모두 읽음 처리"
         }
     },
     "test": {
         "latest1": {
-            "title": "최신 소식 공지사항 1",
+            "title": "최신 소식 공지 1",
             "content": "최신 소식 내용 1..."
         },
         "latest2": {
-            "title": "최신 소식 공지사항 2",
+            "title": "최신 소식 공지 2",
             "content": "최신 소식 내용 2..."
         },
         "new1": {
-            "title": "신규 코인 상장 공지사항 1",
+            "title": "신규 코인 상장 공지 1",
             "content": "신규 코인 상장 내용 1..."
         },
         "delist1": {
-            "title": "코인페어 하장 공지사항 1",
-            "content": "코인페어 하장 내용 1..."
+            "title": "거래쌍 상장 폐지 공지 1",
+            "content": "거래쌍 상장 폐지 내용 1..."
         },
         "suspension1": {
-            "title": "입출금 일시중지/재개 공지사항 1",
-            "content": "입출금 일시중지/재개 내용 1..."
+            "title": "입출금 중단/재개 공지 1",
+            "content": "입출금 중단/재개 내용 1..."
         }
     }
 }
