@@ -203,7 +203,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                             </li>
                                 :
                             <li className={`${styles.tip_color} ${styles.auto_item} flex-1`}>
-                                <p className={`font-14 font-w-400`}>{`${t('invite.myInvite2.tip5')}(${inviteCount?.coinName || '--'})`}</p>
+                                <p className={`font-14 font-w-400`}>{t('invite.myInvite2.tip4', { coinName: inviteCount?.coinName || '--' })}</p>
                                 <p className={`font-32 font-w-700 ${styles.title_color}`}>
                                     {/* {'暂无'} */}
                                     <span> {inviteCount?.accumulateMoney || 0}</span>&nbsp;
