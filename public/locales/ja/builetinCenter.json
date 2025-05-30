@@ -1,8 +1,7 @@
 {
     "bulletinCenter": {
         "title": "お知らせセンター",
-        "announcement":"お知らせ",
-
+        "announcement": "お知らせ",
         "menu": {
             "all": "すべてのお知らせ",
             "latest": "最新情報",
@@ -11,10 +10,14 @@
             "suspension": "入出金一時停止/再開",
             "announcement": "お知らせ",
             "notification": "通知",
-            "article": "記事"
+            "article": "記事",
+            "notice": "公告",
+            "accountAssistant": "アカウント アシスタント",
+            "assets": "資産",
+            "transaction": "取引"
         },
         "message": {
-            "unreadCount": "お知らせ（{count}）",
+            "unreadCount": "お知らせ",
             "title": "最新情報お知らせ",
             "noData": "記録なし",
             "loading": "読み込み中..."

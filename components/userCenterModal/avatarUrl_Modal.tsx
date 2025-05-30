@@ -151,7 +151,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                 }
             } else if (selectedAvatar) {
                 params = {
-                    userId: userId,
+                    // userId: userId,
                     avatarUrl: selectedAvatar
                 }
             }

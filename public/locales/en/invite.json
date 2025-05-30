@@ -55,7 +55,7 @@
             "account": "Registered Account",
             "reward": "Rebate Amount",
             "usdt": "USDT Value",
-            "noData": "No data available",
+            "noData": "No data",
             "inviteBtn": "Invite Now"
         },
         "inviteModal": {

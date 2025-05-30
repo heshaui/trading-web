@@ -3,6 +3,7 @@ import { MessageData } from '@/type/bulletin_center/bc_types';
 type Messages = MessageData[];
 
 // 定义公告顶层的菜单项数据，使用循环生成四个菜单项
+// 用不了多语言
 const menuData = [
   { key: 'all', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: '公告（4）' },
   { key: 'account', defaultIcon: '/images/bulletin_center/icon_contacts.png', hoverIcon: '/images/bulletin_center/icon_contacts_hover.png', label: '账户助手' },

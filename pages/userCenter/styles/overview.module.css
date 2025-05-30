@@ -53,6 +53,9 @@
 .default_icon {
     color: #A4A5AC;
 }
+.theme_color{
+    color: var(--theme-color);
+}
 
 .userInfo_detail {
     /* width: 30%; */

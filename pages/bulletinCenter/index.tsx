@@ -27,7 +27,7 @@ export default function BulletinCenter() {
     const { isLoggedIn } = useAuth();
     // 获取导航上下文中的公告数据
     const { bulletinData } = useNavigation();
-    const { t, i18n } = useTranslation(['builetinCenter','common']);
+    const { t, i18n } = useTranslation(['builetinCenter', 'common']);
 
     // API请求状态跟踪
     const apiRequestRef = useRef({
@@ -36,7 +36,7 @@ export default function BulletinCenter() {
         bulletinLoading: false,
         lastBulletinTimestamp: 0
     });
-    
+
     // 状态管理：跟踪悬浮的菜单项和选中的菜单项
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
     const [selectedKeys, setSelectedKeys] = useState<string[]>(['all']); // 默认选中 'all'
@@ -66,8 +66,8 @@ export default function BulletinCenter() {
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
     // 添加搜索值
     const [searchKeyword, setSearchKeyword] = useState('');
-    const router = useRouter(); 
-    
+    const router = useRouter();
+
     // 定义消息数据接口
     interface MessageData {
         id?: string;
@@ -102,7 +102,7 @@ export default function BulletinCenter() {
             { title: t('bulletinCenter.test.suspension1.title'), time: '2024-12-13 17:45:00', content: t('bulletinCenter.test.suspension1.content') }
         ]
     };
-    
+
     const [filteredData, setFilteredData] = useState<Record<string, MessageData[]>>({});
     const [filteredDetailData, setFilteredDetailData] = useState<Record<string, Array<{ title: string; time: string; content?: string }>>>(localDetailListData);
     // 添加登录后的公告数据状态
@@ -116,7 +116,15 @@ export default function BulletinCenter() {
     // 未读公告数量
     const [unreadCount, setUnreadCount] = useState<number>(0);
     // 自定义菜单数据
-    const [menuData, setMenuData] = useState(staticMenuData);
+    const [menuData, setMenuData] = useState(
+        // 定义公告顶层的菜单项数据，使用循环生成四个菜单项
+        [
+            { key: 'all', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: `${t('bulletinCenter.menu.notice')}(0)` },
+            { key: 'account', defaultIcon: '/images/bulletin_center/icon_contacts.png', hoverIcon: '/images/bulletin_center/icon_contacts_hover.png', label: t('bulletinCenter.menu.accountAssistant') },
+            { key: 'assets', defaultIcon: '/images/bulletin_center/icon_assets.png', hoverIcon: '/images/bulletin_center/icon_assets_hover.png', label: t('bulletinCenter.menu.assets') },
+            { key: 'trading', defaultIcon: '/images/bulletin_center/icon_Trading.png', hoverIcon: '/images/bulletin_center/icon_Trading_hover.png', label: t('bulletinCenter.menu.transaction') },
+        ]
+    );
     // 标记是否已从NavigationContext获取过数据
     const [hasInitializedFromContext, setHasInitializedFromContext] = useState(false);
 
@@ -130,7 +138,7 @@ export default function BulletinCenter() {
         const now = Date.now();
         // 如果上次请求在3秒内，且不是强制刷新，则跳过
         if (
-            apiRequestRef.current.unreadCountLoading || 
+            apiRequestRef.current.unreadCountLoading ||
             (!forceRefresh && now - apiRequestRef.current.unreadCountTimestamp < 3000)
         ) {
             return;
@@ -144,10 +152,10 @@ export default function BulletinCenter() {
             if (response?.code === '0' && response.data !== undefined) {
                 setUnreadCount(response.data);
                 // 更新菜单数据中的公告数量
-                const updatedMenuData = [...staticMenuData];
+                const updatedMenuData = [...menuData];
                 updatedMenuData[0] = {
                     ...updatedMenuData[0],
-                    label: t('bulletinCenter.message.unreadCount', { count: response.data||0 })
+                    label: `${t('bulletinCenter.message.unreadCount')}(${response.data})`
                 };
                 setMenuData(updatedMenuData);
             }
@@ -156,7 +164,7 @@ export default function BulletinCenter() {
         } finally {
             apiRequestRef.current.unreadCountLoading = false;
         }
-    }, [isLoggedIn,i18n.language]);
+    }, [isLoggedIn, i18n.language]);
 
     // 使用NavigationContext中的数据初始化公告数据
     useEffect(() => {
@@ -185,7 +193,7 @@ export default function BulletinCenter() {
 
             // 标记已从Context获取过数据
             setHasInitializedFromContext(true);
-            
+
             // 获取未读公告数量
             fetchUnreadCount();
         }
@@ -371,7 +379,7 @@ export default function BulletinCenter() {
 
         // 如果已经在加载中，则不重复请求
         if (isLoading) return;
-        
+
         setIsLoading(true);
         try {
             const lang = localStorage.getItem('lang') || 'zh_CN';
@@ -439,9 +447,9 @@ export default function BulletinCenter() {
     // 点击查看详情
     const handleMessageClick = (message: MessageData) => {
         console.log(message)
-       // 跳转到Notice
-   router.push(`/Notice/${message.id}`);
-       
+        // 跳转到Notice
+        router.push(`/Notice/${message.id}`);
+
     };
 
     // 处理返回公告列表页
@@ -482,7 +490,7 @@ export default function BulletinCenter() {
                 if (unreadCount > 0) {
                     return true;
                 }
-                
+
                 // 未读数可能未更新，检查数据中是否有未读消息
                 return loginedMessageData['all'].some(message => !message.isRead);
             } else {
@@ -507,40 +515,40 @@ export default function BulletinCenter() {
         if (!hasUnreadMessages) {
             return;
         }
-        
+
         if (currentMessages && selectedKeys[0] === 'all') {
             if (isLoggedIn) {
                 // 登录状态下，调用API标记所有公告为已读
                 try {
                     setIsLoading(true);
-                    
+
                     // 获取所有公告ID
                     const messageIds = loginedMessageData['all']
                         .filter(item => !item.isRead) // 只获取未读消息的ID
                         .map(item => parseInt(item.id || '0', 10)) // 将字符串ID转换为数字
                         .filter(id => id > 0); // 过滤掉无效ID
-                    
+
                     // 如果没有未读消息，则不需要调用API
                     if (messageIds.length === 0) {
                         setIsLoading(false);
                         return;
                     }
-                    
+
                     // 调用批量已读API
                     const response = await readBulletinMessageLogined({ ids: messageIds }) as any;
-                    
+
                     if (response === true || (response?.code === '0')) {
                         // 将所有消息标记为已读状态
                         const updatedFormattedData = loginedMessageData['all'].map(item => ({
                             ...item,
                             isRead: true
                         }));
-                        
+
                         // 更新数据
                         setLoginedMessageData({
                             'all': updatedFormattedData
                         });
-                        
+
                         // 标记所有消息为已读
                         const newReadIds = new Set(readMessageIds);
                         updatedFormattedData.forEach(item => {
@@ -549,7 +557,7 @@ export default function BulletinCenter() {
                             }
                         });
                         setReadMessageIds(newReadIds);
-                        
+
                         // 更新筛选数据
                         if (searchKeyword) {
                             handleSearch(searchKeyword);
@@ -558,7 +566,7 @@ export default function BulletinCenter() {
                                 'all': updatedFormattedData
                             });
                         }
-                        
+
                         // 强制刷新未读公告数量
                         fetchUnreadCount(true);
                     }
@@ -578,16 +586,16 @@ export default function BulletinCenter() {
                     ...message,
                     isRead: true
                 }));
-                
+
                 // 添加所有ID到已读集合
                 updatedMessages.forEach(message => {
                     if (message.id) {
                         newReadIds.add(message.id);
                     }
                 });
-                
+
                 setReadMessageIds(newReadIds);
-                
+
                 // 更新筛选数据
                 if (searchKeyword) {
                     handleSearch(searchKeyword);
@@ -629,7 +637,8 @@ export default function BulletinCenter() {
 
         // 确定要搜索的源数据
         const sourceData = isLoggedIn ?
-            { ...filteredData,
+            {
+                ...filteredData,
                 'all': loginedMessageData['all']
             } :
             filteredData;
@@ -749,42 +758,42 @@ export default function BulletinCenter() {
                                     </Col>
                                 </Row>
                                 <Row>
-                                    
-                                        <Col flex={1}>
-                                            {isLoading ? (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    padding: '40px 0'
-                                                }}>
-                                                    {t('bulletinCenter.message.loading')}
-                                                </div>
-                                            ) : filteredAndSortedMessages.length > 0 ? (
-                                                filteredAndSortedMessages.map((message) => (
-                                                    <MessageItem
-                                                        key={message.id}
-                                                        title={renderHighlightedTitle(message.title) || ''}
-                                                        time={message.time || ''}
-                                                        onClick={() => handleMessageClick(message)}
-                                                        isClickable={selectedKeys[0] === 'all'}
-                                                        isRead={isMessageRead(message.id || '')} classMenu={''}                                                    />
-                                                ))
-                                            ) : (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    padding: '40px 0'
-                                                }}>
-                                                    <Empty image='/images/bulletin_center/chat.png' description={t('bulletinCenter.message.noData')} />
-                                                </div>
-                                            )}
-                                            <MessagePagination
-                                                current={getCurrentPage(selectedKeys[0] || 'all')}
-                                                total={currentMessages.total}
-                                                onChange={handlePageChange}
-                                                pageSize={pageSize}
-                                            />
-                                        </Col>
+
+                                    <Col flex={1}>
+                                        {isLoading ? (
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                padding: '40px 0'
+                                            }}>
+                                                {t('bulletinCenter.message.loading')}
+                                            </div>
+                                        ) : filteredAndSortedMessages.length > 0 ? (
+                                            filteredAndSortedMessages.map((message) => (
+                                                <MessageItem
+                                                    key={message.id}
+                                                    title={renderHighlightedTitle(message.title) || ''}
+                                                    time={message.time || ''}
+                                                    onClick={() => handleMessageClick(message)}
+                                                    isClickable={selectedKeys[0] === 'all'}
+                                                    isRead={isMessageRead(message.id || '')} classMenu={''} />
+                                            ))
+                                        ) : (
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                padding: '40px 0'
+                                            }}>
+                                                <Empty image='/images/bulletin_center/chat.png' description={t('bulletinCenter.message.noData')} />
+                                            </div>
+                                        )}
+                                        <MessagePagination
+                                            current={getCurrentPage(selectedKeys[0] || 'all')}
+                                            total={currentMessages.total}
+                                            onChange={handlePageChange}
+                                            pageSize={pageSize}
+                                        />
+                                    </Col>
 
                                 </Row>
                             </Card>

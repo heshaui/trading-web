@@ -1,8 +1,7 @@
 {
     "bulletinCenter": {
         "title": "Bulletin Center",
-        "announcement":"Announcement",
-
+        "announcement": "Announcement",
         "menu": {
             "all": "All Announcements",
             "latest": "Latest Updates",
@@ -11,10 +10,14 @@
             "suspension": "Deposit/Withdrawal Suspension/Resumption",
             "announcement": "Announcements",
             "notification": "Notifications",
-            "article": "Articles"
+            "article": "Articles",
+            "notice": "Notice",
+            "accountAssistant": "Account Assistant",
+            "assets": "Assets",
+            "transaction": "Transaction"
         },
         "message": {
-            "unreadCount": "Announcements ({count})",
+            "unreadCount": "Announcements",
             "title": "Latest Update Announcements",
             "noData": "No Records",
             "loading": "Loading..."
