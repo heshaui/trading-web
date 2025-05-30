@@ -5,8 +5,6 @@ import Image from 'next/image';
 import dayjs from 'dayjs';
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
-import MessageItemDetail from './components/MessageItemDetail';
-import RenderBulletinTop from './components/RenderBulletinTop';
 import styles from './styles/bulletinCenter.module.css';
 import { menuData as staticMenuData } from '@/data/bulletinCenter/getItemsMessage';
 import { MessageData } from '@/type/bulletin_center/bc_types';

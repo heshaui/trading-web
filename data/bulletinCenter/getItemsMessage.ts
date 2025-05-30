@@ -4,7 +4,7 @@ type Messages = MessageData[];
 
 // 定义公告顶层的菜单项数据，使用循环生成四个菜单项
 const menuData = [
-  { key: 'all', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: '公告（4）' },
+  { key: 'all', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: '公告' },
   { key: 'account', defaultIcon: '/images/bulletin_center/icon_contacts.png', hoverIcon: '/images/bulletin_center/icon_contacts_hover.png', label: '账户助手' },
   { key: 'assets', defaultIcon: '/images/bulletin_center/icon_assets.png', hoverIcon: '/images/bulletin_center/icon_assets_hover.png', label: '资产' },
   { key: 'trading', defaultIcon: '/images/bulletin_center/icon_Trading.png', hoverIcon: '/images/bulletin_center/icon_Trading_hover.png', label: '交易' },

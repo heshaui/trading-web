@@ -62,8 +62,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             // 根据登录状态获取公告数据
             if (isLoggedIn) {
                 // 如果已登录但未获取过登录状态的数据
+               const langs = localStorage.getItem('lang')||'en_US'
                 if (!dataFetchStatusRef.current.loggedInFetched) {
-                    const bulletinResponse = await getBulletinMessageLogined({ languageCode: lang }) as any;
+                    const bulletinResponse = await getBulletinMessageLogined({ languageCode: langs }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
                             id: item.id,
