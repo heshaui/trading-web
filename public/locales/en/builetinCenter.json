@@ -4,9 +4,11 @@
         "announcement":"Announcement",
 
         "menu": {
-            "all": "All Announcements",
+            "all": "Announcements",
             "latest": "Latest Updates",
             "new": "New Coin Listings",
+            "assets": "Assets",
+            "trading": "Trading",
             "delist": "Coin Pair Delistings",
             "suspension": "Deposit/Withdrawal Suspension/Resumption",
             "announcement": "Announcements",

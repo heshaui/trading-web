@@ -4,8 +4,11 @@
         "announcement":"公告",
 
         "menu": {
-            "all": "全部公告",
+            "all": "公告",
             "latest": "最新动态",
+            "account": "账户",
+            "assets": "资产",
+            "trading": "交易",
             "new": "新币上线",
             "delist": "币对下线",
             "suspension": "充提暂停/恢复",
