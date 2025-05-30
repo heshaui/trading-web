@@ -46,5 +46,8 @@
             "title": "Deposit/Withdrawal Suspension/Resumption Announcement 1",
             "content": "Deposit/Withdrawal suspension/resumption content 1..."
         }
-    }
+    },
+    "empty": {
+        "description": "No Records"
+      }
 }

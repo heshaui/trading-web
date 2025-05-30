@@ -131,7 +131,7 @@ export default function Notice() {
                 // 找到匹配的菜单
                 const matchedMenu = menuList.find(menu => menu.id === detailData.classMenu);
                 if (matchedMenu) {
-                    setSelectedKeys([matchedMenu.serialNum.toString()]);
+                    setSelectedKeys([matchedMenu.id.toString()]);
                     setSelectedLabel(matchedMenu.classDesc);
                 }
 
@@ -222,14 +222,14 @@ export default function Notice() {
         setShowContent(false);
 
         // 找到选中的菜单项
-        const selectedMenu = menuList.find(menu => menu.serialNum.toString() === info.key);
+        const selectedMenu = menuList.find(menu => menu.id.toString() === info.key);
         if (selectedMenu) {
             console.log(`[Notice] Selected menu: ${selectedMenu}`);
             setSelectedLabel(selectedMenu.languageContent);
 
             // 使用包含正确key和id的对象调用fetchAnnouncementByMenuId
             fetchAnnouncementByMenuId({
-                key: info.key,  // serialNum作为key
+                key: info.key,  // 使用id作为key
                 id: selectedMenu.id  // 实际菜单ID
             });
         }
@@ -285,9 +285,9 @@ export default function Notice() {
                 // 如果没有特定公告详情ID，获取第一个菜单的公告列表
                 const firstMenu = menus[0];
                 console.log('选中第一个菜单项:', firstMenu);
-                setSelectedKeys([firstMenu.serialNum.toString()]);
+                setSelectedKeys([firstMenu.id.toString()]);
                 await fetchAnnouncementByMenuId({
-                    key: firstMenu.serialNum.toString(),
+                    key: firstMenu.id.toString(),
                     id: firstMenu.id
                 });
             }
@@ -315,7 +315,7 @@ export default function Notice() {
 
         // 使用API返回的菜单数据
         return menuList.map(menu => ({
-            key: menu.serialNum.toString(),
+            key: menu.id.toString(),
             label: menu.languageContent,
         }));
     }, [menuList]);
@@ -424,7 +424,7 @@ export default function Notice() {
                                                                 justifyContent: 'center',
                                                                 padding: '40px 0'
                                                             }}>
-                                                                <Empty image='/images/bulletin_center/chat.png' description={t('notice.empty.description')} />
+                                                                <Empty image='/images/bulletin_center/chat.png' description={t('empty.description')} />
                                                             </div>
 
                                                         </Col>
