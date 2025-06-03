@@ -617,7 +617,7 @@ export default function HomeMenu() {
                                 // menu={{
                                 //     items: inputItems,
                                 // }}
-                                trigger={['click']}
+                                trigger={['']}
                                 overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
                             >
                                 <a onClick={(e) => e.preventDefault()}>
