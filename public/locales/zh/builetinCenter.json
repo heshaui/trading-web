@@ -17,7 +17,7 @@
             "article": "文章"
         },
         "message": {
-            "unreadCount": "公告（{count}）",
+            "unreadCount": "公告",
             "title": "最新动态公告",
             "noData": "暂无记录",
             "loading": "正在加载..."

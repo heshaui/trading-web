@@ -16,7 +16,7 @@
             "article": "Articles"
         },
         "message": {
-            "unreadCount": "Announcements ({count})",
+            "unreadCount": "Announcements",
             "title": "Latest Update Announcements",
             "noData": "No Records",
             "loading": "Loading..."
