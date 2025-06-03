@@ -196,7 +196,8 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
     }
 
     const getStatus = (status: number) => {
-        switch (status) {
+        const statusText = Number(status)
+        switch (statusText) {
             case 0:
                 return t('withdrawTable.create') //'创建';
             case 1:
@@ -208,7 +209,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             case 4:
                 return t('withdrawTable.canceled') //'用户撤销'
             default:
-                return '--'
+                return statusText||'--'
         }
     }
 

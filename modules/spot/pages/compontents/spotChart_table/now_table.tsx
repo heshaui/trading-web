@@ -393,9 +393,6 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
             itemHoverBg: "transparent", //鼠标悬停背景色
             itemHoverColor: "var(--text-color5)",//鼠标悬停颜色
           }
-        },
-        token: {
-          colorBgContainer: 'transparent',
         }
       }}
     >

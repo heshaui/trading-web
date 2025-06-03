@@ -280,9 +280,9 @@ export default function HomeMenu() {
                         height={20}
                     />
                 </Col>;
-            // case 'img_change':
-            //     // 使用记忆化的主题图标组件
-            //     return <ThemeIcon />;
+            case 'img_change':
+                // 使用记忆化的主题图标组件
+                return <ThemeIcon />;
             case 'img_global':
                 return <Col>
                     <Image

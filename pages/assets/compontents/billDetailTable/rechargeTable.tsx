@@ -108,13 +108,14 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
 
   ];
   const getStatus = (status: number) => {
-    switch (status) {
+    const statusText =Number(status)
+    switch (statusText) {
       case 0:
         return t('recharge.rechargeStatus0') //'充值中';
       case 1:
         return t('recharge.rechargeStatus1') //'充值完成'
       default:
-        return status||'--'
+        return statusText||'--'
     }
   }
   // const pageChange = async (page: number, pageSize: number) => {
@@ -174,7 +175,7 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
           columns={columns}
           dataSource={tableData}
           size="large"
-          scroll={{ x: "max-content", y: 300 }}
+          scroll={{ x: "max-content" }}
           className={` table-box`}
           // pagination={{
           //   position: ["bottomRight"],

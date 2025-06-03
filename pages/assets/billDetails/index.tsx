@@ -73,6 +73,7 @@ const AssetsMainPage = () => {
   const pageChange = async (page: number, pageSize: number) => {
     paramdataRef.current.page = page;
     paramdataRef.current.pageSize = pageSize;
+    getBillDetails()
   }
   const topUpTypeChange = (value: any, options: any) => {
     // console.log(value, 123, options);
@@ -120,6 +121,9 @@ const AssetsMainPage = () => {
   }
   const searchChange = async () => {
     paramdataRef.current.page = 1;
+    await getBillDetails()
+  }
+  const withdrawHandleOk = async () => {
     await getBillDetails()
   }
   const getCoinAllData = async () => {
@@ -223,7 +227,11 @@ const AssetsMainPage = () => {
         {/* 充值 */}
         {orderType === 'RECHARGE' && <RechargeTable tableData={rechargeData} loading={tableLoading} />}
         {/* 提现 */}
-        {orderType === 'WITHDRAW' && <WithdrawTable tableData={withdrawData} loading={tableLoading} />}
+        {orderType === 'WITHDRAW' && <WithdrawTable
+          tableData={withdrawData}
+          loading={tableLoading}
+          onOk={withdrawHandleOk}
+        />}
         {/* 邀请奖励-邀请返佣 */}
         {orderType === 'REBATE' && <InvitationTable tableData={rebateData} loading={tableLoading} />}
         {paramdataRef.current.total > 0 && <div className='w-full flex-x align-center justify-end mt-3'>
