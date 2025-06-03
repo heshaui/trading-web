@@ -521,7 +521,7 @@ export default function HomeMenu() {
         <div className={styles.container}>
             <div className={styles.logo}>
                 {/* 简化的静态内容 */}
-                <div style={{ width: 126, height: 30 }}></div>
+                <div></div>
             </div>
             <div className={styles.menuContainer}>
                 {/* 简化的静态内容 */}
@@ -587,8 +587,6 @@ export default function HomeMenu() {
                         <Image
                             src={logoUrl}
                             alt=""
-                            width={126}
-                            height={30}
                             onError={() => setLogoUrl('/home_menu_logo.png')}
                             className='pointer'
                             onClick={() => router.push('/')}
