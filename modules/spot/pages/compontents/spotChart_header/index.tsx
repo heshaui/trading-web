@@ -235,7 +235,7 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                                     prefix={<SearchOutlined />}
                                     value={searchValue}
                                     onChange={(e) => handleSearch(e.target.value)}
-                                    className={`${styles.input_box} modal-input w-full`}
+                                    className={`${styles.input_box} modal-input2 w-full`}
                                     style={{ width: '100%' }}
                                 />
                             </div>

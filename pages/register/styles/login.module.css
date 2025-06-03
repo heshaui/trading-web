@@ -168,7 +168,7 @@
 .mail_input:focus,
 .mail_input:focus-within {
     border-color: var(--text-color3) !important;
-    box-shadow: none;
+    box-shadow: none !important;
     /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
 }
 
@@ -176,7 +176,7 @@
 .mail_input:focus:not(:hover) {
     background-color: var(--homeground);
     color: #fff;
-    box-shadow: none;
+    box-shadow: none !important;
 }
 
 /* 鼠标滑过 */
