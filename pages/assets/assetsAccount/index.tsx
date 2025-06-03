@@ -553,10 +553,10 @@ const AssetsMainPage = observer(() => {
                         {/* 提现 */}
                         {t('assetsAccount.button.withdraw')}
                     </button>
-                    {/*<button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push(ROUTER_KEY_ASSETS.BILL)}>
-                         现货账单 
+                    <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push(ROUTER_KEY_ASSETS.BILL)}>
+                         {/* 现货账单  */}
                         {t('assetsAccount.button.bill')}
-                    </button>*/}
+                    </button>
                 </div>
             </div>
             <div className={`${styles.card_bgc}  mt-3 `}>

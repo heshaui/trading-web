@@ -40,8 +40,8 @@
   "check3": "Ensure your phone/email is",
   "check4": "Check if the verification code is in the spam/junk folder",
   "check5": "The verification code may be delayed. Please try again after 10 minutes.",
-  "nodata": "No data available",
-  "noaddress": "No address available",
+  "nodata": "No data",
+  "noaddress": "No address",
   "safeVerification": "Security Verification",
   "noLogin": {
     "tip1": "Start Trading",

@@ -177,6 +177,10 @@
  {
     background-color: var(--text-color4) !important;
 }
+.custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
+.custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after{
+    background-color: var(--text-color4) !important;
+}
 /* 身份认证-已完成 */
 .custom-steps2 .ant-steps-item-finish .ant-steps-item-icon,
 .custom-steps2 .ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon

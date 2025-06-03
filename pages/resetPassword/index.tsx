@@ -31,12 +31,12 @@ const kvConfigKey=appStore.getKvConfig('out_money')
     return (
         <div className="relative flex h-overmax w-full flex-row page-box" >
             <div className=" flex-col flex-ai-center w-full  justify-center flex-1 position-relative">
-                <div>
-                    <h2 className="mb-6 font-w-500 font-36" >
+                <div className={``}>
+                    <h2 className={`mb-6 font-w-500 font-36 `} >
                         {/* 重置密码 */}
                         {t('reset')}
                     </h2>
-                    <div className={`mb-6 flex flex-ai-center  ${styles.warning_box}`} >
+                    <div className={`mb-6 flex flex-ai-start  ${styles.warning_box} ${styles.warning_page}`} >
                         <Iconify icon="ep:warning-filled" className="mr-2" size={20}/>
                         {/* 为确保您的账户安全，在您更改密码后48小时内禁出金。 */}
                         {t('resetTip2',{time:kvConfigKey||24})}

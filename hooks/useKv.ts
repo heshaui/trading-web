@@ -171,6 +171,9 @@ export const useThemeConfig = () => {
                             ...defaultTheme.token,
                             colorPrimary: themeData.color,
                         },
+                        components: {
+                            ...defaultTheme.components,
+                        },
                     });
                     return;
                 } else {

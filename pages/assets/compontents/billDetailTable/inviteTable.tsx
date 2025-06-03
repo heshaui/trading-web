@@ -139,8 +139,8 @@ const coninList=appStore.getCoinList()
           columns={columns}
           dataSource={tableData}
           size="large"
-          scroll={{ x: "max-content", y: 300 }}
-          className={` table-box`}
+          scroll={{ x: "max-content" }}
+          className={`table-box`}
           // pagination={{
           //   position: ["bottomRight"],
           //   // showSizeChanger: true,
