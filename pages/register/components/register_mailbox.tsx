@@ -12,10 +12,7 @@ import { Iconify } from "@/components/icon"
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
-    // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-    // padding: "25px",
-    width: "25vw",
-    maxWidth: "400px",
+    width: "100%",
     minWidth: "350px",
 };
 
@@ -323,7 +320,7 @@ export default function RegisterMail() {
                     )}
 
                     <Form.Item noStyle name="agree" valuePropName="checked">
-                        <Checkbox className="custom-checkbox text-color-default mt-5" >
+                        <Checkbox className="custom-checkbox text-color-default " >
                             <p className={`${styles.title_color}`}>
                                 {/* 我已阅读并同意 */}
                                 {t('agree')} <span className="text-color">{t('protocol')}</span> {t('and')} <span className="text-color">{t('policy')}</span>

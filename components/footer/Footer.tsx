@@ -323,7 +323,7 @@ export default function Footer() {
                         paddingInline: 0,
                         defaultHoverBg: 'inherit',
                         defaultHoverColor: 'inherit',
-                        defaultBorderColor: 'inherit',
+                        defaultBorderColor: '#5B5D6A',
                         defaultHoverBorderColor: 'inherit',
                         defaultActiveBg: 'inherit',
                         defaultActiveColor: 'inherit',

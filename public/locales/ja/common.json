@@ -56,6 +56,7 @@
     "nicknameRequired": "ニックネームを入力してください",
     "modifyNicknameOnce": "ニックネームを変更できます",
     "modifyNicknameOnceTip": "24時間内に1回のみ変更可能です。",
+    "modifyNicknameOnceTip1": "{{time}}日以内に1回のみ変更可能です。",
     "modifyNicknameOnceTip2": "ニックネームは数字、アルファベットのみをサポートし、25文字を超えないようにしてください。",
     "modifyNicknameOnceTip3": "個人情報の漏洩を防ぐため、実名や連絡先などを使用しないでください。",
     "modifyNicknameOnceTip4": "ニックネームの内容は、お住まいの国や地域の法律に適合している必要があります。違反した場合、IMBITはニックネームを変更したり、アカウントのコメント禁止や停止などの措置を取る権利を有します。",

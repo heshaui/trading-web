@@ -4,15 +4,34 @@
 .input_box {
     width: 188px !important;
     height: 50px !important;
-    background: var(--background7) !important;
-    color: var(--text-color6) !important;
+    background: transparent !important;
+    color: var(--text-color5) !important;
+}
+/* 输入框组件覆盖 */
+.input_box:focus,
+.input_box:focus-within {
+    border-color: var(--text-color3) !important;
+    box-shadow: none !important;
+    /* box-shadow: 0 0 0 1px var(--text-color3) !important; */
+}
+
+/* 鼠标聚焦且移出样式 */
+.input_box:focus:not(:hover) {
+    background-color: var(--homeground);
+    color: #fff;
+    box-shadow: none !important;
+}
+
+/* 鼠标滑过 */
+.input_box:hover {
+    border-color: var(--text-color3);
 }
 .select_box {
     width: 188px !important;
     height: 50px !important;
     /* min-width: 250px; */
-    background: var(--background7) !important;
-    color: var(--text-color6) !important;
+    background: transparent !important;
+    color: var(--text-color5) !important;
 }
 
 .card_bgc {

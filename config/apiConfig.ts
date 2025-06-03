@@ -31,7 +31,8 @@ export const KV_KEYS = [
     "fee_direction", //手续费方向
     "out_money", //提现配置
     "tenant_cache_name", //商户名称
-    "account_configuration",
+    "account_configuration", //邀请开关
+    "nickname_modify_time", //昵称修改时间
     // 可以根据需要添加更多配置项
 ];
 

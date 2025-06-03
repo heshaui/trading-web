@@ -14,12 +14,9 @@ import { toast } from "sonner";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 const fromStyle: CSSProperties = {
-	borderRadius: "5px",
-	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-	// padding: "25px",
-	width: "25vw",
-	maxWidth: "400px",
-	minWidth: "350px",
+    borderRadius: "5px",
+    width: "100%",
+    minWidth: "350px",
 };
 interface useInfoType {
 	type: string;

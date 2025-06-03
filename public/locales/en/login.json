@@ -63,7 +63,7 @@
     "passwordRule1": "8-30 characters",
     "passwordRule2": "Must contain letters and numbers",
     "passwordnum": "At least one number",
-"passwordletter": "At least one letter",
+"passwordletter": "Include at least one uppercase letter",
     "agreeText": "I have read and agree to",
     "goLogin": "Login",
     "repeat": "Account already exists.",
