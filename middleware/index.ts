@@ -11,7 +11,6 @@ export const publicPaths = [
     '/resetPassword',
     '/exchange',
     '/Notice',
-    '/bulletinCenter',
     '/helpCenter',
     '/helpCenter/*',
 ];

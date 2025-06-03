@@ -5,8 +5,6 @@ import Image from 'next/image';
 import dayjs from 'dayjs';
 import MessageItem from './components/MessageItem';
 import MessagePagination from './components/MessagePagination';
-import MessageItemDetail from './components/MessageItemDetail';
-import RenderBulletinTop from './components/RenderBulletinTop';
 import styles from './styles/bulletinCenter.module.css';
 import { menuData as staticMenuData } from '@/data/bulletinCenter/getItemsMessage';
 import { MessageData } from '@/type/bulletin_center/bc_types';
@@ -18,7 +16,7 @@ import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessag
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { calc } from 'antd/es/theme/internal';
+
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -116,15 +114,13 @@ export default function BulletinCenter() {
     // 未读公告数量
     const [unreadCount, setUnreadCount] = useState<number>(0);
     // 自定义菜单数据
-    const [menuData, setMenuData] = useState(
-        // 定义公告顶层的菜单项数据，使用循环生成四个菜单项
-        [
-            { key: 'all', defaultIcon: '/images/bulletin_center/icon_horn.png', hoverIcon: '/images/bulletin_center/icon_horn_hover.png', label: `${t('bulletinCenter.menu.notice')}(0)` },
-            { key: 'account', defaultIcon: '/images/bulletin_center/icon_contacts.png', hoverIcon: '/images/bulletin_center/icon_contacts_hover.png', label: t('bulletinCenter.menu.accountAssistant') },
-            { key: 'assets', defaultIcon: '/images/bulletin_center/icon_assets.png', hoverIcon: '/images/bulletin_center/icon_assets_hover.png', label: t('bulletinCenter.menu.assets') },
-            { key: 'trading', defaultIcon: '/images/bulletin_center/icon_Trading.png', hoverIcon: '/images/bulletin_center/icon_Trading_hover.png', label: t('bulletinCenter.menu.transaction') },
-        ]
-    );
+    const [menuData, setMenuData] = useState(() => {
+        // 在初始化时就对菜单标签进行翻译
+        return staticMenuData.map(item => ({
+            ...item,
+            label: t(item.label) // 翻译菜单标签
+        }));
+    });
     // 标记是否已从NavigationContext获取过数据
     const [hasInitializedFromContext, setHasInitializedFromContext] = useState(false);
 
@@ -152,11 +148,20 @@ export default function BulletinCenter() {
             if (response?.code === '0' && response.data !== undefined) {
                 setUnreadCount(response.data);
                 // 更新菜单数据中的公告数量
-                const updatedMenuData = [...menuData];
-                updatedMenuData[0] = {
-                    ...updatedMenuData[0],
-                    label: `${t('bulletinCenter.message.unreadCount')}(${response.data})`
-                };
+                const updatedMenuData = staticMenuData.map((item, index) => {
+                    if (index === 0) {
+                        // 只更新第一个菜单项（公告）的标签来显示未读数量
+                        return {
+                            ...item,
+                            label: t('bulletinCenter.message.unreadCount', { count: response.data || 0 })
+                        };
+                    }
+                    // 其他菜单项保持翻译后的标签
+                    return {
+                        ...item,
+                        label: t(item.label)
+                    };
+                });
                 setMenuData(updatedMenuData);
             }
         } catch (error) {
@@ -210,8 +215,11 @@ export default function BulletinCenter() {
                 ...prev,
                 '1': 1
             }));
-            // 重置为默认菜单数据
-            setMenuData(staticMenuData);
+            // 重置为默认菜单数据，并确保标签被翻译
+            setMenuData(staticMenuData.map(item => ({
+                ...item,
+                label: t(item.label)
+            })));
         } else if (isLoggedIn) {
             // 仅在登录状态变化时获取未读公告数量，而不是所有状态变化
             fetchUnreadCount(true);

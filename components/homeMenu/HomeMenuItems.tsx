@@ -116,7 +116,6 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
                                 onClick: handleMenuClick
                             }}
                             placement="bottomLeft"
-                            trigger={['click']}
                             key={menuList.key}
                             overlayStyle={getOverlayStyle(menuList.widthSet)}
                             overlayClassName={styles.buttonHover}
@@ -134,7 +133,6 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
                         triggerSubMenuAction: 'click',
                         onClick: handleMenuClick
                     }}
-                    trigger={['click']}
                     key={menuList.key}
                     className={styles.menuList}
                     overlayStyle={{ top: '80px', maxWidth: '364px', minWidth: '300px' }}

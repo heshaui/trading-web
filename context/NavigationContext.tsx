@@ -42,6 +42,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // 初始化数据
     const initializeData = async (lang: string) => {
         try {
+             const langs = localStorage.getItem('lang')||'en_US'
             // 获取菜单数据
             const menuResponse = await homeMenu({ lang }) as { code: string; data: any[] };
             //  console.log(menuResponse, 'menuResponse');
@@ -62,8 +63,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             // 根据登录状态获取公告数据
             if (isLoggedIn) {
                 // 如果已登录但未获取过登录状态的数据
+               const langs = localStorage.getItem('lang')||'en_US'
                 if (!dataFetchStatusRef.current.loggedInFetched) {
-                    const bulletinResponse = await getBulletinMessageLogined({ languageCode: lang }) as any;
+                    const bulletinResponse = await getBulletinMessageLogined({ languageCode: langs }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
                             id: item.id,
@@ -77,6 +79,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             } else {
                 // 如果未登录但未获取过未登录状态的数据
                 if (!dataFetchStatusRef.current.loggedOutFetched) {
+                    const langs = localStorage.getItem('lang')||'en_US'
                     const bulletinResponse = await getBulletinMessage({ languageCode: lang }) as any;
                     if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                         const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
@@ -288,7 +291,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 try {
                     if (isLoggedIn && !dataFetchStatusRef.current.loggedInFetched) {
                         // 登录状态变为已登录，且未获取过登录状态的数据
-                        const bulletinResponse = await getBulletinMessageLogined({ languageCode: currentLang.current }) as any;
+                        const langs = localStorage.getItem('lang')||'en_US'
+                        const bulletinResponse = await getBulletinMessageLogined({ languageCode: langs }) as any;
                         if (bulletinResponse?.code === '0' && bulletinResponse.data?.list) {
                             const formattedBulletinData = bulletinResponse.data.list.map((item: any) => ({
                                 id: item.id,

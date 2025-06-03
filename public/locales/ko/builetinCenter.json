@@ -6,6 +6,8 @@
             "all": "전체 공지",
             "latest": "최신 소식",
             "new": "신규 코인 상장",
+            "assets": "자산",
+            "trading": "거래",
             "delist": "거래쌍 상장 폐지",
             "suspension": "입출금 중단/재개",
             "announcement": "공지사항",

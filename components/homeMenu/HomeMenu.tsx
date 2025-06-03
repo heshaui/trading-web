@@ -11,10 +11,13 @@ import MenuItemChildrenLabel from './HomeMenuChildrenLabel';
 import TabsItem from './TabsItem';
 import { MenuListItem, HomeMenuProps, IconName, TabsItemData, menuType, LanguageParams, ApiResponse, FormattedLanguage } from '@/type/types';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import store from "@/store"
 import { useRouter } from 'next/router';
-import Image from 'next/image';
+
+// Client-side only Image component to avoid hydration mismatch
+const Image = dynamic(() => import('next/image'), { ssr: false });
 import { useTranslation } from 'next-i18next';
 import dayjs from 'dayjs';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
@@ -264,33 +267,42 @@ export default function HomeMenu() {
         switch (icon) {
             case 'img_horn':
                 return <Col>
-                    <Image
-                        src="/images/home_menu/icon_horn_hover.png"
-                        alt=""
-                        width={20}
-                        height={20}
-                    />
+                    {typeof window !== 'undefined' && (
+                        <Image
+                            src="/images/home_menu/icon_horn_hover.png"
+                            alt=""
+                            width={20}
+                            height={20}
+                            priority
+                        />
+                    )}
                 </Col>;
             case 'img_download':
                 return <Col>
-                    <Image
-                        src="/images/home_menu/icon_download_line.png"
-                        alt=""
-                        width={20}
-                        height={20}
-                    />
+                    {typeof window !== 'undefined' && (
+                        <Image
+                            src="/images/home_menu/icon_download_line.png"
+                            alt=""
+                            width={20}
+                            height={20}
+                            priority
+                        />
+                    )}
                 </Col>;
             case 'img_change':
                 // 使用记忆化的主题图标组件
                 return <ThemeIcon />;
             case 'img_global':
                 return <Col>
-                    <Image
-                        src="/images/home_menu/icon_earth_line.png"
-                        alt=""
-                        width={20}
-                        height={20}
-                    />
+                    {typeof window !== 'undefined' && (
+                        <Image
+                            src="/images/home_menu/icon_earth_line.png"
+                            alt=""
+                            width={20}
+                            height={20}
+                            priority
+                        />
+                    )}
                 </Col>;
             default:
                 return null;
@@ -521,7 +533,7 @@ export default function HomeMenu() {
         <div className={styles.container}>
             <div className={styles.logo}>
                 {/* 简化的静态内容 */}
-                <div style={{ width: 126, height: 30 }}></div>
+                <div></div>
             </div>
             <div className={styles.menuContainer}>
                 {/* 简化的静态内容 */}
@@ -584,15 +596,18 @@ export default function HomeMenu() {
             <div style={{ position: 'relative', borderBottom: '0.5px solid #37373A' }}>
                 <div className={styles.container}>
                     <div className={styles.logo}>
-                        <Image
-                            src={logoUrl}
-                            alt=""
-                            width={126}
-                            height={30}
-                            onError={() => setLogoUrl('/home_menu_logo.png')}
-                            className='pointer'
-                            onClick={() => router.push('/')}
-                        />
+                        {typeof window !== 'undefined' && (
+                            <Image
+                                src={logoUrl}
+                                alt=""
+                                width={120}
+                                height={40}
+                                onError={() => setLogoUrl('/home_menu_logo.png')}
+                                className='pointer'
+                                onClick={() => router.push('/')}
+                                priority
+                            />
+                        )}
                     </div>
                     <div className={styles.menuContainer}>
                         <div className={styles.menuListContainer}>
@@ -600,13 +615,16 @@ export default function HomeMenu() {
                                 <Row>
                                     <Col style={{ cursor: 'pointer' }} onClick={showMenu}>
                                         {/* <img src='/images/home_menu/icon_classify_line.png' style={{ width: '18px', height: '18px', marginRight: '20px' }} /> */}
-                                        <Image
-                                            src="/images/home_menu/icon_classify_line.png"
-                                            alt=""
-                                            width={18}  // 必须指定宽度
-                                            height={18} // 必须指定高度
-                                            style={{ marginRight: '20px' }}
-                                        />
+                                        {typeof window !== 'undefined' && (
+                                            <Image
+                                                src="/images/home_menu/icon_classify_line.png"
+                                                alt=""
+                                                width={18}  // 必须指定宽度
+                                                height={18} // 必须指定高度
+                                                style={{ marginRight: '20px' }}
+                                                priority
+                                            />
+                                        )}
                                     </Col>
                                 </Row>
                                 <Row align='middle' className={styles.collapsedMenu}>
@@ -619,7 +637,6 @@ export default function HomeMenu() {
                                 // menu={{
                                 //     items: inputItems,
                                 // }}
-                                trigger={['click']}
                                 overlayStyle={{ top: '80px', maxWidth: '390px', width: '390px' }}
                             >
                                 <a onClick={(e) => e.preventDefault()}>
