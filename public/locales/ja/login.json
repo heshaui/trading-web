@@ -63,7 +63,7 @@
     "passwordRule1": "8-100文字",
     "passwordRule2": "英字と数字を含める必要があります",
     "passwordnum": "少なくとも1つの数字を含む",
-    "passwordletter": "少なくとも1つの文字を含む",
+    "passwordletter": "大文字を少なくとも 1 文字含める必要があります",
     "agreeText": "閲覧し、同意します",
     "goLogin": "ログインに戻る",
     "repeat": "アカウントが既に存在します。",

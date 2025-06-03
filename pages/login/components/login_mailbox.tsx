@@ -18,10 +18,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
-    // boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-    // padding: "25px",
-    width: "25vw",
-    maxWidth: "400px",
+    width: "100%",
     minWidth: "350px",
 };
 interface useInfoType {
@@ -108,9 +105,11 @@ function Mailbox() {
                 // }
                 // setLoginInfo(data)
                 // setCodeModelOpen(true)
+                const fingerprint = await getFingerprint();
                 const param = {
                     type: "m",
-                    account: values.email
+                    account: values.email,
+                    deviceType: fingerprint,
                 }
                 const dataEncrypt = await encryptData(param)
                 setLoading(true)

@@ -14,7 +14,9 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from 'next-i18next';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
-import {encryptData} from '@/hooks/user-encrypt'
+import { encryptData } from '@/hooks/user-encrypt'
+import appStore from "@/store";
+
 interface UserCenterData {
     userId: number,
     nickname?: string,
@@ -40,7 +42,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
         // form.resetFields();
         onCancel()
     };
-
+const kvConfig=appStore.getKvConfigAll()
     const handOk = async () => {
         // 这里可以添加点击验证码弹窗确认按钮后的处理逻辑
         form.validateFields()
@@ -175,7 +177,7 @@ function NicknameModal({ open, onCancel ,nicknameInfo,onOk}: Props) {
                             <li className="flex align-base ">
                                 <Iconify icon="emojione-monotone:small-orange-diamond" className="theme_color mr-1"/>
                                 {/* 24h内仅可修改1次。 */}
-                                {t('usersetting.modifyNicknameOnceTip')}
+                                {t('usersetting.modifyNicknameOnceTip1', {time:kvConfig?.nickname_modify_time || 24})}
                             </li>
                             <li className="flex align-base mt-1">
                                 <Iconify icon="emojione-monotone:small-orange-diamond" className="theme_color mr-1"/>

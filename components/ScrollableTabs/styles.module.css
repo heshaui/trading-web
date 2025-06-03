@@ -142,7 +142,7 @@
 .all_tab {
     padding: 6px 16px;
     font-size: 12px;
-    color: #676867;
+    color: var(--text-color5);
     cursor: pointer;
     margin-right: 10px;
     font-weight: normal;
@@ -162,7 +162,7 @@
 }
 
 .scroll_button:hover {
-    color: #0C0D0C;
+    color:var(--theme-color);
     background-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -203,7 +203,7 @@
     padding: 6px 16px;
     transition: all 0.3s ease;
     font-size: 14px;
-    color: #676867;
+    color: var(--text-color6);
     cursor: pointer;
     white-space: nowrap;
     transition: color 0.3s;
@@ -212,17 +212,17 @@
 }
 
 .tab_item:hover {
-    color: #0C0D0C;
+    color: var(--theme-color);
 }
 
 .highlight {
-    color: #0C0D0C !important;
+    color: var(--text-color5) !important;
     transform: scale(1.05);
     transition: all 0.2s ease;
 }
 
 .active_tab {
-    color:  #0C0D0C !important;
+    color:  var(--text-color5) !important;
     font-weight: 500;
 }
 .title_color {

@@ -80,16 +80,16 @@ const SpotTablePage = () => {
         <ConfigProvider
             theme={{
                 components: {
-                    // Tabs: {
-                    //     itemActiveColor: "var(--tip-color)", //激活态颜色  
-                    //     itemSelectedColor: "var(--text-color5)", //选中态颜色
-                    //     horizontalMargin: "0 0 0 0",
-                    //     itemColor: "var(--text-color6)",
-                    //     inkBarColor: "var(--text-color5)", //指示条颜色
-                    //     horizontalItemPaddingLG:"24px 8px",
-                    //     horizontalItemPadding:"24px 8px",
-                    //     horizontalItemPaddingSM:"24px 8px",
-                    // },
+                    Tabs: {
+                        itemActiveColor: "var(--tip-color)", //激活态颜色  
+                        itemSelectedColor: "var(--text-color5)", //选中态颜色
+                        horizontalMargin: "0 0 0 0",
+                        itemColor: "var(--text-color6)",
+                        inkBarColor: "var(--text-color5)", //指示条颜色
+                        horizontalItemPaddingLG:"24px 8px",
+                        horizontalItemPadding:"24px 8px",
+                        horizontalItemPaddingSM:"24px 8px",
+                    },
                 },
             }}
         >
