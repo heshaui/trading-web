@@ -97,7 +97,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     const dataEncrypt = await encryptData(params)
                     const res = await unbindGoogle(dataEncrypt)
                     if (res.code === "0") {
-                        toast.success(res.message)
+                        toast.success(t('success')||res.message)
                         onOk()
                         handCancel()
                     } else {
@@ -126,7 +126,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck2(false)
-                toast.success(res.message)
+                toast.success(t('success')||res.message)
                 startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -154,7 +154,7 @@ function UnbindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
-                toast.success(res.message)
+                toast.success(t('success')||res.message)
                 startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))

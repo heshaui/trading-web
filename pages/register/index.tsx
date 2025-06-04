@@ -93,7 +93,7 @@ function Register() {
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}
 			</div>
 
-			<div className="m-auto flex flex-ai-center w-full flex-col justify-center flex-1 position-relative">
+			<div className="m-auto flex flex-ai-center w-full flex-col flex-1 position-relative">
 				<div style={{ width: "368px" }}>
 					<LoginStateProvider>
 						{/* 登录注册切换

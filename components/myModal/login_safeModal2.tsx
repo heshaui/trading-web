@@ -20,6 +20,7 @@ import { useTranslation } from 'next-i18next';
 // import { encryptData } from "@/utils/encrypt";
 import { encryptData } from "@/hooks/user-encrypt";
 // import { useWebConfig } from '@/hooks/useKv';
+import { isShowArr } from "@/utils/filterLang";
 interface acountType {
     type: string,
     email?: string,
@@ -166,7 +167,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                     const dataEncrypt = await encryptData(dataInfo)
                     const res = await getLogin(dataEncrypt)
                     if (res.code === "0") {
-                        toast.success(res.message)
+                        toast.success(t('loginsuccess'))
                         store.setUserToken(res.data.token)
                         store.updateUserInfo({ ...res.data })
                         // 添加 useAuth 的登录方法
@@ -225,6 +226,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
             param = {
                 account: acountInfo.phone,
                 type: acountInfo.type,
+                // countryCode: acountInfo.countryCode,
                 deviceType: fingerprint,
             }
         }
@@ -233,9 +235,9 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
             const res = await getLoginCheck(dataEncrypt)
             if (res.code === "0") {
                 if (res.data.message) {
-                    toast.success(res.data.message)
+                    toast.error(res.data.message)
                 } else {
-                    toast.success(res.message)
+                    toast.success(t('success'))
                 }
                 clearTimers()
                 // if (acountInfo.type === 'm') {
@@ -367,13 +369,44 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
     };
     const handleOk = (event: boolean) => {
         if (event) {
-            if ((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
-                (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) {
+            // if ((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
+            //     (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) {
+            //     return
+            // } else {
+            //     getLoginCode2()
+            // }
+            if (isShowList()?.length === 1 && isShowList()?.includes('google')) {
                 return
             } else {
                 getLoginCode2()
             }
         }
+    }
+    const isShowList = () => {
+        // let showList = []
+        // if (acountInfo.openAll === 1) {
+        //     // 新设备/IP登录，验证全部绑定的验证方式
+        //     if (acountInfo.isGoogleAuth === 1) {
+        //         showList.push('google')
+        //     }
+        //     if (acountInfo.isEmailAuth === 1) {
+        //         showList.push('email')
+        //     }
+        //     if (acountInfo.isPhoneAuth === 1) {
+        //         showList.push('phone')
+        //     }
+        // } else if (acountInfo.openAll === 0) {
+        //     // 非新设备/IP登录，只验证一个，优先级：谷歌 > 邮箱 > 手机号
+        //     if (acountInfo.isGoogleAuth === 1) {
+        //         showList.push('google')
+        //     } else if (acountInfo.isEmailAuth === 1) {
+        //         showList.push('email')
+        //     } else if (acountInfo.isPhoneAuth === 1) {
+        //         showList.push('phone')
+        //     }
+        // }
+        // return showList
+        return isShowArr(acountInfo.isGoogleAuth || 0, acountInfo.isEmailAuth || 0, acountInfo.isPhoneAuth || 0, 'login', acountInfo.openAll || 0)
     }
     useEffect(() => {
         if (!open) {
@@ -417,14 +450,14 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         {t('safeModal.confirm')}
                     </button>
                 )}
-                <button
+               {!(isShowList()?.length === 1 && isShowList()?.includes('google')) && <button
                     type="button"
                     className={`text_color mt-5`}
                     onClick={() => setPointout(true)}
                 >
                     {/* 收不到验证码？ */}
                     {t('safeModal.cantReceive')}
-                </button>
+                </button>}
             </div>
         );
     };
@@ -488,76 +521,44 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                 <Form form={form} style={{ margin: "10px 0" }} colon={false}>
 
 
-                    {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
-                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1))
-                        && <>
-                            <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
-                            <Form.Item
-                                name="code"
-                                rules={[{ required: true, message: t('safeModal.codeNull') }]}
-                                className="position-relative"
-                            >
-                                <Input
-                                    className={`${styles.input_box} modal-input`}
-                                    style={{ width: "100%", height: "40px" }}
-                                    placeholder={t('safeModal.inputPlaceholder')}
-                                    value={codeInputValue}
-                                    onChange={(e) => handleInputChange(e, 'code')}
-                                    allowClear
-                                    suffix={
-                                        <button
-                                            type="button"
-                                            onClick={getLoginCode2}
-                                            className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
-                                        >
-                                            {/* 重新发送/60s 重发 */}
-                                            {isCounting
-                                                ? `${countdown} ${t('safeModal.resendCountdown')}`
-                                                : t('safeModal.resend')
-                                            }
-                                        </button>
-                                    }
-                                    maxLength={6}
-                                />
-                            </Form.Item></>}
-                    {((acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1) ||
-                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 1))
-                        && <>
-                            <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
-                            <Form.Item
-                                name="phoneCode"
-                                rules={[{ required: true, message: t('safeModal.codeNull') }]}
-                                className="position-relative"
-                            >
-                                <Input
-                                    className={`${styles.input_box} modal-input`}
-                                    style={{ width: "100%", height: "40px" }}
-                                    placeholder={t('safeModal.inputPlaceholder')}
-                                    allowClear
-                                    value={phoneCodeInputValue}
-                                    onChange={(e) => handleInputChange(e, 'phoneCode')}
-                                    suffix={
-                                        <button
-                                            type="button"
-                                            onClick={getLoginCode2}
-                                            className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
-                                        >
-                                            {/* 重新发送/60s 重发 */}
-                                            {isCounting2
-                                                ? `${countdown2} ${t('safeModal.resendCountdown')}`
-                                                : t('safeModal.resend')
-                                            }
-                                        </button>
-                                    }
-                                    maxLength={6}
-                                />
-                            </Form.Item>
-                        </>}
-
-                    {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <>
-                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
+                    {/* {((acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) ||
+                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 1)) */}
+                    {isShowList()?.includes('email') && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
                         <Form.Item
-                            name="googleCode"
+                            name="code"
+                            rules={[{ required: true, message: t('safeModal.codeNull') }]}
+                            className="position-relative"
+                        >
+                            <Input
+                                className={`${styles.input_box} modal-input`}
+                                style={{ width: "100%", height: "40px" }}
+                                placeholder={t('safeModal.inputPlaceholder')}
+                                value={codeInputValue}
+                                onChange={(e) => handleInputChange(e, 'code')}
+                                allowClear
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={getLoginCode2}
+                                        className={isCounting ? `${styles.tip_color}` : `${styles.text_color}`}
+                                    >
+                                        {/* 重新发送/60s 重发 */}
+                                        {isCounting
+                                            ? `${countdown} ${t('safeModal.resendCountdown')}`
+                                            : t('safeModal.resend')
+                                        }
+                                    </button>
+                                }
+                                maxLength={6}
+                            />
+                        </Form.Item></>}
+                    {/* {((acountInfo.openAll === 1 && acountInfo.isPhoneAuth === 1) ||
+                        (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 0 && acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 1)) */}
+                    {isShowList()?.includes('phone') && <>
+                        <div className={`${styles.title_color} mb-3`}>{t('safeModal.phoneCodeTitle')}</div>
+                        <Form.Item
+                            name="phoneCode"
                             rules={[{ required: true, message: t('safeModal.codeNull') }]}
                             className="position-relative"
                         >
@@ -566,12 +567,46 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                                 style={{ width: "100%", height: "40px" }}
                                 placeholder={t('safeModal.inputPlaceholder')}
                                 allowClear
+                                value={phoneCodeInputValue}
+                                onChange={(e) => handleInputChange(e, 'phoneCode')}
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={getLoginCode2}
+                                        className={isCounting2 ? `${styles.tip_color}` : `${styles.text_color}`}
+                                    >
+                                        {/* 重新发送/60s 重发 */}
+                                        {isCounting2
+                                            ? `${countdown2} ${t('safeModal.resendCountdown')}`
+                                            : t('safeModal.resend')
+                                        }
+                                    </button>
+                                }
                                 maxLength={6}
-                                value={googleCodeInputValue}
-                                onChange={(e) => handleInputChange(e, 'google')}
                             />
                         </Form.Item>
                     </>}
+
+                    {/* {((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1) || (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) */}
+                    {isShowList()?.includes('google')
+                        && <>
+                            <div className={`${styles.title_color} mb-3`}>{t('safeModal.googleCodeTitle')}</div>
+                            <Form.Item
+                                name="googleCode"
+                                rules={[{ required: true, message: t('safeModal.codeNull') }]}
+                                className="position-relative"
+                            >
+                                <Input
+                                    className={`${styles.input_box} modal-input`}
+                                    style={{ width: "100%", height: "40px" }}
+                                    placeholder={t('safeModal.inputPlaceholder')}
+                                    allowClear
+                                    maxLength={6}
+                                    value={googleCodeInputValue}
+                                    onChange={(e) => handleInputChange(e, 'google')}
+                                />
+                            </Form.Item>
+                        </>}
                     {/* {(acountInfo.type === 'p' &&acountInfo.openAll === 1 && acountInfo.isEmailAuth === 1) 
                     && <>
                         <div className={`${styles.title_color} mb-3`}>{t('safeModal.emailCodeTitle')}</div>
@@ -604,20 +639,21 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
                         </Form.Item>
                     </>} */}
                 </Form>
-                {!((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
-                    (acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) && <QuestionModal
-                        open={pointout}
-                        onOk={handleOk}
-                        type={acountInfo.type}
-                        acount={
-                            acountInfo.type === "m"
-                                ? (acountInfo.email || "")
-                                : acountInfo.type === "p"
-                                    ? (acountInfo.phone || "")
-                                    : ""
-                        }
-                        onCancel={() => setPointout(false)}
-                    />}
+                {/* {!((acountInfo.openAll === 1 && acountInfo.isGoogleAuth === 1 && (acountInfo.isEmailAuth === 0 && acountInfo.isPhoneAuth === 0)) ||
+                    !(acountInfo.openAll === 0 && acountInfo.isGoogleAuth === 1)) */}
+                 <QuestionModal
+                    open={pointout}
+                    onOk={handleOk}
+                    type={acountInfo.type}
+                    acount={
+                        acountInfo.type === "m"
+                            ? (acountInfo.email || "")
+                            : acountInfo.type === "p"
+                                ? (acountInfo.phone || "")
+                                : ""
+                    }
+                    onCancel={() => setPointout(false)}
+                />
             </Modal>
         </ConfigProvider>
     );

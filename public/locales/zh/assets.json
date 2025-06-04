@@ -138,6 +138,7 @@
         "belowMinLimit3": "低于单笔最小限额{{min}}",
         "belowMax24h": "高于24h限额 {{min}} {{currency}}",
         "belowMax24h2": "高于24h限额",
+        "belowMax24h3": "高于24h限额{{max}}",
         "belowMin24h": "低于24h限额 {{min}} {{currency}}",
         "belowMin24h2": "低于24h限额",
         "belowMin24h3": "低于24h限额{{min}}",

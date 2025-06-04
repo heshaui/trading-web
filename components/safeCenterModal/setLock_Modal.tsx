@@ -57,7 +57,7 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
           const dataEncrypt = await encryptData(params)
           const res = await setPassword(dataEncrypt)
           if (res.code === "0") {
-            toast.success(res.message)
+            toast.success(t('success')||res.message)
             onOk()
             handCancel()
           }

@@ -12,11 +12,12 @@ import { encryptData } from "@/hooks/user-encrypt";
 import { getLoginCheck } from "@/services/login";
 import { toast } from "sonner";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import {isShowArr} from "@/utils/filterLang";
 
 const fromStyle: CSSProperties = {
-    borderRadius: "5px",
-    width: "100%",
-    minWidth: "350px",
+	borderRadius: "5px",
+	width: "100%",
+	minWidth: "350px",
 };
 interface useInfoType {
 	type: string;
@@ -46,12 +47,12 @@ function Phonebox() {
 	const handCodeCancel = () => {
 		setCodeModelOpen(false)
 	}
-  // 获取浏览器指纹
-  const getFingerprint = async () => {
-	const result = await FingerprintJS.load();
-	const visitorId = await result.get();
-	return visitorId.visitorId;
-};
+	// 获取浏览器指纹
+	const getFingerprint = async () => {
+		const result = await FingerprintJS.load();
+		const visitorId = await result.get();
+		return visitorId.visitorId;
+	};
 	const onFinish = async () => {
 		form
 			.validateFields()
@@ -69,7 +70,7 @@ function Phonebox() {
 				// }
 				// setLoginInfo(data)
 				// setCodeModelOpen(true)
-				if(loading) return;
+				if (loading) return;
 				const fingerprint = await getFingerprint();
 				const param = {
 					type: "p",
@@ -84,18 +85,22 @@ function Phonebox() {
 						const data = {
 							type: "p",
 							phone: values.phoneNumber,
-							deviceType: "web",
+							deviceType: "Web",
 							password: values.password,
 							authCodePhone: "",
 							countryCode: values.areaCode,
-                            ...res.data
+							...res.data
 						}
 						setLoginInfo(data)
 						setCodeModelOpen(true)
-						if(!((res.data.openAll === 1 && res.data.isGoogleAuth === 1&&(res.data.isEmailAuth === 0 && res.data.isPhoneAuth === 0)) || 
-                        (res.data.openAll === 0 && res.data.isGoogleAuth === 1))){
-                            toast.success(res.message)
-                        }
+						// if(!((res.data.openAll === 1 && res.data.isGoogleAuth === 1&&(res.data.isEmailAuth === 0 && res.data.isPhoneAuth === 0)) || 
+						// (res.data.openAll === 0 && res.data.isGoogleAuth === 1))){
+						//     toast.success(t('success'))
+						// }
+						const showArr = isShowArr(res.data.isGoogleAuth, res.data.isEmailAuth, res.data.isPhoneAuth, 'login', res.data.openAll);
+						if (showArr && showArr.length > 0 && (showArr.includes('email') || showArr.includes('phone'))) {
+							toast.success(t('success'))
+						}
 					} else if (res.code === "10044") {
 						// const data = {
 						//     ...res.data,

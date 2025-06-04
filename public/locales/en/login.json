@@ -103,5 +103,7 @@
     "title": "Important Notice",
     "know": "I Understand",
     "msg": "Your IP indicates you're in a restricted region. Due to legal requirements, our services are unavailable in your location. If you're not in a restricted area, please access our platform from a permitted region. Contact us with any questions."
-  }
+  },
+  "success":"Success",
+  "loginsuccess": "Login successfully"
 }

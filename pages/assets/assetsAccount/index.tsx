@@ -1,7 +1,7 @@
 import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/spotAccount.module.css'
-import { Input, Radio, ConfigProvider, Table, Form, Checkbox } from 'antd';
+import { Input, Skeleton, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -17,7 +17,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
-import { getRate, getCoinRate } from '@/utils/getUseRate';
+import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import Image from 'next/image';
 import { DataType } from '@/type/assets/assetsAccount/assets'
@@ -48,7 +48,7 @@ const AssetsMainPage = observer(() => {
     const [form] = Form.useForm();
     // 获取汇率数据
     const rateData = appStore.getRateData() || [];
-    const lang=appStore.getLang();
+    const lang = appStore.getLang();
     const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
     const rateKey = appStore.getRateKey()?.replace(/\s+/g, ''); // 汇率key
     const userInfo = appStore.getUserInfo();
@@ -177,6 +177,9 @@ const AssetsMainPage = observer(() => {
     ];
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
+    const [banlanceLoading, setBanlanceLoading] = useState(true);
+    const [todayEarningsLoading, setTodayEarningsLoading] = useState(true);
+    const [kLineLoading, setKLineLoading] = useState(true);
     const getCoinList = async (type: string, coinId: any, coinCan?: any, coinPair?: boolean) => {
         if (type === '1' || type === '2') {
             try {
@@ -272,6 +275,7 @@ const AssetsMainPage = observer(() => {
     // 获取所有币种余额
     const getUserBalanceAllData = async () => {
         setTableLoading(true);
+        setBanlanceLoading(true);
         try {
             const res = await getUserBalanceAll();
             if (res.code === '0') {
@@ -284,13 +288,15 @@ const AssetsMainPage = observer(() => {
                     );
                     // const coin = coinList.find((item: any) => item.coinName === curr.coinName);
 
-                    // let balance 
+                    // let balance
                     // if(curr.coinName === 'USDT'){
                     //  balance = coinTotal
                     // }else{
                     //     balance = nul(coinTotal, coin?.price || 0);
                     // }
                     // const usdRate = getRate(curr.coinName, coinTotal, 'USD').rate;
+                    // console.log(curr.balance, Number(curr.balance));
+
                     const balance = getCoinRate(curr.coinName, coinTotal).coinRate
                     return sum + Number(balance) || 0;
                 }, 0);
@@ -302,8 +308,8 @@ const AssetsMainPage = observer(() => {
                     usdBalance: usdRate || 0,
                     balance: totalUsd || 0
                 });
-
-                 // 初始化WebSocket连接
+                setBanlanceLoading(false);
+                // 初始化WebSocket连接
                 // await setupBalanceWebSocket();
             }
         } catch (error) {
@@ -314,6 +320,7 @@ const AssetsMainPage = observer(() => {
     };
     // 获取用户余额以及充值金额 日K线
     const getUserBalanceDay = async () => {
+        setKLineLoading(true);
         try {
             const res = await getUserBalanceByDay();
             if (res.code === '0') {
@@ -338,7 +345,7 @@ const AssetsMainPage = observer(() => {
                     usdBalance: usdRecharge.rate || 0,
                     usdWithdraw: usdWithdraw.rate || 0
                 })
-               
+                setKLineLoading(false);
             }
         } catch (error) {
             toast.error(String(error));
@@ -346,6 +353,7 @@ const AssetsMainPage = observer(() => {
     };
     // 获取今日充值及今日提现
     const getTodayEarningsData = async () => {
+        setTodayEarningsLoading(true);
         try {
             const res = await getTodayEarnings();
             if (res.code === '0') {
@@ -363,6 +371,7 @@ const AssetsMainPage = observer(() => {
                     balance: res.data?.balance || 0,
                     withdraw: res.data?.withdraw || 0
                 });
+                setTodayEarningsLoading(false);
             }
         } catch (error) {
             toast.error(String(error));
@@ -408,12 +417,12 @@ const AssetsMainPage = observer(() => {
                         const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
                         // 如果找到匹配项，则合并数据
                         if (matchedItem) {
-                          return {
-                            ...item,
-                            balance: matchedItem.balance,
-                            frozenBalance: matchedItem.frozen_balance,
-                            releaseBalance: matchedItem.release_balance
-                          };
+                            return {
+                                ...item,
+                                balance: matchedItem.balance,
+                                frozenBalance: matchedItem.frozen_balance,
+                                releaseBalance: matchedItem.release_balance
+                            };
                         }
                         // 如果没有找到匹配项，则返回原始项目
                         return item;
@@ -422,15 +431,15 @@ const AssetsMainPage = observer(() => {
                     const filteredTableData = tableData.map(item => {
                         const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
                         if (matchedItem) {
-                          return {
-                            ...item,
-                            balance: matchedItem.balance,
-                            frozenBalance: matchedItem.frozen_balance,
-                            releaseBalance: matchedItem.release_balance
-                          };
+                            return {
+                                ...item,
+                                balance: matchedItem.balance,
+                                frozenBalance: matchedItem.frozen_balance,
+                                releaseBalance: matchedItem.release_balance
+                            };
                         }
                         return item;
-                      });
+                    });
                     setInitTableData(filteredData);
                     setTableData(filteredTableData);
                     // 更新余额
@@ -453,7 +462,7 @@ const AssetsMainPage = observer(() => {
                 console.error('WebSocket数据处理错误:', error);
             }
         });
-    }, [userInfo.userId,initTableData])
+    }, [userInfo.userId, initTableData])
 
 
     useEffect(() => {
@@ -463,7 +472,7 @@ const AssetsMainPage = observer(() => {
         if (rateKey) {
             setRateKeyName(rateKey.split('-')[0].trim());
         }
-    }, [rateKey,lang])
+    }, [rateKey, lang])
 
     useEffect(() => {
         // 设置客户端渲染标记
@@ -479,13 +488,14 @@ const AssetsMainPage = observer(() => {
         }
     }, []);
 
-  
+
     useEffect(() => {
         if (!isClient || !userInfo || typeof window === 'undefined') return;
+        if (banlanceLoading || todayEarningsLoading || kLineLoading) return;
 
         // 安全地使用currentPair
         setupBalanceWebSocket();
-    }, [isClient, userInfo]);
+    }, [isClient, userInfo, banlanceLoading, todayEarningsLoading, kLineLoading]);
 
     useEffect(() => {
         if (!userInfo?.userId) return;
@@ -500,7 +510,7 @@ const AssetsMainPage = observer(() => {
                 balanceDataRef.current = null;
             }
         };
-    }, [userInfo?.userId, setupBalanceWebSocket]);
+    }, [userInfo?.userId]);
 
     return (<div>
         <ConfigProvider
@@ -554,7 +564,7 @@ const AssetsMainPage = observer(() => {
                         {t('assetsAccount.button.withdraw')}
                     </button>
                     <button className={`cancel_btn4 ${styles.btn_style}`} onClick={() => router.push(ROUTER_KEY_ASSETS.BILL)}>
-                         {/* 现货账单  */}
+                        {/* 现货账单  */}
                         {t('assetsAccount.button.bill')}
                     </button>
                 </div>
@@ -562,43 +572,58 @@ const AssetsMainPage = observer(() => {
             <div className={`${styles.card_bgc}  mt-3 `}>
                 <div className={`${styles.card_bgc2} w-full`}>
                     <ul className='flex-row'>
-                        <li className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}>
-                            <p className={`${styles.tip_color} font-w-400 font-14`}>
-                                {/* 现货资产 */}
-                                {t('assetsAccount.assets')}
-                            </p>
-                            <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {/* {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'} */}
-                                    {balanceAll.balance}&nbsp;USDT
-                                </span>
-                                <span>
-                                    {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
+                        <Skeleton active title={true}
+                            loading={banlanceLoading && todayEarningsLoading && kLineLoading}
+                            // loading={true}
+                            paragraph={{ rows: 2 }}
+                            className='px-1'>
+                            <li className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}>
+                                <p className={`${styles.tip_color} font-w-400 font-14`}>
+                                    {/* 现货资产 */}
+                                    {t('assetsAccount.assets')}
+                                </p>
+                                <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
+                                    <span className={`${styles.title_color} font-w-700 font-32`}>
+                                        {/* {balanceAll.usdBalance}&nbsp;{rateKey.split('-')[0].trim() || '--'} */}
+                                        {/* {balanceAll.balance}&nbsp;USDT */}
+                                        {getCoinRound('USDT', balanceAll?.balance || 0)}&nbsp;USDT
+                                    </span>
+                                    <span>
+                                        {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
 
-                                    ≈  {balanceAll.usdBalance || 0}&nbsp;
-                                    {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
-                                </span>
-                            </p>
-                        </li>
-                        <li className={`flex-y flex-wrap ${styles.header_content_item} flex-1`}>
-                            <p className={`${styles.tip_color} font-w-400 font-14`}>
-                                {/* 今日盈亏 */}
-                                {t('assetsAccount.todayProfit')}
-                            </p>
-                            <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
-                                <span className={`${styles.title_color} font-w-700 font-32`}>
-                                    {waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0)}&nbsp;
-                                    USDT
-                                    {/* {rateKey.split('-')[0].trim() || '--'} */}
-                                </span>
-                                <span>≈
-                                    &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp;
-                                    {/* USD */}
-                                    {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
-                                    {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
-                                </span>
-                            </p>
-                        </li>
+                                        ≈  {balanceAll.usdBalance || 0}&nbsp;
+                                        {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
+                                    </span>
+                                </p>
+                            </li>
+                        </Skeleton>
+                        <Skeleton active title={true}
+                            loading={banlanceLoading && todayEarningsLoading && kLineLoading}
+                            // loading={true}
+                            paragraph={{ rows: 2 }}
+                            className='px-1'>
+                            <li className={`flex-y flex-wrap ${styles.header_content_item} flex-1`}>
+                                <p className={`${styles.tip_color} font-w-400 font-14`}>
+                                    {/* 今日盈亏 */}
+                                    {t('assetsAccount.todayProfit')}
+                                </p>
+                                <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
+                                    <span className={`${styles.title_color} font-w-700 font-32`}>
+                                        {/* {waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0)}&nbsp; */}
+                                        {getCoinRound('USDT', waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0))}&nbsp;
+                                        USDT
+                                        {/* {rateKey.split('-')[0].trim() || '--'} */}
+                                    </span>
+                                    <span>≈
+                                        &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp;
+                                        {/* USD */}
+                                        {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
+                                        {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
+                                    </span>
+                                </p>
+                            </li>
+                        </Skeleton>
+
                     </ul>
                 </div>
                 <div className={`${styles.table_box} w-full `}>

@@ -99,10 +99,7 @@ const WithdrawMoneyPage = observer(() => {
         } catch (error) {
             console.error(t('safeModal.getUserInfoError'), error);
         }
-        // if (typeof window !== 'undefined') {
-        //     const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
-        //     setUserInfo(userInfo)
-        // }
+
 
     }
     // 币种
@@ -234,7 +231,7 @@ const WithdrawMoneyPage = observer(() => {
     // 历史币种快捷键
     const setFormCoin = async (coinId: string | number) => {
         // 1. 首先检查用户权限
-        if (userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0) {
+        if (userInfo?.merchantWithdrawalStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0) {
             return toast.error(t('withdrawMoney.function'));
         }
 
@@ -1178,12 +1175,12 @@ const WithdrawMoneyPage = observer(() => {
                 </div>
                 <div className={`${styles.card_box}  mt-6  `}>
                     {/* {!userInfo ? null : (
-                    userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
+                    userInfo.MerchantWithdrawalStatus !== 1 ? <NoUseCom type='1' /> :
                         userInfo.securityIntensity < 2 ? <NoUseCom type='2' /> :
                             userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )} */}
                     {!userInfo ? null : (
-                        userInfo.realnessStatus !== 1 ? <NoUseCom type='1' /> :
+                        userInfo.merchantWithdrawalStatus !== 1 ? <NoUseCom type='1' /> :
                             (!userInfo.googleCode || userInfo.isGoogleAuth === 0) ? <NoUseCom type='2' /> :
                                 userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                     )}
@@ -1223,7 +1220,7 @@ const WithdrawMoneyPage = observer(() => {
                             >
                                 <Form
                                     form={form}
-                                    disabled={(userInfo?.realnessStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0)}
+                                    disabled={(userInfo?.merchantWithdrawalStatus !== 1 || !userInfo?.googleCode || userInfo.withdrawalStatus === 0)}
                                 >
                                     <Steps
                                         direction="vertical"

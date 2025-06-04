@@ -379,5 +379,6 @@
         "addressDesc": "출금 주소를 추가하고 신뢰하면, 출금 시 이메일/SMS/Google 인증이 생략됩니다",
         "manage": "관리",
         "withdraw": "출금"
-    }
+    },
+    "success":"성공"
 }
