@@ -15,6 +15,7 @@ import { encryptData } from "@/hooks/user-encrypt";
 import { getLoginCheck } from "@/services/login";
 import { toast } from "sonner";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import {isShowArr} from "@/utils/filterLang";
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -119,17 +120,22 @@ function Mailbox() {
                         const data = {
                             type: "m",
                             email: values.email,
-                            deviceType: "web",
+                            deviceType: "Web",
                             password: values.password,
                             authCodeMail: "",
                             ...res.data
                         }
                         setLoginInfo(data)
                         setCodeModelOpen(true)
-                        if(!((res.data.openAll === 1 && res.data.isGoogleAuth === 1&&(res.data.isEmailAuth === 0 && res.data.isPhoneAuth === 0)) || 
-                        (res.data.openAll === 0 && res.data.isGoogleAuth === 1))){
-                            toast.success(res.message)
-                        }
+
+                        // if(!((res.data.openAll === 1 && res.data.isGoogleAuth === 1&&(res.data.isEmailAuth === 0 && res.data.isPhoneAuth === 0)) || 
+                        // (res.data.openAll === 0 && res.data.isGoogleAuth === 1))){
+                        //     toast.success(t('success'))
+                        // }
+                        const showArr = isShowArr(res.data.isGoogleAuth, res.data.isEmailAuth, res.data.isPhoneAuth, 'login', res.data.openAll);
+                        if (showArr && showArr.length > 0&&(showArr.includes('email')||showArr.includes('phone'))) {
+                            toast.success(t('success'))
+                        } 
                     } else if (res.code === "10044") {
                         // const data = {
                         //     ...res.data,

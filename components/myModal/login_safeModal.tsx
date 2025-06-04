@@ -57,7 +57,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
 	const getFingerprint = async () => {
 		const result = await FingerprintJS.load();
 		const visitorId = await result.get();
-		console.log(visitorId);
+		// console.log(visitorId);
 		return visitorId.visitorId;
 	};
     const handOk = async () => {
@@ -90,7 +90,7 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                     const dataEncrypt = await encryptData(dataInfo)
                     const res = await getLogin(dataEncrypt)
                     if (res.code === "0") {
-                        toast.success(res.message)
+                        toast.success(t('loginsuccess'))
                         store.setUserToken(res.data.token)
                         store.updateUserInfo({ ...res.data })
                         // 添加 useAuth 的登录方法
@@ -136,13 +136,13 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 const dataInfo = {
                     number: acountInfo.email || '',
                     // code: "",
-                    deviceType: "web"
+                    deviceType: "Web"
                 };
 
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginMailCode(dataEncrypt);
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success'))
                     startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))
@@ -154,12 +154,12 @@ function SafeModal({ open, onCancel, acountInfo }: Props) {
                 const dataInfo = {
                     number: acountInfo.phone || '',
                     code: acountInfo.countryCode?.replace("+", ""),
-                    deviceType: "web"
+                    deviceType: "Web"
                 };
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getLoginSmsCode(dataEncrypt);
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success'))
                     startCountdown(res.data);
                 } else if (res.code === "10044") {
                     toast.error(t('safeModal.codeValid'))

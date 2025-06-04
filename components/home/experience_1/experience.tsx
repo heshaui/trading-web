@@ -44,6 +44,7 @@ export default function Experience() {
     // const [email, setEmail] = useState('');
     const { isDayMode } = useThemeMode()
     const langKey = appStore.getLang() || 'en_US';
+    const token  = appStore.getToken();
     
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log('Change:', e.target.value);
@@ -128,7 +129,7 @@ export default function Experience() {
                 <div className={`${styles.experience_main_box} flex-y flex-ai-center mt-10 `}>
                     <h2>{bgUrl()?.title}</h2>
                     <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
-                        <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />
+                        {!token&&<Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />}
                         <Button className={`${styles.experience_main_btn}`}
                         onClick={()=>picClick(bgUrl()?.url||defaultPic())}
                         >{bgUrl()?.buttonText}</Button>

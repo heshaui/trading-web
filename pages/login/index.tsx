@@ -117,7 +117,7 @@ function Login() {
 				{/* <Image className="" src='https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png' alt="" width={1920} height={1080}/> */}
 			</div>
 
-			<div className="m-auto flex flex-ai-center w-full flex-col justify-center flex-1 position-relative">
+			<div className="m-auto flex flex-ai-center w-full flex-col flex-1 position-relative">
 				<div style={{ width: "368px" }}>
 					{/* <LoginStateProvider> */}
 					{/* 登录注册切换 */}

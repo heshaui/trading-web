@@ -362,22 +362,23 @@
             "loginRecord": "ログイン記録",
             "safeSetRecord": "セキュリティ設定記録",
             "securityLog": "セキュリティログ"
-        },
-        "account": {
-            "title": "ユーザー設定",
-            "userCenter": "マイページ",
-            "nickname": "ニックネーム",
-            "nicknameDesc": "個人情報にカスタムニックネームを設定",
-            "avatar": "アバター",
-            "avatarDesc": "アバターを設定してアカウントに個性を加えましょう。NFTマーケットで自分のNFTアバターを購入することもできます",
-            "birthday": "誕生日",
-            "birthdayDesc": "誕生日",
-            "modify": "変更",
-            "add": "追加",
-            "address": "引き出し先アドレス",
-            "addressDesc": "引き出し先アドレスを追加して信頼登録すると、引き出し時にメール/SMS/Google認証が不要になります",
-            "manage": "管理",
-            "withdraw": "引き出し"
         }
-    }
+    },
+    "account": {
+        "title": "ユーザー設定",
+        "userCenter": "マイページ",
+        "nickname": "ニックネーム",
+        "nicknameDesc": "個人情報にカスタムニックネームを設定",
+        "avatar": "アバター",
+        "avatarDesc": "アバターを設定してアカウントに個性を加えましょう。NFTマーケットで自分のNFTアバターを購入することもできます",
+        "birthday": "誕生日",
+        "birthdayDesc": "誕生日",
+        "modify": "変更",
+        "add": "追加",
+        "address": "引き出し先アドレス",
+        "addressDesc": "引き出し先アドレスを追加して信頼登録すると、引き出し時にメール/SMS/Google認証が不要になります",
+        "manage": "管理",
+        "withdraw": "引き出し"
+    },
+    "success": "成功"
 }

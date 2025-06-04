@@ -125,7 +125,8 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
-                toast.success(res.message)
+                // toast.success(res.message)
+                toast.success(t('success')||res.message)
                 startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -156,7 +157,7 @@ function PhoneSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck2(false)
-                toast.success(res.message)
+                toast.success(t('success')||res.message)
                 startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))

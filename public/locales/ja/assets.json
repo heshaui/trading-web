@@ -138,6 +138,7 @@
         "belowMinLimit3": "一回の最小限度{{min}}より低いです",
         "belowMax24h": "24時間の限度 {{min}} {{currency}} を超えています",
         "belowMax24h2": "24時間の限度を超えています",
+        "belowMax24h3": "24時間の限度{{max}}を超えています",
         "belowMin24h": "24時間の限度 {{min}} {{currency}} より低いです",
         "belowMin24h2": "24時間の限度より低いです",
         "belowMin24h3": "24時間の限度{{min}}より低いです",

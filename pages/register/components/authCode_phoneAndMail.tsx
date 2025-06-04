@@ -144,7 +144,7 @@ function AuthCode() {
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getRegisterMailCode(dataEncrypt);
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success')||res.message)
                     startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
@@ -159,7 +159,7 @@ function AuthCode() {
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getRegisterSmsCode(dataEncrypt);
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success')||res.message)
                     startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(res.message)

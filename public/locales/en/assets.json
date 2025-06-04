@@ -138,6 +138,7 @@
         "belowMinLimit3": "Below Single Minimum Limit {{min}}",
         "belowMax24h": "Above 24h Limit {{min}} {{currency}}",
         "belowMax24h2": "Above 24h Limit",
+        "belowMax24h3": "Above 24h Limit {{max}}",
         "belowMin24h": "Below 24h Limit {{min}} {{currency}}",
         "belowMin24h2": "Below 24h Limit",
         "belowMin24h3": "Below 24h Limit {{min}}",
