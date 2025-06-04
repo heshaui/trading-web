@@ -116,12 +116,12 @@ function ResetPassword() {
 
                 const dataInfo = {
                     number: acount.acount,
-                    deviceType: 'web'
+                    deviceType: 'Web'
                 }
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getResetMailCode(dataEncrypt)
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success'))
                     startCountdown(60);
                 } else if (res.code === "10044") {
                     toast.error(res.message)
@@ -134,12 +134,12 @@ function ResetPassword() {
                 const dataInfo = {
                     number: acount.acount,
                     code: acount.areaCode?.replace("+", ""),
-                    deviceType: 'web'
+                    deviceType: 'Web'
                 }
                 const dataEncrypt = await encryptData(dataInfo)
                 const res = await getResetSmsCode(dataEncrypt)
                 if (res.code === "0") {
-                    toast.success(res.message)
+                    toast.success(t('success'))
                     startCountdown2(60);
                 } else if (res.code === "10044") {
                     toast.error(t('codeError') || res.message)

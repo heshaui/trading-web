@@ -38,7 +38,7 @@ function add(arg1: number, arg2: number): number {
     return ((arg1 * m - arg2 * m) / m).toFixed(n);
   }
   
-  function nul(arg1: number, arg2: number): number {
+  function nul(arg1: number| string, arg2: number| string): number {
     if (arg1 === undefined || arg1 === null || arg2 === undefined || arg2 === null) {
         return 0;
     }
@@ -198,7 +198,7 @@ function add(arg1: number, arg2: number): number {
   /**
    * 去尾法保留小数位数
    * @param num 要处理的数字
-   * @param places 要保留的小数位数，默认为0
+   * @param placesNum 要保留的小数位数，默认为0
    * @returns 处理后的数字
    */
   function roundDown(num: number | string | undefined | null, placesNum: number|string = 0): number | string {

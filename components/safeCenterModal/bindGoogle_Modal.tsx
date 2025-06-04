@@ -86,7 +86,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     const dataEncrypt = await encryptData(params)
                     const res = await bindGoogle(dataEncrypt)
                     if (res.code === "0") {
-                        toast.success(res.message)
+                        toast.success(t('success')||res.message)
                         onOk()
                         handCancel()
                         setCurrent(0)
@@ -95,7 +95,7 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     }
                 } catch (error) {
                     setLoading(false)
-                    console.log(error);
+                    // console.log(error);
                 } finally {
                     setLoading(false)
                 }

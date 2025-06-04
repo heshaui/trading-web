@@ -138,6 +138,7 @@
         "belowMinLimit3": "단일 최소 한도 미만: {{min}}",
         "belowMax24h": "24시간 한도를 초과했습니다: {{min}} {{currency}}",
         "belowMax24h2": "24시간 한도 초과",
+        "belowMax24h3": "24시간 한도 초과: {{max}}",
         "belowMin24h": "24시간 최소 한도 미만: {{min}} {{currency}}",
         "belowMin24h2": "24시간 최소 한도 미만",
         "belowMin24h3": "24시간 최소 한도 미만: {{min}}",

@@ -71,7 +71,7 @@
     width: 188px !important;
     height: 40px;
     background: var(--background11) !important;
-    color: var(--text-color6) !important;
+    color: var(--text-color5) !important;
 }
 /* 输入框组件覆盖 */
 .input_box:focus,
@@ -85,7 +85,7 @@
     background-color: var(--homeground5);
     color: #fff;
     box-shadow: none;
-    color: var(--text-color6) !important;
+    color: var(--text-color5) !important;
 }
 /* 鼠标滑过 */
 .input_box:hover{
@@ -95,7 +95,7 @@
     width: 200px;
     height: 40px !important;
     min-width: 250px;
-    color: var(--text-color6) !important;
+    color: var(--text-color5) !important;
     background: var(--background7) !important;
 }
 

@@ -147,7 +147,7 @@ function LockSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getPasswordSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck2(false)
-                toast.success(res.message)
+                toast.success(t('success')||res.message)
                 startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.lockSafe.error1'))

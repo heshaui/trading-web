@@ -173,3 +173,18 @@ export const getRound = (symbolPairs: string,num:string|number,symbolName?: stri
      };    
 }
 };
+
+// 币种精度
+export const getCoinRound = (coinName: string,num:string|number) => {
+
+    try {
+        const coinList = appStore.getCoinList(); // 货币对列表
+        const coin = coinList.find((item: any) => item.coinName === coinName);
+        const scaleResult = roundDown(num,coin?.unitScale||0);
+        return scaleResult
+    } catch (error) {
+     // 发生错误时返回默认值
+     console.error('Error in getRound:', error);
+     return 0;
+    }
+}

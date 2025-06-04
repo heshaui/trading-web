@@ -65,7 +65,7 @@ function RegisterForm() {
 	return (
 		<>
 
-			<div className="flex-col" >
+			<div className="flex-col" style={{ height: "70vh" }}>
 				<div className="w-full mb-6"><p className={`${styles.title_box}`}>
 					{/* 注册 */}
 					{t('register')}

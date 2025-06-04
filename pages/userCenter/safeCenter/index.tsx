@@ -379,7 +379,7 @@ const SafeCenter: React.FC = () => {
             const dataEncrypt = await encryptData(dataInfo)
             const res = await getPhoneClose(dataEncrypt)
             if (res.code === '0') {
-                toast.success(res.message)
+                toast.success(t('success')||res.message)
                 await getSafeCenterData()
             } else {
                 toast.error(res.message)
