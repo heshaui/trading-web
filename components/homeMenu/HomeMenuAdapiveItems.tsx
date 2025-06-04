@@ -1,6 +1,5 @@
 import React from 'react';
 import { Menu } from 'antd';
-
 // import { MenuListItem, LabelComponentProps } from '@/type/types';
 import { MenuListItem } from '@/type/types';
 import styles from '@/styles/components/HomeMenu.module.css';

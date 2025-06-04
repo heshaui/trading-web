@@ -192,7 +192,7 @@ export default function HomeMenu() {
         // console.log('登录状态已更新:', isLogin);
     }, [isLogin]);
     // 获取logo
-    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
+    const { logoUrl, setLogoUrl } = useLogoImage('');
     // 账户助手数据
     const [accountAssistantData, setAccountAssistantData] = useState<any[]>([]);
     // 账户助手加载状态
@@ -600,9 +600,6 @@ export default function HomeMenu() {
                             <Image
                                 src={logoUrl}
                                 alt=""
-                                width={120}
-                                height={40}
-                                onError={() => setLogoUrl('/home_menu_logo.png')}
                                 className='pointer'
                                 onClick={() => router.push('/')}
                                 priority
@@ -666,15 +663,12 @@ export default function HomeMenu() {
                                         isLogin ? (
                                             <>
                                                 <Col>
-
                                                     <AssetsMenu />
                                                 </Col>
                                                 <Col>
-
                                                     <SpotMenu />
                                                 </Col>
                                                 <Col>
-
                                                     <UserInfoMenu />
                                                 </Col>
                                                 {iconItemsLogin}
@@ -687,9 +681,7 @@ export default function HomeMenu() {
                                                 <Col><Link href='/register' className={styles.register}><span style={{ color: '#FFF' }}>{t('header.register')}</span></Link></Col>
                                                 <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>{t('header.login')}</span></Link></Col>
                                                 <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
-
                                                 {iconItemsLogin}
-
                                                 <LangageMenu />
 
                                             </>
