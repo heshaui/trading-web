@@ -192,7 +192,7 @@ export default function HomeMenu() {
         // console.log('登录状态已更新:', isLogin);
     }, [isLogin]);
     // 获取logo
-    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
+    const { logoUrl, setLogoUrl } = useLogoImage('');
     // 账户助手数据
     const [accountAssistantData, setAccountAssistantData] = useState<any[]>([]);
     // 账户助手加载状态
@@ -600,7 +600,6 @@ export default function HomeMenu() {
                             <Image
                                 src={logoUrl}
                                 alt=""
-                                onError={() => setLogoUrl('/home_menu_logo.png')}
                                 className='pointer'
                                 onClick={() => router.push('/')}
                                 priority
