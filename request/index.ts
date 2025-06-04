@@ -56,11 +56,7 @@ export async function request<T>(
     }
 
     // 检查响应码是否为 10005
-    if (data.code === '10005' ) {
-      toast.error(data.message);
-      logout();
-    }
-    if (data.code === '10046' ) {
+    if (data.code === '10005'||data.code === '10046'||data.code === '10132') {
       toast.error(data.message);
       logout();
     }
