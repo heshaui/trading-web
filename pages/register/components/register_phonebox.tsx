@@ -203,7 +203,7 @@ function RegisterPhone() {
 					initialValues={{ areaCode: "+1" }}
 				// onValuesChange={usernameChange}
 				>
-					<div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+					<div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
 						{/* 手机号 */}
 						{t('phoneTitle')}
 					</div>
@@ -219,7 +219,7 @@ function RegisterPhone() {
 							</Form.Item>
 						</div>
 					</Form.Item>
-					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>
+					<div className={`${styles.title_color} mb-3  font-16 font-w-500`}>
 						{/* 密码 */}
 						{t('passwordTitle')}
 					</div>
@@ -274,7 +274,7 @@ function RegisterPhone() {
 						)}
 					</div>}
 
-					<div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
+					<div className={`${styles.title_color} mb-3 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
 					>
 						{/* 推荐人的邀请码(选填) */}
 						{t('registerForm.refereeTitle')}
