@@ -2,8 +2,8 @@ import React from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
-import { CSSProperties, useState, useEffect } from "react";
-import { QRCode } from "antd";
+import {  useState, useEffect } from "react";
+import { QRCode ,ConfigProvider} from "antd";
 import { useTranslation } from 'next-i18next';
 import appStore from '@/store';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
@@ -43,11 +43,17 @@ const InvitePage: React.FC = () => {
                 {t('overview.recommend.inviteFriend')}
             </div>
             <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
+            <ConfigProvider theme={{
+                token: {
+                    colorText: 'rgba(0,0,0,0.88)',
+                },
+            }}>
                 <QRCode
                     style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
-                    value={`${inviteInfo.inviteCode}`} size={68}
+                    value={`${inviteInfo.inviteLink}`} size={68}
                 // className='flex-1'
-                />
+                    />
+                    </ConfigProvider>
                 <div className={`flex-1 ${styles.invite_code_box} flex-col justify-between`}>
                     <div >
                         <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
