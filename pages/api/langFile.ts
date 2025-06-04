@@ -77,9 +77,9 @@ async function getAllLangData(req: NextApiRequest) {
   try {
     // 首先尝试从API获取语言文件列表
     const apiResponse = await fetchLangPackageFromAPI(req);
-    
+    console.log('成功从API获取语言文件列表', apiResponse.data);
     if (apiResponse && apiResponse.code === '0' && Array.isArray(apiResponse.data)) {
-      console.log('成功从API获取语言文件列表');
+      console.log('成功从API获取语言文件列表', apiResponse.data);
       
       // 创建结果对象
       const result: Record<string, Record<string, any>> = {};
@@ -134,30 +134,10 @@ async function getAllLangData(req: NextApiRequest) {
       }
     }
   } catch (error) {
-    console.warn('从API获取所有语言数据失败，将从文件加载:', error);
-    // API获取失败，继续从文件获取
+    console.error('从API获取所有语言数据失败:', error);
+    // API获取失败，返回空对象
+    return {};
   }
   
-  // 从本地文件获取数据的备用逻辑
-  const localesDir = path.join(process.cwd(), 'public/locales');
-  const languages = fs.readdirSync(localesDir);
-  console.log('languages',languages)
-  const result: Record<string, Record<string, any>> = {};
-  
-  for (const lang of languages) {
-    const langPath = path.join(localesDir, lang);
-    if (fs.statSync(langPath).isDirectory()) {
-      result[lang] = {};
-      
-      const namespaceFiles = fs.readdirSync(langPath).filter(file => file.endsWith('.json'));
-      for (const file of namespaceFiles) {
-        const namespace = file.replace('.json', '');
-        const filePath = path.join(langPath, file);
-        const content = fs.readFileSync(filePath, 'utf8');
-        result[lang][namespace] = JSON.parse(content);
-      }
-    }
-  }
-  
-  return result;
+
 } 
