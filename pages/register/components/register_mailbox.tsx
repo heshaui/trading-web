@@ -219,7 +219,7 @@ export default function RegisterMail() {
                     // onFinish={handleFinish}
                     onValuesChange={usernameChange}
                 >
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+                    <div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
                         {/* 邮箱 */}
                         {t('registerForm.emailTitle')}
                     </div>
@@ -241,7 +241,7 @@ export default function RegisterMail() {
                             className={`${styles.auto_complete_input} auto-complete-input custom-sleect`}
                         />
                     </Form.Item>
-                    <div className={`${styles.title_color} mb-5 font-16 font-w-500 mt-5`}>
+                    <div className={`${styles.title_color} mb-3 font-16 font-w-500 `}>
                         {/* 密码 */}
                         {t('registerForm.passwordTitle')}
                     </div>
@@ -294,7 +294,7 @@ export default function RegisterMail() {
                         )}
                     </div>}
                     <div
-                        className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center cursor-pointer`}
+                        className={`${styles.title_color} mb-3  font-16 font-w-500 flex-x algin-center cursor-pointer`}
 
                     >
                         {/* 推荐人的邀请码(选填) */}
