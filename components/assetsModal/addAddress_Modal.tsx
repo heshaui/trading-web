@@ -357,7 +357,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                                 allowClear
                                 placeholder={t('modal.addAddress.withdrawAddress')}
 
-                                className={`${styles.input_box} modal-input2`}
+                                className={`${styles.input_box} modal-input`}
                                 style={{ borderRadius: "8px" }}
                             // maxLength={6}
                             />
@@ -365,7 +365,7 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
 
                         <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('modal.addAddress.remark')}</div>
                         <Form.Item name="addressName" >
-                            <Input placeholder={t('modal.addAddress.remarkPlaceholder')} allowClear className={`${styles.input_box} modal-input2`}
+                            <Input placeholder={t('modal.addAddress.remarkPlaceholder')} allowClear className={`${styles.input_box} modal-input`}
 
                             // maxLength={6}
                             />

@@ -358,7 +358,14 @@ const AddAdressPage = () => {
                             activeBorderColor: "var(--border-color4)",
                             optionActiveBg: "transparent",
                             selectorBg: "transparent", //选框背景色
-                        }
+                        },
+                        Input: {
+							controlHeightLG: 50,
+							activeBorderColor: 'var(--border-color4)',
+							hoverBorderColor: 'var(--border-color4)',
+							activeBg: 'transparent',
+							hoverBg: 'transparent',
+						},
                     },
                 }}>
                 <div className={`${styles.table_box} w-full `}>
@@ -389,7 +396,7 @@ const AddAdressPage = () => {
                                 onChange={coinChange}
                             // onSearch={onSearch}
                             />
-                            <Input className={`${styles.input_box} modal-input2 ml-5`}
+                            <Input className={`${styles.input_box} modal-input ml-5`}
                                 // maxLength={25}
                                 placeholder={t('assetsAccount.addAddress.search')}
                                 allowClear
@@ -412,7 +419,7 @@ const AddAdressPage = () => {
                             columns={columns}
                             dataSource={tableData}
                             size="large"
-                            scroll={{ x: "max-content", y: 500 }}
+                            scroll={{ x: "max-content" }}
                             className={` table-box`}
                             // pagination={{
                             //     position: ["bottomRight"],

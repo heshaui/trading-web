@@ -844,11 +844,11 @@ const WithdrawMoneyPage = observer(() => {
                                                         <button
                                                             type='button'
                                                             key={item.value}
-                                                            className={`${styles.selsect_btn} mr-2 flex-x align-center justify-between`}
+                                                            className={`${styles.selsect_btn} cancel_btn5 mr-2 flex-x align-center justify-between`}
                                                             // cancel_btn5
-                                                            style={{
-                                                                backgroundColor: '#F5F5F5'
-                                                            }}
+                                                            // style={{
+                                                            //     backgroundColor: '#F5F5F5'
+                                                            // }}
                                                             onClick={() => setFormCoin(item.value)}
                                                         >
                                                             <Image

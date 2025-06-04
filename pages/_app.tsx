@@ -39,34 +39,6 @@ function App({ Component, pageProps }: AppProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(true); // 添加认证检查状态
 
-  // // 检查路径是否匹配公开路径
-  // const isPublicPath = (path: string): boolean => {
-  //   // 精确匹配
-  //   if (publicPaths.includes(path)) return true;
-
-  //   // 前缀匹配（例如 /news/ 开头的所有路径）
-  //   for (const publicPath of publicPaths) {
-  //     if (publicPath.endsWith('/*') && path.startsWith(publicPath.slice(0, -2))) {
-  //       return true;
-  //     }
-  //   }
-
-  //   return false;
-  // };
-
-  // 动态主题
-  // const [theme, setTheme] = useState<ThemeConfig>(defaultTheme);
-  // // 获取动态主题
-  // useEffect(() => {
-  //   // 在客户端加载时获取动态主题
-  //   const fetchTheme = async () => {
-  //     const dynamicTheme = await getThemeConfig();
-  //     setTheme(dynamicTheme);
-  //   };
-
-  //   fetchTheme();
-  // }, []);
-
   const [isDarkMode, setIsDarkMode] = useState(false);
   // const { t } = useTranslation(['common', 'home_menu']);
   const { t, i18n } = useTranslation('common');
@@ -96,50 +68,6 @@ function App({ Component, pageProps }: AppProps) {
     isAuthChecking,
     setIsAuthChecking
   });
-  // useEffect(() => {
-  //   // 初始检查
-  //   const checkLoginStatus = () => {
-  //     const token = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
-  //     setIsLoggedIn(!!token);
-  //     setIsAuthChecking(false); // 认证检查完成
-  //   };
-
-  //   checkLoginStatus();
-
-  //   // 添加自定义事件监听器
-  //   const handleLoginChange = () => {
-  //     checkLoginStatus();
-  //   };
-
-  //   window.addEventListener('loginStatusChanged', handleLoginChange);
-
-  //   return () => {
-  //     window.removeEventListener('loginStatusChanged', handleLoginChange);
-  //   };
-  // }, []);
-  // // 模拟路由守卫逻辑
-  // useEffect(() => {
-  //   // 等待认证状态检查完成
-  //   if (isAuthChecking) return;
-
-  //   const currentPath = router.pathname;
-  //   const hasToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
-
-  //   // 如果已登录且在登录页，重定向到首页
-  //   if (hasToken && currentPath === '/login') {
-  //       router.push('/');
-  //       return;
-  //   }
-
-  //   // 如果未登录且访问受保护页面，重定向到登录页
-  //   if (!hasToken && !isPublicPath(currentPath)) {
-  //       const returnUrl = encodeURIComponent(router.asPath);
-  //       router.push({
-  //           pathname: '/login',
-  //           query: { returnUrl }
-  //       });
-  //   }
-  // }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {

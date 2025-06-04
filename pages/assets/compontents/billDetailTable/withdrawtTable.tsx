@@ -13,18 +13,24 @@ import { NoData } from '@/components/noData'
 import { getCoinRate } from '@/utils/getUseRate';
 import { roundDown } from '@/utils/math'
 import appStore from '@/store';
-import { getWithdrawDepositList } from '@/services/assets'
-import {WithdrawDataType} from "@/type/assets/billDetails/table"
+import { WithdrawDataType } from "@/type/assets/billDetails/table"
+import TableCancelModal from '../modal/table_cancel';
+import { encryptData } from '@/hooks/user-encrypt'
+import {  getCancelWithdraw } from '@/services/assets'
+
+
 type PropsType = {
   tableData: WithdrawDataType[],
-  loading:boolean
+  loading: boolean
+  onOk: () => Promise<void>
 }
-export default function CashOutTable({ tableData,loading }: PropsType) {
+export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
   const { t } = useTranslation(['assets']);
   // const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
-  // const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
+ const [orderId, setOrderId] = useState<string>('');
+
   const coninList = appStore.getCoinList()
 
   const pageParam = useRef({
@@ -116,35 +122,30 @@ export default function CashOutTable({ tableData,loading }: PropsType) {
         return <span >{getStatus(_status) || '--'}</span>;
       },
     },
-    // {
-    //   title: t('assetsAccount.operation'), //"操作",
-    //   key: "action",
-    //   dataIndex: "action",
-    //   width: 128,
-    //   align: "center",
-    //   render: (_status) => {
-    //     // return <>
-    //     //   <button className={`${styles.theme_color} mr-3 font-12 font-w-500`}>
-    //     //     提现
-    //     //     {t('assetsAccount.button.withdraw')}
-    //     //   </button>
-    //     //   <button className={`${styles.tip_color2} mr-3 font-12 font-w-500`}>
-    //     //     充值
-    //     //     {t('assetsAccount.button.deposit')}
-    //     //   </button>
-    //     //   <button className={`${styles.theme_color} font-12 font-w-500`}>
-    //     //     交易
-    //     //     {t('assetsAccount.button.trade')}
-    //     //   </button>
-    //     // </>
-    //     return '--'
-    //   },
-    // },
+    {
+      title: t('assetsAccount.operation'), //"操作",
+      key: "operation",
+      dataIndex: "operation",
+      width: 128,
+      align: "center",
+      render: (_status, record) => {
+        return < >{record.status == '1' ?
+          <button className={`${styles.theme_color}`}
+            onClick={() => {
+              setOpen(true)
+              setOrderId(record.orderId)
+            }}
+          >{t('assetsAccount.button.cancel')}</button>
+          : '--'}
+        </>;
+      },
+    },
 
 
   ];
   const getStatus = (status: number) => {
-    switch (status) {
+    const statusText = Number(status)
+    switch (statusText) {
       case 0:
         return t('withdrawTable.create') //'创建';
       case 1:
@@ -156,42 +157,33 @@ export default function CashOutTable({ tableData,loading }: PropsType) {
       case 4:
         return t('withdrawTable.canceled') //'用户撤销'
       default:
-        return status||'--'
+        return statusText || '--'
     }
   }
-  // const pageChange = async (page: number, pageSize: number) => {
-  //   pageParam.current.page = page;
-  //   pageParam.current.pageSize = pageSize;
-  // }
-  // const getRecordData = async () => {
-  //   setLoading(true)
-  //   try {
-  //     const res = await getWithdrawDepositList({
-  //       pageNo: pageParam.current.page,
-  //       pageSize: pageParam.current.pageSize,
-  //       coinId: pageParam.current.coinId
-  //     });
-  //     if (res.code === '0') {
-  //       setTableData(res.data.list)
-  //       pageParam.current.total = res.data.count
-  //     } else {
-  //       toast.error(res.message)
-  //     }
-  //   } catch (error) {
-  //     toast.error(String(error))
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-  // const searchCurrencyClick = () => {
-  //   const coinId = search ? coninList.find(item => item.coinName.toLowerCase().includes(search.toLowerCase()))?.coinId : null
-  //   if (!coinId) return toast.error(t('assetsAccount.noFind'))
-  //   pageParam.current.coinId = coinId
-  //   getRecordData()
-  // }
-  // useEffect(() => {
-  //   getRecordData()
-  // }, [])
+
+     // 撤销提现
+      const cancelWithdraw = async () => {
+          const param = {
+              withdrawalId: orderId
+          }
+          const encrypt = await encryptData(param)
+          const res = await getCancelWithdraw(encrypt)
+          try {
+              if (res.code === '0') {
+                  toast.success(res.message || 'success')
+                  setOpen(false)
+              } else {
+                  toast.error(res.message || 'error')
+              }
+          } catch (error) {
+              toast.error(String(error) || 'error')
+          } finally {
+              await onOk()
+              setOpen(false)
+          }
+  
+      }
+
   return (<>
 
     {/* 邀请奖励 */}
@@ -216,7 +208,7 @@ export default function CashOutTable({ tableData,loading }: PropsType) {
           columns={columns}
           dataSource={tableData}
           size="large"
-          scroll={{ x: "max-content", y: 300 }}
+          scroll={{ x: "max-content" }}
           className={` table-box`}
           // pagination={{
           //   position: ["bottomRight"],
@@ -232,6 +224,9 @@ export default function CashOutTable({ tableData,loading }: PropsType) {
         />
 
       </div>
+      <TableCancelModal open={open}
+        onCancel={() => setOpen(false)}
+        onOk={() => cancelWithdraw()} />
     </div>
   </>
   );

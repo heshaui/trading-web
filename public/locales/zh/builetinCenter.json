@@ -1,8 +1,7 @@
 {
     "bulletinCenter": {
         "title": "公告中心",
-        "announcement":"公告",
-
+        "announcement": "公告",
         "menu": {
             "all": "公告",
             "latest": "最新动态",
@@ -14,7 +13,11 @@
             "suspension": "充提暂停/恢复",
             "announcement": "公告",
             "notification": "通知",
-            "article": "文章"
+            "article": "文章",
+            "notice": "公告",
+            "accountAssistant": "账户助手",
+            "assets": "资产",
+            "transaction": "交易"
         },
         "message": {
             "unreadCount": "公告",

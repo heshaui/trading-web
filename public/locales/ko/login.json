@@ -63,7 +63,7 @@
     "passwordRule1": "8~100자",
     "passwordRule2": "영문자와 숫자를 포함해야 합니다",
     "passwordnum": "숫자를 최소 1자 포함해야 합니다",
-    "passwordletter": "문자를 최소 1자 포함해야 합니다",
+    "passwordletter": "대문자 1개 이상을 포함해야 합니다",
     "agreeText": "이용약관 및 개인정보처리방침에 동의합니다",
     "goLogin": "로그인하기",
     "repeat": "이미 존재하는 계정입니다",

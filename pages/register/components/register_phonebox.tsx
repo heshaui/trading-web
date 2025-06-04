@@ -13,12 +13,9 @@ import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
 import { useTranslation } from 'next-i18next';
 const fromStyle: CSSProperties = {
-	borderRadius: "5px",
-	// boxShadow: "0px 0px 6px 0px rgba(235, 236, 241, 1)",
-	// padding: "25px",
-	width: "25vw",
-	maxWidth: "400px",
-	minWidth: "350px",
+    borderRadius: "5px",
+    width: "100%",
+    minWidth: "350px",
 };
 
 
@@ -287,7 +284,9 @@ function RegisterPhone() {
 					</div>
 					{isOpen && (
 						<Form.Item name="referee" rules={[{ required: false }]}>
-							<Input type="referee" placeholder="不区分大小写" allowClear={true}
+							<Input type="referee"
+								placeholder={t('registerForm.refereePlaceholder')}
+								allowClear={true}
 								size="large" className={`${styles.mail_input} modal-input`}
 								maxLength={8}
 							/>

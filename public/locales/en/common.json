@@ -40,8 +40,8 @@
   "check3": "Ensure your phone/email is",
   "check4": "Check if the verification code is in the spam/junk folder",
   "check5": "The verification code may be delayed. Please try again after 10 minutes.",
-  "nodata": "No data available",
-  "noaddress": "No address available",
+  "nodata": "No data",
+  "noaddress": "No address",
   "safeVerification": "Security Verification",
   "noLogin": {
     "tip1": "Start Trading",
@@ -56,6 +56,7 @@
     "nicknameRequired": "Please enter a nickname",
     "modifyNicknameOnce": "Nickname can be modified",
     "modifyNicknameOnceTip": "Can only be modified once within 24 hours.",
+    "modifyNicknameOnceTip1": "Can only be modified once within {{time}} days.",
     "modifyNicknameOnceTip2": "Nickname can only contain numbers and letters, and must not exceed 25 characters.",
     "modifyNicknameOnceTip3": "Do not use your real name or contact information to protect your privacy.",
     "modifyNicknameOnceTip4": "Nickname must comply with local laws and regulations. IMBIT reserves the right to modify or impose penalties such as account suspension for violations.",

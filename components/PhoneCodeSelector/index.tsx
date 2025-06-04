@@ -3,6 +3,8 @@ import { AutoComplete, Flex, Input, Form, ConfigProvider, Select } from 'antd';
 import { Iconify } from "@/components/icon/index";
 import { getCountryCode } from "@/services/open";
 import { useTranslation } from 'next-i18next';
+import styles from './styles/phoneCode.module.css';
+import { NoData } from '../noData';
 
 
 interface OptionItem {
@@ -145,6 +147,7 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                                 <Input
                                     allowClear
                                     placeholder={t('search')}
+                                    className={`${styles.mail_input} modal-input2`}
                                     value={searchValue}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     prefix={<Iconify icon="eva:search-fill" size={16} />}
@@ -157,6 +160,8 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
                     )}
                     listHeight={320}
                     virtual={true}
+                    notFoundContent={<NoData/>}
+
                 />
             </Form.Item>
         </ConfigProvider>

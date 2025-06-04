@@ -7,6 +7,7 @@ export interface WithdrawDataType {
     address: string,
     txHash: string,
     fee: string,
+    orderId: string
 }
 export interface RebateDataType {
     timestamp: number,
@@ -17,6 +18,7 @@ export interface RebateDataType {
     address: string,
     txHash: string,
     fee: string,
+    orderId: string
 }
 export interface RechargeDataType {
     timestamp: number,
@@ -27,6 +29,7 @@ export interface RechargeDataType {
     address: string,
     txHash: string,
     fee: string,
+    orderId: string
 }
 export interface coinSelectType {
     coinId: string,

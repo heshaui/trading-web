@@ -3,12 +3,12 @@
   width: 30%;
   margin: 0 auto;
   height:640px;
-  border-left: 3px solid #e5e7eb;
+  border-left: 3px solid var(--background16);
 }
 
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--background16);
 }
 
 .tab {
@@ -20,9 +20,9 @@
 }
 
 .activeTab {
-  color: #000;
+  color: var(--text-color5);
   font-weight: 600;
-  border-bottom: 3px solid #000;
+  border-bottom: 3px solid var(--text-color5);
 }
 
 .toolbar {
@@ -30,7 +30,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--background16);
 }
 
 .colorModes {
@@ -81,7 +81,7 @@
   color: #999;
   font-size: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--background16);
 }
 
 .sortIcon {

@@ -2,7 +2,6 @@
     "bulletinCenter": {
         "title": "공지",
         "announcement": "공지사항",
-
         "menu": {
             "all": "전체 공지",
             "latest": "최신 소식",
@@ -13,10 +12,14 @@
             "suspension": "입출금 중단/재개",
             "announcement": "공지사항",
             "notification": "알림",
-            "article": "기사"
+            "article": "기사",
+            "notice": "공지",
+            "accountAssistant": "계정 도우미",
+            "assets": "자산",
+            "transaction": "거래"
         },
         "message": {
-            "unreadCount": "공지사항 ({count})",
+            "unreadCount": "공지사항",
             "title": "최신 소식 공지사항",
             "noData": "기록 없음",
             "loading": "불러오는 중..."

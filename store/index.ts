@@ -53,6 +53,7 @@ class AppStore {
     languageList: any[] = [];
     kvConfig: Record<string, any> = {};
     inviteInfo: inviteInfoType = {} as inviteInfoType;
+    banlanceShow: boolean = true;
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -68,6 +69,7 @@ class AppStore {
             this.initLangFromStorage(); // 初始化语言
             this.initCoinList(); //加载币种数据
             this.initKvConfig();
+            this.initBanlanceShow(); //初始化资产显示状态
         }
     }
 
@@ -658,6 +660,24 @@ class AppStore {
             runInAction(() => {
                 this.isLoadingCoinData = false;
             });
+        }
+    }
+
+    // 资产显示状态
+    getBanlanceShow() {
+        return this.banlanceShow;
+    }
+    setBanlanceShow(banlanceShow: boolean) {
+        this.banlanceShow = banlanceShow;
+        if (isBrowser()) {
+            sessionStorage.setItem('banlanceShow', JSON.stringify(banlanceShow));
+        }
+    }
+    initBanlanceShow() {
+        if (!isBrowser()) return;
+        const banlanceShow = sessionStorage.getItem('banlanceShow')|| 'true';
+        if (banlanceShow) {
+            this.banlanceShow = JSON.parse(banlanceShow);
         }
     }
 }

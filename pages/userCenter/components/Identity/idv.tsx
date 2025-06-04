@@ -237,7 +237,7 @@ function ResetPassword({ onNext }: IDVProps) {
                         </div>
                         <Form.Item name="cardCode" >
                             <Input
-                                className={`custom-input ${styles.input_box} modal-input2`}
+                                className={`${styles.input_box} modal-input`}
                                 placeholder={t('identity.idv.idNumber.placeholder')}
                                 allowClear
                                 maxLength={50}
@@ -262,7 +262,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                     name="surname"
                                 >
                                     <Input
-                                        className={`custom-input ${styles.input_box} modal-input2`}
+                                        className={`${styles.input_box}  modal-input`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
                                         maxLength={100}
@@ -278,7 +278,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                     name="firstName"
                                 >
                                     <Input
-                                        className={`custom-input ${styles.input_box} modal-input2`}
+                                        className={`${styles.input_box}  modal-input`}
                                         placeholder={t('identity.idv.name.placeholder')}
                                         allowClear
                                         maxLength={100}
@@ -287,7 +287,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                 </Form.Item>
                             </div>
                         </div>
-                        <div className="mb-2 font-16 font-w-400">
+                        <div className={`mb-2 font-16 font-w-400 ${styles.title_color}`}>
                             {/* 出生日期 */}
                             {t('identity.idv.birthday.title')}
                         </div>
@@ -302,7 +302,7 @@ function ResetPassword({ onNext }: IDVProps) {
                                 }
                             /> */}
                             <DatePicker
-                                className={`custom-input ${styles.input_box} modal-input2`}
+                                className={`${styles.input_box} modal-input`}
                                 style={{ width: '100%', height: '50px' }}
                                 placeholder={t('identity.idv.birthday.placeholder')}
                                 allowClear

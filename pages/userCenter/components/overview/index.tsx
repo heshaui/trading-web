@@ -24,6 +24,9 @@ import { getUserBalanceByDay } from '@/services/assets'
 import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { LoginInfoType, LoginLogListType, carouselImageContentsType, CarouselPicType } from '@/type/userCenter/overview'
 import AssetsPage from "./assets"
+import InvitePage from "./invite"
+import SafeLogPage from "./safeLog"
+import EquipmentPage from "./equipment"
 
 const identityStyle: CSSProperties = {
     position: 'relative',
@@ -42,7 +45,6 @@ const OverviewPage: React.FC = () => {
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
     const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
-    const [codeValue, setcodeValue] = useState(`${BASE_URL}?inviteCode=${loginInfo?.inviteCode || '--'}`) //, setcodeValue
     const [useInvite, setUseInvite] = useState(false)
 
     const { isDayMode } = useThemeMode(); // 使用 hook
@@ -53,7 +55,6 @@ const OverviewPage: React.FC = () => {
             if (res.code === '0') {
                 setLoginInfo(res.data);
                 setLoadingSkeleton(false)
-                setcodeValue(`${BASE_URL}/register?inviteCode=${res.data?.inviteCode || '--'}`)
                 const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
                 localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, res.data)))
             }
@@ -61,35 +62,6 @@ const OverviewPage: React.FC = () => {
             toast.error(String(error));
         }
 
-    }
-    const getLoginLogListData = async () => {
-        try {
-            const params = {
-                pageNo: 1,
-                pageSize: 5,
-            }
-            const res = await getUserLoginLogList(params);
-            if (res.code === '0') {
-                setLoginLogList(res.data.list)
-            }
-
-        } catch (error) {
-            toast.error(String(error));
-        }
-    }
-    const getUserDeviceNoListData = async () => {
-        try {
-            const params = {
-                pageNo: 1,
-                pageSize: 5,
-            }
-            const res = await getUserDeviceNoList(params);
-            if (res.code === '0') {
-                setUserDeviceNoList(res.data.list)
-            }
-        } catch (error) {
-            toast.error(String(error));
-        }
     }
     const statusText = (status: number) => {
         switch (status) {
@@ -158,8 +130,8 @@ const OverviewPage: React.FC = () => {
     }
     useEffect(() => {
         getLoginInfoData()
-        getLoginLogListData()
-        getUserDeviceNoListData()
+        // getLoginLogListData()
+        // getUserDeviceNoListData()
         getCarouselPic()
         getUseBankKv()
     }, [i18n.language]);
@@ -346,21 +318,6 @@ const OverviewPage: React.FC = () => {
                             {statusText(loginInfo?.realnessStatus)}
                         </p>
                         {loginInfo?.realnessStatus === 0 ? <div className={`font-14 mt-3 ${styles.error_icon}`}>
-                            {/* 请重新提交认证，完成认证后可以享受
-                            交易所完整的服务 */}
-                            {/* {t('overview.identityAuth.reVerify')} */}
-                            {/* {loginInfo?.remark && (
-                                <div className="mb-2">
-                                    {loginInfo.remark.includes('&')
-                                        ? loginInfo.remark.split('&').map((item, index) => (
-                                            <div key={item} className={`${index > 0 ? 'mt-1' : ''}`}>
-                                                {item.trim()}
-                                            </div>
-                                        ))
-                                        : loginInfo.remark
-                                    }
-                                </div>
-                            )} */}
                             {!loginInfo?.remark ? <div className='flex align-center'>-- </div> :
                                 loginInfo.remark.includes('&') ? <span >
                                     {loginInfo.remark.split('&')[0]}
@@ -416,163 +373,14 @@ const OverviewPage: React.FC = () => {
                         <button className={`btn-color font-14 font-w-500 mt-10 ${styles.btn}`}
                             onClick={() => router.push('/userCenter/safeCenter')}
                         >{loginInfo?.securityIntensity === 3 ? t('overview.securityAuth.view') : t('overview.securityAuth.bind')}</button>
-                        {/* <Image
-                                src="/images/userCenter/overview/icon_safe.png"
-                                width={58}
-                                height={58}
-                                alt="identity icon"
-                                style={{
-                                    position: 'absolute',
-                                    right: '20px',
-                                    bottom: '24px'
-                                }}
-                            /> */}
                     </div>
                 </div>
                 {/* 资产 */}
                 <AssetsPage />
-                {/* <div className={`${styles.card_bgc} ${styles.assets_box} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >
-                        {t('overview.assets.title')}
-                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20} />
-                    </div>
-                    <div className={`flex-row justify-between align-center`}>
-                        <div className={`${styles.assets_main}`} >
-                            <div className={`${styles.tip_color} mt-2`} >
-                                {t('overview.assets.totalAssets')}
-                                <button type='button' className='ml-1' onClick={() => router.push(ROUTER_KEY_ASSETS.ACCOUNT)}>
-                                    <Iconify icon="clarity:eye-show-line" size={20}
-
-                                    />
-                                </button>
-                            </div>
-                            <p className='font-32 font-w-700'>0.00 USDT</p>
-                            <p className={`${styles.tip_color} font-14`}>≈￥0.00</p>
-                            <div className='font-14 mt-4'>
-                                {t('overview.assets.todayProfitLoss')}
-                                <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
-                                <span className={`${styles.success_icon} font-12`}>+￥13.00</span>
-                            </div>
-                            <div className='mt-5'>
-                                <button type='button' className={`btn-color font-14 font-w-500  ${styles.btn} mr-4`}
-                                    onClick={() => router.push(ROUTER_KEY_ASSETS.TOP_UP)}
-                                >
-                                    {t('overview.assets.deposit')}
-                                </button>
-                                <button type='button' className={`btn-disable font-14 font-w-500  ${styles.btn}`}
-                                    onClick={() => router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY)}
-                                >
-                                    {t('overview.assets.withdraw')}
-                                </button>
-                            </div>
-                        </div>
-                        <div className={`${styles.assets_chart}`} >
-                            <AssetsAreaChart />
-                        </div>
-                    </div>
-                </div> */}
                 {/* 最近登录 */}
-                <div className={`${styles.card_bgc} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >
-                        {/* 最近登录 */}
-                        {t('overview.recentLogin.title')}
-                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
-                            onClick={() => router.push('/userCenter/safeCenter/safe_log')}
-                        />
-                    </div>
-                    <div className={`flex-1`} >
-                        <ul>
-                            {loginLogList && loginLogList.map((item: any) => (
-                                <li className='flex-row justify-between mt-5' key={item.id}>
-                                    <p className='font-14 font-w-500 flex-col'>
-                                        <span className='font-w-500'>
-                                            {/* WEB */}
-                                            {/* {`${item.deviceNo || '--'}(${item.platformType || '--'})`} */}
-                                            {`${item.deviceNo || '--'}`}
-                                        </span>
-                                        <span className={`${styles.tip_color} font-12 font-w-400`}>
-                                            {/* 中国香港 */}
-                                            {item.address || '--'}
-                                        </span>
-                                    </p>
-                                    <p className='font-14 font-w-500 flex-col align-end'>
-                                        <span className='font-w-500'>
-                                            {/* 2024-01-01 12:00:00 */}
-                                            {item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '--'}
-                                        </span>
-                                        <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
-                                            {/* 5.180.44.127 */}
-                                            {item.ip || '--'}
-                                        </span>
-                                    </p>
-                                </li>
-                                // <li className='flex-row justify-between mt-5'>
-                                //     <p className='font-14 font-w-500 flex-col '>
-                                //         <span className='font-w-500'> ANDROID</span>
-                                //         <span className={`${styles.tip_color} font-12 font-w-400`}>中国香港</span>
-                                //     </p>
-                                //     <p className='font-14 font-w-500 flex-col align-end'>
-                                //         <span className='font-w-500'>2024-10-08 09:53:42</span>
-                                //         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
-                                //     </p>
-                                // </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
+                <SafeLogPage />
                 {/* 授权设备 */}
-                <div className={`${styles.card_bgc} mt-6`}>
-                    <div className={`flex-row justify-between font-18 font-w-500`} >
-                        {/* 授权设备 */}
-                        {t('overview.authorizedDevices.title')}
-                        <Iconify icon="mingcute:arrow-right-line" className='cursor-pointer' size={20}
-                            onClick={() => router.push('/userCenter/safeCenter/equipment')}
-                        />
-                    </div>
-                    <div className={`flex-1`} >
-                        <ul>
-                            {userDeviceNoList && userDeviceNoList.map((item: any) => (
-                                <li className='flex-row justify-between mt-5' key={item.id}>
-                                    <p className='font-14 font-w-500 flex-col'>
-                                        <span className='font-w-500'>
-                                            {/* Chrome 12 125.0.0.0(Mac OS X) */}
-                                            {/* {`${item.deviceNo || '--'}(${item.platformType || '--'})`} */}
-                                            {`${item.deviceNo || '--'}`}
-                                        </span>
-                                        <span className={`${styles.tip_color} font-12 font-w-400`}>
-                                            {/* 2020-02-20 12:12:01 中国香港 */}
-                                            {/* {item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '--'} */}
-                                            {item.createTime ? `${dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss')} ${item.address || '--'}` : '--'}
-                                        </span>
-                                    </p>
-                                    <p className='font-14 font-w-500 flex-col align-end'>
-                                        <span className={`font-w-500 ${styles.warning_color} pointer`}
-                                            onClick={() => router.push(`/userCenter/safeCenter/equipment?deviceId=${item.id}`)}
-                                        >
-                                            {/* 管理 */}
-                                            {t('overview.authorizedDevices.manage')}
-                                        </span>
-                                        <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>
-                                            {/* 223.168.123.111 */}
-                                            {item.ip || '--'}
-                                        </span>
-                                    </p>
-                                </li>
-                                // <li className='flex-row justify-between mt-5'>
-                                //     <p className='font-14 font-w-500 flex-col '>
-                                //         <span className='font-w-500'> ANDROID</span>
-                                //         <span className={`${styles.tip_color} font-12 font-w-400`}>Xiaomi Mi 10</span>
-                                //     </p>
-                                //     <p className='font-14 font-w-500 flex-col align-end'>
-                                //         <span className={`font-w-500 ${styles.warning_color} pointer`}>管理</span>
-                                //         <span className={`${styles.tip_color} font-12 font-w-400 mt-0_5`}>2001:0DB8:130F:0000:0000:09C0:876A:130B</span>
-                                //     </p>
-                                // </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-
+                <EquipmentPage />
             </div>
             {/* content-aside */}
             <div className={`${styles.aside_box} ml-6 mt-6`}>
@@ -602,50 +410,11 @@ const OverviewPage: React.FC = () => {
                     </div>}
                 </div>
 
-                {useInvite &&
-                    <div className={`${styles.card_bgc}  mt-6 ${styles.aside_invite2} flex-y flex-1`}>
-                        <div className={`flex-row justify-between font-18 font-w-500 mb-3 ${styles.box_padding}`} >
-
-                            {t('overview.recommend.inviteFriend')}
-                        </div>
-                        <div className={`${styles.qr_code} flex-x align-center  flex-1`}>
-                            <QRCode
-                                style={{ backgroundColor: "#fff", padding: "6px", minWidth: "68px" }}
-                                value={`${codeValue}`} size={68}
-                            // className='flex-1'
-                            />
-                            <div className={`flex-1 ${styles.invite_code_box} flex-col justify-between`}>
-                                <div >
-                                    <p className='font-14 font-w-400'>{t('overview.recommend.inviteCode')}</p>
-                                    <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
-                                        <span className={`${styles.tip_color}`}>{loginInfo?.inviteCode || '--'}</span>
-                                        <Iconify icon="bx:copy" className='cursor-pointer' size={20}
-                                            onClick={() => copyFn(loginInfo?.inviteCode || '')}
-                                        />
-                                    </div>
-                                </div>
-                                <div  >
-                                    <p className='font-14 font-w-400' >{t('overview.recommend.inviteLink')}</p>
-                                    <div className={`${styles.invite_code} font-12 flex align-center justify-between`}>
-                                        <span className={`${styles.tip_color} ${styles.line1} line-2 mr-1`}>{`${codeValue}`}</span>
-                                        <Iconify icon="bx:copy" className='cursor-pointer' size={20}
-                                            onClick={() => copyFn(`${codeValue}`)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {useInvite && <InvitePage />
                 }
             </div>
         </div>
     </div>);
 };
-// export const getStaticProps: GetStaticProps = async ({ locale }) => {
-// 	return {
-// 		props: {
-// 			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
-// 		},
-// 	};
-// };
+
 export default OverviewPage;
