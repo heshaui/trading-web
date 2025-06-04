@@ -597,13 +597,15 @@ export default function HomeMenu() {
                 <div className={styles.container}>
                     <div className={styles.logo}>
                         {typeof window !== 'undefined' && (
-                            <Image
-                                src={logoUrl}
-                                alt=""
-                                className='pointer'
-                                onClick={() => router.push('/')}
+                            logoUrl && (
+                                <Image
+                                    src={logoUrl}
+                                    alt=""
+                                    className='pointer'
+                                    onClick={() => router.push('/')}
                                 priority
                             />
+                            )
                         )}
                     </div>
                     <div className={styles.menuContainer}>
