@@ -390,7 +390,8 @@ const OverviewPage: React.FC = () => {
                         {t('overview.recommend.title')}
                     </div>
                     {(carouselPic.length === 0) ? <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
-                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}>
+                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}
+                        onClick={() => {router.push('/userCenter/invite')}}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
 
                             {t('overview.recommend.invite')}

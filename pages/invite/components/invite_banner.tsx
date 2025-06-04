@@ -39,7 +39,6 @@ const InviteBanner = ({ onReturn, inviteInfo = { inviteCode: '', inviteLink: '' 
     const { copyFn } = useCopyToClipboard();
     const [form] = Form.useForm();
     const [qrcodeOpen, setQRcodeOpen] = useState(false);
-    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
 
     // const [inviteInfo, setInviteInfo] = useState({} as InviteInfoType)
     // let userInfo = {}
@@ -187,7 +186,7 @@ const InviteBanner = ({ onReturn, inviteInfo = { inviteCode: '', inviteLink: '' 
         </div>
         <InviteQRcodeModal 
             open={qrcodeOpen} 
-            qrcode={`${BASE_URL}/register?inviteCode=${inviteInfo?.inviteCode || ''}`} 
+            qrcode={inviteInfo.inviteLink} 
             onCancel={() => setQRcodeOpen(false)} 
             onOk={() => setQRcodeOpen(false)} 
         />

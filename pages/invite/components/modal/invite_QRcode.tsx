@@ -84,7 +84,7 @@ function QRCodeModal({ open,qrcode, onCancel ,onOk}: Props) {
                     }
                 },
                 token: {
-                    // colorBgContainerDisabled: '#fff',
+                    colorText: 'rgba(0,0,0,0.88)',
                 }
             }}
         >
