@@ -6,24 +6,17 @@ import '@/styles/bulletinCenterPublic.css';
 import type { AppProps } from "next/app";
 import { ConfigProvider } from 'antd';
 import { useState, useEffect } from 'react';
-import { getThemeVariables } from '@/hooks/themes';
 import { appWithTranslation, useTranslation } from 'next-i18next';
 import HomeMenu from '@/components/homeMenu/HomeMenu';
 import Footer from '@/components/footer/Footer';
 import { useRouter } from 'next/router';
-// import {  Toaster} from "sonner";
 import Toaster from "@/components/toast";
-// import theme from '@/theme/themeConfig';
-import type { ThemeConfig } from 'antd';
-// import defaultTheme, { getThemeConfig } from '@/theme/themeConfig';
-import defaultTheme from '@/theme/themeConfig';
 import { useThemeConfig } from '@/hooks/useKv';
-import store from '@/store';
 import { NavigationProvider } from '@/context/NavigationContext';
 import { AuthProvider } from '@/context/AuthContext';
-import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { useAuthGuard } from '@/middleware';
 import { initTheme } from '@/hooks/dayModeChange';
+import { useFavicon } from '@/hooks/useFavicon';
 // 定义公开路径（不需要登录即可访问的页面）
 // const publicPaths = [
 //   '/',
@@ -61,6 +54,9 @@ function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     initTheme()
   }, []);
+  
+  // 使用自定义钩子设置浏览器图标
+  useFavicon();
   // 监听登录状态变化
   useAuthGuard({
     isLoggedIn,

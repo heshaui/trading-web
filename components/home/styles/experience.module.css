@@ -26,9 +26,18 @@
     margin-top: 6%;
     text-align: left;
 }
+.assistant_main_title1 {
+    font-size: 40px;
+    font-weight: 500;
+    color: var(--hometext3);
+}
 
+.assistant_main_title2 {
+    color: var(--hometext2);
+    margin-top: 1.6vh;
+}
 .experience_main_email {
-    margin-top: 147px;
+    margin-top: 84px;
 }
 .experience_main_pic{
     max-width:600px ;
