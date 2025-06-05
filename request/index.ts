@@ -56,7 +56,13 @@ export async function request<T>(
     }
 
     // 检查响应码是否为 10005
-    if (data.code === '10005'||data.code === '10046'||data.code === '10132') {
+    if (data.code === '10005' //账户已禁用
+      || data.code === '10046' //未登录
+      || data.code === '10047' //Token 不存在或已过期，请重新登录
+      || data.code === '10106' //登录超时
+      || data.code === '10118' //账户已冻结
+      || data.code === '10132' //商户已过期
+    ) {
       toast.error(data.message);
       logout();
     }
