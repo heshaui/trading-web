@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import appStore from '@/store';
 import { checkImageUrl } from './useKv';
-
+import { useThemeMode } from '@/hooks/useThemeMode'
 // 检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
 
@@ -10,6 +10,7 @@ const isBrowser = () => typeof window !== 'undefined';
  * @param defaultFavicon 默认favicon路径
  */
 export const useFavicon = (defaultFavicon: string = '/favicon.ico') => {
+    const { isDayMode } = useThemeMode()
   const setFavicon = async () => {
     try {
       if (!isBrowser()) return;
@@ -21,7 +22,7 @@ export const useFavicon = (defaultFavicon: string = '/favicon.ico') => {
       if (!config.logo) return;
       
       // 获取favicon配置，优先使用专门的favicon配置，如果没有则尝试使用logo配置
-      const faviconUrl = config.logo?.light?.favicon|| config.logo?.dark?.favicon 
+      const faviconUrl = isDayMode ? config.logo?.light?.favicon : config.logo?.dark?.favicon 
       
       if (faviconUrl) {
         // 验证图片URL是否可用
@@ -76,7 +77,7 @@ export const useFavicon = (defaultFavicon: string = '/favicon.ico') => {
     // 监听store中KV配置的变化（如果有相关事件）
     // 这里可以添加监听器，当KV配置更新时重新设置favicon
     
-  }, [defaultFavicon]);
+  }, [defaultFavicon,isDayMode]);
 };
 
 export default useFavicon;

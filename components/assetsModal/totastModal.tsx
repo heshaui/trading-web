@@ -63,7 +63,7 @@ function TotastModal({ open, message, type, onCancel }: Props) {
                     </button>
                     <button
                         type="button"
-                        className={`${styles.errModal_btn} cancel_btn3 mt-5`}
+                        className={`${styles.errModal_btn} disabled_btn2 mt-5`}
                         onClick={() => {
                             router.push(ROUTER_KEY_ASSETS.ACCOUNT)
                             handCancel()

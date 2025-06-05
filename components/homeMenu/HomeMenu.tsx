@@ -587,7 +587,7 @@ export default function HomeMenu() {
                         <Image
                             src={logoUrl}
                             alt=""
-                            width={126}
+                            width={140}
                             height={30}
                             onError={() => setLogoUrl('/home_menu_logo.png')}
                             className='pointer'

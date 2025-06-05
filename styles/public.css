@@ -210,7 +210,9 @@
 .page-h{
   min-height: calc(100vh - 80px);
 }
-
+.radius-2{
+  border-radius: 8px;
+}
 .m-auto {
   margin: auto;
 }
