@@ -245,7 +245,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
             const newData = initTableData.filter(item => {
                 const { rate } = getRate(item.coinName, item.balance);
                 // 确保 rate 是数字且大于 1
-                return Number(rate) > 1;
+                return Number(rate) >= 1
             });
             setTableData(newData);
         } else {
@@ -313,7 +313,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
                 // checked={hideZero}
                 onChange={hideZeroChange}
             >
-                <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideZero')}</span>
+                <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideZero2',{coin:rateKey||'--'})}</span>
             </Checkbox>
             {/* </Form.Item>
                     </Form> */}

@@ -350,7 +350,7 @@ const WithdrawMoneyPage = observer(() => {
                     const protocol = protocolTypeList.find(protocol => protocol.id === item.protocolId)
                     return {
                         ...item,
-                        label: protocol?.symbol,
+                        label: `${protocol?.protocol}(${protocol?.protocolName})`,
                         value: item.protocolId,
                         ...protocol
                     }
@@ -995,7 +995,7 @@ const WithdrawMoneyPage = observer(() => {
                                     return (
                                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                                             <p className={`flex-y `}>
-                                                <span className={`${styles.title_color}`}>{option.data.label}</span>
+                                                <span className={`${styles.title_color}`}>{option.data.protocol}</span>
                                                 <span className={`${styles.tip_color}`}>{option.data.protocolName}</span>
                                             </p>
                                             <p className={`${styles.tip_color2} `}>
@@ -1182,7 +1182,7 @@ const WithdrawMoneyPage = observer(() => {
                             userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )} */}
                     {!userInfo ? null : (
-                        userInfo.merchantWithdrawalStatus !== 1 ? <NoUseCom type='1' /> :
+                        userInfo.merchantWithdrawalStatus !== 1 ? <NoUseCom type='3' /> :
                             (!userInfo.googleCode || userInfo.isGoogleAuth === 0) ? <NoUseCom type='2' /> :
                                 userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                     )}
