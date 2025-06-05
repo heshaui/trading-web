@@ -680,7 +680,7 @@ export default function HomeMenu() {
                                         ) : (
                                             <>
                                                 <Col><Link href='/register' className={styles.register}><span style={{ color: '#FFF' }}>{t('header.register')}</span></Link></Col>
-                                                <Col><Link href='/login' className={styles.login}><span style={{ color: 'var(--text-color5)' }}>{t('header.login')}</span></Link></Col>
+                                                <Col><Link href='/login' className={styles.login}><span style={{ color: '#FFF' }}>{t('header.login')}</span></Link></Col>
                                                 <div style={{ height: '20px', border: '1px solid #676867', margin: '0 12px' }}></div>
                                                 {iconItemsLogin}
                                                 <LangageMenu />
