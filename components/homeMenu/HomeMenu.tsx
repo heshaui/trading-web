@@ -604,6 +604,7 @@ export default function HomeMenu() {
                             onError={() => setLogoUrl('/home_menu_logo.png')}
                             className='pointer'
                             onClick={() => router.push('/')}
+                            priority
                         />
                     </div>
                     <div className={styles.menuContainer}>
