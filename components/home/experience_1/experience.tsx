@@ -127,7 +127,8 @@ export default function Experience() {
            style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
             >
                 <div className={`${styles.experience_main_box} flex-y flex-ai-center mt-10 `}>
-                    <h2>{bgUrl()?.title}</h2>
+                    <h2 className={``}>{bgUrl()?.title}</h2>
+                    <h3 className={`font-28 font-w-400 ${styles.assistant_main_title2}`}>{bgUrl()?.subtitle}</h3>
                     <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
                         {!token&&<Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />}
                         <Button className={`${styles.experience_main_btn}`}

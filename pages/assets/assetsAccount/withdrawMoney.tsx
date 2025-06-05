@@ -381,7 +381,8 @@ const WithdrawMoneyPage = observer(() => {
 
     // 地址
     const getUserAddressList = async () => {
-        if (addressSelect.length > 0 || addressLoading) return
+        // if (addressSelect.length > 0 || addressLoading) return
+        if (addressLoading) return
         await getUserAddressListData()
     }
     const getUserAddressListData = async () => {

@@ -10,7 +10,7 @@ import { KV_KEYS } from '@/config/apiConfig';
 import { parseJsonString } from "@/utils/parseJsonString";
 
 // 检查图片URL是否可用
-const checkImageUrl = (url: string) => {
+export const checkImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
         const img = new window.Image();
         img.onload = () => resolve(true);
@@ -80,19 +80,19 @@ export const useWebConfig = () => {
     return { config, loading };
 };
 
-export { checkImageUrl };
 
 // 保留原有的 Logo 获取逻辑，但使用新的配置获取方式
 export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
     const [logoUrl, setLogoUrl] = useState(defaultLogo);
-    const { config, loading } = useWebConfig();
+    // const { config, loading } = useWebConfig();
+    const config = appStore.getKvConfigAll();
     const { isDayMode } = useThemeMode(); // 获取当前主题模式
 
     useEffect(() => {
         let isMounted = true;
         const processLogo = async () => {
             try {
-                if (loading || !config.logo) return;
+                if (!config.logo) return;
 
                 // 从localStorage获取登录状态
                 const isLoggedIn = !!localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN);
@@ -121,7 +121,7 @@ export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
             isMounted = false;
         };
 
-    }, [config, loading, defaultLogo, isDayMode]);
+    }, [config,  defaultLogo, isDayMode]);
 
     return { logoUrl, setLogoUrl };
 };
@@ -195,7 +195,8 @@ export const useThemeConfig = () => {
 
 //获取手续费方向
 export const useFeeDirection = () => {
-    const { config, loading } = useWebConfig();
+    // const { config, loading } = useWebConfig();
+    const config = appStore.getKvConfigAll();
     const [feeDirection, setFeeDirection] = useState<string>('');
 
     useEffect(() => {
@@ -204,7 +205,7 @@ export const useFeeDirection = () => {
         }
     }, [config]);
 
-    return { feeDirection, loading };
+    return { feeDirection };
 };
 
 
