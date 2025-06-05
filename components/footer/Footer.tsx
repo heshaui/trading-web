@@ -342,7 +342,7 @@ export default function Footer() {
                         <Image
                             src={logoUrl}
                             alt=""
-                            width={126}  // 必须指定宽度
+                            width={140}  // 必须指定宽度
                             height={30} // 必须指定高度
                             onError={() => setLogoUrl('/home_menu_logo.png')} // 图片加载失败时使用默认值
                         />

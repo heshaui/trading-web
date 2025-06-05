@@ -161,34 +161,72 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_amount, record) => {
-        const amount = getRound(record.symbol, _amount).scaleResult
-        const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
-        return < div className='flex-x-cc'>
-          {_amount ? <div className='flex-x align-center'>
-            {/* {`${roundDown(_amount, 2)}/${roundDown(record.tradedAmount, 2)}`} */}
+      // render: (_amount, record) => {
+      //   const amount = getRound(record.symbol, _amount).scaleResult
+      //   const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
+      //   return < div className='flex-x-cc'>
+      //     {_amount ? <div className='flex-x align-center'>
 
-            {`${amount}/${amountDone}`}
-            {/* <Tooltip title={t('spot.modal.edit')}>
-              <button
-                onClick={() => {
-                  upDtaOrder(record)
-                }}>
-                <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
-              </button>
-            </Tooltip> */}
-            &nbsp;&nbsp;
-            <span className={`${styles.tip_color2}`}>
-              {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
-            </span>
+      //       {`${amount}/${amountDone}`}
+      //       <Tooltip title={t('spot.modal.edit')}>
+      //         <button
+      //           onClick={() => {
+      //             upDtaOrder(record)
+      //           }}>
+      //           <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
+      //         </button>
+      //       </Tooltip>
+      //       &nbsp;&nbsp;
+      //       <span className={`${styles.tip_color2}`}>
+      //         {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+      //       </span>
 
-          </div>
-            : '0'
-          }
-        </div >
+      //     </div>
+      //       : '0'
+      //     }
+      //   </div >
+      // },
+       render: (_amount, record) => {
+              const amount = getRound(record.symbol, _amount).scaleResult
+              const amountDone = getRound(record.symbol, record.tradedAmount).scaleResult
+              if (record.type === 0 && record.direction === 0) {
+      
+                if (record.status === 1 || record.status === 5) {
+                  return < div className='flex-x-cc'>
+                    {_amount ? <div className='flex-y align-center'>
+                      <span>{`${amountDone}/${amountDone}`}</span>
+                      <span className={`${styles.tip_color2}`}>
+                        {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+                      </span>
+                    </div>
+                      : '0'}
+                  </div >
+                } else {
+                  return < div className='flex-x-cc'>
+                    {_amount ? <div className='flex-y align-center'>
+                      <span>{`-/${amountDone}`}</span>
+                      <span className={`${styles.tip_color2}`}>
+                        {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+                      </span>
+                    </div>
+                      : '0'}
+                  </div >
+                }
+                
+              } else {
+                return < div className='flex-x-cc'>
+                  {_amount ? <div className='flex-y align-center'>
+                    <span>
+                      {`${amount}/${amountDone}`}</span>
+                    <span className={`${styles.tip_color2}`}>
+                      {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(nul(division(record.tradedAmount, _amount), 100), 2)}%` : '0%'}
+                    </span>
+                  </div>
+                    : '0'}
+                </div >
+              }
 
-
-      },
+            }
     },
     {
       title: t('spot.columns.totalAmount'), //"总额/已成交",

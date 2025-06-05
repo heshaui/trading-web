@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/now.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form ,Tooltip,notification} from 'antd';
+import { Input, Radio, ConfigProvider, Table, Select, Form, Tooltip, notification } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -10,9 +10,9 @@ import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { NoData } from '@/components/noData'
-import { getOrderList, getExchangeCoinList,revocationOrder,updateOrder } from '@/services/spot'
+import { getOrderList, getExchangeCoinList, revocationOrder, updateOrder } from '@/services/spot'
 import { toast } from 'sonner';
-import { add, cut, division, lastD ,nul,roundDown,roundUp} from '@/utils'
+import { add, cut, division, lastD, nul, roundDown, roundUp } from '@/utils'
 import ToastModal from '@/components/spotModal/Toast_modal';
 import DelectModal from '@/components/spotModal/Delect_modal';
 import { encryptData } from '@/hooks/user-encrypt'
@@ -52,12 +52,12 @@ interface symbolSelectType {
   baseSymbol: string,
   coinSymbol: string
 }
-const SpotMainPage =observer( () => {
+const SpotMainPage = observer(() => {
   const { t } = useTranslation(['spot']);
   const [form] = Form.useForm();
   const router = useRouter();
-      // 获取币种列表
-      // const {coinList} = useCoinList();
+  // 获取币种列表
+  // const {coinList} = useCoinList();
   const coinList = appStore.getCurrentPairList() || appStore.currencyPairs; // 货币对列表
 
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -73,7 +73,7 @@ const SpotMainPage =observer( () => {
     direction: '',
     symbol: ''
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [symbolSelect, setSymbolSelect] = useState<symbolSelectType[]>([]);
   const [toastModal, setToastModal] = useState<boolean>(false);
@@ -82,7 +82,7 @@ const SpotMainPage =observer( () => {
   const [delectModal, setDelectModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<any>({})
   const toastDataRef = useRef<any>({})
- 
+
   const columns: ColumnsType<DataType> = [
     {
       title: t('spot.columns.uploadTime'), //"更新时间",
@@ -99,9 +99,9 @@ const SpotMainPage =observer( () => {
       align: "center",
       width: 148,
       render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
-      onClick={()=>{
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-      }}
+        onClick={() => {
+          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+        }}
       >
         {_text || '--'}
         <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
@@ -114,11 +114,11 @@ const SpotMainPage =observer( () => {
       width: 128,
       align: "center",
       render: (_text) => {
-        if(_text===0){
+        if (_text === 0) {
           return <span >{t('spot.columns.market')}</span>;
-        }else if(_text===1){
+        } else if (_text === 1) {
           return <span  >{t('spot.columns.limit')}</span>;
-        }else{
+        } else {
           return <span >--</span>;
         }
       },
@@ -148,9 +148,9 @@ const SpotMainPage =observer( () => {
       dataIndex: "price",
       width: 128,
       align: "center",
-      render: (_status,record) => {
+      render: (_status, record) => {
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const {baseScaleResult} = getRound(record.symbol, _status)
+        const { baseScaleResult } = getRound(record.symbol, _status)
         return <>{record.type === 1 ? <div className='flex-x-cc'>
           <p className='text-center '> {baseScaleResult}</p>
           {/* <Tooltip title={t('spot.modal.edit')}>
@@ -162,8 +162,8 @@ const SpotMainPage =observer( () => {
               <Iconify icon="mingcute:edit-3-line" className={`${styles.tip_color} mx-1`} size={20} />
             </button>
           </Tooltip> */}
-        </div>:<p className='text-center '> {t('spot.select.market')}</p>}</>
-          
+        </div> : <p className='text-center '> {t('spot.select.market')}</p>}</>
+
       },
     },
     {
@@ -172,13 +172,22 @@ const SpotMainPage =observer( () => {
       dataIndex: "amount",
       width: 128,
       align: "center",
-      render: (_status,record) => {
-        // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const {scaleResult} = getRound(record.symbol, _status)
-        return <>
-        {scaleResult}
-        </>
-          
+      render: (_status, record) => {
+        // const {scaleResult} = getRound(record.symbol, _status)
+        // return <>
+        // {scaleResult}
+        // </>
+        const { scaleResult } = getRound(record.symbol, _status);
+        const res = getRound(record.symbol, record.tradedAmount);
+        if (record.type === 0 && record.direction === 0) {
+          if (record.status === 1 || record.status === 5) {
+            return <span>{res.scaleResult}</span>;
+          } else {
+            return <span>--</span>;
+          }
+        } else {
+          return <span>{scaleResult}</span>;
+        }
       },
     },
     {
@@ -190,13 +199,13 @@ const SpotMainPage =observer( () => {
       render: (_amount, record) => {
         // amount/tradedAmount
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const amount=nul(division(record.tradedAmount, _amount),100)
-        const {baseScaleResult} = getRound(record.symbol, amount)
+        const amount = nul(division(record.tradedAmount, _amount), 100)
+        const { baseScaleResult } = getRound(record.symbol, amount)
         return < >
-          {_amount ? 
+          {_amount ?
             <span className={`${styles.tip_color2}`}>
-            {/* {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'} */}
-            {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(baseScaleResult, 2)}%` : '0%'}
+              {/* {record.tradedAmount && record.tradedAmount.toString() !== '0' ?  `${roundDown(nul(division(record.tradedAmount, _amount),100),coin?.baseCoinScale)}%` : '0%'} */}
+              {record.tradedAmount && record.tradedAmount.toString() !== '0' ? `${roundDown(baseScaleResult, 2)}%` : '0%'}
             </span> : '0'
           }
         </ >
@@ -213,17 +222,17 @@ const SpotMainPage =observer( () => {
       render: (_turnover, record) => {
         // const totalAmount = record.amount && record.price ? roundDown(nul(record.amount, record.price),2) : '0'
         // const coin = coinList.find((item: any) => item.symbol === record.symbol);
-        const {baseScaleResult} = getRound(record.symbol, _turnover)
+        const { baseScaleResult } = getRound(record.symbol, _turnover)
 
-        return <span >{_turnover?`${baseScaleResult}` : '0'}</span>;
+        return <span >{_turnover ? `${baseScaleResult}` : '0'}</span>;
       },
     },
     {
       title: <button className={`error_icon`}
-      onClick={()=>{
-        setDelectIdAll(tableData.map((item)=>item.orderId))
-        setDelectModal(true)
-      }}
+        onClick={() => {
+          setDelectIdAll(tableData.map((item) => item.orderId))
+          setDelectModal(true)
+        }}
       >{t('spot.columns.cancel')}</button>, //"全撤",
       key: "operation",
       width: 128,
@@ -232,7 +241,7 @@ const SpotMainPage =observer( () => {
         return <Tooltip title={t('spot.modal.cancel')} placement="left">
           <button
             onClick={() => {
-              
+
               // setDelectId([record.orderId])
               // setDelectOneSuccess(true)
               setToastData({
@@ -242,7 +251,7 @@ const SpotMainPage =observer( () => {
                 price: record.price,
                 amount: record.amount,
               })
-              toastDataRef.current={
+              toastDataRef.current = {
                 coinSymbol: record.coinSymbol,
                 symbol: record.symbol,
                 baseSymbol: record.baseSymbol,
@@ -263,40 +272,40 @@ const SpotMainPage =observer( () => {
   ];
   const delectOne = async (orderId: string[]) => {
     try {
-        const paeam={
-            orderId: orderId,
-        }
-        const encrypt=await encryptData(paeam)
-        const res = await revocationOrder(encrypt)
-        if(res.code==='0'){
-            // toast.success(res.message)
-            // setToastModal(true)
-            notification.success({
-              message: t('spot.toastModal.canceled'), //'已撤单',
-              description: (
-                <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
-                  <li className={` mt-5 font-14 font-w-400 `}>
-                    {t('spot.toastModal.pair')}: {toastDataRef.current?.symbol}
-                  </li>
-                  <li className={` mt-3 font-14 font-w-400 `}>
-                    {t('spot.toastModal.price')}: {toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
-                  </li>
-                  <li className={` mt-3 font-14 font-w-400 `}>
-                    {t('spot.toastModal.cancelAmount')}: {toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
-                  </li>
-                </ul>
-              ),
-              duration: 3
-            })
-            getOrderListData()
-        }else{
-            toast.error(res.message)
-        }
+      const paeam = {
+        orderId: orderId,
+      }
+      const encrypt = await encryptData(paeam)
+      const res = await revocationOrder(encrypt)
+      if (res.code === '0') {
+        // toast.success(res.message)
+        // setToastModal(true)
+        notification.success({
+          message: t('spot.toastModal.canceled'), //'已撤单',
+          description: (
+            <ul className={`flex-col flex-ai-start flex-1 ${styles.title_color} ml-2`}>
+              <li className={` mt-5 font-14 font-w-400 `}>
+                {t('spot.toastModal.pair')}: {toastDataRef.current?.symbol}
+              </li>
+              <li className={` mt-3 font-14 font-w-400 `}>
+                {t('spot.toastModal.price')}: {toastDataRef.current?.price}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[1] || '--'}
+              </li>
+              <li className={` mt-3 font-14 font-w-400 `}>
+                {t('spot.toastModal.cancelAmount')}: {toastDataRef.current?.amount}&nbsp;{toastDataRef.current?.symbol?.split('/')?.[0] || '--'}
+              </li>
+            </ul>
+          ),
+          duration: 3
+        })
+        getOrderListData()
+      } else {
+        toast.error(res.message)
+      }
     } catch (error) {
-        toast.error(String(error))
+      toast.error(String(error))
     }
 
-};
+  };
 
   const directionSelect: { label: string, value: string | number }[] = [
     {
@@ -327,22 +336,22 @@ const SpotMainPage =observer( () => {
     paramdataRef.current.pageSize = pageSize
     getOrderListData()
   }
-  const directionChange =async (value: any, options: any) => {
-   if(value||value?.toString()==='0'){
-    paramdataRef.current.direction = value
-   }else{
-    paramdataRef.current.direction = ''
-   }
-   await getOrderListData()
-  }
-  const symbolChange =async (value: any, options: any) => {
-    if(value||value?.toString()==='0'){
-     paramdataRef.current.symbol = value
-    }else{
-     paramdataRef.current.symbol = ''
+  const directionChange = async (value: any, options: any) => {
+    if (value || value?.toString() === '0') {
+      paramdataRef.current.direction = value
+    } else {
+      paramdataRef.current.direction = ''
     }
     await getOrderListData()
-   }
+  }
+  const symbolChange = async (value: any, options: any) => {
+    if (value || value?.toString() === '0') {
+      paramdataRef.current.symbol = value
+    } else {
+      paramdataRef.current.symbol = ''
+    }
+    await getOrderListData()
+  }
   const handleDelectOk = () => {
     getOrderListData()
   }
@@ -351,10 +360,10 @@ const SpotMainPage =observer( () => {
       pageNo: paramdataRef.current.page,
       pageSize: paramdataRef.current.pageSize,
       orderType: 0,
-      direction: (paramdataRef.current.direction||paramdataRef.current.direction.toString()==='0')?paramdataRef.current.direction:null,
+      direction: (paramdataRef.current.direction || paramdataRef.current.direction.toString() === '0') ? paramdataRef.current.direction : null,
       // symbol: paramdataRef.current.symbol,
-      coinSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[0]:null,
-      baseSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[1]:null,
+      coinSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[0] : null,
+      baseSymbol: paramdataRef.current.symbol ? paramdataRef.current.symbol.split('/')[1] : null,
     }
     setLoading(true)
     try {
@@ -395,7 +404,7 @@ const SpotMainPage =observer( () => {
           },
           ...selectData
         ]
-        )
+      )
     }
 
   }
@@ -487,15 +496,15 @@ const SpotMainPage =observer( () => {
           />
 
         </div>
-        <DelectModal open={delectModal} 
-        orderId={delectIdAll}
-        onCancel={() => setDelectModal(false)}
-        onOk={handleDelectOk}/>
+        <DelectModal open={delectModal}
+          orderId={delectIdAll}
+          onCancel={() => setDelectModal(false)}
+          onOk={handleDelectOk} />
         <ToastModal
-        type='0'
-         open={toastModal} 
-         toastData={toastData}
-        onCancel={() => setToastModal(false)}
+          type='0'
+          open={toastModal}
+          toastData={toastData}
+          onCancel={() => setToastModal(false)}
         />
       </div>
     </ConfigProvider>
