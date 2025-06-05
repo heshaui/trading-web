@@ -254,7 +254,8 @@ const UserCenterSidebar = ({menuItems}: SidebarProps) => {
     return (
         <div className={`${styles.sidebar_container}`} style={{
             width: collapsed ? '68px' : '260px',
-            transition: 'width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s'
+            transition: 'width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
+            paddingTop:20
         }}>
             <ConfigProvider
                 theme={{

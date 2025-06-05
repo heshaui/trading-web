@@ -532,7 +532,8 @@ const WithdrawMoneyPage = observer(() => {
     }
 
     const antiFraud = () => {
-        if (!allowWithdraw) return toast.error(t('withdrawMoney.function'))
+        // if (!allowWithdraw) return toast.error(t('withdrawMoney.function'))
+        if (!allowWithdraw) return 
         form.validateFields()
             .then(async (values) => {
                 console.log(values)
@@ -1127,7 +1128,7 @@ const WithdrawMoneyPage = observer(() => {
                                 </span></p>
                             </div>
                             {/* default_btn */}
-                            <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn2'}`}
+                            <button type='submit' className={`${styles.withdraw_btn} mr-2 ${allowWithdraw ? 'default_btn' : 'disabled_btn2 cursor-not-allowed'}`}
                                 onClick={antiFraud}>
                                 {t('withdrawMoney.withdraw')}
                             </button>
@@ -1239,11 +1240,12 @@ const WithdrawMoneyPage = observer(() => {
                                     {t('withdrawMoney.faq')}
                                 </h5>
                                 <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
+                                    {/* <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
                                     <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item2')}</li>
                                     <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item3')}</li>
                                     <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item4')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li>
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li> */}
+                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item6')}</li>
                                 </ul>
                             </div>
                             <div className=''>

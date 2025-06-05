@@ -596,17 +596,16 @@ export default function HomeMenu() {
             <div style={{ position: 'relative', borderBottom: '0.5px solid #37373A' }}>
                 <div className={styles.container}>
                     <div className={styles.logo}>
-                        {typeof window !== 'undefined' && (
-                            logoUrl && (
-                                <Image
-                                    src={logoUrl}
-                                    alt=""
-                                    className='pointer'
-                                    onClick={() => router.push('/')}
-                                priority
-                            />
-                            )
-                        )}
+                        <Image
+                            src={logoUrl}
+                            alt=""
+                            width={140}
+                            height={30}
+                            onError={() => setLogoUrl('/home_menu_logo.png')}
+                            className='pointer'
+                            onClick={() => router.push('/')}
+                            priority
+                        />
                     </div>
                     <div className={styles.menuContainer}>
                         <div className={styles.menuListContainer}>
