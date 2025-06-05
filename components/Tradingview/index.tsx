@@ -99,8 +99,6 @@ const Tradingview: React.ForwardRefRenderFunction<
     // 假设主题色，如果项目中已有变量请使用已有的
     const themeColor = 'var(--theme-color, #1890ff)'; // 使用CSS变量或者默认为蓝色
     useEffect(() => {
-
-
       // 添加这段代码：将timeInterval转换为TradingView格式
       let tvTimeInterval = timeInterval;
       if (timeInterval === "1m") tvTimeInterval = "1";
@@ -169,9 +167,6 @@ const Tradingview: React.ForwardRefRenderFunction<
           const newWidget = new widget(widgetOptions as any);
           setTvWidget(newWidget);
 
-
-
-
           // 设置图表类型
           newWidget.onChartReady(() => {
             newWidget.chart().setChartType(chartType);
@@ -210,7 +205,181 @@ const Tradingview: React.ForwardRefRenderFunction<
           setTvWidget(null);
         }
       };
-    }, [symbol, timeInterval, showLeftToolbar, chartType, isDayMode]);
+    }, [symbol, timeInterval, showLeftToolbar, chartType]);
+    
+    // 单独监听主题变化，更新TradingView的主题
+    const prevThemeRef = useRef<boolean | null>(null);
+    
+    // 创建图表和重建图表函数的引用
+    const chartFunctions = useRef({
+      createChart: (forceCreate = false) => {},
+      recreateChart: (forceRecreate = false) => {}
+    });
+    
+    // 初始化图表函数
+    useEffect(() => {
+      // 定义创建图表函数
+      const createChart = () => {
+        if (!chartContainerRef.current) {
+          console.error('图表容器不存在，无法创建图表');
+          return;
+        }
+        
+        if (tvWidget) {
+          console.log('图表实例已存在，不需要重新创建');
+          return;
+        }
+        
+        console.log('创建新图表，主题模式：', isDayMode ? '白天模式' : '黑夜模式');
+        let tvTimeInterval = timeInterval;
+        if (timeInterval === "1m") tvTimeInterval = "1";
+        if (timeInterval === "3m") tvTimeInterval = "3";
+        if (timeInterval === "5m") tvTimeInterval = "5";
+        if (timeInterval === "15m") tvTimeInterval = "15";
+        if (timeInterval === "30m") tvTimeInterval = "30";
+        if (timeInterval === "1h") tvTimeInterval = "60";
+        if (timeInterval === "2h") tvTimeInterval = "120";
+        if (timeInterval === "4h") tvTimeInterval = "240";
+        if (timeInterval === "6h") tvTimeInterval = "360";
+        if (timeInterval === "8h") tvTimeInterval = "480";
+        if (timeInterval === "12h") tvTimeInterval = "720";
+        if (timeInterval === "1D") tvTimeInterval = "D";
+        if (timeInterval === "1W") tvTimeInterval = "W";
+        if (timeInterval === "1M") tvTimeInterval = "M";
+
+        try {
+          const chartSymbol = symbol || "BTC_USDT_1";
+          const datafeed = createDatafeed(wsDataRef.current, tvTimeInterval, symbol || "BTC_USDT_1", timeInterval);
+
+          // 根据父组件参数决定禁用的功能
+          const disabledFeatures = [
+            "header_widget",
+            "use_localstorage_for_settings",
+            "timeframes_toolbar",
+            "symbol_search",
+            "symbol_info",
+            "header_symbol_search",
+            "header_compare",
+            "compare_symbol",
+            "display_market_status",
+            "symbol_change",
+          ];
+
+          const lang = localStorage.getItem("lang") || "zh";
+          const widgetOptions = {
+            symbol: chartSymbol,
+            datafeed: datafeed,
+            interval: tvTimeInterval,
+            container: chartContainerRef.current,
+            library_path: "/charting_library/",
+            locale: lang,
+            charts_storage_url: "http://saveload.tradingview.com",
+            charts_storage_api_version: "1.1",
+            client_id: "tradingview.com",
+            user_id: "public_user_id",
+            fullscreen: false,
+            autosize: true,
+            enabled_features: ["study_templates"],
+            timezone: "Asia/Shanghai",
+            debug: false,
+            theme: isDayMode ? "light" : "dark",
+            disabled_features: disabledFeatures,
+          };
+
+          const newWidget = new widget(widgetOptions as any);
+          setTvWidget(newWidget);
+
+          // 设置图表类型
+          newWidget.onChartReady(() => {
+            newWidget.chart().setChartType(chartType);
+            newWidget.chart().createStudy('Volume', false, false, {
+              "volume.color.0": "#00FF00", // Up volume color
+              "volume.color.1": "#FF0000", // Down volume color
+              "volume.transparency": 30,
+              "volume.width": 1
+            });
+          });
+
+          // 设置WebSocket更新处理
+          window.__tradingViewHandlersInitialized = true;
+
+          window.__handleTradingViewUpdate = (newData: any) => {
+            if (window.__tradingViewUpdateBar) {
+              window.__tradingViewUpdateBar(newData);
+            }
+          };
+          
+          // 标记初始化已完成
+          initCompletedRef.current = true;
+        } catch (error) {
+          console.error("TradingView 初始化错误:", error);
+        }
+      };
+      
+      // 定义重建图表函数
+      const recreateChart = (forceRecreate = false) => {
+        if (tvWidget) {
+          try {
+            // 先移除现有图表
+            tvWidget.remove();
+            setTvWidget(null);
+            initCompletedRef.current = false;
+            console.log('主题变化，移除图表：', isDayMode ? '白天模式' : '黑夜模式');
+            
+            // 如果是强制重建，则立即创建新图表
+            if (forceRecreate) {
+              setTimeout(createChart, 0);
+            }
+          } catch (e) {
+            console.error("主题切换时移除图表错误:", e);
+          }
+        } else if (forceRecreate) {
+          // 如果没有图表但需要强制创建
+          createChart();
+        }
+      };
+      
+      // 将函数保存到引用中，以便其他useEffect可以访问
+      chartFunctions.current = {
+        createChart,
+        recreateChart
+      };
+      
+      // 首次加载时创建图表
+      if (!tvWidget && chartContainerRef.current) {
+        console.log('首次加载创建图表');
+        // 使用setTimeout确保容器已完全渲染
+        setTimeout(() => {
+          if (!tvWidget && chartContainerRef.current) {
+            createChart();
+          }
+        }, 0);
+      }
+      
+      // 如果主题变化，重新创建图表
+      if (prevThemeRef.current !== null && prevThemeRef.current !== isDayMode) {
+        console.log('检测到主题变化，重新创建图表');
+        recreateChart(true);
+      }
+      
+      // 更新主题引用值
+      prevThemeRef.current = isDayMode;
+    }, [symbol, timeInterval, chartType, isDayMode, tvWidget]);
+    
+    // 监听主题变化事件
+    useEffect(() => {
+      const handleThemeChange = () => {
+        console.log('监听到themeChange事件，重建图表');
+        chartFunctions.current.recreateChart(true); // 强制重建图表
+      };
+
+      window.addEventListener('themeChange', handleThemeChange);
+      return () => {
+        window.removeEventListener('themeChange', handleThemeChange);
+      };
+    }, []);
+    
+    // 已在上面的初始化函数中处理了主题变化的逻辑
 
     // 单独处理WebSocket数据更新
     useEffect(() => {

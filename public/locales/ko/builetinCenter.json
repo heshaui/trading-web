@@ -8,6 +8,7 @@
             "new": "신규 코인 상장",
             "assets": "자산",
             "trading": "거래",
+            "account": "계정",
             "delist": "거래쌍 상장 폐지",
             "suspension": "입출금 중단/재개",
             "announcement": "공지사항",
@@ -15,7 +16,6 @@
             "article": "기사",
             "notice": "공지",
             "accountAssistant": "계정 도우미",
-            "assets": "자산",
             "transaction": "거래"
         },
         "message": {
