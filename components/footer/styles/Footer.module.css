@@ -7,16 +7,16 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    max-width: 250px;
+    min-width: 145px;
     margin-right: 60px;
 }
 .footerContainer .logoAndButton .logo {
-    width: 145px;
-    height: 30px;
+    /* width: 145px; */
+    height: 28px;
 }
 .footerContainer .logoAndButton .logo img {
-    max-width: 140px;
-    width: 100%;
+    /* max-width: 140px; */
+    /* width: 100%; */
     height: 100%;
 }
 .footerContainer .logoAndButton p {

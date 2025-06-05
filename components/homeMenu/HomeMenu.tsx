@@ -599,8 +599,8 @@ export default function HomeMenu() {
                         <Image
                             src={logoUrl}
                             alt=""
-                            width={140}
-                            height={30}
+                            width={40}
+                            height={28}
                             onError={() => setLogoUrl('/home_menu_logo.png')}
                             className='pointer'
                             onClick={() => router.push('/')}
