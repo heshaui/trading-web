@@ -4,7 +4,7 @@ export interface coinSelectType {
     iconUrl: string,
     nameDefault: string,
     value: string,
-    label: string,
+    label: string | React.ReactNode,
     memoTag: number,
     balance: number,
     frozenBalance: number,
@@ -58,11 +58,12 @@ export interface addressSelectType {
 }
 
 export interface SearchHistoryItem {
-    label: string,
+    label: string | React.ReactNode,
     value: string,
     desc?: string,
     network?: string,
-    iconUrl: string
+    iconUrl: string,
+    coinName: string
 }
 export interface userBalanceType {
     balance: number,
