@@ -40,7 +40,7 @@ interface coinSelectType {
     iconUrl?: string,
     nameDefault?: string,
     value?: string,
-    label?: string,
+    label?: string | React.ReactNode,
 }
 type Props = {
     coinId: number | string | any,

@@ -106,7 +106,7 @@ const SpotOrderPage = () => {
                     {t('spot.spotOrder')}
                 </h2>
             </div>
-            <div className={`${styles.card_bgc5}  mt-3 `}>
+            <div className={`${styles.card_bgc5} radius-2  mt-3 `}>
                 {/* 充值 */}
                 <div className={`${styles.table_box} w-full `}>
                     <div className={`${styles.table_box_inner} `}

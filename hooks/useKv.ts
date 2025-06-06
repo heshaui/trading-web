@@ -82,7 +82,7 @@ export const useWebConfig = () => {
 
 
 // 保留原有的 Logo 获取逻辑，但使用新的配置获取方式
-export const useLogoImage = (defaultLogo: string = '/home_menu_logo.png') => {
+export const useLogoImage = (defaultLogo: string = '') => {
     const [logoUrl, setLogoUrl] = useState(defaultLogo);
     // const { config, loading } = useWebConfig();
     const config = appStore.getKvConfigAll();

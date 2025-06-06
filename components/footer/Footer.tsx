@@ -58,7 +58,7 @@ export default function Footer() {
     // 添加状态管理选中的语言
     const [selectedLang, setSelectedLang] = useState('简体中文');
     // 获取logo
-    const { logoUrl, setLogoUrl } = useLogoImage('/home_menu_logo.png');
+    const { logoUrl, setLogoUrl } = useLogoImage('');
 
     // 语言
     // const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
@@ -342,9 +342,9 @@ export default function Footer() {
                         <Image
                             src={logoUrl}
                             alt=""
-                            width={126}  // 必须指定宽度
+                            width={140}  // 必须指定宽度
                             height={30} // 必须指定高度
-                            onError={() => setLogoUrl('/home_menu_logo.png')} // 图片加载失败时使用默认值
+                            onError={() => setLogoUrl('')} // 图片加载失败时使用默认值‘/home_menu_logo.png’
                         />
                     </div>
                     <p suppressHydrationWarning>{`©2023 - 2024 ${allConfig?.tenant_cache_name || ''}.`}</p>
