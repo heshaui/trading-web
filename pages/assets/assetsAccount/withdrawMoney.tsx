@@ -118,10 +118,10 @@ const WithdrawMoneyPage = observer(() => {
                     .map((item: any) => ({
                         ...item,
                         label: <div className="flex-x align-center font-14 font-w-400" >
-                        <Image src={item.iconUrl} alt={item.coinName} width={20} height={20} className={styles.coninIcon}/>&nbsp;
-                       <span className={styles.title_color}>{item.coinName}</span>
-                        &nbsp; <span className={styles.tip_color}>{item.nameDefault}</span>
-                    </div>,
+                            <Image src={item.iconUrl} alt={item.coinName} width={20} height={20} className={styles.coninIcon} />&nbsp;
+                            <span className={styles.title_color}>{item.coinName}</span>
+                            &nbsp; <span className={styles.tip_color}>{item.nameDefault}</span>
+                        </div>,
                         value: item.coinId,
                     }));
                 const balanceAll = await getUserBalanceAllData()
@@ -263,7 +263,7 @@ const WithdrawMoneyPage = observer(() => {
                         ...item,
                         label: <div className="flex-x align-center font-14 font-w-400" >
                             <Image src={item.iconUrl} alt={item.coinName} width={20} height={20} className={styles.coninIcon} />&nbsp;
-                           <span className={styles.title_color}>{item.coinName}</span>
+                            <span className={styles.title_color}>{item.coinName}</span>
                             &nbsp; <span className={styles.tip_color}>{item.nameDefault}</span>
                         </div>,
                         value: item.coinId,
@@ -340,7 +340,7 @@ const WithdrawMoneyPage = observer(() => {
             if (res.code === '0') {
                 const protocolList = res.data.map((item: any) => ({
                     ...item,
-                    label: item.protocolName,
+                    label: `${item?.protocol}(${item?.protocolName})`,
                     value: item.id,
                 }))
                 setProtocolTypeList(protocolList)
@@ -362,9 +362,10 @@ const WithdrawMoneyPage = observer(() => {
                     const protocol = protocolTypeList.find(protocol => protocol.id === item.protocolId)
                     return {
                         ...item,
-                        label: `${protocol?.protocol}(${protocol?.protocolName})`,
+                        ...protocol,
+                        label: `${protocol?.protocol || '--'}(${protocol?.protocolName || '--'})`,
                         value: item.protocolId,
-                        ...protocol
+
                     }
                 })
                 setCoinExtSelect(coinExtList)
@@ -813,20 +814,14 @@ const WithdrawMoneyPage = observer(() => {
                             optionRender={(option) => {
                                 if (!option?.data) return null;  // 添加空值检查
                                 return (<div className='flex-x align-center justify-between'>
-                                    <div className="flex items-center py-1">
-                                        {/* <Image
-                                            // src={`/images/assets/assets_account/icon_money.png`}
-                                            src={option.data.iconUrl}
-                                            alt={option.data.coinName}
-                                            width={20}
-                                            height={20}
-                                            className={`mr-2`}
-                                            style={{ borderRadius: '50%', height: '20px', width: '20px' }}
-                                        />
-                                        <span className="text-text-color7">
-                                            {`${option.data.coinName}(${option.data.nameDefault})`}
-                                        </span> */}
+                                    {/* <div className="flex items-center py-1">
                                           {option.data.label}
+                                    </div> */}
+
+                                    <div className="flex-x align-center font-14 font-w-400" >
+                                        <Image src={option.data.iconUrl} alt={option.data.coinName} width={20} height={20} className={styles.coninIcon} />&nbsp;
+                                        <span >{option.data.coinName}</span>
+                                        &nbsp; <span className={styles.tip_color}>{option.data.nameDefault}</span>
                                     </div>
                                     <div className='flex-y align-end font-14 font-w-500'>
                                         <span>{option.data.balance}</span>
@@ -1008,7 +1003,7 @@ const WithdrawMoneyPage = observer(() => {
                                     return (
                                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                                             <p className={`flex-y `}>
-                                                <span className={`${styles.title_color}`}>{option.data.protocol}</span>
+                                                <span >{option.data.protocol}</span>
                                                 <span className={`${styles.tip_color}`}>{option.data.protocolName}</span>
                                             </p>
                                             <p className={`${styles.tip_color2} `}>

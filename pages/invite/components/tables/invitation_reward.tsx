@@ -53,6 +53,7 @@ function InvitationReward({onReturn}:InviteProps) {
             dataIndex: "createTime",
             key: "createTime",
             align: "left",
+            width: 160,
             render: (_text) => {
                 return <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>;
             },
@@ -62,6 +63,7 @@ function InvitationReward({onReturn}:InviteProps) {
             dataIndex: "account",
             key: "account",
             align: "center",
+            width: 160,
             render: (_text) => <span>{_text ? encryptString(_text) : '--'}</span>,
         },
         {
@@ -69,6 +71,7 @@ function InvitationReward({onReturn}:InviteProps) {
             key: "actualRebateAmount",
             dataIndex: "actualRebateAmount",
             align: "center",
+            width: 160,
             render: (_text,record) => {
                 // actualCoinName
                 return <span >{_text?`${_text} ${record.actualCoinName}` : '--'}</span>;
@@ -79,6 +82,7 @@ function InvitationReward({onReturn}:InviteProps) {
             key: "actualRebateAmount",
             dataIndex: "actualRebateAmount",
             align: "right",
+            width: 160,
             render: (_text, record) => {
                 const {coinRate} = getCoinRate(record.actualCoinName, _text);
                 return <span>{_text?`${coinRate}`:'0'}</span>;
@@ -125,6 +129,10 @@ function InvitationReward({onReturn}:InviteProps) {
                             rowExpandedBg: "var(--background10)", // 表格行展开背景色
                             borderColor: "transparent",
                             headerBorderRadius:0, // 表头圆角
+                        },
+                        Pagination: {
+                            itemActiveBg: "transparent",
+                            itemBg: "transparent",
                         },
                     },
                 }}

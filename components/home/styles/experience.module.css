@@ -1,6 +1,6 @@
 .experience_page {
-    background-color: var(--homeground);
-    color: #fff;
+    background-color: var(--homeground2);
+    color: var( --text-color5);
     height: 100vh;
 }
 
@@ -8,10 +8,7 @@
     height: 100%;
     width: 100%;
     position: relative;
-    display: flex;
-    /* align-items: center; */
-    justify-content: space-between;
-    padding: 8% 0;
+    /* padding: 80px 0; */
     overflow: hidden;
 }
 
@@ -23,7 +20,7 @@
     line-height: 75px;
     /* background-color: pink; */
     margin-left: 12%;
-    margin-top: 6%;
+    margin-top: 190px;
     text-align: left;
 }
 .assistant_main_title1 {
@@ -49,19 +46,19 @@
 /* 输入框组件覆盖 */
 .custom_input_home:focus,
 .custom_input_home:focus-within {
-    border-color: #fff !important;
-    box-shadow: 0 0 0 2px #fff !important;
+    border-color:var( --theme-color) !important;
+    box-shadow: 0 0 0 2px var(--theme-shadow) !important;
 }
 
 /* 鼠标聚焦且移出样式 */
 .custom_input_home:focus:not(:hover) {
-    background-color: var(--homeground) !important;
-    color: #fff !important;
+    background-color: transparent !important;
+    color: var( --text-color5) !important;
 }
 
 /* 鼠标滑过 */
 .custom_input_home:hover {
-    border-color: #fff !important;
+    border-color: var( --theme-color) !important;
 }
 
 .custom_input_home {
@@ -69,17 +66,19 @@
     height: 49px !important;
     border-radius: 45px !important;
     margin-right: 20px !important;
-    background-color: var(--homeground) !important;
-    color: #fff !important;
+    background-color: transparent !important;
+    color: var( --text-color5) !important;
     text-indent: 1em !important;
+    border-color:var(--border-color3) ;
+
 }
 
 .custom_input_home:hover {
-    background-color: var(--homeground) !important;
+    background-color: transparent !important;
 }
 
 .custom_input_home::placeholder {
-    color: var(--btncolor1) !important;
+    color: var(--text-color6) !important;
 }
 
 /* 按钮组件覆盖 */
@@ -88,7 +87,8 @@
     height: 49px !important;
     border-radius: 42px !important;
     background-color: var(--btnbgcolor) !important;
-    color: var(--btncolor) !important;
+    /* color: var(--btncolor) !important; */
+    color: #fff !important;
     border: none !important;
 }
 /* .experience_main_btn:hover div{

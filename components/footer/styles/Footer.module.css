@@ -7,16 +7,19 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-width: 145px;
+   
     margin-right: 60px;
 }
 .footerContainer .logoAndButton .logo {
     /* width: 145px; */
     height: 28px;
 }
+.footer_left{
+    min-width: 145px;
+}
 .footerContainer .logoAndButton .logo img {
     /* max-width: 140px; */
-    /* width: 100%; */
+    width: 'auto';
     height: 100%;
 }
 .footerContainer .logoAndButton p {
