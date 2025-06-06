@@ -191,10 +191,7 @@ const ExchangePage = () => {
                 if (message.includes('error')) {
                     return;
                 }
-                console.log('getWsDepthData',message)
                 const data = JSON.parse(message);
-
-                console.log(data, 'getWsDepthData');
                 // 检查消息类型是否为depth
                 if (data.type !== 'depth') {
                     return;
@@ -218,17 +215,18 @@ const ExchangePage = () => {
 
                     // 处理买单(bids)更新
                     if (data.bids && Array.isArray(data.bids)) {
-                        // 买单按价格降序排列
-                        const sortedBids = [...newData.bids].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
-                        const minPrice = sortedBids.length >= 10 ? parseFloat(sortedBids[9][0]) : 0;
+                        // 先对当前买单按价格降序排列
+                        newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
+                        // 只有当有足够的档位时才设置最小价格，否则设置为一个很小的值
+                        const minPrice = newData.bids.length >= 10 ? parseFloat(newData.bids[9][0]) : -Infinity;
                         
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
-                            console.log('买单',newBid)
                             const priceFloat = parseFloat(price);
+                            const quantityNum = Number(quantity);
                             
                             // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
-                            if (sortedBids.length >= 10 && priceFloat < minPrice) {
+                            if (newData.bids.length >= 10 && priceFloat < minPrice) {
                                 return; // 不处理此档位
                             }
                             
@@ -238,12 +236,10 @@ const ExchangePage = () => {
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
                                 const currentQuantity = Number(newData.bids[existingIndex][1]);
-                                const quantityNum = Number(quantity);
                                 let newQuantity;
                                 
                                 // 如果数量为负数，进行减法操作
                                 if (quantityNum < 0) {
-                                    console.log('买单负数quantityNum', quantityNum);
                                     newQuantity = currentQuantity - Math.abs(quantityNum);
                                 } else {
                                     // 否则进行累加
@@ -258,8 +254,8 @@ const ExchangePage = () => {
                                     newData.bids[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
-                            // 规则2: 如果新档位在10档内但价格找不到，加入到盘口
-                            else if (quantity !== '0') {
+                            // 规则2: 如果新档位在10档内但价格找不到，且数量大于0，加入到盘口
+                            else if (quantity !== '0' && quantityNum > 0) {
                                 // 按价格降序插入新买单
                                 let insertIndex = 0;
                                 while (insertIndex < newData.bids.length &&
@@ -273,18 +269,18 @@ const ExchangePage = () => {
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        console.log('当前卖单1',data.asks)
-                        console.log('当前卖单2',newData)
-                        // 卖单按价格降序排列   
-                        const sortedAsks = [...newData.asks].sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
-                        const minPrice = sortedAsks.length >= 10 ? parseFloat(sortedAsks[9][0]) : 0;
+                        // 先对当前卖单按价格升序排列
+                        newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+                        // 只有当有足够的档位时才设置最大价格，否则设置为一个很大的值
+                        const maxPrice = newData.asks.length >= 10 ? parseFloat(newData.asks[9][0]) : Infinity;
                         
                         data.asks.forEach((newAsk: any) => {
                             const [price, quantity] = newAsk;
                             const priceFloat = parseFloat(price);
+                            const quantityNum = Number(quantity);
                             
-                            // 规则1: 如果新档位不在10档内（对于卖单，价格小于当前10档最低价），不处理
-                            if (sortedAsks.length >= 10 && priceFloat < minPrice) {
+                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
+                            if (newData.asks.length >= 10 && priceFloat > maxPrice) {
                                 return; // 不处理此档位
                             }
                             
@@ -294,12 +290,10 @@ const ExchangePage = () => {
                             // 规则3: 如果新档位在10档内且价格能找到，进行数量计算
                             if (existingIndex > -1) {
                                 const currentQuantity = Number(newData.asks[existingIndex][1]);
-                                const quantityNum = Number(quantity);
                                 let newQuantity;
                                 
                                 // 如果数量为负数，进行减法操作
                                 if (quantityNum < 0) {
-                                    console.log('负数quantityNum',quantityNum)
                                     newQuantity = currentQuantity - Math.abs(quantityNum);
                                 } else {
                                     // 否则进行累加
@@ -314,12 +308,12 @@ const ExchangePage = () => {
                                     newData.asks[existingIndex][1] = newQuantity.toString();
                                 }
                             } 
-                            // 规则2: 如果新档位在10档内但价格找不到，且数量不为负数，加入到盘口
-                            else if (quantity !== '0' && parseFloat(quantity) > 0) {
-                                // 按价格降序插入新卖单
+                            // 规则2: 如果新档位在10档内但价格找不到，且数量大于0，加入到盘口
+                            else if (quantity !== '0' && quantityNum > 0) {
+                                // 按价格升序插入新卖单
                                 let insertIndex = 0;
                                 while (insertIndex < newData.asks.length &&
-                                    parseFloat(newData.asks[insertIndex][0]) > priceFloat) {
+                                    parseFloat(newData.asks[insertIndex][0]) < priceFloat) {
                                     insertIndex++;
                                 }
                                 newData.asks.splice(insertIndex, 0, newAsk);
@@ -328,11 +322,10 @@ const ExchangePage = () => {
                         });
                     }
 
-                    // 确保只保留必要的档位数量并正确排序
-                    newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0])); // 买单按价格降序
-                    newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])); // 卖单按价格升序
-                    
+                    // 确保只保留必要的档位数量
+                    // 买单已经按价格降序排列，直接截取前10个
                     newData.bids = newData.bids.slice(0, 10);
+                    // 卖单已经按价格升序排列，直接截取前10个
                     newData.asks = newData.asks.slice(0, 10);
 
                     return newData;
