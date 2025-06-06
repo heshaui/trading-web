@@ -56,6 +56,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
             dataIndex: "userId",
             key: "userId",
             align: "left",
+            width: 160,
             render: (text, record) => <span>{`${text}`} </span>,
         },
         {
@@ -63,6 +64,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
             dataIndex: "account",
             key: "account",
             align: "center",
+            width: 160,
             render: (_text) => <span>{_text ? encryptString(_text) : '--'}</span>,
         },
         {
@@ -70,6 +72,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
             key: "status",
             dataIndex: "status",
             align: "center",
+            width: 160,
             render: (_text) => {
                 return <span >{_text.toString() === '1' ? t('invite.inviteDetail.success') : t('invite.inviteDetail.fail')}</span>;
             },
@@ -79,6 +82,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
             key: "regeistTime",
             dataIndex: "regeistTime",
             align: "right",
+            width: 160,
             render: (_text) => {
                 return <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>;
             },

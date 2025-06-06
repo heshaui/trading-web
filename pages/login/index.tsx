@@ -15,15 +15,14 @@ import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 // import { getKvObject } from "@/services/kv"
 import { useWebConfig } from '@/hooks/useKv';
 import appStore from '@/store';
+import { getNextJsLocale } from '@/utils/filterLang';
+
 const loginBgcStyle: CSSProperties = {
-	// backgroundImage: `url("/images/login/banner.png")`,
-	// backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png')`,
+// backgroundImage: `url('https://meta2025.oss-ap-northeast-2.aliyuncs.com/2025/03/10/43f0ad3c-5e0f-4a5f-9c67-89cf77bb8673.png')`,
 	backgroundColor: "var(--background11)",
 	backgroundRepeat: "no-repeat",
 	backgroundSize: "cover",
-	// height: "100%",
 	height: "100vh",
-	// backgroundColor:"pink"
 	width: "100px"
 };
 interface LoginPicType {
@@ -39,6 +38,7 @@ function Login() {
 	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
 	const allConfig = appStore.getKvConfigAll();
 	const token = appStore.getToken();
+	const langKey = appStore.getLang() || 'en_US';
 	const getBgc = async () => {
 		try {
 			// const res=await getPic(['pcLogin'])
@@ -46,20 +46,28 @@ function Login() {
 			if (res.code === '0') {
 
 				const resdata = JSON.parse(res.data)
-				let lang = '';
-				if (typeof window !== 'undefined') {
-					lang = localStorage.getItem('localeLanguage') || '';
-				}
-				if (lang === 'en' || lang === 'en_US'||lang.includes('en')) {
-					setLoginPic(resdata['en_US'])
-				} else if (lang === 'zh_CN' || lang === 'zh'||lang.includes('zh')) {
-					setLoginPic(resdata['zh_CN'])
-				} else if (lang === 'ko' || lang === 'ko-KR'||lang.includes('ko')) {
-					setLoginPic(resdata['ko_KR'])
-				} else if (lang === 'ja' || lang === 'jp' || lang === 'ja-JP'||lang.includes('ja')) {
-					setLoginPic(resdata['ja_JP'])
-				}else if (lang) {
-					setLoginPic(resdata[lang])
+				// let lang = '';
+				// if (typeof window !== 'undefined') {
+				// 	lang = localStorage.getItem('localeLanguage') || '';
+				// }
+				// if (lang === 'en' || lang === 'en_US'||lang.includes('en')) {
+				// 	setLoginPic(resdata['en_US'])
+				// } else if (lang === 'zh_CN' || lang === 'zh'||lang.includes('zh')) {
+				// 	setLoginPic(resdata['zh_CN'])
+				// } else if (lang === 'ko' || lang === 'ko-KR'||lang.includes('ko')) {
+				// 	setLoginPic(resdata['ko_KR'])
+				// } else if (lang === 'ja' || lang === 'jp' || lang === 'ja-JP'||lang.includes('ja')) {
+				// 	setLoginPic(resdata['ja_JP'])
+				// }else if (lang) {
+				// 	setLoginPic(resdata[lang])
+				// } else {
+				// 	setLoginPic(resdata['en_US'])
+				// }
+				const langCode = getNextJsLocale(langKey, 1)
+
+				const langData = resdata[langCode]
+				if (langData) {
+					setLoginPic(resdata[langCode])
 				} else {
 					setLoginPic(resdata['en_US'])
 				}
@@ -109,7 +117,7 @@ function Login() {
 			<div
 				className="isHidden flex-1"
 				// style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image})`}}
-				style={{ ...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image?loginPic?.login.image:'/images/login/banner.png'})` }}
+				style={{ ...loginBgcStyle, backgroundImage: `url(${loginPic?.login.image ? loginPic?.login.image : '/images/login/banner.png'})` }}
 				// style={loginBgcStyle}'
 				onClick={picClick}
 			>

@@ -54,7 +54,7 @@
 }
 /* 鼠标聚焦且移出样式 */
 .input_box:focus:not(:hover){
-    background-color: var(--homeground5);
+    background-color: transparent;
     color: #fff;
     box-shadow: none;
     color: var(--text-color6) !important;

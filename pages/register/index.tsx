@@ -13,12 +13,13 @@ import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 // const HOMEPAGE = '/';
-import {  getPic2 } from "@/services/open";
+import { getPic2 } from "@/services/open";
 import { useEffect, useState } from "react";
 import type { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useWebConfig } from '@/hooks/useKv';
 import appStore from '@/store';
+import { getNextJsLocale } from '@/utils/filterLang';
 const loginBgcStyle: CSSProperties = {
 	// backgroundImage: `url("/images/login/banner.png")`,
 	backgroundColor: "var(--background11)",
@@ -30,37 +31,46 @@ const loginBgcStyle: CSSProperties = {
 };
 interface LoginPicType {
 	[key: string]: {
-			image: string,
-			title: string,
-			url: string
+		image: string,
+		title: string,
+		url: string
 	}
 }
 function Register() {
 	const [loginPic, setLoginPic] = useState<LoginPicType | null>(null)
 	const allConfig = appStore.getKvConfigAll();
+	const langKey = appStore.getLang() || 'en_US';
 	const getBgc = async () => {
 		try {
 			// const res=await getPic(['pcLogin'])
 			const res = await getPic2('pcLogin')
 			if (res.code === '0') {
-			
+
 				const resdata = JSON.parse(res.data)
-				
-				let lang = '';
-                if (typeof window !== 'undefined') {
-                    lang = localStorage.getItem('localeLanguage') || '';
-                }
-				if (lang === 'en'||lang === 'en_US'||lang.includes('en')) {
-					setLoginPic(resdata['en_US'])
-				} else if (lang === 'zh_CN' || lang === 'zh'||lang.includes('zh')) {
-					setLoginPic(resdata['zh_CN'])	
-				} else if (lang === 'ko'||lang === 'ko-KR'||lang.includes('ko')) {
-					setLoginPic(resdata['ko_KR'])
-				}else if (lang === 'ja'||lang === 'jp'||lang === 'ja_JP'||lang.includes('ja')) {
-					setLoginPic(resdata['ja_JP'])
-				}else if(lang){
-					setLoginPic(resdata[lang])
-				}else{
+
+				// let lang = '';
+				// if (typeof window !== 'undefined') {
+				//     lang = localStorage.getItem('localeLanguage') || '';
+				// }
+				// if (lang === 'en'||lang === 'en_US'||lang.includes('en')) {
+				// 	setLoginPic(resdata['en_US'])
+				// } else if (lang === 'zh_CN' || lang === 'zh'||lang.includes('zh')) {
+				// 	setLoginPic(resdata['zh_CN'])
+				// } else if (lang === 'ko'||lang === 'ko-KR'||lang.includes('ko')) {
+				// 	setLoginPic(resdata['ko_KR'])
+				// }else if (lang === 'ja'||lang === 'jp'||lang === 'ja_JP'||lang.includes('ja')) {
+				// 	setLoginPic(resdata['ja_JP'])
+				// }else if(lang){
+				// 	setLoginPic(resdata[lang])
+				// }else{
+				// 	setLoginPic(resdata['en_US'])
+				// }
+				const langCode = getNextJsLocale(langKey, 1)
+
+				const langData = resdata[langCode]
+				if (langData) {
+					setLoginPic(resdata[langCode])
+				} else {
 					setLoginPic(resdata['en_US'])
 				}
 			}
@@ -69,8 +79,8 @@ function Register() {
 		}
 	}
 	const picClick = () => {
-		if(loginPic?.register.url){
-			window.open(loginPic?.register.url, '_blank','noopener')
+		if (loginPic?.register.url) {
+			window.open(loginPic?.register.url, '_blank', 'noopener')
 		}
 	}
 	// useEffect(() => {
@@ -87,7 +97,7 @@ function Register() {
 			<div
 				className="isHidden flex-1"
 				// style={loginBgcStyle}
-				style={{...loginBgcStyle, backgroundImage: `url(${loginPic?.register.image?loginPic?.register.image:'/images/login/banner.png'})`}}
+				style={{ ...loginBgcStyle, backgroundImage: `url(${loginPic?.register.image ? loginPic?.register.image : '/images/login/banner.png'})` }}
 				onClick={picClick}
 			>
 				{/* <img className="" src="/images/login/loginPic.png" alt="" /> */}
@@ -115,7 +125,7 @@ function Register() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
 	return {
 		props: {
-			...(await serverSideTranslations(locale || 'en', ['login','common'])),
+			...(await serverSideTranslations(locale || 'en', ['login', 'common'])),
 		},
 	};
 };
