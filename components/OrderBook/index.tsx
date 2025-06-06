@@ -74,17 +74,15 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
         
         // 处理新的数据
         bookData.asks.forEach((item: [number, number]) => {
-          console.log('原始数量',item[1])
           const price = Number(item[0]);
           const amount = Number(item[1]);
 
-          console.log("数量",amount)
           if (amount < 0) {
             // 如果数量为负，从现有数量中减去
             const existingAmount = priceMap.get(price) || 0;
-            const newAmount = Math.max(0, existingAmount + amount); // 加上负数就是减去
-            if (newAmount > 0) {
-              priceMap.set(price, newAmount);
+            const newAmount = cut(Number(existingAmount), Math.abs(Number(amount)));
+            if (Number(newAmount) > 0) {
+              priceMap.set(price, Number(newAmount));
             } else {
               priceMap.delete(price); // 如果数量变为0或负数，删除此价格
             }
@@ -102,7 +100,7 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           }
         });
         
-        // 卖单按价格降序排列
+        // 卖单按价格降序排列（价格高的排在上面）
         updatedSellOrders.sort((a: Order, b: Order) => b.price - a.price);
         if (colorMode === 1) {
           setSellOrders(updatedSellOrders.splice(0, 10));
@@ -132,11 +130,10 @@ const OrderBook = ({  bookData, orderData, priceClickHandler }: OrderBookProps) 
           if (amount < 0) {
             // 如果数量为负，从现有数量中减去
             const existingAmount = priceMap.get(price) || 0;
-            // const newAmount = Math.max(0, existingAmount - Math.abs(amount));
-           const  newAmount=cut(Number(existingAmount),Number(amount))
-
+            const newAmount = cut(Number(existingAmount), Math.abs(Number(amount)));
+            
             if (Number(newAmount) > 0) {  
-              priceMap.set(price,Number(newAmount));
+              priceMap.set(price, Number(newAmount));
             } else {
               priceMap.delete(price); // 如果数量变为0或负数，删除此价格
             }
