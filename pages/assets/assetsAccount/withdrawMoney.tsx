@@ -1100,7 +1100,7 @@ const WithdrawMoneyPage = observer(() => {
                         <ul className={`${styles.tip_color} ${styles.icon_btn_bottom} w-full mb-5`}>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.spotAvailable')}</p>
-                                <p>
+                                <p className={`${styles.title_color}`}>
                                     {/* 50.13USDT */}
                                     {coninInfo.balance || '0'}&nbsp;
                                     {coninInfo.coinName || '--'}
@@ -1108,7 +1108,7 @@ const WithdrawMoneyPage = observer(() => {
                             </li>
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.singleLimit')}</p>
-                                <p>
+                                <p className={`${styles.title_color}`}>
                                     {/* 10-10,000USDT */}
                                     {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
                                     {coninInfo.minWithdraw || '0'}-{coninInfo.maxWithdraw || '0'}&nbsp;{coninInfo.coinName || '--'}
@@ -1117,8 +1117,8 @@ const WithdrawMoneyPage = observer(() => {
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.dayLimit')}</p>
                                 {/* 24h限额 */}
-                                <p>{userAllLimit.min ? getCoinRateData(coninInfo.coinName, userAllLimit.min) : '0'}
-                                    <span>/ {userAllLimit.max ? getCoinRateData(coninInfo.coinName, userAllLimit.max) : '0'}</span>&nbsp;{coninInfo.coinName || '--'}</p>
+                                <p><span className={`${styles.title_color}`}>{userAllLimit.min ? getCoinRateData(coninInfo.coinName, userAllLimit.min) : '0'}</span>
+                                    / {userAllLimit.max ? getCoinRateData(coninInfo.coinName, userAllLimit.max) : '0'}&nbsp;{coninInfo.coinName || '--'}</p>
                             </li>
                         </ul>
                         <div className='flex-x justify-between align-center'>
