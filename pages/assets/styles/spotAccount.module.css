@@ -75,6 +75,11 @@
 .strong_color {
     color: var(--btncolor5)
 }
+.coninIcon{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
 .input_box {
     width: 188px !important;
     height: 40px;

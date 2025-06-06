@@ -598,10 +598,10 @@ export default function HomeMenu() {
                     <div className={styles.logo}>
                         <Image
                             src={logoUrl}
-                            alt=""
+                            alt="go Home"
                             width={40}
                             height={28}
-                            onError={() => setLogoUrl('/home_menu_logo.png')}
+                            onError={() => setLogoUrl('')} ///home_menu_logo.png
                             className='pointer'
                             onClick={() => router.push('/')}
                             priority
