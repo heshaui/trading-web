@@ -1,15 +1,20 @@
-export const getNextJsLocale = (langCode: string) => {
+export const getNextJsLocale = (langCode: string, type: number = 0): string => {
+    // 0: 缩写简称 1:缩写全称
     // 确保 langCode 是小写的，以便更一致地匹配
     const lowerLangCode = langCode.toLowerCase();
-    
-    // 更精确的匹配
-    if (lowerLangCode.startsWith('zh_') || lowerLangCode === 'zh') return 'zh';
-    if (lowerLangCode.startsWith('ja_') || lowerLangCode === 'ja') return 'ja';
-    if (lowerLangCode.startsWith('ko_') || lowerLangCode === 'ko') return 'ko';
-    if (lowerLangCode.startsWith('tw_') || lowerLangCode === 'tw') return 'tw';
-    
-    // 默认返回英语
-    return 'en';
+    if (type === 0) {
+        if (lowerLangCode.startsWith('zh_')) return 'zh';
+        if (lowerLangCode.startsWith('ja_')) return 'ja';
+        if (lowerLangCode.startsWith('ko_')) return 'ko';
+        if (lowerLangCode.startsWith('tw_')) return 'tw';
+        return 'en';
+    }else {
+        // 更精确的匹配
+        if (lowerLangCode.startsWith('zh_') || lowerLangCode === 'zh') return 'zh_CN';
+        if (lowerLangCode.startsWith('ja_') || lowerLangCode === 'ja') return 'ja_JP';
+        if (lowerLangCode.startsWith('ko_') || lowerLangCode === 'ko') return 'ko_KR';
+        return 'en_US';
+    }
 };
 
 export const isShowArr = (isGoogleAuth:number,isEmailAuth:number,isPhoneAuth:number,type:'login'|'password',openAll:number) => {

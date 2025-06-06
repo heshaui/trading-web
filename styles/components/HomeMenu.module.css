@@ -10,12 +10,13 @@
 
 .logo {
     /* max-width: 140px; */
+    width: auto;
     height: 28px;
     margin: 0 26px 0 20px;
 }
 
 .logo img {
-    width: 100%;
+    width: auto;
     height: 100%;
 }
 
