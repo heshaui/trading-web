@@ -1,28 +1,28 @@
 {
   "helpCenter": {
-    "helpCenter":"帮助中心",
-    "title": "我们能帮您什么？",
+    "helpCenter":"Help Center",
+    "title": "How can we help you?",
     "search": {
-      "history": ["永续合约", "期货合约", "期权合约"],
-      "placeholder": "请输入您的问题",
-      "noResults": "暂无搜索结果",
-      "results": "搜索结果"
+      "history": ["Perpetual Contracts", "Futures Contracts", "Options Contracts"],
+      "placeholder": "Please enter your question",
+      "noResults": "No search results",
+       "results": "Search results"
     },
     "otherSupport": {
-      "title": "其他支持",
+      "title": "Other Support",
       "onlineCommunication": {
-        "title": "在线沟通",
-        "description": "我们提供全天候服务，始终满足您的需求。"
+        "title": "Online Communication",
+        "description": "We provide 24/7 service to always meet your needs."
       },
       "email": {
-        "title": "通过电子邮件联系我们",
-        "business": "商户洽谈: XXXXXXXXX",
-        "legal": "法律合规: XXXXXXXXX"
+        "title": "Contact Us via Email",
+        "business": "Business Inquiries: 11123@qq.com",
+        "legal": "Legal Compliance: 123@qq.com"
       }
     },
     "detail": {
-      "noData": "暂无内容",
-      "back": "返回"
+      "noData": "No content",
+      "back": "Back"
     }
   }
 }

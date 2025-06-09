@@ -1,31 +1,31 @@
 {
-    "title": "安全中心",
-    "basic_security": "基础安全",
-    "google_auth": {
-      "title": "谷歌验证器(推荐)",
-      "desc": "用于登录、提现、修改安全设置等安全验证。若经常收不到短信验证码，建议绑定谷歌验证器。"
-    },
-    "phone_verify": {
-      "title": "手机验证",
-      "desc": "短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用24小时。",
-      "desc2": "短信验证码将保护您的账户与交易安全。修改绑定手机号后，支付、提现等功能将禁用{{time}}小时。"
-    },
-    "email_verify": {
-      "title": "邮箱验证",
-      "desc": "邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用24小时。",
-      "desc2": "邮箱验证码将保护您的账户与交易安全。修改绑定邮箱后，支付、提现等功能将禁用{{time}}小时。"
-    },
-    "login_password": {
-      "title": "登录密码",
-      "desc": "重置时自动退出当前账号"
-    },
-    "security_log": "安全日志",
-    "security_device": {
-      "title": "安全设备",
-      "desc": "管理已授权允许登录的设备。"
-    },
-    "security_log_item": {
-      "title": "安全日志",
-      "desc": "用于登录等IP地址安全。"
-    }
+  "title": "Security Center",
+  "basic_security": "Basic Security",
+  "google_auth": {
+      "title": "Google Authenticator (Recommended)",
+      "desc": "Used for security verification during login, withdrawals, and security settings changes. Recommended if you frequently don't receive SMS codes."
+  },
+  "phone_verify": {
+      "title": "Phone Verification",
+      "desc": "SMS codes protect your account and transactions. After changing your phone number, features like payments and withdrawals will be disabled for 24 hours.",
+      "desc2": "SMS codes protect your account and transactions. After changing your phone number, features like payments and withdrawals will be disabled for {{time}} hours."
+  },
+  "email_verify": {
+      "title": "Email Verification",
+      "desc": "Email codes protect your account and transactions. After changing your email, features like payments and withdrawals will be disabled for 24 hours.",
+      "desc2": "Email codes protect your account and transactions. After changing your email, features like payments and withdrawals will be disabled for {{time}} hours."
+  },
+  "login_password": {
+      "title": "Login Password",
+      "desc": "You will be automatically logged out after resetting."
+  },
+  "security_log": "Security Logs",
+  "security_device": {
+      "title": "Trusted Devices",
+      "desc": "Manage devices authorized to access your account."
+  },
+  "security_log_item": {
+      "title": "Security Logs",
+      "desc": "Monitor login IP addresses and security events."
   }
+}
