@@ -28,7 +28,10 @@ const defaultTheme: ThemeConfig = {
     Input: {
       activeShadow: 'none', //激活态阴影
       // errorActiveShadow: 'none', //错误态激活态阴影
-    }
+    },
+    DatePicker: {
+      cellActiveWithRangeBg: 'var(--bgc-color)', //选取范围内的单元格背景色
+    },
     // Tabs: {
     //   itemActiveColor: "var(--tip-color)", //激活态颜色  
     //   itemSelectedColor: "var(--text-color5)", //选中态颜色
