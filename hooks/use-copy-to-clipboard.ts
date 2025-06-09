@@ -25,7 +25,7 @@ export const useCopyToClipboard = (): ReturnType => {
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedText(text);
-			toast.success("Copied!");
+			toast.success("success!");
 			return true;
 		} catch (error) {
 			console.warn("Copy failed", error);

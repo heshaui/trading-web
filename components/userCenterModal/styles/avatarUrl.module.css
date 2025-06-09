@@ -48,8 +48,13 @@
 }
 .avatar_icon_box{
     margin-bottom: 2px;
+    /* min-height: 210px; */
 }
+/* .avatar_item_box{
+   min-height: 210px; 
+} */
 .avatar_icon_item{
+    
     margin-right: 8px;
     border: 1px solid #FF5F1F00;
 }

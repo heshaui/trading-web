@@ -50,7 +50,7 @@ function LoginRecord() {
             title: t('security.loginRecord.type'), //"类型",
             dataIndex: "platformType",
             key: "platformType",
-            width: 158,
+            width: 98,
             align: "left",
             render: (text, record) => <div>{`${text}`} </div>,
         },
@@ -59,7 +59,7 @@ function LoginRecord() {
             dataIndex: "createTime",
             key: "createTime",
             align: "center",
-            width: 128,
+            // width: 158,
             render: (_text) => <span>{_text ? dayjs(_text).format('YYYY-MM-DD HH:mm:ss') : '--'}</span>,
         },
         {
@@ -67,7 +67,7 @@ function LoginRecord() {
             dataIndex: "status",
             key: "status",
             align: "center",
-            width: 158,
+            // width: 128,
             render: (_status) => {
                 return <span >{_status ? _status == '1' ? t('security.loginRecord.loginSuccess') : t('security.loginRecord.loginFailed') : '--'}</span>;
             },
@@ -76,7 +76,7 @@ function LoginRecord() {
             title: "IP",
             key: "ip",
             dataIndex: "ip",
-            width: 128,
+            // width: 128,
             align: "center",
             render: (_ip) => {
                 return <span >{_ip || '--'}</span>;
@@ -86,8 +86,8 @@ function LoginRecord() {
             title: t('security.loginRecord.address'), //"登录所在地",
             key: "address",
             dataIndex: "address",
-            width: 128,
-            align: "center",
+            width: 158,
+            align: "right",
             render: (_status) => {
                 return <span >{_status || '--'}</span>;
             },

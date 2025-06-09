@@ -33,7 +33,8 @@
 .modal_box .ant-modal-content {
     background-color: var(--background5);
 }
-.modal_box .anticon-close{
+
+.modal_box .anticon-close {
     color: var(--text-color6) !important;
 }
 
@@ -64,6 +65,7 @@
     color: var(--text-color4) !important;
     font-size: 16px !important;
 }
+
 .modal-input input::placeholder,
 .modal-input2 input::placeholder {
     color: var(--text-color4) !important;
@@ -71,20 +73,23 @@
 }
 
 /* 输入框清除图标底色及可视 */
-.modal-input  .anticon.ant-input-password-icon,
+.modal-input .anticon.ant-input-password-icon,
 .modal-input .ant-input-clear-icon,
 .modal-input2 .ant-input-clear-icon {
     color: var(--text-color4) !important;
 }
-.modal-input{
+
+.modal-input {
     border-color: var(--border-color4) !important;
 }
+
 /* modal选择框placeholder颜色 */
 .custom-sleect .ant-select-selection-placeholder,
 .custom-select .ant-select-selection-placeholder {
     color: var(--text-color4) !important;
 }
-.select-text-right .ant-select-selection-placeholder{
+
+.select-text-right .ant-select-selection-placeholder {
     color: var(--text-color5) !important;
     text-align: right !important;
 }
@@ -92,7 +97,8 @@
 .custom-select .ant-select-selection-item {
     color: var(--text-color6) !important;
 }
-.select-text-right .ant-select-selection-item{
+
+.select-text-right .ant-select-selection-item {
     color: var(--text-color5) !important;
 }
 
@@ -106,38 +112,52 @@
     color: var(--text-color4) !important;
     font-size: 16px !important;
 }
+
 /* 选择框边框颜色 */
-.custom-select .ant-select-selector{
+.custom-select .ant-select-selector {
     border-color: var(--border-color4) !important;
 }
-.select-text-right .ant-select-selector{
+
+.select-text-right .ant-select-selector {
     border-color: var(--border-color4) !important;
 }
-.select-text-right .ant-select-selection-item{
+
+.select-text-right .ant-select-selection-item {
     text-align: right !important;
 }
+
 /* RangePicker自定义 */
 /* 选择框placeholder颜色 */
 .custom-range-picker .ant-picker-input>input::placeholder {
     color: var(--text-color4) !important;
 }
+
 /* 选择框分隔符颜色 */
-.custom-range-picker .ant-picker-separator{
+.custom-range-picker .ant-picker-separator {
     color: var(--text-color4) !important;
 }
+
 .custom-range-picker .ant-picker-outlined,
 .custom-range-picker {
     background: transparent !important;
 }
-.custom-range-picker .ant-picker-clear{
+
+.custom-range-picker .ant-picker-clear {
     color: var(--text-color4) !important;
 }
+
 /* 自定义步骤条 */
 /* 步骤条选中状态 */
 /* .custom-steps .ant-steps-item-process .ant-steps-item-icon{
     background-color:transparent !important;
     border-color: var(--theme-color) !important;
 } */
+/* .ant-steps .ant-steps-item-process .ant-steps-item-icon */
+.custom-steps2 .ant-steps-item-process .ant-steps-item-icon,
+.custom-steps2 .ant-steps-item-process .ant-steps-item-icon {
+    box-shadow: 0px 4px 20px 0px var(--theme-shadow);
+}
+
 .custom-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon {
     color: var(--cancel-btn) !important;
 }
@@ -147,8 +167,7 @@
 .custom-steps .ant-steps-item-process .ant-steps-item-title,
 
 .custom-steps2 .ant-steps-item-finish .ant-steps-item-title,
-.custom-steps2 .ant-steps-item-process .ant-steps-item-title
- {
+.custom-steps2 .ant-steps-item-process .ant-steps-item-title {
     color: var(--text-color5) !important;
 }
 
@@ -173,21 +192,22 @@
 
 /* 步骤条连接线 */
 .custom-steps .ant-steps-item-process .ant-steps-item-tail::after,
-.custom-steps2 .ant-steps-item-process .ant-steps-item-tail::after
- {
+.custom-steps2 .ant-steps-item-process .ant-steps-item-tail::after {
     background-color: var(--text-color4) !important;
 }
+
 .custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
-.custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after{
+.custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after {
     background-color: var(--text-color4) !important;
 }
+
 /* 身份认证-已完成 */
 .custom-steps2 .ant-steps-item-finish .ant-steps-item-icon,
-.custom-steps2 .ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon
- {
-    background-color:#00C788 !important;
-    color:#ffffff !important;
+.custom-steps2 .ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon {
+    background-color: #00C788 !important;
+    color: #ffffff !important;
     border-color: #00C788 !important;
+    box-shadow: 0px 4px 20px 0px var(--success-shadow);
 }
 
 
@@ -236,27 +256,32 @@
     border-color: var(--text-color3) !important;
     box-shadow: none !important;
 }
-.custom-sleect .ant-select-selector{
+
+.custom-sleect .ant-select-selector {
     border-color: var(--border-color4) !important;
     font-size: 16px !important;
 }
+
 /* 数字输入框组件文本位置 */
 .spot_number_input .ant-input-number-input,
 .spot_number_input2 .ant-input-number-input {
     text-align: end !important;
     color: var(--text-color5) !important;
 }
+
 .spot_number_input,
 .spot_number_box .spot_number_input2 {
     color: var(--text-color5) !important;
     background-color: var(--background9) !important;
 }
-.spot_number_box .ant-input-number-disabled{
+
+.spot_number_box .ant-input-number-disabled {
     background: var(--background6) !important;
     color: var(--text-color4) !important;
     cursor: not-allowed !important;
     opacity: 0.8 !important;
 }
+
 /* segmented 选中标签样式及动画标签 */
 /* 未选中标签鼠标滑过样式 */
 /* .custom-segmented .ant-segmented-group,.custom-segmented ant-segmented-item{
@@ -279,11 +304,13 @@
     /* background: linear-gradient(90deg, #00EEFF 0%, #1F40FF 100%); */
     background: var(--btncolor5) !important;
 }
-.custom-segmented2 .ant-segmented-item-selected{
+
+.custom-segmented2 .ant-segmented-item-selected {
     box-shadow: 0px 4px 18px 0px var(--theme-shadow) !important;
 }
+
 .spot-segmented .ant-segmented-item-selected,
-.spot-segmented .ant-segmented-thumb{
+.spot-segmented .ant-segmented-thumb {
     border-radius: 36px !important;
 }
 
@@ -360,13 +387,13 @@
 /*table 表格组件 */
 /* 背景色/各行背景色 */
 .table-box .ant-table,
-.spot-table-box .ant-table{
+.spot-table-box .ant-table {
     background: transparent !important;
     color: var(--text-color5) !important;
     font-size: 14px !important;
     font-weight: 500 !important;
 }
- 
+
 /* 表头文字*/
 .table-box .ant-table-thead,
 .spot-table-box .ant-table-thead {
@@ -391,11 +418,13 @@
 .table-box2 .ant-table-cell-row-hover {
     background: transparent !important;
 }
+
 /* 选中行 颜色 */
 .table-box .ant-table-row-selected>.ant-table-cell,
-.spot-table-box .ant-table-row-selected>.ant-table-cell{
+.spot-table-box .ant-table-row-selected>.ant-table-cell {
     background: var(--bgc-color) !important;
 }
+
 /* 不显示展开图标时展开列表位置 */
 .table-box2 .ant-table {
     margin-left: 0 !important;
@@ -406,6 +435,7 @@
     padding-left: 16px !important;
     /* padding:0 !important; */
 }
+
 /* 展开行样式 */
 .spot-table-box .ant-table-cell {
     /* padding: 16px 0 !important; */
@@ -429,12 +459,13 @@
 }
 
 /* 表头边框 */
-.table-box .ant-table-thead>tr>th ,
-.spot-table-box .ant-table-thead>tr>th{
+.table-box .ant-table-thead>tr>th,
+.spot-table-box .ant-table-thead>tr>th {
     border-bottom: 0.5px solid var(--border-color4) !important;
     border-top: 0.5px solid var(--border-color4) !important;
 }
-.spot-table-box2 .ant-table-thead>tr>th{
+
+.spot-table-box2 .ant-table-thead>tr>th {
     border-bottom: none !important;
     border-top: none !important;
 }
@@ -462,12 +493,13 @@
 .spot-table-box .ant-pagination-prev button {
     color: var(--text-color5) !important;
 }
+
 /* 分页样式-下拉箭头 */
 .spot-table-box .ant-select-arrow,
-.table-box .ant-select-arrow
-{
+.table-box .ant-select-arrow {
     color: var(--text-color5) !important;
 }
+
 /* 表格分页选择框背景色及颜色 */
 .table-box .ant-select-selector,
 .spot-table-box .ant-select-selector {
@@ -480,18 +512,21 @@
     color: var(--text-color4) !important;
 }
 
-.spot-pagination .ant-pagination-simple-pager{
+.spot-pagination .ant-pagination-simple-pager {
     color: var(--text-color5) !important;
 }
-.spot-pagination .ant-pagination-simple-pager input{
+
+.spot-pagination .ant-pagination-simple-pager input {
     background: transparent !important;
     color: var(--text-color5) !important;
 }
+
 /* 表格排序图标颜色 */
 .spot-table-box .ant-table-column-sorter,
-.table-box .ant-table-column-sorter{
+.table-box .ant-table-column-sorter {
     color: var(--text-color5) !important;
 }
+
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body,
 .spot-table-box .ant-table-body {
@@ -515,43 +550,49 @@
 .ant-table-content::-webkit-scrollbar-track {
     height: 8px !important;
     background: transparent !important;
-  }
-  .ant-table-content::-webkit-scrollbar {
+}
+
+.ant-table-content::-webkit-scrollbar {
     height: 8px;
     background: transparent !important;
-  }
-  .ant-table-content::-webkit-scrollbar-thumb {
+}
+
+.ant-table-content::-webkit-scrollbar-thumb {
     background: #ccc !important;
     border-radius: 4px;
-  }
-  .ant-table-content::-webkit-scrollbar-track {
+}
+
+.ant-table-content::-webkit-scrollbar-track {
     background: transparent !important;
-  }
-  
-  /* Firefox */
-  .ant-table-content {
+}
+
+/* Firefox */
+.ant-table-content {
     scrollbar-color: #ccc transparent !important;
     scrollbar-width: thin;
-  }
+}
 
 
 /* tabs 指示条颜色 */
 .custom-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
 }
+
 .custom-tabs2 .ant-tabs-nav::before {
     border-color: var(--border-color4) !important;
 }
-.custom-tabs2 .ant-tabs-tab{
+
+.custom-tabs2 .ant-tabs-tab {
     margin: 0 0 0 24px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
-.spot-tabs .ant-tabs-nav::before{
+
+.spot-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
 }
 
 /* 自定义radio */
-.radio-custom .ant-radio-wrapper-block{
+.radio-custom .ant-radio-wrapper-block {
     justify-content: flex-start !important;
 }

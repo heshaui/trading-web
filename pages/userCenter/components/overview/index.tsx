@@ -1,7 +1,7 @@
 import React from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
-import { Iconify } from "@/components/icon"
+import { Iconify, SvgIcon } from "@/components/icon"
 import { CSSProperties, useState, useEffect } from "react";
 import { QRCode, Skeleton, Carousel } from "antd";
 import Image from 'next/image';
@@ -20,8 +20,6 @@ import { getCarouselImageList } from '@/services/userCenter';
 import { getLoginInfo } from '@/services/overview';
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
-import { getUserBalanceByDay } from '@/services/assets'
-import { ROUTER_KEY_ASSETS } from '@/config/apiConfig';
 import { LoginInfoType, LoginLogListType, carouselImageContentsType, CarouselPicType } from '@/type/userCenter/overview'
 import AssetsPage from "./assets"
 import InvitePage from "./invite"
@@ -162,6 +160,47 @@ const OverviewPage: React.FC = () => {
             window.removeEventListener('resize', updateBannerHeight);
         };
     }, []);
+
+    // 身份等级指示器组件
+    const LevelIndicator = ({ active = true, className = '' }) => {
+        // 非激活状态使用图片
+        if (!active) {
+            return (
+                <Image 
+                    src={isDayMode ? "/images/userCenter/safe/icon_none_day.png" :
+                        "/images/userCenter/safe/icon_none_dark.png"}
+                    width={21}
+                    height={4}
+                    alt=""
+                    className={className}
+                />
+            );
+        }
+        
+        // 激活状态使用 SVG
+        return (
+            <SvgIcon
+                viewBox="0 0 21 4"
+                className={className}
+                width={21}
+                height={4}
+            >
+                <rect width="21" height="4" fill={'var(--theme-color)'} />
+            </SvgIcon>
+        );
+    };
+    
+    // 获取身份状态显示
+    const getIdentityStatus = (status: number) => {
+        if (!status || status < 1 || status > 3) return '';
+        return (
+            <div className='flex-x-cc'>
+                <LevelIndicator active={status >= 3} className='mr-1' />
+                <LevelIndicator active={status >= 2} className='mr-1' />
+                <LevelIndicator active={status >= 1} />
+            </div>
+        );
+    }
 
     return (<div className={`${styles.overview_page}`} >
         <div className={`${styles.overview_header}`}>
@@ -353,7 +392,7 @@ const OverviewPage: React.FC = () => {
                             <span className='mr-2_5' >
                                 {/* 安全强度 */}
                                 {t('overview.securityAuth.securityLevel')}({loginInfo?.securityIntensity === 1 ? t('overview.securityAuth.low') : loginInfo?.securityIntensity === 2 ? t('overview.securityAuth.medium') : t('overview.securityAuth.high')})</span>
-                            {loginInfo?.securityIntensity === 1 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe1.svg" : "/images/userCenter/safe/icon_safe1_dark.svg"}
+                            {/* {loginInfo?.securityIntensity === 1 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe1.svg" : "/images/userCenter/safe/icon_safe1_dark.svg"}
                                 width={71}
                                 height={4}
                                 alt="" />}
@@ -364,7 +403,8 @@ const OverviewPage: React.FC = () => {
                             {loginInfo?.securityIntensity === 3 && <Image src="/images/userCenter/safe/icon_safe3.svg"
                                 width={71}
                                 height={4}
-                                alt="" />}
+                                alt="" />} */}
+                            {getIdentityStatus(loginInfo?.securityIntensity)}
                         </div>
                         <p className={`font-14 mt-3`}>
                             {/* 启用双重认证提高账户安全性 */}
@@ -391,7 +431,7 @@ const OverviewPage: React.FC = () => {
                     </div>
                     {(carouselPic.length === 0) ? <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
                         style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}
-                        onClick={() => {router.push('/userCenter/invite')}}>
+                        onClick={() => { router.push('/userCenter/invite') }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
 
                             {t('overview.recommend.invite')}
