@@ -190,21 +190,21 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                         {t('withdrawMoneyCheck.withdrawAmount')}
                     </p>
                     <ul className={`${styles.card_bgc3} mt-2`}>
-                        <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
+                        <li className={`${styles.title_color} font-14 font-w-400 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>
                                 {/* 提现地址 */}
                                 {t('withdrawMoneyCheck.withdrawAddress')}
                             </p>
                             <p >{withdrawInfo?.toAddress}</p>
                         </li>
-                        <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
+                        <li className={`${styles.title_color} font-14 font-w-400 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>
                                 {/* 网络 */}
                                 {t('withdrawMoneyCheck.network')}
                             </p>
                             <p >{withdrawInfo?.protocolName}</p>
                         </li>
-                        <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
+                        <li className={`${styles.title_color} font-14 font-w-400 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>
                                 {/* 数量 */}
                                 {t('withdrawMoneyCheck.amountAfter')}
@@ -222,7 +222,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                                     {withdrawInfo?.countWithdrawFee}
                                     {withdrawInfo?.coinName}</span></p>
                         </li>
-                        <li className={`${styles.title_color} font-14 font-w-500 flex-x align-center justify-between mb-5`}>
+                        <li className={`${styles.title_color} font-14 font-w-400 flex-x align-center justify-between mb-5`}>
                             <p className={`${styles.tip_color}`}>
                                 {/* 提现账户 */}
                                 {t('withdrawMoneyCheck.withdrawAccount')}

@@ -439,7 +439,7 @@ function AvatarUrlModal({ open, onCancel, userId, onOk }: Props) {
                             onChange={avatarTypeChange}
                             className={`${styles.avatar_icon_box}`}
                         />
-                        <ul className={`${styles.avatar_icon_box} flex-x flex-wrap`}>
+                        <ul className={`${styles.avatar_icon_box} ${styles.avatar_item_box} flex-x flex-wrap`}>
                             {siftAvatarList.map((item) => (
                                 <li
                                     className={`${styles.avatar_icon_item} mt-2_5 ${selectedAvatar === item.src ? styles.selected : ''}`}
