@@ -157,7 +157,7 @@ export const getThemeVariables = () => {
             '--border-color4': '#DCDCDC',
             '--border-color5': '#E5E5E5',
             '--border-color6': '#E5E5E5',
-            '--bgc-color':getColorWithOpacity(themeColor, 0.05), // '#FFF5F1',
+            '--bgc-color':getColorWithOpacity(themeColor, 0.1), // '#FFF5F1',
             '--help-center-banner': 'url("/images/help_center/banner.png")',
             '--help-center-input-text': '#9E9E9E',
             '--help-center-card-bg': '#FFFFFF',
