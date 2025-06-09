@@ -123,7 +123,7 @@ export default function Experience() {
                     <div className={`flex flex-ai-center ${styles.experience_main_email}`}>
                         {typeof window !== 'undefined' && !token &&
                             <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />}
-                            <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} />
+                            {/* <Input type="text" placeholder={t('email')} onChange={onChange} className={`${styles.custom_input_home}`} /> */}
                         <Button className={`${styles.experience_main_btn}`}
                             onClick={() => picClick(bgUrl()?.url || defaultPic())}
                         >{bgUrl()?.buttonText}</Button>
