@@ -312,7 +312,7 @@ export default function BulletinCenter() {
         return false; // 其他菜单项始终返回 false，保持原有颜色
     };
 
-    // 获取经过筛选和排序的消息列表：先按已读状态，再按时间排序
+    // 获取经过筛选和排序的消息列表：先按置顶状态，再按已读状态，最后按时间排序
     const getFilteredAndSortedMessages = (messages: MessageData[]) => {
         if (selectedKeys[0] === 'all') {
             let filteredMessages = [...messages];
@@ -322,18 +322,28 @@ export default function BulletinCenter() {
                 filteredMessages = filteredMessages.filter(message => !isMessageRead(message.id || ''));
             }
 
-            // 按已读状态和时间排序
+            // 按置顶状态、已读状态和时间排序
             return filteredMessages.sort((a, b) => {
+                // 首先按置顶状态排序
+                const aOnTop = a.onTop === 1;
+                const bOnTop = b.onTop === 1;
+                
+                if (aOnTop !== bOnTop) {
+                    return aOnTop ? -1 : 1; // 置顶的排在前面
+                }
+                
+                // 其次按已读状态排序
                 const aRead = isMessageRead(a.id || '');
                 const bRead = isMessageRead(b.id || '');
 
                 if (aRead !== bRead) {
-                    return aRead ? 1 : -1;
+                    return aRead ? 1 : -1; // 未读的排在前面
                 }
 
+                // 最后按时间排序
                 const timeA = dayjs(a.time);
                 const timeB = dayjs(b.time);
-                return timeB.diff(timeA);
+                return timeB.diff(timeA); // 新的排在前面
             });
         }
         return messages;

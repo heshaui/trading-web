@@ -101,20 +101,46 @@ function App({ Component, pageProps }: AppProps) {
           return;
         }
 
-        const data = await response.json();
-
-        if (checkTimestamp && data.updated) {
-          console.log('语言文件有更新，正在刷新...');
-          // 重新加载资源
+        const result = await response.json();
+        
+        // 确保有语言数据
+        if (result.data) {
+          console.log('获取到API语言数据，正在加载到i18next...');
+          
+          // 遍历所有语言
+          Object.keys(result.data).forEach(lang => {
+            // 遍历每种语言的命名空间
+            Object.keys(result.data[lang]).forEach(ns => {
+              console.log(`添加语言资源: ${lang}.${ns}`);
+              // 添加资源到i18next实例
+              i18n.addResourceBundle(
+                lang,
+                ns,
+                result.data[lang][ns],
+                true, // 合并现有资源
+                true  // 深度合并
+              );
+            });
+          });
+          
+          // 重新加载资源以应用更改
           if (i18n.isInitialized) {
-            i18n.reloadResources();
+            console.log('重新加载i18next资源...');
+            i18n.reloadResources().then(() => {
+              // 强制更新当前语言，确保UI更新
+              const currentLang = i18n.language;
+              i18n.changeLanguage(currentLang);
+              console.log(`已重新应用语言: ${currentLang}`);
+            });
           }
-          setLastUpdated(Date.now());
-        } else if (!checkTimestamp) {
-          // console.log('语言文件获取成功:', data);
+          
+          if (checkTimestamp && result.updated) {
+            console.log('语言文件有更新，已刷新资源');
+          }
+          
           setLastUpdated(Date.now());
         } else {
-          console.log('语言文件无更新');
+          console.log('API返回无语言数据');
         }
       } catch (error) {
         console.error('获取语言文件时出错:', error);
@@ -132,7 +158,7 @@ function App({ Component, pageProps }: AppProps) {
 
     // 组件卸载时清除定时器
     return () => clearInterval(interval);
-  }, []); // 空依赖数组确保只在组件挂载时执行一次
+  }, [i18n, lastUpdated]); // 添加i18n和lastUpdated作为依赖项
 
   return (
     <AuthProvider>
