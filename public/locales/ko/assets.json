@@ -262,5 +262,9 @@
     "recharge": {
         "rechargeStatus0": "충전 중",
         "rechargeStatus1": "충전 완료"
+    },
+    "select": {
+        "pending": "지급 대기",
+        "done": "완료됨"
     }
 }

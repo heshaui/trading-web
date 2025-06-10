@@ -257,5 +257,9 @@
     "recharge": {
         "rechargeStatus0": "充電中",
         "rechargeStatus1": "充電完了"
+    },
+    "select": {
+        "pending": "支給待ち",
+        "done": "完了済み"
     }
 }

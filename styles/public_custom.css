@@ -343,20 +343,24 @@
 }
 
 /* 列表边框 */
-.ant-collapse-item {
-    border: 1px solid #FFFFFF1A;
+/* .ant-collapse-item {
+    border: 1px solid #FFFFFF00;
 }
-
+.ant-collapse-item:hover {
+    border: 1px solid #FFFFFF1A;
+} */
 .custom-collapse .ant-collapse-item {
     border: none !important;
     box-sizing: border-box !important;
-    border: 1px solid #FFFFFF00 !important;
+    border: 1px solid var(--border-color7) !important;
 }
 
-.custom-collapse .ant-collapse-item:hover,
-.custom-collapse .ant-collapse-item {
+.custom-collapse .ant-collapse-item:hover{
     border: 1px solid var(--border-color) !important;
 }
+/* .custom-collapse .ant-collapse-item {
+    border: 1px solid var(--border-color) !important;
+} */
 
 /* menu菜单自定义样式 */
 .custom-menu .ant-menu-item {

@@ -257,5 +257,9 @@
     "recharge": {
       "rechargeStatus0": "充值中",
       "rechargeStatus1": "充值完成"
+    },
+    "select":{
+        "pending":"待发放",
+        "done":"已完成"
     }
 }

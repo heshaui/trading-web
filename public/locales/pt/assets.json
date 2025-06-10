@@ -257,5 +257,9 @@
     "recharge": {
         "rechargeStatus0": "Recharging",
         "rechargeStatus1": "Success"
+    },
+    "select": {
+        "pending": "Pending",
+        "done": "Completed"
     }
 }

@@ -14,7 +14,7 @@ import { getNextJsLocale } from '@/utils/filterLang';
 
 const bgStyle: CSSProperties = {
     // backgroundImage: "url('/images/home/experience_bg.png')",
-    backgroundSize: 'contain', // 改为contain以保持图像原始比例
+    backgroundSize: 'contain', // 改为contain以保持图像原始比例 cover
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat', // 改为no-repeat防止重复
     width: '1440px',
@@ -111,7 +111,9 @@ export default function Experience() {
     }, [i18n, langKey]);
 
     return (
-        <div className={`${styles.experience_page} flex-y-cc`} >
+        <div className={`${styles.experience_page} flex-y-cc`}
+            // style={{ background: 'lightblue' }}
+        >
             <div className={`${styles.experience_main} flex-y justify-between`}
                 style={{ ...bgStyle, backgroundImage: `url(${bgUrl()?.image})` }}
             >
