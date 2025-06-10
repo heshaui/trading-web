@@ -2,7 +2,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // 语言编码到目录名称的映射
-const langCodeMapping = {
+type LangCode = 'zh_CN' | 'zh_HK' | 'en_US' | 'ja_JP' | 'ko_KR' | string;
+
+const langCodeMapping: Record<LangCode, string> = {
   'zh_CN': 'zh',
   'zh_HK': 'hk',
   'en_US': 'en',
@@ -20,7 +22,8 @@ async function fetchLangPackageFromAPI(req:any) {
     
     const headers = {
       'Content-Type': 'application/json',
-      'lang': Array.isArray(langHeader) ? langHeader[0] : langHeader
+      'lang': Array.isArray(langHeader) ? langHeader[0] : langHeader,
+      'ambit-saas':'2e5bbf22907d4a31992e9641079af195'
     };
     
     const response = await fetch(`${baseUrl}/ambit-home-web/home-web/v1/open/userLangPackage/userLangPackageDetail`, {
@@ -42,7 +45,7 @@ async function fetchLangPackageFromAPI(req:any) {
   }
 }
 
-export default async function handler(req, res) {
+export default async function handler(req:any, res:any) {
   try {
     const langData = await getAllLangData(req);
     return res.status(200).json({
@@ -56,21 +59,37 @@ export default async function handler(req, res) {
   }
 }
 
+// 定义语言包结构类型
+type LangContent = Record<string, any>;
+type LangNamespaces = Record<string, LangContent>;
+type LangResult = Record<string, LangNamespaces>;
+
+// 定义文件信息类型
+type FileInfo = {
+  fileUrl: string;
+  langEncode?: LangCode;
+  fileName: string;
+};
+
+type ProcessedFile = {
+  langCode: string;
+  namespace: string;
+  content: LangContent;
+};
+
 // 获取所有语言文件数据
-async function getAllLangData(req) {
+async function getAllLangData(req: NextApiRequest) {
   try {
     const apiResponse = await fetchLangPackageFromAPI(req);
-    
-    if (apiResponse && apiResponse.code === '0' && Array.isArray(apiResponse.data)) {
-      console.log('成功从API获取语言文件列表，共', apiResponse.data.length, '个文件');
+    const defaultLangCode = 'en';
+    console.log('apiResponse',apiResponse)
+    if (apiResponse && apiResponse.code === '0' ) {
+      const result: LangResult = { [defaultLangCode]: {} };
       
-      const defaultLangCode = 'en';
-      const result = { [defaultLangCode]: {} };
-      
-      const filePromises = apiResponse.data.map(async (fileInfo: any) => {
+      const filePromises = apiResponse.data.map(async (fileInfo: FileInfo) => {
         const { fileUrl, langEncode, fileName } = fileInfo;
         const namespace = fileName.replace('.json', '');
-        const langCode = langEncode ? (langCodeMapping[langEncode] || langEncode) : defaultLangCode;
+        const langCode = langEncode ? (langCodeMapping[langEncode as LangCode] || langEncode) : defaultLangCode;
 
         const fileResponse = await fetch(fileUrl);
         if (!fileResponse.ok) throw new Error(`获取文件内容失败: ${fileUrl}`);
@@ -79,12 +98,12 @@ async function getAllLangData(req) {
         return { langCode, namespace, content };
       });
 
-      const files = await Promise.all(filePromises);
+      const files = await Promise.all(filePromises) as ProcessedFile[];
       files.forEach(({ langCode, namespace, content }) => {
         if (!result[langCode]) result[langCode] = {};
         result[langCode][namespace] = content;
       });
-
+      console.log('files',files)
       return result;
     }
     
