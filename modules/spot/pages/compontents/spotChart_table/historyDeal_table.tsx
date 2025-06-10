@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/spotChartCom.module.css'
-import { Checkbox, ConfigProvider, Table, Select, Form, DatePicker } from 'antd';
+import { Checkbox, ConfigProvider, Table, Pagination, Form, DatePicker } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
@@ -17,7 +17,8 @@ import { toast } from 'sonner';
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig'
-// import { useCoinList } from '@/hooks/use-coinList';
+import type { DatePickerProps } from 'antd';
+import type { Dayjs } from 'dayjs';
 
 const { RangePicker } = DatePicker;
 interface DataType1 {
@@ -85,6 +86,7 @@ const SpotMainPage = observer(() => {
   const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
+    total: 0,
   });
   const [loading, setLoading] = useState(false);
   const selectParam = useRef<SelectParamType>({
@@ -134,7 +136,7 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 158,
       render: (_status, record) => {
-        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
+        const flag = orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         let text
         if (flag === 0) {
           text = t('spot.trade.buy')
@@ -195,7 +197,7 @@ const SpotMainPage = observer(() => {
       render: (_status, record) => {
         const buyRes = getRound(record.symbol, record.buyFee || 0)
         const sellRes = getRound(record.symbol, record.sellFee || 0)
-        const flag =orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
+        const flag = orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
         if (flag === 0) {
           return <span >{`${buyRes.baseScaleResult} ${buyRes.coinSymbol}`}</span>;
         } else if (flag === 1) {
@@ -222,11 +224,11 @@ const SpotMainPage = observer(() => {
     const userId = userInfo.userId
     if (sellerUserId === userId && buyerUserId === userId) {
       return takerSide
-    }else if(sellerUserId === userId){
+    } else if (sellerUserId === userId) {
       return 1
-    }else if(buyerUserId === userId){
+    } else if (buyerUserId === userId) {
       return 0
-    }else{
+    } else {
       return '--'
     }
   }
@@ -254,7 +256,8 @@ const SpotMainPage = observer(() => {
       pageSize: pageSize
     }
     // setPageParam(pageData)
-    paramdataRef.current = pageData;
+    paramdataRef.current.page = page
+    paramdataRef.current.pageSize = pageSize
     getOrderListData()
   }
   const getOrderListData1 = async () => {
@@ -309,6 +312,7 @@ const SpotMainPage = observer(() => {
         setInitTableData(newData);
         setTableData(newData);
         setTotal(res.data?.total);
+        paramdataRef.current.total = res.data?.total
       }
     } catch (error) {
       toast.error(String(error))
@@ -339,6 +343,29 @@ const SpotMainPage = observer(() => {
     selectParam.current.endTime = endTime;
     getOrderListData();
   }
+  const disabled7DaysDate: DatePickerProps['disabledDate'] = (current, { from, type }) => {
+    const getYearMonth = (date: Dayjs) => date.year() * 12 + date.month();
+    if (from) {
+      const minDate = from.add(-7, 'days');
+      const maxDate = from.add(7, 'days');
+
+      switch (type) {
+        case 'year':
+          return current.year() < minDate.year() || current.year() > maxDate.year();
+
+        case 'month':
+          return (
+            getYearMonth(current) < getYearMonth(minDate) ||
+            getYearMonth(current) > getYearMonth(maxDate)
+          );
+
+        default:
+          return Math.abs(current.diff(from, 'days')) >= 7;
+      }
+    }
+
+    return false;
+  };
   useEffect(() => {
     getOrderListData()
   }, [currentPair])
@@ -398,6 +425,7 @@ const SpotMainPage = observer(() => {
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
                 defaultValue={[dayjs().subtract(7, 'day'), dayjs().endOf('day')]}
+                disabledDate={disabled7DaysDate}
               />
             </Form.Item>
             <div className={`${styles.table_header_checkbox3}`}>
@@ -422,18 +450,29 @@ const SpotMainPage = observer(() => {
             // scroll={{ x: "max-content", y: 300 }}
             scroll={{ x: "max-content" }}
             className={`spot-table-box`}
-            pagination={total>10?{
+            pagination={paramdataRef.current.total > 10 ? {
               position: ["bottomRight"],
               // showSizeChanger: true,
-              total: total,
+              total: paramdataRef.current.total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            }:false}
+            } : false}
+            // pagination={false}
             loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />
-
+          {/* {paramdataRef.current.total > 10 && <div className='w-full flex-x align-center justify-end mt-3'>
+            <Pagination
+              // simple
+              // position={['bottomRight']}
+              className='spot-table-box'
+              showSizeChanger
+              defaultCurrent={paramdataRef.current.page}
+              pageSize={paramdataRef.current.pageSize}
+              size='default'
+              total={paramdataRef.current.total} onChange={pageChange} />
+          </div>} */}
         </div>
       </div>
     </ConfigProvider>

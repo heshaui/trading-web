@@ -19,30 +19,8 @@ import { useCoinList } from '@/hooks/use-coinList';
 import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 const { RangePicker } = DatePicker;
-interface DataType1 {
-  id: number,
-  orderId: string,
-  amount: number,
-  baseSymbol: string,
-  canceledTime: number,
-  coinSymbol: string,
-  completedTime: number,
-  direction: number,
-  userId: number,
-  price: number,
-  status: number,
-  symbol: string,
-  createTime: number,
-  updateTime: number,
-  tradedAmount: number,
-  turnover: number,
-  type: number,
-  useDiscount: number,
-  orderResource: number,
-  tenantId: string,
-  fee: number,
-  baseSymbolCount: number
-}
+import type { DatePickerProps } from 'antd';
+import type { Dayjs } from 'dayjs';
 interface DataType {
   id: number,
   tenantId: string,
@@ -392,6 +370,29 @@ const SpotMainPage = observer(() => {
       toast.error(String(error))
     }
   }
+  const disabled7DaysDate: DatePickerProps['disabledDate'] = (current, { from, type }) => {
+    const getYearMonth = (date: Dayjs) => date.year() * 12 + date.month();
+    if (from) {
+      const minDate = from.add(-7, 'days');
+      const maxDate = from.add(7, 'days');
+  
+      switch (type) {
+        case 'year':
+          return current.year() < minDate.year() || current.year() > maxDate.year();
+  
+        case 'month':
+          return (
+            getYearMonth(current) < getYearMonth(minDate) ||
+            getYearMonth(current) > getYearMonth(maxDate)
+          );
+  
+        default:
+          return Math.abs(current.diff(from, 'days')) >= 7;
+      }
+    }
+  
+    return false;
+  };
   const initData = async () => {
     try {
       await getCoinList(); // 等待 getCoinList 完成
@@ -458,6 +459,7 @@ const SpotMainPage = observer(() => {
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
                 defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
+                disabledDate={disabled7DaysDate}
               />
             </Form.Item>
 
@@ -531,7 +533,7 @@ const SpotMainPage = observer(() => {
               onChange: (page, pageSize) => pageChange(page, pageSize),
             }}
             loading={loading}
-            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+            locale={{ emptyText: <NoData textColor='#A4A5AC' height='45vh' position='top'/> }}
           />
 
         </div>
