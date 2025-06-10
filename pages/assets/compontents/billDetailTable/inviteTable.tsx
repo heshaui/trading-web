@@ -79,42 +79,23 @@ const coninList=appStore.getCoinList()
       width: 128,
       align: "center",
       render: (_status) => {
-        return <span >{_status || '--'}</span>;
+        return <span >{getStatus(_status)|| '--'}</span>;
       },
     },
 
   ];
 
-//   const pageChange = async (page: number, pageSize: number) => {
-//     pageParam.current.page = page;
-//     pageParam.current.pageSize = pageSize;
-//   }
-//   const getRecordData = async () => {
-//     setLoading(true)
-//     try {
-//       const res = await getRecordList({
-//         pageNo: pageParam.current.page,
-//         pageSize: pageParam.current.pageSize,
-//         actualCoinName:search||null
-//       });
-//       if (res.code === '0') {
-//         setTableData(res.data.list)
-//         pageParam.current.total = res.data.count
-//       } else {
-//         toast.error(res.message)
-//       }
-//     } catch (error) {
-//       toast.error(String(error))
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-//   const searchCurrencyClick = () => {
-//     getRecordData()
-// }
-//   useEffect(() => {
-//     getRecordData()
-//   }, [])
+  const getStatus = (status: number) => {
+    const statusText =Number(status)
+    switch (statusText) {
+      case 0:
+        return t('select.pending') //'待发放';
+      case 1:
+        return t('select.done') //'已完成'
+      default:
+        return statusText||'--'
+    }
+  }
   return (<>
 
     {/* 邀请奖励 */}

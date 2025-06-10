@@ -109,9 +109,9 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                     code: values.code || '',
                     googleCode: values.googleCode || '',
                     phoneCode: values.phoneCode || '',
-                    email: values.code?acountInfo.email : '',
-                    phone: values.phoneCode?acountInfo.phone : '',
-                    countryCode: values.phoneCode?acountInfo.countryCode : '',
+                    email: values.code ? acountInfo.email : '',
+                    phone: values.phoneCode ? acountInfo.phone : '',
+                    countryCode: values.phoneCode ? acountInfo.countryCode : '',
                 }
                 checkEmailSafe(dataInfo)
                 // }
@@ -210,7 +210,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck2(false)
-                toast.success(t('success')||res.message)
+                toast.success(t('success') || res.message)
                 startCountdown2(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -221,8 +221,8 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         } catch (error) {
             setCodeLoading2(false)
-            toast.error(t('security.error2')+String(error))
-            console.error( error);
+            toast.error(t('security.error2') + String(error))
+            console.error(error);
 
         }
     };
@@ -238,7 +238,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
-                toast.success(t('success')||res.message)
+                toast.success(t('success') || res.message)
                 startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -254,7 +254,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
 
         }
     };
-    const startCountdown = (count:number) => {
+    const startCountdown = (count: number) => {
         setCountdown(count);
         setIsCounting(true);
         const timer = setInterval(() => {
@@ -270,7 +270,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         // 清理定时器
         return () => clearInterval(timer);
     };
-    const startCountdown2 = (count:number) => {
+    const startCountdown2 = (count: number) => {
         setCountdown2(count);
         setIsCounting2(true);
         const timer = setInterval(() => {
@@ -299,7 +299,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getPasswordSmsCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
-                toast.success(t('success')||res.message)
+                toast.success(t('success') || res.message)
                 startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -327,7 +327,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
             const res = await getPasswordEmailCode(dataEncrypt);
             if (res.code === "0") {
                 setFirstCheck(false)
-                toast.success(t('success')||res.message)
+                toast.success(t('success') || res.message)
                 startCountdown(60);
             } else if (res.code === "10044") {
                 toast.error(t('security.error1'))
@@ -486,21 +486,7 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                             />
                             {/* <button className='text-color mt-1'>粘贴</button> */}
                         </Form.Item>
-                        {acountInfo.googleCode && (<>
-                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.google')}</div>
-                            <Form.Item name="googleCode" rules={[{ required: true, message: t('security.codeError') }]}>
-                                <Input placeholder={t('security.inputGoogleCode')} allowClear className={`${styles.input_box} modal-input`}
-                                    suffix={
-                                        <button type='button' className={`${styles.default_color}`} onClick={handlePaste}>
-                                            {t('security.paste')}
-                                        </button>
-                                    }
-                                    maxLength={6}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
-                                    value={googleCodeInputValue}
-                                />
-                            </Form.Item>
-                        </>)}
+
                         {(acountInfo.phone && !acountInfo.googleCode) && (<>
 
                             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.phone')}</div>
@@ -524,6 +510,21 @@ function CloseModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                                     maxLength={6}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'phone')}
                                     value={phoneCodeInputValue}
+                                />
+                            </Form.Item>
+                        </>)}
+                        {acountInfo.googleCode && (<>
+                            <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.google')}</div>
+                            <Form.Item name="googleCode" rules={[{ required: true, message: t('security.codeError') }]}>
+                                <Input placeholder={t('security.inputGoogleCode')} allowClear className={`${styles.input_box} modal-input`}
+                                    suffix={
+                                        <button type='button' className={`${styles.default_color}`} onClick={handlePaste}>
+                                            {t('security.paste')}
+                                        </button>
+                                    }
+                                    maxLength={6}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, 'google')}
+                                    value={googleCodeInputValue}
                                 />
                             </Form.Item>
                         </>)}
