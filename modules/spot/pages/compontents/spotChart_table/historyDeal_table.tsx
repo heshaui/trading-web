@@ -416,6 +416,7 @@ const SpotMainPage = observer(() => {
           >
             <Form.Item name="time" >
               <RangePicker
+                allowClear={false}
                 className={`${styles.rangePicker_box} custom-range-picker mt-6`}
                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                   className={`${styles.title_color}`} size={20} />}
