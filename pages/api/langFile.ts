@@ -20,7 +20,6 @@ async function fetchLangPackageFromAPI(req:any) {
     
     const headers = {
       'Content-Type': 'application/json',
-      'ambit-saas': '2e5bbf22907d4a31992e9641079af195',
       'lang': Array.isArray(langHeader) ? langHeader[0] : langHeader
     };
     
