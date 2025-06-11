@@ -84,17 +84,14 @@ function App({ Component, pageProps }: AppProps) {
   const shouldShowMenu = !excludePaths.includes(router.pathname);
   const shouldShowFooter = !excludePathsFooter.includes(router.pathname);
 
-  // 添加最后更新时间状态
-  const [lastUpdated, setLastUpdated] = useState<number>(0);
+  // 不需要跟踪语言文件最后更新时间
 
-  // 在应用加载时调用langFile API并设置定时检查
+  // 在应用加载时调用langFile API
   useEffect(() => {
-    const fetchLanguageFiles = async (checkTimestamp = false) => {
+    const fetchLanguageFiles = async () => {
       try {
         console.log('正在获取语言文件...');
-        // 如果是检查更新，则带上最后更新时间参数
-        const url = checkTimestamp ? `/api/langFile?lastUpdated=${lastUpdated}` : '/api/langFile';
-        const response = await fetch(url);
+        const response = await fetch('/api/langFile');
 
         if (!response.ok) {
           console.log('获取语言文件失败:', response);
@@ -134,11 +131,7 @@ function App({ Component, pageProps }: AppProps) {
             });
           }
           
-          if (checkTimestamp && result.updated) {
-            console.log('语言文件有更新，已刷新资源');
-          }
-          
-          setLastUpdated(Date.now());
+          // 语言文件已加载完成
         } else {
           console.log('API返回无语言数据');
         }
@@ -150,15 +143,8 @@ function App({ Component, pageProps }: AppProps) {
     // 初始加载
     fetchLanguageFiles();
 
-    // 设置定期检查 - 每5分钟检查一次更新
-    const interval = setInterval(() => {
-      console.log('定时检查语言文件更新...');
-      fetchLanguageFiles(true);
-    }, 5 * 60 * 1000); // 5分钟 = 5 * 60 * 1000毫秒
 
-    // 组件卸载时清除定时器
-    return () => clearInterval(interval);
-  }, [i18n]); // 添加i18n和lastUpdated作为依赖项
+  }, [i18n]); // 仅将i18n作为依赖项
 
   return (
     <AuthProvider>

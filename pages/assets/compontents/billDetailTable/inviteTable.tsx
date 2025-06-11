@@ -131,7 +131,7 @@ const coninList=appStore.getCoinList()
           // }}
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' height='45vh' /> }}
 
         />
 

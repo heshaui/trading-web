@@ -171,7 +171,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_1051@depth`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -224,10 +224,7 @@ const ExchangePage = () => {
                             const priceFloat = parseFloat(price);
                             const quantityNum = Number(quantity);
                             
-                            // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
-                            if (newData.bids.length >= 10 && priceFloat < minPrice) {
-                                return; // 不处理此档位
-                            }
+                            // 规则1: 处理所有的买单档位，无论是否在当前10档内
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
@@ -278,10 +275,7 @@ const ExchangePage = () => {
                             const priceFloat = parseFloat(price);
                             const quantityNum = Number(quantity);
                             
-                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
-                            if (newData.asks.length >= 10 && priceFloat > maxPrice) {
-                                return; // 不处理此档位
-                            }
+                            // 规则1: 处理所有的卖单档位，无论是否在当前10档内
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
@@ -337,7 +331,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_1051`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 

@@ -613,6 +613,7 @@ const SpotMainPage = observer(() => {
             {t('spot.select.limit')} | {t('spot.select.market')}
           </button>
           <RangePicker
+          allowClear={false}
             className={`${styles.rangePicker_box} custom-range-picker mt-6 mr-6`}
             suffixIcon={<Iconify icon="cuida:calendar-outline"
               className={`${styles.title_color}`} size={20} />}

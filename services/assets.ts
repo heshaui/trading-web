@@ -58,6 +58,13 @@ export function getCoinAll(): Promise<any> {
     // body: JSON.stringify(data)
   });
 }
+// 提现币种查询-所有
+export function getWithdrawCoinAll(): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/currency-coin/tenantWithdrawCurrencyCoinAll`, {
+    method: 'POST',
+    // body: JSON.stringify(data)
+  });
+}
 // 币种查询-单个
 export function getCoinById(coinId: number): Promise<any> {
   return request(`${fixUrl2}/assets-web/v1/currency-coin/tenantCurrencyCoin?coinId=${coinId}`, {

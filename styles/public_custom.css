@@ -397,7 +397,15 @@
     font-size: 14px !important;
     font-weight: 500 !important;
 }
-
+/* 左右滚动两侧投影 */
+.table-box .ant-table-container::before,
+.table-box2 .ant-table-container::before,
+.spot-table-box .ant-table-container::before,
+.table-box .ant-table-container::after,
+.table-box2 .ant-table-container::after,
+.spot-table-box .ant-table-container::after{
+    box-shadow: none !important;
+}
 /* 表头文字*/
 .table-box .ant-table-thead,
 .spot-table-box .ant-table-thead {
@@ -411,6 +419,7 @@
     margin: 0 !important;
     padding: 0 !important;
 }
+
 
 /* 展开行hover背景色 */
 .table-box .ant-table-cell-row-hover,
@@ -445,7 +454,11 @@
     /* padding: 16px 0 !important; */
     padding-left: 24px !important;
 }
-
+.table-box .ant-table-expanded-row .ant-table-cell,
+.table-box2 .ant-table-expanded-row .ant-table-cell
+{
+border-radius: 8px !important;
+}
 .spot-table-box .ant-table-expanded-row>.ant-table-cell {
     border-radius: 8px !important;
     padding: 0px !important;

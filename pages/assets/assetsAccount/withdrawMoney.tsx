@@ -13,7 +13,7 @@ import { NoData, NoAddress } from '@/components/noData';
 import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../compontents/noSM'
-import { getuserAddressList, getCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll, getUserALlLimit, getUserBalanceAll } from '@/services/assets'
+import { getuserAddressList, getWithdrawCoinAll, getcoinExtList, getUserBalance, getProtocolTypeAll, getUserALlLimit, getUserBalanceAll } from '@/services/assets'
 import { toast } from "sonner";
 import { cut, nul, division, countNum, withdrawFee } from '@/utils'
 import { getUserInfo } from '@/hooks/userInfo';
@@ -110,7 +110,7 @@ const WithdrawMoneyPage = observer(() => {
     const getCoinAllData = async () => {
         setCoinLoading(true)
         try {
-            const res = await getCoinAll()
+            const res = await getWithdrawCoinAll()
             if (res.code === '0') {
                 // 先筛选 status === 1 的数据，然后再进行 map 转换
                 const coinList = res.data
@@ -255,7 +255,7 @@ const WithdrawMoneyPage = observer(() => {
         // }
         let currentCoinList = coinSelect;
         if (coinSelect.length === 0) {
-            const res = await getCoinAll();
+            const res = await getWithdrawCoinAll();
             if (res.code === '0') {
                 const coinList = res.data
                     .filter((item: any) => item.status === 1)

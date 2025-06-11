@@ -187,7 +187,11 @@ const AssetsMainPage = () => {
           {t('billDetails.title')}
         </h2>
       </div>
-      <div className={`${styles.card_bgc}  mt-3 h-full`}>
+      <div className={`${styles.card_bgc}  mt-3 `}
+        style={{
+          minHeight: '80vh'
+        }}
+      >
         <div className={`${styles.table_header} w-full my-4 flex align-center`}>
           <Select
             allowClear
