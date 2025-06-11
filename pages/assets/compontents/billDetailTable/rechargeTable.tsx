@@ -186,7 +186,7 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
           // }}
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' height='45vh' /> }}
 
         />
 
