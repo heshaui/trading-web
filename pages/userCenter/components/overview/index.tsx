@@ -229,8 +229,8 @@ const OverviewPage: React.FC = () => {
                                 alt="" width={68} height={68}
                                 className={`${styles.userInfo_pic}`} />
                                 :
-                                <Image src={isDayMode ? "/images/userCenter/overview/icon_avatarUrl1.png"
-                                    : "/images/userCenter/overview/icon_avatarUrl2.png"}
+                                <Image src={isDayMode ? "/images/userCenter/overview/icon_avatarUrl_day.png"
+                                    : "/images/userCenter/overview/icon_avatarUrl_dark.png"}
                                     alt="" width={68} height={68}
                                     className={`${styles.userInfo_pic}`} />}
                         </div>
@@ -348,7 +348,10 @@ const OverviewPage: React.FC = () => {
                 <div className={`flex-row justify-between flex-wrap ${styles.content_box_main} `} >
                     {/* 身份认证 */}
                     <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6 content_identity`}
-                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_identity.png')", }}>
+                        style={{
+                            ...identityStyle,
+                            backgroundImage:isDayMode ? "url('/images/userCenter/overview/icon_identity.png')":"url('/images/userCenter/overview/icon_identity_dark.png')",
+                        }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
                             {/* 身份认证 */}
                             {t('overview.identityAuth.title')}
@@ -383,7 +386,10 @@ const OverviewPage: React.FC = () => {
                     </div>
                     {/* 安全认证 */}
                     <div className={`${styles.card_bgc} ${styles.content_safe} flex-1 mt-6`}
-                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_safe.png')", }}>
+                        style={{
+                            ...identityStyle,
+                            backgroundImage: isDayMode ? "url('/images/userCenter/overview/icon_safe.png')" : "url('/images/userCenter/overview/icon_safe_dark.png')"
+                        }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
                             {/* 安全认证 */}
                             {t('overview.securityAuth.title')}
@@ -392,18 +398,6 @@ const OverviewPage: React.FC = () => {
                             <span className='mr-2_5' >
                                 {/* 安全强度 */}
                                 {t('overview.securityAuth.securityLevel')}({loginInfo?.securityIntensity === 1 ? t('overview.securityAuth.low') : loginInfo?.securityIntensity === 2 ? t('overview.securityAuth.medium') : t('overview.securityAuth.high')})</span>
-                            {/* {loginInfo?.securityIntensity === 1 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe1.svg" : "/images/userCenter/safe/icon_safe1_dark.svg"}
-                                width={71}
-                                height={4}
-                                alt="" />}
-                            {loginInfo?.securityIntensity === 2 && <Image src={isDayMode ? "/images/userCenter/safe/icon_safe2.svg" : "/images/userCenter/safe/icon_safe2_dark.svg"}
-                                width={71}
-                                height={4}
-                                alt="" />}
-                            {loginInfo?.securityIntensity === 3 && <Image src="/images/userCenter/safe/icon_safe3.svg"
-                                width={71}
-                                height={4}
-                                alt="" />} */}
                             {getIdentityStatus(loginInfo?.securityIntensity)}
                         </div>
                         <p className={`font-14 mt-3`}>
@@ -430,7 +424,7 @@ const OverviewPage: React.FC = () => {
                         {t('overview.recommend.title')}
                     </div>
                     {(carouselPic.length === 0) ? <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
-                        style={{ ...identityStyle, backgroundImage: "url('/images/userCenter/overview/icon_recommend.png')", }}
+                        style={{ ...identityStyle, backgroundImage: isDayMode ? "url('/images/userCenter/overview/icon_invite_day.png')" : "url('/images/userCenter/overview/icon_invite_dark.png')", }}
                         onClick={() => { router.push('/userCenter/invite') }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
 

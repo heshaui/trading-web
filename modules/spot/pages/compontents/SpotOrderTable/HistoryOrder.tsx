@@ -638,6 +638,7 @@ const SpotMainPage = observer(() => {
           >
             <Form.Item name="time" >
               <RangePicker
+                allowClear={false}
                 className={`${styles.rangePicker_box} custom-range-picker mt-6`}
                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                   className={`${styles.title_color}`} size={20} />}
@@ -735,7 +736,7 @@ const SpotMainPage = observer(() => {
                         pagination={false}
                         className={`spot-table-box2 ${styles.rowExpanded_table_box}`}
                         rowKey="orderId"
-                        locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                        locale={{ emptyText: <NoData textColor='#A4A5AC' height='45vh' position='top'/> }}
                       />
                     ) : (
                       <NoData textColor='#A4A5AC' />

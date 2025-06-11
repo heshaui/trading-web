@@ -6,12 +6,20 @@ import { useTranslation } from 'next-i18next';
 type NoDataProps = {
     title?: string;
     textColor?: string;
+    height?: string;
+    position?: string;
 }
-const NoData = ({title,textColor}:NoDataProps) => {
+const NoData = ({title,textColor,height,position='center'}:NoDataProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { t } = useTranslation('common');
-
-    return (<div className='flex-y-cc'>
+    const overclassName = () => {
+        if (position === 'center') return 'flex-y-cc'
+        if (position === 'top') return 'flex-y align-center justify-start'
+    }
+    return (<div
+        className={overclassName()}
+        style={{ height: height||'auto' }}
+    >
         <Image
             src={isDayMode ? "/images/pubic_icon/iocn_nodata_day.png" : "/images/pubic_icon/iocn_nodata_night.png"}
             alt="empty" width={100} height={100} />
