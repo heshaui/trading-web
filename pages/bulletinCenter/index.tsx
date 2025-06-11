@@ -74,6 +74,7 @@ export default function BulletinCenter() {
         content?: string;
         isRead?: boolean;
         classMenu?: string;
+        onTop?: number; // 置顶状态：1表示置顶，0表示不置顶
     }
 
     // 定义详情列表数据接口

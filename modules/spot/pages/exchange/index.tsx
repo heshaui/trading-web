@@ -224,10 +224,7 @@ const ExchangePage = () => {
                             const priceFloat = parseFloat(price);
                             const quantityNum = Number(quantity);
                             
-                            // 规则1: 如果新档位不在10档内（对于买单，价格小于当前10档最低价），不处理
-                            if (newData.bids.length >= 10 && priceFloat < minPrice) {
-                                return; // 不处理此档位
-                            }
+                            // 规则1: 处理所有的买单档位，无论是否在当前10档内
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.bids.findIndex(bid => bid[0] === price);
@@ -278,10 +275,7 @@ const ExchangePage = () => {
                             const priceFloat = parseFloat(price);
                             const quantityNum = Number(quantity);
                             
-                            // 规则1: 如果新档位不在10档内（对于卖单，价格大于当前10档最高价），不处理
-                            if (newData.asks.length >= 10 && priceFloat > maxPrice) {
-                                return; // 不处理此档位
-                            }
+                            // 规则1: 处理所有的卖单档位，无论是否在当前10档内
                             
                             // 查找是否存在此价格档位
                             const existingIndex = newData.asks.findIndex(ask => ask[0] === price);
