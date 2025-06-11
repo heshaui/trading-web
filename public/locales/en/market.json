@@ -1,0 +1,34 @@
+{
+    "pageTitle": "Market Data",
+    "marketData": {
+      "pageTitle": "Market Data",
+      "rankings": "Rankings",
+      "marketTrends": "Market Trends"
+    },
+    "rankingList": {
+      "market": "Market",
+      "latestPrice": "Latest Price",
+      "change24h": "24H Change",
+      "hotCoins": "Hot Coins",
+      "risingCoins": "Top Gainers",
+      "fallingCoins": "Top Losers"
+    },
+    "marketList": {
+      "search": "Search coin/pair",
+      "coin": "Coin",
+      "price": "Price",
+      "change": "Change",
+      "volume": "24H Volume",
+      "operation": "Action",
+      "favorites": "Favorites",
+      "all": "All",
+      "spot": "Spot",
+      "new": "New",
+      "defi": "DeFi",
+      "nft": "NFT",
+      "web3": "Web3",
+      "meme": "Meme",
+      "ai": "AI",
+      "gaming": "Gaming"
+    }
+  }

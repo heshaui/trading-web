@@ -89,7 +89,7 @@
     position: relative;
     padding: 10px 0;
     cursor: pointer;
-    border-bottom: 1px dashed var(--border-color, #ddd);
+    /* border-bottom: 1px dashed var(--border-color, #ddd); */
     display: flex;
     align-items: center;
     margin-top: 10px;

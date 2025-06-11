@@ -158,7 +158,7 @@ function App({ Component, pageProps }: AppProps) {
 
     // 组件卸载时清除定时器
     return () => clearInterval(interval);
-  }, [i18n, lastUpdated]); // 添加i18n和lastUpdated作为依赖项
+  }, [i18n]); // 添加i18n和lastUpdated作为依赖项
 
   return (
     <AuthProvider>

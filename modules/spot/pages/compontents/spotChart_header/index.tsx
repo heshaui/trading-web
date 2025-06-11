@@ -277,7 +277,7 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                 </Dropdown>
 
                 <Tooltip title={currentPair?.isFavorite ? t('spot.header.removeFromFavorites') : t('spot.header.addToFavorites')}>
-                    <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`}>
+                    <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`} style={{width:'20px'}}>
                         <Iconify
                             icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"}
                             size={20}

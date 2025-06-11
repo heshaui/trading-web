@@ -1,0 +1,34 @@
+{
+    "pageTitle": "市场行情",
+    "marketData": {
+      "pageTitle": "市场行情",
+      "rankings": "榜单",
+      "marketTrends": "行情"
+    },
+    "rankingList": {
+      "market": "市场",
+      "latestPrice": "最新价",
+      "change24h": "24H涨幅",
+      "hotCoins": "热门榜",
+      "risingCoins": "涨幅榜",
+      "fallingCoins": "跌幅榜"
+    },
+    "marketList": {
+      "search": "搜索币种/交易对",
+      "coin": "币种",
+      "price": "价格",
+      "change": "涨跌幅",
+      "volume": "24H成交额",
+      "operation": "操作",
+      "favorites": "自选",
+      "all": "全部",
+      "spot": "现货",
+      "new": "新币",
+      "defi": "DeFi",
+      "nft": "NFT",
+      "web3": "Web3",
+      "meme": "Meme",
+      "ai": "AI",
+      "gaming": "游戏"
+    }
+  }

@@ -66,7 +66,7 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
   const directionSelect: MenuProps['items'] = [
     {
       key: '1',
-      label: <button className='w-full'
+      label: <button className='w-full '
         onClick={() => directionChange('3')}
       >{t('spot.select.all')}</button>,
     },
