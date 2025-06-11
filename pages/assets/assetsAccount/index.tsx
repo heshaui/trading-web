@@ -5,7 +5,7 @@ import { Input, Skeleton, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from 'next/router';
 import { getUserBalanceAll, getUserBalanceByDay, getTodayEarnings, getCoinById } from '@/services/assets';
 import { toast } from "sonner";
@@ -40,6 +40,7 @@ const AssetsMainPage = observer(() => {
     const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
     const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const [rateKeyName, setRateKeyName] = useState('');
+    
 
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
@@ -383,6 +384,25 @@ const AssetsMainPage = observer(() => {
         const banlanceShow = add(Number(banlance1), Number(withdraw))
         return banlanceShow || 0
     }
+        // 使用 useMemo 缓存 waxAndWane 计算结果，当依赖项变化时自动重新计算
+        const todayProfitUSDT = useMemo(() => {
+            return waxAndWane(
+                balanceAll?.balance || 0, 
+                balanceDay?.balanceAll || 0, 
+                todayEarnings?.balance || 0, 
+                todayEarnings?.withdraw || 0
+            );
+        }, [balanceAll?.balance, balanceDay?.balanceAll, todayEarnings?.balance, todayEarnings?.withdraw]);
+        
+        const todayProfitFiat = useMemo(() => {
+            return waxAndWane(
+                balanceAll?.usdBalance || 0, 
+                balanceDay?.usdBalanceAll || 0, 
+                todayEarnings?.usdBalance || 0, 
+                todayEarnings?.usdWithdraw || 0
+            );
+        }, [balanceAll?.usdBalance, balanceDay?.usdBalanceAll, todayEarnings?.usdBalance, todayEarnings?.usdWithdraw]);
+    
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
         // 如果已经有连接，不要重复创建
@@ -610,12 +630,14 @@ const AssetsMainPage = observer(() => {
                                 <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                     <span className={`${styles.title_color} font-w-700 font-32`}>
                                         {/* {waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0)}&nbsp; */}
-                                        {getCoinRound('USDT', waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0))}&nbsp;
+                                        {/* {getCoinRound('USDT', waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0))}&nbsp; */}
+                                        {getCoinRound('USDT', todayProfitUSDT)}&nbsp;
                                         USDT
                                         {/* {rateKey.split('-')[0].trim() || '--'} */}
                                     </span>
                                     <span>≈
-                                        &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp;
+                                    {/* &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp; */}
+                                        &nbsp;{todayProfitFiat || '0'}&nbsp;
                                         {/* USD */}
                                         {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                                         {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}
