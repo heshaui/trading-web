@@ -171,7 +171,7 @@ const ExchangePage = () => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_1051@depth`);
+        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
 
         websocket.connect((message: string) => {
@@ -331,7 +331,7 @@ const ExchangePage = () => {
 
     const getHistoryDepthData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_1051`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
             console.log(data, 'getHistoryDepthData');
 
