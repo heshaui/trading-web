@@ -8,7 +8,8 @@ export interface MessageData {
     isDetail?: boolean;
     isClickable?: boolean;
     isRead?: boolean; // 添加已读状态
-    classMenu: string
+    classMenu: string;
+    onTop?: number; // 置顶状态：1表示置顶，0表示不置顶
 }
 // 消息详情页
 export interface MessageItemDetailProps {
