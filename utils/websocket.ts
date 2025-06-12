@@ -72,7 +72,6 @@ class WebSocketService {
     };
 
     this.socket.onmessage = (event: MessageEvent) => {
-      console.error('WebSocket 消息:', event);
       if (this.messageCallback) this.messageCallback(event.data);
     };
 
