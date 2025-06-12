@@ -103,6 +103,7 @@ const ExchangePage = () => {
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
     const depthWsRef = useRef<WebSocketService | null>(null);
+    const klineWsRef = useRef<WebSocketService | null>(null);
 
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
@@ -129,8 +130,7 @@ const ExchangePage = () => {
             setGroupData(groupData);
         }
     }
-    const getOrderWsData = () => {
-
+    const getOrderWsData = useCallback(() => {
 
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
@@ -162,12 +162,12 @@ const ExchangePage = () => {
                     return combinedData.slice(0, maxEntries);
                 });
             } catch (error) {
-
+                console.log(error)
             }
         });
-    }
+    }, [currentPair]);
 
-    const getWsDepthData = () => {
+    const getWsDepthData = useCallback(() => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
@@ -216,8 +216,8 @@ const ExchangePage = () => {
                     if (data.bids && Array.isArray(data.bids)) {
                         // 先对当前买单按价格降序排列
                         newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
-                        // 只有当有足够的档位时才设置最小价格，否则设置为一个很小的值
-                        const minPrice = newData.bids.length >= 10 ? parseFloat(newData.bids[9][0]) : -Infinity;
+
+
                         
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
@@ -317,31 +317,31 @@ const ExchangePage = () => {
 
                     // 确保只保留必要的档位数量
                     // 买单已经按价格降序排列，直接截取前10个
-                    newData.bids = newData.bids.slice(0, 10);
+                    newData.bids = newData.bids
                     // 卖单已经按价格升序排列，直接截取前10个
-                    newData.asks = newData.asks.slice(0, 10);
+                    newData.asks = newData.asks
 
                     return newData;
                 });
             } catch (error) {
-                console.error('解析WebSocket深度数据失败:', error, '原始消息:', message);
+
             }
         });
-    }
+    }, [currentPair]);
 
-    const getHistoryDepthData = async () => {
+    const getHistoryDepthData = useCallback(async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
-            console.log(data, 'getHistoryDepthData');
+
 
             // 确保bids和asks是数组并限制为10条
             const formattedData = {
-                bids: Array.isArray(data.bids) ? data.bids.slice(0, 10) : [],
-                asks: Array.isArray(data.asks) ? data.asks.slice(0, 10) : [],
+                bids: Array.isArray(data.bids) ? data.bids: [],
+                asks: Array.isArray(data.asks) ? data.asks : [],
             };
 
-            console.log('格式化后的深度数据:', formattedData);
+
 
             // 设置初始深度数据
             setDepthData(formattedData);
@@ -349,12 +349,9 @@ const ExchangePage = () => {
             // 初始数据加载完成后建立WebSocket连接获取实时更新
             getWsDepthData();
         } catch (error) {
-            console.error('获取历史深度数据失败:', error);
-        }
-    }
 
-    // 修改K线WebSocket连接逻辑
-    const klineWsRef = useRef<WebSocketService | null>(null);
+        }
+    }, [currentPair, getWsDepthData]);
 
     // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
     const getKlineData = useCallback(() => {
@@ -381,33 +378,30 @@ const ExchangePage = () => {
                       .sort((a: any, b: any) => a.timestamp - b.timestamp);
                     return { ...newDataCopy, data: combinedKlines };
                 });
-                console.log('更新k线执行')
+
             }, 1000);
     
             websocket.connect((message: string) => {
-                console.log(message,'homeklinedata数据1');
+
                 try {
                     if (message.startsWith('subscribe:') || message.startsWith('ping') || message.startsWith('pong') || message.includes('subscribe') || message.includes('joined') || message.includes('left')) {
-                        console.log('WebSocket系统消息:', message);
+
                         return;
                     }
     
                     const data = JSON.parse(message);
-                    console.log(data,'homeklinedata数据2');
+
                     setCoinData(data);
                     updateKlineData(data);
                 } catch (err) {
-                    console.error('解析K线数据失败:', err, '原始消息:', message);
+
                 }
             });
         } catch (err) {
-            console.error('创建K线WebSocket连接失败:', err);
-            toast.error('无法建立K线数据连接');
+
+
         }
     }, [currentPair, timeInterval]);
-
-
-
     
     useEffect(() => {
         // 设置客户端渲染标记
@@ -435,17 +429,8 @@ const ExchangePage = () => {
         getOrderWsData();
         getHistoryDepthData();
         getKlineData();
-    }, [isClient, currentPair]);
+    }, [isClient, currentPair, timeInterval, getKlineData, getHistoryDepthData, getOrderWsData]);
     
-    // 新增：监听timeInterval变化，重新连接kline的WebSocket
-    useEffect(() => {
-        // 只在客户端且currentPair有值时执行
-        if (!isClient || !currentPair || typeof window === 'undefined') return;
-        
-        // 当timeInterval变化时，重新获取K线数据
-        getKlineData();
-    }, [timeInterval, isClient, currentPair, getKlineData]);
-
     useEffect(() => {
         // 只在客户端执行
         if (!isClient || typeof window === 'undefined') return;
@@ -459,11 +444,11 @@ const ExchangePage = () => {
                     }
                 })
                 .catch((error) => {
-                    console.error('加载货币对数据失败:', error);
-                    toast.error('加载货币对数据失败');
+
+
                 });
         } catch (error) {
-            console.error('初始化货币对数据错误:', error);
+
         }
     }, [isClient]);
 
@@ -481,7 +466,7 @@ const ExchangePage = () => {
                     newPair.baseSymbol !== currentPair.baseSymbol ||
                     newPair.groupStatus !== currentPair.groupStatus)) {
 
-                    console.log('当前币对已更新:', newPair);
+
 
                     // 清理现有的 WebSocket 连接
                     if (websocketRef.current) {
@@ -565,7 +550,7 @@ const ExchangePage = () => {
     };
 
     const handlePriceClick = (price: number) => {
-        console.log('Price clicked:', price);
+
         setTradePrice(price);
 
     };
