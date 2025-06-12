@@ -50,6 +50,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 const processedMenuData = processMenuItems(menuResponse.data);
                 // console.log('processedMenuData', processedMenuData);
                 setMenuData(processedMenuData);
+                console.log('processedMenuData的内容',processedMenuData)
                 // 传入 isDayMode 参数
                 setMenus(formatMenus(processedMenuData.slice(0, 6), isDayMode));
                 setAdaptiveMenuData(formatAdaptiveMenus(processedMenuData));

@@ -284,6 +284,12 @@ const Tradingview: React.ForwardRefRenderFunction<
             debug: false,
             theme: isDayMode ? "light" : "dark",
             disabled_features: disabledFeatures,
+            overrides: {
+              // 根据主题模式设置不同的背景颜色
+              "paneProperties.background": isDayMode ? "#ffffff" : "#000000",
+              "paneProperties.backgroundType": "solid",
+              "toolbarBg": isDayMode ? "#ffffff" : "#000000",
+            }
           };
 
           const newWidget = new widget(widgetOptions as any);

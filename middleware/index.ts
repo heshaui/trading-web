@@ -13,6 +13,7 @@ export const publicPaths = [
     '/Notice',
     '/helpCenter',
     '/helpCenter/*',
+    '/marketData',
 ];
 
 // 检查路径是否匹配公开路径
