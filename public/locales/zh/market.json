@@ -6,7 +6,7 @@
       "marketTrends": "行情"
     },
     "rankingList": {
-      "market": "市场",
+      "tradingPair": "币对",
       "latestPrice": "最新价",
       "change24h": "24H涨幅",
       "hotCoins": "热门榜",
@@ -14,21 +14,28 @@
       "fallingCoins": "跌幅榜"
     },
     "marketList": {
-      "search": "搜索币种/交易对",
-      "coin": "币种",
-      "price": "价格",
-      "change": "涨跌幅",
-      "volume": "24H成交额",
-      "operation": "操作",
+      "tabs": {
       "favorites": "自选",
-      "all": "全部",
-      "spot": "现货",
-      "new": "新币",
-      "defi": "DeFi",
+      "allCoins": "所有币种",
+      "spotMarket": "现货市场"
+    },
+    "categories": {
+      "mainBoard": "主板",
+      "innovationZone": "创新区",
+      "newCoins": "新币区",
+      "ai": "AI",
+      "meme": "Meme",
       "nft": "NFT",
       "web3": "Web3",
-      "meme": "Meme",
-      "ai": "AI",
-      "gaming": "游戏"
+      "payments": "Payments",
+      "launchpad": "Launchpad"
+    },
+    "tableHeaders": {
+      "name": "名称",
+      "price": "价格",
+      "change24h": "24H涨跌",
+      "marketCap": "市值",
+      "action": "操作"
     }
   }
+}
