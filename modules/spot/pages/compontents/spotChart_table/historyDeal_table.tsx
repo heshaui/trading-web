@@ -425,7 +425,7 @@ const SpotMainPage = observer(() => {
                 size='large'
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs().endOf('day')]}
+                defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
                 disabledDate={disabled7DaysDate}
               />
             </Form.Item>

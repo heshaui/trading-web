@@ -5,7 +5,7 @@ import { Input, Skeleton, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from 'next/router';
 import { getUserBalanceAll, getUserBalanceByDay, getTodayEarnings, getCoinById } from '@/services/assets';
 import { toast } from "sonner";
@@ -40,6 +40,7 @@ const AssetsMainPage = observer(() => {
     const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
     const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const [rateKeyName, setRateKeyName] = useState('');
+    
 
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
@@ -383,10 +384,30 @@ const AssetsMainPage = observer(() => {
         const banlanceShow = add(Number(banlance1), Number(withdraw))
         return banlanceShow || 0
     }
+        // 使用 useMemo 缓存 waxAndWane 计算结果，当依赖项变化时自动重新计算
+        const todayProfitUSDT = useMemo(() => {
+            return waxAndWane(
+                balanceAll?.balance || 0, 
+                balanceDay?.balanceAll || 0, 
+                todayEarnings?.balance || 0, 
+                todayEarnings?.withdraw || 0
+            );
+        }, [balanceAll?.balance, balanceDay?.balanceAll, todayEarnings?.balance, todayEarnings?.withdraw]);
+        
+        const todayProfitFiat = useMemo(() => {
+            return waxAndWane(
+                balanceAll?.usdBalance || 0, 
+                balanceDay?.usdBalanceAll || 0, 
+                todayEarnings?.usdBalance || 0, 
+                todayEarnings?.usdWithdraw || 0
+            );
+        }, [balanceAll?.usdBalance, balanceDay?.usdBalanceAll, todayEarnings?.usdBalance, todayEarnings?.usdWithdraw]);
+    
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
         // 如果已经有连接，不要重复创建
         if (balanceDataRef.current) return;
+        if (banlanceLoading ) return;
 
         // 创建新的WebSocket连接
         const token = getToken();
@@ -395,74 +416,81 @@ const AssetsMainPage = observer(() => {
             return;
         }
 
-        const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_ASSETS_API_BASE}/ws/asset?userId=${userInfo.userId}&sa-token=${token}`);
-        balanceDataRef.current = websocket;
+        try {
+            const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_ASSETS_API_BASE}/ws/asset?userId=${userInfo.userId}&sa-token=${token}`);
+            balanceDataRef.current = websocket;
 
-        websocket.connect((message: string) => {
-            console.log('收到WebSocket消息:', message);
+            websocket.connect((message: string) => {
+                // console.log('收到WebSocket消息:', message);
 
-            try {
-                const data = JSON.parse(message);
-                // console.log('解析后的数据:', data);
+                try {
+                    const data = JSON.parse(message);
+                    // console.log('解析后的数据:', data);
 
-                if (data.type === '__ping__') {
-                    websocket.send(JSON.stringify({ type: '__pong__' }));
-                    return;
+                    if (data.type === '__ping__') {
+                        websocket.send(JSON.stringify({ type: '__pong__' }));
+                        return;
+                    }
+                    // 更新余额数据
+                    if (data && Array.isArray(data)) {
+                        // 初始化表格数据
+                        const filteredData = initTableData.map(item => {
+                            // 在 data 数组中查找匹配的项目
+                            const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
+                            // 如果找到匹配项，则合并数据
+                            if (matchedItem) {
+                                return {
+                                    ...item,
+                                    balance: matchedItem.balance,
+                                    frozenBalance: matchedItem.frozen_balance,
+                                    releaseBalance: matchedItem.release_balance
+                                };
+                            }
+                            // 如果没有找到匹配项，则返回原始项目
+                            return item;
+                        });
+                        // 更新表格数据
+                        const filteredTableData = tableData.map(item => {
+                            const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
+                            if (matchedItem) {
+                                return {
+                                    ...item,
+                                    balance: matchedItem.balance,
+                                    frozenBalance: matchedItem.frozen_balance,
+                                    releaseBalance: matchedItem.release_balance
+                                };
+                            }
+                            return item;
+                        });
+                        setInitTableData(filteredData);
+                        setTableData(filteredTableData);
+                        // 更新余额
+                        const totalUsd = filteredData.reduce((sum: number, curr: any) => {
+                            const coinTotal = add(
+                                add(curr.balance || 0, curr.releaseBalance || 0),
+                                curr.frozenBalance || 0
+                            );
+                            const balance = getCoinRate(curr.coinName, coinTotal).coinRate
+                            return sum + Number(balance) || 0;
+                        }, 0);
+                        const rateKeyName = rateKey?.split('-')[0].trim()
+                        const usdRate = getRate('USDT', totalUsd || 0, rateKeyName).rate
+                        setBalanceAll({
+                            usdBalance: usdRate || 0,
+                            balance: totalUsd || 0
+                        });
+                    }
+                } catch (error) {
+                    console.error('WebSocket数据处理错误:', error);
+                    balanceDataRef.current = null;
                 }
-                // 更新余额数据
-                if (data && Array.isArray(data)) {
-                    // 初始化表格数据
-                    const filteredData = initTableData.map(item => {
-                        // 在 data 数组中查找匹配的项目
-                        const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
-                        // 如果找到匹配项，则合并数据
-                        if (matchedItem) {
-                            return {
-                                ...item,
-                                balance: matchedItem.balance,
-                                frozenBalance: matchedItem.frozen_balance,
-                                releaseBalance: matchedItem.release_balance
-                            };
-                        }
-                        // 如果没有找到匹配项，则返回原始项目
-                        return item;
-                    });
-                    // 更新表格数据
-                    const filteredTableData = tableData.map(item => {
-                        const matchedItem = data.find(dataItem => item.coinId === dataItem.coin_id);
-                        if (matchedItem) {
-                            return {
-                                ...item,
-                                balance: matchedItem.balance,
-                                frozenBalance: matchedItem.frozen_balance,
-                                releaseBalance: matchedItem.release_balance
-                            };
-                        }
-                        return item;
-                    });
-                    setInitTableData(filteredData);
-                    setTableData(filteredTableData);
-                    // 更新余额
-                    const totalUsd = filteredData.reduce((sum: number, curr: any) => {
-                        const coinTotal = add(
-                            add(curr.balance || 0, curr.releaseBalance || 0),
-                            curr.frozenBalance || 0
-                        );
-                        const balance = getCoinRate(curr.coinName, coinTotal).coinRate
-                        return sum + Number(balance) || 0;
-                    }, 0);
-                    const rateKeyName = rateKey?.split('-')[0].trim()
-                    const usdRate = getRate('USDT', totalUsd || 0, rateKeyName).rate
-                    setBalanceAll({
-                        usdBalance: usdRate || 0,
-                        balance: totalUsd || 0
-                    });
-                }
-            } catch (error) {
-                console.error('WebSocket数据处理错误:', error);
-            }
-        });
-    }, [userInfo.userId, initTableData])
+            });
+        } catch (err) {
+            console.error('创建资产WebSocket连接失败:', err);
+            // 设置为null以便下次可以重试
+            balanceDataRef.current = null;
+        }
+    }, [userInfo?.userId,banlanceLoading]) // 移除initTableData依赖，减少不必要的重连
 
 
     useEffect(() => {
@@ -492,16 +520,12 @@ const AssetsMainPage = observer(() => {
     useEffect(() => {
         if (!isClient || !userInfo || typeof window === 'undefined') return;
         if (banlanceLoading || todayEarningsLoading || kLineLoading) return;
-
         // 安全地使用currentPair
         setupBalanceWebSocket();
     }, [isClient, userInfo, banlanceLoading, todayEarningsLoading, kLineLoading]);
 
     useEffect(() => {
         if (!userInfo?.userId) return;
-
-        // // 初始化WebSocket连接
-        // setupBalanceWebSocket();
 
         // 组件卸载时清理WebSocket连接
         return () => {
@@ -510,7 +534,7 @@ const AssetsMainPage = observer(() => {
                 balanceDataRef.current = null;
             }
         };
-    }, [userInfo?.userId]);
+    }, []);
 
     return (<div>
         <ConfigProvider
@@ -610,12 +634,14 @@ const AssetsMainPage = observer(() => {
                                 <p className={`${styles.tip_color} font-w-500 font-14 flex-y`}>
                                     <span className={`${styles.title_color} font-w-700 font-32`}>
                                         {/* {waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0)}&nbsp; */}
-                                        {getCoinRound('USDT', waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0))}&nbsp;
+                                        {/* {getCoinRound('USDT', waxAndWane(balanceAll?.balance || 0, balanceDay?.balanceAll || 0, todayEarnings?.balance || 0, todayEarnings?.withdraw || 0))}&nbsp; */}
+                                        {getCoinRound('USDT', todayProfitUSDT)}&nbsp;
                                         USDT
                                         {/* {rateKey.split('-')[0].trim() || '--'} */}
                                     </span>
                                     <span>≈
-                                        &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp;
+                                    {/* &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp; */}
+                                        &nbsp;{todayProfitFiat || '0'}&nbsp;
                                         {/* USD */}
                                         {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                                         {!rateKeyName || rateKeyName === '' || rateKeyName === 'NaN' ? '--' : rateKeyName}

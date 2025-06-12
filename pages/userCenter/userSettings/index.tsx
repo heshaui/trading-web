@@ -1,6 +1,6 @@
 import React from 'react';
 import { withUserCenterLayout } from '@/components/sidebarLayout/UserCenterLayout/useUserCenterLayout';
-import styles from './styles/userSettings.module.css';
+import styles from '../styles/userSettings.module.css';
 import { Iconify, SvgIcon } from "@/components/icon"
 import Image from 'next/image';
 import { getLoginUserInfo, getUserCenter, updateUserCenter } from '@/services/userCenter';

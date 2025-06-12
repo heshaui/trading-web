@@ -32,7 +32,7 @@ export async function request<T>(
   
   // 仅在开发环境下添加 ambit-saas 头部
   if (process.env.NODE_ENV === 'development') {
-    defaultHeaders['ambit-saas'] = '2e5bbf22907d4a31992e9641079af195';
+    defaultHeaders['ambit-saas'] = process.env.NEXT_PUBLIC_AMBIT_SAAS||'2e5bbf22907d4a31992e9641079af195';
   }
 
  // 发送 FormData 时才添加 Content-Type: application/json
