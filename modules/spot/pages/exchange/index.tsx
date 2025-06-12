@@ -103,6 +103,7 @@ const ExchangePage = () => {
     // 修改WebSocket相关逻辑，使用useRef保存WebSocket实例
     const websocketRef = useRef<WebSocketService | null>(null);
     const depthWsRef = useRef<WebSocketService | null>(null);
+    const klineWsRef = useRef<WebSocketService | null>(null);
 
     // 添加客户端渲染标记
     const [isClient, setIsClient] = useState(false);
@@ -129,8 +130,7 @@ const ExchangePage = () => {
             setGroupData(groupData);
         }
     }
-    const getOrderWsData = () => {
-
+    const getOrderWsData = useCallback(() => {
 
         // 如果已经有连接，不要重复创建
         if (websocketRef.current) return;
@@ -165,9 +165,9 @@ const ExchangePage = () => {
 
             }
         });
-    }
+    }, [currentPair]);
 
-    const getWsDepthData = () => {
+    const getWsDepthData = useCallback(() => {
         // 如果已经有连接，不要重复创建
         if (depthWsRef.current) return;
 
@@ -216,8 +216,8 @@ const ExchangePage = () => {
                     if (data.bids && Array.isArray(data.bids)) {
                         // 先对当前买单按价格降序排列
                         newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
-                        // 只有当有足够的档位时才设置最小价格，否则设置为一个很小的值
-                        const minPrice = newData.bids.length >= 10 ? parseFloat(newData.bids[9][0]) : -Infinity;
+
+
                         
                         data.bids.forEach((newBid: any) => {
                             const [price, quantity] = newBid;
@@ -317,9 +317,9 @@ const ExchangePage = () => {
 
                     // 确保只保留必要的档位数量
                     // 买单已经按价格降序排列，直接截取前10个
-                    newData.bids = newData.bids.slice(0, 10);
+                    newData.bids = newData.bids
                     // 卖单已经按价格升序排列，直接截取前10个
-                    newData.asks = newData.asks.slice(0, 10);
+                    newData.asks = newData.asks
 
                     return newData;
                 });
@@ -327,9 +327,9 @@ const ExchangePage = () => {
 
             }
         });
-    }
+    }, [currentPair]);
 
-    const getHistoryDepthData = async () => {
+    const getHistoryDepthData = useCallback(async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API_BASE}/depth/${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}`);
             const data = await response.json();
@@ -337,8 +337,8 @@ const ExchangePage = () => {
 
             // 确保bids和asks是数组并限制为10条
             const formattedData = {
-                bids: Array.isArray(data.bids) ? data.bids.slice(0, 10) : [],
-                asks: Array.isArray(data.asks) ? data.asks.slice(0, 10) : [],
+                bids: Array.isArray(data.bids) ? data.bids: [],
+                asks: Array.isArray(data.asks) ? data.asks : [],
             };
 
 
@@ -351,10 +351,7 @@ const ExchangePage = () => {
         } catch (error) {
 
         }
-    }
-
-    // 修改K线WebSocket连接逻辑
-    const klineWsRef = useRef<WebSocketService | null>(null);
+    }, [currentPair, getWsDepthData]);
 
     // 使用useCallback包装getKlineData函数，确保只有当依赖项变化时才会重新创建函数
     const getKlineData = useCallback(() => {
@@ -405,9 +402,6 @@ const ExchangePage = () => {
 
         }
     }, [currentPair, timeInterval]);
-
-
-
     
     useEffect(() => {
         // 设置客户端渲染标记
@@ -435,17 +429,8 @@ const ExchangePage = () => {
         getOrderWsData();
         getHistoryDepthData();
         getKlineData();
-    }, [isClient, currentPair]);
+    }, [isClient, currentPair, timeInterval, getKlineData, getHistoryDepthData, getOrderWsData]);
     
-    // 新增：监听timeInterval变化，重新连接kline的WebSocket
-    useEffect(() => {
-        // 只在客户端且currentPair有值时执行
-        if (!isClient || !currentPair || typeof window === 'undefined') return;
-        
-        // 当timeInterval变化时，重新获取K线数据
-        getKlineData();
-    }, [timeInterval, isClient, currentPair, getKlineData]);
-
     useEffect(() => {
         // 只在客户端执行
         if (!isClient || typeof window === 'undefined') return;
