@@ -361,6 +361,7 @@ const AssetsMainPage = observer(() => {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
                 const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
+                const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
                 // setTodayEarnings({
                 //     usdBalance: Number(usdRate.rate) || 0,
                 //     usdWithdraw: Number(usdtWithdraw.rate) || 0,
@@ -369,8 +370,10 @@ const AssetsMainPage = observer(() => {
                 setTodayEarnings({
                     usdBalance: Number(usdBalance.rate) || 0,
                     usdWithdraw: Number(usdWithdraw.rate) || 0,
+                    usdGift: Number(usdGift.rate) || 0,
                     balance: res.data?.balance || 0,
-                    withdraw: res.data?.withdraw || 0
+                    withdraw: res.data?.withdraw || 0,
+                    gift: res.data?.gift || 0
                 });
                 setTodayEarningsLoading(false);
             }
@@ -378,10 +381,10 @@ const AssetsMainPage = observer(() => {
             toast.error(String(error));
         }
     };
-    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string, withdraw: number | string) => {
+    const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string, withdraw: number | string,gift: number | string) => {
         // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
         const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlanceShow = add(Number(banlance1), Number(withdraw))
+        const banlanceShow = add(add(Number(banlance1), Number(withdraw)), Number(gift))
         return banlanceShow || 0
     }
         // 使用 useMemo 缓存 waxAndWane 计算结果，当依赖项变化时自动重新计算
@@ -390,18 +393,20 @@ const AssetsMainPage = observer(() => {
                 balanceAll?.balance || 0, 
                 balanceDay?.balanceAll || 0, 
                 todayEarnings?.balance || 0, 
-                todayEarnings?.withdraw || 0
+                todayEarnings?.withdraw || 0,
+                todayEarnings?.gift || 0
             );
-        }, [balanceAll?.balance, balanceDay?.balanceAll, todayEarnings?.balance, todayEarnings?.withdraw]);
+        }, [balanceAll?.balance, balanceDay?.balanceAll, todayEarnings?.balance, todayEarnings?.withdraw, todayEarnings?.gift]);
         
         const todayProfitFiat = useMemo(() => {
             return waxAndWane(
                 balanceAll?.usdBalance || 0, 
                 balanceDay?.usdBalanceAll || 0, 
                 todayEarnings?.usdBalance || 0, 
-                todayEarnings?.usdWithdraw || 0
+                todayEarnings?.usdWithdraw || 0,
+                todayEarnings?.usdGift || 0
             );
-        }, [balanceAll?.usdBalance, balanceDay?.usdBalanceAll, todayEarnings?.usdBalance, todayEarnings?.usdWithdraw]);
+        }, [balanceAll?.usdBalance, balanceDay?.usdBalanceAll, todayEarnings?.usdBalance, todayEarnings?.usdWithdraw, todayEarnings?.usdGift]);
     
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {

@@ -62,7 +62,7 @@ const AssetsPage: React.FC = observer(() => {
                     return sum + Number(balance) || 0;
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd||0, rateKeyName) //获取汇率
+                const usdRate = getRate('USDT', totalUsd || 0, rateKeyName) //获取汇率
                 setBalanceAll({
                     usdBalance: Number(usdRate.rate) || 0,
                     balance: totalUsd,
@@ -87,8 +87,8 @@ const AssetsPage: React.FC = observer(() => {
                 // const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
 
                 const usdBalance = await getRate('USDT', res.data?.[0]?.balance || 0, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge||0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.[0]?.withdraw||0, rateKeyName)
+                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge || 0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.[0]?.withdraw || 0, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -119,12 +119,16 @@ const AssetsPage: React.FC = observer(() => {
             if (res.code === '0') {
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.withdraw||0, rateKeyName);
+                const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
+                const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
+
                 setTodayEarnings({
                     usdBalance: Number(usdBalance.rate) || 0,
                     usdWithdraw: Number(usdWithdraw.rate) || 0,
+                    usdGift: Number(usdGift.rate) || 0,
                     balance: res.data?.balance || 0,
-                    withdraw: res.data?.withdraw || 0
+                    withdraw: res.data?.withdraw || 0,
+                    gift: res.data?.gift || 0
                 });
             }
         } catch (error) {
@@ -135,9 +139,9 @@ const AssetsPage: React.FC = observer(() => {
         // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
         // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
         const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
-        const banlanceShow = add(Number(banlance1), Number(balanceDay.usdWithdraw))
+        const banlanceShow = add(add(Number(banlance1), Number(balanceDay.usdWithdraw)), Number(todayEarnings.usdGift))
 
-        return banlanceShow||0
+        return banlanceShow || 0
     }
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
@@ -271,7 +275,7 @@ const AssetsPage: React.FC = observer(() => {
                         {banlanceShow ? <span className={`${Number(waxAndWane()) > 0 ? styles.success_icon : Number(waxAndWane()) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
                             {Number(waxAndWane()) < 0 ? "-" : "+"}
                             &nbsp;{balanceAll.symbol}&nbsp;
-                            {Number(waxAndWane())?Math.abs(Number(waxAndWane())):0}
+                            {Number(waxAndWane()) ? Math.abs(Number(waxAndWane())) : 0}
                         </span> :
                             <span className={`${styles.tip_color} font-12 flex-x-cc`}>******</span>
                         }
