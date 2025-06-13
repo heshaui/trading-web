@@ -13,20 +13,20 @@ import { NoData } from '@/components/noData'
 import { getCoinRate} from '@/utils/getUseRate';
 import {roundDown} from '@/utils/math'
 import appStore from '@/store';
-import {RebateDataType} from "@/type/assets/billDetails/table"
+import {GiftDataType} from "@/type/assets/billDetails/table"
 
 type PropsType = {
-  tableData: RebateDataType[];
+  tableData: GiftDataType[];
   loading:boolean
 }
-export default function InvitationRewardTable({ tableData ,loading}: PropsType) {
+export default function GiftTable({ tableData ,loading}: PropsType) {
   const { t } = useTranslation(['assets']);
   const router = useRouter();
   // const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 const coninList=appStore.getCoinList()
 
-  const columns: ColumnsType<RebateDataType> = [
+  const columns: ColumnsType<GiftDataType> = [
     {
       title: t('assetsAccount.time'), //"时间",
       dataIndex: "timestamp",
@@ -41,7 +41,7 @@ const coninList=appStore.getCoinList()
       key: "type",
       align: "center",
       width: 128,
-      render: (_text) => <span>{t('assetsAccount.inviteReward')}</span>,
+      render: (_text) => <span>{t('billDetails.gift')}</span>,
     },
     {
       title: t('assetsAccount.currency'), //"币种",

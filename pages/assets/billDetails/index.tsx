@@ -2,8 +2,6 @@ import React from 'react';
 import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/userAssetsLayout';
 import styles from '../styles/billDetails.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Pagination } from 'antd';
-import { Iconify } from "@/components/icon"
-import type { ColumnsType } from "antd/es/table";
 import { toast } from 'sonner';
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
@@ -13,10 +11,11 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import InvitationTable from "../compontents/billDetailTable/inviteTable"
 import WithdrawTable from "../compontents/billDetailTable/withdrawtTable"
 import RechargeTable from "../compontents/billDetailTable/rechargeTable"
+import GiftTable from "../compontents/billDetailTable/giftTable"
 import { getCoinAll, getOrderList } from '@/services/assets'
 import Image from 'next/image'
 
-import { WithdrawDataType, RebateDataType, RechargeDataType, coinSelectType } from "@/type/assets/billDetails/table"
+import { WithdrawDataType, RebateDataType, RechargeDataType, coinSelectType ,GiftDataType} from "@/type/assets/billDetails/table"
 
 interface DataType {
   id: number,
@@ -51,6 +50,7 @@ const AssetsMainPage = () => {
 
   const [tableLoading, setTableLoading] = useState(false);
   const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([])
+  const [giftData, setGiftData] = useState<GiftDataType[]>([]);
 
   const cardTypeSeelect: { label: string, value: string }[] = [
     {
@@ -64,6 +64,10 @@ const AssetsMainPage = () => {
     {
       label: t('billDetails.rebate'), //'返佣',
       value: 'REBATE'
+    },
+    {
+      label: t('billDetails.gift'), //'赠币',
+      value: 'GIFT'
     },
     // {
     //   label: t('billDetails.transfer'), //'转账',
@@ -109,6 +113,8 @@ const AssetsMainPage = () => {
           setWithdrawData(res.data.list)
         } else if (paramdataRef.current.type === 'REBATE') {
           setRebateData(res.data.list)
+        } else if (paramdataRef.current.type === 'GIFT') {
+          setGiftData(res.data.list)
         }
       } else {
         toast.error(res.message)
@@ -248,6 +254,8 @@ const AssetsMainPage = () => {
             size='default'
             total={paramdataRef.current.total} onChange={pageChange} />
         </div>}
+        {/* 赠币 */}
+        {orderType === 'GIFT' && <GiftTable tableData={giftData} loading={tableLoading} />}
       </div>
     </ConfigProvider>
   </>
