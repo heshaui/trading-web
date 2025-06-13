@@ -6,7 +6,7 @@
       "marketTrends": "Market Trends"
     },
     "rankingList": {
-      "market": "Market",
+      "tradingPair": "TradingPair",
       "latestPrice": "Latest Price",
       "change24h": "24H Change",
       "hotCoins": "Hot Coins",
@@ -14,21 +14,27 @@
       "fallingCoins": "Top Losers"
     },
     "marketList": {
-      "search": "Search coin/pair",
-      "coin": "Coin",
-      "price": "Price",
-      "change": "Change",
-      "volume": "24H Volume",
-      "operation": "Action",
-      "favorites": "Favorites",
-      "all": "All",
-      "spot": "Spot",
-      "new": "New",
-      "defi": "DeFi",
-      "nft": "NFT",
-      "web3": "Web3",
-      "meme": "Meme",
-      "ai": "AI",
-      "gaming": "Gaming"
-    }
+  "tabs": {
+    "favorites": "Favorites",
+    "allCoins": "All Coins",
+    "spotMarket": "Spot Market"
+  },
+  "categories": {
+    "mainBoard": "Main Board",
+    "innovationZone": "Innovation Zone",
+    "newCoins": "New Coins",
+    "ai": "AI",
+    "meme": "Meme",
+    "nft": "NFT",
+    "web3": "Web3",
+    "payments": "Payments",
+    "launchpad": "Launchpad"
+  },
+  "tableHeaders": {
+    "name": "Name",
+    "price": "Price",
+    "change24h": "24H Change",
+    "marketCap": "Market Cap",
+    "action": "Action"
   }
+}
