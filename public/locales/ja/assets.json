@@ -252,6 +252,7 @@
         "withdraw": "引き出し",
         "rebate": "返金",
         "transfer": "振り込み",
+        "gift": "贈り金",
         "selectCoin": "通貨種を選択"
     },
     "recharge": {

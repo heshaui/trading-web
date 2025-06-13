@@ -252,6 +252,7 @@
         "withdraw": "withdraw",
         "rebate": "rebate",
         "transfer": "transfer",
+        "gift": "Gift Coin",
         "selectCoin": "Filter Currency"
     },
     "recharge": {
