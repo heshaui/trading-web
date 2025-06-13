@@ -11,7 +11,7 @@ import { FireFilled } from "@ant-design/icons";
 import appStore from "@/store";
 import { CryptoRanking, HotMarketSymbol } from "@/type/marketData/marketData";
 import CryptoTable from "./components/marketTable";
-import TrendsTable from "./components/MarketTrends";
+import TrendsTable from "./components/marketTrends";
 import { getMarket, getHotData } from "@/services/marketData";
 export default function MarketData() {
   const { t } = useTranslation("market");
