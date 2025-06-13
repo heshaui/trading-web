@@ -118,7 +118,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
         }
         setPageParam(pageData)
         paramdataRef.current = pageData;
-        // await getLoginData()
+        await getInviteData()
     }
     useEffect(() => {
         getInviteData()
