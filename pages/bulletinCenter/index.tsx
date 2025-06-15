@@ -496,7 +496,7 @@ export default function BulletinCenter() {
     const currentMessages = useMemo(() => {
         const currentKey = selectedKeys[0] || 'all';
         // 使用当前数据源
-        const messages = currentDataSource[currentKey] || [];
+        const messages = currentDataSource[currentKey as keyof typeof currentDataSource] || [];
 
         // 先进行筛选和排序
         const processedMessages = getFilteredAndSortedMessages(messages);
@@ -668,7 +668,7 @@ export default function BulletinCenter() {
                 return loginedMessageData['all'].some(message => !message.isRead);
             } else {
                 // 未登录状态下，检查 readMessageIds 是否包含所有消息的 ID
-                const messages: MessageData[] = currentDataSource['all'] || []; // Use currentDataSource instead of static messageData
+                const messages: MessageData[] = currentDataSource['all' as keyof typeof currentDataSource] || []; // Use currentDataSource instead of static messageData
                 return messages.some(message => !readMessageIds.has(message.id || ''));
             }
         }
@@ -753,7 +753,7 @@ export default function BulletinCenter() {
                 const newReadIds = new Set(readMessageIds);
 
                 // 使用当前数据源的消息
-                const messages: MessageData[] = currentDataSource['all'] || []; // Use currentDataSource instead of static messageData
+                const messages: MessageData[] = currentDataSource['all' as keyof typeof currentDataSource] || []; // Use currentDataSource instead of static messageData
                 // 更新消息状态
                 const updatedMessages = messages.map(message => ({
                     ...message,
