@@ -483,14 +483,15 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
           // scroll={{ x: 'max-content', y: 300 }}
           scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
-          pagination={total > 10 ? {
+          pagination={{
             position: ["bottomRight"],
             // showSizeChanger: true,
             total: total,
             size: "default",
             simple: true,
             onChange: (page, pageSize) => pageChange(page, pageSize),
-          } : false}
+            hideOnSinglePage: true
+          }}
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />

@@ -454,14 +454,15 @@ const SpotMainPage = observer(() => {
             // scroll={{ x: "max-content", y: 300 }}
             scroll={{ x: "max-content" }}
             className={`spot-table-box`}
-            pagination={paramdataRef.current.total > 10 ? {
+            pagination={ {
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: paramdataRef.current.total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            } : false}
+              hideOnSinglePage: true
+            } }
             // pagination={false}
             loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}

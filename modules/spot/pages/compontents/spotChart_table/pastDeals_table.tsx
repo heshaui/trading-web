@@ -250,7 +250,7 @@ const SpotMainPage = observer(() => {
                 : '0'}
             </div >
           }
-          
+
         } else {
           return < div className='flex-x-cc'>
             {_amount ? <div className='flex-y align-center'>
@@ -613,7 +613,7 @@ const SpotMainPage = observer(() => {
             {t('spot.select.limit')} | {t('spot.select.market')}
           </button>
           <RangePicker
-          allowClear={true}
+            allowClear={true}
             className={`${styles.rangePicker_box} custom-range-picker mt-6 mr-6`}
             suffixIcon={<Iconify icon="cuida:calendar-outline"
               className={`${styles.title_color}`} size={20} />}
@@ -656,14 +656,15 @@ const SpotMainPage = observer(() => {
             className={`spot-table-box`}
             loading={loading}
             scroll={{ x: "max-content" }}
-            pagination={total > 10 ? {
+            pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            } : false}
+              hideOnSinglePage: true
+            }}
             // pagination={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{
