@@ -98,13 +98,14 @@ const SpotMainPage = observer(() => {
       key: "symbol",
       align: "center",
       width: 148,
-      render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
+      render: (_text, record) => <button type='button'
+        className={`${record.direction === 1 ? styles.success_hover : record.direction?.toString() === '0' ? styles.error_hover : ''}`}
         onClick={() => {
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
         }}
       >
         {_text || '--'}
-        <Iconify icon="mingcute:right-line" className={`${record.status === 2 ? styles.error_icon : ''} mx-1`} size={20} />
+        <Iconify icon="mingcute:right-line" className={`${record.direction === 1 ? styles.success_hover : record.direction?.toString() === '0' ? styles.error_hover : ''} mx-1`} size={20} />
       </button >,
     },
     {

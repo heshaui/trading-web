@@ -1,7 +1,7 @@
 /* 公告 - 通知 */
 .bulletinContainer {
     padding: 0 120px;
-    height: calc(100vh - 80px);
+    min-height: calc(100vh - 80px);
 }
 .bulletinContainer .bulletinTop {
     padding: 15px 0;

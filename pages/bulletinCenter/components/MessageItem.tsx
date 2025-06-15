@@ -13,12 +13,13 @@ export default function MessageItem({
     return (
         <>
             <div
-                className={`${styles.bulletinCenterContent} ${isDetail ? styles.detail : ''}`}
+                className={`${styles.bulletinCenterContent} `}
                 onClick={isClickable ? onClick : undefined}
             >
                 <h6 className={isRead ? styles.readTitle : ''}>{title}</h6>
-                <div className={styles.timeContent}>
+                <div className={`${styles.timeContent} w-full`}>
                     <span>{time}</span>
+                   {content && <p style={{ color: 'var(--text-color5)' }}>{content}</p>}
                 </div>
             </div>
             {isDetail && content && (
