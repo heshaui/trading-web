@@ -141,7 +141,7 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 148,
       render: (_text, record) => <button type='button'
-        //  className={`${record.status === 2 ? styles.error_icon : ''}`}
+      className={`${record.direction === 1 ? styles.success_hover : record.direction?.toString() === '0' ? styles.error_hover : ''}`}
         onClick={(e) => {
           e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
@@ -149,7 +149,7 @@ const SpotMainPage = observer(() => {
       >
         {_text || '--'}
         <Iconify icon="mingcute:right-line"
-          className={`mx-1`} size={20} />
+          className={`mx-1 ${record.direction === 1 ? styles.success_hover : record.direction?.toString() === '0' ? styles.error_hover : ''}`} size={20} />
       </button >,
     },
     {

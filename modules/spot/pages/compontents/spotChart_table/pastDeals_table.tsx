@@ -148,14 +148,14 @@ const SpotMainPage = observer(() => {
       key: "symbol",
       align: "center",
       width: 148,
-      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''}`}
+      render: (_text, record) => <button type='button' className={`${record.direction === 1 ? styles.error_hover : record.direction?.toString() === '0' ? styles.success_hover : ''}`}
         onClick={(e) => {
           e.stopPropagation(); // 阻止事件冒泡，防止触发行展开
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
         }}
       >
         {_text || '--'}
-        <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
+        <Iconify icon="mingcute:right-line" className={`${record.direction === 1 ? styles.error_hover : record.direction?.toString() === '0' ? styles.success_hover : ''} mx-1`} size={20} />
       </button >,
     },
     {
@@ -250,7 +250,7 @@ const SpotMainPage = observer(() => {
                 : '0'}
             </div >
           }
-          
+
         } else {
           return < div className='flex-x-cc'>
             {_amount ? <div className='flex-y align-center'>
@@ -613,7 +613,7 @@ const SpotMainPage = observer(() => {
             {t('spot.select.limit')} | {t('spot.select.market')}
           </button>
           <RangePicker
-          allowClear={true}
+            allowClear={true}
             className={`${styles.rangePicker_box} custom-range-picker mt-6 mr-6`}
             suffixIcon={<Iconify icon="cuida:calendar-outline"
               className={`${styles.title_color}`} size={20} />}
@@ -656,14 +656,15 @@ const SpotMainPage = observer(() => {
             className={`spot-table-box`}
             loading={loading}
             scroll={{ x: "max-content" }}
-            pagination={total > 10 ? {
+            pagination={{
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            } : false}
+              hideOnSinglePage: true
+            }}
             // pagination={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
             expandable={{

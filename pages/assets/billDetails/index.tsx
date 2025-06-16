@@ -244,18 +244,20 @@ const AssetsMainPage = () => {
         />}
         {/* 邀请奖励-邀请返佣 */}
         {orderType === 'REBATE' && <InvitationTable tableData={rebateData} loading={tableLoading} />}
+        {/* 赠币 */}
+        {orderType === 'GIFT' && <GiftTable tableData={giftData} loading={tableLoading} />}
         {paramdataRef.current.total > 0 && <div className='w-full flex-x align-center justify-end mt-3'>
           <Pagination
             // position={['bottomRight']}
             className='spot-table-box'
-            // showSizeChanger
+            showSizeChanger={false}
             defaultCurrent={paramdataRef.current.page}
             pageSize={paramdataRef.current.pageSize}
             size='default'
+            hideOnSinglePage
             total={paramdataRef.current.total} onChange={pageChange} />
         </div>}
-        {/* 赠币 */}
-        {orderType === 'GIFT' && <GiftTable tableData={giftData} loading={tableLoading} />}
+        
       </div>
     </ConfigProvider>
   </>

@@ -20,8 +20,13 @@
 .success_icon {
     color: #00C788;
 }
-
+.success_hover:hover {
+    color: #00C788;
+}
 .error_icon {
+    color: #F73710;
+}
+.error_hover:hover {
     color: #F73710;
 }
 

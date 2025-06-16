@@ -197,6 +197,12 @@ export default function HomeMenu() {
     const [accountAssistantData, setAccountAssistantData] = useState<any[]>([]);
     // 账户助手加载状态
     const [accountAssistantLoading, setAccountAssistantLoading] = useState<boolean>(false);
+    // 添加资产消息数据状态
+    const [assetsData, setAssetsData] = useState<any[]>([]);
+    const [assetsLoading, setAssetsLoading] = useState<boolean>(false);
+    // 添加交易消息数据状态
+    const [tradingData, setTradingData] = useState<any[]>([]);
+    const [tradingLoading, setTradingLoading] = useState<boolean>(false);
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null);
     // 语言
@@ -216,15 +222,27 @@ export default function HomeMenu() {
         return '简体中文';
     });
     
-    // 获取账户助手数据
-    const fetchAccountAssistantData = useCallback(async () => {
+    // 通用的站内信数据获取函数
+    const fetchUserMessageData = useCallback(async (bizType: 'account' | 'assets' | 'transaction') => {
         try {
-            setAccountAssistantLoading(true);
+            // 设置对应的加载状态
+            switch (bizType) {
+                case 'account':
+                    setAccountAssistantLoading(true);
+                    break;
+                case 'assets':
+                    setAssetsLoading(true);
+                    break;
+                case 'transaction':
+                    setTradingLoading(true);
+                    break;
+            }
+
             const response: any = await getInformUserMessageList({
                 languageCode: typeof selectedLanguage === 'object' && selectedLanguage ? selectedLanguage : 'zh_CN',
                 pageNum: 1,
                 pageSize: 20,
-                bizType:'account'
+                bizType
             });
             
             if (response && typeof response === 'object' && response.code === 0 && response.data) {
@@ -236,32 +254,115 @@ export default function HomeMenu() {
                     content: item.contentTemplate || ''
                 })) || [];
                 
-                setAccountAssistantData(formattedData);
+                // 设置对应的数据状态
+                switch (bizType) {
+                    case 'account':
+                        setAccountAssistantData(formattedData);
+                        break;
+                    case 'assets':
+                        setAssetsData(formattedData);
+                        break;
+                    case 'transaction':
+                        setTradingData(formattedData);
+                        break;
+                }
             } else {
-                setAccountAssistantData([]);
+                // 设置空数据
+                switch (bizType) {
+                    case 'account':
+                        setAccountAssistantData([]);
+                        break;
+                    case 'assets':
+                        setAssetsData([]);
+                        break;
+                    case 'transaction':
+                        setTradingData([]);
+                        break;
+                }
             }
         } catch (error) {
-            console.error('获取账户助手数据失败:', error);
-            setAccountAssistantData([]);
+            console.error(`获取${bizType}消息数据失败:`, error);
+            // 设置空数据
+            switch (bizType) {
+                case 'account':
+                    setAccountAssistantData([]);
+                    break;
+                case 'assets':
+                    setAssetsData([]);
+                    break;
+                case 'transaction':
+                    setTradingData([]);
+                    break;
+            }
         } finally {
-            setAccountAssistantLoading(false);
+            // 清除对应的加载状态
+            switch (bizType) {
+                case 'account':
+                    setAccountAssistantLoading(false);
+                    break;
+                case 'assets':
+                    setAssetsLoading(false);
+                    break;
+                case 'transaction':
+                    setTradingLoading(false);
+                    break;
+            }
         }
     }, [selectedLanguage]);
-    
-    // 使用 ref 跟踪是否已经获取过账户助手数据
-    const hasFetchedAccountData = useRef(false);
 
-    // 在登录状态变化时获取账户助手数据
-    useEffect(() => {
-        const fetchData = async () => {
-            if (isLogin && isLoggedIn && !hasFetchedAccountData.current) {
-                await fetchAccountAssistantData();
-                hasFetchedAccountData.current = true;
+    // 获取所有站内信数据的统一函数
+    const fetchAllUserMessages = useCallback(async () => {
+        if (!isLogin || !isLoggedIn) return;
+
+        try {
+            // 并行获取所有类型的消息
+            const promises = [];
+
+            if (!hasFetchedData.current.account) {
+                promises.push(fetchUserMessageData('account'));
+                hasFetchedData.current.account = true;
             }
-        };
 
-        fetchData();
-    }, [isLogin, isLoggedIn, fetchAccountAssistantData]);
+            if (!hasFetchedData.current.assets) {
+                promises.push(fetchUserMessageData('assets'));
+                hasFetchedData.current.assets = true;
+            }
+
+            if (!hasFetchedData.current.trading) {
+                promises.push(fetchUserMessageData('transaction'));
+                hasFetchedData.current.trading = true;
+            }
+
+            await Promise.all(promises);
+        } catch (error) {
+            console.error('获取站内信数据失败:', error);
+        }
+    }, [isLogin, isLoggedIn, fetchUserMessageData]);
+
+    // 在登录状态变化时获取所有站内信数据
+    useEffect(() => {
+        if (isLogin && isLoggedIn) {
+            fetchAllUserMessages();
+        } else {
+            // 登出时重置数据和状态
+            setAccountAssistantData([]);
+            setAssetsData([]);
+            setTradingData([]);
+            hasFetchedData.current = {
+                account: false,
+                assets: false,
+                trading: false
+            };
+        }
+    }, [isLogin, isLoggedIn, fetchAllUserMessages]);
+    
+    // 使用 ref 跟踪是否已经获取过各类数据
+    const hasFetchedData = useRef({
+        account: false,
+        assets: false,
+        trading: false
+    });
+
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
@@ -380,26 +481,74 @@ export default function HomeMenu() {
             key: '3',
             label: t('header.notice.assets'), //"资产"
             children: (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    padding: '40px 0'
-                }}>
-                    <NoData title={t('header.noNewNotice')} />
-                </div>
+                assetsLoading ? (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        {/* 加载中... */}
+                        {t('header.loading')}
+                    </div>
+                ) : assetsData.length > 0 ? (
+                    assetsData.map((item: any, index: number) => (
+                        <MenuItemLabel 
+                            key={index} 
+                            h5Text={item.h5Text} 
+                            spanText={item.spanText} 
+                            needHover 
+                            onClick={() => { 
+                                // 可以添加点击事件处理，例如跳转到详情页
+                                router.push(`/assets/${item.id}`);
+                            }} 
+                        />
+                    ))
+                ) : (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        <NoData title={t('header.noNewNotice')} />
+                    </div>
+                )
             ),
         },
         {
             key: '4',
             label: t('header.notice.transaction'), //"交易"
             children: (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    padding: '40px 0'
-                }}>
-                    <NoData title={t('header.noNewNotice')} />
-                </div>
+                tradingLoading ? (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        {/* 加载中... */}
+                        {t('header.loading')}
+                    </div>
+                ) : tradingData.length > 0 ? (
+                    tradingData.map((item: any, index: number) => (
+                        <MenuItemLabel 
+                            key={index} 
+                            h5Text={item.h5Text} 
+                            spanText={item.spanText} 
+                            needHover 
+                            onClick={() => { 
+                                // 可以添加点击事件处理，例如跳转到详情页
+                                router.push(`/transaction/${item.id}`);
+                            }} 
+                        />
+                    ))
+                ) : (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '40px 0'
+                    }}>
+                        <NoData title={t('header.noNewNotice')} />
+                    </div>
+                )
             ),
         },
     ];
