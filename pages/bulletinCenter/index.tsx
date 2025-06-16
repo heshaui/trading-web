@@ -984,7 +984,7 @@ export default function BulletinCenter() {
                                                             <MessageItem
                                                                 key={message.id}
                                                                 title={renderHighlightedTitle(message.title) || ''}
-                                                                time={message.time || ''}
+                                                                // time={message.time || ''}
                                                                 content={message.content}
                                                                 onClick={() => handleMessageClick(message, 'biz')}
                                                                 isClickable={false}
