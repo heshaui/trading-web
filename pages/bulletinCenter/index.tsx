@@ -1,4 +1,4 @@
-import { Col, Row, ConfigProvider, Menu, Card, Empty ,Pagination} from 'antd';
+import { Col, Row, ConfigProvider, Menu, Card, Empty, Pagination } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -71,7 +71,7 @@ export default function BulletinCenter() {
     const [assetsLoading, setAssetsLoading] = useState(false);
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [bizData, setBizData] = useState<any[]>([]);
-    const pagesParam= useRef({
+    const pagesParam = useRef({
         page: 1,
         pageSize: 5,
         pageTotal: 0
@@ -618,7 +618,7 @@ export default function BulletinCenter() {
     };
 
     // 点击查看详情
-    const handleMessageClick = (message: MessageData, type: string='notice') => {
+    const handleMessageClick = (message: MessageData, type: string = 'notice') => {
         console.log(message)
         // 跳转到Notice
         router.push(`/Notice/${message.id}`);
@@ -958,8 +958,9 @@ export default function BulletinCenter() {
                                                 );
                                             }
 
-                                            if (filteredAndSortedMessages.length > 0&&selectedKeys[0] === 'all') {
-                                                return filteredAndSortedMessages.map((message) => (
+                                            if (filteredAndSortedMessages.length > 0 && selectedKeys[0] === 'all') {
+                                                return <>
+                                                {filteredAndSortedMessages.map((message) => (
                                                     <MessageItem
                                                         key={message.id}
                                                         title={renderHighlightedTitle(message.title) || ''}
@@ -967,11 +968,18 @@ export default function BulletinCenter() {
                                                         onClick={() => handleMessageClick(message)}
                                                         isClickable={selectedKeys[0] === 'all'}
                                                         isRead={isMessageRead(message.id || '')} classMenu={''} />
-                                                ));
+                                                ))}
+                                                <MessagePagination
+                                                current={getCurrentPage(selectedKeys[0] || 'all')}
+                                                total={currentMessages.total}
+                                                onChange={handlePageChange}
+                                                pageSize={pageSize}
+                                            />
+                                            </>
                                             }
                                             if (bizData.length > 0) {
-                                                return <> 
-                                                    <div> 
+                                                return <>
+                                                    <div>
                                                         {bizData.map((message) => (
                                                             <MessageItem
                                                                 key={message.id}
@@ -983,8 +991,19 @@ export default function BulletinCenter() {
                                                                 isDetail={false}
                                                                 isRead={isMessageRead(message.id || '')} classMenu={''} />
                                                         ))}
-                                                        
-                                                        <Pagination
+                                                        <MessagePagination
+                                                            current={pagesParam.current.page}
+                                                            total={pagesParam.current.pageTotal}
+                                                            onChange={handleBizPageChange}
+                                                            pageSize={pagesParam.current.pageSize}
+                                                            showSizeChanger={false}
+                                                            align="end"
+                                                            size='small'
+                                                            className='mt-5'
+                                                            hideOnSinglePage // 当只有一页时隐藏分页器
+                                                        />
+                                                        {/* <Pagination
+                                                        showSizeChanger={false},
                                                             pageSize={pagesParam.current.pageSize}
                                                             current={pagesParam.current.page}
                                                             total={pagesParam.current.pageTotal}
@@ -993,7 +1012,7 @@ export default function BulletinCenter() {
                                                             size='small'
                                                             className='mt-5'
                                                             hideOnSinglePage // 当只有一页时隐藏分页器
-                                                        />
+                                                        /> */}
                                                     </div>
                                                 </>;
                                             }
@@ -1007,12 +1026,7 @@ export default function BulletinCenter() {
                                                 </div>
                                             );
                                         })()}
-                                        <MessagePagination
-                                            current={getCurrentPage(selectedKeys[0] || 'all')}
-                                            total={currentMessages.total}
-                                            onChange={handlePageChange}
-                                            pageSize={pageSize}
-                                        />
+                                       
                                     </Col>
 
                                 </Row>
