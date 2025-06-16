@@ -94,12 +94,15 @@ function InvitationReward({onReturn}:InviteProps) {
     const pageChange = async(page: number, pageSize: number) => {
         pageParam.current.page = page
         pageParam.current.pageSize = pageSize
-        // await getLoginData()
+        await getRecordData()
     }
     const getRecordData = async () => {
         setLoading(true)
         try {
-            const res = await getRecordList({});
+            const res = await getRecordList({
+                pageNo:pageParam.current.page,
+                pageSize:pageParam.current.pageSize,
+            });
             if (res.code === '0') {
                 setRecordList(res.data.list)
                 pageParam.current.total = res.data.count
