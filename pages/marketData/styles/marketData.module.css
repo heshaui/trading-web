@@ -15,14 +15,16 @@
   /* background-color: var(--bg-color2); */
 }
 .section_title {
-  width: 64px;
+  width: 75px;
   height: 45px;
   margin-top: 50px;
   font-size: 32px;
-  /* color: #0c0d0c; */
-  /* background-color: red; */
   font-weight: 500;
   line-height: 100%;
+}
+html[lang="en"] .section_title {
+  font-size: 25px; /* 英文默认字体小一些 */
+  width: 200px;
 }
 /* 排行榜网格布局 */
 .rankings_grid {
@@ -38,8 +40,8 @@
 
 /* 单个排行榜容器 */
 .ranking_list {
-  width: 410px;
-  height: 499px;
+  width: 380px;
+  height: 456px;
 border: 1px solid rgba(187,187,187,1);
   border-radius: 5px;
 }
@@ -89,17 +91,34 @@ border: 1px solid rgba(187,187,187,1);
 }
 
 .cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-top: 17px;
   padding: 16px 24px;
+  display: flex;
+  align-items: center;
+}
+.coinName{
+  width:225px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+}
+.cardtitle{
+  width: 70px;
+  height: 27px;
+  font-size: 20px;
+  text-align:left;
+  line-height: 28px;
 }
 
-.cardTitle {
+html[lang="en"] .cardtitle {
+  width: 120px;
+}
+
+/* .cardTitle {
   font-size: 16px;
   font-weight: 500;
   margin: 0;
-}
+} */
 
 .cardCount {
   font-size: 14px;
@@ -117,7 +136,49 @@ border: 1px solid rgba(187,187,187,1);
 .negative {
   color: #f5222d;
 }
+.searchContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  width: 242px;
+  height: 47px;
+  margin-top: -50px;
+  margin-left: 1293px;
+  /* background: #52c41a; */
 
+}
+.allCoinsWrapper{
+  width:83% ;
+}
+.coinDetails{
+  display: flex;
+}
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  margin-left: 280px;
+  text-align: center;
+}
+
+.emptyIconWrapper {
+  margin-bottom: 20px;
+}
+
+.loginButton {
+  margin-top: 20px;
+  padding: 8px 24px;
+  border-radius: 4px;
+  background-color: #f5a623;
+  border-color: #f5a623;
+}
+
+.marketButton {
+  background-color: #f5a623;
+  border-color: #f5a623;
+}
 @media (max-width: 1024px) {
   .rankings_grid {
     grid-template-columns: repeat(2, 1fr);
