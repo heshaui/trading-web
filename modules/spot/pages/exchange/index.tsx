@@ -173,6 +173,7 @@ const ExchangePage = () => {
 
         const websocket = new WebSocketService(`${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${currentPair.groupStatus}@depth`);
         depthWsRef.current = websocket;
+        console.log("websocket的环境变量",websocket)
 
         websocket.connect((message: string) => {
             try {

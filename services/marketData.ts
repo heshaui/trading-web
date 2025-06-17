@@ -1,8 +1,15 @@
 import {request} from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
-//获取行情信息
- export function getMarket():Promise<any>{
-    return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/coin/coinTypeList/${3}`,{
+const fixUrl = `/${API_MODULE_NAME.AMBIT_USER_WEB}`
+//获取涨幅榜
+ export function getMarketUp():Promise<any>{
+    return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/trade_raking/${3}`,{
+        method:'GET'
+    });
+ }
+ //获取跌幅榜
+ export function getMarketDown():Promise<any>{
+    return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/trade_raking/${4}`,{
         method:'GET'
     });
  }
@@ -14,15 +21,24 @@ export function getHotData():Promise<any>{
     });
 }
 // 获取现货市场
-export function getspotData():Promise<any>{
+export function getspotData(params = {}):Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/exchange-coin/exchangeCoinAllPrice`,{
-        method:'GET'
+        method:'POST',
+        body: JSON.stringify(params)
     });
  }
 
-// 获取所有币种
+// // 获取所有币种
 export function getAllCoinsData():Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/exchange-coin/tenantCurrencyCoinAll`,{
-        method:'GET'
+        method:'POST',
+        body:JSON.stringify({})
     });
  }
+
+// 获取所有币对最新价格
+export function getExchangeCoinAllPrice(): Promise<any> {
+    return request(`${fixUrl}/user-web/v1/exchange-coin/exchangeCoinAllPrice`, {
+        method: 'GET',
+    });
+}

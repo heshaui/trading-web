@@ -168,7 +168,10 @@
             "price": "价格",
             "amount": "数量",
             "total": "成交额",
-            "all": "全部"
+            "all": "全部",
+            "loginNow": "立即登录",
+            "goToMarket": "前往市场",
+            "noData": "暂无数据"
         },
         "feeCoin": {
             "receivedCoin": "接收币种",

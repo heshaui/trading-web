@@ -8,7 +8,7 @@
     "rankingList": {
       "tradingPair": "币对",
       "latestPrice": "最新价",
-      "change24h": "24H涨幅",
+      "change24h": "24H涨跌",
       "hotCoins": "热门榜",
       "risingCoins": "涨幅榜",
       "fallingCoins": "跌幅榜"
@@ -35,7 +35,21 @@
       "price": "价格",
       "change24h": "24H涨跌",
       "marketCap": "市值",
-      "action": "操作"
-    }
+      "action": "操作",
+      "highLow24h":"24H最高/24H最低",
+      "volume24h":"24H成交额",
+      "trade":"交易"
+    },
+    "operationTips": {
+    "addSuccess": "添加成功",
+    "removeSuccess": "移除成功",
+    "loginToFavorite": "请先登录再收藏",
+    "action": "操作",
+    "emptyData": "空数据",
+    "emptyFavorites": "空自选列表",
+    "loginNow": "立即登录",
+    "goToMarket": "前往市场",
+    "noData": "暂无数据"
+  }
   }
 }

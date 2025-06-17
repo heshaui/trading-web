@@ -1,0 +1,55 @@
+{
+    "pageTitle": "市場行情",
+    "marketData": {
+      "pageTitle": "市場行情",
+      "rankings": "排行榜",
+      "marketTrends": "行情"
+    },
+    "rankingList": {
+      "tradingPair": "交易對",
+      "latestPrice": "最新價格",
+      "change24h": "24H漲跌",
+      "hotCoins": "熱門榜",
+      "risingCoins": "漲幅榜",
+      "fallingCoins": "跌幅榜"
+    },
+    "marketList": {
+      "tabs": {
+        "favorites": "自選",
+        "allCoins": "所有幣種",
+        "spotMarket": "現貨市場"
+      },
+      "categories": {
+        "mainBoard": "主板",
+        "innovationZone": "創新區",
+        "newCoins": "新幣區",
+        "ai": "AI",
+        "meme": "Meme",
+        "nft": "NFT",
+        "web3": "Web3",
+        "payments": "支付",
+        "launchpad": "Launchpad"
+      },
+      "tableHeaders": {
+        "name": "名稱",
+        "price": "價格",
+        "change24h": "24H漲跌",
+        "marketCap": "市值",
+        "action": "操作",
+        "highLow24h": "24H最高/24H最低",
+        "volume24h": "24H成交額",
+        "trade": "交易"
+      },
+      "operationTips": {
+        "addSuccess": "添加成功",
+        "removeSuccess": "移除成功",
+        "loginToFavorite": "請先登入再收藏",
+        "action": "操作",
+        "emptyData": "空數據",
+        "emptyFavorites": "空自選列表",
+        "loginNow": "立即登入",
+        "goToMarket": "前往市場",
+        "noData": "暫無數據"
+      }
+    }
+  }
