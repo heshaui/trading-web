@@ -1,5 +1,6 @@
 type MessageCallback = (message: string) => void;
 type ErrorCallback = (error: Event) => void;
+type ConnectedCallback = () => void;
 
 enum ConnectionState {
   CONNECTING,
@@ -19,6 +20,7 @@ class WebSocketService {
   private state: ConnectionState = ConnectionState.CLOSED;
   private messageCallback?: MessageCallback;
   private errorCallback?: ErrorCallback;
+  private connectedCallback?: ConnectedCallback;
 
   constructor(
     url: string,
@@ -61,6 +63,14 @@ class WebSocketService {
     this.setupEventListeners();
   }
 
+  /**
+   * 设置连接成功的回调函数
+   * @param callback 连接成功时要执行的回调函数
+   */
+  setOnConnectedCallback(callback: ConnectedCallback): void {
+    this.connectedCallback = callback;
+  }
+
   private setupEventListeners(): void {
     if (!this.socket) return;
 
@@ -68,7 +78,11 @@ class WebSocketService {
       this.state = ConnectionState.OPEN;
       this.reconnectAttempts = 0;
       this.clearTimers();
-
+      
+      // 调用连接成功的回调函数
+      if (this.connectedCallback) {
+        this.connectedCallback();
+      }
     };
 
     this.socket.onmessage = (event: MessageEvent) => {

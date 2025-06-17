@@ -8,7 +8,7 @@ import { FireFilled } from "@ant-design/icons";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useThemeConfig } from "@/hooks/useKv";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   TradeRakingResp,
   HotMarketSymbol,
@@ -31,8 +31,12 @@ export default function MarketData() {
   const [HotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
   const [newPrice, setNewPrice] = useState<MarketDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tradeData, setTradeData] = useState<any>(null);
+  const [klineData, setKlineData] = useState<any>(null);
   // WebSocket引用，用于管理多个币对的WebSocket连接
   const wsRefs = useRef<{ [key: string]: WebSocketService }>({});
+  // 多通道WebSocket引用
+  const multiWsRef = useRef<WebSocketService | null>(null);
   // 获取涨幅榜数据
   const fetchMarketDataUp = async () => {
     try {
@@ -232,6 +236,129 @@ export default function MarketData() {
     });
     wsRefs.current = {};
   };
+
+  // 建立多通道WebSocket连接
+  const getMulti = useCallback(() => {
+    // 如果已经有连接，先关闭
+    if (multiWsRef.current) {
+      multiWsRef.current.close();
+      multiWsRef.current = null;
+    }
+
+    // 创建新的WebSocket连接
+    const wsUrl = "wss://ws80.imsaas.work/ws/multi";
+    console.log("建立多通道WebSocket连接:", wsUrl);
+    
+    const ws = new WebSocketService(wsUrl);
+    multiWsRef.current = ws;
+
+    // 建立连接并处理消息
+    ws.connect(
+      (message: string) => {
+        try {
+          // 处理系统消息
+          if (
+            message.startsWith("subscribe:") ||
+            message.startsWith("ping") ||
+            message.startsWith("pong") ||
+            message.includes("subscribe") ||
+            message.includes("left the channel") ||
+            message.includes("client")
+          ) {
+            console.log(`收到多通道WebSocket系统消息:`, message);
+            return;
+          }
+
+          // 处理错误消息
+          if (message.includes("error") || message.includes("Invalid")) {
+            console.error(`多通道WebSocket错误消息:`, message);
+            return;
+          }
+
+          console.log(`收到多通道WebSocket消息:`, message);
+          
+          // 解析JSON消息
+          let data;
+          try {
+            data = JSON.parse(message);
+          } catch (parseError) {
+            console.warn(`多通道WebSocket消息不是JSON格式:`, message);
+            return;
+          }
+
+          // 检查消息类型
+          if (data.type === "__ping__") {
+            console.log(`收到多通道WebSocket ping消息`);
+            return;
+          }
+
+          // 根据频道处理不同类型的数据
+          if (data.channel && data.data) {
+            if (data.channel === "ETH_USDT_1@trade") {
+              // 处理交易数据
+              setTradeData(data.data);
+              console.log("接收到ETH_USDT_1交易数据:", data.data);
+            } else if (data.channel === "BTC_USDT_1@kline_1m") {
+              // 处理K线数据
+              setKlineData(data.data);
+              console.log("接收到BTC_USDT_1 K线数据:", data.data);
+            }
+          }
+        } catch (error) {
+          console.error(`解析多通道WebSocket消息出错:`, error);
+        }
+      },
+      (error) => {
+        console.error(`多通道WebSocket连接错误:`, error);
+
+        // 连接出错时，尝试重新连接
+        setTimeout(() => {
+          console.log(`尝试重新连接多通道WebSocket...`);
+          getMulti();
+        }, 5000); // 5秒后重试
+      }
+    );
+
+    // 创建一个订阅函数，在消息回调中检测何时连接成功并发送订阅
+    let isSubscribed = false;
+    const checkAndSubscribe = () => {
+      // 如果已经订阅过了，就不再重复订阅
+      if (isSubscribed || !multiWsRef.current || multiWsRef.current.connectionState !== 1) {
+        return;
+      }
+      
+      console.log("多通道WebSocket连接成功，发送订阅消息");
+      const subscribeMessage = JSON.stringify({
+        action: "subscribe",
+        channels: ["ETH_USDT_1002@trade", "BTC_USDT_1002@kline_1m"]
+      });
+      
+      const sent = multiWsRef.current.send(subscribeMessage);
+      if (sent) {
+        console.log("成功发送多通道WebSocket订阅消息:", subscribeMessage);
+        isSubscribed = true;
+      } else {
+        console.error("发送多通道WebSocket订阅消息失败");
+      }
+    };
+    
+    // 设置定时检测来确保订阅消息被发送
+    const subscriptionInterval = setInterval(() => {
+      checkAndSubscribe();
+      // 如果已经订阅成功，则清除定时器
+      if (isSubscribed) {
+        clearInterval(subscriptionInterval);
+      }
+    }, 500); // 每500ms检测一次
+    
+    // 10秒后就停止检测，防止无限循环
+    setTimeout(() => {
+      clearInterval(subscriptionInterval);
+      if (!isSubscribed) {
+        console.error("多通道WebSocket订阅失败，超时");
+      }
+    }, 10000);
+  }, []);
   // 更新币对价格和涨跌幅
   const updatePairPrice = (
     coinSymbol: string,
@@ -428,22 +555,29 @@ export default function MarketData() {
   ];
 
   useEffect(() => {
-    fetchHotMarketData();
     fetchMarketDataUp();
     fetchMarketDataDown();
+    fetchHotMarketData();
     fetchNewPrice();
-
-    // 组件卸载时关闭所有WebSocket连接
+    // 初始化多通道WebSocket连接
+    getMulti();
+    setIsLoading(false);
     return () => {
+      // 组件卸载时清理WebSocket连接
       cleanupWebSockets();
+      // 清理多通道WebSocket连接
+      if (multiWsRef.current) {
+        multiWsRef.current.close();
+        multiWsRef.current = null;
+      }
     };
-  }, []);
+  }, [getMulti]);
   // 在获取完所有数据后单独建立WebSocket连接
   useEffect(() => {
     // 当newPrice数据加载完成后，建立WebSocket连接
     if (newPrice.length > 0) {
       console.log("开始建立WebSocket连接...");
-      setupPriceWebSockets(newPrice);
+      // setupPriceWebSockets(newPrice);
     }
   }, [newPrice]);
   return (
