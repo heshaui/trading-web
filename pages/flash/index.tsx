@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse } from 'antd';
-import { DownOutlined, SwapOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Button, Input, Select, Collapse, Modal, Spin } from 'antd';
+import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
 const { Panel } = Collapse;
 
@@ -13,6 +13,10 @@ const FlashPage: NextPage = () => {
   const { t } = useTranslation('common');
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>('');
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState<boolean>(false);
+  const [exchangeRate, setExchangeRate] = useState<string>('596.092');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [priceExpired, setPriceExpired] = useState<boolean>(false);
   
   return (
     <>
@@ -78,44 +82,64 @@ const FlashPage: NextPage = () => {
               <MarketPrice>兑换比例: --</MarketPrice>
             </TradeSection>
             
-            <TradeButton>登录后兑换</TradeButton>
+            <TradeButton onClick={() => setIsConfirmModalVisible(true)}>登录后兑换</TradeButton>
+            
+            {/* Confirmation Modal */}
+            <ConfirmExchangeModal
+              visible={isConfirmModalVisible}
+              onClose={() => setIsConfirmModalVisible(false)}
+              payAmount={payAmount || '0.04'}
+              payCurrency="USDT"
+              receiveAmount={receiveAmount || '0.00006699'}
+              receiveCurrency="BTC"
+              exchangeRate={exchangeRate}
+              isLoading={isLoading}
+              priceExpired={priceExpired}
+              onConfirm={() => {
+                setIsLoading(true);
+                // Simulate API call
+                setTimeout(() => {
+                  setIsLoading(false);
+                  setIsConfirmModalVisible(false);
+                }, 2000);
+              }}
+              onRefreshPrice={() => {
+                setPriceExpired(false);
+              }}
+            />
           </TradeContainer>
           
           <FAQSection>
             <FAQTitle>常见问题</FAQTitle>
             <StyledCollapse expandIconPosition="end">
+              {/* Using default expand icon */}
               <Panel 
                 header="如何使用闪兑交易功能?" 
                 key="1"
-                expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
               >
                 <p>闪兑功能允许您快速交换不同的加密货币，无需手续费。只需输入您想要支付的金额，系统将自动计算您将获得的金额。</p>
               </Panel>
               <Panel 
                 header="这是一个公告栏XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" 
                 key="2"
-                expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
               >
                 <p>公告内容将在这里显示。</p>
               </Panel>
               <Panel 
                 header="这是一个公告栏XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" 
                 key="3"
-                expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
               >
                 <p>公告内容将在这里显示。</p>
               </Panel>
               <Panel 
                 header="这是一个公告栏XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" 
                 key="4"
-                expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
               >
                 <p>公告内容将在这里显示。</p>
               </Panel>
               <Panel 
                 header="这是一个公告栏XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" 
                 key="5"
-                expandIcon={({ isActive }) => <DownOutlined rotate={isActive ? 180 : 0} />}
               >
                 <p>公告内容将在这里显示。</p>
               </Panel>
@@ -344,5 +368,252 @@ export async function getStaticProps({ locale }: { locale: string }) {
     },
   };
 }
+
+// Confirmation Modal Component
+interface ConfirmExchangeModalProps {
+  visible: boolean;
+  onClose: () => void;
+  payAmount: string;
+  payCurrency: string;
+  receiveAmount: string;
+  receiveCurrency: string;
+  exchangeRate: string;
+  isLoading: boolean;
+  priceExpired: boolean;
+  onConfirm: () => void;
+  onRefreshPrice: () => void;
+}
+
+const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
+  visible,
+  onClose,
+  payAmount,
+  payCurrency,
+  receiveAmount,
+  receiveCurrency,
+  exchangeRate,
+  isLoading,
+  priceExpired,
+  onConfirm,
+  onRefreshPrice
+}) => {
+  return (
+    <Modal
+      open={visible}
+      footer={null}
+      closable={false}
+      centered
+      width={400}
+      bodyStyle={{ padding: 0 }}
+    >
+      <ModalContainer>
+        <ModalHeader>
+          <ModalTitle>确认兑换</ModalTitle>
+          <CloseButton onClick={onClose}>
+            <CloseOutlined />
+          </CloseButton>
+        </ModalHeader>
+        
+        <ModalContent>
+          <ExchangeInfo>
+            <CurrencySection>
+              <ModalCurrencyIcon className="usdt">T</ModalCurrencyIcon>
+              <CurrencyDirection>从</CurrencyDirection>
+              <CurrencyAmount>{payAmount} {payCurrency}</CurrencyAmount>
+            </CurrencySection>
+            
+            <ArrowIcon>
+              <ArrowRightOutlined />
+            </ArrowIcon>
+            
+            <CurrencySection>
+              <ModalCurrencyIcon className="btc">₿</ModalCurrencyIcon>
+              <CurrencyDirection>至</CurrencyDirection>
+              <CurrencyAmount>{receiveAmount} {receiveCurrency}</CurrencyAmount>
+            </CurrencySection>
+          </ExchangeInfo>
+          
+          <ExchangeDetails>
+            <DetailRow>
+              <DetailLabel>兑换率</DetailLabel>
+              <DetailValue>
+                1{receiveCurrency} = {exchangeRate} {payCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
+              </DetailValue>
+            </DetailRow>
+            
+            <DetailRow>
+              <DetailLabel>交易手续费</DetailLabel>
+              <DetailValue className="fee">0手续费</DetailValue>
+            </DetailRow>
+            
+            <DetailRow>
+              <DetailLabel>您将支付</DetailLabel>
+              <DetailValue>{payAmount} {payCurrency}</DetailValue>
+            </DetailRow>
+          </ExchangeDetails>
+          
+          {priceExpired && (
+            <PriceExpiredAlert>
+              <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
+              该报价已过期，请重新获取报价
+            </PriceExpiredAlert>
+          )}
+          
+          <ConfirmButton 
+            onClick={priceExpired ? onRefreshPrice : onConfirm}
+            disabled={isLoading}
+          >
+            {isLoading ? <Spin size="small" /> : priceExpired ? '刷新报价' : '确认兑换'}
+          </ConfirmButton>
+        </ModalContent>
+      </ModalContainer>
+    </Modal>
+  );
+};
+
+// Modal Styled Components
+const ModalContainer = styled.div`
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: white;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+`;
+
+const ModalContent = styled.div`
+  padding: 20px;
+`;
+
+const ExchangeInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+`;
+
+const CurrencySection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+`;
+
+const ModalCurrencyIcon = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+  
+  &.usdt {
+    background-color: #26A17B;
+  }
+  
+  &.btc {
+    background-color: #F7931A;
+  }
+`;
+
+const CurrencyDirection = styled.div`
+  color: #999;
+  margin-bottom: 5px;
+`;
+
+const CurrencyAmount = styled.div`
+  font-weight: 500;
+`;
+
+const ArrowIcon = styled.div`
+  color: #999;
+  font-size: 24px;
+  margin: 0 15px;
+`;
+
+const ExchangeDetails = styled.div`
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+`;
+
+const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const DetailLabel = styled.div`
+  color: #666;
+`;
+
+const DetailValue = styled.div`
+  font-weight: 500;
+  
+  &.fee {
+    color: #ff5722;
+  }
+`;
+
+const PriceExpiredAlert = styled.div`
+  background-color: #FFF7E6;
+  border-radius: 4px;
+  padding: 10px 15px;
+  color: #D46B08;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const ConfirmButton = styled(Button)`
+  width: 100%;
+  height: 50px;
+  background-color: #ff5722;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 25px;
+  
+  &:hover, &:focus {
+    background-color: #e64a19;
+    color: white;
+  }
+  
+  &:disabled {
+    background-color: #ffd3c4;
+    color: white;
+  }
+`;
 
 export default FlashPage;
