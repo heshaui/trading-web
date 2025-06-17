@@ -118,7 +118,7 @@ function InvitationDetails({ onReturn }: InviteProps) {
         }
         setPageParam(pageData)
         paramdataRef.current = pageData;
-        // await getLoginData()
+        await getInviteData()
     }
     useEffect(() => {
         getInviteData()
@@ -157,10 +157,11 @@ function InvitationDetails({ onReturn }: InviteProps) {
                     className={`${styles.table_box} table-box`}
                     pagination={{
                         position: ["bottomRight"],
-                        showSizeChanger: true,
+                        // showSizeChanger: true,
                         total: total,
                         size: "default",
                         onChange: (page, pageSize) => pageChange(page, pageSize),
+                        hideOnSinglePage: true
                     }}
                     loading={loading}
                     locale={{

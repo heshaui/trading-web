@@ -257,6 +257,7 @@
         "withdraw": "출금",
         "rebate": "수수료 환급",
         "transfer": "송금",
+        "gift": "기프트 코인",
         "selectCoin": "화폐 종류 필터링"
     },
     "recharge": {

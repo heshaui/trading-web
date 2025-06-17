@@ -36,6 +36,7 @@ import { toast } from 'sonner';
 import UserInfoMenu from './common/UserInfo';
 import AssetsMenu from './common/Assets';
 import LangageMenu from './common/Langage';
+import Notice from './common/Notice';
 import { getKvObject } from '@/services/kv'
 import { NoData } from '@/components/noData';
 import SpotMenu from './common/Spot';
@@ -193,10 +194,17 @@ export default function HomeMenu() {
     }, [isLogin]);
     // 获取logo
     const { logoUrl, setLogoUrl } = useLogoImage('');
-    // 账户助手数据
-    const [accountAssistantData, setAccountAssistantData] = useState<any[]>([]);
-    // 账户助手加载状态
-    const [accountAssistantLoading, setAccountAssistantLoading] = useState<boolean>(false);
+
+    // 站内信相关状态管理
+    const [accountLoading, setAccountLoading] = useState(false);
+    const [assetsLoading, setAssetsLoading] = useState(false);
+    const [transactionLoading, setTransactionLoading] = useState(false);
+    const [bizData, setBizData] = useState<any[]>([]);
+    const pagesParam = useRef({
+        page: 1,
+        pageSize: 5,
+        total: 0
+    })
     // 请求导航栏数据
     const [menuData, setMenuData] = useState<any>(null);
     // 语言
@@ -215,53 +223,10 @@ export default function HomeMenu() {
         // 服务器端渲染时的默认值
         return '简体中文';
     });
-    
-    // 获取账户助手数据
-    const fetchAccountAssistantData = useCallback(async () => {
-        try {
-            setAccountAssistantLoading(true);
-            const response: any = await getInformUserMessageList({
-                languageCode: typeof selectedLanguage === 'object' && selectedLanguage ? selectedLanguage : 'zh_CN',
-                pageNum: 1,
-                pageSize: 20,
-                bizType:'account'
-            });
-            
-            if (response && typeof response === 'object' && response.code === 0 && response.data) {
-                const formattedData = response.data.list?.map((item: any) => ({
-                    id: item.id,
-                    h5Text: item.titleTemplate,
-                    spanText: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-                    link: item.link || '',
-                    content: item.contentTemplate || ''
-                })) || [];
-                
-                setAccountAssistantData(formattedData);
-            } else {
-                setAccountAssistantData([]);
-            }
-        } catch (error) {
-            console.error('获取账户助手数据失败:', error);
-            setAccountAssistantData([]);
-        } finally {
-            setAccountAssistantLoading(false);
-        }
-    }, [selectedLanguage]);
-    
-    // 使用 ref 跟踪是否已经获取过账户助手数据
-    const hasFetchedAccountData = useRef(false);
 
-    // 在登录状态变化时获取账户助手数据
-    useEffect(() => {
-        const fetchData = async () => {
-            if (isLogin && isLoggedIn && !hasFetchedAccountData.current) {
-                await fetchAccountAssistantData();
-                hasFetchedAccountData.current = true;
-            }
-        };
 
-        fetchData();
-    }, [isLogin, isLoggedIn, fetchAccountAssistantData]);
+
+
     // 定义一个函数，根据 key 返回不同的图标
     const getIconByKey = (icon: IconName) => {
         switch (icon) {
@@ -312,111 +277,6 @@ export default function HomeMenu() {
         return getIconByKey(icon);
     };
 
-    const goNotice = (id: string) => {
-        // console.log(id);
-        // 跳转到公告详情页面
-        router.push(`/Notice/${id}`);
-    }
-
-    // 公告中心标签页 - 使用动态获取的数据
-    const bulletinItems: TabsProps['items'] = [
-        {
-            key: '1',
-            label: t('header.notice.notice'), //"公告"
-            children:
-                // 如果有公告数据则使用，否则使用默认数据
-                bulletinDataList.length > 0
-                    ? bulletinDataList.map((item: any, index: number) => (
-                        <MenuItemLabel key={index} h5Text={item.h5Text} spanText={item.spanText} needHover onClick={() => {goNotice(item.id)}} />
-                    ))
-                    : (
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            padding: '40px 0'
-                        }}>
-                            <NoData title={t('header.noNewNotice')} />
-                        </div>
-                    )
-        },
-        {
-            key: '2',
-            label: t('header.notice.accountAssistant'), //"账户助手"
-            children: (
-                accountAssistantLoading ? (
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        padding: '40px 0'
-                    }}>
-                        {/* 加载中... */}
-                        {t('header.loading')}
-                    </div>
-                ) : accountAssistantData.length > 0 ? (
-                    accountAssistantData.map((item: any, index: number) => (
-                        <MenuItemLabel 
-                            key={index} 
-                            h5Text={item.h5Text} 
-                            spanText={item.spanText} 
-                            needHover 
-                            onClick={() => { 
-                                // 可以添加点击事件处理，例如跳转到详情页
-                                router.push(`/account-assistant/${item.id}`);
-                            }} 
-                        />
-                    ))
-                ) : (
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        padding: '40px 0'
-                    }}>
-                        <NoData title={t('header.noNewNotice')} />
-                    </div>
-                )
-            ),
-        },
-        {
-            key: '3',
-            label: t('header.notice.assets'), //"资产"
-            children: (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    padding: '40px 0'
-                }}>
-                    <NoData title={t('header.noNewNotice')} />
-                </div>
-            ),
-        },
-        {
-            key: '4',
-            label: t('header.notice.transaction'), //"交易"
-            children: (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    padding: '40px 0'
-                }}>
-                    <NoData title={t('header.noNewNotice')} />
-                </div>
-            ),
-        },
-    ];
-
-    // 根据登录状态创建不同的Tabs内容
-    const loginAwareBulletinItems = useMemo(() => {
-        // 添加调试日志
-        // console.log('重新计算标签内容，当前登录状态:', isLogin);
-
-        // 如果已登录，返回所有标签页；否则只返回公告标签页
-        if (isLogin) {
-            return bulletinItems;
-        } else {
-            return [bulletinItems[0]];
-        }
-    }, [isLogin, bulletinItems]);
-
     // 使用 useMemo 缓存菜单项配置
     const iconMenusLogin = useMemo(() => [
         {
@@ -438,7 +298,6 @@ export default function HomeMenu() {
                                     fontSize: '16px',
                                     color: 'var(--text-color5)'
                                 }}>
-                                    {/* 消息 */}
                                     {t('header.notice.message')}
                                 </span>
                             </Col>
@@ -451,7 +310,6 @@ export default function HomeMenu() {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        {/* 查看全部 */}
                                         {t('header.notice.viewAll')}
                                     </span>
                                 </Link>
@@ -463,26 +321,12 @@ export default function HomeMenu() {
                             key: '0-1',
                             type: 'group',
                             label: (
-                                <ConfigProvider
-                                    theme={{
-                                        components: {
-                                            Tabs: {
-                                                inkBarColor: 'var(--text-color5)',
-                                                itemColor: '#6D6F7A',
-                                                itemActiveColor: 'var(--text-color5)',
-                                                itemHoverColor: '#6D6F7A',
-                                                itemSelectedColor: 'var(--text-color5)',
-                                                colorBorderSecondary: 'var(--border-color4)'
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <Tabs
-                                        defaultActiveKey="1"
-                                        items={loginAwareBulletinItems}
-                                        key={`tabs-${isLogin ? 'logged-in' : 'logged-out'}`}
-                                    />
-                                </ConfigProvider>
+                                <Notice
+                                    // isLoggedIn={isLoggedIn}
+                                    // unreadCount={unreadCount}
+                                    bulletinDataList={bulletinDataList}
+                                    isLogin={isLogin}
+                                />
                             ),
                         }
                     ]
@@ -495,8 +339,7 @@ export default function HomeMenu() {
             widthSet: 'question',
             items: [],
         },
-    ], [isLogin, loginAwareBulletinItems]); // 添加所有需要的依赖
-
+    ], [isLogin, bulletinDataList, isLoggedIn, unreadCount, accountLoading, assetsLoading, transactionLoading, bizData]);
     // 使用 useMemo 缓存渲染结果
     const iconItemsLogin = useMemo(() =>
         iconMenusLogin.map(iconMenu =>
@@ -597,7 +440,7 @@ export default function HomeMenu() {
                 <div className={styles.container}>
                     <div className={styles.logo}>
                         <Image
-                            src={logoUrl||''}
+                            src={logoUrl || ''}
                             alt="go Home"
                             width={140}
                             height={140}

@@ -94,13 +94,13 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
       key: "symbol",
       align: "center",
       width: 148,
-      render: (_text, record) => <button type='button' className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''}`}
+      render: (_text, record) => <button type='button' className={`${record.direction === 1 ? styles.error_hover : record.direction?.toString() === '0' ? styles.success_hover : ''}`}
         onClick={() => {
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
         }}
       >
         {_text || '--'}
-        <Iconify icon="mingcute:right-line" className={`${record.status === 1 ? styles.error_icon : record.status?.toString() === '0' ? styles.success_icon : ''} mx-1`} size={20} />
+        <Iconify icon="mingcute:right-line" className={`${record.direction === 1 ? styles.error_hover : record.direction?.toString() === '0' ? styles.success_hover : ''} mx-1`} size={20} />
       </button >,
     },
     {
@@ -483,14 +483,15 @@ const SpotMainPage = observer(({ returnNowOrder }: Props) => {
           // scroll={{ x: 'max-content', y: 300 }}
           scroll={{ x: 'max-content', }}
           className={`spot-table-box spot-pagination`}
-          pagination={total > 10 ? {
+          pagination={{
             position: ["bottomRight"],
             // showSizeChanger: true,
             total: total,
             size: "default",
             simple: true,
             onChange: (page, pageSize) => pageChange(page, pageSize),
-          } : false}
+            hideOnSinglePage: true
+          }}
           loading={loading}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />

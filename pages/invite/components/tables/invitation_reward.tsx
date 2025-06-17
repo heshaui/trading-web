@@ -34,8 +34,7 @@ type InviteProps = {
 }
 function InvitationReward({onReturn}:InviteProps) {
     const router = useRouter();
-    const { t } = useTranslation(['invite']);
-    const [total, setTotal] = useState(0);
+    const { t } = useTranslation(['invite'])
     const [loading, setLoading] = useState(false);
     const { isDayMode } = useThemeMode(); // 使用 hook
     const { userId } = router.query;
@@ -95,12 +94,15 @@ function InvitationReward({onReturn}:InviteProps) {
     const pageChange = async(page: number, pageSize: number) => {
         pageParam.current.page = page
         pageParam.current.pageSize = pageSize
-        // await getLoginData()
+        await getRecordData()
     }
     const getRecordData = async () => {
         setLoading(true)
         try {
-            const res = await getRecordList({});
+            const res = await getRecordList({
+                pageNo:pageParam.current.page,
+                pageSize:pageParam.current.pageSize,
+            });
             if (res.code === '0') {
                 setRecordList(res.data.list)
                 pageParam.current.total = res.data.count
@@ -145,10 +147,11 @@ function InvitationReward({onReturn}:InviteProps) {
                     className={` table-box`}
                     pagination={{
                         position: ["bottomRight"],
-                        showSizeChanger: true,
-                        total: total,
+                        // showSizeChanger: true,
+                        total: pageParam.current.total,
                         size: "default",
                         onChange: (page, pageSize) => pageChange(page, pageSize),
+                        hideOnSinglePage: true
                     }}
                     loading={loading}
                     locale={{ emptyText: <div className='flex-y-cc'>

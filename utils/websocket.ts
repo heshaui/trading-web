@@ -68,7 +68,7 @@ class WebSocketService {
       this.state = ConnectionState.OPEN;
       this.reconnectAttempts = 0;
       this.clearTimers();
-      console.log(`WebSocket 连接成功: ${this.url}`);
+
     };
 
     this.socket.onmessage = (event: MessageEvent) => {
@@ -76,7 +76,7 @@ class WebSocketService {
     };
 
     this.socket.onerror = (event: Event) => {
-      console.error('WebSocket 错误:', event);
+
       this.errorCallback?.(event);
     };
 
@@ -84,7 +84,7 @@ class WebSocketService {
       this.state = ConnectionState.CLOSED;
       this.clearTimers();
       this.socket = null;
-      console.error('WebSocket 关闭:', event);
+
       if (!event.wasClean && this.shouldReconnect()) {
         this.handleReconnect();
       }

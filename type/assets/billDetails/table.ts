@@ -31,6 +31,17 @@ export interface RechargeDataType {
     fee: string,
     orderId: string
 }
+export interface GiftDataType {
+    timestamp: number,
+    type: string,
+    symbol: string,
+    amount: number,
+    status: string,
+    address: string,
+    txHash: string,
+    fee: string,
+    orderId: string
+}
 export interface coinSelectType {
     coinId: string,
     coinName: string,
