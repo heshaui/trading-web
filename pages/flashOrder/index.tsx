@@ -18,6 +18,8 @@ import type { GetStaticProps } from 'next';
 interface TransactionRecord {
     id: string;
     tradeDate: string;
+    sendCoin: string;
+    receiveCoin: string;
     tradingPair: string;
     payment: {
         amount: number;
@@ -35,12 +37,22 @@ interface TransactionRecord {
     settlementDate: string;
     status: 'success' | 'processing' | 'failed';
 }
+const statusCodeMap: Record<'success' | 'processing' | 'failed', number> = {
+    'processing': 0, // or 1, depending on your logic
+    'success': 3,    // adjust according to your needs
+    'failed': 2
+};
 
-const statusMap = {
-    0: { text: '处理中', color: '#00B42A' },
-    1: { text: '处理中', color: '#00B42A' },
-    2: { text: '失败', color: '#F53F3F' },
-    3: { text: '失败', color: '#F53F3F' },
+const statusMap: Record<'success' | 'processing' | 'failed', { text: string; color: string }> = {
+    'success': { text: '成功', color: '#00B42A' },
+    'processing': { text: '处理中', color: '#00B42A' },
+    'failed': { text: '失败', color: '#F53F3F' },
+};
+
+const codeToStatus: Record<number, 'success' | 'processing' | 'failed'> = {
+    0: 'processing',
+    3: 'success',
+    2: 'failed'
 };
 const FlashOrderPage = () => {
     const { t } = useTranslation(['spot', 'common']);
@@ -88,10 +100,10 @@ const FlashOrderPage = () => {
                     total: response.data.count,
                 }));
             } else {
-                appStore.showError(response.msg);
+
             }
         } catch (error) {
-            appStore.showError(t('common.error'));
+
         } finally {
             setLoading(false);
         }
@@ -104,11 +116,10 @@ const FlashOrderPage = () => {
             if (response.code === '0'&& Array.isArray(response.data)) {
                 setCoinList(response.data);
             } else {
-                appStore.showError(response.msg || t('common.error'));
             }
         } catch (error) {
             console.error('获取币种列表失败:', error);
-            appStore.showError(t('common.error'));
+           
         }
     }, [t]);
 
@@ -142,7 +153,9 @@ const FlashOrderPage = () => {
         sorter,
     ) => {
         setPagination({
-            ...newPagination,
+            current: newPagination.current || 1,
+            pageSize: newPagination.pageSize || 10,
+            total: newPagination.total || 0,
         });
     };
     const columns: ColumnsType<TransactionRecord> = [
@@ -188,7 +201,8 @@ const FlashOrderPage = () => {
             dataIndex: 'status',
             key: 'status',
             render: (text, record) => {
-                const statusInfo = statusMap[record.status];
+                const statusCode = statusCodeMap[record.status];
+                const statusInfo = statusMap[codeToStatus[statusCode]];
                 return (
                     <span style={{ color: statusInfo.color }}>
                         {statusInfo.text}
@@ -218,9 +232,6 @@ const FlashOrderPage = () => {
                             itemBg: 'transparent',
                             itemActiveBgDisabled: 'transparent',
                             itemInputBg: 'transparent',
-                            itemLink: 'var(--text-color5)',
-                            itemActiveColor: 'var(--primary-color)',
-                            itemHoverBg: 'var(--background10)',
                         },
                     },
                 }}
@@ -246,7 +257,7 @@ const FlashOrderPage = () => {
                             onChange={(value) => setSelectedCoin(value)}
                             className={styles.coinSelect}
                             style={{ width: 160 }}
-                            options={coinList.filter(item => item.isTradeConvert !== 0).map(item => ({
+                            options={coinList.filter((item:any) => item.isTradeConvert !== 0).map(item => ({
                                     value: item.coinName,
                                     label: item.coinName
                                 }))

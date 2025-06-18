@@ -218,7 +218,7 @@ export default function MarketData() {
             console.log("data的内容:", data);
             if (data) {
               // 更新币对价格和涨跌幅
-              updatePairPrice(pair.coinSymbol, pair.baseSymbol, data);
+              // updatePairPrice(pair.coinSymbol, pair.baseSymbol, data);
             }
           } catch (error) {
             console.error(`解析WebSocket消息出错 (${pairKey}):`, error);
@@ -539,7 +539,7 @@ export default function MarketData() {
       }),
       render: (text: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        const changePercent = record.priceChangePercent;
+        const changePercent: number = record.priceChangePercent || 0;
         const isPositive = changePercent > 0;
         const textColor = isPositive
           ? "var(--color-success)"
