@@ -528,7 +528,13 @@ border-radius: 8px !important;
 .spot-table-box .ant-select-open .ant-select-selection-item {
     color: var(--text-color4) !important;
 }
+.spot-table-box .ant-table-column-sorters{
+    justify-content: center !important;
 
+}
+.spot-table-box .ant-table-column-sorters>.ant-table-column-title{
+    flex:none !important;
+  }
 .spot-pagination .ant-pagination-simple-pager {
     color: var(--text-color5) !important;
 }

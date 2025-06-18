@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import styles from "@/modules/spot/pages/compontents/styles/spotHeader_select.module.css";
-import { ConfigProvider, Rate } from "antd";
+import styles from "./styles/spotHeader_select.module.css";
+import { ConfigProvider, Rate, Table, Tooltip,Image ,Input} from "antd";
 import { Iconify } from "@/components/icon";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next";
@@ -10,8 +10,8 @@ import { SearchOutlined } from "@ant-design/icons";
 import type { TabsProps } from "antd";
 import appStore from "@/store";
 import { observer } from "mobx-react-lite";
-import { message } from "antd"; 
-import Image from 'next/image';
+import { message } from "antd";
+// import Image from 'next/image';
 import {
   addUserExchangeCoinType,
   canalUserExchangeCoinType,
@@ -19,29 +19,34 @@ import {
 import SimpleScrollTabs from "@/components/ScrollableTabs";
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
+import { cut } from '@/utils'
+import type { ColumnsType } from 'antd/es/table';
+import { NoData } from '@/components/noData'
+
 interface SpotSelectProps {
   currencyPairs: any[];
   onPairSelect?: (pair: any) => void;
-  searchValue: string;
+  // searchValue: string;
 }
 
 const SpotSelect: React.FC<SpotSelectProps> = ({
   currencyPairs,
   onPairSelect,
-  searchValue,
+  // searchValue,
 }) => {
-    const router = useRouter();
-  const { t } = useTranslation(["spot","market"]);
+  const router = useRouter();
+  const { t } = useTranslation([ "market"]);
   const [activeTab, setActiveTab] = useState("all"); // 当前选中的tab
   const [sortField, setSortField] = useState<string>("");
   const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [searchValue, setSearchValue]=useState('')
   const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   // 标签页配置
   const tabsItem: TabsProps["items"] = [
-    { key: "1", label: t("spot.header.mainArea") },
-    { key: "2", label: t("spot.header.innovationArea") },
-    { key: "3", label: t("spot.header.newCoinArea") },
+    { key: "1", label: t("header.mainArea") },
+    { key: "2", label: t("header.innovationArea") },
+    { key: "3", label: t("header.newCoinArea") },
     { key: "4", label: "AI" },
     { key: "5", label: "Meme" },
     { key: "6", label: "NFT" },
@@ -53,10 +58,108 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     { key: "12", label: "Solana" },
     { key: "13", label: "RWA" },
     { key: "14", label: "Launchpool" },
-    { key: "15", label: t("spot.header.gameMetaverse") },
-    { key: "16", label: t("spot.header.storage") },
+    { key: "15", label: t("header.gameMetaverse") },
+    { key: "16", label: t("header.storage") },
   ];
+  const columns: ColumnsType<any> = [
+    {
+      title: t('header.name'),
+      dataIndex: 'coinSymbol',
+      key: 'coinSymbol',
+      width: 100,
+      render: (text, record) => (
+        <div className={`${styles.pair_name} flex-x align-center`}>
+          <span
+            className={styles.favorite}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+            }}
+          >
+            <Rate
+              onChange={(value) => handleFavoriteChange(value, record)}
+              value={record.isFavorite ? 1 : 0}
+              count={1}
+              style={{ fontSize: 14 }}
+            />
+          </span>
+          <span className={styles.coin_icon}>{record.icon}</span>
+          <span className={`font-14 ${styles.title_color}`}>
+            {record.coinSymbol}/{record.baseSymbol}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: t('header.lastPrice'),
+      dataIndex: 'yesterdayPrice',
+      key: 'yesterdayPrice',
+      align: 'center',
+      sorter: (a, b) => a.yesterdayPrice - b.yesterdayPrice,
+      render: (_price) => {
+        return <span>{_price || '0'}</span>
+      },
+    },
+    {
+      title: t('header.volume24h'),
+      dataIndex: 'yesterdayPrice',
+      key: 'yesterdayPrice',
+      align: 'center',
+      sorter: (a, b) => {
+        const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
+        const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
+        return Number(aPrice) - Number(bPrice)
+      },
+      render: (_price, record) => {
+        const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
+        return <span>{price || '0'}</span>
+      },
+    },
+    {
+      title: `${t("header.high24h")}/${t("header.low24h")}`,
+      dataIndex: 'high_price',
+      key: 'high_price',
+      align: 'center',
+      render: (_marketValue, record) => {
+        // {pair.high_price || "--"}/{pair.low_price || "--"}
+        const price=`${record.high_price || "--"}/${record.low_price || "--"}`
+        return <span>{price}</span>
+      },
+    },{
+      title: t("header.amount24h"),
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'center',
+      sorter: (a, b) => {
+        const aQuantity = parseFloat(a.quantity) / 1000000
+        const bQuantity = parseFloat(b.quantity) / 1000000
+        return aQuantity - bQuantity
+      },
+      render: (_quantity, record) => {
+        return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+      },
+    },
+    {
+      title: t('marketList.tableHeaders.action'),
+      align: 'right',
+      dataIndex: 'action',
+      key: 'action',
+      render: (_, record) => {
 
+        return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
+          <button
+          >
+            <Image
+              src={'/images/market/icon_Trade.svg'}
+              alt={'trade'}
+              width={28}
+              height={28}
+              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              preview={false} />
+          </button>
+        </Tooltip>
+      },
+    },
+  ];
   const handleTabChange = (key: string) => {
     setActiveTab(key);
   };
@@ -135,13 +238,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             : changeB - changeA;
         }
         //   成交额排序
-    if (sortField === "quantity") {
-      const volumeA = parseFloat(a.quantity) || 0;
-        const volumeB = parseFloat(b.quantity) || 0;
-        return sortDirection === "asc"
-          ? volumeA - volumeB
-          : volumeB - volumeA;
-    }
+        if (sortField === "quantity") {
+          const volumeA = parseFloat(a.quantity) || 0;
+          const volumeB = parseFloat(b.quantity) || 0;
+          return sortDirection === "asc"
+            ? volumeA - volumeB
+            : volumeB - volumeA;
+        }
       } catch (error) {
         console.error("排序过程中出错:", error, "数据:", a, b);
       }
@@ -150,15 +253,15 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   };
 
   // 确保在排序状态变化时重新计算排序结果
-  const sortedPairList = React.useMemo(
-    () => getSortedPairs(),
-    [currencyPairs, sortField, sortDirection]
-  );
+  // const sortedPairList = React.useMemo(
+  //   () => getSortedPairs(),
+  //   [currencyPairs, sortField, sortDirection]
+  // );
 
   // 基于搜索和标签过滤排序后的结果
   const filteredPairs = React.useMemo(
     () =>
-      sortedPairList.filter((pair) => {
+      currencyPairs.filter((pair) => {
         // 搜索过滤
         const matchesSearch =
           pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -170,7 +273,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
         return matchesSearch && matchesTab;
       }),
-    [sortedPairList, searchValue, activeTab]
+    [currencyPairs, searchValue, activeTab]
   );
 
   const handleFavoriteChange = async (value: number, pair: any) => {
@@ -180,7 +283,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       router.push('/login'); // 登录页面路径根据实际项目调整
       return;
     }
-    
+
     const isFavorite = value === 1;
     const apiCall = isFavorite
       ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
@@ -235,15 +338,42 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     >
       <div className={styles.container}>
         {/* 标签页导航 */}
-
+        <div className={`${styles.allCoins_inputSearch}  flex-x align-center justify-end`}>
+        <Input
+          allowClear
+          size="middle"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder={t('header.searchInput')}
+          // onChange={handleSearchChange}  // 修正为正确的处理函数
+          // onKeyPress={handleKeyPress}    // 添加回车键处理
+          prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+          // style={{ width: "242px", marginBottom: 16 }}
+          className={`${styles.input_box} modal-input`}
+        />
+        </div>
+        <div>
         <SimpleScrollTabs
           items={tabsItem}
           onChange={handleTabClick}
           defaultActiveKey={activeTab}
           showAllTab={true}
-          allTabLabel={t("spot.header.all")}
+          allTabLabel={t("header.all")}
+          className={styles.allCoins_tabs}
         />
-        <div
+        <Table
+          columns={columns}
+          dataSource={filteredPairs}
+          rowKey="id"
+          pagination={false}
+          size="middle"
+          bordered={false}
+          className={`${styles.allCoinsTable} spot-table-box w-full`}
+          showSorterTooltip={false}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          />
+          </div>
+        {/* <div
           className={`${styles.list_header} px-4 py-4 flex-x align-center justify-between`}
           style={{
             display: "grid",
@@ -254,25 +384,23 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             className={`${styles.tip_color} font-12 flex-x align-center pointer`}
             onClick={() => handleSort("name")}
           >
-            <span>{t("spot.header.name")}</span>
+            <span>{t("header.name")}</span>
             <div className="ml-1 flex-y-cc">
               <Iconify
                 icon="fluent-mdl2:flick-down"
-                className={`pointer ${
-                  sortField === "name" && sortDirection === "asc"
+                className={`pointer ${sortField === "name" && sortDirection === "asc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
                 style={{ marginBottom: 2 }}
               />
               <Iconify
                 icon="fluent-mdl2:flick-up"
-                className={`pointer ${
-                  sortField === "name" && sortDirection === "desc"
+                className={`pointer ${sortField === "name" && sortDirection === "desc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
               />
             </div>
@@ -282,25 +410,23 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             className={`${styles.tip_color} font-12 flex-x align-center pointer`}
             onClick={() => handleSort("price")}
           >
-            <span>{t("spot.header.lastPrice")}</span>
+            <span>{t("header.lastPrice")}</span>
             <div className="ml-1 flex-y-cc">
               <Iconify
                 icon="fluent-mdl2:flick-down"
-                className={`pointer ${
-                  sortField === "price" && sortDirection === "asc"
+                className={`pointer ${sortField === "price" && sortDirection === "asc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
                 style={{ marginBottom: 2 }}
               />
               <Iconify
                 icon="fluent-mdl2:flick-up"
-                className={`pointer ${
-                  sortField === "price" && sortDirection === "desc"
+                className={`pointer ${sortField === "price" && sortDirection === "desc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
               />
             </div>
@@ -311,78 +437,69 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
           >
             <span>
               {showVolume
-                ? t("spot.header.volume24h")
-                : t("spot.header.change24h")}
+                ? t("header.volume24h")
+                : t("header.change24h")}
             </span>
             <div className="ml-1 flex-y-cc">
               <Iconify
                 icon="fluent-mdl2:flick-down"
-                className={`pointer ${
-                  sortField === "change" && sortDirection === "asc"
+                className={`pointer ${sortField === "change" && sortDirection === "asc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
                 style={{ marginBottom: 2 }}
               />
               <Iconify
                 icon="fluent-mdl2:flick-up"
-                className={`pointer ${
-                  sortField === "change" && sortDirection === "desc"
+                className={`pointer ${sortField === "change" && sortDirection === "desc"
                     ? styles.active_sort
                     : ""
-                }`}
+                  }`}
                 size={10}
               />
             </div>
-            {/* <div className="ml-1 flex-y-cc" onClick={(e) => showChange(e)}>
-              <Iconify icon="mingcute:transfer-line" size={18} />
-            </div> */}
           </div>
 
-          {/* 最高价/最低价表头 */}
+          最高价/最低价表头
           <div
             className={`${styles.tip_color} font-12 flex-x align-center pointer`}
           >
-            <span>{t("spot.header.high24h")}/{t("spot.header.low24h")}</span>
+            <span>{t("header.high24h")}/{t("header.low24h")}</span>
           </div>
 
-          {/* 成交额表头 */}
+          成交额表头
           <div
             className={`${styles.tip_color} font-12 flex-x align-center pointer`}
             onClick={() => handleSort("quantity")}
           >
-            <span>{t("spot.header.amount24h")}</span>
+            <span>{t("header.amount24h")}</span>
             <div className="ml-1 flex-y-cc">
-                <Iconify
-                  icon="fluent-mdl2:flick-down"
-                  className={`pointer ${
-                    sortField === "quantity" && sortDirection === "asc"
-                      ? styles.active_sort
-                      : ""
+              <Iconify
+                icon="fluent-mdl2:flick-down"
+                className={`pointer ${sortField === "quantity" && sortDirection === "asc"
+                    ? styles.active_sort
+                    : ""
                   }`}
-                  size={10}
-                  style={{ marginBottom: 2 }}
-                />
-                <Iconify
-                  icon="fluent-mdl2:flick-up"
-                  className={`pointer ${
-                    sortField === "quantity" && sortDirection === "desc"
-                      ? styles.active_sort
-                      : ""
+                size={10}
+                style={{ marginBottom: 2 }}
+              />
+              <Iconify
+                icon="fluent-mdl2:flick-up"
+                className={`pointer ${sortField === "quantity" && sortDirection === "desc"
+                    ? styles.active_sort
+                    : ""
                   }`}
-                  size={10}
-                />
-              </div>
+                size={10}
+              />
+            </div>
           </div>
 
-          {/* 操作表头 */}
+          操作表头
           <div className={`${styles.tip_color} font-12 flex-x-end`}>
-            <span>{t("spot.columns.operation")}</span>
+            <span>{t("columns.operation")}</span>
           </div>
         </div>
-
-        {/* 交易对列表 */}
         <div className={`${styles.pair_list}`}>
           {filteredPairs.map((pair: any, index: any) => (
             <div
@@ -395,7 +512,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
                 gridTemplateColumns: "16% 16% 16% 20% 16% 16%",
               }}
             >
-              {/* 币种名称 */}
+              币种名称
               <div className={`${styles.pair_name} flex-x align-center`}>
                 <span
                   className={styles.favorite}
@@ -415,58 +532,57 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
                   {pair.coinSymbol}/{pair.baseSymbol}
                 </span>
               </div>
-              {/* 最新价 */}
+              最新价
               <div
                 className={`font-14 ${styles.title_color} flex-x align-center`}
               >
                 {pair.yesterdayPrice}
               </div>
 
-              {/* 24h涨跌/24h成交量 */}
+              24h涨跌/24h成交量
               <div
-                className={`${styles.pair_change} ${
-                  !showVolume && pair.priceChangePercent > 0
+                className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0
                     ? styles.success_icon
                     : !showVolume && pair.priceChangePercent < 0
-                    ? styles.error_icon
-                    : ""
-                } flex-x align-center`}
+                      ? styles.error_icon
+                      : ""
+                  } flex-x align-center`}
               >
                 {showVolume
                   ? pair.quantity
                   : `${pair.priceChangePercent.toFixed(2)}%`}
               </div>
 
-              {/* 最高价/最低价 */}
+              最高价/最低价
               <div
                 className={`font-14 ${styles.title_color} flex-x align-center`}
               >
                 {pair.high_price || "--"}/{pair.low_price || "--"}
               </div>
 
-              {/* 24h成交额 */}
+              24h成交额
               <div
                 className={`font-14 ${styles.title_color} flex-x align-center`}
               >
-                 ${(parseFloat(pair.quantity) / 1000000).toFixed(2)}M
+                ${(parseFloat(pair.quantity) / 1000000).toFixed(2)}M
               </div>
 
-              {/* 交易按钮 */}
+              交易按钮
               <div className={`flex-x-end`}>
-              <Image 
-              src="/images/market/icon_Trade.png"
-              alt=""
-              width={24}
-              height={24}
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("交易:", pair.coinSymbol, pair.baseSymbol);
-              }}
-            />
+                <Image
+                  src="/images/market/icon_Trade.png"
+                  alt=""
+                  width={24}
+                  height={24}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("交易:", pair.coinSymbol, pair.baseSymbol);
+                  }}
+                />
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </ConfigProvider>
   );

@@ -20,7 +20,7 @@ export function getHotData():Promise<any>{
         method:'POST',
     });
 }
-// 获取现货市场
+// 获取现货市场-不登录
 export function getspotData(params = {}):Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/exchange-coin/exchangeCoinAllPrice`,{
         method:'POST',
@@ -28,7 +28,7 @@ export function getspotData(params = {}):Promise<any>{
     });
  }
 
-// // 获取所有币种
+// // 获取所有币种-不登录
 export function getAllCoinsData():Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/exchange-coin/tenantCurrencyCoinAll`,{
         method:'POST',
