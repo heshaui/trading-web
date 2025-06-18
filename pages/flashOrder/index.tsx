@@ -71,13 +71,13 @@ const FlashOrderPage = () => {
             
             // 添加日期筛选参数
             if (dateRange[0] && dateRange[1]) {
-                params.startTime = dateRange[0].format('YYYY-MM-DD');
-                params.endTime = dateRange[1].format('YYYY-MM-DD');
+                params.startTime = dayjs(dateRange[0]).valueOf();
+                params.endTime = dayjs(dateRange[1]).valueOf();
             }
             
             // 添加币种筛选参数
             if (selectedCoin && selectedCoin !== 'all') {
-                params.coinCode = selectedCoin;
+                params.sendCoin = selectedCoin;
             }
             
             const response = await records(params);

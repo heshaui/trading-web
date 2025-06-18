@@ -136,6 +136,11 @@ const FlashPage: NextPage = () => {
       console.log('Flash price response:', res)
       if (res.code === '0') {
         setExchangeRate(res.data)
+        // When exchange rate is updated, recalculate receive amount if pay amount exists
+        if (payAmount && !isNaN(Number(payAmount)) && !isNaN(Number(res.data))) {
+          const calculatedAmount = (Number(payAmount) * Number(res.data)).toFixed(8);
+          setReceiveAmount(calculatedAmount);
+        }
       }
     } catch (error) {
       console.error('Failed to get flash price:', error)
@@ -216,6 +221,14 @@ const FlashPage: NextPage = () => {
     getFlashPrice()
   }, [baseCoin, quteCoin])
 
+  // Calculate receive amount when pay amount or exchange rate changes
+  useEffect(() => {
+    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate))) {
+      const calculatedAmount = (Number(payAmount) * Number(exchangeRate)).toFixed(8);
+      setReceiveAmount(calculatedAmount);
+    }
+  }, [payAmount, exchangeRate])
+
   return (
     <>
       <Head>
@@ -248,9 +261,30 @@ const FlashPage: NextPage = () => {
                 <StyledInput
                   placeholder="1-1000"
                   value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setPayAmount(value);
+                    // Calculate receive amount when pay amount changes
+                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
+                      const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
+                      setReceiveAmount(calculatedAmount);
+                    }
+                  }}
                 />
-                <MaxLabel style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px' }}>最大</MaxLabel>
+                <MaxLabel 
+                  style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
+                  onClick={() => {
+                    const currentCoin = userAll.find(item => item.coinName === baseCoin);
+                    if (currentCoin && currentCoin.balance) {
+                      setPayAmount(currentCoin.balance);
+                      // Also calculate the receive amount based on the max balance
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
+                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
+                        setReceiveAmount(calculatedAmount);
+                      }
+                    }
+                  }}
+                >最大</MaxLabel>
                 <IconSelect
                   value={baseCoin}
                   onChange={setBaseCoin}
@@ -281,9 +315,30 @@ const FlashPage: NextPage = () => {
                 <StyledInput
                   placeholder="1-1000"
                   value={receiveAmount}
-                  onChange={(e) => setReceiveAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setReceiveAmount(value);
+                    // Calculate pay amount when receive amount changes
+                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
+                      const calculatedPayAmount = (Number(value) / Number(exchangeRate)).toFixed(8);
+                      setPayAmount(calculatedPayAmount);
+                    }
+                  }}
                 />
-                <MaxLabel style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px' }}>最大</MaxLabel>
+                <MaxLabel 
+                  style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
+                  onClick={() => {
+                    const currentCoin = userAll.find(item => item.coinName === quteCoin);
+                    if (currentCoin && currentCoin.balance) {
+                      setReceiveAmount(currentCoin.balance);
+                      // Also calculate the pay amount based on the max receive amount
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance)) && Number(exchangeRate) > 0) {
+                        const calculatedPayAmount = (Number(currentCoin.balance) / Number(exchangeRate)).toFixed(8);
+                        setPayAmount(calculatedPayAmount);
+                      }
+                    }
+                  }}
+                >最大</MaxLabel>
                 <Select
                   value={quteCoin}
                   onChange={setQuteCoin}
@@ -316,11 +371,11 @@ const FlashPage: NextPage = () => {
             </TradeSection>
                           <MarketPrice>
                             <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
-                兑换比例: {configData && configData.exchangeRate ? configData.exchangeRate : '--'}
+                兑换比例: {exchangeRate && exchangeRate ? `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`: '--'}
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >兑换</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
