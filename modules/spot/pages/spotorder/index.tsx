@@ -105,6 +105,7 @@ const SpotOrderPage = () => {
                 <h2 className={`font-w-500 font-20`}>
                     {t('spot.spotOrder')}
                 </h2>
+                
             </div>
             <div className={`${styles.card_bgc5} radius-2  mt-3 `}>
                 {/* 充值 */}

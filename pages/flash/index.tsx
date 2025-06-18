@@ -4,11 +4,11 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Spin, Image } from 'antd';
+import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
 import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
-
+import { useRouter } from 'next/router';
 
 
 
@@ -32,6 +32,7 @@ const ErrorMessage = styled.div`
 `;
 
 const FlashPage: NextPage = () => {
+
   const { t } = useTranslation('common');
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>();
@@ -53,7 +54,8 @@ const FlashPage: NextPage = () => {
   const [selectedCoin, setSelectedCoin] = useState<string>('ETH');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
-
+  
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   // Custom select component with icon display
   const IconSelect = ({ value, options, onChange, style }: any) => {
     // Find the selected option to display its icon
@@ -68,7 +70,6 @@ const FlashPage: NextPage = () => {
         dropdownStyle={{ padding: '4px' }}
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
         menuItemSelectedIcon={null}
-        dropdownMatchSelectWidth={true}
         showSearch={false}
         // Custom display for selected item
         dropdownRender={(menu) => (
@@ -190,6 +191,12 @@ const FlashPage: NextPage = () => {
   useEffect(() => {
     getCoinAllList()
     gerFlashConfig()
+   const userInfo= localStorage.getItem('imbit_userInfo')
+   if(userInfo){
+    JSON.parse(userInfo).realnessStatus===1 ? setIsAuth(true) : setIsAuth(false)
+   }
+
+
   }, [])
 
   return (
@@ -206,14 +213,14 @@ const FlashPage: NextPage = () => {
           {coinLoading && <LoadingIndicator>加载币种列表中 <Spin size="small" /></LoadingIndicator>}
           {coinError && <ErrorMessage>{coinError}</ErrorMessage>}
         </Header>
-        <AuthNoticeWrapper>
+        { !isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>未完成身份认证</NoticeTitle>
             <NoticeDescription>完成身份认证，解锁全部功能</NoticeDescription>
           </NoticeContent>
           <Button type="primary" shape="round">立即认证</Button>
-        </AuthNoticeWrapper>
+        </AuthNoticeWrapper>}
         <ContentWrapper>
 
 
@@ -241,8 +248,9 @@ const FlashPage: NextPage = () => {
 
 
               </TradeInputWrapper>
-              <AvailableAmount>可用 -- USDT</AvailableAmount>
+             
             </TradeSection>
+             <AvailableAmount>可用 -- USDT</AvailableAmount>
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -287,15 +295,13 @@ const FlashPage: NextPage = () => {
 
 
               </TradeInputWrapper>
-              <MarketPrice>
-                兑换比例: {configData && configData.exchangeRate ? configData.exchangeRate : '--'}
-                {configData && configData.lastUpdated && (
-                  <span style={{ marginLeft: '10px', fontSize: '10px' }}>
-                    (更新时间: {new Date(configData.lastUpdated).toLocaleString()})
-                  </span>
-                )}
-              </MarketPrice>
+
             </TradeSection>
+                          <MarketPrice>
+                            <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+                兑换比例: {configData && configData.exchangeRate ? configData.exchangeRate : '--'}
+                </Tooltip>
+              </MarketPrice>
 
             <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >兑换</Button>
 
@@ -440,16 +446,7 @@ const NoticeDescription = styled.div`
   font-size: 14px;
 `;
 
-const AuthButton = styled(Button)`
-  background-color: #ff5722;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
+
 
 const TradeContainer = styled.div`
   background-color: white;
@@ -459,7 +456,10 @@ const TradeContainer = styled.div`
 `;
 
 const TradeSection = styled.div`
-  margin-bottom: 20px;
+
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 15px;
 `;
 
 const TradeLabel = styled.div`
@@ -470,9 +470,8 @@ const TradeLabel = styled.div`
 const TradeInputWrapper = styled.div`
   display: flex;
   align-items: center;
-  border: 1px solid #e8e8e8;
   border-radius: 4px;
-  padding: 5px 10px;
+  padding: 5px 10px 5px 0px;
 `;
 
 const StyledInput = styled(Input)`
@@ -484,7 +483,7 @@ const StyledInput = styled(Input)`
 `;
 
 const MaxLabel = styled.span`
-  color: #ff5722;
+  color: var(--text-color3);
   margin-right: 10px;
   cursor: pointer;
 `;
@@ -495,12 +494,15 @@ const AvailableAmount = styled.div`
   font-size: 12px;
   color: #999;
   margin-top: 5px;
+  margin-bottom: 30px;
 `;
 
 const MarketPrice = styled.div`
   font-size: 12px;
   color: #999;
-  margin-top: 5px;
+  margin-top: 40px;
+  margin-bottom: 18px;
+  text-align: center;
 `;
 
 const SwapButtonWrapper = styled.div`
@@ -509,33 +511,21 @@ const SwapButtonWrapper = styled.div`
   margin: -10px 0;
   position: relative;
   z-index: 1;
+  margin-bottom: 30px;
 `;
 
 const SwapButton = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #ff5722;
+  background-color:  var(--text-color3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 `;
 
-const TradeButton = styled(Button)`
-  width: 100%;
-  height: 50px;
-  background-color: #ff5722;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 25px;
-  margin-top: 20px;
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
+
 
 const FAQSection = styled.div`
   width:920px;
@@ -837,6 +827,13 @@ interface SuccessModalProps {
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult }) => {
+  const router = useRouter();
+  const goAssest = async () => {
+          router.push('/assets/assetsAccount');
+
+  }
+ 
+
   return (
     <Modal
       open={visible}
@@ -909,6 +906,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
               type="primary" 
               style={{ flex: 1, height: '50px' }} 
               shape="round"
+              onClick={goAssest}
             >
               前往资产
             </Button>
