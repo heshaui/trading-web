@@ -169,14 +169,14 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       allInitCoins?.filter((pair) => {
         // 搜索过滤
         const matchesSearch = searchValue ? (
-          (pair.coinSymbol?.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (pair.baseSymbol?.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (pair.coinName?.toLowerCase().includes(searchValue.toLowerCase()))
+          (pair?.coinSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
+          (pair?.baseSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
+          (pair?.coinName?.toLowerCase()?.includes(searchValue?.toLowerCase() || ''))
         ) : true;
   
         // 标签过滤
         const matchesTab =
-          activeTab === "all" ? true : pair.classLabel === activeTab;
+        activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
   
         return matchesSearch && matchesTab;
       }) || [],

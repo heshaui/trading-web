@@ -106,7 +106,8 @@ const FlashPage: NextPage = () => {
   }
 
   const gerFlashConfig = async () => {
-    const res = await getConfig()
+    const data={}
+    const res = await getConfig(data)
     if (res.code === '0') {
       setBaseCoin(res.data.baseCoin)
       setQuteCoin(res.data.quoteCoin)
@@ -209,11 +210,11 @@ const FlashPage: NextPage = () => {
     getCoinAllList()
     gerFlashConfig()
     getUserAllBala()
-   const userInfo= localStorage.getItem('imbit_userInfo')
-   if(userInfo){
-    JSON.parse(userInfo).realnessStatus===1 ? setIsAuth(true) : setIsAuth(false)
-   }
-
+    const userInfo = localStorage.getItem('imbit_userInfo');
+    if (userInfo) {
+      const parsedInfo = JSON.parse(userInfo);
+      setIsAuth(parsedInfo.realnessStatus === 1);
+    }
 
   }, [])
 
@@ -342,13 +343,11 @@ const FlashPage: NextPage = () => {
                 <Select
                   value={quteCoin}
                   onChange={setQuteCoin}
-                  bordered={false}
                   style={{ width: '100px' }}
                   dropdownStyle={{ padding: '4px' }}
                   suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
                   labelInValue={false}
                   menuItemSelectedIcon={null}
-                  dropdownMatchSelectWidth={true}
                 >
                   {coinList.filter(item => item.isTradeConvert !== 0).map(coin => (
                     <Select.Option
@@ -449,7 +448,7 @@ const FlashPage: NextPage = () => {
                 header="如何查看闪兑交易订单？"
                 key="5"
               >
-                <p>您可以在闪兑页面点击右上角"订单记录"查看，或者点击订单中心- 闪兑订单进行查看。</p>
+                <p>您可以在闪兑页面点击右上角订单记录查看，或者点击订单中心- 闪兑订单进行查看。</p>
               </Panel>
             </StyledCollapse>
           </FAQSection>
@@ -650,7 +649,7 @@ interface ConfirmExchangeModalProps {
   onClose: () => void;
   payAmount: string;
   payCurrency: string;
-  receiveAmount: string;
+  receiveAmount?: string;  // Make it optional
   receiveCurrency: string;
   exchangeRate: string;
   isLoading: boolean;
