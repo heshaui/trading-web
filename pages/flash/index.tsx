@@ -4,12 +4,12 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Spin, Image } from 'antd';
+import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
 import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
-
-
+import { useRouter } from 'next/router';
+import { getUserBalanceAll } from '@/services/assets';
 
 
 const { Panel } = Collapse;
@@ -32,6 +32,7 @@ const ErrorMessage = styled.div`
 `;
 
 const FlashPage: NextPage = () => {
+
   const { t } = useTranslation('common');
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>();
@@ -53,7 +54,9 @@ const FlashPage: NextPage = () => {
   const [selectedCoin, setSelectedCoin] = useState<string>('ETH');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
-
+  const [userAll,setUserAll] = useState<any[]>([]);
+  
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   // Custom select component with icon display
   const IconSelect = ({ value, options, onChange, style }: any) => {
     // Find the selected option to display its icon
@@ -68,7 +71,6 @@ const FlashPage: NextPage = () => {
         dropdownStyle={{ padding: '4px' }}
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
         menuItemSelectedIcon={null}
-        dropdownMatchSelectWidth={true}
         showSearch={false}
         // Custom display for selected item
         dropdownRender={(menu) => (
@@ -94,6 +96,15 @@ const FlashPage: NextPage = () => {
 
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [coinError, setCoinError] = useState<string | null>(null);
+
+
+  const getUserAllBala=async()=>{
+   const res=await getUserBalanceAll()
+    if(res.code==='0'){
+      setUserAll(res.data)
+    }
+  }
+
   const gerFlashConfig = async () => {
     const res = await getConfig()
     if (res.code === '0') {
@@ -109,11 +120,13 @@ const FlashPage: NextPage = () => {
     const res = await getCoinAll()
     if (res.code === '0') {
       setCoinList(res.data)
+      await getFlashPrice()
     }
   }
 
 
   const getFlashPrice = async () => {
+    if(!baseCoin||!quteCoin){ return }
     const data = {
       send: baseCoin,
       receive: quteCoin
@@ -123,6 +136,11 @@ const FlashPage: NextPage = () => {
       console.log('Flash price response:', res)
       if (res.code === '0') {
         setExchangeRate(res.data)
+        // When exchange rate is updated, recalculate receive amount if pay amount exists
+        if (payAmount && !isNaN(Number(payAmount)) && !isNaN(Number(res.data))) {
+          const calculatedAmount = (Number(payAmount) * Number(res.data)).toFixed(8);
+          setReceiveAmount(calculatedAmount);
+        }
       }
     } catch (error) {
       console.error('Failed to get flash price:', error)
@@ -131,7 +149,7 @@ const FlashPage: NextPage = () => {
 
   const handleConfirm = async () => {
     setIsConfirmModalVisible(true)
-    await getFlashPrice()
+   
     
   }
 
@@ -190,7 +208,26 @@ const FlashPage: NextPage = () => {
   useEffect(() => {
     getCoinAllList()
     gerFlashConfig()
+    getUserAllBala()
+   const userInfo= localStorage.getItem('imbit_userInfo')
+   if(userInfo){
+    JSON.parse(userInfo).realnessStatus===1 ? setIsAuth(true) : setIsAuth(false)
+   }
+
+
   }, [])
+
+  useEffect(() => {
+    getFlashPrice()
+  }, [baseCoin, quteCoin])
+
+  // Calculate receive amount when pay amount or exchange rate changes
+  useEffect(() => {
+    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate))) {
+      const calculatedAmount = (Number(payAmount) * Number(exchangeRate)).toFixed(8);
+      setReceiveAmount(calculatedAmount);
+    }
+  }, [payAmount, exchangeRate])
 
   return (
     <>
@@ -206,14 +243,14 @@ const FlashPage: NextPage = () => {
           {coinLoading && <LoadingIndicator>加载币种列表中 <Spin size="small" /></LoadingIndicator>}
           {coinError && <ErrorMessage>{coinError}</ErrorMessage>}
         </Header>
-        <AuthNoticeWrapper>
+        { !isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>未完成身份认证</NoticeTitle>
             <NoticeDescription>完成身份认证，解锁全部功能</NoticeDescription>
           </NoticeContent>
           <Button type="primary" shape="round">立即认证</Button>
-        </AuthNoticeWrapper>
+        </AuthNoticeWrapper>}
         <ContentWrapper>
 
 
@@ -224,9 +261,30 @@ const FlashPage: NextPage = () => {
                 <StyledInput
                   placeholder="1-1000"
                   value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setPayAmount(value);
+                    // Calculate receive amount when pay amount changes
+                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
+                      const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
+                      setReceiveAmount(calculatedAmount);
+                    }
+                  }}
                 />
-                <MaxLabel style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px' }}>最大</MaxLabel>
+                <MaxLabel 
+                  style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
+                  onClick={() => {
+                    const currentCoin = userAll.find(item => item.coinName === baseCoin);
+                    if (currentCoin && currentCoin.balance) {
+                      setPayAmount(currentCoin.balance);
+                      // Also calculate the receive amount based on the max balance
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
+                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
+                        setReceiveAmount(calculatedAmount);
+                      }
+                    }
+                  }}
+                >最大</MaxLabel>
                 <IconSelect
                   value={baseCoin}
                   onChange={setBaseCoin}
@@ -241,8 +299,9 @@ const FlashPage: NextPage = () => {
 
 
               </TradeInputWrapper>
-              <AvailableAmount>可用 -- USDT</AvailableAmount>
+             
             </TradeSection>
+             <AvailableAmount>可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin}</AvailableAmount>
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -256,9 +315,30 @@ const FlashPage: NextPage = () => {
                 <StyledInput
                   placeholder="1-1000"
                   value={receiveAmount}
-                  onChange={(e) => setReceiveAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setReceiveAmount(value);
+                    // Calculate pay amount when receive amount changes
+                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
+                      const calculatedPayAmount = (Number(value) / Number(exchangeRate)).toFixed(8);
+                      setPayAmount(calculatedPayAmount);
+                    }
+                  }}
                 />
-                <MaxLabel style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px' }}>最大</MaxLabel>
+                <MaxLabel 
+                  style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
+                  onClick={() => {
+                    const currentCoin = userAll.find(item => item.coinName === quteCoin);
+                    if (currentCoin && currentCoin.balance) {
+                      setReceiveAmount(currentCoin.balance);
+                      // Also calculate the pay amount based on the max receive amount
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance)) && Number(exchangeRate) > 0) {
+                        const calculatedPayAmount = (Number(currentCoin.balance) / Number(exchangeRate)).toFixed(8);
+                        setPayAmount(calculatedPayAmount);
+                      }
+                    }
+                  }}
+                >最大</MaxLabel>
                 <Select
                   value={quteCoin}
                   onChange={setQuteCoin}
@@ -287,17 +367,15 @@ const FlashPage: NextPage = () => {
 
 
               </TradeInputWrapper>
-              <MarketPrice>
-                兑换比例: {configData && configData.exchangeRate ? configData.exchangeRate : '--'}
-                {configData && configData.lastUpdated && (
-                  <span style={{ marginLeft: '10px', fontSize: '10px' }}>
-                    (更新时间: {new Date(configData.lastUpdated).toLocaleString()})
-                  </span>
-                )}
-              </MarketPrice>
-            </TradeSection>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >兑换</Button>
+            </TradeSection>
+                          <MarketPrice>
+                            <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+                兑换比例: {exchangeRate && exchangeRate ? `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`: '--'}
+                </Tooltip>
+              </MarketPrice>
+
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
@@ -440,16 +518,7 @@ const NoticeDescription = styled.div`
   font-size: 14px;
 `;
 
-const AuthButton = styled(Button)`
-  background-color: #ff5722;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
+
 
 const TradeContainer = styled.div`
   background-color: white;
@@ -459,7 +528,10 @@ const TradeContainer = styled.div`
 `;
 
 const TradeSection = styled.div`
-  margin-bottom: 20px;
+
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 15px;
 `;
 
 const TradeLabel = styled.div`
@@ -470,9 +542,8 @@ const TradeLabel = styled.div`
 const TradeInputWrapper = styled.div`
   display: flex;
   align-items: center;
-  border: 1px solid #e8e8e8;
   border-radius: 4px;
-  padding: 5px 10px;
+  padding: 5px 10px 5px 0px;
 `;
 
 const StyledInput = styled(Input)`
@@ -484,7 +555,7 @@ const StyledInput = styled(Input)`
 `;
 
 const MaxLabel = styled.span`
-  color: #ff5722;
+  color: var(--text-color3);
   margin-right: 10px;
   cursor: pointer;
 `;
@@ -495,12 +566,15 @@ const AvailableAmount = styled.div`
   font-size: 12px;
   color: #999;
   margin-top: 5px;
+  margin-bottom: 30px;
 `;
 
 const MarketPrice = styled.div`
   font-size: 12px;
   color: #999;
-  margin-top: 5px;
+  margin-top: 40px;
+  margin-bottom: 18px;
+  text-align: center;
 `;
 
 const SwapButtonWrapper = styled.div`
@@ -509,33 +583,21 @@ const SwapButtonWrapper = styled.div`
   margin: -10px 0;
   position: relative;
   z-index: 1;
+  margin-bottom: 30px;
 `;
 
 const SwapButton = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #ff5722;
+  background-color:  var(--text-color3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 `;
 
-const TradeButton = styled(Button)`
-  width: 100%;
-  height: 50px;
-  background-color: #ff5722;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 25px;
-  margin-top: 20px;
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
+
 
 const FAQSection = styled.div`
   width:920px;
@@ -837,6 +899,13 @@ interface SuccessModalProps {
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult }) => {
+  const router = useRouter();
+  const goAssest = async () => {
+          router.push('/assets/assetsAccount');
+
+  }
+ 
+
   return (
     <Modal
       open={visible}
@@ -883,7 +952,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>您已收到</span>
-              <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
+              <span>{tradeResult?.receivedAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -909,6 +978,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
               type="primary" 
               style={{ flex: 1, height: '50px' }} 
               shape="round"
+              onClick={goAssest}
             >
               前往资产
             </Button>
