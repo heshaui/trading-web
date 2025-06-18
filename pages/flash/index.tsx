@@ -9,7 +9,7 @@ import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRig
 import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter } from 'next/router';
-
+import { getUserBalanceAll } from '@/services/assets';
 
 
 const { Panel } = Collapse;
@@ -54,6 +54,7 @@ const FlashPage: NextPage = () => {
   const [selectedCoin, setSelectedCoin] = useState<string>('ETH');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
+  const [userAll,setUserAll] = useState<any[]>([]);
   
   const [isAuth, setIsAuth] = useState<boolean>(false);
   // Custom select component with icon display
@@ -95,6 +96,15 @@ const FlashPage: NextPage = () => {
 
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [coinError, setCoinError] = useState<string | null>(null);
+
+
+  const getUserAllBala=async()=>{
+   const res=await getUserBalanceAll()
+    if(res.code==='0'){
+      setUserAll(res.data)
+    }
+  }
+
   const gerFlashConfig = async () => {
     const res = await getConfig()
     if (res.code === '0') {
@@ -110,11 +120,13 @@ const FlashPage: NextPage = () => {
     const res = await getCoinAll()
     if (res.code === '0') {
       setCoinList(res.data)
+      await getFlashPrice()
     }
   }
 
 
   const getFlashPrice = async () => {
+    if(!baseCoin||!quteCoin){ return }
     const data = {
       send: baseCoin,
       receive: quteCoin
@@ -132,7 +144,7 @@ const FlashPage: NextPage = () => {
 
   const handleConfirm = async () => {
     setIsConfirmModalVisible(true)
-    await getFlashPrice()
+   
     
   }
 
@@ -191,6 +203,7 @@ const FlashPage: NextPage = () => {
   useEffect(() => {
     getCoinAllList()
     gerFlashConfig()
+    getUserAllBala()
    const userInfo= localStorage.getItem('imbit_userInfo')
    if(userInfo){
     JSON.parse(userInfo).realnessStatus===1 ? setIsAuth(true) : setIsAuth(false)
@@ -198,6 +211,10 @@ const FlashPage: NextPage = () => {
 
 
   }, [])
+
+  useEffect(() => {
+    getFlashPrice()
+  }, [baseCoin, quteCoin])
 
   return (
     <>
@@ -250,7 +267,7 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>可用 -- USDT</AvailableAmount>
+             <AvailableAmount>可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin}</AvailableAmount>
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -880,7 +897,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>您已收到</span>
-              <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
+              <span>{tradeResult?.receivedAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>

@@ -37,9 +37,10 @@ interface TransactionRecord {
 }
 
 const statusMap = {
-    success: { text: '成功', color: '#00B42A' },
-    processing: { text: '处理中', color: '#FF7D00' },
-    failed: { text: '失败', color: '#F53F3F' },
+    0: { text: '处理中', color: '#00B42A' },
+    1: { text: '处理中', color: '#00B42A' },
+    2: { text: '失败', color: '#F53F3F' },
+    3: { text: '失败', color: '#F53F3F' },
 };
 const FlashOrderPage = () => {
     const { t } = useTranslation(['spot', 'common']);
@@ -81,7 +82,7 @@ const FlashOrderPage = () => {
             
             const response = await records(params);
             if (response.code === '0') {
-                setData(response.data.records);
+                setData(response.data.list);
                 setPagination(prev => ({ 
                     ...prev,
                     total: response.data.count,
@@ -147,45 +148,53 @@ const FlashOrderPage = () => {
     const columns: ColumnsType<TransactionRecord> = [
         {
             title: '交易日期',
-            dataIndex: 'tradeDate',
-            key: 'tradeDate',
-            sorter: (a, b) => new Date(a.tradeDate).getTime() - new Date(b.tradeDate).getTime(),
-            render: (text) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
+            dataIndex: 'createTime',
+            key: 'createTime',
         },
         {
             title: '交易对',
-            dataIndex: 'tradingPair',
-            key: 'tradingPair',
+            render:(text,record)=>{
+                if(record.sendCoin&&record.receiveCoin){
+                    return record.sendCoin+'/'+record.receiveCoin
+                }else{
+                    return '-'
+                }
+                
+            }
+
         },
         {
             title: '支付',
-            dataIndex: 'payment',
-            key: 'payment',
-            render: (payment) => (
-                <span>{payment.amount} {payment.currency}</span>
-            ),
+            dataIndex: 'sendAmount',
+            key: 'sendAmount',
         },
         {
             title: '获得',
-            dataIndex: 'received',
-            key: 'received'
+            dataIndex: 'receivedAmount',
+            key: 'receivedAmount'
         },
         {
             title: '价格',
-            dataIndex: 'price',
+            dataIndex: 'price', 
             key: 'price'
         },
         {
             title: '结算日期',
-            dataIndex: 'settlementDate',
-            key: 'settlementDate',
-            sorter: (a, b) => new Date(a.settlementDate).getTime() - new Date(b.settlementDate).getTime(),
-            render: (text) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
+            dataIndex: 'settlementTime',
+            key: 'settlementTime',
         },
         {
             title: '状态',
             dataIndex: 'status',
-            key: 'status'
+            key: 'status',
+            render: (text, record) => {
+                const statusInfo = statusMap[record.status];
+                return (
+                    <span style={{ color: statusInfo.color }}>
+                        {statusInfo.text}
+                    </span>
+                );
+            },
         },
     ];
 
