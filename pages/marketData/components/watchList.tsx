@@ -1,7 +1,7 @@
 
 "use client";
 import React from "react";
-import styles from "@/modules/spot/pages/compontents/styles/spotHeader_select.module.css";
+import styles from "./styles/spotHeader_select.module.css";
 import {
   Input,
   Radio,
@@ -15,6 +15,7 @@ import {
   Space,
   Tooltip,
   Dropdown,
+  Image
 } from "antd";
 import { Iconify } from "@/components/icon";
 import { useState, useEffect } from "react";
@@ -31,20 +32,25 @@ import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
-import Image from "next/image";
+// import Image from "next/image";
+import type { ColumnsType } from 'antd/es/table';
+import { NoData } from '@/components/noData'
+import { cut } from '@/utils/math'
+
+
 interface SelfSelectProps {
   currencyPairs: any[];
   onPairSelect?: (pair: any) => void;
-  searchValue: string;
+  // searchValue: string;
   onTabChange?: (key: string) => void;
 }
 const SelfSelect: React.FC<SelfSelectProps> = ({
   currencyPairs,
   onPairSelect,
-  searchValue,
+  // searchValue,
   onTabChange,
 }) => {
-  const { t } = useTranslation(["spot"]);
+  const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all");
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
   const [sortField, setSortField] = useState<string>("");
@@ -52,12 +58,13 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   const [showVolume, setShowVolume] = useState<boolean>(false);
   const { isLoggedIn } = useAuth(); // 获取登录状态
   const router = useRouter();
+  const [searchValue, setSearchValue] = useState('')
 
   // 标签页配置
   const tabsItem: TabsProps["items"] = [
-    { key: "1", label: t("spot.header.mainArea") },
-    { key: "2", label: t("spot.header.innovationArea") },
-    { key: "3", label: t("spot.header.newCoinArea") },
+    { key: "1", label: t("header.mainArea") },
+    { key: "2", label: t("header.innovationArea") },
+    { key: "3", label: t("header.newCoinArea") },
     { key: "4", label: "AI" },
     { key: "5", label: "Meme" },
     { key: "6", label: "NFT" },
@@ -69,8 +76,108 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     { key: "12", label: "Solana" },
     { key: "13", label: "RWA" },
     { key: "14", label: "Launchpool" },
-    { key: "15", label: t("spot.header.gameMetaverse") },
-    { key: "16", label: t("spot.header.storage") },
+    { key: "15", label: t("header.gameMetaverse") },
+    { key: "16", label: t("header.storage") },
+  ];
+  const columns: ColumnsType<any> = [
+    {
+      title: t('header.name'),
+      dataIndex: 'coinSymbol',
+      key: 'coinSymbol',
+      width: 100,
+      render: (text, record) => (
+        <div className={`${styles.pair_name} flex-x align-center`}>
+          <span
+            className={styles.favorite}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+            }}
+          >
+            <Rate
+              onChange={(value) => handleFavoriteChange(value, record)}
+              value={record.isFavorite ? 1 : 0}
+              count={1}
+              style={{ fontSize: 14 }}
+            />
+          </span>
+          <span className={styles.coin_icon}>{record.icon}</span>
+          <span className={`font-14 ${styles.title_color}`}>
+            {record.coinSymbol}/{record.baseSymbol}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: t('header.lastPrice'),
+      dataIndex: 'yesterdayPrice',
+      key: 'yesterdayPrice',
+      align: 'center',
+      sorter: (a, b) => a.yesterdayPrice - b.yesterdayPrice,
+      render: (_price) => {
+        return <span>{_price || '0'}</span>
+      },
+    },
+    {
+      title: t('header.change24h'),
+      dataIndex: 'priceChangePercent',
+      key: 'priceChangePercent',
+      align: 'center',
+      sorter: (a, b) => {
+        // const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
+        // const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
+        // return Number(aPrice) - Number(bPrice)
+        return Number(a.priceChangePercent) - Number(b.priceChangePercent)
+      },
+      render: (_price, record) => {
+        // const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
+        return <span>{_price || '0'}</span>
+      },
+    },
+    {
+      title: `${t("header.high24h")}/${t("header.low24h")}`,
+      dataIndex: 'high_price',
+      key: 'high_price',
+      align: 'center',
+      render: (_marketValue, record) => {
+        // {pair.high_price || "--"}/{pair.low_price || "--"}
+        const price = `${record.high_price || "--"}/${record.low_price || "--"}`
+        return <span>{price}</span>
+      },
+    }, {
+      title: t("header.amount24h"),
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'center',
+      sorter: (a, b) => {
+        const aQuantity = parseFloat(a.quantity) / 1000000
+        const bQuantity = parseFloat(b.quantity) / 1000000
+        return aQuantity - bQuantity
+      },
+      render: (_quantity, record) => {
+        return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+      },
+    },
+    {
+      title: t('marketList.tableHeaders.action'),
+      align: 'right',
+      dataIndex: 'action',
+      key: 'action',
+      render: (_, record) => {
+
+        return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
+          <button
+          >
+            <Image
+              src={'/images/market/icon_Trade.svg'}
+              alt={'trade'}
+              width={28}
+              height={28}
+              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              preview={false} />
+          </button>
+        </Tooltip>
+      },
+    },
   ];
 
 
@@ -81,69 +188,10 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     }
   };
 
-  // 处理排序
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      // 相同字段，切换排序方向
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      // 新字段，默认升序
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
 
-  // 获取排序后的数据
-  const getSortedPairs = () => {
-    if (!sortField) return currencyPairs;
+  // const sortedPairList = getSortedPairs();
 
-    return [...currencyPairs].sort((a, b) => {
-      if (sortField === "name") {
-        // 使用正确的属性进行排序，确保不为undefined
-        const nameA = a.coinSymbol || "";
-        const nameB = b.coinSymbol || "";
-        return sortDirection === "asc"
-          ? nameA.localeCompare(nameB, undefined, { numeric: true })
-          : nameB.localeCompare(nameA, undefined, { numeric: true });
-      }
-      if (sortField === "price") {
-        // 最新价排序
-        const priceA = parseFloat(a.yesterdayPrice) || 0;
-        const priceB = parseFloat(b.yesterdayPrice) || 0;
-        return sortDirection === "asc" ? priceA - priceB : priceB - priceA;
-      }
-      if (sortField === "change") {
-        if (showVolume) {
-          // 成交量排序
-          const volumeA = parseFloat(a.volume) || 0;
-          const volumeB = parseFloat(b.volume) || 0;
-          return sortDirection === "asc"
-            ? volumeA - volumeB
-            : volumeB - volumeA;
-        } else {
-          // 24h涨跌排序
-          const changeA = parseFloat(a.priceChangePercent) || 0;
-          const changeB = parseFloat(b.priceChangePercent) || 0;
-          return sortDirection === "asc"
-            ? changeA - changeB
-            : changeB - changeA;
-        }
-      }
-    //   成交额排序
-    if (sortField === "quantity") {
-        const volumeA = parseFloat(a.quantity) || 0;
-          const volumeB = parseFloat(b.quantity) || 0;
-          return sortDirection === "asc"
-            ? volumeA - volumeB
-            : volumeB - volumeA;
-      }
-      return 0;
-    });
-  };
-
-  const sortedPairList = getSortedPairs();
-
-  const filteredPairs = sortedPairList.filter((pair) => {
+  const filteredPairs = currencyPairs.filter((pair) => {
     // 必须是收藏的
     const isFavorite = pair.isFavorite;
 
@@ -158,11 +206,6 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
     return isFavorite && matchesSearch && matchesTab;
   });
-
-  const handlePairClick = async (pair: any) => {
-    console.log(pair);
-    await appStore.setCurrentPair(pair);
-  };
 
   const handleFavoriteChange = async (value: number, pair: any) => {
     const isFavorite = value === 1;
@@ -196,10 +239,6 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     setActiveTab(key);
   };
 
-  const showChange = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 阻止事件冒泡
-    setShowVolume(!showVolume); // 切换显示状态
-  };
   return (
     <ConfigProvider
       theme={{
@@ -217,14 +256,46 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         },
       }}
     >
-      <SimpleScrollTabs
-        items={tabsItem}
-        onChange={handleTabClick}
-        defaultActiveKey={activeTab}
-        showAllTab={true}
-        allTabLabel={t("spot.header.all")}
-      />
-
+      <div className={`${styles.allCoins_inputSearch}  flex-x align-center justify-end`}>
+        <Input
+          allowClear
+          size="middle"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder={t('header.searchInput')}
+          // onChange={handleSearchChange}  // 修正为正确的处理函数
+          // onKeyPress={handleKeyPress}    // 添加回车键处理
+          prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+          // style={{ width: "242px", marginBottom: 16 }}
+          className={`${styles.input_box} modal-input`}
+        />
+      </div>
+      <div>
+        <SimpleScrollTabs
+          items={tabsItem}
+          onChange={handleTabClick}
+          defaultActiveKey={activeTab}
+          showAllTab={true}
+          allTabLabel={t("header.all")}
+          className={styles.allCoins_tabs}
+        />
+        <Table
+          columns={columns}
+          dataSource={filteredPairs}
+          rowKey="id"
+          pagination={false}
+          size="middle"
+          bordered={false}
+          className={`${styles.allCoinsTable} spot-table-box w-full`}
+          showSorterTooltip={false}
+          locale={{
+            emptyText: <>
+              <NoData textColor='#A4A5AC' buttonTitle={t("header.goToMarket")} buttonClick={handleGoToMarket} />
+              </>
+          }}
+        />
+      </div>
+      {/* 
       {!isLoggedIn ? (
         // 未登录状态
         <div
@@ -328,7 +399,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       ) : (
         // 已登录且有数据
         <div className={styles.container}>
-          {/* 列表头部 */}
+          列表头部
           <div
             className={`${styles.list_header} px-4 py-4`}
             style={{
@@ -336,7 +407,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
               gridTemplateColumns: "16% 16% 16% 20% 16% 16%",
             }}
           >
-            {/* 名称表头 */}
+            名称表头
             <div
               className={`${styles.tip_color} font-12 flex-x align-center pointer`}
               onClick={() => handleSort("name")}
@@ -365,7 +436,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
               </div>
             </div>
 
-            {/* 最新价表头 */}
+            最新价表头
             <div
               className={`${styles.tip_color} font-12 flex-x align-center pointer`}
               onClick={() => handleSort("price")}
@@ -394,7 +465,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
               </div>
             </div>
 
-            {/* 24h涨跌/24h成交量表头 */}
+            24h涨跌/24h成交量表头
             <div
               className={`${styles.tip_color} font-12 flex-x align-center pointer`}
               onClick={() => handleSort("change")}
@@ -427,12 +498,12 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
               </div>
             </div>
 
-            {/* 最高价/最低价表头 */}
+            最高价/最低价表头
             <div className={`${styles.tip_color} font-12 flex-x align-center`}>
               <span>{t("spot.header.high24h")}/{t("spot.header.low24h")}</span>
             </div>
 
-            {/* 成交额表头 */}
+            成交额表头
             <div className={`${styles.tip_color} font-12 flex-x align-center`} onClick={() => handleSort("quantity")}>
               <span>{t("spot.header.amount24h")}</span>
               <div className="ml-1 flex-y-cc">
@@ -458,13 +529,13 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
               </div>
             </div>
 
-            {/* 操作表头 */}
+            操作表头
             <div className={`${styles.tip_color} font-12 flex-x-end`}>
               <span>{t("spot.columns.operation")}</span>
             </div>
           </div>
 
-          {/* 交易对列表 */}
+          交易对列表
           <div className={`${styles.pair_list}`}>
             {filteredPairs.map((pair, index) => (
               <div
@@ -477,7 +548,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
                     gridTemplateColumns: "16% 16% 16% 20% 16% 16%",
                   }}
               >
-                {/* 币种名称 */}
+                币种名称
                 <div className={`${styles.pair_name} flex-1`}>
                   <span className={styles.favorite}>
                     <Rate
@@ -492,11 +563,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
                     {pair.coinSymbol}/{pair.baseSymbol}
                   </span>
                 </div>
-                {/* 最新价 */}
+                最新价
                 <div className={`font-14 ${styles.title_color} flex-1`}>
                   {pair.yesterdayPrice}
                 </div>
-                {/* 24h涨跌/24h成交量 */}
+                24h涨跌/24h成交量
                 <div
                   className={`${styles.pair_change} ${
                     !showVolume && pair.priceChangePercent > 0
@@ -510,21 +581,21 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
                     ? pair.quantity
                     : `${pair.priceChangePercent.toFixed(2)}%`}
                 </div>
-                {/* 最高价/最低价 */}
+                最高价/最低价
                 <div
                   className={`font-14 ${styles.title_color} flex-x align-center`}
                 >
                   {pair.high_price || "--"}/{pair.low_price || "--"}
                 </div>
 
-                {/* 24h成交额 */}
+                24h成交额
                 <div
                   className={`font-14 ${styles.title_color} flex-x align-center`}
                 >
                  ${(parseFloat(pair.quantity) / 1000000).toFixed(2)}M
                 </div>
 
-                {/* 交易按钮 */}
+                交易按钮
                 <div className={`flex-x-end`}>
                   <Image
                     src="/images/market/icon_Trade.png"
@@ -541,7 +612,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </ConfigProvider>
   );
 };

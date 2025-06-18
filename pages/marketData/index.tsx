@@ -22,6 +22,8 @@ import {
   getExchangeCoinAllPrice,
 } from "@/services/marketData";
 import WebSocketService from "@/utils/websocket";
+import { NoData } from '@/components/noData'
+
 
 export default function MarketData() {
   const { t } = useTranslation("market");
@@ -215,10 +217,10 @@ export default function MarketData() {
         (message: string) => {
           try {
             const data = JSON.parse(message);
-            console.log("data的内容:", data);
+            console.log("data的内容:", data,123);
             if (data) {
               // 更新币对价格和涨跌幅
-              // updatePairPrice(pair.coinSymbol, pair.baseSymbol, data);
+              updatePairPrice(pair?.coinSymbol|| '', pair?.baseSymbol|| '', data);
             }
           } catch (error) {
             console.error(`解析WebSocket消息出错 (${pairKey}):`, error);
@@ -275,20 +277,20 @@ export default function MarketData() {
             return;
           }
 
-          console.log(`收到多通道WebSocket消息:`, message);
+          // console.log(`收到多通道WebSocket消息:`, message);
           
           // 解析JSON消息
           let data;
           try {
             data = JSON.parse(message);
           } catch (parseError) {
-            console.warn(`多通道WebSocket消息不是JSON格式:`, message);
+            // console.warn(`多通道WebSocket消息不是JSON格式:`, message);
             return;
           }
 
           // 检查消息类型
           if (data.type === "__ping__") {
-            console.log(`收到多通道WebSocket ping消息`);
+            // console.log(`收到多通道WebSocket ping消息`);
             return;
           }
 
@@ -297,23 +299,23 @@ export default function MarketData() {
             if (data.channel === "ETH_USDT_1@trade") {
               // 处理交易数据
               setTradeData(data.data);
-              console.log("接收到ETH_USDT_1交易数据:", data.data);
+              // console.log("接收到ETH_USDT_1交易数据:", data.data);
             } else if (data.channel === "BTC_USDT_1@kline_1m") {
               // 处理K线数据
               setKlineData(data.data);
-              console.log("接收到BTC_USDT_1 K线数据:", data.data);
+              // console.log("接收到BTC_USDT_1 K线数据:", data.data);
             }
           }
         } catch (error) {
-          console.error(`解析多通道WebSocket消息出错:`, error);
+          // console.error(`解析多通道WebSocket消息出错:`, error);
         }
       },
       (error) => {
-        console.error(`多通道WebSocket连接错误:`, error);
+        // console.error(`多通道WebSocket连接错误:`, error);
 
         // 连接出错时，尝试重新连接
         setTimeout(() => {
-          console.log(`尝试重新连接多通道WebSocket...`);
+          // console.log(`尝试重新连接多通道WebSocket...`);
           getMulti();
         }, 5000); // 5秒后重试
       }
@@ -539,8 +541,8 @@ export default function MarketData() {
       }),
       render: (text: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        const changePercent: number = record.priceChangePercent || 0;
-        const isPositive = changePercent > 0;
+        const changePercent = record.priceChangePercent;
+        const isPositive = changePercent !== undefined && changePercent > 0;
         const textColor = isPositive
           ? "var(--color-success)"
           : "var(--color-danger)";
@@ -636,6 +638,7 @@ export default function MarketData() {
         },
         token: {
           colorPrimary: "var(--theme-color)",
+          fontWeightStrong: 400,
         },
       }}
     >
@@ -668,6 +671,7 @@ export default function MarketData() {
                   size="small"
                   bordered={false}
                   className={styles.table}
+                   locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />
               </div>
               {/* 涨幅榜 */}
@@ -691,6 +695,7 @@ export default function MarketData() {
                   size="small"
                   bordered={false}
                   className={styles.table}
+                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />
               </div>
               {/* 跌幅榜 */}
@@ -714,6 +719,7 @@ export default function MarketData() {
                   size="small"
                   bordered={false}
                   className={styles.table}
+                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />
               </div>
             </div>
@@ -724,7 +730,7 @@ export default function MarketData() {
               {t("marketData.marketTrends")}
             </p>
             <div className={`${styles.trends_box}`}>
-              <TrendsTable />
+              <TrendsTable tradeData={newPrice}/>
             </div>
           </div>
         </div>

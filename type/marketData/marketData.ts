@@ -1,15 +1,15 @@
 
 export interface CryptoItem {
-    id: number;
-    pair: string;
-    price: number;
-    change24h: number;
-  }
-  
-  export interface CryptoRanking {
-    title: string;
-    data: CryptoItem[];
-  }
+  id: number;
+  pair: string;
+  price: number;
+  change24h: number;
+}
+
+export interface CryptoRanking {
+  title: string;
+  data: CryptoItem[];
+}
 // 涨跌幅榜数据
 export interface TradeRakingResp {
   symbolId?: number;
@@ -30,8 +30,8 @@ export interface TradeRakingResponse {
   reqNo?: string;
   data?: TradeRakingResp[];
 }
-  // 获取热门榜
-  export interface HotMarketSymbol {
+// 获取热门榜
+export interface HotMarketSymbol {
   id?: number;
   symbol?: string;
   symbolId?: number;
@@ -83,10 +83,29 @@ export interface CoinMarket {
   coinId?: number;
   coinName?: string;
   iconUrl?: string;
-  nameDefault?:string;
+  nameDefault?: string;
   marketValue?: number;
 }
-
+export interface pairsNewPriceType {
+  baseSymbol: string;
+  coinSymbol: string;
+  height: string;
+  lower: string;
+  openPrice: string;
+  price: string;
+  priceChangePercent: number;
+  quantity: string;
+  turnover: string;
+  yesterdayPrice: number;
+  yesterdayQuantity: string;
+  yesterdayTurnover: string;
+  classLabel?: string;
+  coinId?: number;
+  coinName?: string;
+  iconUrl?: string;
+  nameDefault?: string;
+  marketValue?: number;
+}
 export interface CoinClassification {
   classLabel?: string;
   symbol?: string;

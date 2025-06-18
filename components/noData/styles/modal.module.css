@@ -67,3 +67,11 @@
     padding: 12px 10px;
     border-radius: 8px;
 }
+
+.invite_btn {
+    border-radius: 53px;
+    /* padding: 14px; */
+    height: 40px;
+    box-sizing: border-box;
+    min-width: 116px;
+}
