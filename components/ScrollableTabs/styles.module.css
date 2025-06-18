@@ -179,7 +179,7 @@
 .tabs_scroll_container {
     flex: 1;
     position: relative;
-    max-width: 80%;
+    /* max-width: 80%; */
     width: 300px; /* 减小宽度以确保有内容溢出 */
     overflow: hidden;
 }

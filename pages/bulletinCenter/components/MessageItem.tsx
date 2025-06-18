@@ -3,7 +3,7 @@ import { MessageData } from '@/type/bulletin_center/bc_types';
 
 export default function MessageItem({
     title,
-    time,
+    time = '',
     content,
     isClickable = false,
     isDetail = false,
@@ -13,12 +13,13 @@ export default function MessageItem({
     return (
         <>
             <div
-                className={`${styles.bulletinCenterContent} ${isDetail ? styles.detail : ''}`}
+                className={`${styles.bulletinCenterContent} `}
                 onClick={isClickable ? onClick : undefined}
             >
                 <h6 className={isRead ? styles.readTitle : ''}>{title}</h6>
-                <div className={styles.timeContent}>
-                    <span>{time}</span>
+                <div className={`${styles.timeContent} w-full`}>
+                     {time&&<span>{time}</span>}
+                    {content && <p style={{ color: 'var(--text-color5)' }}>{content}</p>}
                 </div>
             </div>
             {isDetail && content && (

@@ -627,7 +627,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                     },
                     Slider: {
                         railBg: 'var(--background16)', // 滑块轨道背景色
-                        railHoverBg: 'var(--background16)', // 滑块轨道悬浮背景色
+                        railHoverBg: 'var(--background25)', // 滑块轨道悬浮背景色
                     }
                 },
             }}
@@ -795,6 +795,12 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                             max={100}
                             onChange={handleSliderChange}
                             disabled={!isLoggedIn}
+                            tooltip={{
+                                open: true,
+                                placement: 'top',
+                                getPopupContainer: (triggerNode) => triggerNode,
+                                color: 'var(--theme-orange, #FF8C00)' // 设置悬浮框背景颜色为橙色
+                            }}
                         />
                         <Form.Item name='account'
                             rules={[
@@ -909,14 +915,14 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
 
 
 
-                    <div className={`${styles.fee_container} flex align-center mt-4`}>
+                    <div className={`${styles.fee_container} flex align-center mt-4`} style={{ borderBottom: 'none' }}>
                         <div className={styles.fee_icon} style={{ marginRight: '4px', verticalAlign: 'middle' }}>
                             <Iconify icon="mdi:percent-circle-outline" size={16} />
                         </div>
-                        <span className={styles.fee_text} style={{ fontSize: '12px', paddingTop: '2px' }}>{t('spot.label.fee')}</span>
+                        <span className={styles.fee_text} style={{ fontSize: '12px', paddingTop: '2px', borderBottom: '1px dashed var(--border-color, #ddd)', paddingBottom: '3px' }}>{t('spot.label.fee')}</span>
                         <div className={styles.fee_tooltip}>
                             <div className={styles.fee_tooltip_content}>
-                                <div className={styles.fee_tooltip_title}>{t('spot.label.fee')}</div>
+                                <div className={styles.fee_tooltip_title} >{t('spot.label.fee')}</div>
                                 <div className={styles.fee_tooltip_details}>{t('spot.label.feeDetails', { maker: currentPair?.buyFee, taker: currentPair?.sellFee })}</div>
                             </div>
                         </div>

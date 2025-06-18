@@ -2,7 +2,7 @@
 export interface MessageData {
     id?: string; // 消息id - 唯一标识
     title: string; // h6 标签的内容
-    time: string; // timeContent 下的 span 内容
+    time?: string; // timeContent 下的 span 内容
     onClick?: () => void;
     content?: string;
     isDetail?: boolean;
@@ -22,7 +22,7 @@ export interface MessageItemDetailProps {
     isDetail: boolean;
     content:string;
     title: string;
-    time: string;
+    time?: string;
 }
 // 面包屑
 export interface detailBreadCrumbProps {

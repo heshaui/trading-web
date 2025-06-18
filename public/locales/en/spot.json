@@ -168,7 +168,10 @@
             "price": "Price",
             "amount": "Amount",
             "total": "Total",
-            "all": "All"
+            "all": "All",
+            "loginNow": "Login now",
+      "goToMarket": "Go to market",
+      "noData": "No data available"
         },
         "feeCoin": {
             "receivedCoin": "Received Currency",

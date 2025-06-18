@@ -301,7 +301,7 @@ export default function Footer() {
             <Col key={item.id || index} className='mr-2 mt-0_5' >
                 <button onClick={() => goLink(item.linkUrl)}>
                     <Image
-                        src={item.imgUrl}
+                        src={item.imgUrl||''}
                         alt={item.nameText || ''}
                         width={24}
                         height={24}
@@ -340,8 +340,8 @@ export default function Footer() {
                 <div className={styles.logoAndButton}>
                     <div className={styles.logo}>
                         <Image
-                            src={logoUrl}
-                            alt=""
+                            src={logoUrl||''}
+                            alt="footer logo"
                             width={140}  // 设置为0，让图片保持原始宽高比
                             height={140} // 固定高度
                             style={{ width: 'auto', height: '28px' }} // 使用style控制宽度自适应

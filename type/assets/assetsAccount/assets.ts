@@ -19,6 +19,8 @@ export interface TodayEarningsType {
     usdWithdraw?: number | string, // 提现-法币换算
     balance?: number | string, //  充值
     withdraw?: number | string, // 提现
+    usdGift?: number | string, // 赠币-法币换算
+    gift?: number | string // 赠币
 }
 // 昨日结算余额、充值、提现
 export interface YesterdayBalanceType {

@@ -111,14 +111,17 @@ const SpotMainPage = observer(() => {
       key: "symbol",
       align: "center",
       width: 158,
-      render: (_text, record) => <button type='button' className={``}
-        onClick={() => {
-          router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
-        }}
-      >
+      render: (_text, record) => {
+        const flag = orderDirection(record.takerSide, record.buyerUserId, record.sellerUserId)
+        return <button type='button' className={`${flag === 0 ? styles.success_hover : flag === 1 ? styles.error_hover : ''}`}
+          onClick={() => {
+            router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
+          }}
+        >
         {_text ? `${_text.split('_').join('/')}` : '--'}
-        <Iconify icon="mingcute:right-line" className={`mx-1`} size={20} />
-      </button >,
+        <Iconify icon="mingcute:right-line" className={`mx-1 ${flag === 0 ? styles.success_hover : flag === 1 ? styles.error_hover : ''}`} size={20} />
+      </button >
+      },
       //   render: (_text, record) => <button type='button' className={`${record.status === 2 ? styles.error_icon : ''}`}
       //   onClick={() => {
       //     router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
@@ -425,7 +428,7 @@ const SpotMainPage = observer(() => {
                 size='large'
                 minDate={dayjs().subtract(6, 'month')}
                 maxDate={dayjs().endOf('day')}
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs().endOf('day')]}
+                defaultValue={[dayjs().subtract(6, 'day'), dayjs().endOf('day')]}
                 disabledDate={disabled7DaysDate}
               />
             </Form.Item>
@@ -451,14 +454,15 @@ const SpotMainPage = observer(() => {
             // scroll={{ x: "max-content", y: 300 }}
             scroll={{ x: "max-content" }}
             className={`spot-table-box`}
-            pagination={paramdataRef.current.total > 10 ? {
+            pagination={ {
               position: ["bottomRight"],
               // showSizeChanger: true,
               total: paramdataRef.current.total,
               size: "default",
               simple: true,
               onChange: (page, pageSize) => pageChange(page, pageSize),
-            } : false}
+              hideOnSinglePage: true
+            } }
             // pagination={false}
             loading={loading}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}

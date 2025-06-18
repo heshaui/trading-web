@@ -1,4 +1,4 @@
-import { Col, Row, ConfigProvider, Menu, Card, Empty } from 'antd';
+import { Col, Row, ConfigProvider, Menu, Card, Empty, Pagination } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -12,7 +12,7 @@ import { highlightText } from '@/utils/highlight';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@/context/NavigationContext';
 import { useRouter } from 'next/navigation';
-import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount } from '@/services/bulletinCenter';
+import { getBulletinMessageLogined, getBulletinDetailLogined, readBulletinMessageLogined, getBulletinMessageUnreadCount, getInformUserMessageList } from '@/services/bulletinCenter';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -65,6 +65,17 @@ export default function BulletinCenter() {
     // 添加搜索值
     const [searchKeyword, setSearchKeyword] = useState('');
     const router = useRouter();
+
+    // 站内信相关状态管理
+    const [accountLoading, setAccountLoading] = useState(false);
+    const [assetsLoading, setAssetsLoading] = useState(false);
+    const [transactionLoading, setTransactionLoading] = useState(false);
+    const [bizData, setBizData] = useState<any[]>([]);
+    const pagesParam = useRef({
+        page: 1,
+        pageSize: 5,
+        pageTotal: 0
+    })
 
     // 定义消息数据接口
     interface MessageData {
@@ -172,6 +183,101 @@ export default function BulletinCenter() {
         }
     }, [isLoggedIn, i18n.language]);
 
+    // 通用的站内信数据获取函数
+    const fetchUserMessageData = useCallback(async (bizType: 'account' | 'assets' | 'transaction') => {
+        try {
+            // 设置对应的加载状态
+            switch (bizType) {
+                case 'account':
+                    setAccountLoading(true);
+                    break;
+                case 'assets':
+                    setAssetsLoading(true);
+                    break;
+                case 'transaction':
+                    setTransactionLoading(true);
+                    break;
+            }
+
+            const lang = localStorage.getItem('lang') || 'en_US';
+            const response: any = await getInformUserMessageList({
+                languageCode: lang,
+                pageNum: pagesParam.current.page,
+                pageSize: pagesParam.current.pageSize,
+                bizType
+            });
+
+            if (response.code === '0' && response.data) {
+                const formattedData = response.data.list?.map((item: any) => ({
+                    id: item.id,
+                    title: item.titleTemplate,
+                    time: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+                    content: item.contentTemplate || '',
+                    isRead: item.isRead || false,
+                    link: item.link || ''
+                })) || [];
+
+                // 根据bizType设置对应的数据
+                // switch (bizType) {
+                //     case 'account':
+                //         setAccountData(formattedData);
+                //         break;
+                //     case 'assets':
+                //         setAssetsData(formattedData);
+                //         break;
+                //     case 'transaction':
+                //         setTransactionData(formattedData);
+                //         break;
+
+                // }
+                pagesParam.current.pageTotal = response.data.count;
+                setBizData(formattedData)
+            } else {
+                // 如果没有数据，设置为空数组
+                // switch (bizType) {
+                //     case 'account':
+                //         setAccountData([]);
+                //         break;
+                //     case 'assets':
+                //         setAssetsData([]);
+                //         break;
+                //     case 'transaction':
+                //         setTransactionData([]);
+                //         break;
+                // }
+                setBizData([])
+            }
+        } catch (error) {
+            console.error(`获取${bizType}消息数据失败:`, error);
+            // 错误时设置为空数组
+            // switch (bizType) {
+            //     case 'account':
+            //         setAccountData([]);
+            //         break;
+            //     case 'assets':
+            //         setAssetsData([]);
+            //         break;
+            //     case 'transaction':
+            //         setTransactionData([]);
+            //         break;
+            // }
+            setBizData([])
+        } finally {
+            // 清除加载状态
+            switch (bizType) {
+                case 'account':
+                    setAccountLoading(false);
+                    break;
+                case 'assets':
+                    setAssetsLoading(false);
+                    break;
+                case 'transaction':
+                    setTransactionLoading(false);
+                    break;
+            }
+        }
+    }, []);
+
     // 使用NavigationContext中的数据初始化公告数据
     useEffect(() => {
         if (isLoggedIn && bulletinData && bulletinData.length > 0 && !hasInitializedFromContext) {
@@ -221,8 +327,13 @@ export default function BulletinCenter() {
                 ...item,
                 label: t(item.label)
             })));
-        } else if (isLoggedIn) {
-            // 仅在登录状态变化时获取未读公告数量，而不是所有状态变化
+            // 清理站内信数据
+            // setAccountData([]);
+            // setAssetsData([]);
+            // setTransactionData([]);
+            setBizData([]);
+        } else if (isLoggedIn && selectedKeys[0] === 'all') {
+            // 只有在登录状态且选择公告菜单时才获取未读公告数量
             fetchUnreadCount(true);
         }
     }, [isLoggedIn, readMessageIds, fetchUnreadCount, selectedKeys]);
@@ -269,7 +380,7 @@ export default function BulletinCenter() {
             // 未登录状态，仅显示第一项（公告）
             return [menuData[0]];
         }
-    }, [isLoggedIn, readMessageIds, fetchUnreadCount, selectedKeys]);
+    }, [isLoggedIn, menuData]);
 
     // 定义详情页菜单项
     const localDetailMenuItems = [
@@ -328,11 +439,11 @@ export default function BulletinCenter() {
                 // 首先按置顶状态排序
                 const aOnTop = a.onTop === 1;
                 const bOnTop = b.onTop === 1;
-                
+
                 if (aOnTop !== bOnTop) {
                     return aOnTop ? -1 : 1; // 置顶的排在前面
                 }
-                
+
                 // 其次按已读状态排序
                 const aRead = isMessageRead(a.id || '');
                 const bRead = isMessageRead(b.id || '');
@@ -352,22 +463,40 @@ export default function BulletinCenter() {
 
     // 获取当前应该显示的消息数据源
     const currentDataSource = useMemo(() => {
-        // 如果已登录并且选择了公告菜单（key='all'），使用从API获取的数据
-        if (isLoggedIn && selectedKeys[0] === 'all') {
-            return {
-                ...filteredData,
-                'all': loginedMessageData['all']
-            };
+        // 如果已登录，根据选择的菜单返回对应的数据
+        if (isLoggedIn) {
+            const currentKey = selectedKeys[0];
+            switch (currentKey) {
+                case 'all':
+                    return {
+                        ...filteredData,
+                        'all': loginedMessageData['all']
+                    };
+                case 'account':
+                    return {
+                        'account': bizData
+                    };
+                case 'assets':
+                    return {
+                        'assets': bizData
+                    };
+                case 'trading':
+                    return {
+                        'trading': bizData
+                    };
+                default:
+                    return filteredData || {};
+            }
         }
         // 其他情况使用筛选数据或空对象
         return filteredData || {};
-    }, [isLoggedIn, selectedKeys, filteredData, loginedMessageData]);
+    }, [isLoggedIn, selectedKeys, filteredData, loginedMessageData, bizData]);
 
     // 获取当前应该显示的消息
     const currentMessages = useMemo(() => {
         const currentKey = selectedKeys[0] || 'all';
         // 使用当前数据源
-        const messages = currentDataSource[currentKey] || [];
+        const messages = currentDataSource[currentKey as keyof typeof currentDataSource] || [];
 
         // 先进行筛选和排序
         const processedMessages = getFilteredAndSortedMessages(messages);
@@ -390,6 +519,19 @@ export default function BulletinCenter() {
             ...prev,
             [currentKey]: page
         }));
+    };
+
+    // 处理站内信分页变化
+    const handleBizPageChange = (page: number) => {
+        pagesParam.current.page = page;
+        const currentKey = selectedKeys[0];
+        if (currentKey === 'account') {
+            fetchUserMessageData('account');
+        } else if (currentKey === 'assets') {
+            fetchUserMessageData('assets');
+        } else if (currentKey === 'trading') {
+            fetchUserMessageData('transaction');
+        }
     };
 
     // 获取公告详情 - 添加防抖和缓存
@@ -459,12 +601,24 @@ export default function BulletinCenter() {
             } else {
                 const selectedItem = menuData.find((item) => item.key === info.key);
                 setSelectedLabel(selectedItem ? selectedItem.label : t('bulletinCenter.menu.all'));
+
+                // 根据选择的菜单项获取对应的站内信数据，每次切换都重新请求
+                if (info.key === 'account') {
+                    pagesParam.current.page = 1; // 重置页码
+                    fetchUserMessageData('account');
+                } else if (info.key === 'assets') {
+                    pagesParam.current.page = 1; // 重置页码
+                    fetchUserMessageData('assets');
+                } else if (info.key === 'trading') {
+                    pagesParam.current.page = 1; // 重置页码
+                    fetchUserMessageData('transaction');
+                }
             }
         }
     };
 
     // 点击查看详情
-    const handleMessageClick = (message: MessageData) => {
+    const handleMessageClick = (message: MessageData, type: string = 'notice') => {
         console.log(message)
         // 跳转到Notice
         router.push(`/Notice/${message.id}`);
@@ -514,7 +668,7 @@ export default function BulletinCenter() {
                 return loginedMessageData['all'].some(message => !message.isRead);
             } else {
                 // 未登录状态下，检查 readMessageIds 是否包含所有消息的 ID
-                const messages: MessageData[] = currentDataSource['all'] || []; // Use currentDataSource instead of static messageData
+                const messages: MessageData[] = currentDataSource['all' as keyof typeof currentDataSource] || []; // Use currentDataSource instead of static messageData
                 return messages.some(message => !readMessageIds.has(message.id || ''));
             }
         }
@@ -599,7 +753,7 @@ export default function BulletinCenter() {
                 const newReadIds = new Set(readMessageIds);
 
                 // 使用当前数据源的消息
-                const messages: MessageData[] = currentDataSource['all'] || []; // Use currentDataSource instead of static messageData
+                const messages: MessageData[] = currentDataSource['all' as keyof typeof currentDataSource] || []; // Use currentDataSource instead of static messageData
                 // 更新消息状态
                 const updatedMessages = messages.map(message => ({
                     ...message,
@@ -757,7 +911,7 @@ export default function BulletinCenter() {
                     disableUnreadCheckbox={!hasUnreadMessages}
                 /> */}
                 <div className={`${styles.bulletinContent} customMenu`}>
-                    <Row justify='space-between' gutter={16}>
+                    <Row justify='space-between' gutter={16} wrap={false} >
                         <Col flex={1}>
                             <Menu
                                 defaultSelectedKeys={['all']}
@@ -779,39 +933,100 @@ export default function BulletinCenter() {
                                 <Row>
 
                                     <Col flex={1}>
-                                        {isLoading ? (
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '40px 0'
-                                            }}>
-                                                {t('bulletinCenter.message.loading')}
-                                            </div>
-                                        ) : filteredAndSortedMessages.length > 0 ? (
-                                            filteredAndSortedMessages.map((message) => (
-                                                <MessageItem
-                                                    key={message.id}
-                                                    title={renderHighlightedTitle(message.title) || ''}
-                                                    time={message.time || ''}
-                                                    onClick={() => handleMessageClick(message)}
-                                                    isClickable={selectedKeys[0] === 'all'}
-                                                    isRead={isMessageRead(message.id || '')} classMenu={''} />
-                                            ))
-                                        ) : (
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '40px 0'
-                                            }}>
-                                                <Empty image='/images/bulletin_center/chat.png' description={t('bulletinCenter.message.noData')} />
-                                            </div>
-                                        )}
-                                        <MessagePagination
-                                            current={getCurrentPage(selectedKeys[0] || 'all')}
-                                            total={currentMessages.total}
-                                            onChange={handlePageChange}
-                                            pageSize={pageSize}
-                                        />
+                                        {(() => {
+                                            // 根据当前选择的菜单确定加载状态
+                                            const currentKey = selectedKeys[0];
+                                            let currentLoading = isLoading;
+
+                                            if (currentKey === 'account') {
+                                                currentLoading = accountLoading;
+                                            } else if (currentKey === 'assets') {
+                                                currentLoading = assetsLoading;
+                                            } else if (currentKey === 'trading') {
+                                                currentLoading = transactionLoading;
+                                            }
+
+                                            if (currentLoading) {
+                                                return (
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        padding: '40px 0'
+                                                    }}>
+                                                        {t('bulletinCenter.message.loading')}
+                                                    </div>
+                                                );
+                                            }
+
+                                            if (filteredAndSortedMessages.length > 0 && selectedKeys[0] === 'all') {
+                                                return <>
+                                                {filteredAndSortedMessages.map((message) => (
+                                                    <MessageItem
+                                                        key={message.id}
+                                                        title={renderHighlightedTitle(message.title) || ''}
+                                                        time={message.time || ''}
+                                                        onClick={() => handleMessageClick(message)}
+                                                        isClickable={selectedKeys[0] === 'all'}
+                                                        isRead={isMessageRead(message.id || '')} classMenu={''} />
+                                                ))}
+                                                <MessagePagination
+                                                current={getCurrentPage(selectedKeys[0] || 'all')}
+                                                total={currentMessages.total}
+                                                onChange={handlePageChange}
+                                                pageSize={pageSize}
+                                            />
+                                            </>
+                                            }
+                                            if (bizData.length > 0) {
+                                                return <>
+                                                    <div>
+                                                        {bizData.map((message) => (
+                                                            <MessageItem
+                                                                key={message.id}
+                                                                title={renderHighlightedTitle(message.title) || ''}
+                                                                // time={message.time || ''}
+                                                                content={message.content}
+                                                                onClick={() => handleMessageClick(message, 'biz')}
+                                                                isClickable={false}
+                                                                isDetail={false}
+                                                                isRead={isMessageRead(message.id || '')} classMenu={''} />
+                                                        ))}
+                                                        <MessagePagination
+                                                            current={pagesParam.current.page}
+                                                            total={pagesParam.current.pageTotal}
+                                                            onChange={handleBizPageChange}
+                                                            pageSize={pagesParam.current.pageSize}
+                                                            showSizeChanger={false}
+                                                            align="end"
+                                                            size='small'
+                                                            className='mt-5'
+                                                            hideOnSinglePage // 当只有一页时隐藏分页器
+                                                        />
+                                                        {/* <Pagination
+                                                        showSizeChanger={false},
+                                                            pageSize={pagesParam.current.pageSize}
+                                                            current={pagesParam.current.page}
+                                                            total={pagesParam.current.pageTotal}
+                                                            onChange={handleBizPageChange}
+                                                            align="end"
+                                                            size='small'
+                                                            className='mt-5'
+                                                            hideOnSinglePage // 当只有一页时隐藏分页器
+                                                        /> */}
+                                                    </div>
+                                                </>;
+                                            }
+                                            return (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    padding: '40px 0'
+                                                }}>
+                                                    <Empty image='/images/bulletin_center/chat.png' description={t('bulletinCenter.message.noData')} />
+                                                </div>
+                                            );
+                                        })()}
+                                       
                                     </Col>
 
                                 </Row>
