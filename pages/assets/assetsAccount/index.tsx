@@ -148,6 +148,7 @@ const AssetsMainPage = observer(() => {
             // width: 128,
             align: "center",
             render: (_text, record) => {
+                console.log('recordLIst',record)
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const coinPairData = coinPair.find((item: any) => item.baseSymbol === record.coinName ||
                     item.coinSymbol === record.coinName || record.coinId === item.baseSymbol || record.coinId === item.coinSymbol);
@@ -165,11 +166,15 @@ const AssetsMainPage = observer(() => {
                         {t('assetsAccount.button.deposit')}
                     </button>
                     {/* 交易 */}
-                    <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`}
+                    <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} mr-3 font-12 font-w-500`}
                         onClick={() => getCoinList('3', record.coinId, coinPairData ? 1 : 0, coinPairData ? true : false)}
                     >
                         {t('assetsAccount.button.trade')}
                     </button>
+                    {/* //闪兑 */}
+                    <button  className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={goFlash}>
+                        闪兑
+                    </button>   
                 </>
             },
         },
@@ -181,6 +186,11 @@ const AssetsMainPage = observer(() => {
     const [banlanceLoading, setBanlanceLoading] = useState(true);
     const [todayEarningsLoading, setTodayEarningsLoading] = useState(true);
     const [kLineLoading, setKLineLoading] = useState(true);
+    const goFlash=async()=>{
+
+    }
+
+
     const getCoinList = async (type: string, coinId: any, coinCan?: any, coinPair?: boolean) => {
         if (type === '1' || type === '2') {
             try {
