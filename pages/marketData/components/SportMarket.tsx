@@ -261,18 +261,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   // 基于搜索和标签过滤排序后的结果
   const filteredPairs = React.useMemo(
     () =>
-      currencyPairs.filter((pair) => {
+      currencyPairs?.filter((pair) => {
         // 搜索过滤
         const matchesSearch =
-          pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-          pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
+          pair?.coinSymbol?.toLowerCase().includes(searchValue?.toLowerCase() || '') ||
+          pair?.baseSymbol?.toLowerCase().includes(searchValue?.toLowerCase() || '');
 
         // 标签过滤
         const matchesTab =
-          activeTab === "all" ? true : pair.classLabel === activeTab;
+        activeTab&&activeTab === "all" ? true : pair?.classLabel === activeTab;
 
         return matchesSearch && matchesTab;
-      }),
+      }) || [],
     [currencyPairs, searchValue, activeTab]
   );
 

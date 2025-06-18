@@ -191,22 +191,40 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
   // const sortedPairList = getSortedPairs();
 
-  const filteredPairs = currencyPairs.filter((pair) => {
-    // 必须是收藏的
-    const isFavorite = pair.isFavorite;
+  // const filteredPairs = currencyPairs.filter((pair) => {
+  //   // 必须是收藏的
+  //   const isFavorite = pair.isFavorite;
 
-    // 搜索过滤
-    const matchesSearch =
-      pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-      pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
+  //   // 搜索过滤
+  //   const matchesSearch =
+  //     pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //     pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
 
-    // 标签过滤
-    const matchesTab =
-      activeTab === "all" ? true : pair.classLabel === activeTab;
+  //   // 标签过滤
+  //   const matchesTab =
+  //     activeTab === "all" ? true : pair.classLabel === activeTab;
 
-    return isFavorite && matchesSearch && matchesTab;
-  });
-
+  //   return isFavorite && matchesSearch && matchesTab;
+  // });
+  const filteredPairs = React.useMemo(
+    () =>
+      currencyPairs?.filter((pair) => {
+        // 必须是收藏的
+        const isFavorite = pair.isFavorite;
+    
+        // 搜索过滤
+        const matchesSearch =
+          pair?.coinSymbol?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          pair?.baseSymbol?.toLowerCase().includes(searchValue.toLowerCase());
+    
+        // 标签过滤
+        const matchesTab =
+          activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
+    
+        return isFavorite && matchesSearch && matchesTab;
+      }) || [],
+    [currencyPairs, searchValue, activeTab]
+  );
   const handleFavoriteChange = async (value: number, pair: any) => {
     const isFavorite = value === 1;
     const apiCall = isFavorite
