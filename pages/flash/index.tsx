@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
+import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip, Flex } from 'antd';
 import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
@@ -254,8 +254,12 @@ const FlashPage: NextPage = () => {
         </AuthNoticeWrapper>}
         <ContentWrapper>
 
-
+        <div style={{textAlign: 'right',display:'flex',maxWidth:'1000px' }}>
+              <p>现货交易</p>
+              <p>订单记录</p>
+            </div>
           <TradeContainer>
+         
             <TradeSection>
               <TradeLabel>支付</TradeLabel>
               <TradeInputWrapper>
@@ -343,7 +347,7 @@ const FlashPage: NextPage = () => {
                 <Select
                   value={quteCoin}
                   onChange={setQuteCoin}
-                  style={{ width: '100px' }}
+                  style={{ width: '100px',border:'none' }}
                   dropdownStyle={{ padding: '4px' }}
                   suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
                   labelInValue={false}
