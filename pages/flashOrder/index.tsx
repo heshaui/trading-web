@@ -34,7 +34,8 @@ interface TransactionRecord {
         rate: string;
         reverse: string;
     };
-    settlementDate: string;
+    createTime: string;
+    settlementTime: string;
     status: '0' | '1' | '2'|'3';
 }
 
