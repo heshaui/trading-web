@@ -8,7 +8,7 @@ import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'ant
 import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
-import { useRouter } from 'next/router';
+import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
 
 
@@ -48,6 +48,7 @@ const FlashPage: NextPage = () => {
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
   const [isFailureModalVisible, setIsFailureModalVisible] = useState<boolean>(false);
   const [tradeResult, setTradeResult] = useState<any>(null);
+  const [isClientReady, setIsClientReady] = useState<boolean>(false);
 
   // 币种列表数据
   const [coinList, setCoinList] = useState<any[]>([]);
@@ -55,7 +56,6 @@ const FlashPage: NextPage = () => {
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
-  
   const [isAuth, setIsAuth] = useState<boolean>(false);
   // Custom select component with icon display
   const IconSelect = ({ value, options, onChange, style }: any) => {
@@ -84,7 +84,7 @@ const FlashPage: NextPage = () => {
                 src={option.icon}
                 alt={option.label}
                 preview={false}
-                style={{ width: '20px', height: '20px' }}
+                style={{ width: '20px', height: '20px',borderRadius:'50%' }}
               />
               <span>{option.label}</span>
             </div>
@@ -96,6 +96,7 @@ const FlashPage: NextPage = () => {
 
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [coinError, setCoinError] = useState<string | null>(null);
+  const router = useRouter();
 
 
   const getUserAllBala=async()=>{
@@ -219,6 +220,22 @@ const FlashPage: NextPage = () => {
   }, [])
 
   useEffect(() => {
+    setIsClientReady(true);
+  }, []);
+
+  const goPage = (page: number) => {
+    if (!router.isReady) {
+      console.warn("FlashPage router not ready for goPage navigation.");
+      return;
+    }
+    if(page === 1){
+      router.push('/exchange')
+    }else if(page === 2){
+      router.push('/flashOrder')
+    }
+  }
+
+  useEffect(() => {
     getFlashPrice()
   }, [baseCoin, quteCoin])
 
@@ -252,9 +269,19 @@ const FlashPage: NextPage = () => {
           </NoticeContent>
           <Button type="primary" shape="round">立即认证</Button>
         </AuthNoticeWrapper>}
+        <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer' }}>
+          <div style={{display:'flex',alignItems:'center'}}>
+          <Image src='./images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
+
+          </div>
+          <div style={{display:'flex',alignItems:'center'}}>
+          <Image src='./images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
+          </div>
+             
+            </div>
         <ContentWrapper>
 
-
+      
           <TradeContainer>
             <TradeSection>
               <TradeLabel>支付</TradeLabel>
@@ -340,28 +367,16 @@ const FlashPage: NextPage = () => {
                     }
                   }}
                 >最大</MaxLabel>
-                <Select
+                <IconSelect
                   value={quteCoin}
                   onChange={setQuteCoin}
                   style={{ width: '100px' }}
-                  dropdownStyle={{ padding: '4px' }}
-                  suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
-                  labelInValue={false}
-                  menuItemSelectedIcon={null}
-                >
-                  {coinList.filter(item => item.isTradeConvert !== 0).map(coin => (
-                    <Select.Option
-                      key={coin.coinName}
-                      value={coin.coinName}
-                      label={coin.coinName}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Image src={coin.iconUrl} alt={coin.coinName} style={{ width: '20px', height: '20px' }} />
-                        <span>{coin.coinName}</span>
-                      </div>
-                    </Select.Option>
-                  ))}
-                </Select>
+                  options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
+                    label: item.coinName,
+                    value: item.coinName,
+                    icon: item.iconUrl
+                  }))}
+                />
 
 
 
@@ -399,11 +414,14 @@ const FlashPage: NextPage = () => {
             />
             
             {/* Success Modal */}
-            <SuccessModal
+            {isClientReady && (
+              <SuccessModal
               visible={isSuccessModalVisible}
               onClose={() => setIsSuccessModalVisible(false)}
               tradeResult={tradeResult}
+              router={router} // Pass router instance
             />
+            )}
             
             {/* Failure Modal */}
             <FailureModal
@@ -460,7 +478,7 @@ const FlashPage: NextPage = () => {
 const PageContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  background-color: #fff;
+  background-color: var(--background-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -468,7 +486,6 @@ const PageContainer = styled.div`
 
 const Header = styled.div`
   width: 100%;
-  background-color: #000;
   color: white;
   padding: 20px 0;
   text-align: center;
@@ -895,11 +912,17 @@ interface SuccessModalProps {
   visible: boolean;
   onClose: () => void;
   tradeResult: any;
+  router: NextRouter; // Add router prop
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult }) => {
-  const router = useRouter();
+
+const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult, router }) => {
+
   const goAssest = async () => {
+    if (!router.isReady) {
+      console.warn("SuccessModal router not ready for goAssest navigation.");
+      return;
+    }
           router.push('/assets/assetsAccount');
 
   }

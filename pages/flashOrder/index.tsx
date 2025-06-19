@@ -35,25 +35,9 @@ interface TransactionRecord {
         reverse: string;
     };
     settlementDate: string;
-    status: 'success' | 'processing' | 'failed';
+    status: '0' | '1' | '2'|'3';
 }
-const statusCodeMap: Record<'success' | 'processing' | 'failed', number> = {
-    'processing': 0, // or 1, depending on your logic
-    'success': 3,    // adjust according to your needs
-    'failed': 2
-};
 
-const statusMap: Record<'success' | 'processing' | 'failed', { text: string; color: string }> = {
-    'success': { text: '成功', color: '#00B42A' },
-    'processing': { text: '处理中', color: '#00B42A' },
-    'failed': { text: '失败', color: '#F53F3F' },
-};
-
-const codeToStatus: Record<number, 'success' | 'processing' | 'failed'> = {
-    0: 'processing',
-    3: 'success',
-    2: 'failed'
-};
 const FlashOrderPage = () => {
     const { t } = useTranslation(['spot', 'common']);
     const { isLoggedIn } = useAuth();
@@ -201,13 +185,15 @@ const FlashOrderPage = () => {
             dataIndex: 'status',
             key: 'status',
             render: (text, record) => {
-                const statusCode = statusCodeMap[record.status];
-                const statusInfo = statusMap[codeToStatus[statusCode]];
-                return (
-                    <span style={{ color: statusInfo.color }}>
-                        {statusInfo.text}
-                    </span>
-                );
+                if(record.status === '0') {
+                    return '处理中'
+                } else if(record.status === '3') {
+                    return '成功'
+                } else if(record.status === '2') {
+                    return '失败'
+                } else if(record.status === '1') {
+                    return '处理中'
+                }
             },
         },
     ];
