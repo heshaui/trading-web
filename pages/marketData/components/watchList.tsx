@@ -36,6 +36,7 @@ import { useRouter } from "next/router";
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { cut } from '@/utils/math'
+import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
 
 
 interface SelfSelectProps {
@@ -166,6 +167,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
+            onClick={() => {
+              if(record.coinSymbol&&record.baseSymbol){
+                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              }
+            }}
           >
             <Image
               src={'/images/market/icon_Trade.svg'}

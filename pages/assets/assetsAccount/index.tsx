@@ -173,7 +173,8 @@ const AssetsMainPage = observer(() => {
                     </button>
                     {/* //闪兑 */}
                     <button  className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={goFlash}>
-                        闪兑
+                        {/* 闪兑 */}
+                        {t('assetsAccount.button.flash')}
                     </button>   
                 </>
             },
@@ -394,7 +395,9 @@ const AssetsMainPage = observer(() => {
     const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string, withdraw: number | string,gift: number | string) => {
         // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
         const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlanceShow = cut(add(Number(banlance1), Number(withdraw)), Number(gift))
+
+        const banlanceShow = add(Number(banlance1), Number(withdraw))
+
         return banlanceShow || 0
     }
         // 使用 useMemo 缓存 waxAndWane 计算结果，当依赖项变化时自动重新计算
