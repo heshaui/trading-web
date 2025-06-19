@@ -425,7 +425,7 @@ const OverviewPage: React.FC = () => {
                     </div>
                     {(carouselPic.length === 0) ? <div className={`${styles.card_bgc} ${styles.aside_invite} flex-col justify-between `}
                         style={{ ...identityStyle, backgroundImage: isDayMode ? "url('/images/userCenter/overview/icon_invite_day.png')" : "url('/images/userCenter/overview/icon_invite_dark.png')", }}
-                        onClick={() => { router.push('/userCenter/invite') }}>
+                        onClick={() => { router.push('/invite') }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
 
                             {t('overview.recommend.invite')}

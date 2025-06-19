@@ -139,7 +139,7 @@ const AssetsPage: React.FC = observer(() => {
         // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
         // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
         const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
-        const banlanceShow = add(add(Number(banlance1), Number(balanceDay.usdWithdraw)), Number(todayEarnings.usdGift))
+        const banlanceShow = cut(add(Number(banlance1), Number(balanceDay.usdWithdraw)), Number(todayEarnings.usdGift))
 
         return banlanceShow || 0
     }
