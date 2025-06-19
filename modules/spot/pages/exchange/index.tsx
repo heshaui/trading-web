@@ -266,8 +266,9 @@ const ExchangePage = () => {
 
                     // 处理卖单(asks)更新
                     if (data.asks && Array.isArray(data.asks)) {
-                        // 先对当前卖单按价格升序排列
-                        newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+                        // 先对当前卖单按价格降序排列
+                        
+                        newData.asks.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
                         // 只有当有足够的档位时才设置最大价格，否则设置为一个很大的值
                         const maxPrice = newData.asks.length >= 10 ? parseFloat(newData.asks[9][0]) : Infinity;
                         
