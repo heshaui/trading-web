@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import styles from "./styles/spotHeader_select.module.css";
-import { ConfigProvider, Rate, Table, Tooltip,Image ,Input} from "antd";
+import { ConfigProvider, Rate, Table, Tooltip, Image, Input } from "antd";
 import { Iconify } from "@/components/icon";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next";
@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import { cut } from '@/utils'
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
+import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 
 interface SpotSelectProps {
   currencyPairs: any[];
@@ -35,12 +36,12 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   // searchValue,
 }) => {
   const router = useRouter();
-  const { t } = useTranslation([ "market"]);
+  const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all"); // 当前选中的tab
   const [sortField, setSortField] = useState<string>("");
   const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [searchValue, setSearchValue]=useState('')
+  const [searchValue, setSearchValue] = useState('')
   const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   // 标签页配置
   const tabsItem: TabsProps["items"] = [
@@ -91,10 +92,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     },
     {
       title: t('header.lastPrice'),
-      dataIndex: 'yesterdayPrice',
-      key: 'yesterdayPrice',
+      dataIndex: 'price',
+      key: 'price',
       align: 'center',
-      sorter: (a, b) => a.yesterdayPrice - b.yesterdayPrice,
+      sorter: (a, b) => a.price - b.price,
       render: (_price) => {
         return <span>{_price || '0'}</span>
       },
@@ -121,10 +122,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       align: 'center',
       render: (_marketValue, record) => {
         // {pair.high_price || "--"}/{pair.low_price || "--"}
-        const price=`${record.high_price || "--"}/${record.low_price || "--"}`
+        const price = `${record.high_price || "--"}/${record.low_price || "--"}`
         return <span>{price}</span>
       },
-    },{
+    }, {
       title: t("header.amount24h"),
       dataIndex: 'quantity',
       key: 'quantity',
@@ -147,6 +148,11 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
+            onClick={() => {
+              if (record.coinSymbol && record.baseSymbol) {
+                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              }
+            }}
           >
             <Image
               src={'/images/market/icon_Trade.svg'}
@@ -269,7 +275,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
         // 标签过滤
         const matchesTab =
-        activeTab&&activeTab === "all" ? true : pair?.classLabel === activeTab;
+          activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
 
         return matchesSearch && matchesTab;
       }) || [],
@@ -339,40 +345,40 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       <div className={styles.container}>
         {/* 标签页导航 */}
         <div className={`${styles.allCoins_inputSearch}  flex-x align-center justify-end`}>
-        <Input
-          allowClear
-          size="middle"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder={t('header.searchInput')}
-          // onChange={handleSearchChange}  // 修正为正确的处理函数
-          // onKeyPress={handleKeyPress}    // 添加回车键处理
-          prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
-          // style={{ width: "242px", marginBottom: 16 }}
-          className={`${styles.input_box} modal-input`}
-        />
+          <Input
+            allowClear
+            size="middle"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder={t('header.searchInput')}
+            // onChange={handleSearchChange}  // 修正为正确的处理函数
+            // onKeyPress={handleKeyPress}    // 添加回车键处理
+            prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+            // style={{ width: "242px", marginBottom: 16 }}
+            className={`${styles.input_box} modal-input`}
+          />
         </div>
         <div>
-        <SimpleScrollTabs
-          items={tabsItem}
-          onChange={handleTabClick}
-          defaultActiveKey={activeTab}
-          showAllTab={true}
-          allTabLabel={t("header.all")}
-          className={styles.allCoins_tabs}
-        />
-        <Table
-          columns={columns}
-          dataSource={filteredPairs}
-          rowKey="id"
-          pagination={false}
-          size="middle"
-          bordered={false}
-          className={`${styles.allCoinsTable} spot-table-box w-full`}
-          showSorterTooltip={false}
-          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          <SimpleScrollTabs
+            items={tabsItem}
+            onChange={handleTabClick}
+            defaultActiveKey={activeTab}
+            showAllTab={true}
+            allTabLabel={t("header.all")}
+            className={styles.allCoins_tabs}
           />
-          </div>
+          <Table
+            columns={columns}
+            dataSource={filteredPairs}
+            rowKey="id"
+            pagination={false}
+            size="middle"
+            bordered={false}
+            className={`${styles.allCoinsTable} spot-table-box w-full`}
+            showSorterTooltip={false}
+            locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          />
+        </div>
         {/* <div
           className={`${styles.list_header} px-4 py-4 flex-x align-center justify-between`}
           style={{

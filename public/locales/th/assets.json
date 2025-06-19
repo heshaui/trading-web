@@ -66,7 +66,8 @@
             "tip2": "Complete identity verification to unlock all features",
             "tip3": "Exchange withdrawal is prohibited, please contact customer service if you have any questions!",
             "tip4": "Exchange deposit function is currently unavailable, please contact customer service if you have any questions!",
-            "toAuthentication": "Verify Now"
+            "toAuthentication": "Verify Now",
+            "flash": "Flash Swap"
         },
         "title2": "Bill Details",
         "assets": "Spot Assets",

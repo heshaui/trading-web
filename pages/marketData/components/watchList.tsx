@@ -36,6 +36,7 @@ import { useRouter } from "next/router";
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { cut } from '@/utils/math'
+import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
 
 
 interface SelfSelectProps {
@@ -109,10 +110,10 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     },
     {
       title: t('header.lastPrice'),
-      dataIndex: 'yesterdayPrice',
-      key: 'yesterdayPrice',
+      dataIndex: 'price',
+      key: 'price',
       align: 'center',
-      sorter: (a, b) => a.yesterdayPrice - b.yesterdayPrice,
+      sorter: (a, b) => a.price - b.price,
       render: (_price) => {
         return <span>{_price || '0'}</span>
       },
@@ -166,6 +167,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
+            onClick={() => {
+              if(record.coinSymbol&&record.baseSymbol){
+                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              }
+            }}
           >
             <Image
               src={'/images/market/icon_Trade.svg'}
@@ -181,10 +187,12 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   ];
 
 
-  // 处理前往市场按钮点击
+  // 处理前往市场按钮点击/登录按钮点击
   const handleGoToMarket = () => {
-    if (onTabChange) {
+    if (onTabChange&&isLoggedIn) {
       onTabChange("3"); // 切换到现货市场Tab
+    } else{
+      router.push("/login");
     }
   };
 
@@ -299,7 +307,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         />
         <Table
           columns={columns}
-          dataSource={filteredPairs}
+          dataSource={isLoggedIn?filteredPairs:[]}
           rowKey="id"
           pagination={false}
           size="middle"
@@ -308,7 +316,8 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           showSorterTooltip={false}
           locale={{
             emptyText: <>
-              <NoData textColor='#A4A5AC' buttonTitle={t("header.goToMarket")} buttonClick={handleGoToMarket} />
+              <NoData textColor='#A4A5AC' buttonTitle={isLoggedIn?t("header.goToMarket"):t("header.loginNow")}
+                buttonClick={handleGoToMarket} />
               </>
           }}
         />
