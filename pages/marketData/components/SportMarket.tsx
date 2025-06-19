@@ -91,10 +91,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     },
     {
       title: t('header.lastPrice'),
-      dataIndex: 'yesterdayPrice',
-      key: 'yesterdayPrice',
+      dataIndex: 'price',
+      key: 'price',
       align: 'center',
-      sorter: (a, b) => a.yesterdayPrice - b.yesterdayPrice,
+      sorter: (a, b) => a.price - b.price,
       render: (_price) => {
         return <span>{_price || '0'}</span>
       },

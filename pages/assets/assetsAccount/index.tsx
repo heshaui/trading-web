@@ -394,7 +394,7 @@ const AssetsMainPage = observer(() => {
     const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string, withdraw: number | string,gift: number | string) => {
         // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
         const banlance1 = cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlanceShow = add(add(Number(banlance1), Number(withdraw)), Number(gift))
+        const banlanceShow = cut(add(Number(banlance1), Number(withdraw)), Number(gift))
         return banlanceShow || 0
     }
         // 使用 useMemo 缓存 waxAndWane 计算结果，当依赖项变化时自动重新计算

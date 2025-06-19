@@ -13,6 +13,8 @@ import {cut} from '@/utils'
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import appStore from "@/store";
+import { NoData } from '@/components/noData'
+
 // 添加props接口定义
 interface AllCoinsProps {
   // searchKeyword?: string;
@@ -22,7 +24,7 @@ interface AllCoinsProps {
 }
 const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: AllCoinsProps) => {
   const { t } = useTranslation('market');
-  const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
+  // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const router = useRouter();
   const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
@@ -174,11 +176,11 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           (pair?.coinName?.toLowerCase()?.includes(searchValue?.toLowerCase() || ''))
         ) : true;
   
-        // 标签过滤
-        const matchesTab =
-        activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
+        // // 标签过滤
+        // const matchesTab =
+        // activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
   
-        return matchesSearch && matchesTab;
+        return matchesSearch //&& matchesTab;
       }) || [],
     [allInitCoins, searchValue, activeTab]
   );
@@ -204,14 +206,14 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         />
       </div>
       <div>
-        <SimpleScrollTabs
+        {/* <SimpleScrollTabs
           items={tabsItem}
           onChange={handleTabClick}
           defaultActiveKey={activeTab}
           showAllTab={true}
           allTabLabel={t('header.all')}
           className={styles.allCoins_tabs}
-        />
+        /> */}
         <Table
           columns={columns}
           dataSource={filteredPairs}
@@ -221,6 +223,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           bordered={false}
           className={`${styles.allCoinsTable} spot-table-box w-full`}
           showSorterTooltip={false}
+           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
       </div>
 
