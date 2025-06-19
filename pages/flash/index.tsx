@@ -10,6 +10,7 @@ import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
+import appStore from '@/store';
 
 
 const { Panel } = Collapse;
@@ -52,11 +53,22 @@ const FlashPage: NextPage = () => {
 
   // 币种列表数据
   const [coinList, setCoinList] = useState<any[]>([]);
-  const [selectedCoin, setSelectedCoin] = useState<string>('ETH');
+  const [selectedCoin, setSelectedCoin] = useState<string>('');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
   const [isAuth, setIsAuth] = useState<boolean>(false);
+  const flashConfigData = appStore.getKvConfig('flash_img');
+  const langKey = appStore.getLang() || 'en_US';
+  const headerBgImage = flashConfigData?.[langKey]?.img;
+
+  const headerTitle = flashConfigData && flashConfigData[langKey] 
+                        ? flashConfigData[langKey].title 
+                        : '';
+  const headerSubtitle = flashConfigData && flashConfigData[langKey] 
+                        ? flashConfigData[langKey].subTitle 
+                        : '';
+  
   // Custom select component with icon display
   const IconSelect = ({ value, options, onChange, style }: any) => {
     // Find the selected option to display its icon
@@ -253,13 +265,9 @@ const FlashPage: NextPage = () => {
         <title>{t('闪兑')} | {t('Trading Platform')}</title>
       </Head>
       <PageContainer>
-        <Header>
-          <h1>闪兑</h1>
-          <HeaderSubtitle>0手续费 | 简单快捷 | 即可完成</HeaderSubtitle>
-          {configLoading && <LoadingIndicator>加载配置中 <Spin size="small" /></LoadingIndicator>}
-          {configError && <ErrorMessage>{configError}</ErrorMessage>}
-          {coinLoading && <LoadingIndicator>加载币种列表中 <Spin size="small" /></LoadingIndicator>}
-          {coinError && <ErrorMessage>{coinError}</ErrorMessage>}
+        <Header bgImage={headerBgImage}>
+          <h1>{headerTitle}</h1>
+          <HeaderSubtitle>{headerSubtitle}</HeaderSubtitle>
         </Header>
         { !isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
@@ -484,11 +492,17 @@ const PageContainer = styled.div`
   align-items: center;
 `;
 
-const Header = styled.div`
+const Header = styled.div<{
+  bgImage?: string;
+}>`
   width: 100%;
   color: white;
   padding: 20px 0;
   text-align: center;
+  background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 `;
 
 const HeaderSubtitle = styled.div`
