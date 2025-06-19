@@ -147,6 +147,9 @@ const FlashOrderPage = () => {
             title: '交易日期',
             dataIndex: 'createTime',
             key: 'createTime',
+            render: (text, record) => {
+                return dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss');
+            },
         },
         {
             title: '交易对',
@@ -179,6 +182,9 @@ const FlashOrderPage = () => {
             title: '结算日期',
             dataIndex: 'settlementTime',
             key: 'settlementTime',
+            render: (text, record) => {
+                return dayjs(record.settlementTime).format('YYYY-MM-DD HH:mm:ss');
+            },
         },
         {
             title: '状态',
