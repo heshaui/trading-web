@@ -11,7 +11,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
 import dayjs from 'dayjs';
 import { NoData, NoAddress } from '@/components/noData';
-import NoUseCom from '../compontents/noSM'
+import NoUseCom from './noSM'
 
 interface DataType {
     id: number,
