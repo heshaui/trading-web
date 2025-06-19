@@ -1,7 +1,7 @@
-import React, { useEffect, useState ,useMemo} from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Table, Tooltip, Image, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CoinMarket ,pairsNewPriceType} from '@/type/marketData/marketData';
+import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import styles from '../styles/marketData.module.css';
 import { useTranslation } from 'next-i18next';
 import { getAllCoinsData } from '@/services/marketData'
@@ -9,11 +9,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 import type { TabsProps } from 'antd';
 import { toast } from 'sonner';
-import {cut} from '@/utils'
+import { cut } from '@/utils'
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import appStore from "@/store";
 import { NoData } from '@/components/noData'
+import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
 
 // 添加props接口定义
 interface AllCoinsProps {
@@ -26,32 +27,34 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
   const { t } = useTranslation('market');
   // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const router = useRouter();
-  const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
+  // const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
   const [activeTab, setActiveTab] = useState('all');
-    const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState('')
+  const [tableLoading,setTableLoading]=useState(false)
 
-  
+
   // console.log(currencyPairs, 99987);
 
   // 获取所有币种接口
   const fetchAllcoins = async () => {
+    setTableLoading(true)
     try {
       const response = await getAllCoinsData()
       if (response?.code === '0') {
         const resData = response.data?.map((item: CoinMarket) => {
-          const pairsData = currencyPairs?.find(p =>  p.coinSymbol === item.coinName)
+          const pairsData = currencyPairs?.find(p => p.coinSymbol === item.coinName)
           if (pairsData) {
             return {
               ...item,
               ...pairsData
             }
-          }else{
+          } else {
             return item
           }
-          
+
         })
-        setAllcoins(resData)
+        // setAllcoins(resData)
         setAllInitCoins(resData)
         // console.log(resData, 99987);
 
@@ -59,6 +62,8 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       }
     } catch (error) {
       toast.error(String(error))
+    }finally {
+      setTableLoading(false)
     }
   };
   useEffect(() => {
@@ -103,7 +108,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
             style={{ borderRadius: '50%', height: '28px', width: '28px' }}
             className='mr-1' />
           <p className='font-w-500 font-14 flex-x ml-1'>
-            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol||'--'}</span>
+            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span>
           </p>
         </div>
       ),
@@ -115,7 +120,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       align: 'center',
       sorter: (a, b) => a.price - b.price,
       render: (price) => {
-        return <span>{ price||'0'}</span>
+        return <span>{price || '0'}</span>
       },
     },
     {
@@ -124,13 +129,13 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       key: 'yesterdayPrice',
       align: 'center',
       sorter: (a, b) => {
-        const aPrice =cut(Number(a.price)||0, Number(a.yesterdayPrice)||0)||0
-        const bPrice =cut(Number(b.price)||0, Number(b.yesterdayPrice)||0)||0
+        const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
+        const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
         return Number(aPrice) - Number(bPrice)
       },
       render: (_price, record) => {
-        const price =cut(Number(record.price)||0, Number(record.yesterdayPrice)||0)||0
-        return <span>{ price||'0'}</span>
+        const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
+        return <span>{price || '0'}</span>
       },
     },
     {
@@ -140,7 +145,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       align: 'center',
       // sorter: (a, b) => a.marketValue - b.marketValue,
       render: (_marketValue, record) => {
-        return <span>{_marketValue||'--'}</span>
+        return <span>{_marketValue || '--'}</span>
       },
     },
     {
@@ -149,18 +154,23 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'action',
       key: 'action',
       render: (_, record) => {
-        
+
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
-        <button 
-        >
-          <Image 
-            src={'/images/market/icon_Trade.svg'} 
-            alt={'trade'} 
-            width={28} 
-            height={28}
-            style={{ borderRadius: '50%', height: '28px', width: '28px' }}
-            preview={false}/>
-        </button>
+          <button
+            onClick={() => {
+              if (record.coinSymbol && record.baseSymbol) {
+                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              }
+            }}
+          >
+            <Image
+              src={'/images/market/icon_Trade.svg'}
+              alt={'trade'}
+              width={28}
+              height={28}
+              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              preview={false} />
+          </button>
         </Tooltip>
       },
     },
@@ -175,11 +185,11 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           (pair?.baseSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
           (pair?.coinName?.toLowerCase()?.includes(searchValue?.toLowerCase() || ''))
         ) : true;
-  
+
         // // 标签过滤
         // const matchesTab =
         // activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
-  
+
         return matchesSearch //&& matchesTab;
       }) || [],
     [allInitCoins, searchValue, activeTab]
@@ -221,9 +231,10 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           pagination={false}
           size="middle"
           bordered={false}
+          loading={tableLoading}
           className={`${styles.allCoinsTable} spot-table-box w-full`}
           showSorterTooltip={false}
-           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+          locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />
       </div>
 
