@@ -6,14 +6,10 @@ import { LoginTypeProvider } from "@/config/login-providers/LoginStateProvider";
 import { useRouter } from 'next/router';
 // import "./styles/login.css"
 import styles from './styles/login.module.css'
-import { getPic, getPic2 } from "@/services/open";
-import Image from "next/image";
+import { getPic2 } from "@/services/open";
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
-import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
-// import { getKvObject } from "@/services/kv"
-import { useWebConfig } from '@/hooks/useKv';
 import appStore from '@/store';
 import { getNextJsLocale } from '@/utils/filterLang';
 

@@ -187,6 +187,7 @@ const AssetsMainPage = observer(() => {
     const [todayEarningsLoading, setTodayEarningsLoading] = useState(true);
     const [kLineLoading, setKLineLoading] = useState(true);
     const goFlash=async()=>{
+        router.push('/flash');
 
     }
 
