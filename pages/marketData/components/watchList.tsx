@@ -8,11 +8,7 @@ import {
   ConfigProvider,
   Rate,
   Table,
-  Select,
-  Form,
-  Spin,
-  Button,
-  Space,
+  Segmented,
   Tooltip,
   Dropdown,
   Image
@@ -37,7 +33,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { cut } from '@/utils/math'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
-import {toast} from "sonner"
+import { toast } from "sonner"
 
 
 interface SelfSelectProps {
@@ -62,25 +58,25 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('')
 
-  // 标签页配置
-  const tabsItem: TabsProps["items"] = [
-    { key: "1", label: t("header.mainArea") },
-    { key: "2", label: t("header.innovationArea") },
-    { key: "3", label: t("header.newCoinArea") },
-    { key: "4", label: "AI" },
-    { key: "5", label: "Meme" },
-    { key: "6", label: "NFT" },
-    { key: "7", label: "DeFi" },
-    { key: "8", label: "Web3" },
-    { key: "9", label: "Payments" },
-    { key: "10", label: "Launchpad" },
-    { key: "11", label: "Layer2" },
-    { key: "12", label: "Solana" },
-    { key: "13", label: "RWA" },
-    { key: "14", label: "Launchpool" },
-    { key: "15", label: t("header.gameMetaverse") },
-    { key: "16", label: t("header.storage") },
-  ];
+  // // 标签页配置
+  // const tabsItem: TabsProps["items"] = [
+  //   { key: "1", label: t("header.mainArea") },
+  //   { key: "2", label: t("header.innovationArea") },
+  //   { key: "3", label: t("header.newCoinArea") },
+  //   { key: "4", label: "AI" },
+  //   { key: "5", label: "Meme" },
+  //   { key: "6", label: "NFT" },
+  //   { key: "7", label: "DeFi" },
+  //   { key: "8", label: "Web3" },
+  //   { key: "9", label: "Payments" },
+  //   { key: "10", label: "Launchpad" },
+  //   { key: "11", label: "Layer2" },
+  //   { key: "12", label: "Solana" },
+  //   { key: "13", label: "RWA" },
+  //   { key: "14", label: "Launchpool" },
+  //   { key: "15", label: t("header.gameMetaverse") },
+  //   { key: "16", label: t("header.storage") },
+  // ];
   const columns: ColumnsType<any> = [
     {
       title: t('header.name'),
@@ -173,7 +169,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           <button
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
-                const symbol=`${record.coinSymbol}/${record.baseSymbol}`
+                const symbol = `${record.coinSymbol}/${record.baseSymbol}`
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               }
             }}
@@ -194,9 +190,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
   // 处理前往市场按钮点击/登录按钮点击
   const handleGoToMarket = () => {
-    if (onTabChange&&isLoggedIn) {
+    if (onTabChange && isLoggedIn) {
       onTabChange("3"); // 切换到现货市场Tab
-    } else{
+    } else {
       router.push("/login");
     }
   };
@@ -224,17 +220,17 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       currencyPairs?.filter((pair) => {
         // 必须是收藏的
         const isFavorite = pair.isFavorite;
-    
+
         // 搜索过滤
         const matchesSearch =
           pair?.coinSymbol?.toLowerCase().includes(searchValue.toLowerCase()) ||
           pair?.baseSymbol?.toLowerCase().includes(searchValue.toLowerCase());
-    
-        // 标签过滤
-        const matchesTab =
-          activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
-    
-        return isFavorite && matchesSearch && matchesTab;
+
+        // // 标签过滤
+        // const matchesTab =
+        //   activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
+
+        return isFavorite && matchesSearch //&& matchesTab;
       }) || [],
     [currencyPairs, searchValue, activeTab]
   );
@@ -304,17 +300,21 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         />
       </div>
       <div>
-        <SimpleScrollTabs
+        {/* <SimpleScrollTabs
           items={tabsItem}
           onChange={handleTabClick}
           defaultActiveKey={activeTab}
           showAllTab={true}
           allTabLabel={t("header.all")}
           className={styles.allCoins_tabs}
-        />
+        /> */}
+       {filteredPairs&&filteredPairs?.length>0&&<button className={`default_btn my-4 ${styles.btn_style} font-14`}>
+          {/* 限价 | 市价 */}
+          {`${t('header.spot')}(${filteredPairs?.length||0})`}
+        </button>}
         <Table
           columns={columns}
-          dataSource={isLoggedIn?filteredPairs:[]}
+          dataSource={isLoggedIn ? filteredPairs : []}
           rowKey="id"
           pagination={false}
           size="middle"
@@ -323,9 +323,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           showSorterTooltip={false}
           locale={{
             emptyText: <>
-              <NoData textColor='#A4A5AC' buttonTitle={isLoggedIn?t("header.goToMarket"):t("header.loginNow")}
+              <NoData textColor='#A4A5AC' buttonTitle={isLoggedIn ? t("header.goToMarket") : t("header.loginNow")}
                 buttonClick={handleGoToMarket} />
-              </>
+            </>
           }}
         />
       </div>
