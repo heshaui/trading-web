@@ -322,11 +322,9 @@ const AssetsMainPage = observer(() => {
                     );
                     const coinTotalToday = coinTotalCount(coinTotal, curr.recharge, curr.withdrawal, curr.gift)
                     const todayBalance = getCoinRate(curr.coinName, coinTotalToday).coinRate
-                    console.log(coinTotalToday, todayBalance, 99999);
 
                     return sum + Number(todayBalance) || 0
                 }, 0);
-                console.log(balance, todayBalance, 'todayBalance', 998);
 
                 const rateKeyName = rateKey.split('-')[0].trim()
                 const usdRate = getRate('USDT', balance || 0, rateKeyName).rate
@@ -514,7 +512,7 @@ const AssetsMainPage = observer(() => {
                         setInitTableData(filteredData);
                         setTableData(filteredTableData);
                         // 更新余额
-                        const totalUsd = filteredData.reduce((sum: number, curr: any) => {
+                        const balance = filteredData.reduce((sum: number, curr: any) => {
                             const coinTotal = add(
                                 add(curr.balance || 0, curr.releaseBalance || 0),
                                 curr.frozenBalance || 0
@@ -522,12 +520,35 @@ const AssetsMainPage = observer(() => {
                             const balance = getCoinRate(curr.coinName, coinTotal).coinRate
                             return sum + Number(balance) || 0;
                         }, 0);
-                        const rateKeyName = rateKey?.split('-')[0].trim()
-                        const usdRate = getRate('USDT', totalUsd || 0, rateKeyName).rate
+
+                        const todayBalance = filteredData.reduce((sum: number, curr: any) => {
+                            const coinTotal = add(
+                                add(curr.balance || 0, curr.releaseBalance || 0),
+                                curr.frozenBalance || 0
+                            );
+                            const coinTotalToday = coinTotalCount(coinTotal, curr.recharge, curr.withdrawal, curr.gift)
+                            const todayBalance = getCoinRate(curr.coinName, coinTotalToday).coinRate
+        
+                            return sum + Number(todayBalance) || 0
+                        }, 0);
+        
+                        const rateKeyName = rateKey.split('-')[0].trim()
+                        const usdRate = getRate('USDT', balance || 0, rateKeyName).rate
+                        const usdTodayEarnings = getRate('USDT', todayBalance || 0, rateKeyName).rate
                         setBalanceAll({
                             usdBalance: usdRate || 0,
-                            balance: totalUsd || 0
+                            balance: balance || 0,
+                            usdTodayEarnings: usdTodayEarnings || 0,
+                            todayEarnings: todayBalance || 0
                         });
+
+                        // const rateKeyName = rateKey?.split('-')[0].trim()
+                        // const usdRate = getRate('USDT', balance || 0, rateKeyName).rate
+                        // setBalanceAll({
+                        //     ...balanceAll,
+                        //     usdBalance: usdRate || 0,
+                        //     balance: balance || 0
+                        // });
                     }
                 } catch (error) {
                     console.error('WebSocket数据处理错误:', error);

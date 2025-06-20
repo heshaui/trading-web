@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
@@ -105,11 +105,18 @@ const AssetsPage: React.FC = observer(() => {
 
     //     return banlanceShow || 0
     // }
-    const waxAndWane = () => {
-        // balance今日余额 balanceLastDay昨日余额 toUp今日充值 withdraw今日提现
-        const banlanceShow = cut(Number(balanceAll.usdTodayEarnings), Number(balanceDay.usdBalanceAll))
+    const waxAndWane = (todayBalance: number | string, balanceLastDay: number | string) => {
+        // balance今日余额 balanceLastDay昨日余额
+        const banlanceShow = cut(Number(todayBalance), Number(balanceLastDay))
         return banlanceShow || 0
     }
+    
+    const todayProfit = useMemo(() => {
+        return waxAndWane(
+            balanceAll?.usdTodayEarnings || 0,
+            balanceDay?.usdBalanceAll || 0
+        );
+    }, [balanceAll?.usdTodayEarnings, balanceDay?.usdBalanceAll])
     const coinTotalCount = (balance: number | string,
         recharge: number | string,
         withdrawal: number | string,
@@ -313,10 +320,10 @@ const AssetsPage: React.FC = observer(() => {
                         {/* 今日盈亏 */}
                         {t('overview.assets.todayProfitLoss')}
                         <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
-                        {banlanceShow ? <span className={`${Number(waxAndWane()) > 0 ? styles.success_icon : Number(waxAndWane()) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
-                            {Number(waxAndWane()) < 0 ? "-" : "+"}
+                        {banlanceShow ? <span className={`${Number(todayProfit) > 0 ? styles.success_icon : Number(todayProfit) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
+                            {Number(todayProfit) < 0 ? "-" : "+"}
                             &nbsp;{balanceAll?.symbol||'--'}&nbsp;
-                            {Number(waxAndWane()) ? Math.abs(Number(waxAndWane())) : 0}
+                            {Number(todayProfit) ? Math.abs(Number(todayProfit)) : 0}
                         </span> :
                             <span className={`${styles.tip_color} font-12 flex-x-cc`}>******</span>
                         }
