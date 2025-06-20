@@ -182,7 +182,7 @@ html[lang="en"] .cardtitle {
 .input_box {
   width: 188px !important;
   height: 40px;
-  background: var(--background8) !important;
+  background: transparent !important;
   color: var(--text-color6) !important;
 }
 
@@ -197,7 +197,7 @@ html[lang="en"] .cardtitle {
 /* 鼠标聚焦且移出样式 */
 .input_box:focus:not(:hover),
 .input_box:focus-within:not(:hover){
-  background-color: var(--homeground5);
+  background-color: transparent;
   color: #fff;
   box-shadow: none !important;
 }
