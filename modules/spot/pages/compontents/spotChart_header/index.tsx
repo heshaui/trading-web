@@ -109,21 +109,21 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
         }
     }, [router.isReady, router.query]); // 监听路由准备状态和查询参数变化
 
-    // 当币对改变时更新URL
-    useEffect(() => {
-        if (currentPair && router.isReady) {
-            const newSymbol = `${currentPair.coinSymbol}/${currentPair.baseSymbol}`;
-            const currentSymbol = router.query.symbol;
+    // // 当币对改变时更新URL
+    // useEffect(() => {
+    //     if (currentPair && router.isReady) {
+    //         const newSymbol = `${currentPair.coinSymbol}/${currentPair.baseSymbol}`;
+    //         const currentSymbol = router.query.symbol;
 
-            // 只有当URL中的symbol与当前币对不匹配时才更新
-            if (currentSymbol !== newSymbol) {
-                router.push({
-                    pathname: router.pathname,
-                    query: { ...router.query, symbol: newSymbol }
-                }, undefined, { shallow: true });
-            }
-        }
-    }, [currentPair, router.isReady]);
+    //         // 只有当URL中的symbol与当前币对不匹配时才更新
+    //         if (currentSymbol !== newSymbol) {
+    //             router.push({
+    //                 pathname: router.pathname,
+    //                 query: { ...router.query, symbol: newSymbol }
+    //             }, undefined, { shallow: true });
+    //         }
+    //     }
+    // }, [currentPair, router.isReady]);
 
     const handleTabClick = (key: string) => {
         setActiveTab(key);

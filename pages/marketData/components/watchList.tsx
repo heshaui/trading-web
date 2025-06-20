@@ -36,7 +36,8 @@ import { useRouter } from "next/router";
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { cut } from '@/utils/math'
-import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
+import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
+import {toast} from "sonner"
 
 
 interface SelfSelectProps {
@@ -107,6 +108,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           </span>
         </div>
       ),
+      sorter: (a, b) => {
+        return a.coinSymbol.localeCompare(b.coinSymbol);
+      },
     },
     {
       title: t('header.lastPrice'),
@@ -168,8 +172,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
             onClick={() => {
-              if(record.coinSymbol&&record.baseSymbol){
-                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              if (record.coinSymbol && record.baseSymbol) {
+                const symbol=`${record.coinSymbol}/${record.baseSymbol}`
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               }
             }}
           >
@@ -241,6 +246,8 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
     const res = await apiCall;
     if (res.code === "0") {
+      toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
+        t('marketList.operationTips.removeSuccess'));
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
       const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);

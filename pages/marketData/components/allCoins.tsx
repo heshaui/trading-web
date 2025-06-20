@@ -106,12 +106,17 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         <div className='flex align-center'>
           <Image src={record?.iconUrl} alt={text} width={28} height={28}
             style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+            preview={false}
             className='mr-1' />
           <p className='font-w-500 font-14 flex-x ml-1'>
-            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span>
+          {/* {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span> */}
+          {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;{record?.nameDefault || '--'}</span>
           </p>
         </div>
       ),
+      sorter: (a, b) => {
+        return a.coinName.localeCompare(b.coinName);
+      },
     },
     {
       title: t('marketList.tableHeaders.price'),
@@ -159,7 +164,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           <button
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
-                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
               }
             }}
           >

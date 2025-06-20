@@ -23,6 +23,9 @@ import { cut } from '@/utils'
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
+import { getSpotData } from '@/services/marketData'
+import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
+import { toast } from "sonner"
 
 interface SpotSelectProps {
   currencyPairs: any[];
@@ -39,10 +42,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all"); // 当前选中的tab
   const [sortField, setSortField] = useState<string>("");
-  const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
+  // const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchValue, setSearchValue] = useState('')
   const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
+  const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
+  const [tableLoading, setTableLoading] = useState(false)
+   const currencyPairsArray = appStore.currencyPairs || [];
   // 标签页配置
   const tabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
@@ -89,6 +95,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
           </span>
         </div>
       ),
+      sorter: (a, b) => {
+        return a.coinSymbol.localeCompare(b.coinSymbol);
+      },
     },
     {
       title: t('header.lastPrice'),
@@ -150,7 +159,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
           <button
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
-                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+                const symbol = `${record.coinSymbol}/${record.baseSymbol}`
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               }
             }}
           >
@@ -166,40 +176,30 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       },
     },
   ];
-  const handleTabChange = (key: string) => {
-    setActiveTab(key);
-  };
+  const getSpotList = async () => {
+    setTableLoading(true)
+    try {
 
-  const handlePairClick = async (pair: any) => {
-    console.log(pair);
-    await appStore.setCurrentPair(pair);
-  };
+      const res = await getSpotData({})
+      const resData = res.data?.map((item: pairsNewPriceType) => {
+        const pairsData = currencyPairsArray?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+        if (pairsData) {
+          return {
+            ...item,
+            ...pairsData
+          }
+        } else {
+          return item
+        }
 
-  // 在用户点击货币对时调用
-  const handleSelect = (pair: any) => {
-    if (onPairSelect) {
-      onPairSelect(pair);
+      });
+      setSpotList(resData)
+    } catch (error) {
+      toast.error(String(error))
+    } finally {
+      setTableLoading(false)
     }
-  };
-  // 处理排序
-  const handleSort = (field: string) => {
-    console.log(
-      "排序字段:",
-      field,
-      "当前排序字段:",
-      sortField,
-      "当前排序方向:",
-      sortDirection
-    );
-    if (sortField === field) {
-      // 相同字段，切换排序方向
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      // 新字段，默认升序
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
+  }
 
   // 获取排序后的数据
   const getSortedPairs = () => {
@@ -267,7 +267,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   // 基于搜索和标签过滤排序后的结果
   const filteredPairs = React.useMemo(
     () =>
-      currencyPairs?.filter((pair) => {
+      spotList?.filter((pair) => {
         // 搜索过滤
         const matchesSearch =
           pair?.coinSymbol?.toLowerCase().includes(searchValue?.toLowerCase() || '') ||
@@ -279,13 +279,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
         return matchesSearch && matchesTab;
       }) || [],
-    [currencyPairs, searchValue, activeTab]
+    [spotList, searchValue, activeTab]
   );
 
   const handleFavoriteChange = async (value: number, pair: any) => {
     if (!isLoggedIn) {
       // 用户未登录，显示提示并跳转到登录页面
-      message.info("请先登录再收藏");
+      toast.info(t('marketList.operationTips.loginToFavorite'));
       router.push('/login'); // 登录页面路径根据实际项目调整
       return;
     }
@@ -296,7 +296,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
     const res = await apiCall;
     if (res.code === "0") {
-      message.success(isFavorite ? "添加成功" : "移除成功");
+      toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
+        t('marketList.operationTips.removeSuccess'));
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
       const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);
@@ -314,16 +315,15 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         updatedCurrentPair.isFavorite = isFavorite;
         appStore.setCurrentPair(updatedCurrentPair);
       }
+      // await getSpotList()
     }
   };
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
-
-  const showChange = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 阻止事件冒泡
-    setShowVolume(!showVolume); // 切换显示状态
-  };
+  useEffect(() => {
+    getSpotList()
+  }, [currencyPairsArray]);
 
   return (
     <ConfigProvider
@@ -374,6 +374,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             pagination={false}
             size="middle"
             bordered={false}
+            loading={tableLoading}
             className={`${styles.allCoinsTable} spot-table-box w-full`}
             showSorterTooltip={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}

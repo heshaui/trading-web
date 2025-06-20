@@ -21,7 +21,7 @@ export function getHotData():Promise<any>{
     });
 }
 // 获取现货市场-不登录
-export function getspotData(params = {}):Promise<any>{
+export function getSpotData(params = {}):Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/exchange-coin/exchangeCoinAllPrice`,{
         method:'POST',
         body: JSON.stringify(params)

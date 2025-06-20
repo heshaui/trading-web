@@ -49,7 +49,6 @@ export const ROUTER_KEY_ASSETS = {
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
     SPOT_ORDER: "/spotOrder", //现货订单
-    EXCHANGE: "/exchange", //现货交易
 };
 export const ROUTER_KEY_OPEN = {
     LOGIN:"/login", //登录页面

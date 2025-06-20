@@ -23,6 +23,7 @@ import {
 } from "@/services/marketData";
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
+import appStore from "@/store";
 
 
 export default function MarketData() {
@@ -35,6 +36,7 @@ export default function MarketData() {
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
+
   // WebSocket引用，用于管理多个币对的WebSocket连接
   const wsRefs = useRef<{ [key: string]: WebSocketService }>({});
   // 多通道WebSocket引用
@@ -202,9 +204,8 @@ export default function MarketData() {
       const pairKey = `${pair.coinSymbol}_${pair.baseSymbol}`;
 
       // 创建WebSocket连接
-      const wsUrl = `${
-        process.env.NEXT_PUBLIC_WS_API_BASE
-      }/ws/${pair.coinSymbol.toUpperCase()}_${pair.baseSymbol.toUpperCase()}@kline_1d`;
+      const wsUrl = `${process.env.NEXT_PUBLIC_WS_API_BASE
+        }/ws/${pair.coinSymbol.toUpperCase()}_${pair.baseSymbol.toUpperCase()}@kline_1d`;
 
       console.log(`建立单个WebSocket连接: ${wsUrl}`);
       const ws = new WebSocketService(wsUrl);
@@ -217,10 +218,10 @@ export default function MarketData() {
         (message: string) => {
           try {
             const data = JSON.parse(message);
-            console.log("data的内容:", data,123);
+            console.log("data的内容:", data, 123);
             if (data) {
               // 更新币对价格和涨跌幅
-              updatePairPrice(pair?.coinSymbol|| '', pair?.baseSymbol|| '', data);
+              updatePairPrice(pair?.coinSymbol || '', pair?.baseSymbol || '', data);
             }
           } catch (error) {
             console.error(`解析WebSocket消息出错 (${pairKey}):`, error);
@@ -250,7 +251,7 @@ export default function MarketData() {
     // 创建新的WebSocket连接
     const wsUrl = "wss://ws80.imsaas.work/ws/multi";
     console.log("建立多通道WebSocket连接:", wsUrl);
-    
+
     const ws = new WebSocketService(wsUrl);
     multiWsRef.current = ws;
 
@@ -278,7 +279,7 @@ export default function MarketData() {
           }
 
           // console.log(`收到多通道WebSocket消息:`, message);
-          
+
           // 解析JSON消息
           let data;
           try {
@@ -328,13 +329,13 @@ export default function MarketData() {
       if (isSubscribed || !multiWsRef.current || multiWsRef.current.connectionState !== 1) {
         return;
       }
-      
+
       console.log("多通道WebSocket连接成功，发送订阅消息");
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
         channels: ["ETH_USDT_1002@trade", "BTC_USDT_1002@kline_1m"]
       });
-      
+
       const sent = multiWsRef.current.send(subscribeMessage);
       if (sent) {
         console.log("成功发送多通道WebSocket订阅消息:", subscribeMessage);
@@ -343,7 +344,7 @@ export default function MarketData() {
         console.error("发送多通道WebSocket订阅消息失败");
       }
     };
-    
+
     // 设置定时检测来确保订阅消息被发送
     const subscriptionInterval = setInterval(() => {
       checkAndSubscribe();
@@ -352,7 +353,7 @@ export default function MarketData() {
         clearInterval(subscriptionInterval);
       }
     }, 500); // 每500ms检测一次
-    
+
     // 10秒后就停止检测，防止无限循环
     setTimeout(() => {
       clearInterval(subscriptionInterval);
@@ -426,7 +427,7 @@ export default function MarketData() {
         <>
           {index + 1}&nbsp;&nbsp;
           <Image
-            src={record.iconUrl }
+            src={record.iconUrl}
             alt=""
             width={20}
             height={20}
@@ -582,6 +583,24 @@ export default function MarketData() {
       // setupPriceWebSockets(newPrice);
     }
   }, [newPrice]);
+  useEffect(() => {
+    // 只在客户端执行
+    if (typeof window === 'undefined') return;
+
+    try {
+      appStore.loadCurrencyPairs()
+      // .then((result) => {
+      //     const currentPairList = appStore.getCurrentPair() || (appStore.currencyPairs && appStore.currencyPairs.length > 0 ? appStore.currencyPairs[0] : null);
+
+      // })
+      // .catch((error) => {
+
+
+      // });
+    } catch (error) {
+
+    }
+  }, []);
   return (
     <ConfigProvider
       theme={{
@@ -671,7 +690,7 @@ export default function MarketData() {
                   size="small"
                   bordered={false}
                   className={styles.table}
-                   locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                 />
               </div>
               {/* 涨幅榜 */}
@@ -730,7 +749,7 @@ export default function MarketData() {
               {t("marketData.marketTrends")}
             </p>
             <div className={`${styles.trends_box}`}>
-              <TrendsTable tradeData={newPrice}/>
+              <TrendsTable tradeData={newPrice} />
             </div>
           </div>
         </div>

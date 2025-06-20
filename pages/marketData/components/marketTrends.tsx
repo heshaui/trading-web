@@ -84,6 +84,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
         items={items}
         className="custom-tabs2"
         activeKey={activeTab}
+        destroyInactiveTabPane={true}
         indicator={{ size: (origin) => origin - 35, align: 'center' }}
         onChange={onChange}
       />
