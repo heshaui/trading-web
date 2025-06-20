@@ -186,7 +186,8 @@ const AssetsMainPage = observer(() => {
     const [banlanceLoading, setBanlanceLoading] = useState(true);
     // const [todayEarningsLoading, setTodayEarningsLoading] = useState(true);
     const [kLineLoading, setKLineLoading] = useState(true);
-    const goFlash = async () => {
+    const goFlash=async()=>{
+        router.push('/flash');
 
     }
 
