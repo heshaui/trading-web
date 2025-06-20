@@ -43,7 +43,7 @@ const AssetsPage: React.FC = observer(() => {
     const [isClient, setIsClient] = useState(false);
     const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
     const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
-    const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
+    // const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const balanceDataRef = useRef<WebSocketService | null>(null);
 
     // 获取所有币种余额
@@ -160,29 +160,29 @@ const AssetsPage: React.FC = observer(() => {
             toast.error(String(error));
         }
     };
-    // 获取今日充值
-    const getTodayEarningsData = async () => {
-        try {
-            const res = await getTodayEarnings();
-            if (res.code === '0') {
-                const rateKeyName = rateKey.split('-')[0].trim()
-                const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
-                const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
+    // // 获取今日充值
+    // const getTodayEarningsData = async () => {
+    //     try {
+    //         const res = await getTodayEarnings();
+    //         if (res.code === '0') {
+    //             const rateKeyName = rateKey.split('-')[0].trim()
+    //             const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
+    //             const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
+    //             const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
 
-                setTodayEarnings({
-                    usdBalance: Number(usdBalance.rate) || 0,
-                    usdWithdraw: Number(usdWithdraw.rate) || 0,
-                    usdGift: Number(usdGift.rate) || 0,
-                    balance: res.data?.balance || 0,
-                    withdraw: res.data?.withdraw || 0,
-                    gift: res.data?.gift || 0
-                });
-            }
-        } catch (error) {
-            toast.error(String(error));
-        }
-    };
+    //             setTodayEarnings({
+    //                 usdBalance: Number(usdBalance.rate) || 0,
+    //                 usdWithdraw: Number(usdWithdraw.rate) || 0,
+    //                 usdGift: Number(usdGift.rate) || 0,
+    //                 balance: res.data?.balance || 0,
+    //                 withdraw: res.data?.withdraw || 0,
+    //                 gift: res.data?.gift || 0
+    //             });
+    //         }
+    //     } catch (error) {
+    //         toast.error(String(error));
+    //     }
+    // };
 
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
@@ -268,7 +268,7 @@ const AssetsPage: React.FC = observer(() => {
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
-        getTodayEarningsData()
+        // getTodayEarningsData()
     }, [rateKey]);
     useEffect(() => {
         // 只在客户端执
