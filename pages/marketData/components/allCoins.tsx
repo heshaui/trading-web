@@ -9,12 +9,13 @@ import { SearchOutlined } from '@ant-design/icons';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 import type { TabsProps } from 'antd';
 import { toast } from 'sonner';
-import { cut } from '@/utils'
+import { cut, division, nul } from '@/utils'
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import appStore from "@/store";
 import { NoData } from '@/components/noData'
-import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
+import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
+import {getCoinRate} from '@/utils/getUseRate'
 
 // 添加props接口定义
 interface AllCoinsProps {
@@ -31,7 +32,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
   const [activeTab, setActiveTab] = useState('all');
   const [searchValue, setSearchValue] = useState('')
-  const [tableLoading,setTableLoading]=useState(false)
+  const [tableLoading, setTableLoading] = useState(false)
 
 
   // console.log(currencyPairs, 99987);
@@ -43,26 +44,39 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       const response = await getAllCoinsData()
       if (response?.code === '0') {
         const resData = response.data?.map((item: CoinMarket) => {
-          const pairsData = currencyPairs?.find(p => p.coinSymbol === item.coinName)
-          if (pairsData) {
+          const directData = currencyPairs?.find(p => p.coinSymbol === item.coinName && p.baseSymbol === 'USDT')
+          const reverseData = currencyPairs?.find(p => p.baseSymbol === item.coinName && p.coinSymbol === 'USDT')
+          if (directData) {
             return {
               ...item,
-              ...pairsData
+              ...directData,
+              isDirectPair: 1
+            }
+          } else if (reverseData) {
+            return {
+              ...item,
+              ...reverseData,
+              isDirectPair: 0
+            }
+          } else if (item.coinName === 'USDT') {
+            return {
+              ...item,
+              isDirectPair: 2
             }
           } else {
-            return item
+            return {
+              ...item,
+              isDirectPair: 3
+            }
           }
 
         })
         // setAllcoins(resData)
         setAllInitCoins(resData)
-        // console.log(resData, 99987);
-
-        // console.log(resData, 99987);
       }
     } catch (error) {
       toast.error(String(error))
-    }finally {
+    } finally {
       setTableLoading(false)
     }
   };
@@ -109,8 +123,8 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
             preview={false}
             className='mr-1' />
           <p className='font-w-500 font-14 flex-x ml-1'>
-          {/* {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span> */}
-          {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;{record?.nameDefault || '--'}</span>
+            {/* {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span> */}
+            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;{record?.nameDefault || '--'}</span>
           </p>
         </div>
       ),
@@ -124,8 +138,15 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       key: 'price',
       align: 'center',
       sorter: (a, b) => a.price - b.price,
-      render: (price) => {
-        return <span>{price || '0'}</span>
+      render: (_price, record) => {
+        if (record.isDirectPair === 0) {
+          const coinRate=getCoinRate(record.coinName, _price)
+          return <span>{coinRate.coinRate || '0'}</span>
+        } else if (record.isDirectPair === 2) {
+          return <span>{_price || '0'}</span>
+        } else {
+          return <span>{_price || '0'}</span>
+        }
       },
     },
     {
@@ -140,7 +161,11 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       },
       render: (_price, record) => {
         const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
-        return <span>{price || '0'}</span>
+        const percent = Number(record.yesterdayPrice) ? division(Number(price) || 0, Number(record.yesterdayPrice)) : 0
+        const pricePercent = nul(percent, 100)?.toFixed(2) || 0
+        return <span className={`${Number(pricePercent) > 0 ? styles.success_icon : Number(pricePercent) < 0 ? styles.error_icon : ''}`}>
+          {Number(pricePercent) > 0 ? `+${pricePercent}%` : `${pricePercent}%`}</span>
+
       },
     },
     {
@@ -165,6 +190,8 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              } else {
+                router.push(`${ROUTER_KEY_SPOT.INDEX}`)
               }
             }}
           >

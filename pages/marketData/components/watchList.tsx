@@ -130,8 +130,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         return Number(a.priceChangePercent) - Number(b.priceChangePercent)
       },
       render: (_price, record) => {
-        // const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
-        return <span>{_price || '0'}</span>
+        const price = Number(_price).toFixed(2)
+        return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
+          {_price > 0 ? `+${price}%` : `${price}%`}</span>
       },
     },
     {
