@@ -1,6 +1,7 @@
 import {request} from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
 const fixUrl = `/${API_MODULE_NAME.AMBIT_USER_WEB}`
+const fixUrl2 = `/${API_MODULE_NAME.AMBIT_HOME_WEB}`
 //获取涨幅榜
  export function getMarketUp():Promise<any>{
     return request(`/${API_MODULE_NAME.AMBIT_HOME_WEB}/home-web/v1/trade_raking/${3}`,{
@@ -42,3 +43,10 @@ export function getExchangeCoinAllPrice(): Promise<any> {
         method: 'GET',
     });
 }
+
+export function getClassLabel(): Promise<any> {
+    return request(`${fixUrl2}/home-web/v1/exchange-coin/getClassLabel`, {
+        method: 'GET',
+    });
+}
+

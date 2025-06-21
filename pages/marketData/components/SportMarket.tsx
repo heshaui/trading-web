@@ -23,7 +23,7 @@ import { cut } from '@/utils'
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
-import { getSpotData } from '@/services/marketData'
+import { getSpotData, getClassLabel } from '@/services/marketData'
 import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import { toast } from "sonner"
 
@@ -48,9 +48,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
   const [tableLoading, setTableLoading] = useState(false)
-   const currencyPairsArray = appStore.currencyPairs || [];
+  const currencyPairsArray = appStore.currencyPairs || [];
+  const [tabsItem, setTabsItem] = useState<TabsProps["items"]>([])
   // 标签页配置
-  const tabsItem: TabsProps["items"] = [
+  const initTabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
     { key: "2", label: t("header.innovationArea") },
     { key: "3", label: t("header.newCoinArea") },
@@ -68,6 +69,20 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     { key: "15", label: t("header.gameMetaverse") },
     { key: "16", label: t("header.storage") },
   ];
+  const getClassLabelList = async () => {
+    try {
+      const res = await getClassLabel()
+      if (res.code === "0") {
+        const mapList = res.data?.map((item: any) => {
+          const tab = initTabsItem.find((tab) => tab.key === item?.toString())
+          return tab
+        })
+        setTabsItem(mapList)
+      }
+    } catch (error) {
+
+    }
+  }
   const columns: ColumnsType<any> = [
     {
       title: t('header.name'),
@@ -109,19 +124,37 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         return <span>{_price || '0'}</span>
       },
     },
+    // {
+    //   title: t('header.volume24h'),
+    //   dataIndex: 'yesterdayPrice',
+    //   key: 'yesterdayPrice',
+    //   align: 'center',
+    //   sorter: (a, b) => {
+    //     const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
+    //     const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
+    //     return Number(aPrice) - Number(bPrice)
+    //   },
+    //    render: (_price, record) => {
+    //     const price = Number(_price).toFixed(2)
+    //     return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
+    //       {_price > 0 ? `+${price}%` : `${price}%`}</span>
+    //   },
+    // },
     {
-      title: t('header.volume24h'),
-      dataIndex: 'yesterdayPrice',
-      key: 'yesterdayPrice',
+      title: t('header.change24h'),
+      dataIndex: 'priceChangePercent',
+      key: 'priceChangePercent',
       align: 'center',
       sorter: (a, b) => {
-        const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
-        const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
-        return Number(aPrice) - Number(bPrice)
+        // const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
+        // const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
+        // return Number(aPrice) - Number(bPrice)
+        return Number(a.priceChangePercent) - Number(b.priceChangePercent)
       },
       render: (_price, record) => {
-        const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
-        return <span>{price || '0'}</span>
+        const price = Number(_price).toFixed(2)
+        return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
+          {_price > 0 ? `+${price}%` : `${price}%`}</span>
       },
     },
     {
@@ -322,6 +355,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     setActiveTab(key);
   };
   useEffect(() => {
+    getClassLabelList()
     getSpotList()
   }, [currencyPairsArray]);
 
@@ -360,7 +394,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         </div>
         <div>
           <SimpleScrollTabs
-            items={tabsItem}
+            items={tabsItem||[]}
             onChange={handleTabClick}
             defaultActiveKey={activeTab}
             showAllTab={true}
