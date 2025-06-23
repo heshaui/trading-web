@@ -49,4 +49,9 @@ export function getClassLabel(): Promise<any> {
         method: 'GET',
     });
 }
-
+// USDT相对于USD价格
+export function getUsdtPriceWithStables():Promise<any>{
+    return request(`${fixUrl2}/home-web/v1/open/hotMarketSymbol/getUsdtPriceWithStables`,{
+        method:'POST',
+    });
+ }
