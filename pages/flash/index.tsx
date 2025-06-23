@@ -10,7 +10,9 @@ import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
+import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
+import type { GetStaticProps } from 'next';
 
 
 const { Panel } = Collapse;
@@ -34,16 +36,14 @@ const ErrorMessage = styled.div`
 
 const FlashPage: NextPage = () => {
 
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['spot','common']);
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>();
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState<boolean>(false);
   const [exchangeRate, setExchangeRate] = useState<string>('0');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceExpired, setPriceExpired] = useState<boolean>(false);
-  const [configData, setConfigData] = useState<any>(null);
-  const [configLoading, setConfigLoading] = useState<boolean>(false);
-  const [configError, setConfigError] = useState<string | null>(null);
+  const [configData, setConfigData] = useState<any>({minTradeU:0,maxTradeU:0});
   
   // Success and failure modal states
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
@@ -53,11 +53,11 @@ const FlashPage: NextPage = () => {
 
   // 币种列表数据
   const [coinList, setCoinList] = useState<any[]>([]);
-  const [selectedCoin, setSelectedCoin] = useState<string>('');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
   const [isAuth, setIsAuth] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(0);
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
   const headerBgImage = flashConfigData?.[langKey]?.img;
@@ -109,6 +109,7 @@ const FlashPage: NextPage = () => {
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [coinError, setCoinError] = useState<string | null>(null);
   const router = useRouter();
+  const [spotModal, setSpotModal] = useState<boolean>(false);
 
 
   const getUserAllBala=async()=>{
@@ -124,7 +125,8 @@ const FlashPage: NextPage = () => {
     if (res.code === '0') {
       setBaseCoin(res.data.baseCoin)
       setQuteCoin(res.data.quoteCoin)
-      // setExchangeRate(res.data.feeRate)
+      setConfigData(res.data)
+
     }
 
   }
@@ -163,8 +165,7 @@ const FlashPage: NextPage = () => {
 
   const handleConfirm = async () => {
     setIsConfirmModalVisible(true)
-   
-    
+    setCountdown(8) // 开始8秒倒计时
   }
 
 
@@ -259,6 +260,19 @@ const FlashPage: NextPage = () => {
     }
   }, [payAmount, exchangeRate])
 
+  // Countdown timer effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [countdown])
+
   return (
     <>
       <Head>
@@ -269,21 +283,21 @@ const FlashPage: NextPage = () => {
           <h1>{headerTitle}</h1>
           <HeaderSubtitle>{headerSubtitle}</HeaderSubtitle>
         </Header>
-        { !isAuth&&<AuthNoticeWrapper>
+        { configData?.realNameRequired&&!isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>未完成身份认证</NoticeTitle>
             <NoticeDescription>完成身份认证，解锁全部功能</NoticeDescription>
           </NoticeContent>
-          <Button type="primary" shape="round">立即认证</Button>
+          <Button type="primary" shape="round" onClick={()=>router.push('/userCenter/identity')}>立即认证</Button>
         </AuthNoticeWrapper>}
-        <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer' }}>
+        <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer',marginTop:'26px' }}>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='./images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
+          <Image src='/images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
 
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='./images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
+          <Image src='/images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
           </div>
              
             </div>
@@ -295,7 +309,7 @@ const FlashPage: NextPage = () => {
               <TradeLabel>支付</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder="1-1000"
+                   placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -337,7 +351,14 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin}</AvailableAmount>
+             <AvailableAmount>现货可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             {/* 余额不足提示 */}
+             {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
+              Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0) && (
+                <InsufficientBalanceAlert>
+                  现货账户余额不足，前往充值
+                </InsufficientBalanceAlert>
+              )}
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -349,7 +370,7 @@ const FlashPage: NextPage = () => {
               <TradeLabel>获得</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder="1-1000"
+                  placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -393,16 +414,20 @@ const FlashPage: NextPage = () => {
             </TradeSection>
                           <MarketPrice>
                             <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
-                兑换比例: {exchangeRate && exchangeRate ? `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`: '--'}
+                <span style={{ textDecoration: 'underline', textDecorationStyle: 'dashed',cursor:'pointer'}}>
+                兑换比例:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >预览</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth}>预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
               visible={isConfirmModalVisible}
-              onClose={() => setIsConfirmModalVisible(false)}
+              onClose={() => {
+                setIsConfirmModalVisible(false)
+                setCountdown(0) // 关闭时重置倒计时
+              }}
               payAmount={payAmount}
               payCurrency={baseCoin}
               receiveAmount={receiveAmount}
@@ -411,6 +436,7 @@ const FlashPage: NextPage = () => {
               isLoading={isLoading}
               priceExpired={priceExpired}
               coinList={coinList}
+              countdown={countdown}
               onConfirm={() => {
                 setIsLoading(true)
                 // Simulate API call
@@ -479,6 +505,8 @@ const FlashPage: NextPage = () => {
             </StyledCollapse>
           </FAQSection>
       </PageContainer>
+      <SpotBuyModal open={spotModal} onCancel={() => { setSpotModal(false) }} onOk={() => { setSpotModal(false) }} />
+
     </>
   );
 };
@@ -551,7 +579,7 @@ const NoticeDescription = styled.div`
 
 
 const TradeContainer = styled.div`
-  background-color: white;
+  background-color: var(--background-color);
   border-radius: 8px;
   padding: 20px;
 
@@ -596,7 +624,15 @@ const AvailableAmount = styled.div`
   font-size: 12px;
   color: #999;
   margin-top: 5px;
-  margin-bottom: 30px;
+ 
+`;
+
+const InsufficientBalanceAlert = styled.div`
+  font-size: 12px;
+  color: #ff5722;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  text-align: left;
 `;
 
 const MarketPrice = styled.div`
@@ -631,7 +667,7 @@ const SwapButton = styled.div`
 
 const FAQSection = styled.div`
   width:920px;
-  background-color: white;
+  background-color: var(--background-color);
   border-radius: 8px;
   padding: 20px;
 `;
@@ -642,7 +678,7 @@ const FAQTitle = styled.h2`
 `;
 
 const StyledCollapse = styled(Collapse)`
-  background-color: white;
+  background-color: var(--background-color);
   border: none;
   
   .ant-collapse-item {
@@ -669,7 +705,7 @@ const FooterText = styled.div`
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
+      ...(await serverSideTranslations(locale, ['common','spot'])),
     },
   };
 }
@@ -688,6 +724,7 @@ interface ConfirmExchangeModalProps {
   onConfirm: () => void;
   onRefreshPrice: () => void;
   coinList: any[];
+  countdown: number;
 }
 
 const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
@@ -702,7 +739,8 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   priceExpired,
   onConfirm,
   onRefreshPrice,
-  coinList
+  coinList,
+  countdown
 }) => {
   // Find the coin icons for the selected currencies
   const findCoinIcon = (coinName: string) => {
@@ -785,7 +823,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             shape='round'
             style={{width:'100%',height:'50px'}}
           >
-            兑换
+            {countdown > 0 ? `兑换 (${countdown}S)` : '兑换'}
           </Button>
         </ModalContent>
       </ModalContainer>
@@ -797,7 +835,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
 const ModalContainer = styled.div`
   border-radius: 12px;
   overflow: hidden;
-  background-color: white;
+  background-color: var(--background-color);
 `;
 
 const ModalHeader = styled.div`
@@ -1093,3 +1131,5 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
 };
 
 export default FlashPage;
+
+
