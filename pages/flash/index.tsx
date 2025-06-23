@@ -43,9 +43,7 @@ const FlashPage: NextPage = () => {
   const [exchangeRate, setExchangeRate] = useState<string>('0');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceExpired, setPriceExpired] = useState<boolean>(false);
-  const [configData, setConfigData] = useState<any>(null);
-  const [configLoading, setConfigLoading] = useState<boolean>(false);
-  const [configError, setConfigError] = useState<string | null>(null);
+  const [configData, setConfigData] = useState<any>({minTradeU:0,maxTradeU:0});
   
   // Success and failure modal states
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
@@ -55,7 +53,6 @@ const FlashPage: NextPage = () => {
 
   // 币种列表数据
   const [coinList, setCoinList] = useState<any[]>([]);
-  const [selectedCoin, setSelectedCoin] = useState<string>('');
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
@@ -128,7 +125,8 @@ const FlashPage: NextPage = () => {
     if (res.code === '0') {
       setBaseCoin(res.data.baseCoin)
       setQuteCoin(res.data.quoteCoin)
-      // setExchangeRate(res.data.feeRate)
+      setConfigData(res.data)
+
     }
 
   }
@@ -285,7 +283,7 @@ const FlashPage: NextPage = () => {
           <h1>{headerTitle}</h1>
           <HeaderSubtitle>{headerSubtitle}</HeaderSubtitle>
         </Header>
-        { !isAuth&&<AuthNoticeWrapper>
+        { configData?.realNameRequired&&!isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>未完成身份认证</NoticeTitle>
@@ -311,7 +309,7 @@ const FlashPage: NextPage = () => {
               <TradeLabel>支付</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder="1-1000"
+                   placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -354,6 +352,13 @@ const FlashPage: NextPage = () => {
              
             </TradeSection>
              <AvailableAmount>现货可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             {/* 余额不足提示 */}
+             {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
+              Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0) && (
+                <InsufficientBalanceAlert>
+                  现货账户余额不足，前往充值
+                </InsufficientBalanceAlert>
+              )}
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -365,7 +370,7 @@ const FlashPage: NextPage = () => {
               <TradeLabel>获得</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder="1-1000"
+                  placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -619,7 +624,15 @@ const AvailableAmount = styled.div`
   font-size: 12px;
   color: #999;
   margin-top: 5px;
-  margin-bottom: 30px;
+ 
+`;
+
+const InsufficientBalanceAlert = styled.div`
+  font-size: 12px;
+  color: #ff5722;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  text-align: left;
 `;
 
 const MarketPrice = styled.div`
