@@ -275,7 +275,7 @@ const FlashPage: NextPage = () => {
             <NoticeTitle>未完成身份认证</NoticeTitle>
             <NoticeDescription>完成身份认证，解锁全部功能</NoticeDescription>
           </NoticeContent>
-          <Button type="primary" shape="round">立即认证</Button>
+          <Button type="primary" shape="round" onClick={()=>router.push('/userCenter/identity')}>立即认证</Button>
         </AuthNoticeWrapper>}
         <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer' }}>
           <div style={{display:'flex',alignItems:'center'}}>
@@ -397,7 +397,7 @@ const FlashPage: NextPage = () => {
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" >预览</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth}>预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
