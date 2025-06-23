@@ -269,25 +269,37 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
   const updateSliderFromAmount = () => {
     const amount = form.getFieldValue("amount");
     const account = form.getFieldValue("account");
-    
+
     if (segmentedvalue === "buy") {
       if (priceDisabled) {
         // 市价买单，根据account计算百分比
         if (account) {
-          const baseBalance = userBalance.find((item) => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+          const baseBalance =
+            userBalance.find(
+              (item) => item.coinName === currentPair?.baseSymbol
+            )?.balance || 0;
           if (baseBalance > 0) {
-            const percentage = Math.min((parseFloat(account) / baseBalance) * 100, 100);
+            const percentage = Math.min(
+              (parseFloat(account) / baseBalance) * 100,
+              100
+            );
             setSliderValue(Math.round(percentage * 100) / 100);
           }
         }
       } else {
         // 限价买单，根据amount计算百分比
         if (amount) {
-          const baseBalance = userBalance.find((item) => item.coinName === currentPair?.baseSymbol)?.balance || 0;
+          const baseBalance =
+            userBalance.find(
+              (item) => item.coinName === currentPair?.baseSymbol
+            )?.balance || 0;
           const price = form.getFieldValue("price");
           if (baseBalance > 0 && price) {
             const maxAmount = baseBalance / price;
-            const percentage = Math.min((parseFloat(amount) / maxAmount) * 100, 100);
+            const percentage = Math.min(
+              (parseFloat(amount) / maxAmount) * 100,
+              100
+            );
             setSliderValue(Math.round(percentage * 100) / 100);
           }
         }
@@ -295,10 +307,15 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     } else {
       // 卖出操作，根据amount计算百分比
       if (amount) {
-        const coinBalance = userBalance.find((item) => item.coinName === currentPair?.coinSymbol)?.balance || 0;
+        const coinBalance =
+          userBalance.find((item) => item.coinName === currentPair?.coinSymbol)
+            ?.balance || 0;
         if (coinBalance > 0) {
-                  const percentage = Math.min((parseFloat(amount) / coinBalance) * 100, 100);
-        setSliderValue(Math.round(percentage * 100) / 100);
+          const percentage = Math.min(
+            (parseFloat(amount) / coinBalance) * 100,
+            100
+          );
+          setSliderValue(Math.round(percentage * 100) / 100);
         }
       }
     }
@@ -770,10 +787,12 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
       value={sliderValue}
       tooltip={{
         open: true,
+        zIndex: 1000,
         placement: "top",
-        getPopupContainer: (triggerNode) => triggerNode,
+        // getPopupContainer: (triggerNode) => triggerNode,
         color: "var(--theme-orange, #FF8C00)", // 设置悬浮框背景颜色为橙色
         formatter: (value) => `${(value || 0).toFixed(2)}%`,
+        autoAdjustOverflow: false,
       }}
     />
   );
