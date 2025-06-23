@@ -36,6 +36,7 @@ export default function MarketData() {
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
+  // const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
 
   // WebSocket引用，用于管理多个币对的WebSocket连接
   const wsRefs = useRef<{ [key: string]: WebSocketService }>({});
@@ -46,7 +47,19 @@ export default function MarketData() {
     try {
       const response = await getMarketUp();
       if (response?.code === "0") {
-        setMarketDataUp(response.data);
+        const sortData = response.data?.map((item: any) => {
+          const coinSymbol = item.symbol?.split("_")[0]
+          const baseSymbol = item.symbol?.split("_")[1]
+          const pairsData = newPrice?.find(p => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol)
+          return {
+            ...item,
+            ...pairsData
+          }
+        })
+        //   .sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
+        //   return Number(b?.sort) - Number(a?.sort)
+        // })
+        setMarketDataUp(sortData);
       }
     } catch (error) {
       console.error("获取涨幅榜信息失败：", error);
@@ -57,8 +70,20 @@ export default function MarketData() {
     try {
       const response = await getMarketDown();
       if (response?.code === "0") {
-        // setupPriceWebSockets(response.data);
-        setMarketDataDown(response.data);
+        const sortData = response.data?.map((item: any) => {
+          const coinSymbol = item.symbol?.split("_")[0]
+          const baseSymbol = item.symbol?.split("_")[1]
+          const pairsData = newPrice?.find(p => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol)
+          return {
+            ...item,
+            ...pairsData
+          }
+        })
+        //   .sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
+        //   return Number(b?.sort) - Number(a?.sort)
+        // })
+        setMarketDataDown(sortData);
+
       }
     } catch (error) {
       console.error("获取跌幅榜信息失败：", error);
@@ -69,8 +94,8 @@ export default function MarketData() {
     try {
       const response = await getHotData();
       if (response?.code === "0") {
-        const sortData = response.data?.map((item:any )=> {
-          const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol&& p.baseSymbol === item.baseSymbol)
+        const sortData = response.data?.map((item: any) => {
+          const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
           return {
             ...item,
             ...pairsData
@@ -102,6 +127,7 @@ export default function MarketData() {
             priceChangePercent = parseFloat((change * 100).toFixed(2));
           }
 
+
           return {
             ...item,
             price: price || undefined,
@@ -109,7 +135,10 @@ export default function MarketData() {
             priceChangePercent,
           };
         });
+
+
         setNewPrice(processedData);
+        appStore.updateCurrencyPairAll(processedData);
         // 获取初始数据之后，建立WS连接
       }
     } catch (error) {
@@ -375,6 +404,8 @@ export default function MarketData() {
     baseSymbol: string,
     data: any
   ) => {
+    // 更新币对信息
+    appStore.updateCoinPair(coinSymbol, baseSymbol, data);
     // 使用函数式更新，保证基于最新状态
     setNewPrice((prevPrices) => {
       // 深拷贝当前价格数据
@@ -440,7 +471,7 @@ export default function MarketData() {
             width={20}
             height={20}
             className="mr-1"
-            style={{width:20,height:20,borderRadius:'50%'}}
+            style={{ width: 20, height: 20, borderRadius: '50%' }}
           />
           {record.symbol}
         </div>
@@ -456,7 +487,7 @@ export default function MarketData() {
           lineHeight: "20px",
         },
       }),
-      align:"center",
+      align: "center",
       dataIndex: "price",
       key: "price",
       render: (text, record) => (
@@ -486,13 +517,14 @@ export default function MarketData() {
         // 根据涨跌幅确定颜色
         const changePercent = record.priceChangePercent;
         const isPositive = changePercent !== undefined && changePercent > 0;
-        const textColor = isPositive
-          ? "var(--color-success)"
-          : "var(--color-danger)";
+        const isNegative = changePercent !== undefined && changePercent < 0;
+        // const textColor = isPositive
+        //   ? "var(--color-success)"
+        //   : "var(--color-danger)";
         const prefix = isPositive ? "+" : "";
         return (
-          <span style={{ color: textColor }} className={`${styles.text}`}>
-            {changePercent !== undefined ? `${prefix}${changePercent}%` : "-"}
+          <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+            {changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` :`${Number(0).toFixed(2)}%`}
           </span>
         );
       },
@@ -516,8 +548,9 @@ export default function MarketData() {
       onCell: () => ({
         style: { paddingLeft: "20px" },
       }),
-      render: (text, record, index) => (
-        <>
+      render: (text, record, index) => {
+        const symbol = record.symbol?.split("_")
+        return <>
           {index + 1}&nbsp;&nbsp;
           {/* <Image
             src={record.iconUrl }
@@ -525,14 +558,14 @@ export default function MarketData() {
             width={20}
             height={20}
           /> */}
-          {record.symbol}
+          {symbol ? `${symbol[0]}/${symbol[1]}` : '--'}
         </>
-      ),
+      },
     },
     {
       title: t("rankingList.latestPrice"),
-      dataIndex: "close_price",
-      key: "close_price",
+      dataIndex: "price",
+      key: "price",
       onHeaderCell: () => ({
         style: {
           width: "140px",
@@ -543,9 +576,9 @@ export default function MarketData() {
       }),
       render: (text, record) => (
         <div>
-          <div>{parseFloat(record.close_price || "0").toLocaleString()}</div>
+          <div>{parseFloat(record.price || "0").toLocaleString()}</div>
           <div style={{ fontSize: "12px", color: "#999" }}>
-            ${parseFloat(record.close_price || "0").toLocaleString()}
+            ${parseFloat(record.price || "0").toLocaleString()}
           </div>
         </div>
       ),
@@ -566,26 +599,26 @@ export default function MarketData() {
       }),
       render: (text: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        const changePercent = record.priceChangePercent;
+        const changePercent = record.priceChangePercent
         const isPositive = changePercent !== undefined && changePercent > 0;
-        const textColor = isPositive
-          ? "var(--color-success)"
-          : "var(--color-danger)";
+        const isNegative = changePercent !== undefined && changePercent < 0;
+        // const textColor = isPositive
+        //   ? "var(--color-success)"
+        //   : "var(--color-danger)";
         const prefix = isPositive ? "+" : "";
         return (
-          <span style={{ color: textColor }} className={`${styles.text}`}>
-            {changePercent !== undefined ? `${prefix}${changePercent}%` : "-"}
+          <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+            {changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` :`${Number(0).toFixed(2)}%`}
           </span>
-        );
-      },
+        )
+      }
     },
   ];
 
   useEffect(() => {
-    fetchMarketDataUp();
-    fetchMarketDataDown();
-    // 初始化时只请求fetchNewPrice，不请求fetchHotMarketData
-    fetchNewPrice();
+    // fetchNewPrice();
+
+
     // 初始化多通道WebSocket连接
     getMulti();
     setIsLoading(false);
@@ -599,28 +632,32 @@ export default function MarketData() {
       }
     };
   }, [getMulti]);
-  // 在获取完newPrice数据后请求fetchHotMarketData并建立WebSocket连接
-  useEffect(() => {
-      fetchHotMarketData();
-  }, [newPrice]);
   useEffect(() => {
     // 只在客户端执行
     if (typeof window === 'undefined') return;
 
     try {
       appStore.loadCurrencyPairs()
-      // .then((result) => {
-      //     const currentPairList = appStore.getCurrentPair() || (appStore.currencyPairs && appStore.currencyPairs.length > 0 ? appStore.currencyPairs[0] : null);
+        .then(() => {
+          const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
+          setNewPrice(coinPair)
+          // fetchNewPrice();
+        });
 
-      // })
-      // .catch((error) => {
-
-
-      // });
     } catch (error) {
 
     }
   }, []);
+  // useEffect(() => {
+  //   fetchNewPrice();
+  // }, [])
+  // 在获取完newPrice数据后请求fetchHotMarketData并建立WebSocket连接
+  useEffect(() => {
+    fetchHotMarketData();
+    fetchMarketDataUp();
+    fetchMarketDataDown();
+  }, [newPrice]);
+
   return (
     <ConfigProvider
       theme={{
@@ -703,17 +740,17 @@ export default function MarketData() {
                   </span>
                 </div>
                 <div className={`flex-1 ${styles.ranking_content}`}>
-                <Table
-                  columns={columns}
-                  dataSource={HotMarketList.slice(0, 7)}
-                  rowKey="id"
-                  pagination={false}
-                  size="small"
-                  bordered={false}
-                  className={styles.table}
-                  // scroll={{ y: '400' }}
-                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-                />
+                  <Table
+                    columns={columns}
+                    dataSource={HotMarketList.slice(0, 7)}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                    bordered={false}
+                    className={styles.table}
+                    // scroll={{ y: '400' }}
+                    locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                  />
                 </div>
 
               </div>

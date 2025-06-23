@@ -37,13 +37,13 @@ export function getAllCoinsData():Promise<any>{
     });
  }
 
-// 获取所有币对最新价格
+// 获取所有币对最新价格-无需登录
 export function getExchangeCoinAllPrice(): Promise<any> {
     return request(`${fixUrl}/user-web/v1/exchange-coin/exchangeCoinAllPrice`, {
         method: 'GET',
     });
 }
-
+// 获取当前商户包含币对标签-无需登录
 export function getClassLabel(): Promise<any> {
     return request(`${fixUrl2}/home-web/v1/exchange-coin/getClassLabel`, {
         method: 'GET',

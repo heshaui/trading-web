@@ -21,7 +21,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
   const { t } = useTranslation("market");
   const [activeTab, setActiveTab] = useState('1'); // 默认选中第2个tab
   const [searchKeyword, setSearchKeyword] = useState(''); // 搜索关键词状态
-  const currencyPairsArray = appStore.currencyPairs || [];
+  const currencyPairsArray = appStore.getCurrentPairList() || appStore.currencyPairs || [];
   // 处理搜索输入变化
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
