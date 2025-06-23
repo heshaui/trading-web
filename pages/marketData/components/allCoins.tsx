@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import styles from '../styles/marketData.module.css';
 import { useTranslation } from 'next-i18next';
-import { getAllCoinsData } from '@/services/marketData'
+import { getAllCoinsData, getUsdtPriceWithStables } from '@/services/marketData'
 import { SearchOutlined } from '@ant-design/icons';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 import type { TabsProps } from 'antd';
@@ -24,6 +24,10 @@ interface AllCoinsProps {
   currencyPairs?: any[];
   pairsNewPrice?: pairsNewPriceType[];
 }
+interface usdtPriceType {
+    nowPrice: string,
+    yesterdayPrice: string
+}
 const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: AllCoinsProps) => {
   const { t } = useTranslation('market');
   // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
@@ -32,11 +36,17 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
   const [activeTab, setActiveTab] = useState('all');
   const [searchValue, setSearchValue] = useState('')
+  const [usdtPrice, setUsdtPrice] = useState({} as usdtPriceType)
   const [tableLoading, setTableLoading] = useState(false)
 
 
   // console.log(currencyPairs, 99987);
-
+  const getUsdtPrice = async () => {
+    const res = await getUsdtPriceWithStables()
+    if (res?.code === '0') {
+      setUsdtPrice(res.data)
+    }
+  }
   // 获取所有币种接口
   const fetchAllcoins = async () => {
     setTableLoading(true)
@@ -61,7 +71,9 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           } else if (item.coinName === 'USDT') {
             return {
               ...item,
-              isDirectPair: 2
+              isDirectPair: 2,
+              price: usdtPrice.nowPrice,
+              yesterdayPrice: usdtPrice.yesterdayPrice
             }
           } else {
             return {
@@ -81,8 +93,11 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
     }
   };
   useEffect(() => {
+    getUsdtPrice()
+  }, [])
+  useEffect(() => {
     fetchAllcoins()
-  }, [currencyPairs])
+  }, [currencyPairs,usdtPrice])
 
   // 标签页配置
   const tabsItem: TabsProps['items'] = [
@@ -248,14 +263,6 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         />
       </div>
       <div>
-        {/* <SimpleScrollTabs
-          items={tabsItem}
-          onChange={handleTabClick}
-          defaultActiveKey={activeTab}
-          showAllTab={true}
-          allTabLabel={t('header.all')}
-          className={styles.allCoins_tabs}
-        /> */}
         <Table
           columns={columns}
           dataSource={filteredPairs}

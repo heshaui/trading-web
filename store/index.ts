@@ -110,7 +110,7 @@ class AppStore {
                 ...this.updateFlag,
                 orderUpdate: this.updateFlag.orderUpdate + 1
             };
-        }else if (type === 3) {
+        } else if (type === 3) {
             this.updateFlag = {
                 ...this.updateFlag,
                 orderDelect: this.updateFlag.orderDelect + 1
@@ -427,7 +427,7 @@ class AppStore {
         return this.currencyPairs;
     }
 
-    // 更新币对信息
+    // 更新币对信息1
     updateCurrencyPair(pairId: string, data: Partial<CurrencyPairType>) {
         const pairIndex = this.currencyPairs.findIndex(pair => pair.id === pairId);
         if (pairIndex > -1) {
@@ -446,7 +446,43 @@ class AppStore {
             }
         }
     }
+    // 更新某个币对信息2
+    updateCoinPair(coinSymbol: string, baseSymbol: string, data: Partial<CurrencyPairType>) {
+        const pairIndex = this.currencyPairs.findIndex(pair => pair.coinSymbol === coinSymbol && pair.baseSymbol === baseSymbol);
+        if (pairIndex > -1) {
+            this.currencyPairs[pairIndex] = {
+                ...this.currencyPairs[pairIndex],
+                ...data
+            };
+            // 如果更新的是当前选中的币对，也更新currentPair
+            if (this.currentPair?.coinSymbol === coinSymbol && this.currentPair?.baseSymbol === baseSymbol) {
+                this.currentPair = this.currencyPairs[pairIndex];
+            }
 
+            if (isBrowser()) {
+                localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+            }
+        }
+    }
+    // 更新所有
+    updateCurrencyPairAll(data: Partial<CurrencyPairType>[]) {
+        this.currencyPairs = this.currencyPairs.map(pair => {
+            const currentPair = data.find((d: any) => d.coinSymbol === pair.coinSymbol && d.baseSymbol === pair.baseSymbol)
+            if (this.currentPair?.id === pair.id) {
+                this.currentPair = {
+                    ...pair,
+                    ...currentPair
+                }
+            }
+            return {
+                ...pair,
+                ...currentPair
+            };
+        });
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+        }
+    }
 
 
     // 使用计算属性替代方法
@@ -675,7 +711,7 @@ class AppStore {
     }
     initBanlanceShow() {
         if (!isBrowser()) return;
-        const banlanceShow = sessionStorage.getItem('banlanceShow')|| 'true';
+        const banlanceShow = sessionStorage.getItem('banlanceShow') || 'true';
         if (banlanceShow) {
             this.banlanceShow = JSON.parse(banlanceShow);
         }

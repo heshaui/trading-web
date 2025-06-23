@@ -152,9 +152,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         return Number(a.priceChangePercent) - Number(b.priceChangePercent)
       },
       render: (_price, record) => {
-        const price = Number(_price).toFixed(2)
+        const price =_price?Number(_price).toFixed(2):Number(0).toFixed(2)
         return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
-          {_price > 0 ? `+${price}%` : `${price}%`}</span>
+          {_price > 0 ? `+${price}%` : `${price}%`} </span>
       },
     },
     {
