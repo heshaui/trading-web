@@ -10,7 +10,9 @@ import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
+import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
+import type { GetStaticProps } from 'next';
 
 
 const { Panel } = Collapse;
@@ -34,7 +36,7 @@ const ErrorMessage = styled.div`
 
 const FlashPage: NextPage = () => {
 
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['spot','common']);
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>();
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState<boolean>(false);
@@ -109,6 +111,7 @@ const FlashPage: NextPage = () => {
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [coinError, setCoinError] = useState<string | null>(null);
   const router = useRouter();
+  const [spotModal, setSpotModal] = useState<boolean>(true);
 
 
   const getUserAllBala=async()=>{
@@ -337,7 +340,7 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin}</AvailableAmount>
+             <AvailableAmount>可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
 
             <SwapButtonWrapper>
               <SwapButton onClick={swapCoins}>
@@ -479,6 +482,8 @@ const FlashPage: NextPage = () => {
             </StyledCollapse>
           </FAQSection>
       </PageContainer>
+      <SpotBuyModal open={spotModal} onCancel={() => { setSpotModal(false) }} onOk={() => { setSpotModal(false) }} />
+
     </>
   );
 };
@@ -669,7 +674,7 @@ const FooterText = styled.div`
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
+      ...(await serverSideTranslations(locale, ['common','spot'])),
     },
   };
 }
@@ -1093,3 +1098,5 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
 };
 
 export default FlashPage;
+
+
