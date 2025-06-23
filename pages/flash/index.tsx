@@ -279,11 +279,11 @@ const FlashPage: NextPage = () => {
         </AuthNoticeWrapper>}
         <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer' }}>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='./images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
+          <Image src='/images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
 
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='./images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
+          <Image src='/images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
           </div>
              
             </div>
