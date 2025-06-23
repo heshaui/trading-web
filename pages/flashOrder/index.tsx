@@ -62,7 +62,7 @@ const FlashOrderPage = () => {
         try {
             // 构建请求参数
             const params: any = {
-                page: page,
+                pageNo: page,
                 pageSize: pageSize,
             };
             
