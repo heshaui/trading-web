@@ -32,7 +32,7 @@ export default function MarketData() {
   const [marketDataUp, setMarketDataUp] = useState<TradeRakingResp[]>([]);
   const [marketDataDown, setMarketDataDown] = useState<TradeRakingResp[]>([]);
   const [HotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
-  const [newPrice, setNewPrice] = useState<MarketDataItem[]>([]);
+  const [newPrice, setNewPrice] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
@@ -53,6 +53,7 @@ export default function MarketData() {
           const pairsData = newPrice?.find(p => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol)
           return {
             ...item,
+            symbol:`${coinSymbol}/${baseSymbol}`,
             ...pairsData
           }
         })
@@ -76,6 +77,7 @@ export default function MarketData() {
           const pairsData = newPrice?.find(p => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol)
           return {
             ...item,
+            symbol:`${coinSymbol}/${baseSymbol}`,
             ...pairsData
           }
         })
@@ -550,6 +552,8 @@ export default function MarketData() {
       }),
       render: (text, record, index) => {
         const symbol = record.symbol?.split("_")
+        const coinSymbol = symbol?.[0]
+        // const baseSymbol = symbol?.[1]
         return <>
           {index + 1}&nbsp;&nbsp;
           {/* <Image
@@ -558,7 +562,7 @@ export default function MarketData() {
             width={20}
             height={20}
           /> */}
-          {symbol ? `${symbol[0]}/${symbol[1]}` : '--'}
+          {symbol ? `${coinSymbol}` : '--'}
         </>
       },
     },

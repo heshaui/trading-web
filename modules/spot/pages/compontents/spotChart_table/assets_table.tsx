@@ -54,7 +54,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     const paramdataRef = useRef(pageParam);
     const [hideZero, setHideZero] = useState(false);
     const [form] = Form.useForm();
-    const updateOrder = appStore.getUpdateFlag() 
+    const updateOrder = appStore.getUpdateFlag()
 
     const columns: ColumnsType<DataType> = [
         {
@@ -70,23 +70,17 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
                         className='mr-1' />
                     <p className='font-w-500 font-14 flex-x pointer'>
                         {`${text}`}
-                        <Tooltip title={
-                            coinPairs.filter((item: any) =>
-                                item.coinSymbol === text || item.baseSymbol === text
-                            ).length > 0 ? (
-                                coinPairs.filter((item: any) =>
-                                    item.coinSymbol === text || item.baseSymbol === text
-                                ).map((item: any) => (
-                                    <button key={item.id} className={`mb-1 font-12 font-w-400`} style={{ color: '#FFFFFF' }}
-                                        onClick={() => {
-                                            router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${item.symbol}`)
-                                        }}
-                                    >
-                                        {item.symbol}
-                                    </button>
-                                ))
-                            ) : '----'
-                        }>
+                        <Tooltip title={() => {
+                            const pairs = coinPairs.find((item: any) => item.coinSymbol === text || item.baseSymbol === text)
+                            return (pairs?<button key={pairs.id} className={`mb-1 font-12 font-w-400`} style={{ color: '#FFFFFF' }}
+                                onClick={() => {
+                                    router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${pairs.symbol}`)
+                                }}
+                            >
+                                {pairs.symbol}
+                            </button>:'--')
+
+                        }}>
                             <Iconify icon="mingcute:right-line" className={` mx-1`} size={20} />
                         </Tooltip>
                     </p>
@@ -270,8 +264,8 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     // 将订单更新效果单独提取
     useEffect(() => {
         getUserBalanceAllData();
-    }, [updateOrder.orderPlace, updateOrder.orderDelect,updateOrder.orderUpdate,rateKey, updateAssets]);
-    
+    }, [updateOrder.orderPlace, updateOrder.orderDelect, updateOrder.orderUpdate, rateKey, updateAssets]);
+
     return (<><ConfigProvider
         theme={{
             components: {
@@ -313,7 +307,7 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
                 // checked={hideZero}
                 onChange={hideZeroChange}
             >
-                <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideZero2',{coin:rateKey||'--'})}</span>
+                <span className={`${styles.title_color} font-14 font-w-400`}>{t('spot.select.hideZero2', { coin: rateKey || '--' })}</span>
             </Checkbox>
             {/* </Form.Item>
                     </Form> */}

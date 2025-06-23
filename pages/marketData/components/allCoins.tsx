@@ -203,6 +203,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
             onClick={() => {
+              const symbolName = `${record.coinSymbol}/${record.baseSymbol}`;
               if (record.coinSymbol && record.baseSymbol) {
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
               } else {
@@ -210,6 +211,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
               }
             }}
           >
+            { `${record.coinSymbol}/${record.baseSymbol}`}
             <Image
               src={'/images/market/icon_Trade.svg'}
               alt={'trade'}

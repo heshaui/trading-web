@@ -640,16 +640,18 @@ const WithdrawMoneyPage = observer(() => {
             );
         }
         // 检查24h限额
-        if (amount < getCoinRateData(coninInfo.coinName, userAllLimit.min)) {
-            setBtnSumbitError(true)
-            return Promise.reject(
-                t('withdrawMoney.belowMin24h3', { min: getCoinRateData(coninInfo.coinName, userAllLimit.min) })
-            );
-        }
+        // if (amount < getCoinRateData(coninInfo.coinName, userAllLimit.mix)) {
+        //     setBtnSumbitError(true)
+        //     return Promise.reject(
+        //         t('withdrawMoney.belowMin24h3', { min: getCoinRateData(coninInfo.coinName, userAllLimit.mix) })
+        //     );
+        // }
         if (amount > getCoinRateData(coninInfo.coinName, userAllLimit.max)) {
             setBtnSumbitError(true)
+            const max = getCoinRateData(coninInfo.coinName, userAllLimit.max)
+            const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix)
             return Promise.reject(
-                t('withdrawMoney.belowMax24h3', { max: getCoinRateData(coninInfo.coinName, userAllLimit.max) })
+                t('withdrawMoney.belowMax24h3', { max:cut(max, min) })
             );
         }
 
@@ -663,8 +665,9 @@ const WithdrawMoneyPage = observer(() => {
         // 获取三个限制值
         const balanceLimit = Number(coninInfo.balance) || 0;
         const withdrawLimit = Number(coninInfo.maxWithdraw) || 0;
-        const rateLimit = getCoinRateData(coninInfo.coinName, userAllLimit.max) || 0;
-        console.log(balanceLimit, withdrawLimit, rateLimit, 12346);
+        const max = getCoinRateData(coninInfo.coinName, userAllLimit.max) || 0;
+        const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix) || 0;
+        const rateLimit = Number(cut(max, min))||0
         // 找出三个值中的最小值
         const maxAmount = Math.min(balanceLimit, withdrawLimit, rateLimit);
 
@@ -697,10 +700,13 @@ const WithdrawMoneyPage = observer(() => {
     }
     // 提现最小值获取，提现最大值获取
     const getMinWithdraw = (type: 'min' | 'max') => {
+        const max=getCoinRateData(coninInfo.coinName, userAllLimit.max)
+        const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix)
+        
         if (type === 'min') {
-            return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, userAllLimit.min))
+            return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)))
         } else {
-            return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, userAllLimit.max), Number(coninInfo.balance || 0))
+            return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)), Number(coninInfo.balance || 0))
         }
     }
     // 获取用户24小时限额
@@ -719,7 +725,8 @@ const WithdrawMoneyPage = observer(() => {
         form.resetFields()
         setCurrent(1);
         setCheckOpen(false)
-        // setAmountNum(0)
+        // 获取24小时限额
+        getUserALlLimitData()
 
     }
     // 手续费汇率-可用余额汇率（传baseCoinName）
@@ -1112,7 +1119,7 @@ const WithdrawMoneyPage = observer(() => {
                             <li className={`flex-x justify-between mb-5`}>
                                 <p>{t('withdrawMoney.dayLimit')}</p>
                                 {/* 24h限额 */}
-                                <p><span className={`${styles.title_color}`}>{userAllLimit.min ? getCoinRateData(coninInfo.coinName, userAllLimit.min) : '0'}</span>
+                                <p><span className={`${styles.title_color}`}>{userAllLimit.mix ? getCoinRateData(coninInfo.coinName, userAllLimit.mix) : '0'}</span>
                                     / {userAllLimit.max ? getCoinRateData(coninInfo.coinName, userAllLimit.max) : '0'}&nbsp;{coninInfo.coinName || '--'}</p>
                             </li>
                         </ul>

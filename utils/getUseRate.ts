@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 * @param symbolName 币种符号
 * @param num 数量
 * @param baseSymbolName 基础币种符号
-* @param type 方向 0:正向-币种换算 基础币种 1:反向-基础币种换算 币种
+* @param type 方向 0:正向-币种coinSymbol换算 计价币种baseSymbol 1:反向-计价币种计价币种baseSymbol换算 币种币种coinSymbol换算
 * @returns 汇率
 */
 // 币种汇率换算
@@ -34,7 +34,7 @@ export const getCoinRate = (symbolName: string, priceNum: string | number, baseS
 
         // 获取币种价格
         let price = 0;
-        let isReversePair = false;
+        let isReversePair ;
 
         if (directCoin) {
             // 使用正向币对价格
