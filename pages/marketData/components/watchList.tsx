@@ -34,10 +34,13 @@ import { NoData } from '@/components/noData'
 import { cut } from '@/utils/math'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { toast } from "sonner"
+import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
+import { getUserExchangeCoinTypeList } from '@/services/spot';
 
 
 interface SelfSelectProps {
   currencyPairs: any[];
+  pairsNewPrice?: pairsNewPriceType[];
   onPairSelect?: (pair: any) => void;
   // searchValue: string;
   onTabChange?: (key: string) => void;
@@ -45,7 +48,7 @@ interface SelfSelectProps {
 const SelfSelect: React.FC<SelfSelectProps> = ({
   currencyPairs,
   onPairSelect,
-  // searchValue,
+  pairsNewPrice,
   onTabChange,
 }) => {
   const { t } = useTranslation(["market"]);
@@ -57,6 +60,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   const { isLoggedIn } = useAuth(); // 获取登录状态
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('')
+  const [exchangeCoin, setExchangeCoin] = useState<pairsNewPriceType[]>([])
 
   // // 标签页配置
   // const tabsItem: TabsProps["items"] = [
@@ -218,9 +222,16 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   // });
   const filteredPairs = React.useMemo(
     () =>
-      currencyPairs?.filter((pair) => {
+      pairsNewPrice?.map((pairs: any) => {
+        const spotListArr = exchangeCoin?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+        return {
+          ...pairs,
+          ...spotListArr
+        }
+        
+      })?.filter((pair) => {
         // 必须是收藏的
-        const isFavorite = pair.isFavorite;
+        const isFavorite = pair?.isFavorite;
 
         // 搜索过滤
         const matchesSearch =
@@ -233,7 +244,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
         return isFavorite && matchesSearch //&& matchesTab;
       }) || [],
-    [currencyPairs, searchValue, activeTab]
+    [pairsNewPrice, searchValue, activeTab,exchangeCoin]
   );
   const handleFavoriteChange = async (value: number, pair: any) => {
     const isFavorite = value === 1;
@@ -245,6 +256,8 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     if (res.code === "0") {
       toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
         t('marketList.operationTips.removeSuccess'));
+      await getUserExchangeCoin()
+
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
       const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);
@@ -264,11 +277,33 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       }
     }
   };
+  const getUserExchangeCoin = async () => {
+    const userToken = appStore.getUserToken();
+    if (!userToken) return setExchangeCoin([])
+    try {
+      const res = await getUserExchangeCoinTypeList();
+      if (res.code === '0') {
+        setExchangeCoin(res.data || [])
+        // const spotData = spotList.map(item => {
+        //   const coinPair = res.data.find((pair: any) => pair.coinSymbol === item.coinSymbol && pair.baseSymbol === item.baseSymbol)
+        //   return {
+        //     ...item,
+        //     coinPair
+        //   }
+        // })
+        // setSpotList(spotData)
+      }
+    } catch (error) {
+      console.error('Error loading favorite coins:', error);
+    }
 
+  }
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
-
+  useEffect(() => {
+    getUserExchangeCoin()
+  }, []);
   return (
     <ConfigProvider
       theme={{
@@ -309,9 +344,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           allTabLabel={t("header.all")}
           className={styles.allCoins_tabs}
         /> */}
-       {filteredPairs&&filteredPairs?.length>0&&<button className={`default_btn my-4 ${styles.btn_style} font-14`}>
+        {filteredPairs && filteredPairs?.length > 0 && <button className={`default_btn my-4 ${styles.btn_style} font-14`}>
           {/* 限价 | 市价 */}
-          {`${t('header.spot')}(${filteredPairs?.length||0})`}
+          {`${t('header.spot')}(${filteredPairs?.length || 0})`}
         </button>}
         <Table
           columns={columns}

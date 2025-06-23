@@ -15,6 +15,7 @@ import appStore from '@/store';
 import SelfSelect from '@/modules/spot/pages/compontents/spotChart_header/SelfSelect'
 type Props = {
   tradeData?: any;
+  
 }
 
 const TrendsTable = observer(({ tradeData }: Props) => {
@@ -52,7 +53,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
         <WatchList
           currencyPairs={currencyPairsArray}
           onPairSelect={handlePairSelect}
-          // searchValue={searchKeyword}
+          pairsNewPrice={tradeData}
           onTabChange={onChange} />
       </div>
       ,
@@ -71,6 +72,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
       label: t("marketList.tabs.spotMarket"),
       children: <div style={{ minHeight: "45vh",paddingBottom: '20px' }}><SportMarket
         currencyPairs={currencyPairsArray}
+        pairsNewPrice={tradeData}
         onPairSelect={handlePairSelect}
        
         // searchValue={searchKeyword}
