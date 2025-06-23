@@ -253,7 +253,7 @@
   color: #00c788;
   border: 2px solid #00c788;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--background9);
   font-weight: bold;
   font-size: 12px;
   z-index: 2;
@@ -268,7 +268,7 @@
   color: #ff6347;
   border: 2px solid #ff6347;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--background9);
   font-weight: bold;
   font-size: 12px;
   z-index: 2;
