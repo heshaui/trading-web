@@ -4,38 +4,31 @@ import React from "react";
 import styles from "./styles/spotHeader_select.module.css";
 import {
   Input,
-  Radio,
   ConfigProvider,
   Rate,
   Table,
-  Segmented,
   Tooltip,
-  Dropdown,
   Image
 } from "antd";
-import { Iconify } from "@/components/icon";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useMemo } from "react";
 import { useTranslation } from "next-i18next";
-import type { DropdownProps, MenuProps } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import type { TabsProps } from "antd";
-import SimpleScrollTabs from "@/components/ScrollableTabs";
 import {
   addUserExchangeCoinType,
   canalUserExchangeCoinType,
+  getUserExchangeCoinTypeList
 } from "@/services/spot";
 import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
-// import Image from "next/image";
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
-import { cut } from '@/utils/math'
+import { cut, division, nul } from '@/utils'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { toast } from "sonner"
-import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
-import { getUserExchangeCoinTypeList } from '@/services/spot';
+import {  pairsNewPriceType } from '@/type/marketData/marketData';
+import { getSpotData } from '@/services/marketData'
 
 
 interface SelfSelectProps {
@@ -61,7 +54,8 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('')
   const [exchangeCoin, setExchangeCoin] = useState<pairsNewPriceType[]>([])
-
+  const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
+  const [tableLoading, setTableLoading] = useState(false)
   // // 标签页配置
   // const tabsItem: TabsProps["items"] = [
   //   { key: "1", label: t("header.mainArea") },
@@ -124,29 +118,36 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     },
     {
       title: t('header.change24h'),
-      dataIndex: 'priceChangePercent',
-      key: 'priceChangePercent',
+      dataIndex: 'closePrice',
+      key: 'closePrice',
       align: 'center',
       sorter: (a, b) => {
-        // const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
-        // const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
-        // return Number(aPrice) - Number(bPrice)
-        return Number(a.priceChangePercent) - Number(b.priceChangePercent)
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+        return Number(aPrice) - Number(bPrice)
       },
       render: (_price, record) => {
-        const price = Number(_price).toFixed(2)
-        return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
-          {_price > 0 ? `+${price}%` : `${price}%`}</span>
+        const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
+        // const percent = nul(price, 100)
+        const percent = price
+        return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
+          {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
     },
     {
       title: `${t("header.high24h")}/${t("header.low24h")}`,
-      dataIndex: 'high_price',
-      key: 'high_price',
+      dataIndex: 'height',
+      key: 'height',
       align: 'center',
+      // render: (_marketValue, record) => {
+      //   // {pair.high_price || "--"}/{pair.low_price || "--"}
+      //   const price = `${record.high_price || "--"}/${record.low_price || "--"}`
+      //   return <span>{price}</span>
+      // },
       render: (_marketValue, record) => {
-        // {pair.high_price || "--"}/{pair.low_price || "--"}
-        const price = `${record.high_price || "--"}/${record.low_price || "--"}`
+        const height=Number(record.height||0)
+        const lower=Number(record.lower||0)
+        const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
         return <span>{price}</span>
       },
     }, {
@@ -220,47 +221,55 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
   //   return isFavorite && matchesSearch && matchesTab;
   // });
-  const filteredPairs = React.useMemo(
+  const filteredPairs = useMemo(
     () =>
       pairsNewPrice?.map((pairs: any) => {
-        const spotListArr = exchangeCoin?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+        // const spotListArr = exchangeCoin?.find(item => pairs.exchangeCoinId === item);
+        const spotListArr = spotList?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
         return {
+          ...spotListArr,
           ...pairs,
-          ...spotListArr
+          // isFavorite: !!spotListArr
         }
-        
-      })?.filter((pair) => {
-        // 必须是收藏的
-        const isFavorite = pair?.isFavorite;
 
-        // 搜索过滤
-        const matchesSearch =
-          pair?.coinSymbol?.toLowerCase().includes(searchValue.toLowerCase()) ||
-          pair?.baseSymbol?.toLowerCase().includes(searchValue.toLowerCase());
+      })
+        ?.filter((pair) => {
+          // 必须是收藏的
+          const isFavorite = pair?.isFavorite;
 
-        // // 标签过滤
-        // const matchesTab =
-        //   activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
+          // 搜索过滤
+          const matchesSearch =
+            pair?.coinSymbol?.toLowerCase().includes(searchValue.toLowerCase()) ||
+            pair?.baseSymbol?.toLowerCase().includes(searchValue.toLowerCase());
 
-        return isFavorite && matchesSearch //&& matchesTab;
-      }) || [],
-    [pairsNewPrice, searchValue, activeTab,exchangeCoin]
+          // // 标签过滤
+          // const matchesTab =
+          //   activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
+
+          return matchesSearch && isFavorite  //&& matchesTab;
+
+        }) || [],
+    [pairsNewPrice, searchValue, spotList]
   );
+  // useEffect(() => {
+  //   console.log(filteredPairs,999);
+    
+  // }, [filteredPairs]);
   const handleFavoriteChange = async (value: number, pair: any) => {
     const isFavorite = value === 1;
     const apiCall = isFavorite
-      ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
-      : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+      ? addUserExchangeCoinType({ exchangeCoinId: pair.exchangeCoinId, type: 1 })
+      : canalUserExchangeCoinType({ exchangeCoinId: pair.exchangeCoinId, type: 1 });
 
     const res = await apiCall;
     if (res.code === "0") {
       toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
         t('marketList.operationTips.removeSuccess'));
-      await getUserExchangeCoin()
+      await getSpotList()
 
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
-      const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);
+      const pairIndex = updatedPairs.findIndex((item) => item.id === pair.exchangeCoinId);
       if (pairIndex !== -1) {
         updatedPairs[pairIndex] = {
           ...updatedPairs[pairIndex],
@@ -270,39 +279,62 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       }
 
       // 如果当前选中的是被修改的币对，也要更新currentPair
-      if (appStore.currentPair && appStore.currentPair.id === pair.id) {
+      if (appStore.currentPair && appStore.currentPair.id === pair.exchangeCoinId) {
         const updatedCurrentPair = { ...appStore.currentPair };
         updatedCurrentPair.isFavorite = isFavorite;
         appStore.setCurrentPair(updatedCurrentPair);
       }
     }
   };
-  const getUserExchangeCoin = async () => {
-    const userToken = appStore.getUserToken();
-    if (!userToken) return setExchangeCoin([])
+  const getSpotList = async () => {
+    setTableLoading(true)
     try {
-      const res = await getUserExchangeCoinTypeList();
+
+      const res = await getSpotData({})
       if (res.code === '0') {
-        setExchangeCoin(res.data || [])
-        // const spotData = spotList.map(item => {
-        //   const coinPair = res.data.find((pair: any) => pair.coinSymbol === item.coinSymbol && pair.baseSymbol === item.baseSymbol)
+        // setTableData(res.data)
+
+        // const resData = res.data.map((item:any) => {
+        //   const coinPair = exchangeCoin.find((pair: any) => pair.exchangeCoinId?.toString() === item)
         //   return {
         //     ...item,
-        //     coinPair
+        //     isFavorite: !!coinPair
         //   }
         // })
-        // setSpotList(spotData)
+        //   setSpotList(resData)
+
+
+        const userToken = appStore.getUserToken();
+        if (!userToken) {
+          setSpotList(res.data)
+          return
+        }
+        const result = await getUserExchangeCoinTypeList();
+        if (result.code === '0') {
+          // setExchangeCoin(result.data || [])
+          const spotData = res.data.map((item: any) => {
+            const coinPair = result.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
+            return {
+              ...item,
+              isFavorite: !!coinPair
+            }
+          })
+
+          setSpotList(spotData)
+        }
       }
     } catch (error) {
-      console.error('Error loading favorite coins:', error);
+      toast.error(String(error))
+    } finally {
+      setTableLoading(false)
     }
-
   }
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
   useEffect(() => {
-    getUserExchangeCoin()
+    // getUserExchangeCoin()
+    getSpotList()
   }, []);
   return (
     <ConfigProvider
@@ -352,6 +384,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           columns={columns}
           dataSource={isLoggedIn ? filteredPairs : []}
           rowKey="id"
+          loading={tableLoading}
           pagination={false}
           size="middle"
           bordered={false}

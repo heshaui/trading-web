@@ -8,7 +8,7 @@ import { FireFilled } from "@ant-design/icons";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useThemeConfig } from "@/hooks/useKv";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   TradeRakingResp,
   HotMarketSymbol,
@@ -67,6 +67,7 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取涨幅榜信息失败：", error);
+      throw error; // 抛出错误，以便在 Promise 链中捕获
     }
   };
   // 获取跌幅榜数据
@@ -94,6 +95,7 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取跌幅榜信息失败：", error);
+      throw error; // 抛出错误，以便在 Promise 链中捕获
     }
   };
   // 获取热门榜OK
@@ -102,10 +104,10 @@ export default function MarketData() {
       const response = await getHotData();
       if (response?.code === "0") {
         const sortData = response.data?.map((item: any) => {
-          // const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+          const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
           return {
             ...item,
-            // ...pairsData
+            ...pairsData
           }
         }).sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
           return Number(b?.sort) - Number(a?.sort)
@@ -114,6 +116,7 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取热门榜列表失败：", error);
+      throw error; // 抛出错误，以便在 Promise 链中捕获
     }
   };
   // 获取币对最新价格
@@ -123,7 +126,7 @@ export default function MarketData() {
       if (response?.code === "0") {
         // 处理数据，计算涨跌幅
         const processedData = response.data.map((item: any) => {
-          const initCoinPair=coinPair.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+          // const initCoinPair=coinPair.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
           // 提取价格数据，支持多种可能的字段名称
           // let priceChangePercent;
           const price = parseFloat(item.price || item.close_price || "0");
@@ -135,7 +138,7 @@ export default function MarketData() {
           //   priceChangePercent = parseFloat((change * 100).toFixed(2));
           // }
           return {
-            ...initCoinPair,
+            // ...initCoinPair,
             ...item,
             price: price || undefined,
             // yesterdayPrice: yesterdayPrice || undefined,
@@ -150,6 +153,7 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取币对最新价格失败：", error);
+      throw error; // 抛出错误，以便在 Promise 链中捕获
     }
   };
   // 为每个币对建立WebSocket连接
@@ -384,7 +388,7 @@ export default function MarketData() {
       console.log("多通道WebSocket连接成功，发送订阅消息");
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
-        channels: ["ETH_USDT_1002@trade", "BTC_USDT_1002@kline_1m"]
+        channels: ["BTC_USDT_1002@kline_1d3s","ETH_USDT_1002@kline_1d3s"]
       });
 
       const sent = multiWsRef.current.send(subscribeMessage);
@@ -427,15 +431,21 @@ export default function MarketData() {
       open_time: data[0],
       open_price: data[1],
       openPrice: data[1],
+
       high_price: data[2],
+      height: data[2],
+
       low_price: data[3],
+      lower: data[3],
+
       close_price: data[4],
       closePrice: data[4],
       price: data[4],
+
       volume: data[5]
     }
     // console.log(mapData,999);
-    
+
     // 更新涨幅榜单数据
     setMarketDataUp((prevMarket) => {
       // 深拷贝当前价格数据
@@ -530,15 +540,6 @@ export default function MarketData() {
         // 更新价格、24小时涨跌幅、交易量等数据
         updatedPrices[pairIndex] = {
           ...updatedPrices[pairIndex],
-          // open_price: mapData.open_price,
-          // high_price: String(mapData.high_price),
-          // low_price: String(mapData.low_price),
-          // close_price: mapData.close_price,
-          // price: String(mapData.close_price), // 添加price字段更新
-          // volume: String(mapData.volume),
-          // priceChangePercent: priceChangePercent,
-          // // 更新时间戳
-          // updateTime: Date.now(),
           ...mapData
         };
       }
@@ -567,20 +568,78 @@ export default function MarketData() {
         // 更新价格、24小时涨跌幅、交易量等数据
         updatedPrices[pairIndex] = {
           ...updatedPrices[pairIndex],
-          open_price: String(mapData.open_price),
-          high_price: String(mapData.high_price),
-          low_price: String(mapData.low_price),
-          close_price: String(mapData.close_price),
-          price: String(mapData.close_price), // 添加price字段更新
-          volume: String(mapData.volume),
-          priceChangePercent: priceChangePercent,
-          // 更新时间戳
-          updateTime: Date.now(),
+          ...mapData,
         };
       }
       return updatedPrices;
     });
   };
+
+  const filteredHotPairs = useMemo(
+    () =>
+      marketDataUp?.map((pairs: any) => {
+        const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+        return {
+          ...pairs,
+          ...spotListArr,
+        }
+
+      })
+      || [],
+    [marketDataUp, newPrice]
+  );
+  const filteredMarketDataDown = useMemo(
+    () =>
+      // HotMarketList
+      //   ?.map((pairs: any) => {
+      //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+      //   return {
+      //     ...pairs,
+      //     ...spotListArr,
+      //   }
+
+      // })
+      marketDataDown.filter((items: any) => {
+        const changePercent = (items.close_price - items.open_price) / items.open_price;
+        return changePercent<=0
+      }).sort(
+        (a: any, b: any) => {
+          const achangePercent = (a.close_price - a.open_price) / a.open_price;
+          const bchangePercent = (b.close_price - b.open_price) / b.open_price;
+        return bchangePercent - achangePercent
+      })
+      || [],
+    [HotMarketList]
+  );
+
+  const filteredMarketDataUp = useMemo(
+    () =>
+      // HotMarketList?.map((pairs: any) => {
+      //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+      //   return {
+      //     ...pairs,
+      //     ...spotListArr,
+      //   }
+
+      // })
+      marketDataUp.filter((items: any) => {
+        const changePercent = (items.close_price - items.open_price) / items.open_price;
+        return changePercent>=0
+      }).sort(
+        (a: any, b: any) => {
+          const achangePercent = (a.close_price - a.open_price) / a.open_price;
+          const bchangePercent = (b.close_price - b.open_price) / b.open_price;
+        return bchangePercent - achangePercent
+      })
+      || [],
+    [HotMarketList]
+  );
+
+
+  // useEffect(() => {
+  //   console.log(filteredHotPairs, newPrice, 999);
+
+  // }, [filteredHotPairs, newPrice]);
   // 热门
   const columns: ColumnsType<HotMarketSymbol> = [
     {
@@ -639,8 +698,8 @@ export default function MarketData() {
     },
     {
       title: t("rankingList.change24h"),
-      dataIndex: "close_price",
-      key: "close_price",
+      dataIndex: "price",
+      key: "price",
       align: "right",
       onHeaderCell: () => ({
         style: {
@@ -651,11 +710,11 @@ export default function MarketData() {
           textAlign: "left",
         },
       }),
-      render: (_text: any, record: TradeRakingResp, index: number) => {
+      render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
         // const changePercent = record.priceChangePercent;
-        const changePrice = Number(cut(Number(_text), Number(record.open_price)))
-        const changePercent = changePrice ? division(changePrice, Number(record.open_price)) : 0
+        const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
+        const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
         const isPositive = changePercent !== undefined && changePercent > 0;
         const isNegative = changePercent !== undefined && changePercent < 0;
         // const textColor = isPositive
@@ -720,7 +779,7 @@ export default function MarketData() {
         <div>
           <div>{_text ? parseFloat(_text || "0").toLocaleString() : "0"}</div>
           <div style={{ fontSize: "12px", color: "#999" }}>
-            ${_text ? parseFloat(_text || "0").toLocaleString() : "0"} 
+            ${_text ? parseFloat(_text || "0").toLocaleString() : "0"}
           </div>
         </div>
       ),
@@ -745,7 +804,7 @@ export default function MarketData() {
         const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
         const changePercent = changePrice ? division(changePrice, Number(record.open_price)) : 0
         const isPositive = changePercent !== undefined && Number(changePercent) > 0;
-        const isNegative = changePercent !== undefined &&  Number(changePercent)  < 0;
+        const isNegative = changePercent !== undefined && Number(changePercent) < 0;
         const prefix = isPositive ? "+" : "";
         return (
           <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
@@ -766,14 +825,22 @@ export default function MarketData() {
 
 
   useEffect(() => {
-    fetchNewPrice();
-
+    // 同时执行涨跌幅榜单请求和WebSocket连接初始化
     fetchMarketDataUp();
     fetchMarketDataDown();
-    fetchHotMarketData();
-    // 初始化多通道WebSocket连接
-    getMulti();
     setIsLoading(false);
+    // 先执行 fetchNewPrice，完成后再执行 fetchHotMarketData
+    fetchNewPrice()
+      .then(() => {
+        // fetchNewPrice 完成后执行 fetchHotMarketData
+        return fetchHotMarketData();
+      })
+      .catch(error => {
+        console.error("请求过程中发生错误:", error);
+        setIsLoading(false);
+      });
+    getMulti();
+
     return () => {
       // 组件卸载时清理WebSocket连接
       cleanupWebSockets();
@@ -790,23 +857,16 @@ export default function MarketData() {
 
     try {
       appStore.loadCurrencyPairs()
-        // .then(() => {
-        //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
-        //   setNewPrice(coinPair)
-        //   // fetchNewPrice();
-        // });
+      // .then(() => {
+      //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
+      //   setNewPrice(coinPair)
+      //   // fetchNewPrice();
+      // });
 
     } catch (error) {
 
     }
   }, []);
-  // useEffect(() => {
-  //   fetchNewPrice();
-  // }, [])
-  // 在获取完newPrice数据后请求fetchHotMarketData并建立WebSocket连接
-  // useEffect(() => {
-
-  // }, [newPrice]);
 
   return (
     <ConfigProvider
@@ -892,7 +952,7 @@ export default function MarketData() {
                 <div className={`flex-1 ${styles.ranking_content}`}>
                   <Table
                     columns={columns}
-                    dataSource={HotMarketList.slice(0, 7)}
+                    dataSource={filteredHotPairs.slice(0, 7)}
                     rowKey="id"
                     pagination={false}
                     size="small"
@@ -921,7 +981,7 @@ export default function MarketData() {
                 <div className={`flex-1 ${styles.ranking_content}`}>
                   <Table
                     columns={columnsTrading}
-                    dataSource={marketDataUp.slice(0, 7)}
+                    dataSource={filteredMarketDataUp.slice(0, 7)}
                     rowKey="id"
                     pagination={false}
                     size="small"
@@ -947,7 +1007,7 @@ export default function MarketData() {
                 <div className={`flex-1 ${styles.ranking_content}`}>
                   <Table
                     columns={columnsTrading}
-                    dataSource={marketDataDown.slice(0, 7)}
+                    dataSource={filteredMarketDataDown.slice(0, 7)}
                     rowKey="id"
                     pagination={false}
                     size="small"
