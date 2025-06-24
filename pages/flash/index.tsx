@@ -4,9 +4,9 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Image,Tooltip } from 'antd';
-import { DownOutlined, SwapOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
-import { trade, getPrice,preTrade } from '@/services/flash';
+import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
+import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
+import { getConfig, trade, getPrice } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
@@ -14,8 +14,8 @@ import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
 
 
-const { Panel } = Collapse;
 
+const { Panel } = Collapse;
 
 
 const FlashPage: NextPage = () => {
@@ -27,7 +27,8 @@ const FlashPage: NextPage = () => {
   const [exchangeRate, setExchangeRate] = useState<string>('0');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceExpired, setPriceExpired] = useState<boolean>(false);
-  const [preTradeData, setPreTradeData] = useState<any>({});
+  const [configData, setConfigData] = useState<any>({minTradeU:0,maxTradeU:0});
+  
   // Success and failure modal states
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
   const [isFailureModalVisible, setIsFailureModalVisible] = useState<boolean>(false);
@@ -41,10 +42,6 @@ const FlashPage: NextPage = () => {
   const [userAll,setUserAll] = useState<any[]>([]);
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
-
-  // 从 store 获取闪兑配置数据
-  const configData = appStore.getFlashConfig();
-
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
   const headerBgImage = flashConfigData?.[langKey]?.img;
@@ -92,6 +89,9 @@ const FlashPage: NextPage = () => {
       </Select>
     );
   };
+
+  const [coinLoading, setCoinLoading] = useState<boolean>(false);
+  const [coinError, setCoinError] = useState<string | null>(null);
   const router = useRouter();
   const [spotModal, setSpotModal] = useState<boolean>(false);
 
@@ -104,13 +104,15 @@ const FlashPage: NextPage = () => {
   }
 
   const gerFlashConfig = async () => {
-    try {
-      const config = await appStore.loadFlashConfig();
-      setBaseCoin(config.baseCoin);
-      setQuteCoin(config.quoteCoin);
-    } catch (error) {
-      console.error('Failed to load flash config:', error);
+    const data={}
+    const res = await getConfig(data)
+    if (res.code === '0') {
+      setBaseCoin(res.data.baseCoin)
+      setQuteCoin(res.data.quoteCoin)
+      setConfigData(res.data)
+
     }
+
   }
 
   const getCoinAllList = async () => {
@@ -121,17 +123,7 @@ const FlashPage: NextPage = () => {
       await getFlashPrice()
     }
   }
-  const getPreTrade = async () => {
-    if(!baseCoin||!quteCoin){ return }
-    const data = {
-      send: baseCoin,
-      receive: quteCoin
-    }
-    const res = await preTrade(data)
-    if (res.code === '0') {
-      setPreTradeData(res.data)
-    }
-  }
+
 
   const getFlashPrice = async () => {
     if(!baseCoin||!quteCoin){ return }
@@ -156,7 +148,6 @@ const FlashPage: NextPage = () => {
   }
 
   const handleConfirm = async () => {
-    await getPreTrade()
     setIsConfirmModalVisible(true)
     setCountdown(8) // 开始8秒倒计时
   }
@@ -220,11 +211,7 @@ const FlashPage: NextPage = () => {
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
       const parsedInfo = JSON.parse(userInfo);
-      if(configData?.realNameRequired){
-        setIsAuth(parsedInfo.realnessStatus === 1);
-      }else{
-        setIsAuth(true)
-      }
+      setIsAuth(parsedInfo.realnessStatus === 1);
     }
 
   }, [])
@@ -323,12 +310,10 @@ const FlashPage: NextPage = () => {
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
                     if (currentCoin && currentCoin.balance) {
-                      // 确保不超过最大交易限额
-                      const maxAllowedAmount = Math.min(Number(currentCoin.balance), Number(configData?.maxTradeU || Infinity));
-                      setPayAmount(maxAllowedAmount.toString());
+                      setPayAmount(currentCoin.balance);
                       // Also calculate the receive amount based on the max balance
-                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(maxAllowedAmount)) {
-                        const calculatedAmount = (maxAllowedAmount * Number(exchangeRate)).toFixed(8);
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
+                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
                         setReceiveAmount(calculatedAmount);
                       }
                     }
@@ -336,12 +321,7 @@ const FlashPage: NextPage = () => {
                 >最大</MaxLabel>
                 <IconSelect
                   value={baseCoin}
-                  onChange={(value: string) => {
-                    setBaseCoin(value);
-                    // 清空输入框
-                    setPayAmount('');
-                    setReceiveAmount('');
-                  }}
+                  onChange={setBaseCoin}
                   style={{ width: '100px' }}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
@@ -395,26 +375,14 @@ const FlashPage: NextPage = () => {
                       // Also calculate the pay amount based on the max receive amount
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance)) && Number(exchangeRate) > 0) {
                         const calculatedPayAmount = (Number(currentCoin.balance) / Number(exchangeRate)).toFixed(8);
-                        // 确保计算出的支付金额不超过最大交易限额
-                        const maxAllowedPayAmount = Math.min(Number(calculatedPayAmount), Number(configData?.maxTradeU || Infinity));
-                        setPayAmount(maxAllowedPayAmount.toString());
-                        // 如果支付金额被限制，需要重新计算接收金额
-                        if (Number(calculatedPayAmount) > maxAllowedPayAmount) {
-                          const recalculatedReceiveAmount = (maxAllowedPayAmount * Number(exchangeRate)).toFixed(8);
-                          setReceiveAmount(recalculatedReceiveAmount);
-                        }
+                        setPayAmount(calculatedPayAmount);
                       }
                     }
                   }}
                 >最大</MaxLabel>
                 <IconSelect
                   value={quteCoin}
-                  onChange={(value: string) => {
-                    setQuteCoin(value);
-                    // 清空输入框
-                    setPayAmount('');
-                    setReceiveAmount('');
-                  }}
+                  onChange={setQuteCoin}
                   style={{ width: '100px' }}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
@@ -665,7 +633,7 @@ const SwapButtonWrapper = styled.div`
   margin: -10px 0;
   position: relative;
   z-index: 1;
-  margin: 30px 0;
+  margin-bottom: 30px;
 `;
 
 const SwapButton = styled.div`

@@ -388,7 +388,7 @@ export default function MarketData() {
       console.log("多通道WebSocket连接成功，发送订阅消息");
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
-        channels: ["BTC_USDT_1002@kline_1d3s","ETH_USDT_1002@kline_1d3s"]
+        channels: ["BTC_USDT_1002@kline_1d","ETH_USDT_1002@kline_1d"]
       });
 
       const sent = multiWsRef.current.send(subscribeMessage);
