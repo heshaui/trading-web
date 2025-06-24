@@ -163,6 +163,8 @@ const FlashOrderPage = () => {
             pageSize: newPagination.pageSize || 10,
             total: newPagination.total || 0,
         });
+        getList(newPagination.current || 1, newPagination.pageSize || 10);
+        
     };
     const columns: ColumnsType<TransactionRecord> = [
         {
