@@ -497,6 +497,7 @@ const FlashPage: NextPage = () => {
               coinList={coinList}
               countdown={countdown}
               refreshCount={refreshCount}
+              preTradeData={preTradeData}
               onConfirm={() => {
                 setIsLoading(true)
                 // Simulate API call
@@ -789,6 +790,7 @@ interface ConfirmExchangeModalProps {
   coinList: any[];
   countdown: number;
   refreshCount: number;
+  preTradeData: any;
 }
 
 const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
@@ -805,7 +807,8 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   onRefreshPrice,
   coinList,
   countdown,
-  refreshCount
+  refreshCount,
+  preTradeData
 }) => {
   // Find the coin icons for the selected currencies
   const findCoinIcon = (coinName: string) => {
@@ -859,7 +862,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             <DetailRow>
               <DetailLabel>兑换率</DetailLabel>
               <DetailValue>
-                1{payCurrency} = {exchangeRate} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
+                1{payCurrency} = {preTradeData?.price} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
               </DetailValue>
             </DetailRow>
 
