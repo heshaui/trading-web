@@ -512,11 +512,25 @@ const OrderBook = ({
                       : "inherit",
                 }}
               >
-                {priceDirection === "up"
-                  ? "↑"
-                  : priceDirection === "down"
-                  ? "↓"
-                  : "-"}
+                {priceDirection === "up" ? (
+                  <Image
+                    src={"/images/order_book/up.svg"}
+                    width={16}
+                    height={16}
+                    alt="up"
+                    style={{ height: "16px", width: "16px" }}
+                  />
+                ) : priceDirection === "down" ? (
+                  <Image
+                    src={"/images/order_book/down.svg"}
+                    width={16}
+                    height={16}
+                    alt="down"
+                    style={{ height: "16px", width: "16px" }}
+                  />
+                ) : (
+                  "-"
+                )}
               </span>
               <span className={styles.priceCny}>
                 ¥ {(currentPrice * 7.18).toFixed(1)}
