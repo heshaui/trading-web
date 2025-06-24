@@ -1,6 +1,6 @@
 import React from 'react';
 import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
-import { ConfigProvider, Table, Tag, DatePicker, Select, Space } from 'antd';
+import { ConfigProvider, Table, Tag, DatePicker, Select, Space, Button, Image } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -10,7 +10,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import appStore from '@/store';
 import { useAuth } from '@/context/AuthContext';
 import styles from './flash.module.css'
-import { records } from '@/services/flash';
+import { records, getConfig } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import type { GetStaticProps } from 'next';
 
@@ -45,13 +45,18 @@ const FlashOrderPage = () => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<TransactionRecord[]>([]);
     const [coinList, setCoinList] = useState<{coinName: string, coinCode: string}[]>([]);
-    const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>([null, null]);
+    const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>([
+        dayjs().subtract(7, 'day'),
+        dayjs()
+    ]);
     const [selectedCoin, setSelectedCoin] = useState<string>('');
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 10,
         total: 0,
     });
+    const [configData, setConfigData] = useState<any>({});
+    const [isAuth, setIsAuth] = useState<boolean>(false);
     const { RangePicker } = DatePicker;
 
     const router = useRouter();
@@ -68,8 +73,8 @@ const FlashOrderPage = () => {
             
             // 添加日期筛选参数
             if (dateRange[0] && dateRange[1]) {
-                params.startTime = dayjs(dateRange[0]).valueOf();
-                params.endTime = dayjs(dateRange[1]).valueOf();
+                params.startTime = dayjs(dateRange[0]).startOf('day').valueOf();
+                params.endTime = dayjs(dateRange[1]).endOf('day').valueOf();
             }
             
             // 添加币种筛选参数
@@ -108,29 +113,47 @@ const FlashOrderPage = () => {
         }
     }, [t]);
 
+    // 获取闪兑配置 - 使用useCallback进行优化
+    const fetchFlashConfig = useCallback(async () => {
+        try {
+            const response = await getConfig({});
+            if (response.code === '0') {
+                setConfigData(response.data);
+            }
+        } catch (error) {
+            console.error('获取闪兑配置失败:', error);
+        }
+    }, []);
+
     // // 初始化数据和币种列表
     useEffect(() => {
-
-            const { current, pageSize } = pagination;
-            getList(current, pageSize);
-            fetchCoinList();
-
+        const { current, pageSize } = pagination;
+        getList(current, pageSize);
+        fetchCoinList();
+        fetchFlashConfig();
+        
+        // 获取用户认证状态
+        const userInfo = localStorage.getItem('imbit_userInfo');
+        if (userInfo) {
+            const parsedInfo = JSON.parse(userInfo);
+            setIsAuth(parsedInfo.realnessStatus === 1);
+        }
     }, []);
     
     // 当筛选条件变化时重置分页并重新获取数据
     // 使用useEffect监听过滤条件的变化
-    // useEffect(() => {
-    //     // 当日期范围或币种选择变化时
-    //     if (isLoggedIn) {
-    //         // 重置分页到第1页
-    //         setPagination(prev => ({
-    //             ...prev,
-    //             current: 1
-    //         }));
-    //         // 重新加载数据，使用新的筛选条件
-    //         getList(1, pagination.pageSize);
-    //     }
-    // }, [dateRange, selectedCoin, isLoggedIn, getList, pagination.pageSize]);
+    useEffect(() => {
+        // 当日期范围或币种选择变化时
+        if (isLoggedIn) {
+            // 重置分页到第1页
+            setPagination(prev => ({
+                ...prev,
+                current: 1
+            }));
+            // 重新加载数据，使用新的筛选条件
+            getList(1, pagination.pageSize);
+        }
+    }, [dateRange, selectedCoin, isLoggedIn, getList, pagination.pageSize]);
 
     const handleTableChange: TableProps<TransactionRecord>['onChange'] = (
         newPagination,
@@ -235,6 +258,28 @@ const FlashOrderPage = () => {
                     </h2>
                 </div>
                 
+                {/* 实名认证提醒 */}
+                {configData?.realNameRequired && !isAuth && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: '8px',
+                        padding: '15px',
+                        margin: '16px 0',
+                        width: '100%'
+                    }}>
+                        <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
+                        <div style={{ flex: 1, marginLeft: '15px' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>未完成身份认证</div>
+                            <div style={{ color: '#666', fontSize: '14px' }}>完成身份认证，解锁全部功能</div>
+                        </div>
+                        <Button type="primary" shape="round" onClick={() => router.push('/userCenter/identity')}>
+                            立即认证
+                        </Button>
+                    </div>
+                )}
+                
                 <div className={`flex items-center gap-4 my-4 ${styles.filterContainer}`}>
                     <Space size={16}>
                         <RangePicker
@@ -242,8 +287,14 @@ const FlashOrderPage = () => {
                             onChange={(dates) => setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])}
                             className={styles.datePicker}
                             format="YYYY-MM-DD"
-                            allowClear={true}
+                            allowClear={false}
                             style={{ width: 280 }}
+                            disabledDate={(current) => {
+                                // 禁用6个月之前的日期和未来日期
+                                const sixMonthsAgo = dayjs().subtract(6, 'month').startOf('day');
+                                const today = dayjs().endOf('day');
+                                return current && (current.isBefore(sixMonthsAgo) || current.isAfter(today));
+                            }}
                         />
                         <Select
                             value={selectedCoin}

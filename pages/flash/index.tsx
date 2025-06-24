@@ -283,7 +283,7 @@ const FlashPage: NextPage = () => {
           <h1>{headerTitle}</h1>
           <HeaderSubtitle>{headerSubtitle}</HeaderSubtitle>
         </Header>
-        { !isAuth&&<AuthNoticeWrapper>
+        { configData?.realNameRequired&&!isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>未完成身份认证</NoticeTitle>

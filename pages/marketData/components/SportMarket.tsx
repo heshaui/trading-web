@@ -26,15 +26,18 @@ import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { getSpotData, getClassLabel } from '@/services/marketData'
 import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import { toast } from "sonner"
+import { getUserExchangeCoinTypeList } from '@/services/spot';
+
 
 interface SpotSelectProps {
   currencyPairs: any[];
   onPairSelect?: (pair: any) => void;
-  // searchValue: string;
+  pairsNewPrice: pairsNewPriceType[];
 }
 
 const SpotSelect: React.FC<SpotSelectProps> = ({
   currencyPairs,
+  pairsNewPrice,
   onPairSelect,
   // searchValue,
 }) => {
@@ -50,6 +53,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const [tableLoading, setTableLoading] = useState(false)
   const currencyPairsArray = appStore.currencyPairs || [];
   const [tabsItem, setTabsItem] = useState<TabsProps["items"]>([])
+  // const [exchangeCoin,setExchangeCoin]=useState<pairsNewPriceType[]>([])
   // 标签页配置
   const initTabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
@@ -152,7 +156,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         return Number(a.priceChangePercent) - Number(b.priceChangePercent)
       },
       render: (_price, record) => {
-        const price =_price?Number(_price).toFixed(2):Number(0).toFixed(2)
+        const price = _price ? Number(_price).toFixed(2) : Number(0).toFixed(2)
         return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
           {_price > 0 ? `+${price}%` : `${price}%`} </span>
       },
@@ -214,18 +218,21 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     try {
 
       const res = await getSpotData({})
-      const resData = res.data?.map((item: pairsNewPriceType) => {
-        const pairsData = currencyPairsArray?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
-        if (pairsData) {
-          return {
-            ...item,
-            ...pairsData
-          }
-        } else {
-          return item
-        }
+      const resData = res.data
+      //   ?.map((item: pairsNewPriceType) => {
+      //   const pairsData = currencyPairsArray?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+      //   const exchangeCoinList=exchangeCoin.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+      //   if (pairsData) {
+      //     return {
+      //       ...item,
+      //       ...exchangeCoinList,
+      //       ...pairsData
+      //     }
+      //   } else {
+      //     return item
+      //   }
 
-      });
+      // });
       setSpotList(resData)
     } catch (error) {
       toast.error(String(error))
@@ -300,7 +307,14 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   // 基于搜索和标签过滤排序后的结果
   const filteredPairs = React.useMemo(
     () =>
-      spotList?.filter((pair) => {
+      pairsNewPrice?.map((pairs: any) => {
+        const spotListArr = spotList?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+        return {
+          ...pairs,
+          ...spotListArr
+        }
+        
+      })?.filter((pair) => {
         // 搜索过滤
         const matchesSearch =
           pair?.coinSymbol?.toLowerCase().includes(searchValue?.toLowerCase() || '') ||
@@ -309,12 +323,33 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         // 标签过滤
         const matchesTab =
           activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
-
-        return matchesSearch && matchesTab;
+        console.log(pairsNewPrice,999);
+        
+        return matchesSearch && matchesTab //&& spotListArr //&& currencyPairsArray
       }) || [],
-    [spotList, searchValue, activeTab]
+    [spotList, searchValue, activeTab, pairsNewPrice]
   );
+  const getUserExchangeCoin = async () => {
+    const userToken = appStore.getUserToken();
+    if(!userToken) return  //setExchangeCoin([])
+    try {
+      const res = await getUserExchangeCoinTypeList();
+      if (res.code === '0') {
+        // setExchangeCoin(res.data || [])
+        const spotData = spotList.map(item => {
+          const coinPair = res.data.find((pair: any) => pair.coinSymbol === item.coinSymbol && pair.baseSymbol === item.baseSymbol)
+          return {
+            ...item,
+            coinPair
+          }
+        })
+        setSpotList(spotData)
+      }
+    } catch (error) {
+      console.error('Error loading favorite coins:', error);
+    }
 
+  }
   const handleFavoriteChange = async (value: number, pair: any) => {
     if (!isLoggedIn) {
       // 用户未登录，显示提示并跳转到登录页面
@@ -331,6 +366,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     if (res.code === "0") {
       toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
         t('marketList.operationTips.removeSuccess'));
+      await getUserExchangeCoin()
+
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
       const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);
@@ -348,16 +385,41 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         updatedCurrentPair.isFavorite = isFavorite;
         appStore.setCurrentPair(updatedCurrentPair);
       }
-      // await getSpotList()
+
+      // // 更新表格数据 - 将最新的币对信息与价格数据匹配
+      // if (pairsNewPrice && pairsNewPrice.length > 0) {
+      //   // 创建一个新的价格数据数组，保留原有价格信息但更新收藏状态
+      //   const updatedPriceData = pairsNewPrice.map(priceItem => {
+      //     // 使用coinSymbol和baseSymbol匹配币对，因为pairsNewPriceType没有id属性
+      //     if (priceItem.coinSymbol === pair.coinSymbol && priceItem.baseSymbol === pair.baseSymbol) {
+      //       return {
+      //         ...priceItem,
+      //         isFavorite: isFavorite
+      //       };
+      //     }
+      //     return priceItem;
+      //   });
+
+      //   // 更新当前组件的状态
+      //   setSpotList(updatedPriceData);
+
+      //   // 如果组件有接收更新价格数据的方法，调用它通知父组件
+      //   if (onPairSelect && typeof onPairSelect === 'function') {
+      //     onPairSelect({ type: 'updateFavorite', data: updatedPriceData });
+      //   }
+      // }
     }
+
   };
+
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
   useEffect(() => {
     getClassLabelList()
     getSpotList()
-  }, [currencyPairsArray]);
+    getUserExchangeCoin()
+  }, []);
 
   return (
     <ConfigProvider
@@ -394,7 +456,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         </div>
         <div>
           <SimpleScrollTabs
-            items={tabsItem||[]}
+            items={tabsItem || []}
             onChange={handleTabClick}
             defaultActiveKey={activeTab}
             showAllTab={true}
