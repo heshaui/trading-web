@@ -139,7 +139,7 @@
             "title": "证件验证",
             "inputTip": "请务必确保输入信息与证件信息一致",
             "country": {
-                "title": "国家名称",
+                "title": "国家或地区",
                 "placeholder": "请选择"
             },
             "idType": {
