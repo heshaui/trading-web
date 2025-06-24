@@ -4,9 +4,9 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Image,Tooltip } from 'antd';
-import { DownOutlined, SwapOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
-import { trade, getPrice,preTrade } from '@/services/flash';
+import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
+import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
+import { getConfig, trade, getPrice,preTrade } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
@@ -14,8 +14,8 @@ import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
 
 
-const { Panel } = Collapse;
 
+const { Panel } = Collapse;
 
 
 const FlashPage: NextPage = () => {
@@ -28,6 +28,7 @@ const FlashPage: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceExpired, setPriceExpired] = useState<boolean>(false);
   const [preTradeData, setPreTradeData] = useState<any>({});
+  
   // Success and failure modal states
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
   const [isFailureModalVisible, setIsFailureModalVisible] = useState<boolean>(false);
@@ -41,12 +42,14 @@ const FlashPage: NextPage = () => {
   const [userAll,setUserAll] = useState<any[]>([]);
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
+  const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
 
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
+  
   const headerBgImage = flashConfigData?.[langKey]?.img;
 
   const headerTitle = flashConfigData && flashConfigData[langKey] 
@@ -92,6 +95,8 @@ const FlashPage: NextPage = () => {
       </Select>
     );
   };
+
+
   const router = useRouter();
   const [spotModal, setSpotModal] = useState<boolean>(false);
 
@@ -112,7 +117,6 @@ const FlashPage: NextPage = () => {
       console.error('Failed to load flash config:', error);
     }
   }
-
   const getCoinAllList = async () => {
 
     const res = await getCoinAll()
@@ -130,6 +134,10 @@ const FlashPage: NextPage = () => {
     const res = await preTrade(data)
     if (res.code === '0') {
       setPreTradeData(res.data)
+      // 获取新数据后，如果还在弹窗中且不是达到最大重试次数，则隐藏过期提示
+      if (isConfirmModalVisible && refreshCount < 5) {
+        setPriceExpired(false);
+      }
     }
   }
 
@@ -156,9 +164,9 @@ const FlashPage: NextPage = () => {
   }
 
   const handleConfirm = async () => {
-    await getPreTrade()
     setIsConfirmModalVisible(true)
-    setCountdown(8) // 开始8秒倒计时
+    setRefreshCount(0) // 重置重新请求次数
+    setPriceExpired(false) // 重置价格过期状态
   }
 
 
@@ -220,11 +228,7 @@ const FlashPage: NextPage = () => {
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
       const parsedInfo = JSON.parse(userInfo);
-      if(configData?.realNameRequired){
-        setIsAuth(parsedInfo.realnessStatus === 1);
-      }else{
-        setIsAuth(true)
-      }
+      setIsAuth(parsedInfo.realnessStatus === 1);
     }
 
   }, [])
@@ -257,18 +261,53 @@ const FlashPage: NextPage = () => {
     }
   }, [payAmount, exchangeRate])
 
-  // Countdown timer effect
+  // Countdown timer effect based on expireTime
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (countdown > 0) {
-      timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
+    
+    if (preTradeData?.expireTime && isConfirmModalVisible) {
+      const calculateRemainingTime = () => {
+        const now = Date.now();
+        const expireTime = preTradeData.expireTime;
+        const remaining = Math.max(0, Math.ceil((expireTime - now) / 1000));
+        setCountdown(remaining);
+        
+        if (remaining <= 0) {
+          // 倒计时结束时自动重新请求接口，最多5次
+          if (refreshCount < 5) {
+            // 还有重试次数，先显示过期提示，然后重新请求
+            setPriceExpired(true);
+            setTimeout(() => {
+              setPriceExpired(false);
+              getPreTrade();
+              setRefreshCount(prev => prev + 1);
+            }, 1000); // 1秒后开始重新请求
+          } else {
+            // 达到最大重试次数，显示过期提示
+            setPriceExpired(true);
+          }
+        }
+        
+        return remaining;
+      };
+      
+      // 立即计算一次
+      const remaining = calculateRemainingTime();
+      
+      if (remaining > 0) {
+        timer = setInterval(() => {
+          const newRemaining = calculateRemainingTime();
+          if (newRemaining <= 0) {
+            clearInterval(timer);
+          }
+        }, 1000);
+      }
     }
+    
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timer) clearInterval(timer);
     };
-  }, [countdown])
+  }, [preTradeData?.expireTime, isConfirmModalVisible])
 
   return (
     <>
@@ -323,12 +362,10 @@ const FlashPage: NextPage = () => {
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
                     if (currentCoin && currentCoin.balance) {
-                      // 确保不超过最大交易限额
-                      const maxAllowedAmount = Math.min(Number(currentCoin.balance), Number(configData?.maxTradeU || Infinity));
-                      setPayAmount(maxAllowedAmount.toString());
+                      setPayAmount(currentCoin.balance);
                       // Also calculate the receive amount based on the max balance
-                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(maxAllowedAmount)) {
-                        const calculatedAmount = (maxAllowedAmount * Number(exchangeRate)).toFixed(8);
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
+                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
                         setReceiveAmount(calculatedAmount);
                       }
                     }
@@ -336,12 +373,7 @@ const FlashPage: NextPage = () => {
                 >最大</MaxLabel>
                 <IconSelect
                   value={baseCoin}
-                  onChange={(value: string) => {
-                    setBaseCoin(value);
-                    // 清空输入框
-                    setPayAmount('');
-                    setReceiveAmount('');
-                  }}
+                  onChange={setBaseCoin}
                   style={{ width: '100px' }}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
@@ -395,26 +427,14 @@ const FlashPage: NextPage = () => {
                       // Also calculate the pay amount based on the max receive amount
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance)) && Number(exchangeRate) > 0) {
                         const calculatedPayAmount = (Number(currentCoin.balance) / Number(exchangeRate)).toFixed(8);
-                        // 确保计算出的支付金额不超过最大交易限额
-                        const maxAllowedPayAmount = Math.min(Number(calculatedPayAmount), Number(configData?.maxTradeU || Infinity));
-                        setPayAmount(maxAllowedPayAmount.toString());
-                        // 如果支付金额被限制，需要重新计算接收金额
-                        if (Number(calculatedPayAmount) > maxAllowedPayAmount) {
-                          const recalculatedReceiveAmount = (maxAllowedPayAmount * Number(exchangeRate)).toFixed(8);
-                          setReceiveAmount(recalculatedReceiveAmount);
-                        }
+                        setPayAmount(calculatedPayAmount);
                       }
                     }
                   }}
                 >最大</MaxLabel>
                 <IconSelect
                   value={quteCoin}
-                  onChange={(value: string) => {
-                    setQuteCoin(value);
-                    // 清空输入框
-                    setPayAmount('');
-                    setReceiveAmount('');
-                  }}
+                  onChange={setQuteCoin}
                   style={{ width: '100px' }}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
@@ -443,6 +463,8 @@ const FlashPage: NextPage = () => {
               onClose={() => {
                 setIsConfirmModalVisible(false)
                 setCountdown(0) // 关闭时重置倒计时
+                setPriceExpired(false) // 重置价格过期状态
+                setRefreshCount(0) // 重置重新请求次数
               }}
               payAmount={payAmount}
               payCurrency={baseCoin}
@@ -453,12 +475,17 @@ const FlashPage: NextPage = () => {
               priceExpired={priceExpired}
               coinList={coinList}
               countdown={countdown}
+              refreshCount={refreshCount}
+              preTradeData={preTradeData}
               onConfirm={() => {
                 setIsLoading(true)
                 // Simulate API call
                 handleTrade()
               }}
-              onRefreshPrice={() => {
+              onRefreshPrice={async () => {
+                await getPreTrade();
+                setRefreshCount(prev => prev + 1);
+                // 手动刷新时暂时隐藏过期提示，但会在新的倒计时结束后重新显示
                 setPriceExpired(false);
               }}
             />
@@ -665,7 +692,7 @@ const SwapButtonWrapper = styled.div`
   margin: -10px 0;
   position: relative;
   z-index: 1;
-  margin: 30px 0;
+  margin-bottom: 30px;
 `;
 
 const SwapButton = styled.div`
@@ -741,6 +768,8 @@ interface ConfirmExchangeModalProps {
   onRefreshPrice: () => void;
   coinList: any[];
   countdown: number;
+  refreshCount: number;
+  preTradeData: any;
 }
 
 const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
@@ -756,7 +785,9 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   onConfirm,
   onRefreshPrice,
   coinList,
-  countdown
+  countdown,
+  refreshCount,
+  preTradeData
 }) => {
   // Find the coin icons for the selected currencies
   const findCoinIcon = (coinName: string) => {
@@ -810,7 +841,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             <DetailRow>
               <DetailLabel>兑换率</DetailLabel>
               <DetailValue>
-                1{payCurrency} = {exchangeRate} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
+                1{payCurrency} = {preTradeData?.price} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
               </DetailValue>
             </DetailRow>
 
@@ -829,6 +860,11 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             <PriceExpiredAlert>
               <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
               该报价已过期，请重新获取报价
+              {refreshCount >= 5 && (
+                <div style={{ marginTop: '5px', fontSize: '12px' }}>
+                  已达到最大重试次数，请手动刷新
+                </div>
+              )}
             </PriceExpiredAlert>
           )}
 

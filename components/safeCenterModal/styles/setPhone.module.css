@@ -48,7 +48,7 @@
 .input_box{
     height: 50px;
     background: var(--background5);
-    color: var(--text-color6);
+    color: var(--text-color5);
 }
 .default_color{
     color: #FF5F1F;
