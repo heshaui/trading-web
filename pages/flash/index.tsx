@@ -692,7 +692,7 @@ const SwapButtonWrapper = styled.div`
   margin: -10px 0;
   position: relative;
   z-index: 1;
-  margin-bottom: 30px;
+  margin: 30px 0;
 `;
 
 const SwapButton = styled.div`
