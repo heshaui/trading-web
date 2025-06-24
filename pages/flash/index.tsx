@@ -455,7 +455,7 @@ const FlashPage: NextPage = () => {
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth}>预览</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0}>预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
