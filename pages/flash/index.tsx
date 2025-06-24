@@ -49,6 +49,7 @@ const FlashPage: NextPage = () => {
 
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
+  
   const headerBgImage = flashConfigData?.[langKey]?.img;
 
   const headerTitle = flashConfigData && flashConfigData[langKey] 
@@ -95,8 +96,7 @@ const FlashPage: NextPage = () => {
     );
   };
 
-  const [coinLoading, setCoinLoading] = useState<boolean>(false);
-  const [coinError, setCoinError] = useState<string | null>(null);
+
   const router = useRouter();
   const [spotModal, setSpotModal] = useState<boolean>(false);
 
@@ -114,7 +114,7 @@ const FlashPage: NextPage = () => {
     if (res.code === '0') {
       setBaseCoin(res.data.baseCoin)
       setQuteCoin(res.data.quoteCoin)
-      setConfigData(res.data)
+
 
     }
 
