@@ -109,17 +109,14 @@ const FlashPage: NextPage = () => {
   }
 
   const gerFlashConfig = async () => {
-    const data={}
-    const res = await getConfig(data)
-    if (res.code === '0') {
-      setBaseCoin(res.data.baseCoin)
-      setQuteCoin(res.data.quoteCoin)
-
-
+    try {
+      const config = await appStore.loadFlashConfig();
+      setBaseCoin(config.baseCoin);
+      setQuteCoin(config.quoteCoin);
+    } catch (error) {
+      console.error('Failed to load flash config:', error);
     }
-
   }
-
   const getCoinAllList = async () => {
 
     const res = await getCoinAll()
