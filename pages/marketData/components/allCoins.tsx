@@ -287,12 +287,9 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
 
           return matchesSearch //&& matchesTab;
         }) || [],
-    [allInitCoins, searchValue, activeTab]
+    [allInitCoins, searchValue, pairsNewPrice]
   );
-  useEffect(() => {
-    console.log(filteredPairs, 999);
 
-  }, [filteredPairs]);
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
