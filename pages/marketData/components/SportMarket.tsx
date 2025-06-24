@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./styles/spotHeader_select.module.css";
 import { ConfigProvider, Rate, Table, Tooltip, Image, Input } from "antd";
 import { Iconify } from "@/components/icon";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "next-i18next";
 import type { DropdownProps, MenuProps } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -19,7 +19,7 @@ import {
 import SimpleScrollTabs from "@/components/ScrollableTabs";
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
-import { cut } from '@/utils'
+import { cut,division ,nul} from '@/utils'
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
@@ -53,7 +53,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const [tableLoading, setTableLoading] = useState(false)
   const currencyPairsArray = appStore.currencyPairs || [];
   const [tabsItem, setTabsItem] = useState<TabsProps["items"]>([])
-  // const [exchangeCoin,setExchangeCoin]=useState<pairsNewPriceType[]>([])
+  const [exchangeCoin, setExchangeCoin] = useState<string[]>([])
   // 标签页配置
   const initTabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
@@ -146,29 +146,35 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     // },
     {
       title: t('header.change24h'),
-      dataIndex: 'priceChangePercent',
-      key: 'priceChangePercent',
+      dataIndex: 'closePrice',
+      key: 'closePrice',
       align: 'center',
       sorter: (a, b) => {
-        // const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
-        // const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
-        // return Number(aPrice) - Number(bPrice)
-        return Number(a.priceChangePercent) - Number(b.priceChangePercent)
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)) ,Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)) ,Number(b.openPrice))
+        return Number(aPrice) - Number(bPrice)
       },
+      // render: (_price, record) => {
+      //   const price = _price ? Number(_price).toFixed(2) : Number(0).toFixed(2)
+      //   return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
+      //     {_price > 0 ? `+${price}%` : `${price}%`} </span>
+      // },
       render: (_price, record) => {
-        const price = _price ? Number(_price).toFixed(2) : Number(0).toFixed(2)
-        return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
-          {_price > 0 ? `+${price}%` : `${price}%`} </span>
+        const price =record.openPrice? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)) ,Number(record.openPrice)) : 0
+        const percent  =price  //nul(price, 100)
+        return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
+          {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
     },
     {
       title: `${t("header.high24h")}/${t("header.low24h")}`,
-      dataIndex: 'high_price',
-      key: 'high_price',
+      dataIndex: 'height',
+      key: 'height',
       align: 'center',
       render: (_marketValue, record) => {
-        // {pair.high_price || "--"}/{pair.low_price || "--"}
-        const price = `${record.high_price || "--"}/${record.low_price || "--"}`
+        const height=Number(record.height||0)
+        const lower=Number(record.lower||0)
+        const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
         return <span>{price}</span>
       },
     }, {
@@ -218,85 +224,66 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     try {
 
       const res = await getSpotData({})
-      const resData = res.data
-      //   ?.map((item: pairsNewPriceType) => {
-      //   const pairsData = currencyPairsArray?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
-      //   const exchangeCoinList=exchangeCoin.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
-      //   if (pairsData) {
-      //     return {
-      //       ...item,
-      //       ...exchangeCoinList,
-      //       ...pairsData
-      //     }
-      //   } else {
-      //     return item
-      //   }
+      if (res.code === '0') {
+        // setTableData(res.data)
 
-      // });
-      setSpotList(resData)
+        // const resData = res.data.map((item:any) => {
+        //   const coinPair = exchangeCoin.find((pair: any) => pair.exchangeCoinId?.toString() === item)
+        //   return {
+        //     ...item,
+        //     isFavorite: !!coinPair
+        //   }
+        // })
+        //   setSpotList(resData)
+
+
+        const userToken = appStore.getUserToken();
+        if (!userToken) {
+          setSpotList(res.data)
+          return 
+        }
+        const result = await getUserExchangeCoinTypeList();
+        if (result.code === '0') {
+          // setExchangeCoin(result.data || [])
+          const spotData = res.data.map((item: any) => {
+            const coinPair = result.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
+            return {
+              ...item,
+              isFavorite: !!coinPair
+            }
+          })
+
+          setSpotList(spotData)
+        }
+      }
     } catch (error) {
       toast.error(String(error))
     } finally {
       setTableLoading(false)
     }
   }
+  const getUserExchangeCoin = async () => {
+    const userToken = appStore.getUserToken();
+    if (!userToken) return  //setExchangeCoin([])
+    try {
+      const res = await getUserExchangeCoinTypeList();
+      if (res.code === '0') {
+        setExchangeCoin(res.data || [])
+        // const spotData = spotList.map(item => {
+        //   const coinPair = res.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
+        //   return {
+        //     ...item,
+        //     isFavorite: !!coinPair
+        //   }
+        // })
 
-  // 获取排序后的数据
-  const getSortedPairs = () => {
-    if (!sortField) return currencyPairs;
-
-    console.log("开始排序，字段:", sortField, "方向:", sortDirection);
-
-    return [...currencyPairs].sort((a, b) => {
-      try {
-        if (sortField === "name") {
-          // 使用正确的属性进行排序，确保不为undefined
-          const nameA = String(a.coinSymbol || "");
-          const nameB = String(b.coinSymbol || "");
-          return sortDirection === "asc"
-            ? nameA.localeCompare(nameB, undefined, { numeric: true })
-            : nameB.localeCompare(nameA, undefined, { numeric: true });
-        }
-        if (sortField === "price") {
-          // 最新价排序
-          const priceA =
-            typeof a.yesterdayPrice === "string"
-              ? parseFloat(a.yesterdayPrice || "0")
-              : a.yesterdayPrice || 0;
-          const priceB =
-            typeof b.yesterdayPrice === "string"
-              ? parseFloat(b.yesterdayPrice || "0")
-              : b.yesterdayPrice || 0;
-          return sortDirection === "asc" ? priceA - priceB : priceB - priceA;
-        }
-        if (sortField === "change") {
-          // 24h涨跌排序
-          const changeA =
-            typeof a.priceChangePercent === "string"
-              ? parseFloat(a.priceChangePercent || "0")
-              : a.priceChangePercent || 0;
-          const changeB =
-            typeof b.priceChangePercent === "string"
-              ? parseFloat(b.priceChangePercent || "0")
-              : b.priceChangePercent || 0;
-          return sortDirection === "asc"
-            ? changeA - changeB
-            : changeB - changeA;
-        }
-        //   成交额排序
-        if (sortField === "quantity") {
-          const volumeA = parseFloat(a.quantity) || 0;
-          const volumeB = parseFloat(b.quantity) || 0;
-          return sortDirection === "asc"
-            ? volumeA - volumeB
-            : volumeB - volumeA;
-        }
-      } catch (error) {
-        console.error("排序过程中出错:", error, "数据:", a, b);
+        // setSpotList(spotData)
       }
-      return 0;
-    });
-  };
+    } catch (error) {
+      console.error('Error loading favorite coins:', error);
+    }
+
+  }
 
   // 确保在排序状态变化时重新计算排序结果
   // const sortedPairList = React.useMemo(
@@ -305,15 +292,15 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   // );
 
   // 基于搜索和标签过滤排序后的结果
-  const filteredPairs = React.useMemo(
+  const filteredPairs = useMemo(
     () =>
       pairsNewPrice?.map((pairs: any) => {
         const spotListArr = spotList?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
         return {
+          ...spotListArr,
           ...pairs,
-          ...spotListArr
         }
-        
+
       })?.filter((pair) => {
         // 搜索过滤
         const matchesSearch =
@@ -323,33 +310,12 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         // 标签过滤
         const matchesTab =
           activeTab && activeTab === "all" ? true : pair?.classLabel === activeTab;
-        console.log(pairsNewPrice,999);
-        
+
         return matchesSearch && matchesTab //&& spotListArr //&& currencyPairsArray
       }) || [],
     [spotList, searchValue, activeTab, pairsNewPrice]
   );
-  const getUserExchangeCoin = async () => {
-    const userToken = appStore.getUserToken();
-    if(!userToken) return  //setExchangeCoin([])
-    try {
-      const res = await getUserExchangeCoinTypeList();
-      if (res.code === '0') {
-        // setExchangeCoin(res.data || [])
-        const spotData = spotList.map(item => {
-          const coinPair = res.data.find((pair: any) => pair.coinSymbol === item.coinSymbol && pair.baseSymbol === item.baseSymbol)
-          return {
-            ...item,
-            coinPair
-          }
-        })
-        setSpotList(spotData)
-      }
-    } catch (error) {
-      console.error('Error loading favorite coins:', error);
-    }
 
-  }
   const handleFavoriteChange = async (value: number, pair: any) => {
     if (!isLoggedIn) {
       // 用户未登录，显示提示并跳转到登录页面
@@ -360,17 +326,19 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
     const isFavorite = value === 1;
     const apiCall = isFavorite
-      ? addUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 })
-      : canalUserExchangeCoinType({ exchangeCoinId: pair.id, type: 1 });
+      ? addUserExchangeCoinType({ exchangeCoinId: pair.exchangeCoinId, type: 1 })
+      : canalUserExchangeCoinType({ exchangeCoinId: pair.exchangeCoinId, type: 1 });
     const res = await apiCall;
     if (res.code === "0") {
       toast.success(isFavorite ? t('marketList.operationTips.addSuccess') :
         t('marketList.operationTips.removeSuccess'));
-      await getUserExchangeCoin()
+      // await getUserExchangeCoin()
+      await getSpotList()
+      
 
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
-      const pairIndex = updatedPairs.findIndex((item) => item.id === pair.id);
+      const pairIndex = updatedPairs.findIndex((item) => item.id === pair.exchangeCoinId);
       if (pairIndex !== -1) {
         updatedPairs[pairIndex] = {
           ...updatedPairs[pairIndex],
@@ -380,7 +348,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       }
 
       // 如果当前选中的是被修改的币对，也要更新currentPair
-      if (appStore.currentPair && appStore.currentPair.id === pair.id) {
+      if (appStore.currentPair && appStore.currentPair.id === pair.exchangeCoinId) {
         const updatedCurrentPair = { ...appStore.currentPair };
         updatedCurrentPair.isFavorite = isFavorite;
         appStore.setCurrentPair(updatedCurrentPair);
@@ -418,8 +386,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   useEffect(() => {
     getClassLabelList()
     getSpotList()
-    getUserExchangeCoin()
+    // getUserExchangeCoin()
   }, []);
+
+  
 
   return (
     <ConfigProvider
