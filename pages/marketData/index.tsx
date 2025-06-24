@@ -698,7 +698,7 @@ export default function MarketData() {
           lineHeight: "20px",
         },
       }),
-      align: "center",
+      align: "left",
       dataIndex: "price",
       key: "price",
       render: (text, record) => (
