@@ -13,9 +13,12 @@ import { getLoginInfo } from '@/services/overview';
 import { encryptString } from '@/utils/encrypt';
 import { toast } from 'sonner';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig';
+import appStore from '@/store';
+
 export default function SpotMenuItems() {
     // 路由
     const router = useRouter();
+    const configData = appStore.getFlashConfig();
 
     // t - 多语言
     const { t, i18n } = useTranslation('common');
@@ -53,7 +56,22 @@ export default function SpotMenuItems() {
                     }}
                 />
             ),
-        }
+        },
+        ...(configData.flashConvertSwitch ? [{
+            key: '3',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? "/images/home_menu/icon_flash_line.png"
+                        : "/images/home_menu/icon_flash_line_dark.png"}
+                    h5Text='闪兑订单'
+                    spanText=""
+                    onClick={() => {
+                        router.push('/flashOrder')
+                    }}
+                />
+            ),
+        }] : [])
     ];
 
     return (

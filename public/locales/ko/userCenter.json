@@ -139,7 +139,7 @@
             "title": "신분증 확인",
             "inputTip": "입력한 정보가 신분증 정보와 일치하는지 확인해 주세요",
             "country": {
-                "title": "국가명",
+                "title": "국가 또는 지역",
                 "placeholder": "선택하세요"
             },
             "idType": {

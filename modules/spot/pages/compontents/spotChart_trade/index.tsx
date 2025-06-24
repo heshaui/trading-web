@@ -988,7 +988,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                           ),
                         }
                   }
-                  formatter={(value) => {
+                  formatter={(value: any) => {
                     if (value === "" || value === null || value === undefined)
                       return "";
                     const precision = currentPair?.baseCoinScale || 8;
@@ -998,13 +998,13 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
                   }}
                   parser={(value) => {
                     if (value === "" || value === null || value === undefined)
-                      return 0;
+                      return "";
                     // 只保留数字和第一个小数点
                     const parsed = value
                       .toString()
                       .replace(/[^\d.]/g, "")
                       .replace(/\.(?=.*\.)/g, "");
-                    return parseFloat(parsed) || 0;
+                    return parsed as unknown as number;
                   }}
                   disabled={priceDisabled}
                 />
