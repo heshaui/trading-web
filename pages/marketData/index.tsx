@@ -32,17 +32,23 @@ export default function MarketData() {
   const { theme } = useThemeConfig();
   const [marketDataUp, setMarketDataUp] = useState<TradeRakingResp[]>([]);
   const [marketDataDown, setMarketDataDown] = useState<TradeRakingResp[]>([]);
-  const [HotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
+  const [hotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
   const [newPrice, setNewPrice] = useState<any[]>([]);
+  const [tenantId, setTenantId] = useState<string>('');
+  // const [initNewPair, setInitNewPair] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
+  const userInfo=appStore.getUserInfo()
 
   // WebSocket引用，用于管理多个币对的WebSocket连接
   const wsRefs = useRef<{ [key: string]: WebSocketService }>({});
   // 多通道WebSocket引用
   const multiWsRef = useRef<WebSocketService | null>(null);
+  // 定时器引用，用于管理轮询请求
+  const upTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const downTimerRef = useRef<NodeJS.Timeout | null>(null);
   // 获取涨幅榜数据
   const fetchMarketDataUp = async () => {
     try {
@@ -67,7 +73,15 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取涨幅榜信息失败：", error);
-      throw error; // 抛出错误，以便在 Promise 链中捕获
+    } finally {
+      // 无论成功还是失败，都在10秒后重新请求
+      // 清除之前的定时器，避免重复请求
+      if (upTimerRef.current) {
+        clearTimeout(upTimerRef.current);
+      }
+      upTimerRef.current = setTimeout(() => {
+        fetchMarketDataUp();
+      }, 3*1000);
     }
   };
   // 获取跌幅榜数据
@@ -95,7 +109,15 @@ export default function MarketData() {
       }
     } catch (error) {
       console.error("获取跌幅榜信息失败：", error);
-      throw error; // 抛出错误，以便在 Promise 链中捕获
+    } finally {
+      // 无论成功还是失败，都在10秒后重新请求
+      // 清除之前的定时器，避免重复请求
+      if (downTimerRef.current) {
+        clearTimeout(downTimerRef.current);
+      }
+      downTimerRef.current = setTimeout(() => {
+        fetchMarketDataDown();
+      }, 3*1000);
     }
   };
   // 获取热门榜OK
@@ -103,13 +125,17 @@ export default function MarketData() {
     try {
       const response = await getHotData();
       if (response?.code === "0") {
-        const sortData = response.data?.map((item: any) => {
-          const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
-          return {
-            ...item,
-            ...pairsData
-          }
-        }).sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
+        setTenantId(response.data?.[0]?.tenantId)
+        // const sortData = response.data?.map((item: any) => {
+        //   const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
+        //   return {
+        //     ...item,
+        //     ...pairsData
+        //   }
+        // }).sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
+        //   return Number(b?.sort) - Number(a?.sort)
+        // })
+        const sortData = response.data?.sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
           return Number(b?.sort) - Number(a?.sort)
         })
         setHotMarketList(sortData);
@@ -124,25 +150,11 @@ export default function MarketData() {
     try {
       const response = await getExchangeCoinAllPrice();
       if (response?.code === "0") {
-        // 处理数据，计算涨跌幅
+        // setInitNewPair(response.data)
         const processedData = response.data.map((item: any) => {
-          // const initCoinPair=coinPair.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
-          // 提取价格数据，支持多种可能的字段名称
-          // let priceChangePercent;
-          const price = parseFloat(item.price || item.close_price || "0");
-          // const yesterdayPrice = parseFloat(item.yesterdayPrice || "0");
-
-          // // 计算涨跌幅
-          // if (price && yesterdayPrice && yesterdayPrice !== 0) {
-          //   const change = (price - yesterdayPrice) / yesterdayPrice;
-          //   priceChangePercent = parseFloat((change * 100).toFixed(2));
-          // }
           return {
-            // ...initCoinPair,
-            ...item,
-            price: price || undefined,
-            // yesterdayPrice: yesterdayPrice || undefined,
-            // priceChangePercent,
+            baseSymbol: item.baseSymbol,
+            coinSymbol: item.coinSymbol,
           };
         });
 
@@ -388,7 +400,7 @@ export default function MarketData() {
       console.log("多通道WebSocket连接成功，发送订阅消息");
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
-        channels: ["BTC_USDT_1002@kline_1d","ETH_USDT_1002@kline_1d"]
+        channels: [`BTC_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`, `ETH_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`]
       });
 
       const sent = multiWsRef.current.send(subscribeMessage);
@@ -446,77 +458,77 @@ export default function MarketData() {
     }
     // console.log(mapData,999);
 
-    // 更新涨幅榜单数据
-    setMarketDataUp((prevMarket) => {
-      // 深拷贝当前价格数据
-      const updatedPrices = [...prevMarket];
-      // 找到对应币对
-      const pairIndex = updatedPrices.findIndex(
-        (p) => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol
-      );
-      if (pairIndex !== -1) {
-        // 计算涨跌幅: (close_price - open_price) / open_price
-        let priceChangePercent = 0;
-        if (mapData.open_price && mapData.open_price !== 0) {
-          const change = (mapData.close_price - mapData.open_price) / mapData.open_price;
-          // 转换为百分比并保留2位小数
-          priceChangePercent = change * 100
-        }
+    // // 更新涨幅榜单数据
+    // setMarketDataUp((prevMarket) => {
+    //   // 深拷贝当前价格数据
+    //   const updatedPrices = [...prevMarket];
+    //   // 找到对应币对
+    //   const pairIndex = updatedPrices.findIndex(
+    //     (p) => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol
+    //   );
+    //   if (pairIndex !== -1) {
+    //     // 计算涨跌幅: (close_price - open_price) / open_price
+    //     let priceChangePercent = 0;
+    //     if (mapData.open_price && mapData.open_price !== 0) {
+    //       const change = (mapData.close_price - mapData.open_price) / mapData.open_price;
+    //       // 转换为百分比并保留2位小数
+    //       priceChangePercent = change * 100
+    //     }
 
-        // 更新价格、24小时涨跌幅、交易量等数据
-        updatedPrices[pairIndex] = {
-          ...updatedPrices[pairIndex],
-          // open_price: String(mapData.open_price),
-          // high_price: String(mapData.high_price),
-          // low_price: String(mapData.low_price),
-          // close_price: String(mapData.close_price),
-          // price: String(mapData.close_price), // 添加price字段更新
-          // volume: String(mapData.volume),
-          // priceChangePercent: priceChangePercent,
-          // // 更新时间戳
-          // updateTime: Date.now(),
-          ...mapData
-        };
-      }
-      return updatedPrices;
-    })
+    //     // 更新价格、24小时涨跌幅、交易量等数据
+    //     updatedPrices[pairIndex] = {
+    //       ...updatedPrices[pairIndex],
+    //       // open_price: String(mapData.open_price),
+    //       // high_price: String(mapData.high_price),
+    //       // low_price: String(mapData.low_price),
+    //       // close_price: String(mapData.close_price),
+    //       // price: String(mapData.close_price), // 添加price字段更新
+    //       // volume: String(mapData.volume),
+    //       // priceChangePercent: priceChangePercent,
+    //       // // 更新时间戳
+    //       // updateTime: Date.now(),
+    //       ...mapData
+    //     };
+    //   }
+    //   return updatedPrices;
+    // })
 
-    // 更新跌幅榜单数据
-    setMarketDataDown((prevMarket) => {
-      // 深拷贝当前价格数据
-      const updatedPrices = [...prevMarket];
-      // 找到对应币对
-      const pairIndex = updatedPrices.findIndex(
-        (p) => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol
-      );
-      console.log(`跌幅榜单查找币对 ${coinSymbol}_${baseSymbol}, 索引: ${pairIndex}, 总数据数: ${updatedPrices.length}`);
-      if (pairIndex !== -1) {
-        // 计算涨跌幅: (close_price - open_price) / open_price
-        let priceChangePercent = 0;
-        if (mapData.open_price && mapData.open_price !== 0) {
-          const change = (mapData.close_price - mapData.open_price) / mapData.open_price;
-          // 转换为百分比并保留2位小数
-          // priceChangePercent = parseFloat((change * 100).toFixed(2));
-          priceChangePercent = change * 100
-        }
+    // // 更新跌幅榜单数据
+    // setMarketDataDown((prevMarket) => {
+    //   // 深拷贝当前价格数据
+    //   const updatedPrices = [...prevMarket];
+    //   // 找到对应币对
+    //   const pairIndex = updatedPrices.findIndex(
+    //     (p) => p.coinSymbol === coinSymbol && p.baseSymbol === baseSymbol
+    //   );
+    //   console.log(`跌幅榜单查找币对 ${coinSymbol}_${baseSymbol}, 索引: ${pairIndex}, 总数据数: ${updatedPrices.length}`);
+    //   if (pairIndex !== -1) {
+    //     // 计算涨跌幅: (close_price - open_price) / open_price
+    //     let priceChangePercent = 0;
+    //     if (mapData.open_price && mapData.open_price !== 0) {
+    //       const change = (mapData.close_price - mapData.open_price) / mapData.open_price;
+    //       // 转换为百分比并保留2位小数
+    //       // priceChangePercent = parseFloat((change * 100).toFixed(2));
+    //       priceChangePercent = change * 100
+    //     }
 
-        // 更新价格、24小时涨跌幅、交易量等数据
-        updatedPrices[pairIndex] = {
-          ...updatedPrices[pairIndex],
-          // open_price: String(mapData.open_price),
-          // high_price: String(mapData.high_price),
-          // low_price: String(mapData.low_price),
-          // close_price: String(mapData.close_price),
-          // price: String(mapData.close_price), // 添加price字段更新
-          // volume: String(mapData.volume),
-          // priceChangePercent: priceChangePercent,
-          // // 更新时间戳
-          // updateTime: Date.now(),
-          ...mapData
-        };
-      }
-      return updatedPrices;
-    })
+    //     // 更新价格、24小时涨跌幅、交易量等数据
+    //     updatedPrices[pairIndex] = {
+    //       ...updatedPrices[pairIndex],
+    //       // open_price: String(mapData.open_price),
+    //       // high_price: String(mapData.high_price),
+    //       // low_price: String(mapData.low_price),
+    //       // close_price: String(mapData.close_price),
+    //       // price: String(mapData.close_price), // 添加price字段更新
+    //       // volume: String(mapData.volume),
+    //       // priceChangePercent: priceChangePercent,
+    //       // // 更新时间戳
+    //       // updateTime: Date.now(),
+    //       ...mapData
+    //     };
+    //   }
+    //   return updatedPrices;
+    // })
 
     // 更新热门榜单数据
     setHotMarketList((prevMarket) => {
@@ -577,17 +589,23 @@ export default function MarketData() {
 
   const filteredHotPairs = useMemo(
     () =>
-      marketDataUp?.map((pairs: any) => {
+      hotMarketList?.map((pairs: any) => {
         const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
         return {
           ...pairs,
           ...spotListArr,
         }
 
+      }).sort((a: HotMarketSymbol, b: HotMarketSymbol) => {
+        return Number(a?.sort) - Number(b?.sort)
       })
       || [],
-    [marketDataUp, newPrice]
+    [hotMarketList, newPrice]
   );
+    useEffect(() => {
+    console.log(filteredHotPairs, 999);
+
+  }, [filteredHotPairs]);
   const filteredMarketDataDown = useMemo(
     () =>
       // HotMarketList
@@ -601,15 +619,15 @@ export default function MarketData() {
       // })
       marketDataDown.filter((items: any) => {
         const changePercent = (items.close_price - items.open_price) / items.open_price;
-        return changePercent<=0
+        return changePercent <= 0
       }).sort(
         (a: any, b: any) => {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-        return bchangePercent - achangePercent
-      })
+          return achangePercent - bchangePercent
+        })
       || [],
-    [HotMarketList]
+    [marketDataDown]
   );
 
   const filteredMarketDataUp = useMemo(
@@ -624,22 +642,18 @@ export default function MarketData() {
       // })
       marketDataUp.filter((items: any) => {
         const changePercent = (items.close_price - items.open_price) / items.open_price;
-        return changePercent>=0
+        return changePercent >= 0
       }).sort(
         (a: any, b: any) => {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-        return bchangePercent - achangePercent
-      })
+          return bchangePercent - achangePercent
+        })
       || [],
-    [HotMarketList]
+    [marketDataUp]
   );
 
 
-  // useEffect(() => {
-  //   console.log(filteredHotPairs, newPrice, 999);
-
-  // }, [filteredHotPairs, newPrice]);
   // 热门
   const columns: ColumnsType<HotMarketSymbol> = [
     {
@@ -826,15 +840,16 @@ export default function MarketData() {
 
   useEffect(() => {
     // 同时执行涨跌幅榜单请求和WebSocket连接初始化
+    fetchHotMarketData();
     fetchMarketDataUp();
     fetchMarketDataDown();
     setIsLoading(false);
     // 先执行 fetchNewPrice，完成后再执行 fetchHotMarketData
     fetchNewPrice()
-      .then(() => {
-        // fetchNewPrice 完成后执行 fetchHotMarketData
-        return fetchHotMarketData();
-      })
+      // .then(() => {
+      //   // fetchNewPrice 完成后执行 fetchHotMarketData
+      //   return fetchHotMarketData();
+      // })
       .catch(error => {
         console.error("请求过程中发生错误:", error);
         setIsLoading(false);
@@ -848,6 +863,15 @@ export default function MarketData() {
       if (multiWsRef.current) {
         multiWsRef.current.close();
         multiWsRef.current = null;
+      }
+      // 清理定时器，避免内存泄漏和不必要的请求
+      if (upTimerRef.current) {
+        clearTimeout(upTimerRef.current);
+        upTimerRef.current = null;
+      }
+      if (downTimerRef.current) {
+        clearTimeout(downTimerRef.current);
+        downTimerRef.current = null;
       }
     };
   }, [getMulti]);

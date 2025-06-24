@@ -150,18 +150,35 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
         return <span>{price}</span>
       },
-    }, {
-      title: t("header.amount24h"),
-      dataIndex: 'quantity',
-      key: 'quantity',
+    },
+    // {
+    //   title: t("header.volume24h"),
+    //   dataIndex: 'quantity',
+    //   key: 'quantity',
+    //   align: 'center',
+    //   sorter: (a, b) => {
+    //     const aQuantity = parseFloat(a.quantity) / 1000000
+    //     const bQuantity = parseFloat(b.quantity) / 1000000
+    //     return aQuantity - bQuantity
+    //   },
+    //   render: (_quantity, record) => {
+    //     return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+    //   },
+    // },
+    {
+      title: t("header.volume24h"),
+      dataIndex: 'volume',
+      key: 'volume',
       align: 'center',
       sorter: (a, b) => {
-        const aQuantity = parseFloat(a.quantity) / 1000000
-        const bQuantity = parseFloat(b.quantity) / 1000000
-        return aQuantity - bQuantity
+        // const aQuantity = parseFloat(a.quantity) / 1000000
+        // const bQuantity = parseFloat(b.quantity) / 1000000
+        // return aQuantity - bQuantity
+        return Number(a.volume)-Number( b.volume)
       },
-      render: (_quantity, record) => {
-        return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+      render: (_volume, record) => {
+        // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+        return <span>{`${_volume || '--'}`}</span>
       },
     },
     {
@@ -203,24 +220,6 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
     }
   };
 
-
-  // const sortedPairList = getSortedPairs();
-
-  // const filteredPairs = currencyPairs.filter((pair) => {
-  //   // 必须是收藏的
-  //   const isFavorite = pair.isFavorite;
-
-  //   // 搜索过滤
-  //   const matchesSearch =
-  //     pair.coinSymbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-  //     pair.baseSymbol.toLowerCase().includes(searchValue.toLowerCase());
-
-  //   // 标签过滤
-  //   const matchesTab =
-  //     activeTab === "all" ? true : pair.classLabel === activeTab;
-
-  //   return isFavorite && matchesSearch && matchesTab;
-  // });
   const filteredPairs = useMemo(
     () =>
       pairsNewPrice?.map((pairs: any) => {
@@ -302,17 +301,23 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         //   }
         // })
         //   setSpotList(resData)
-
+        const resData = res.data.map((item:any) => {
+          return {
+            exchangeCoinId:item.exchangeCoinId,
+            baseSymbol: item.baseSymbol,
+            coinSymbol: item.coinSymbol,
+          };
+        })
 
         const userToken = appStore.getUserToken();
         if (!userToken) {
-          setSpotList(res.data)
+          setSpotList(resData)
           return
         }
         const result = await getUserExchangeCoinTypeList();
         if (result.code === '0') {
           // setExchangeCoin(result.data || [])
-          const spotData = res.data.map((item: any) => {
+          const spotData = resData.map((item: any) => {
             const coinPair = result.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
             return {
               ...item,

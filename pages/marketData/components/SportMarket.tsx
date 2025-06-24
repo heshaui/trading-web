@@ -177,18 +177,21 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
         return <span>{price}</span>
       },
-    }, {
-      title: t("header.amount24h"),
-      dataIndex: 'quantity',
-      key: 'quantity',
+    },
+    {
+      title: t("header.volume24h"),
+      dataIndex: 'volume',
+      key: 'volume',
       align: 'center',
       sorter: (a, b) => {
-        const aQuantity = parseFloat(a.quantity) / 1000000
-        const bQuantity = parseFloat(b.quantity) / 1000000
-        return aQuantity - bQuantity
+        // const aQuantity = parseFloat(a.quantity) / 1000000
+        // const bQuantity = parseFloat(b.quantity) / 1000000
+        // return aQuantity - bQuantity
+        return Number(a.volume)-Number( b.volume)
       },
-      render: (_quantity, record) => {
-        return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+      render: (_volume, record) => {
+        // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
+        return <span>{`${_volume || '--'}`}</span>
       },
     },
     {
@@ -235,17 +238,23 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         //   }
         // })
         //   setSpotList(resData)
-
+        const resData = res.data.map((item:any) => {
+          return {
+            exchangeCoinId:item.exchangeCoinId,
+            baseSymbol: item.baseSymbol,
+            coinSymbol: item.coinSymbol,
+          };
+        })
 
         const userToken = appStore.getUserToken();
         if (!userToken) {
-          setSpotList(res.data)
+          setSpotList(resData)
           return 
         }
         const result = await getUserExchangeCoinTypeList();
         if (result.code === '0') {
           // setExchangeCoin(result.data || [])
-          const spotData = res.data.map((item: any) => {
+          const spotData = resData.map((item: any) => {
             const coinPair = result.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
             return {
               ...item,
@@ -262,43 +271,14 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       setTableLoading(false)
     }
   }
-  const getUserExchangeCoin = async () => {
-    const userToken = appStore.getUserToken();
-    if (!userToken) return  //setExchangeCoin([])
-    try {
-      const res = await getUserExchangeCoinTypeList();
-      if (res.code === '0') {
-        setExchangeCoin(res.data || [])
-        // const spotData = spotList.map(item => {
-        //   const coinPair = res.data.find((pair: any) => item.exchangeCoinId?.toString() === pair)
-        //   return {
-        //     ...item,
-        //     isFavorite: !!coinPair
-        //   }
-        // })
-
-        // setSpotList(spotData)
-      }
-    } catch (error) {
-      console.error('Error loading favorite coins:', error);
-    }
-
-  }
-
-  // 确保在排序状态变化时重新计算排序结果
-  // const sortedPairList = React.useMemo(
-  //   () => getSortedPairs(),
-  //   [currencyPairs, sortField, sortDirection]
-  // );
-
   // 基于搜索和标签过滤排序后的结果
   const filteredPairs = useMemo(
     () =>
       pairsNewPrice?.map((pairs: any) => {
         const spotListArr = spotList?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
         return {
-          ...spotListArr,
           ...pairs,
+          ...spotListArr,
         }
 
       })?.filter((pair) => {
