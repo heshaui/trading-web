@@ -6,7 +6,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
 import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
 import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
-import { getConfig, trade, getPrice } from '@/services/flash';
+import { getConfig, trade, getPrice,preTrade } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
@@ -27,7 +27,7 @@ const FlashPage: NextPage = () => {
   const [exchangeRate, setExchangeRate] = useState<string>('0');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [priceExpired, setPriceExpired] = useState<boolean>(false);
-  const [configData, setConfigData] = useState<any>({minTradeU:0,maxTradeU:0});
+  const [preTradeData, setPreTradeData] = useState<any>({});
   
   // Success and failure modal states
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState<boolean>(false);
