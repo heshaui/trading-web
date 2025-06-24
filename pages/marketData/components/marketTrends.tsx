@@ -20,7 +20,7 @@ type Props = {
 
 const TrendsTable = observer(({ tradeData }: Props) => {
   const { t } = useTranslation("market");
-  const [activeTab, setActiveTab] = useState('1'); // 默认选中第2个tab
+  const [activeTab, setActiveTab] = useState('2'); // 默认选中第2个tab
   const [searchKeyword, setSearchKeyword] = useState(''); // 搜索关键词状态
   const currencyPairsArray = appStore.getCurrentPairList() || appStore.currencyPairs || [];
   // 处理搜索输入变化
