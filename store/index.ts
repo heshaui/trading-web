@@ -14,6 +14,7 @@ import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
 import { inviteInfoType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
+import { getConfig } from '@/services/flash';
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
@@ -54,6 +55,11 @@ class AppStore {
     kvConfig: Record<string, any> = {};
     inviteInfo: inviteInfoType = {} as inviteInfoType;
     banlanceShow: boolean = true;
+    
+    // 添加 flash 配置状态
+    flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
+    isLoadingFlashConfig: boolean = false;
+
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -70,6 +76,7 @@ class AppStore {
             this.initCoinList(); //加载币种数据
             this.initKvConfig();
             this.initBanlanceShow(); //初始化资产显示状态
+            this.initFlashConfigFromStorage(); // 初始化闪兑配置
         }
     }
 
@@ -714,6 +721,59 @@ class AppStore {
         const banlanceShow = sessionStorage.getItem('banlanceShow') || 'true';
         if (banlanceShow) {
             this.banlanceShow = JSON.parse(banlanceShow);
+        }
+    }
+
+    // Flash 配置相关方法
+    initFlashConfigFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const flashConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.FLASH_CONFIG);
+            if (flashConfigJson) {
+                this.flashConfig = JSON.parse(flashConfigJson);
+            }
+        } catch (error) {
+            console.error('Failed to load flash config from storage:', error);
+        }
+    }
+
+    async loadFlashConfig() {
+        try {
+            this.isLoadingFlashConfig = true;
+            const data = {};
+            const res = await getConfig(data);
+            
+            if (res.code === '0') {
+                this.setFlashConfig(res.data);
+                return res.data;
+            } else {
+                throw new Error('Failed to load flash config');
+            }
+        } catch (error) {
+            console.error('Error loading flash config:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingFlashConfig = false;
+            });
+        }
+    }
+
+    setFlashConfig(config: any) {
+        this.flashConfig = config;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.FLASH_CONFIG, JSON.stringify(config));
+        }
+    }
+
+    getFlashConfig() {
+        return this.flashConfig;
+    }
+
+    clearFlashConfig() {
+        this.flashConfig = { minTradeU: 0, maxTradeU: 0 };
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.FLASH_CONFIG);
         }
     }
 }

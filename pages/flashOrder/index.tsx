@@ -10,7 +10,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import appStore from '@/store';
 import { useAuth } from '@/context/AuthContext';
 import styles from './flash.module.css'
-import { records, getConfig } from '@/services/flash';
+import { records } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import type { GetStaticProps } from 'next';
 
@@ -116,10 +116,8 @@ const FlashOrderPage = () => {
     // 获取闪兑配置 - 使用useCallback进行优化
     const fetchFlashConfig = useCallback(async () => {
         try {
-            const response = await getConfig({});
-            if (response.code === '0') {
-                setConfigData(response.data);
-            }
+            const config = await appStore.loadFlashConfig();
+            setConfigData(config);
         } catch (error) {
             console.error('获取闪兑配置失败:', error);
         }
