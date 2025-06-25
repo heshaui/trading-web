@@ -80,7 +80,7 @@ export const getCoinRate = (symbolName: string, priceNum: string | number, baseS
 * @param symbolName 币种符号
 * @param num 数量
 * @param rateName 汇率符号
-* @returns ratetext 汇率返回内容,rate 汇率,symbol 汇率符号,shortName 汇率名称
+* @returns ratetext 汇率返回内容1,rate 换算后汇率,symbol 汇率符号,shortName 汇率名称
 */
 // 法币汇率换算
 export const getRate = (symbolName: string, priceNum: string | number, rateName: string = 'USD', baseSymbolName: string = 'USDT') => {

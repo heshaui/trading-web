@@ -19,7 +19,7 @@ import {
 import SimpleScrollTabs from "@/components/ScrollableTabs";
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
-import { cut,division ,nul} from '@/utils'
+import { cut, division, nul } from '@/utils'
 import type { ColumnsType } from 'antd/es/table';
 import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
@@ -124,7 +124,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       key: 'price',
       align: 'center',
       width: 250,
-      // sorter: (a, b) => a.price - b.price,
+      sorter: (a, b) => (a.price || 0) - (b.price || 0),
       render: (_price) => {
         // ${parseFloat(_price || "0").toLocaleString()}
         return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
@@ -151,19 +151,19 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
-      // sorter: (a, b) => {
-      //   const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)) ,Number(a.openPrice))
-      //   const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)) ,Number(b.openPrice))
-      //   return Number(aPrice) - Number(bPrice)
-      // },
+      sorter: (a, b) => {
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+        return Number(aPrice || 0) - Number(bPrice || 0)
+      },
       // render: (_price, record) => {
       //   const price = _price ? Number(_price).toFixed(2) : Number(0).toFixed(2)
       //   return <span className={`${Number(_price) > 0 ? styles.success_icon : Number(_price) < 0 ? styles.error_icon : ''}`}>
       //     {_price > 0 ? `+${price}%` : `${price}%`} </span>
       // },
       render: (_price, record) => {
-        const price =record.openPrice? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)) ,Number(record.openPrice)) : 0
-        const percent  =nul(price, 100) //price  //
+        const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
+        const percent = nul(price, 100) //price  //
         return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
           {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
@@ -175,8 +175,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       align: 'center',
       width: 250,
       render: (_marketValue, record) => {
-        const height=record.height||'0'
-        const lower=record.lower||'0'
+        const height = record.height || '0'
+        const lower = record.lower || '0'
         // const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
         const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
         return <span>{price}</span>
@@ -188,12 +188,12 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       key: 'volume',
       align: 'center',
       width: 250,
-      // sorter: (a, b) => {
-      //   // const aQuantity = parseFloat(a.quantity) / 1000000
-      //   // const bQuantity = parseFloat(b.quantity) / 1000000
-      //   // return aQuantity - bQuantity
-      //   return Number(a.volume)-Number( b.volume)
-      // },
+      sorter: (a, b) => {
+        // const aQuantity = parseFloat(a.quantity) / 1000000
+        // const bQuantity = parseFloat(b.quantity) / 1000000
+        // return aQuantity - bQuantity
+        return Number(a.volume||0)-Number( b.volume||0)
+      },
       render: (_volume, record) => {
         // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
         return <span>{`${_volume ? parseFloat(_volume).toLocaleString() : "--"}`}</span>
@@ -243,10 +243,10 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         //   }
         // })
         //   setSpotList(resData)
-        const resData = res.data.map((item:any) => {
+        const resData = res.data.map((item: any) => {
           return {
-            exchangeCoinId:item.exchangeCoinId,
-            classLabel:item.classLabel,
+            exchangeCoinId: item.exchangeCoinId,
+            classLabel: item.classLabel,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
@@ -255,7 +255,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         const userToken = appStore.getUserToken();
         if (!userToken) {
           setSpotList(resData)
-          return 
+          return
         }
         const result = await getUserExchangeCoinTypeList();
         if (result.code === '0') {
@@ -320,7 +320,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         t('marketList.operationTips.removeSuccess'));
       // await getUserExchangeCoin()
       await getSpotList()
-      
+
 
       // 本地更新以提高性能 - 只使用一种更新方式避免冲突
       const updatedPairs = [...appStore.currencyPairs];
@@ -375,7 +375,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
     // getUserExchangeCoin()
   }, []);
 
-  
+
 
   return (
     <ConfigProvider

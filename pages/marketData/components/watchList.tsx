@@ -112,7 +112,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       key: 'price',
       align: 'center',
       width: 250,
-      // sorter: (a, b) => a.price - b.price,
+      sorter: (a, b) => (a.price || 0) - (b.price || 0),
       render: (_price) => {
         // return <span>{_price || '0'}</span>
         return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
@@ -123,11 +123,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
-      // sorter: (a, b) => {
-      //   const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
-      //   const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-      //   return Number(aPrice) - Number(bPrice)
-      // },
+      sorter: (a, b) => {
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+        return Number(aPrice||0) - Number(bPrice||0)
+      },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
         const percent =price*100
@@ -175,12 +175,12 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       key: 'volume',
       align: 'center',
       width: 250,
-      // sorter: (a, b) => {
-      //   // const aQuantity = parseFloat(a.quantity) / 1000000
-      //   // const bQuantity = parseFloat(b.quantity) / 1000000
-      //   // return aQuantity - bQuantity
-      //   return Number(a.volume)-Number( b.volume)
-      // },
+      sorter: (a, b) => {
+        // const aQuantity = parseFloat(a.quantity) / 1000000
+        // const bQuantity = parseFloat(b.quantity) / 1000000
+        // return aQuantity - bQuantity
+        return Number(a.volume||0)-Number( b.volume||0)
+      },
       render: (_volume, record) => {
         // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
         // return <span>{`${_volume || '--'}`}</span>
