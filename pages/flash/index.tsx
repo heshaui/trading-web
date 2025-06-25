@@ -68,9 +68,9 @@ const FlashPage: NextPage = () => {
       <Select
         value={value}
         onChange={onChange}
-        bordered={false}
-        style={style || { width: '100px' }}
+        style={style || { width: '100px' ,border:'none'}}
         dropdownStyle={{ padding: '4px' }}
+        variant="borderless"
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
         menuItemSelectedIcon={null}
         showSearch={false}
@@ -164,6 +164,7 @@ const FlashPage: NextPage = () => {
   }
 
   const handleConfirm = async () => {
+    await getPreTrade()
     setIsConfirmModalVisible(true)
     setRefreshCount(0) // 重置重新请求次数
     setPriceExpired(false) // 重置价格过期状态
@@ -455,7 +456,7 @@ const FlashPage: NextPage = () => {
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth}>预览</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0}>预览</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
@@ -804,7 +805,6 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <ModalHeader>
@@ -1039,7 +1039,6 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
@@ -1129,7 +1128,6 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
