@@ -416,7 +416,7 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>现货可用 {userAll.find(item=>item.coinName===baseCoin)?.balance} {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             <AvailableAmount>现货可用 {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
              {/* 余额不足提示 */}
              {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
               Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0) && (
