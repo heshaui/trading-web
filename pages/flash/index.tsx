@@ -12,6 +12,9 @@ import { useRouter, NextRouter } from 'next/router';
 import { getUserBalanceAll } from '@/services/assets';
 import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
+import { useCoinList } from '@/hooks/use-coinList';
+import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
+
 
 
 
@@ -36,7 +39,7 @@ const FlashPage: NextPage = () => {
   const [isClientReady, setIsClientReady] = useState<boolean>(false);
 
   // 币种列表数据
-  const [coinList, setCoinList] = useState<any[]>([]);
+
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
@@ -44,9 +47,12 @@ const FlashPage: NextPage = () => {
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
   const [isAmountValid, setIsAmountValid] = useState<boolean>(true); // 金额是否在限额范围内
+  const {coinList} = useCoinList();
+
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
+  console.log('coinLists',coinList)
 
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
@@ -60,9 +66,7 @@ const FlashPage: NextPage = () => {
                         ? flashConfigData[langKey].subTitle 
                         : '';
   
-  // Custom select component with icon display
   const IconSelect = ({ value, options, onChange, style }: any) => {
-    // Find the selected option to display its icon
     const selectedOption = options.find((opt: any) => opt.value === value);
 
     return (
@@ -75,7 +79,6 @@ const FlashPage: NextPage = () => {
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
         menuItemSelectedIcon={null}
         showSearch={false}
-        // Custom display for selected item
         dropdownRender={(menu) => (
           <div style={{ padding: '4px' }}>{menu}</div>
         )}
@@ -102,8 +105,8 @@ const FlashPage: NextPage = () => {
   const [spotModal, setSpotModal] = useState<boolean>(false);
 
   // 验证金额是否在限额范围内
-  const validateAmount = (amount: string) => {
-    if (!amount || !configData?.minTradeU || !configData?.maxTradeU) {
+  const validateAmount = (amount: string, coinName: string) => {
+    if (!amount || !configData?.minTradeU || !configData?.maxTradeU || !coinName) {
       return true; // 如果没有输入金额或配置数据，不显示错误
     }
     
@@ -112,7 +115,11 @@ const FlashPage: NextPage = () => {
       return true; // 如果不是数字，不显示限额错误
     }
     
-    return numAmount >= Number(configData.minTradeU) && numAmount <= Number(configData.maxTradeU);
+    // 将支付币种换算成USDT等价值
+    const usdtRate = getCoinRate(coinName, 'USDT');
+    const usdtEquivalent = numAmount * (Number(usdtRate) || 1);
+    
+    return usdtEquivalent >= Number(configData.minTradeU) && usdtEquivalent <= Number(configData.maxTradeU);
   };
 
 
@@ -129,17 +136,9 @@ const FlashPage: NextPage = () => {
       setBaseCoin(config.baseCoin);
       setQuteCoin(config.quoteCoin);
     } catch (error) {
-      console.error('Failed to load flash config:', error);
     }
   }
-  const getCoinAllList = async () => {
 
-    const res = await getCoinAll()
-    if (res.code === '0') {
-      setCoinList(res.data)
-      await getFlashPrice()
-    }
-  }
   const getPreTrade = async () => {
     if(!baseCoin||!quteCoin){ return }
     const data = {
@@ -164,10 +163,8 @@ const FlashPage: NextPage = () => {
     }
     try {
       const res = await getPrice(data)
-      console.log('Flash price response:', res)
       if (res.code === '0') {
         setExchangeRate(res.data)
-        // When exchange rate is updated, recalculate receive amount if pay amount exists
         if (payAmount && !isNaN(Number(payAmount)) && !isNaN(Number(res.data))) {
           const calculatedAmount = (Number(payAmount) * Number(res.data)).toFixed(8);
           setReceiveAmount(calculatedAmount);
@@ -198,8 +195,6 @@ const FlashPage: NextPage = () => {
       setIsConfirmModalVisible(false)
       
       if (res.code === '0') {
-        // Store trade result for display in success modal
-        console.log('Trade response data:', res.data);
         setTradeResult({
           sendAmount: payAmount,
           sendCoin: baseCoin,
@@ -235,14 +230,13 @@ const FlashPage: NextPage = () => {
     setReceiveAmount(tempPayAmount)
     
     // 验证交换后的支付金额是否在限额范围内
-    setIsAmountValid(validateAmount(tempReceiveAmount || ''));
+    setIsAmountValid(validateAmount(tempReceiveAmount || '', tempQuteCoin));
     
     // Update the exchange rate after swapping - will be triggered by useEffect when coins change
   }
 
 
   useEffect(() => {
-    getCoinAllList()
     gerFlashConfig()
     getUserAllBala()
     const userInfo = localStorage.getItem('imbit_userInfo');
@@ -284,7 +278,7 @@ const FlashPage: NextPage = () => {
       setReceiveAmount(calculatedAmount);
       
       // 当汇率变化时，重新验证支付金额是否在限额范围内
-      setIsAmountValid(validateAmount(payAmount));
+      setIsAmountValid(validateAmount(payAmount, baseCoin));
     }
   }, [payAmount, exchangeRate])
 
@@ -379,7 +373,7 @@ const FlashPage: NextPage = () => {
                     setPayAmount(value);
                     
                     // 验证金额限额
-                    setIsAmountValid(validateAmount(value));
+                    setIsAmountValid(validateAmount(value, baseCoin));
                     
                     // Calculate receive amount when pay amount changes
                     if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
@@ -396,7 +390,7 @@ const FlashPage: NextPage = () => {
                       setPayAmount(currentCoin.balance);
                       
                       // 验证最大金额是否在限额范围内
-                      setIsAmountValid(validateAmount(currentCoin.balance));
+                      setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
                       
                       // Also calculate the receive amount based on the max balance
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
@@ -459,7 +453,7 @@ const FlashPage: NextPage = () => {
                       setPayAmount(calculatedPayAmount);
                       
                       // 验证计算出的支付金额是否在限额范围内
-                      setIsAmountValid(validateAmount(calculatedPayAmount));
+                      setIsAmountValid(validateAmount(calculatedPayAmount, baseCoin));
                     }
                   }}
                 />
@@ -475,7 +469,7 @@ const FlashPage: NextPage = () => {
                         setPayAmount(calculatedPayAmount);
                         
                         // 验证计算出的支付金额是否在限额范围内
-                        setIsAmountValid(validateAmount(calculatedPayAmount));
+                        setIsAmountValid(validateAmount(calculatedPayAmount, baseCoin));
                       }
                     }
                   }}
