@@ -173,7 +173,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
                 <div className={styles.searchWrapper}>
                   <Input
                     placeholder="搜索"
-                    prefix={<SearchOutlined />}
+                    suffix={<SearchOutlined />}
                     value={searchValue}
                     onChange={handleSearchChange}
                     className={styles.searchInput}

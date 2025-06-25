@@ -120,9 +120,9 @@
 }
 
 .searchInput {
-  background-color: var(--background10, #f8f9fa) !important;
+
   border-radius: 12px !important;
-  border: 1px solid var(--border-color2, #e9ecef) !important;
+  border: 1px solid #ccc !important;
   padding: 8px 16px !important;
   height: 44px !important;
 }
