@@ -111,9 +111,10 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      sorter: (a, b) => a.price - b.price,
+      // sorter: (a, b) => a.price - b.price,
       render: (_price) => {
-        return <span>{_price || '0'}</span>
+        // return <span>{_price || '0'}</span>
+        return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
       },
     },
     {
@@ -121,15 +122,15 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
-      sorter: (a, b) => {
-        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
-        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-        return Number(aPrice) - Number(bPrice)
-      },
+      // sorter: (a, b) => {
+      //   const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+      //   const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+      //   return Number(aPrice) - Number(bPrice)
+      // },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
-        // const percent = nul(price, 100)
-        const percent = price
+        const percent =price*100
+        // const percent = price
         return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
           {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
@@ -145,9 +146,10 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       //   return <span>{price}</span>
       // },
       render: (_marketValue, record) => {
-        const height=Number(record.height||0)
-        const lower=Number(record.lower||0)
-        const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
+        const height=record.height||"0"
+        const lower=record.lower||"0"
+        // const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
+        const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
         return <span>{price}</span>
       },
     },
@@ -170,15 +172,17 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'volume',
       key: 'volume',
       align: 'center',
-      sorter: (a, b) => {
-        // const aQuantity = parseFloat(a.quantity) / 1000000
-        // const bQuantity = parseFloat(b.quantity) / 1000000
-        // return aQuantity - bQuantity
-        return Number(a.volume)-Number( b.volume)
-      },
+      // sorter: (a, b) => {
+      //   // const aQuantity = parseFloat(a.quantity) / 1000000
+      //   // const bQuantity = parseFloat(b.quantity) / 1000000
+      //   // return aQuantity - bQuantity
+      //   return Number(a.volume)-Number( b.volume)
+      // },
       render: (_volume, record) => {
         // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
-        return <span>{`${_volume || '--'}`}</span>
+        // return <span>{`${_volume || '--'}`}</span>
+        return <span>{`${_volume ? parseFloat(_volume).toLocaleString() : "--"}`}</span>
+
       },
     },
     {

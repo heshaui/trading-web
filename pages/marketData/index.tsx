@@ -24,7 +24,7 @@ import {
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
 import appStore from "@/store";
-import { cut, division } from '@/utils'
+import { cut, division,nul } from '@/utils'
 
 
 export default function MarketData() {
@@ -35,12 +35,16 @@ export default function MarketData() {
   const [hotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
   const [newPrice, setNewPrice] = useState<any[]>([]);
   const [tenantId, setTenantId] = useState<string>('');
-  // const [initNewPair, setInitNewPair] = useState<any[]>([]);
+  const initNewPair=useRef<any[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
   const userInfo=appStore.getUserInfo()
+  
+  // 使用 useRef 存储币对数据，这样在异步回调中可以访问最新值
+  // const coinPairDataRef = useRef<any[]>([]);
 
   // WebSocket引用，用于管理多个币对的WebSocket连接
   const wsRefs = useRef<{ [key: string]: WebSocketService }>({});
@@ -150,15 +154,15 @@ export default function MarketData() {
     try {
       const response = await getExchangeCoinAllPrice();
       if (response?.code === "0") {
-        // setInitNewPair(response.data)
+        // 同时更新 state 和 ref
+        initNewPair.current = response.data;
+        
         const processedData = response.data.map((item: any) => {
           return {
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
         });
-
-
         setNewPrice(processedData);
         // appStore.updateCurrencyPairAll(processedData);
         // 获取初始数据之后，建立WS连接
@@ -398,9 +402,22 @@ export default function MarketData() {
       }
 
       console.log("多通道WebSocket连接成功，发送订阅消息");
+      // 使用 useRef 中存储的币对数据构建 channels 参数
+      const currentTenantId = tenantId || userInfo?.tenantId 
+      
+      // 检查 ref 中是否有数据
+      if (initNewPair.current.length === 0||!currentTenantId) {
+        console.log("币对数据尚未准备好，等待下一次尝试");
+        return; // 如果没有数据，则等待下一次尝试
+      }
+      const channels = initNewPair.current.map(pair => {
+        return `${pair.coinSymbol}_${pair.baseSymbol}_${currentTenantId}@KLINE_1D`;
+      });
+      
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
-        channels: [`BTC_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`, `ETH_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`]
+        // channels: [`BTC_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`, `ETH_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`]
+        channels: channels
       });
 
       const sent = multiWsRef.current.send(subscribeMessage);
@@ -438,14 +455,14 @@ export default function MarketData() {
     // console.log(data,9999);
 
     // 更新币对信息
-    appStore.updateCoinPair(coinSymbol, baseSymbol, data);
     const mapData = {
       open_time: data[0],
-      open_price: data[1],
-      openPrice: data[1],
 
-      high_price: data[2],
-      height: data[2],
+      high_price: data[1],
+      height: data[1],
+
+      open_price: data[2],
+      openPrice: data[2],
 
       low_price: data[3],
       lower: data[3],
@@ -456,6 +473,8 @@ export default function MarketData() {
 
       volume: data[5]
     }
+    // appStore.updateCoinPair(coinSymbol, baseSymbol, data);
+
     // console.log(mapData,999);
 
     // // 更新涨幅榜单数据
@@ -602,10 +621,10 @@ export default function MarketData() {
       || [],
     [hotMarketList, newPrice]
   );
-    useEffect(() => {
-    console.log(filteredHotPairs, 999);
+  // useEffect(() => {
+  //   console.log(newPrice, 999);
 
-  }, [filteredHotPairs]);
+  // }, [newPrice]);
   const filteredMarketDataDown = useMemo(
     () =>
       // HotMarketList
@@ -729,6 +748,7 @@ export default function MarketData() {
         // const changePercent = record.priceChangePercent;
         const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
         const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
+        const changePercent2 = changePrice? changePercent*100: 0
         const isPositive = changePercent !== undefined && changePercent > 0;
         const isNegative = changePercent !== undefined && changePercent < 0;
         // const textColor = isPositive
@@ -737,7 +757,7 @@ export default function MarketData() {
         const prefix = isPositive ? "+" : "";
         return (
           <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-            {changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `${Number(0).toFixed(2)}%`}
+            {changePercent !== undefined ? `${prefix}${changePercent2.toFixed(2)}%` : `${Number(0).toFixed(2)}%`}
           </span>
         );
       },
@@ -816,7 +836,8 @@ export default function MarketData() {
         // 根据涨跌幅确定颜色
         // const changePercent = record.priceChangePercent
         const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
-        const changePercent = changePrice ? division(changePrice, Number(record.open_price)) : 0
+        const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
+        const changePercent = changePrice? changePercent1*100: 0
         const isPositive = changePercent !== undefined && Number(changePercent) > 0;
         const isNegative = changePercent !== undefined && Number(changePercent) < 0;
         const prefix = isPositive ? "+" : "";
@@ -839,22 +860,21 @@ export default function MarketData() {
 
 
   useEffect(() => {
-    // 同时执行涨跌幅榜单请求和WebSocket连接初始化
-    fetchHotMarketData();
+    // 执行涨跌幅榜单请求
     fetchMarketDataUp();
     fetchMarketDataDown();
     setIsLoading(false);
-    // 先执行 fetchNewPrice，完成后再执行 fetchHotMarketData
-    fetchNewPrice()
-      // .then(() => {
-      //   // fetchNewPrice 完成后执行 fetchHotMarketData
-      //   return fetchHotMarketData();
-      // })
+    
+    // 先执行 fetchNewPrice 和 fetchHotMarketData，完成后再执行 WebSocket 连接
+    Promise.all([fetchNewPrice(), fetchHotMarketData()])
+      .then(() => {
+        // 两个请求都完成后，再初始化 WebSocket 连接
+        getMulti();
+      })
       .catch(error => {
         console.error("请求过程中发生错误:", error);
         setIsLoading(false);
       });
-    getMulti();
 
     return () => {
       // 组件卸载时清理WebSocket连接

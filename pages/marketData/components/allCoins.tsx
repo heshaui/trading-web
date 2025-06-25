@@ -152,50 +152,32 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      sorter: (a, b) => a.price - b.price,
+      // sorter: (a, b) => a.price - b.price,
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
-          return <span>{coinRate.coinRate || '0'}</span>
+          return <span>{parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}/${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
+          // return <span>{parseFloat(_price || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
-          return <span>{_price || '0'}</span>
+          return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
         } else {
-          return <span>{_price || '0'}</span>
+          return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
         }
       },
     },
-    // {
-    //   title: t('marketList.tableHeaders.change24h'),
-    //   dataIndex: 'yesterdayPrice',
-    //   key: 'yesterdayPrice',
-    //   align: 'center',
-    //   sorter: (a, b) => {
-    //     const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
-    //     const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
-    //     return Number(aPrice) - Number(bPrice)
-    //   },
-    //   render: (_price, record) => {
-    //     const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
-    //     const percent = Number(record.yesterdayPrice) ? division(Number(price) || 0, Number(record.yesterdayPrice)) : 0
-    //     const pricePercent = nul(percent, 100)?.toFixed(2) || 0
-    //     return <span className={`${Number(pricePercent) > 0 ? styles.success_icon : Number(pricePercent) < 0 ? styles.error_icon : ''}`}>
-    //       {Number(pricePercent) > 0 ? `+${pricePercent}%` : `${pricePercent}%`}</span>
-
-    //   },
-    // },
     {
       title: t('marketList.tableHeaders.change24h'),
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
-      sorter: (a, b) => {
-        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
-        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-        return Number(aPrice) - Number(bPrice)
-      },
+      // sorter: (a, b) => {
+      //   const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+      //   const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+      //   return Number(aPrice) - Number(bPrice)
+      // },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
-        const percent = price  //nul(price, 100)
+        const percent = nul(price, 100) //price  
         return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
           {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
@@ -207,7 +189,8 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       align: 'center',
       // sorter: (a, b) => a.marketValue - b.marketValue,
       render: (_marketValue, record) => {
-        return <span>{_marketValue || '--'}</span>
+        return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
+        // return <span>{_marketValue || "0"}</span>
       },
     },
     {
@@ -247,6 +230,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       allInitCoins?.map((item: any) => {
         const directData = pairsNewPrice?.find(p => p.coinSymbol === item.coinName && p.baseSymbol === 'USDT')
         const reverseData = pairsNewPrice?.find(p => p.baseSymbol === item.coinName && p.coinSymbol === 'USDT')
+       
         if (directData) {
           return {
             ...item,
@@ -289,7 +273,10 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         }) || [],
     [allInitCoins, searchValue, pairsNewPrice]
   );
+  // useEffect(() => {
+  //   console.log(filteredPairs, 999);
 
+  // }, [filteredPairs])
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
