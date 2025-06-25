@@ -153,7 +153,23 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       key: 'price',
       align: 'center',
       width: 260,
-      // sorter: (a, b) => a.price - b.price,
+      // sorter: (a, b) => {
+      //   let aPrice
+      //   let bPrice
+      //   if (a.isDirectPair === 0) {
+      //     const coinRate = getCoinRate(a.coinName, a.price)
+      //     aPrice = coinRate.coinRate || 0
+      //   }else {
+      //     aPrice = Number(a.price || 0);
+      //   }
+      //   if (b.isDirectPair === 0) {
+      //     const coinRate = getCoinRate(b.coinName, b.price)
+      //     bPrice = coinRate.coinRate || 0
+      //   }else {
+      //     bPrice = Number(b.price || 0);
+      //   }
+      //   return Number(aPrice || 0) - Number(bPrice || 0)
+      // },
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
