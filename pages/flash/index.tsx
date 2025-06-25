@@ -68,8 +68,9 @@ const FlashPage: NextPage = () => {
       <Select
         value={value}
         onChange={onChange}
-        style={style || { width: '100px' }}
+        style={style || { width: '100px' ,border:'none'}}
         dropdownStyle={{ padding: '4px' }}
+        variant="borderless"
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
         menuItemSelectedIcon={null}
         showSearch={false}
