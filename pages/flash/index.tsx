@@ -68,7 +68,6 @@ const FlashPage: NextPage = () => {
       <Select
         value={value}
         onChange={onChange}
-        bordered={false}
         style={style || { width: '100px' }}
         dropdownStyle={{ padding: '4px' }}
         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
@@ -804,7 +803,6 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <ModalHeader>
@@ -1039,7 +1037,6 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
@@ -1129,7 +1126,6 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
       closable={false}
       centered
       width={470}
-      bodyStyle={{ padding: 0 }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
