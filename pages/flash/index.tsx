@@ -842,19 +842,25 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
 
           <ExchangeDetails>
             <DetailRow>
-              <DetailLabel>兑换率</DetailLabel>
+              <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>兑换率</DetailLabel>
+              </Tooltip>
               <DetailValue>
                 1{payCurrency} = {preTradeData?.price} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
               </DetailValue>
             </DetailRow>
 
             <DetailRow>
-              <DetailLabel>交易手续费</DetailLabel>
+              <Tooltip title="闪兑采用报价模式，不产生额外手续费">
+                <DetailLabel style={{ cursor: 'pointer' }}>交易手续费</DetailLabel>
+              </Tooltip>
               <DetailValue className="fee">0手续费</DetailValue>
             </DetailRow>
 
             <DetailRow>
-              <DetailLabel>您将支付</DetailLabel>
+              <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>您将支付</DetailLabel>
+              </Tooltip>
               <DetailValue>{payAmount} {payCurrency}</DetailValue>
             </DetailRow>
           </ExchangeDetails>

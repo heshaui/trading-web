@@ -21,19 +21,9 @@ interface TransactionRecord {
     sendCoin: string;
     receiveCoin: string;
     tradingPair: string;
-    payment: {
-        amount: number;
-        currency: string;
-    };
-    received: {
-        amount: number;
-        currency: string;
-    };
-    price: {
-        direct: string;
-        rate: string;
-        reverse: string;
-    };
+    sendAmount: number;
+    receivedAmount: number;
+    price: string;
     createTime: string;
     settlementTime: string;
     status: '0' | '1' | '2'|'3';
@@ -191,16 +181,40 @@ const FlashOrderPage = () => {
             title: '支付',
             dataIndex: 'sendAmount',
             key: 'sendAmount',
+            render: (text, record) => {
+                return record.sendAmount + ' ' + record.sendCoin
+            }
         },
         {
             title: '获得',
             dataIndex: 'receivedAmount',
-            key: 'receivedAmount'
+            key: 'receivedAmount',
+            render: (text, record) => {
+                return record.receivedAmount + ' ' + record.receiveCoin
+            }
         },
         {
             title: '价格',
             dataIndex: 'price', 
-            key: 'price'
+            key: 'price',
+            render: (text, record) => {
+                return  <div className='flex flex-col gap-1'>
+                    <div className='flex items-center gap-1'>
+                        <span>1</span>
+                        <span>{record.sendCoin}</span>
+                        <span>=</span>
+                        <span>{record.price}</span>
+                        <span>{record.receiveCoin}</span>
+                    </div>
+                    <div className='flex items-center gap-1'>
+                        <span>{record.price}</span>
+                        <span>{record.receiveCoin}</span>
+                        <span>=</span>
+                        <span>1</span>
+                        <span>{record.sendCoin}</span>
+                    </div>
+                </div>
+            }
         },
         {
             title: '结算日期',
