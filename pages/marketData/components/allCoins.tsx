@@ -153,30 +153,30 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       key: 'price',
       align: 'center',
       width: 260,
-      // sorter: (a, b) => {
-      //   let aPrice
-      //   let bPrice
-      //   if (a.isDirectPair === 0) {
-      //     const coinRate = getCoinRate(a.coinName, a.price)
-      //     aPrice = coinRate.coinRate || 0
-      //   }else {
-      //     aPrice = Number(a.price || 0);
-      //   }
-      //   if (b.isDirectPair === 0) {
-      //     const coinRate = getCoinRate(b.coinName, b.price)
-      //     bPrice = coinRate.coinRate || 0
-      //   }else {
-      //     bPrice = Number(b.price || 0);
-      //   }
-      //   return Number(aPrice || 0) - Number(bPrice || 0)
-      // },
+      sorter: (a, b) => {
+        let aPrice
+        let bPrice
+        if (a.isDirectPair === 0) {
+          const coinRate = getCoinRate(a.coinName, a.price)
+          aPrice = coinRate.coinRate || 0
+        }else {
+          aPrice = Number(a.price || 0);
+        }
+        if (b.isDirectPair === 0) {
+          const coinRate = getCoinRate(b.coinName, b.price)
+          bPrice = coinRate.coinRate || 0
+        }else {
+          bPrice = Number(b.price || 0);
+        }
+        return Number(aPrice || 0) - Number(bPrice || 0)
+      },
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
           return <span>{parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}/${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
           // return <span>{parseFloat(_price || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
-          return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
+          return <span>{usdtPrice.nowPrice||1}/${usdtPrice.nowPrice||1}</span>
         } else {
           return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
         }
@@ -187,11 +187,11 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
-      // sorter: (a, b) => {
-      //   const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
-      //   const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-      //   return Number(aPrice) - Number(bPrice)
-      // },
+      sorter: (a, b) => {
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+        return Number(aPrice||0) - Number(bPrice||0)
+      },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
         const percent = nul(price, 100) //price  
@@ -204,7 +204,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'marketValue',
       key: 'marketValue',
       align: 'center',
-      // sorter: (a, b) => a.marketValue - b.marketValue,
+      sorter: (a, b) => (a.marketValue||0) - (b.marketValue||0),
       render: (_marketValue, record) => {
         return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
         // return <span>{_marketValue || "0"}</span>
