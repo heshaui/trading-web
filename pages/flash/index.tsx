@@ -163,6 +163,7 @@ const FlashPage: NextPage = () => {
   }
 
   const handleConfirm = async () => {
+    await getPreTrade()
     setIsConfirmModalVisible(true)
     setRefreshCount(0) // 重置重新请求次数
     setPriceExpired(false) // 重置价格过期状态
