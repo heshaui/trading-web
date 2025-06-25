@@ -795,6 +795,9 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   refreshCount,
   preTradeData
 }) => {
+  // State to track if exchange rate is flipped
+  const [isRateFlipped, setIsRateFlipped] = useState<boolean>(false);
+
   // Find the coin icons for the selected currencies
   const findCoinIcon = (coinName: string) => {
     const coin = coinList.find((coin: any) => coin.coinName === coinName)
@@ -803,6 +806,34 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   
   const payIcon = findCoinIcon(payCurrency)
   const receiveIcon = findCoinIcon(receiveCurrency)
+
+  // Function to toggle exchange rate display
+  const toggleExchangeRate = () => {
+    setIsRateFlipped(!isRateFlipped);
+  }
+
+  // Calculate the display values for exchange rate (币种和数值位置都互换)
+  const getExchangeRateDisplay = () => {
+    if (!preTradeData?.price) return { leftValue: '1', leftCoin: payCurrency, rightValue: '--', rightCoin: receiveCurrency };
+    
+    if (isRateFlipped) {
+      // 左右位置完全互换：数值和币种都互换
+      return { leftValue: preTradeData.price, leftCoin: receiveCurrency, rightValue: '1', rightCoin: payCurrency };
+    } else {
+      // 正常显示：1 币种A = 数值 币种B
+      return { leftValue: '1', leftCoin: payCurrency, rightValue: preTradeData.price, rightCoin: receiveCurrency };
+    }
+  }
+
+  const exchangeRateDisplay = getExchangeRateDisplay();
+
+  // Reset rate flip state when modal closes
+  React.useEffect(() => {
+    if (!visible) {
+      setIsRateFlipped(false);
+    }
+  }, [visible]);
+
   return (
     <Modal
       open={visible}
@@ -846,7 +877,11 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
                 <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>兑换率</DetailLabel>
               </Tooltip>
               <DetailValue>
-                1{payCurrency} = {preTradeData?.price} {receiveCurrency} <SwapOutlined style={{ fontSize: '12px', marginLeft: '5px' }} />
+                {exchangeRateDisplay.leftValue}{exchangeRateDisplay.leftCoin} = {exchangeRateDisplay.rightValue} {exchangeRateDisplay.rightCoin} 
+                <SwapOutlined 
+                  style={{ fontSize: '12px', marginLeft: '5px', cursor: 'pointer' }}
+                  onClick={toggleExchangeRate}
+                />
               </DetailValue>
             </DetailRow>
 
