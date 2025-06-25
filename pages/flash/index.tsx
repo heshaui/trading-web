@@ -40,7 +40,7 @@ const FlashPage: NextPage = () => {
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
-  const [isAuth, setIsAuth] = useState<boolean>(false);
+  const [isAuth, setIsAuth] = useState<boolean>(true);
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
 
@@ -229,10 +229,14 @@ const FlashPage: NextPage = () => {
     getUserAllBala()
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
+      if(configData?.realNameRequired){
       const parsedInfo = JSON.parse(userInfo);
-      setIsAuth(parsedInfo.realnessStatus === 1);
+      // setIsAuth(parsedInfo.realnessStatus === 1);
+      if(parsedInfo.realnessStatus === 1){
+        setIsAuth(true)
+      }
     }
-
+  }
   }, [])
 
   useEffect(() => {
