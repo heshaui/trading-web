@@ -860,11 +860,6 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             <PriceExpiredAlert>
               <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
               该报价已过期，请重新获取报价
-              {refreshCount >= 5 && (
-                <div style={{ marginTop: '5px', fontSize: '12px' }}>
-                  已达到最大重试次数，请手动刷新
-                </div>
-              )}
             </PriceExpiredAlert>
           )}
 
