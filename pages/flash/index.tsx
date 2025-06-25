@@ -40,7 +40,7 @@ const FlashPage: NextPage = () => {
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
   const [userAll,setUserAll] = useState<any[]>([]);
-  const [isAuth, setIsAuth] = useState<boolean>(false);
+  const [isAuth, setIsAuth] = useState<boolean>(true);
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
 
@@ -184,11 +184,12 @@ const FlashPage: NextPage = () => {
       
       if (res.code === '0') {
         // Store trade result for display in success modal
+        console.log('Trade response data:', res.data);
         setTradeResult({
           sendAmount: payAmount,
           sendCoin: baseCoin,
-          receiveAmount: receiveAmount,
-          receiveCoin: quteCoin,
+          receiveAmount: res.data.receiveAmount || receiveAmount,
+          receiveCoin: res.data.receiveCoin || quteCoin,
           exchangeRate: exchangeRate
         })
         setIsSuccessModalVisible(true)
@@ -228,10 +229,14 @@ const FlashPage: NextPage = () => {
     getUserAllBala()
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
+      if(configData?.realNameRequired){
       const parsedInfo = JSON.parse(userInfo);
-      setIsAuth(parsedInfo.realnessStatus === 1);
+      // setIsAuth(parsedInfo.realnessStatus === 1);
+      if(parsedInfo.realnessStatus === 1){
+        setIsAuth(true)
+      }
     }
-
+  }
   }, [])
 
   useEffect(() => {
@@ -823,11 +828,9 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
               <CurrencyDirection>从</CurrencyDirection>
               <CurrencyAmount>{payAmount} {payCurrency}</CurrencyAmount>
             </CurrencySection>
-
             <ArrowIcon>
               <ArrowRightOutlined />
             </ArrowIcon>
-
             <CurrencySection>
               <ModalCurrencyIcon>
                 <Image src={receiveIcon} alt={receiveCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
@@ -860,11 +863,6 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             <PriceExpiredAlert>
               <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
               该报价已过期，请重新获取报价
-              {refreshCount >= 5 && (
-                <div style={{ marginTop: '5px', fontSize: '12px' }}>
-                  已达到最大重试次数，请手动刷新
-                </div>
-              )}
             </PriceExpiredAlert>
           )}
 
@@ -1077,7 +1075,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>您已收到</span>
-              <span>{tradeResult?.receivedAmount} {tradeResult?.receiveCoin}</span>
+              <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
