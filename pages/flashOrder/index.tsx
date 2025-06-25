@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import styles from './flash.module.css'
 import { records } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
+import { NoData } from '@/components/noData';
 import type { GetStaticProps } from 'next';
 
 
@@ -343,6 +344,17 @@ const FlashOrderPage = () => {
                                 loading={loading}
                                 onChange={handleTableChange}
                                 scroll={{ x: 'max-content' }}
+                                locale={{ 
+                                    emptyText: (
+                                        <NoData 
+                                            title="您还没有订单哦？" 
+                                            textColor="#A4A5AC"
+                                            height="45vh"
+                                            buttonTitle="点击此处前往兑换"
+                                            buttonClick={() => router.push('/flash')}
+                                        />
+                                    )
+                                }}
                             />
                         </div>
                     </div>
