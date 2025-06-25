@@ -930,14 +930,12 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             </DetailRow>
 
             <DetailRow>
-              <Tooltip title="闪兑采用报价模式，不产生额外手续费">
                 <DetailLabel style={{ cursor: 'pointer' }}>交易手续费</DetailLabel>
-              </Tooltip>
               <DetailValue className="fee">0手续费</DetailValue>
             </DetailRow>
 
             <DetailRow>
-              <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+              <Tooltip title="闪兑采用报价模式，不产生额外手续费">
                 <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>您将支付</DetailLabel>
               </Tooltip>
               <DetailValue>{payAmount} {payCurrency}</DetailValue>
