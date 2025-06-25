@@ -709,19 +709,19 @@ export default function MarketData() {
     },
     {
       title: t("rankingList.latestPrice"),
-      // onHeaderCell: () => ({
-      //   style: {
-      //     // width: "140px",
-      //     // height: "27px",
-      //     // fontSize: "14px",
-      //     // lineHeight: "20px",
-      //     // textAlign: "center",
-      //   },
-      // }),
+      onHeaderCell: () => ({
+        style: {
+          // minWidth: "150px",
+          // height: "27px",
+          // fontSize: "14px",
+          // lineHeight: "20px",
+          // textAlign: "center",
+        },
+      }),
       align: "left",
       dataIndex: "price",
       key: "price",
-      // width: 150,
+      // width: 200,
       render: (text, record) => (
         <div>
           <div>{parseFloat(record.price || "0").toLocaleString()}</div>
@@ -804,14 +804,14 @@ export default function MarketData() {
       title: t("rankingList.latestPrice"),
       dataIndex: "close_price",
       key: "close_price",
-      // onHeaderCell: () => ({
-      //   style: {
-      //     width: "140px",
-      //     height: "27px",
-      //     fontSize: "14px",
-      //     lineHeight: "20px",
-      //   },
-      // }),
+      onHeaderCell: () => ({
+        style: {
+          // minWidth: "150px",
+          // height: "27px",
+          // fontSize: "14px",
+          // lineHeight: "20px",
+        },
+      }),
       render: (_text, record) => (
         <div>
           <div>{_text ? parseFloat(_text || "0").toLocaleString() : "0"}</div>
