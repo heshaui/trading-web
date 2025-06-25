@@ -1,0 +1,320 @@
+.imageSelect {
+  position: relative;
+  width: 100%;
+  min-width: 200px;
+}
+
+.selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color2, #e0e0e0);
+  border-radius: 8px;
+  background-color: var(--background7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 50px;
+}
+
+/* .selector:hover {
+  border-color: var(--theme-color);
+}
+
+.selector:focus-within {
+  border-color: var(--theme-color);
+} */
+
+.selectorContent {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.selectedItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coinIcon {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.coinName {
+  color: var(--text-color5);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nameDefault {
+  color: var(--text-color6);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.placeholder {
+  color: var(--text-color6);
+  font-size: 14px;
+}
+
+.arrow {
+  color: var(--text-color6);
+  transition: transform 0.3s ease;
+}
+
+/* Modal相关样式 */
+.selectModal {
+  /* 覆盖antd modal的默认样式 */
+}
+
+.selectModal .ant-modal-content {
+  padding: 0;
+  border-radius: 12px;
+}
+
+.modalContent {
+  padding: 0;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 20px 24px;
+  border-bottom: 1px solid var(--border-color2, #f0f0f0);
+  background-color: var(--background7, #ffffff);
+  border-radius: 12px 12px 0 0;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color5, #333);
+  letter-spacing: -0.02em;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color6, #666);
+  font-size: 16px;
+}
+
+.closeButton:hover {
+  background-color: var(--background9, rgba(0, 0, 0, 0.04));
+}
+
+.searchWrapper {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color2, #f0f0f0);
+  background-color: var(--background7, #ffffff);
+}
+
+.searchInput {
+  background-color: var(--background10, #f8f9fa) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color2, #e9ecef) !important;
+  padding: 8px 16px !important;
+  height: 44px !important;
+}
+
+.searchInput input {
+  padding-left: 8px;
+  background-color: transparent !important;
+  font-size: 16px;
+}
+
+.searchInput:hover {
+  border-color: var(--theme-color) !important;
+}
+
+.searchInput:focus-within {
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--text-color6, #666);
+}
+
+.historySection {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color2, #f0f0f0);
+}
+
+.optionsSection {
+  padding: 8px 16px 24px 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--background7, #ffffff);
+}
+
+.sectionTitle {
+  color: var(--text-color6, #666);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.historyGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: var(--background10, #f5f5f5);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.historyItem:hover {
+  background-color: var(--background11, #e0e0e0);
+}
+
+.historyName {
+  color: var(--text-color5, #333);
+  white-space: nowrap;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.optionCard {
+  display: flex;
+  align-items: center;
+  padding: 16px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  border: 1px solid transparent;
+  margin: 0 4px;
+}
+
+.optionCard:hover {
+  background-color: color-mix(in srgb, var(--theme-color) 40%, transparent);
+    border-radius: 8px;
+  }
+
+.optionCard.selected {
+  /* background-color: color-mix(in srgb, var(--theme-color) 80%, transparent); */
+}
+
+.optionImage {
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.optionInfo {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.optionName {
+  color: var(--text-color5, #333);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  margin-right: 10px;
+}
+
+.optionDesc {
+  color: var(--text-color6, ##9E9E9E);
+  font-size: 12px;
+  line-height: 1.9;
+
+}
+
+.optionPriceWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.noData {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: var(--text-color6, #999);
+  font-size: 14px;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+/* 价格样式 */
+.optionPrice {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color5, #333);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.optionPriceLocal {
+  font-size: 12px;
+  color: var(--text-color6, #999);
+  line-height: 1.4;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .optionCard {
+    padding: 10px;
+  }
+  
+  .dropdown {
+    max-height: 300px;
+  }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .selector {
+    background-color: var(--background7, #1f1f1f);
+    border-color: var(--border-color2, #333);
+  }
+  
+  .dropdown {
+    background-color: var(--background7, #1f1f1f);
+  }
+  
+  .optionCard:hover {
+    background-color: var(--background9, rgba(255, 255, 255, 0.1));
+  }
+} 

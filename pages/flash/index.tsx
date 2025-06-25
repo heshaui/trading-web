@@ -4,8 +4,8 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styled from 'styled-components';
-import { Button, Input, Select, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
-import { DownOutlined, SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
+import { Button, Input, Collapse, Modal, Spin, Image,Tooltip } from 'antd';
+import { SwapOutlined, InfoCircleOutlined, CloseOutlined, ArrowRightOutlined, ExclamationCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { getConfig, trade, getPrice,preTrade } from '@/services/flash';
 import { getCoinAll } from '@/services/assets';
 import { useRouter, NextRouter } from 'next/router';
@@ -14,7 +14,8 @@ import SpotBuyModal from '@/components/spotModal/placeOrder_modal';
 import appStore from '@/store';
 import { useCoinList } from '@/hooks/use-coinList';
 import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
-
+import ImageSelect, { ImageSelectOption } from '@/components/ImageSelect';
+import styles from './flash.module.css';
 
 
 
@@ -66,39 +67,7 @@ const FlashPage: NextPage = () => {
                         ? flashConfigData[langKey].subTitle 
                         : '';
   
-  const IconSelect = ({ value, options, onChange, style }: any) => {
-    const selectedOption = options.find((opt: any) => opt.value === value);
 
-    return (
-      <Select
-        value={value}
-        onChange={onChange}
-        style={style || { width: '100px' ,border:'none'}}
-        dropdownStyle={{ padding: '4px' }}
-        variant="borderless"
-        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#666' }} />}
-        menuItemSelectedIcon={null}
-        showSearch={false}
-        dropdownRender={(menu) => (
-          <div style={{ padding: '4px' }}>{menu}</div>
-        )}
-      >
-        {options.map((option: any) => (
-          <Select.Option key={option.value} value={option.value}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Image
-                src={option.icon}
-                alt={option.label}
-                preview={false}
-                style={{ width: '20px', height: '20px',borderRadius:'50%' }}
-              />
-              <span>{option.label}</span>
-            </div>
-          </Select.Option>
-        ))}
-      </Select>
-    );
-  };
 
 
   const router = useRouter();
@@ -400,16 +369,22 @@ const FlashPage: NextPage = () => {
                     }
                   }}
                 >最大</MaxLabel>
-                <IconSelect
+                <ImageSelect
                   value={baseCoin}
-                  onChange={setBaseCoin}
-                  style={{ width: '100px' }}
+                  onChange={(value) => setBaseCoin(value)}
+                  showSearch={true}
+                  showHistory={false}
+                  maxHistory={0}
+                  className={styles.compactImageSelect}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
-                    icon: item.iconUrl
+                    coinName: item.coinName,
+                    iconUrl: item.iconUrl,
+                    nameDefault: item.nameDefault
                   }))}
                 />
+                  
 
 
 
@@ -474,14 +449,17 @@ const FlashPage: NextPage = () => {
                     }
                   }}
                 >最大</MaxLabel>
-                <IconSelect
+                <ImageSelect
                   value={quteCoin}
-                  onChange={setQuteCoin}
-                  style={{ width: '100px' }}
+                  onChange={(value) => setQuteCoin(value)}
+                  showSearch={true}
+                  showHistory={false}
+                  maxHistory={0}
+                  className={styles.compactImageSelect}
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
-                    icon: item.iconUrl
+                    iconUrl: item.iconUrl
                   }))}
                 />
 
@@ -555,7 +533,7 @@ const FlashPage: NextPage = () => {
         </ContentWrapper>
         <FAQSection>
             <FAQTitle>常见问题</FAQTitle>
-            <StyledCollapse expandIconPosition="end">
+            <StyledCollapse expandIconPosition="end" defaultActiveKey={['1', '2', '3', '4', '5']}>
               {/* Using default expand icon */}
               <Panel
                 header="如何使用闪兑交易功能?"
@@ -667,14 +645,16 @@ const TradeContainer = styled.div`
   background-color: var(--background-color);
   border-radius: 8px;
   padding: 20px;
-
+  overflow: visible;
+  position: relative;
 `;
 
 const TradeSection = styled.div`
-
   border: 1px solid #e8e8e8;
   border-radius: 4px;
   padding: 15px;
+  overflow: visible;
+  position: relative;
 `;
 
 const TradeLabel = styled.div`
@@ -687,6 +667,8 @@ const TradeInputWrapper = styled.div`
   align-items: center;
   border-radius: 4px;
   padding: 5px 10px 5px 0px;
+  overflow: visible;
+  position: relative;
 `;
 
 const StyledInput = styled(Input)`
@@ -755,6 +737,8 @@ const SwapButton = styled.div`
   justify-content: center;
   cursor: pointer;
 `;
+
+
 
 
 
