@@ -411,7 +411,7 @@ export default function MarketData() {
         return; // 如果没有数据，则等待下一次尝试
       }
       const channels = initNewPair.current.map(pair => {
-        return `${pair.coinSymbol}_${pair.baseSymbol}_${currentTenantId}@KLINE_1D`;
+        return `${pair.coinSymbol}_${pair.baseSymbol}_${currentTenantId}@kline_1d_3s`;
       });
       
       const subscribeMessage = JSON.stringify({
@@ -682,7 +682,7 @@ export default function MarketData() {
       align: "left",
       onHeaderCell: () => ({
         style: {
-          width: "165px",
+          minWidth: "165px",
           height: "27px",
           paddingLeft: "38px",
           fontSize: "14px",
@@ -709,17 +709,19 @@ export default function MarketData() {
     },
     {
       title: t("rankingList.latestPrice"),
-      onHeaderCell: () => ({
-        style: {
-          width: "140px",
-          height: "27px",
-          fontSize: "14px",
-          lineHeight: "20px",
-        },
-      }),
+      // onHeaderCell: () => ({
+      //   style: {
+      //     // width: "140px",
+      //     // height: "27px",
+      //     // fontSize: "14px",
+      //     // lineHeight: "20px",
+      //     // textAlign: "center",
+      //   },
+      // }),
       align: "left",
       dataIndex: "price",
       key: "price",
+      // width: 150,
       render: (text, record) => (
         <div>
           <div>{parseFloat(record.price || "0").toLocaleString()}</div>
@@ -734,13 +736,14 @@ export default function MarketData() {
       dataIndex: "price",
       key: "price",
       align: "right",
+      width: 150,
       onHeaderCell: () => ({
         style: {
-          width: "70px",
+          minWidth: "70px",
           height: "27px",
           fontSize: "14px",
           lineHeight: "20px",
-          textAlign: "left",
+          // textAlign: "left",
         },
       }),
       render: (_price: any, record: TradeRakingResp, index: number) => {
@@ -771,7 +774,7 @@ export default function MarketData() {
       key: "symbol",
       onHeaderCell: () => ({
         style: {
-          width: "165px",
+          minWidth: "165px",
           height: "27px",
           paddingLeft: "38px",
           fontSize: "14px",
@@ -801,14 +804,14 @@ export default function MarketData() {
       title: t("rankingList.latestPrice"),
       dataIndex: "close_price",
       key: "close_price",
-      onHeaderCell: () => ({
-        style: {
-          width: "140px",
-          height: "27px",
-          fontSize: "14px",
-          lineHeight: "20px",
-        },
-      }),
+      // onHeaderCell: () => ({
+      //   style: {
+      //     width: "140px",
+      //     height: "27px",
+      //     fontSize: "14px",
+      //     lineHeight: "20px",
+      //   },
+      // }),
       render: (_text, record) => (
         <div>
           <div>{_text ? parseFloat(_text || "0").toLocaleString() : "0"}</div>
@@ -823,13 +826,14 @@ export default function MarketData() {
       dataIndex: "close_price",
       key: "close_price",
       align: "right",
+      width: 150,
       onHeaderCell: () => ({
         style: {
-          width: "70px",
+          minWidth: "70px",
           height: "27px",
           fontSize: "14px",
           lineHeight: "20px",
-          textAlign: "left",
+          // textAlign: "left",
         },
       }),
       render: (_closePrice: any, record: TradeRakingResp, index: number) => {

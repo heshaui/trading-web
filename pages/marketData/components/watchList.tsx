@@ -111,6 +111,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'price',
       key: 'price',
       align: 'center',
+      width: 250,
       // sorter: (a, b) => a.price - b.price,
       render: (_price) => {
         // return <span>{_price || '0'}</span>
@@ -140,6 +141,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'height',
       key: 'height',
       align: 'center',
+      width: 250,
       // render: (_marketValue, record) => {
       //   // {pair.high_price || "--"}/{pair.low_price || "--"}
       //   const price = `${record.high_price || "--"}/${record.low_price || "--"}`
@@ -172,6 +174,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       dataIndex: 'volume',
       key: 'volume',
       align: 'center',
+      width: 250,
       // sorter: (a, b) => {
       //   // const aQuantity = parseFloat(a.quantity) / 1000000
       //   // const bQuantity = parseFloat(b.quantity) / 1000000

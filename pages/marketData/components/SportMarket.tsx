@@ -123,6 +123,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'price',
       key: 'price',
       align: 'center',
+      width: 250,
       // sorter: (a, b) => a.price - b.price,
       render: (_price) => {
         // ${parseFloat(_price || "0").toLocaleString()}
@@ -172,6 +173,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'height',
       key: 'height',
       align: 'center',
+      width: 250,
       render: (_marketValue, record) => {
         const height=record.height||'0'
         const lower=record.lower||'0'
@@ -185,6 +187,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'volume',
       key: 'volume',
       align: 'center',
+      width: 250,
       // sorter: (a, b) => {
       //   // const aQuantity = parseFloat(a.quantity) / 1000000
       //   // const bQuantity = parseFloat(b.quantity) / 1000000

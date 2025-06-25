@@ -152,6 +152,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'price',
       key: 'price',
       align: 'center',
+      width: 260,
       // sorter: (a, b) => a.price - b.price,
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
