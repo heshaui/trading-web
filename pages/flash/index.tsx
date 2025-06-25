@@ -184,11 +184,12 @@ const FlashPage: NextPage = () => {
       
       if (res.code === '0') {
         // Store trade result for display in success modal
+        console.log('Trade response data:', res.data);
         setTradeResult({
           sendAmount: payAmount,
           sendCoin: baseCoin,
-          receiveAmount: receiveAmount,
-          receiveCoin: quteCoin,
+          receiveAmount: res.data.receiveAmount || receiveAmount,
+          receiveCoin: res.data.receiveCoin || quteCoin,
           exchangeRate: exchangeRate
         })
         setIsSuccessModalVisible(true)
@@ -823,11 +824,9 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
               <CurrencyDirection>从</CurrencyDirection>
               <CurrencyAmount>{payAmount} {payCurrency}</CurrencyAmount>
             </CurrencySection>
-
             <ArrowIcon>
               <ArrowRightOutlined />
             </ArrowIcon>
-
             <CurrencySection>
               <ModalCurrencyIcon>
                 <Image src={receiveIcon} alt={receiveCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
@@ -1072,7 +1071,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>您已收到</span>
-              <span>{tradeResult?.receivedAmount} {tradeResult?.receiveCoin}</span>
+              <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
