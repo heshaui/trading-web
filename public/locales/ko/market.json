@@ -82,8 +82,10 @@
     "low24h": "24시간 최저가",
     "volume24h": "24시간 거래량",
     "amount24h": "24시간 거래액",
-    "billion": "억",
+    "billion": "B",
     "tenThousand": "만",
+    "million": "M",
+    "kthousand": "K",
     "name": "이름",
     "lastPrice": "최신가",
     "time": "시간",
@@ -94,6 +96,7 @@
     "loginNow": "지금 로그인",
     "goToMarket": "시장으로 이동",
     "noData": "데이터 없음",
-    "searchInput": "검색어 입력"
+    "searchInput": "검색어 입력",
+    "routerErr": "해당 화폐 페어가 없습니다"
   }
 }

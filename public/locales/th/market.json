@@ -84,6 +84,8 @@
     "amount24h": "24H Amount",
     "billion": "B",
     "tenThousand": "K",
+    "million": "M",
+    "kthousand": "K",
     "name": "Name",
     "lastPrice": "Last Price",
     "time": "Time",
@@ -94,6 +96,7 @@
     "loginNow": "Login now",
     "goToMarket": "Go to market",
     "noData": "No data available",
-    "searchInput": "Please enter search terms"
+    "searchInput": "Please enter search terms",
+    "routerErr": "No corresponding currency pair"
   }
 }
