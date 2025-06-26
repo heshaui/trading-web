@@ -16,6 +16,7 @@ import { useCoinList } from '@/hooks/use-coinList';
 import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
 import ImageSelect, { ImageSelectOption } from '@/components/ImageSelect';
 import styles from './flash.module.css';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 
 
@@ -53,6 +54,7 @@ const FlashPage: NextPage = () => {
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
+  const { isDayMode } = useThemeMode();
   console.log('coinLists',coinList)
 
   const flashConfigData = appStore.getKvConfig('flash_img');
@@ -342,11 +344,11 @@ const FlashPage: NextPage = () => {
         </AuthNoticeWrapper>}
         <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer',marginTop:'26px' }}>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='/images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
+          <Image src={isDayMode ? '/images/flash/dayFrame.png' : '/images/flash/dayFrame_dark.png'} width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
 
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='/images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
+          <Image src={isDayMode ? '/images/flash/dayOrder.png' : '/images/flash/dayOrder_dark.png'} width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
           </div>
              
             </div>
@@ -365,11 +367,8 @@ const FlashPage: NextPage = () => {
                   onChange={(e) => {
                     const value = e.target.value;
                     setPayAmount(value);
-                    
                     // 验证金额限额
                     setIsAmountValid(validateAmount(value, baseCoin));
-                    
-                    // Calculate receive amount when pay amount changes
                     if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
                       const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
                       setReceiveAmount(calculatedAmount);
@@ -382,11 +381,8 @@ const FlashPage: NextPage = () => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
                     if (currentCoin && currentCoin.balance) {
                       setPayAmount(currentCoin.balance);
-                      
                       // 验证最大金额是否在限额范围内
                       setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
-                      
-                      // Also calculate the receive amount based on the max balance
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
                         const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
                         setReceiveAmount(calculatedAmount);
@@ -433,9 +429,7 @@ const FlashPage: NextPage = () => {
               )}
 
             <SwapButtonWrapper>
-              <SwapButton onClick={swapCoins}>
-                <SwapOutlined style={{ color: '#fff', fontSize: '20px' }} />
-              </SwapButton>
+              <Image src='/images/flash/icon_Trading.svg' width={50} height={50} alt="" preview={false} onClick={swapCoins}  style={{cursor:'pointer'}} />
             </SwapButtonWrapper>
 
             <TradeSection>
@@ -542,6 +536,7 @@ const FlashPage: NextPage = () => {
               visible={isSuccessModalVisible}
               onClose={() => setIsSuccessModalVisible(false)}
               tradeResult={tradeResult}
+              isDayMode={isDayMode}
               router={router} // Pass router instance
             />
             )}
@@ -550,6 +545,7 @@ const FlashPage: NextPage = () => {
             <FailureModal
               visible={isFailureModalVisible}
               onClose={() => setIsFailureModalVisible(false)}
+              isDayMode={isDayMode}
             />
           </TradeContainer>
 
@@ -559,7 +555,7 @@ const FlashPage: NextPage = () => {
         </ContentWrapper>
         <FAQSection>
             <FAQTitle>常见问题</FAQTitle>
-            <StyledCollapse expandIconPosition="end" defaultActiveKey={['1', '2', '3', '4', '5']}>
+            <StyledCollapse expandIconPosition="end" >
               {/* Using default expand icon */}
               <Panel
                 header="如何使用闪兑交易功能?"
@@ -676,11 +672,16 @@ const TradeContainer = styled.div`
 `;
 
 const TradeSection = styled.div`
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  border: 1px solid var(--border-color6);
+  border-radius: 8px;
   padding: 15px;
   overflow: visible;
   position: relative;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--text-color3);
+  }
 `;
 
 const TradeLabel = styled.div`
@@ -722,16 +723,16 @@ const AvailableAmount = styled.div`
 
 const InsufficientBalanceAlert = styled.div`
   font-size: 12px;
-  color: #ff5722;
+  color: #F73711;
   margin-top: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   text-align: left;
 `;
 
 const AmountLimitAlert = styled.div`
   font-size: 12px;
-  color: #ff5722;
-  margin-bottom: 20px;
+  color: #F73711;
+  margin-bottom: 5px;
   text-align: left;
   border-radius: 4px;
 `;
@@ -751,6 +752,7 @@ const SwapButtonWrapper = styled.div`
   position: relative;
   z-index: 1;
   margin: 30px 0;
+  color: var(--text-color3);
 `;
 
 const SwapButton = styled.div`
@@ -1108,10 +1110,11 @@ interface SuccessModalProps {
   onClose: () => void;
   tradeResult: any;
   router: NextRouter; // Add router prop
+  isDayMode: boolean;
 }
 
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult, router }) => {
+const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult, router,isDayMode}) => {
 
   const goAssest = async () => {
     if (!router.isReady) {
@@ -1135,30 +1138,17 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
             <div style={{ 
-              width: '80px', 
-              height: '80px', 
-              borderRadius: '50%', 
-              border: '2px solid #333',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              background: '#fff'
             }}>
-              <div style={{ 
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 87, 34, 0.1)',
-                zIndex: 0
-              }} />
-              <CheckOutlined style={{ fontSize: '40px', color: '#FF5722', zIndex: 1 }} />
-            </div>
+             <Image src={isDayMode ? '/images/flash/success.svg' : '/images/flash/success_dark.png'} width={160} height={100} alt="" preview={false} />
+             </div>
           </div>
           
-          <h2 style={{ fontSize: '24px', margin: '0 0 5px 0' }}>成功</h2>
-          <p style={{ fontSize: '16px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>成功</h2>
+          <p style={{ fontSize: '12px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
           
           <div style={{ 
             border: '1px solid #DCDCDC', 
@@ -1182,19 +1172,19 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
             </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
             <Button 
               onClick={onClose} 
-              style={{ flex: 1, height: '50px' }}
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
               好的
             </Button>
             <Button 
               type="primary" 
-              style={{ flex: 1, height: '50px' }} 
               shape="round"
               onClick={goAssest}
+              style={{width:'100px',height:'40px'}}
             >
               前往资产
             </Button>
@@ -1209,9 +1199,10 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
 interface FailureModalProps {
   visible: boolean;
   onClose: () => void;
+  isDayMode: boolean;
 }
 
-const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
+const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode }) => {
   return (
     <Modal
       open={visible}
@@ -1219,48 +1210,40 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
       closable={false}
       centered
       width={470}
+      styles={{
+        body: {
+          padding: '0px'
+        }
+      }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <div style={{ 
-              width: '80px', 
-              height: '80px', 
-              borderRadius: '50%', 
-              border: '2px solid #333',
+            <div style={{  
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              background: '#fff'
             }}>
-              <div style={{ 
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 87, 34, 0.1)',
-                zIndex: 0
-              }} />
-              <CloseOutlined style={{ fontSize: '40px', color: '#FF5722', zIndex: 1 }} />
+              <Image src={isDayMode ? '/images/flash/fail.svg' : '/images/flash/fail_dark.png'} width={160} height={100} alt="" preview={false} />
             </div>
           </div>
           
-          <h2 style={{ fontSize: '24px', margin: '0 0 5px 0' }}>下单失败</h2>
-          <p style={{ fontSize: '16px', color: '#666', margin: '0 0 20px 0' }}>兑换率失效，交易取消！</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>下单失败</h2>
+          <p style={{ fontSize: '20px', color: '#666', margin: '0 0 20px 0' }}>兑换率失效，交易取消！</p>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
             <Button 
               onClick={onClose} 
-              style={{ flex: 1, height: '50px', width: '100%' }}
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
               好的
             </Button>
             <Button 
               type="primary" 
-              style={{ flex: 1, height: '50px' }} 
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
               查看资产
             </Button>
