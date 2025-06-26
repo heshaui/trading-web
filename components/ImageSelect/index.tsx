@@ -239,7 +239,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
                             </div>
                           )}
                         </div>
-                          {showPrice && option.coinName && (
+                          { option.coinName && (
                             <div className={styles.optionPriceWrapper}>
                               <div className={styles.optionPrice}>{getCoinRate(option.coinName,1).coinRate}</div>
                               <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName, getCoinRate(option.coinName,1).price, 'USD').ratetext}</div>

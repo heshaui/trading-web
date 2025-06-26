@@ -17,14 +17,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { useAuthGuard } from "@/middleware";
 import { initTheme } from "@/hooks/dayModeChange";
 import { useFavicon } from "@/hooks/useFavicon";
-// 定义公开路径（不需要登录即可访问的页面）
-// const publicPaths = [
-//   '/',
-//   '/login',
-//   '/register',
-//   '/resetPassword',
-//   // '/invite',
-// ];
+import appStore from "@/store";
+
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
   const { theme } = useThemeConfig();
@@ -43,14 +37,11 @@ function App({ Component, pageProps }: AppProps) {
     }
   }, [router.locale, i18n.isInitialized]);
 
-  // 添加调试日志
-  // console.log('App - i18n ready:', i18n.isInitialized);
-  // console.log('App - Router locale:', router.locale);
-  // console.log('App - pageProps:', pageProps);
-  // console.log('App - Translation test:', t('title'));
+  
 
   // 在客户端同步暗色模式状态并应用主题变量
   useEffect(() => {
+    appStore.loadCurrencyPairs();
     initTheme();
   }, []);
 
@@ -64,18 +55,7 @@ function App({ Component, pageProps }: AppProps) {
     setIsAuthChecking,
   });
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const newMode = !prev;
-      localStorage.setItem("darkMode", newMode.toString());
 
-      // 切换暗色模式时不需要改变 isDayMode，因为它们是两个独立的设置
-      // 但可以在这里触发主题变更事件，以便其他组件可以响应
-      window.dispatchEvent(new Event("themeChange"));
-
-      return newMode;
-    });
-  };
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
   const excludePaths = ["/resetPassword"];
   const excludePathsFooter = ["/resetPassword", "/exchange"];

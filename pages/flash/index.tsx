@@ -459,6 +459,8 @@ const FlashPage: NextPage = () => {
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
+                    coinName: item.coinName,
+                    nameDefault: item.nameDefault,
                     iconUrl: item.iconUrl
                   }))}
                 />
