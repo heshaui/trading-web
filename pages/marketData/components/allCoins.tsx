@@ -29,7 +29,7 @@ interface usdtPriceType {
   yesterdayPrice: string
 }
 const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: AllCoinsProps) => {
-  const { t } = useTranslation('market');
+  const { t,i18n } = useTranslation('market');
   // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const router = useRouter();
   // const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
@@ -124,10 +124,13 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.name'),
       dataIndex: 'coinName',
       key: 'coinName',
+      align:"left",
       width: 100,
-      // onHeaderCell: () => ({
-      //   style: { paddingLeft: '20px' },
-      // }),
+      onHeaderCell: () => ({
+        style: {
+          textAlign: "left",
+        },
+      }),
       // onCell: () => ({
       //   style: { paddingLeft: '20px' },
       // }),
@@ -173,12 +176,12 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
-          return <span>{parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}/${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
+          return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
           // return <span>{parseFloat(_price || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
-          return <span>{usdtPrice.nowPrice||1}/${usdtPrice.nowPrice||1}</span>
+          return <span>${usdtPrice.nowPrice||1}</span>
         } else {
-          return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
+          return <span>${parseFloat(_price || '0').toLocaleString()}</span>
         }
       },
     },
@@ -187,6 +190,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
+      width: 260,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
         const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
@@ -204,17 +208,41 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'marketValue',
       key: 'marketValue',
       align: 'center',
+      width: 260,
       sorter: (a, b) => (a.marketValue||0) - (b.marketValue||0),
       render: (_marketValue, record) => {
-        return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
+        const unit = _marketValue.split('_')[1]
+        let unitValue='--'
+        if (unit === 'B') {
+          unitValue=t('header.billion')
+        } else if (unit === 'M') {
+          unitValue=t('header.million')
+        } else if (unit === 'K') {
+          unitValue=t('header.kthousand')
+        }
         // return <span>{_marketValue || "0"}</span>
+        // return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
+        return <span>${parseFloat(_marketValue || "0").toLocaleString()}&nbsp;{unitValue}
+        </span>
       },
     },
     {
       title: t('marketList.tableHeaders.action'),
-      align: 'right',
+      align: 'center',
       dataIndex: 'action',
       key: 'action',
+      width: 160,
+      // onHeaderCell: () => ({
+      //   style: {
+      //     // textAlign: "left",
+      //      paddingRight:"20px"
+      //   },
+      // }),
+      // onCell: () => ({
+      //   style: { 
+      //     paddingRight:"20px"
+      //   },
+      // }),
       render: (_, record) => {
 
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
@@ -305,7 +333,12 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           allowClear
           size="middle"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          // onChange={(e) => setSearchValue(e.target.value)}
+          onChange={(e) => {
+            // 只允许数字和英文字母
+            const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+            setSearchValue(filteredValue);
+          }}
           placeholder={t('header.searchInput')}
           // onChange={handleSearchChange}  // 修正为正确的处理函数
           // onKeyPress={handleKeyPress}    // 添加回车键处理

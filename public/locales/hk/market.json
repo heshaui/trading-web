@@ -84,6 +84,8 @@
     "amount24h": "24H 交易额",
     "billion": "亿",
     "tenThousand": "万",
+    "million": "百万",
+    "kthousand": "千",
     "name": "名称",
     "lastPrice": "最新价",
     "time": "时间",
@@ -94,6 +96,7 @@
     "loginNow": "立即登录",
     "goToMarket": "前往市场",
     "noData": "暂无数据",
-    "searchInput": "请输入搜索"
+    "searchInput": "请输入搜索",
+    "routerErr": "暂无对应币对"
   }
 }

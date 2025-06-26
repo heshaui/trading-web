@@ -20,29 +20,33 @@ import {
   getHotData,
   getMarketDown,
   getExchangeCoinAllPrice,
+  getSpotData
 } from "@/services/marketData";
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
 import appStore from "@/store";
-import { cut, division,nul } from '@/utils'
+import { cut, division, nul } from '@/utils'
+import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
+import { useRouter } from 'next/router';
+import { toast } from "sonner";
 
 
 export default function MarketData() {
   const { t } = useTranslation("market");
   const { theme } = useThemeConfig();
+  const router = useRouter();
   const [marketDataUp, setMarketDataUp] = useState<TradeRakingResp[]>([]);
   const [marketDataDown, setMarketDataDown] = useState<TradeRakingResp[]>([]);
   const [hotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
   const [newPrice, setNewPrice] = useState<any[]>([]);
   const [tenantId, setTenantId] = useState<string>('');
-  const initNewPair=useRef<any[]>([]);
-
+  const initNewPair = useRef<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
   const [klineData, setKlineData] = useState<any>(null);
   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
-  const userInfo=appStore.getUserInfo()
-  
+  const userInfo = appStore.getUserInfo()
+
   // 使用 useRef 存储币对数据，这样在异步回调中可以访问最新值
   // const coinPairDataRef = useRef<any[]>([]);
 
@@ -85,7 +89,7 @@ export default function MarketData() {
       }
       upTimerRef.current = setTimeout(() => {
         fetchMarketDataUp();
-      }, 3*1000);
+      }, 3 * 1000);
     }
   };
   // 获取跌幅榜数据
@@ -121,7 +125,7 @@ export default function MarketData() {
       }
       downTimerRef.current = setTimeout(() => {
         fetchMarketDataDown();
-      }, 3*1000);
+      }, 3 * 1000);
     }
   };
   // 获取热门榜OK
@@ -152,13 +156,16 @@ export default function MarketData() {
   // 获取币对最新价格
   const fetchNewPrice = async () => {
     try {
-      const response = await getExchangeCoinAllPrice();
+      // const response = await getExchangeCoinAllPrice();
+      const response = await getSpotData({});
+      
       if (response?.code === "0") {
         // 同时更新 state 和 ref
         initNewPair.current = response.data;
-        
+
         const processedData = response.data.map((item: any) => {
           return {
+            iconUrl:item.iconUrl,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
@@ -403,17 +410,17 @@ export default function MarketData() {
 
       console.log("多通道WebSocket连接成功，发送订阅消息");
       // 使用 useRef 中存储的币对数据构建 channels 参数
-      const currentTenantId = tenantId || userInfo?.tenantId 
-      
+      const currentTenantId = tenantId || userInfo?.tenantId
+
       // 检查 ref 中是否有数据
-      if (initNewPair.current.length === 0||!currentTenantId) {
+      if (initNewPair.current.length === 0 || !currentTenantId) {
         console.log("币对数据尚未准备好，等待下一次尝试");
         return; // 如果没有数据，则等待下一次尝试
       }
       const channels = initNewPair.current.map(pair => {
         return `${pair.coinSymbol}_${pair.baseSymbol}_${currentTenantId}@kline_1d_3s`;
       });
-      
+
       const subscribeMessage = JSON.stringify({
         action: "subscribe",
         // channels: [`BTC_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`, `ETH_USDT_${tenantId||userInfo?.tenantId||1002}@KLINE_1D`]
@@ -471,7 +478,25 @@ export default function MarketData() {
       closePrice: data[4],
       price: data[4],
 
-      volume: data[5]
+      volume: data[5],
+      priceChangePercent: data[6],
+      amount: data[7]
+      // high_price: data[0],
+      // height: data[0],
+
+      // open_price: data[1],
+      // openPrice: data[1],
+
+      // low_price: data[2],
+      // lower: data[2],
+
+      // close_price: data[3],
+      // closePrice: data[3],
+      // price: data[3],
+
+      // volume: data[4],
+      // priceChangePercent: data[5],
+      // amount: data[6]
     }
     // appStore.updateCoinPair(coinSymbol, baseSymbol, data);
 
@@ -621,14 +646,32 @@ export default function MarketData() {
       || [],
     [hotMarketList, newPrice]
   );
-  // useEffect(() => {
-  //   console.log(newPrice, 999);
+  // const filteredMarketDataDown = useMemo(
+  //   () =>
+  //     // HotMarketList
+  //     //   ?.map((pairs: any) => {
+  //     //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+  //     //   return {
+  //     //     ...pairs,
+  //     //     ...spotListArr,
+  //     //   }
 
-  // }, [newPrice]);
+  //     // })
+  //     marketDataDown.filter((items: any) => {
+  //       const changePercent = (items.close_price - items.open_price) / items.open_price;
+  //       return changePercent <= 0
+  //     }).sort(
+  //       (a: any, b: any) => {
+  //         const achangePercent = (a.close_price - a.open_price) / a.open_price;
+  //         const bchangePercent = (b.close_price - b.open_price) / b.open_price;
+  //         return achangePercent - bchangePercent
+  //       })
+  //     || [],
+  //   [marketDataDown]
+  // );
   const filteredMarketDataDown = useMemo(
     () =>
-      // HotMarketList
-      //   ?.map((pairs: any) => {
+      // newPrice ?.map((pairs: any) => {
       //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
       //   return {
       //     ...pairs,
@@ -636,40 +679,56 @@ export default function MarketData() {
       //   }
 
       // })
-      marketDataDown.filter((items: any) => {
-        const changePercent = (items.close_price - items.open_price) / items.open_price;
-        return changePercent <= 0
-      }).sort(
+      // newPrice?.filter((items: any) => {
+      //   const changePercent = (items.close_price - items.open_price) / items.open_price;
+      //   return changePercent <= 0
+      // })
+      newPrice?.sort(
         (a: any, b: any) => {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-          return achangePercent - bchangePercent
-        })
+          return (achangePercent || 0) - (bchangePercent || 0)
+        }).slice(0, 5)
       || [],
-    [marketDataDown]
+    [newPrice]
   );
 
+  // const filteredMarketDataUp = useMemo(
+  //   () =>
+  //     // HotMarketList?.map((pairs: any) => {
+  //     //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
+  //     //   return {
+  //     //     ...pairs,
+  //     //     ...spotListArr,
+  //     //   }
+
+  //     // })
+  //     marketDataUp.filter((items: any) => {
+  //       const changePercent = (items.close_price - items.open_price) / items.open_price;
+  //       return changePercent >= 0
+  //     }).sort(
+  //       (a: any, b: any) => {
+  //         const achangePercent = (a.close_price - a.open_price) / a.open_price;
+  //         const bchangePercent = (b.close_price - b.open_price) / b.open_price;
+  //         return bchangePercent - achangePercent
+  //       })
+  //     || [],
+  //   [marketDataUp]
+  // );
   const filteredMarketDataUp = useMemo(
     () =>
-      // HotMarketList?.map((pairs: any) => {
-      //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
-      //   return {
-      //     ...pairs,
-      //     ...spotListArr,
-      //   }
-
+      //   newPrice ?.filter((items: any) => {
+      //     const changePercent = (items.close_price - items.open_price) / items.open_price;
+      //     return changePercent >= 0
       // })
-      marketDataUp.filter((items: any) => {
-        const changePercent = (items.close_price - items.open_price) / items.open_price;
-        return changePercent >= 0
-      }).sort(
+      newPrice?.sort(
         (a: any, b: any) => {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-          return bchangePercent - achangePercent
-        })
+          return (bchangePercent || 0) - (achangePercent || 0)
+        }).slice(0, 5)
       || [],
-    [marketDataUp]
+    [newPrice]
   );
 
 
@@ -703,7 +762,19 @@ export default function MarketData() {
             className="mr-1"
             style={{ width: 20, height: 20, borderRadius: '50%' }}
           />
-          {record.symbol}
+          <button
+            onClick={() => {
+              if (record.symbol) {
+                const symbol = `${record.symbol}`
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
+              } else {
+                toast.error(t('header.routerErr'))
+                router.push(`${ROUTER_KEY_SPOT.INDEX}`)
+              }
+            }}
+          >
+            {record.symbol}
+            </button>
         </div>
       ),
     },
@@ -713,7 +784,7 @@ export default function MarketData() {
         style: {
           // minWidth: "150px",
           // height: "27px",
-          // fontSize: "14px",
+          fontSize: "14px",
           // lineHeight: "20px",
           // textAlign: "center",
         },
@@ -721,20 +792,55 @@ export default function MarketData() {
       align: "left",
       dataIndex: "price",
       key: "price",
-      // width: 200,
+      // width: 150,
       render: (text, record) => (
         <div>
-          <div>{parseFloat(record.price || "0").toLocaleString()}</div>
+          <div>{record.price ? parseFloat(record.price || "0").toLocaleString() : '--'}</div>
           <div style={{ fontSize: "12px", color: "#999" }}>
             ${parseFloat(record.price || "0").toLocaleString()}
           </div>
         </div>
       ),
     },
+    // {
+    //   title: t("rankingList.change24h"),
+    //   dataIndex: "price",
+    //   key: "price",
+    //   align: "right",
+    //   width: 150,
+    //   onHeaderCell: () => ({
+    //     style: {
+    //       minWidth: "70px",
+    //       height: "27px",
+    //       fontSize: "14px",
+    //       lineHeight: "20px",
+    //       // textAlign: "left",
+    //     },
+    //   }),
+    //   render: (_price: any, record: TradeRakingResp, index: number) => {
+    //     // 根据涨跌幅确定颜色
+    //     // const changePercent = record.priceChangePercent;
+    //     const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
+    //     const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
+    //     const changePercent2 = changePrice ? changePercent * 100 : 0
+    //     const isPositive = changePercent !== undefined && changePercent > 0;
+    //     const isNegative = changePercent !== undefined && changePercent < 0;
+    //     // const textColor = isPositive
+    //     //   ? "var(--color-success)"
+    //     //   : "var(--color-danger)";
+    //     const prefix = isPositive ? "+" : "";
+    //     return (
+    //       <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //         {changePercent && changePercent !== undefined ? `${prefix}${changePercent2.toFixed(2)}%` : `--`}
+    //       </span>
+    //     );
+    //   },
+    // },
+    //priceChangePercent
     {
       title: t("rankingList.change24h"),
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "priceChangePercent",
+      key: "priceChangePercent",
       align: "right",
       width: 150,
       onHeaderCell: () => ({
@@ -748,11 +854,8 @@ export default function MarketData() {
       }),
       render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        // const changePercent = record.priceChangePercent;
-        const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
-        const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
-        const changePercent2 = changePrice? changePercent*100: 0
-        const isPositive = changePercent !== undefined && changePercent > 0;
+        const changePercent = record.priceChangePercent||0
+ const isPositive = changePercent !== undefined && changePercent > 0;
         const isNegative = changePercent !== undefined && changePercent < 0;
         // const textColor = isPositive
         //   ? "var(--color-success)"
@@ -760,11 +863,12 @@ export default function MarketData() {
         const prefix = isPositive ? "+" : "";
         return (
           <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-            {changePercent !== undefined ? `${prefix}${changePercent2.toFixed(2)}%` : `${Number(0).toFixed(2)}%`}
+            {changePercent && changePercent !== undefined ? `${prefix}${changePercent.toFixed(2)}%` : `--`}
           </span>
         );
       },
     },
+    
   ];
   // 涨跌
   const columnsTrading: ColumnsType<TradeRakingResp> = [
@@ -787,17 +891,31 @@ export default function MarketData() {
       render: (text, record, index) => {
         const symbol = record.symbol?.split("_")
         const coinSymbol = symbol?.[0]
-        // const baseSymbol = symbol?.[1]
-        return <>
+        const symbolPairs = `${record.coinSymbol || '--'}/${record.baseSymbol || '--'}`
+        return <div className="flex-x align-center">
           {index + 1}&nbsp;&nbsp;
-          {/* <Image
-            src={record.iconUrl }
+          <Image
+            src={record.iconUrl||''}
             alt=""
             width={20}
             height={20}
-          /> */}
-          {symbol ? `${coinSymbol}` : '--'}
-        </>
+            className="mr-1"
+            style={{ width: 20, height: 20, borderRadius: '50%' }}
+          />
+          <button
+            onClick={() => {
+              if (record.coinSymbol && record.baseSymbol) {
+                const symbol = `${record.coinSymbol}/${record.baseSymbol}`
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
+              } else {
+                toast.error(t('header.routerErr'))
+                router.push(`${ROUTER_KEY_SPOT.INDEX}`)
+              }
+            }}
+          >
+            {(symbol || symbolPairs) ? `${coinSymbol || symbolPairs}` : '--'}
+          </button>
+        </div>
       },
     },
     {
@@ -808,13 +926,13 @@ export default function MarketData() {
         style: {
           // minWidth: "150px",
           // height: "27px",
-          // fontSize: "14px",
+          fontSize: "14px",
           // lineHeight: "20px",
         },
       }),
       render: (_text, record) => (
         <div>
-          <div>{_text ? parseFloat(_text || "0").toLocaleString() : "0"}</div>
+          <div>{_text ? parseFloat(_text || "0").toLocaleString() : "--"}</div>
           <div style={{ fontSize: "12px", color: "#999" }}>
             ${_text ? parseFloat(_text || "0").toLocaleString() : "0"}
           </div>
@@ -841,13 +959,13 @@ export default function MarketData() {
         // const changePercent = record.priceChangePercent
         const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
         const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
-        const changePercent = changePrice? changePercent1*100: 0
+        const changePercent = changePrice ? changePercent1 * 100 : 0
         const isPositive = changePercent !== undefined && Number(changePercent) > 0;
         const isNegative = changePercent !== undefined && Number(changePercent) < 0;
         const prefix = isPositive ? "+" : "";
         return (
           <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-            {changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `${Number(0).toFixed(2)}%`}
+            {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
           </span>
         )
         // const isPositive = _closePrice !== undefined && _closePrice > 0;
@@ -865,10 +983,10 @@ export default function MarketData() {
 
   useEffect(() => {
     // 执行涨跌幅榜单请求
-    fetchMarketDataUp();
-    fetchMarketDataDown();
+    // fetchMarketDataUp();
+    // fetchMarketDataDown();
     setIsLoading(false);
-    
+
     // 先执行 fetchNewPrice 和 fetchHotMarketData，完成后再执行 WebSocket 连接
     Promise.all([fetchNewPrice(), fetchHotMarketData()])
       .then(() => {
