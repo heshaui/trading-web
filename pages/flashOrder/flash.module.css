@@ -220,12 +220,12 @@
 
 .table_box_inner :global(.ant-table-thead > tr > th) {
     background: var(--background10) !important;
-    border-bottom: 1px solid var(--border-color4) !important;
+    border-bottom: none !important;
     color: var(--text-color6) !important;
 }
 
 .table_box_inner :global(.ant-table-tbody > tr > td) {
-    border-bottom: 1px solid var(--border-color4) !important;
+    border-bottom: none !important;
     color: var(--text-color5) !important;
 }
 
@@ -240,4 +240,37 @@
 
 .table_box_inner :global(.ant-pagination-item-active a) {
     color: var(--primary-color) !important;
+}
+
+/* 移除所有表格边框和分割线 */
+.table_box_inner :global(.ant-table) {
+    border: none !important;
+}
+
+.table_box_inner :global(.ant-table-container) {
+    border: none !important;
+}
+
+.table_box_inner :global(.ant-table-header) {
+    border: none !important;
+}
+
+.table_box_inner :global(.ant-table-body) {
+    border: none !important;
+}
+
+.table_box_inner :global(.ant-table-thead > tr > th::before) {
+    display: none !important;
+}
+
+.table_box_inner :global(.ant-table-tbody > tr > td) {
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+}
+
+.table_box_inner :global(.ant-table-thead > tr > th) {
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
 }

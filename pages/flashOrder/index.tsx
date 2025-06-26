@@ -257,6 +257,12 @@ const FlashOrderPage = () => {
                             headerBorderRadius: 0,
                             headerSortActiveBg: 'var(--background10)',
                             headerSortHoverBg: 'var(--background10)',
+                            bodySortBg: 'transparent',
+                            rowExpandedBg: 'transparent',
+                            expandIconBg: 'transparent',
+                            fixedHeaderSortActiveBg: 'transparent',
+                            cellPaddingBlock: 16,
+                            cellPaddingInline: 16,
                         },
                         Pagination: {
                             itemActiveBg: 'transparent',
@@ -344,6 +350,8 @@ const FlashOrderPage = () => {
                                 loading={loading}
                                 onChange={handleTableChange}
                                 scroll={{ x: 'max-content' }}
+                                bordered={false}
+                                showHeader={true}
                                 locale={{ 
                                     emptyText: (
                                         <NoData 
