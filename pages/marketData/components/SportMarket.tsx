@@ -123,7 +123,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'price',
       key: 'price',
       align: 'center',
-      width: 250,
+      width: 200,
       sorter: (a, b) => (a.price || 0) - (b.price || 0),
       render: (_price) => {
         // ${parseFloat(_price || "0").toLocaleString()}
@@ -151,6 +151,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'center',
+      width: 200,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
         const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
@@ -173,7 +174,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'height',
       key: 'height',
       align: 'center',
-      width: 250,
+      width: 200,
       render: (_marketValue, record) => {
         const height = record.height || '0'
         const lower = record.lower || '0'
@@ -187,7 +188,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       dataIndex: 'volume',
       key: 'volume',
       align: 'center',
-      width: 250,
+      width: 200,
       sorter: (a, b) => {
         // const aQuantity = parseFloat(a.quantity) / 1000000
         // const bQuantity = parseFloat(b.quantity) / 1000000
@@ -204,6 +205,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       align: 'right',
       dataIndex: 'action',
       key: 'action',
+      width: 100,
       render: (_, record) => {
 
         return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
@@ -401,12 +403,14 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             allowClear
             size="middle"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            // onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => {
+              // 只允许数字和英文字母
+              const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+              setSearchValue(filteredValue);
+            }}
             placeholder={t('header.searchInput')}
-            // onChange={handleSearchChange}  // 修正为正确的处理函数
-            // onKeyPress={handleKeyPress}    // 添加回车键处理
             prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
-            // style={{ width: "242px", marginBottom: 16 }}
             className={`${styles.input_box} modal-input`}
           />
         </div>
@@ -432,216 +436,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />
         </div>
-        {/* <div
-          className={`${styles.list_header} px-4 py-4 flex-x align-center justify-between`}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "16% 16% 16% 20% 16% 16%",
-          }}
-        >
-          <div
-            className={`${styles.tip_color} font-12 flex-x align-center pointer`}
-            onClick={() => handleSort("name")}
-          >
-            <span>{t("header.name")}</span>
-            <div className="ml-1 flex-y-cc">
-              <Iconify
-                icon="fluent-mdl2:flick-down"
-                className={`pointer ${sortField === "name" && sortDirection === "asc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-                style={{ marginBottom: 2 }}
-              />
-              <Iconify
-                icon="fluent-mdl2:flick-up"
-                className={`pointer ${sortField === "name" && sortDirection === "desc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-              />
-            </div>
-          </div>
-
-          <div
-            className={`${styles.tip_color} font-12 flex-x align-center pointer`}
-            onClick={() => handleSort("price")}
-          >
-            <span>{t("header.lastPrice")}</span>
-            <div className="ml-1 flex-y-cc">
-              <Iconify
-                icon="fluent-mdl2:flick-down"
-                className={`pointer ${sortField === "price" && sortDirection === "asc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-                style={{ marginBottom: 2 }}
-              />
-              <Iconify
-                icon="fluent-mdl2:flick-up"
-                className={`pointer ${sortField === "price" && sortDirection === "desc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-              />
-            </div>
-          </div>
-          <div
-            className={`${styles.tip_color} font-12 flex-x align-center pointer`}
-            onClick={() => handleSort("change")}
-          >
-            <span>
-              {showVolume
-                ? t("header.volume24h")
-                : t("header.change24h")}
-            </span>
-            <div className="ml-1 flex-y-cc">
-              <Iconify
-                icon="fluent-mdl2:flick-down"
-                className={`pointer ${sortField === "change" && sortDirection === "asc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-                style={{ marginBottom: 2 }}
-              />
-              <Iconify
-                icon="fluent-mdl2:flick-up"
-                className={`pointer ${sortField === "change" && sortDirection === "desc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-              />
-            </div>
-          </div>
-
-          最高价/最低价表头
-          <div
-            className={`${styles.tip_color} font-12 flex-x align-center pointer`}
-          >
-            <span>{t("header.high24h")}/{t("header.low24h")}</span>
-          </div>
-
-          成交额表头
-          <div
-            className={`${styles.tip_color} font-12 flex-x align-center pointer`}
-            onClick={() => handleSort("quantity")}
-          >
-            <span>{t("header.amount24h")}</span>
-            <div className="ml-1 flex-y-cc">
-              <Iconify
-                icon="fluent-mdl2:flick-down"
-                className={`pointer ${sortField === "quantity" && sortDirection === "asc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-                style={{ marginBottom: 2 }}
-              />
-              <Iconify
-                icon="fluent-mdl2:flick-up"
-                className={`pointer ${sortField === "quantity" && sortDirection === "desc"
-                    ? styles.active_sort
-                    : ""
-                  }`}
-                size={10}
-              />
-            </div>
-          </div>
-
-          操作表头
-          <div className={`${styles.tip_color} font-12 flex-x-end`}>
-            <span>{t("columns.operation")}</span>
-          </div>
-        </div>
-        <div className={`${styles.pair_list}`}>
-          {filteredPairs.map((pair: any, index: any) => (
-            <div
-              key={index}
-              className={`${styles.pair_item} px-4 flex-x align-center`}
-              onClick={() => handlePairClick(pair)}
-              style={{
-                cursor: "pointer",
-                display: "grid",
-                gridTemplateColumns: "16% 16% 16% 20% 16% 16%",
-              }}
-            >
-              币种名称
-              <div className={`${styles.pair_name} flex-x align-center`}>
-                <span
-                  className={styles.favorite}
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Rate
-                    onChange={(value) => handleFavoriteChange(value, pair)}
-                    value={pair.isFavorite ? 1 : 0}
-                    count={1}
-                    style={{ fontSize: 14 }}
-                  />
-                </span>
-                <span className={styles.coin_icon}>{pair.icon}</span>
-                <span className={`font-14 ${styles.title_color}`}>
-                  {pair.coinSymbol}/{pair.baseSymbol}
-                </span>
-              </div>
-              最新价
-              <div
-                className={`font-14 ${styles.title_color} flex-x align-center`}
-              >
-                {pair.yesterdayPrice}
-              </div>
-
-              24h涨跌/24h成交量
-              <div
-                className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0
-                    ? styles.success_icon
-                    : !showVolume && pair.priceChangePercent < 0
-                      ? styles.error_icon
-                      : ""
-                  } flex-x align-center`}
-              >
-                {showVolume
-                  ? pair.quantity
-                  : `${pair.priceChangePercent.toFixed(2)}%`}
-              </div>
-
-              最高价/最低价
-              <div
-                className={`font-14 ${styles.title_color} flex-x align-center`}
-              >
-                {pair.high_price || "--"}/{pair.low_price || "--"}
-              </div>
-
-              24h成交额
-              <div
-                className={`font-14 ${styles.title_color} flex-x align-center`}
-              >
-                ${(parseFloat(pair.quantity) / 1000000).toFixed(2)}M
-              </div>
-
-              交易按钮
-              <div className={`flex-x-end`}>
-                <Image
-                  src="/images/market/icon_Trade.png"
-                  alt=""
-                  width={24}
-                  height={24}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("交易:", pair.coinSymbol, pair.baseSymbol);
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div> */}
       </div>
     </ConfigProvider>
   );

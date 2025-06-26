@@ -82,8 +82,10 @@
     "low24h": "24時間最低価",
     "volume24h": "24時間取引量",
     "amount24h": "24時間取引額",
-    "billion": "億",
+    "billion": "B",
     "tenThousand": "万",
+    "million": "M",
+    "kthousand": "K",
     "name": "名称",
     "lastPrice": "最新価格",
     "time": "時刻",
@@ -94,6 +96,7 @@
     "loginNow": "今すぐログイン",
     "goToMarket": "市場へ移動",
     "noData": "データなし",
-    "searchInput": "検索キーワードを入力"
+    "searchInput": "検索キーワードを入力",
+    "routerErr": "対応する通貨ペアがありません"
   }
 }
