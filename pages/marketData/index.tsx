@@ -459,39 +459,40 @@ export default function MarketData() {
 
     // 更新币对信息
     const mapData = {
-      // open_time: data[0],
+      open_time: data[0],
 
-      // high_price: data[1],
-      // height: data[1],
+      high_price: data[1],
+      height: data[1],
 
-      // open_price: data[2],
-      // openPrice: data[2],
+      open_price: data[2],
+      openPrice: data[2],
 
-      // low_price: data[3],
-      // lower: data[3],
+      low_price: data[3],
+      lower: data[3],
 
-      // close_price: data[4],
-      // closePrice: data[4],
-      // price: data[4],
+      close_price: data[4],
+      closePrice: data[4],
+      price: data[4],
 
-      // volume: data[5]
+      volume: data[5],
+      priceChangePercent: data[6],
+      amount: data[7]
+      // high_price: data[0],
+      // height: data[0],
 
-      high_price: data[0],
-      height: data[0],
+      // open_price: data[1],
+      // openPrice: data[1],
 
-      open_price: data[1],
-      openPrice: data[1],
+      // low_price: data[2],
+      // lower: data[2],
 
-      low_price: data[2],
-      lower: data[2],
+      // close_price: data[3],
+      // closePrice: data[3],
+      // price: data[3],
 
-      close_price: data[3],
-      closePrice: data[3],
-      price: data[3],
-
-      volume: data[4],
-      priceChangePercent: data[5],
-      amount: data[6]
+      // volume: data[4],
+      // priceChangePercent: data[5],
+      // amount: data[6]
     }
     // appStore.updateCoinPair(coinSymbol, baseSymbol, data);
 
@@ -797,10 +798,45 @@ export default function MarketData() {
         </div>
       ),
     },
+    // {
+    //   title: t("rankingList.change24h"),
+    //   dataIndex: "price",
+    //   key: "price",
+    //   align: "right",
+    //   width: 150,
+    //   onHeaderCell: () => ({
+    //     style: {
+    //       minWidth: "70px",
+    //       height: "27px",
+    //       fontSize: "14px",
+    //       lineHeight: "20px",
+    //       // textAlign: "left",
+    //     },
+    //   }),
+    //   render: (_price: any, record: TradeRakingResp, index: number) => {
+    //     // 根据涨跌幅确定颜色
+    //     // const changePercent = record.priceChangePercent;
+    //     const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
+    //     const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
+    //     const changePercent2 = changePrice ? changePercent * 100 : 0
+    //     const isPositive = changePercent !== undefined && changePercent > 0;
+    //     const isNegative = changePercent !== undefined && changePercent < 0;
+    //     // const textColor = isPositive
+    //     //   ? "var(--color-success)"
+    //     //   : "var(--color-danger)";
+    //     const prefix = isPositive ? "+" : "";
+    //     return (
+    //       <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //         {changePercent && changePercent !== undefined ? `${prefix}${changePercent2.toFixed(2)}%` : `--`}
+    //       </span>
+    //     );
+    //   },
+    // },
+    //priceChangePercent
     {
       title: t("rankingList.change24h"),
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "priceChangePercent",
+      key: "priceChangePercent",
       align: "right",
       width: 150,
       onHeaderCell: () => ({
@@ -814,11 +850,8 @@ export default function MarketData() {
       }),
       render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        // const changePercent = record.priceChangePercent;
-        const changePrice = Number(cut(Number(_price || 0), Number(record.openPrice || 0)))
-        const changePercent = record.openPrice ? division(changePrice, Number(record.openPrice || 0)) : 0
-        const changePercent2 = changePrice ? changePercent * 100 : 0
-        const isPositive = changePercent !== undefined && changePercent > 0;
+        const changePercent = record.priceChangePercent||0
+ const isPositive = changePercent !== undefined && changePercent > 0;
         const isNegative = changePercent !== undefined && changePercent < 0;
         // const textColor = isPositive
         //   ? "var(--color-success)"
@@ -826,11 +859,12 @@ export default function MarketData() {
         const prefix = isPositive ? "+" : "";
         return (
           <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-            {changePercent && changePercent !== undefined ? `${prefix}${changePercent2.toFixed(2)}%` : `--`}
+            {changePercent && changePercent !== undefined ? `${prefix}${changePercent.toFixed(2)}%` : `--`}
           </span>
         );
       },
     },
+    
   ];
   // 涨跌
   const columnsTrading: ColumnsType<TradeRakingResp> = [
