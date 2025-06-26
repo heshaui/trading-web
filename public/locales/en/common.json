@@ -139,5 +139,13 @@
   },
   "scrollableTabs": {
     "all": "All"
+  },
+  "imageSelect": {
+    "search": "Search",
+    "noData": "No data",
+    "noSearchData": "No search results",
+    "loading": "Loading...",
+    "selectCoin": "Select Coin",
+    "searchHistory": "Search History"
   }
 }

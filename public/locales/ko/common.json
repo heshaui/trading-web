@@ -138,5 +138,13 @@
   },
   "scrollableTabs": {
     "all": "전체"
+  },
+  "imageSelect": {
+    "search": "검색",
+    "noData": "데이터 없음",
+    "noSearchData": "검색 결과 없음",
+    "loading": "불러오는 중...",
+    "selectCoin": "통화 선택",
+    "searchHistory": "검색 기록"
   }
 }

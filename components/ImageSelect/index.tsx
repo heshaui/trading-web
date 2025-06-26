@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
+import { useTranslation } from 'next-i18next';
 
 export interface ImageSelectOption {
   value: string;
@@ -52,7 +53,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [filteredOptions, setFilteredOptions] = useState<ImageSelectOption[]>([]);
   const selectRef = useRef<HTMLDivElement>(null);
-
+  const { t } = useTranslation(['common']);
   // 过滤选项
   useEffect(() => {
     if (!searchValue) {
@@ -149,7 +150,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
         <div className={styles.modalContent}>
           {/* 标题栏 */}
           <div className={styles.modalHeader}>
-            <h3 className={styles.modalTitle}>选择币种</h3>
+            <h3 className={styles.modalTitle}>{t('imageSelect.selectCoin')}</h3>
             <button 
               className={styles.closeButton}
               onClick={() => {
@@ -164,7 +165,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
           {loading ? (
             <div className={styles.loading}>
               <Spin size="small" />
-              <span>加载中...</span>
+              <span>{t('imageSelect.loading')}</span>
             </div>
           ) : (
             <>
@@ -172,7 +173,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
               {showSearch && (
                 <div className={styles.searchWrapper}>
                   <Input
-                    placeholder="搜索"
+                    placeholder={t('imageSelect.search')}
                     suffix={<SearchOutlined />}
                     value={searchValue}
                     onChange={handleSearchChange}
@@ -184,7 +185,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
               {/* 搜索历史 */}
               {showHistory && searchHistory.length > 0 && !searchValue && (
                 <div className={styles.historySection}>
-                  <p className={styles.sectionTitle}>搜索历史</p>
+                  <p className={styles.sectionTitle}>{t('imageSelect.searchHistory')}</p>
                   <div className={styles.historyGrid}>
                     {searchHistory.slice(0, maxHistory).map((item) => (
                       <div
@@ -251,7 +252,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
                   ) : (
                     <div className={styles.noData}>
                       <Iconify icon="tabler:database-off" size={24} />
-                      <span>暂无数据</span>
+                      <span>{t('imageSelect.noData')}</span>
                     </div>
                   )}
                 </div>

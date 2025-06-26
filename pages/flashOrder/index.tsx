@@ -31,7 +31,7 @@ interface TransactionRecord {
 }
 
 const FlashOrderPage = () => {
-    const { t } = useTranslation(['spot', 'common']);
+    const { t } = useTranslation(['flash', 'spot', 'common']);
     const { isLoggedIn } = useAuth();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<TransactionRecord[]>([]);
@@ -159,7 +159,7 @@ const FlashOrderPage = () => {
     };
     const columns: ColumnsType<TransactionRecord> = [
         {
-            title: '交易日期',
+            title: t('order.table.tradeDate'),
             dataIndex: 'createTime',
             key: 'createTime',
             render: (text, record) => {
@@ -167,7 +167,7 @@ const FlashOrderPage = () => {
             },
         },
         {
-            title: '交易对',
+            title: t('order.table.tradingPair'),
             render:(text,record)=>{
                 if(record.sendCoin&&record.receiveCoin){
                     return record.sendCoin+'/'+record.receiveCoin
@@ -179,7 +179,7 @@ const FlashOrderPage = () => {
 
         },
         {
-            title: '支付',
+            title: t('order.table.pay'),
             dataIndex: 'sendAmount',
             key: 'sendAmount',
             render: (text, record) => {
@@ -187,7 +187,7 @@ const FlashOrderPage = () => {
             }
         },
         {
-            title: '获得',
+            title: t('order.table.receive'),
             dataIndex: 'receivedAmount',
             key: 'receivedAmount',
             render: (text, record) => {
@@ -195,7 +195,7 @@ const FlashOrderPage = () => {
             }
         },
         {
-            title: '价格',
+            title: t('order.table.price'),
             dataIndex: 'price', 
             key: 'price',
             render: (text, record) => {
@@ -218,7 +218,7 @@ const FlashOrderPage = () => {
             }
         },
         {
-            title: '结算日期',
+            title: t('order.table.settlementDate'),
             dataIndex: 'settlementTime',
             key: 'settlementTime',
             render: (text, record) => {
@@ -226,18 +226,18 @@ const FlashOrderPage = () => {
             },
         },
         {
-            title: '状态',
+            title: t('order.table.status'),
             dataIndex: 'status',
             key: 'status',
             render: (text, record) => {
                 if(record.status === '0') {
-                    return '处理中'
+                    return t('order.status.processing')
                 } else if(record.status === '3') {
-                    return '成功'
+                    return t('order.status.success')
                 } else if(record.status === '2') {
-                    return '失败'
+                    return t('order.status.failed')
                 } else if(record.status === '1') {
-                    return '处理中'
+                    return t('order.status.processing')
                 }
             },
         },
@@ -269,7 +269,7 @@ const FlashOrderPage = () => {
             >
                 <div className='flex justify-between align-center'>
                     <h2 className={`font-w-500 font-20`}>
-                        闪兑订单
+                        {t('order.title')}
                     </h2>
                 </div>
                 
@@ -286,11 +286,11 @@ const FlashOrderPage = () => {
                     }}>
                         <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
                         <div style={{ flex: 1, marginLeft: '15px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>未完成身份认证</div>
-                            <div style={{ color: '#666', fontSize: '14px' }}>完成身份认证，解锁全部功能</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{t('authNotice.title')}</div>
+                            <div style={{ color: '#666', fontSize: '14px' }}>{t('authNotice.description')}</div>
                         </div>
                         <Button type="primary" shape="round" onClick={() => router.push('/userCenter/identity')}>
-                            立即认证
+                            {t('authNotice.button')}
                         </Button>
                     </div>
                 )}
@@ -338,7 +338,7 @@ const FlashOrderPage = () => {
                                     ...pagination,
                                     showSizeChanger: true,
                                     showQuickJumper: true,
-                                    showTotal: (total) => `共 ${total} 条`,
+                                    showTotal: (total) => t('order.pagination.total', { total }),
                                     pageSizeOptions: ['10', '20', '50', '100'],
                                 }}
                                 loading={loading}
@@ -347,11 +347,11 @@ const FlashOrderPage = () => {
                                 locale={{ 
                                     emptyText: (
                                         <NoData 
-                                            title="您还没有订单哦？点击此处前往" 
+                                            title={t('order.noData.title')} 
                                             textColor="#A4A5AC"
                                             height="45vh"
                                             url="/flash"
-                                            urlText="兑换"
+                                            urlText={t('order.noData.buttonText')}
                                             buttonClick={() => router.push('/flash')}
                                         />
                                     )
@@ -372,7 +372,7 @@ export default withSpotLayout(FlashOrderPage);
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {
-            ...(await serverSideTranslations(locale || 'en', ['spot','common'])),
+            ...(await serverSideTranslations(locale || 'en', ['flash','spot','common'])),
         },
     };
 };
