@@ -251,9 +251,9 @@ const FlashOrderPage = () => {
                         Table: {
                             headerBg: 'var(--background10)',
                             headerColor: 'var(--text-color6)',
-                            headerSplitColor: 'var(--border-color4)',
+                            headerSplitColor: 'transparent',
                             rowHoverBg: 'var(--background10)',
-                            borderColor: 'var(--border-color4)',
+                            borderColor: 'transparent',
                             headerBorderRadius: 0,
                             headerSortActiveBg: 'var(--background10)',
                             headerSortHoverBg: 'var(--background10)',
@@ -347,10 +347,11 @@ const FlashOrderPage = () => {
                                 locale={{ 
                                     emptyText: (
                                         <NoData 
-                                            title="您还没有订单哦？" 
+                                            title="您还没有订单哦？点击此处前往" 
                                             textColor="#A4A5AC"
                                             height="45vh"
-                                            buttonTitle="点击此处前往兑换"
+                                            url="/flash"
+                                            urlText="兑换"
                                             buttonClick={() => router.push('/flash')}
                                         />
                                     )

@@ -75,3 +75,8 @@
     box-sizing: border-box;
     min-width: 116px;
 }
+
+.url_color {
+    cursor: pointer;
+    color: var(--theme-color)!important;
+}
