@@ -688,7 +688,7 @@ export default function MarketData() {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
           return (achangePercent || 0) - (bchangePercent || 0)
-        }).slice(0, 5)
+        }).slice(0, 7)
       || [],
     [newPrice]
   );
@@ -726,7 +726,7 @@ export default function MarketData() {
           const achangePercent = (a.close_price - a.open_price) / a.open_price;
           const bchangePercent = (b.close_price - b.open_price) / b.open_price;
           return (bchangePercent || 0) - (achangePercent || 0)
-        }).slice(0, 5)
+        }).slice(0, 7)
       || [],
     [newPrice]
   );
