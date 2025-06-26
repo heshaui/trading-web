@@ -27,7 +27,8 @@
     "youWillPay": "お支払い額",
     "priceExpired": "この価格は期限切れです。新しい価格を取得してください",
     "exchange": "交換",
-    "exchangeWithCountdown": "交換 ({{seconds}}秒)"
+    "exchangeWithCountdown": "交換 ({{seconds}}秒)",
+    "refreshPrice": "価格更新"
   },
   "successModal": {
     "title": "成功",

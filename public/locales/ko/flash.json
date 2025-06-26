@@ -27,7 +27,8 @@
     "youWillPay": "지불하실 금액",
     "priceExpired": "이 시세가 만료되었습니다. 새 시세를 받아주세요",
     "exchange": "교환",
-    "exchangeWithCountdown": "교환 ({{seconds}}초)"
+    "exchangeWithCountdown": "교환 ({{seconds}}초)",
+    "refreshPrice": "시세 새로고침"
   },
   "successModal": {
     "title": "성공",

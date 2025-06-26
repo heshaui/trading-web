@@ -27,7 +27,8 @@
     "youWillPay": "You will pay",
     "priceExpired": "This quote has expired, please get a new quote",
     "exchange": "Exchange",
-    "exchangeWithCountdown": "Exchange ({{seconds}}S)"
+    "exchangeWithCountdown": "Exchange ({{seconds}}S)",
+    "refreshPrice": "Refresh Price"
   },
   "successModal": {
     "title": "Success",

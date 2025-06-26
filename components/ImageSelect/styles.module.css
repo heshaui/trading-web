@@ -298,16 +298,5 @@
 
 /* 暗色主题适配 */
 @media (prefers-color-scheme: dark) {
-  .selector {
-    background-color: var(--background7, #1f1f1f);
-    border-color: var(--border-color2, #333);
-  }
-  
-  .dropdown {
-    background-color: var(--background7, #1f1f1f);
-  }
-  
-  .optionCard:hover {
-    background-color: var(--background9, rgba(255, 255, 255, 0.1));
-  }
+ 
 } 

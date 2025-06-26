@@ -27,7 +27,8 @@
     "youWillPay": "您将支付",
     "priceExpired": "该报价已过期，请重新获取报价",
     "exchange": "兑换",
-    "exchangeWithCountdown": "兑换 ({{seconds}}S)"
+    "exchangeWithCountdown": "兑换 ({{seconds}}S)",
+    "refreshPrice": "刷新报价"
   },
   "successModal": {
     "title": "成功",

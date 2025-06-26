@@ -55,12 +55,12 @@ const FlashPage: NextPage = () => {
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
   const { isDayMode } = useThemeMode();
-  console.log('coinLists',coinList)
+
 
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
-  
-  const headerBgImage = flashConfigData?.[langKey]?.img;
+
+  const headerBgImage = flashConfigData&&flashConfigData?.[langKey]?.img;
 
   const headerTitle = flashConfigData && flashConfigData[langKey] 
                         ? flashConfigData[langKey].title 
@@ -412,7 +412,13 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>{t('available')} {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             {/* 现货可用余额 - 只在没有错误提示时显示 */}
+             {!(payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
+              Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0)) &&
+              !(payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU) && (
+               <AvailableAmount>{t('available')} {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             )}
+             
              {/* 余额不足提示 */}
              {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
               Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0) && (
@@ -524,7 +530,12 @@ const FlashPage: NextPage = () => {
               }}
               onRefreshPrice={async () => {
                 await getPreTrade();
-                setRefreshCount(prev => prev + 1);
+                // 如果已经达到5次，则重置计数器，否则增加计数
+                if (refreshCount >= 5) {
+                  setRefreshCount(0);
+                } else {
+                  setRefreshCount(prev => prev + 1);
+                }
                 // 手动刷新时暂时隐藏过期提示，但会在新的倒计时结束后重新显示
                 setPriceExpired(false);
               }}
@@ -732,6 +743,7 @@ const InsufficientBalanceAlert = styled.div`
 const AmountLimitAlert = styled.div`
   font-size: 12px;
   color: #F73711;
+  margin-top: 5px;
   margin-bottom: 5px;
   text-align: left;
   border-radius: 4px;
@@ -964,13 +976,18 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
           )}
 
           <Button
-            onClick={onConfirm}
+            onClick={refreshCount >= 5 && priceExpired ? onRefreshPrice : onConfirm}
             loading={isLoading}
             type='primary' 
             shape='round'
             style={{width:'100%',height:'50px'}}
           >
-            {countdown > 0 ? t('confirmModal.exchangeWithCountdown', { seconds: countdown }) : t('confirmModal.exchange')}
+            {refreshCount >= 5 && priceExpired 
+              ? t('confirmModal.refreshPrice')
+              : countdown > 0 
+                ? t('confirmModal.exchangeWithCountdown', { seconds: countdown }) 
+                : t('confirmModal.exchange')
+            }
           </Button>
         </ModalContent>
       </ModalContainer>
