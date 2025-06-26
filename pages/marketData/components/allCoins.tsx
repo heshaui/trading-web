@@ -176,12 +176,12 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       render: (_price, record) => {
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
-          return <span>{parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}/${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
+          return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
           // return <span>{parseFloat(_price || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
-          return <span>{usdtPrice.nowPrice||1}/${usdtPrice.nowPrice||1}</span>
+          return <span>${usdtPrice.nowPrice||1}</span>
         } else {
-          return <span>{parseFloat(_price || '0').toLocaleString()}/${parseFloat(_price || '0').toLocaleString()}</span>
+          return <span>${parseFloat(_price || '0').toLocaleString()}</span>
         }
       },
     },

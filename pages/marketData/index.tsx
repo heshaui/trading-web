@@ -20,6 +20,7 @@ import {
   getHotData,
   getMarketDown,
   getExchangeCoinAllPrice,
+  getSpotData
 } from "@/services/marketData";
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
@@ -155,13 +156,16 @@ export default function MarketData() {
   // 获取币对最新价格
   const fetchNewPrice = async () => {
     try {
-      const response = await getExchangeCoinAllPrice();
+      // const response = await getExchangeCoinAllPrice();
+      const response = await getSpotData({});
+      
       if (response?.code === "0") {
         // 同时更新 state 和 ref
         initNewPair.current = response.data;
 
         const processedData = response.data.map((item: any) => {
           return {
+            iconUrl:item.iconUrl,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
@@ -888,14 +892,16 @@ export default function MarketData() {
         const symbol = record.symbol?.split("_")
         const coinSymbol = symbol?.[0]
         const symbolPairs = `${record.coinSymbol || '--'}/${record.baseSymbol || '--'}`
-        return <>
+        return <div className="flex-x align-center">
           {index + 1}&nbsp;&nbsp;
-          {/* <Image
-            src={record.iconUrl }
+          <Image
+            src={record.iconUrl||''}
             alt=""
             width={20}
             height={20}
-          /> */}
+            className="mr-1"
+            style={{ width: 20, height: 20, borderRadius: '50%' }}
+          />
           <button
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
@@ -909,7 +915,7 @@ export default function MarketData() {
           >
             {(symbol || symbolPairs) ? `${coinSymbol || symbolPairs}` : '--'}
           </button>
-        </>
+        </div>
       },
     },
     {
