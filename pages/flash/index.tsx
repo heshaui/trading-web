@@ -84,11 +84,9 @@ const FlashPage: NextPage = () => {
       return true; // 如果不是数字，不显示限额错误
     }
     
-    // 将支付币种换算成USDT等价值
-    const usdtRate = getCoinRate(coinName, 'USDT');
-    const usdtEquivalent = numAmount * (Number(usdtRate) || 1);
-    
-    return usdtEquivalent >= Number(configData.minTradeU) && usdtEquivalent <= Number(configData.maxTradeU);
+    const minTradeU = getCoinRate(coinName, configData.minTradeU, 'USDT', 1).coinRate;
+    const maxTradeU = getCoinRate(coinName, configData.maxTradeU, 'USDT', 1).coinRate;
+    return Number(numAmount) >= Number(minTradeU) && Number(numAmount) <= Number(maxTradeU);
   };
 
 
@@ -102,8 +100,27 @@ const FlashPage: NextPage = () => {
   const gerFlashConfig = async () => {
     try {
       const config = await appStore.loadFlashConfig();
-      setBaseCoin(config.baseCoin);
-      setQuteCoin(config.quoteCoin);
+      
+      // 获取可用的币种列表（过滤掉 isTradeConvert 为 0 的币种）
+      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0);
+      
+      // 检查配置中的 baseCoin 是否在可用列表中，如果不在则使用第一个
+      const validBaseCoin = availableCoins.find(coin => coin.coinName === config.baseCoin) 
+        ? config.baseCoin 
+        : (availableCoins[0]?.coinName || '');
+      
+      // 检查配置中的 quoteCoin 是否在可用列表中，如果不在则使用第一个（但要避免与 baseCoin 相同）
+      let validQuoteCoin = availableCoins.find(coin => coin.coinName === config.quoteCoin) 
+        ? config.quoteCoin 
+        : (availableCoins[1]?.coinName || availableCoins[0]?.coinName || '');
+      
+      // 确保 quoteCoin 与 baseCoin 不同
+      if (validQuoteCoin === validBaseCoin && availableCoins.length > 1) {
+        validQuoteCoin = availableCoins.find(coin => coin.coinName !== validBaseCoin)?.coinName || '';
+      }
+      
+      setBaseCoin(validBaseCoin);
+      setQuteCoin(validQuoteCoin);
     } catch (error) {
     }
   }
@@ -206,7 +223,6 @@ const FlashPage: NextPage = () => {
 
 
   useEffect(() => {
-    gerFlashConfig()
     getUserAllBala()
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
@@ -219,6 +235,13 @@ const FlashPage: NextPage = () => {
     }
   }
   }, [])
+
+  // 当 coinList 加载完成后执行配置获取
+  useEffect(() => {
+    if (coinList && coinList.length > 0) {
+      gerFlashConfig()
+    }
+  }, [coinList])
 
   useEffect(() => {
     setIsClientReady(true);
@@ -335,7 +358,9 @@ const FlashPage: NextPage = () => {
               <TradeLabel>支付</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                   placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
+                   placeholder={configData?.minTradeU && configData?.maxTradeU && baseCoin ? 
+                     `${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
+                     ''}
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -403,7 +428,7 @@ const FlashPage: NextPage = () => {
              {/* 限额错误提示 */}
              {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
                 <AmountLimitAlert>
-                  限额：{configData.minTradeU} USDT - {configData.maxTradeU} USDT
+                  限额：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
                 </AmountLimitAlert>
               )}
 
@@ -417,7 +442,9 @@ const FlashPage: NextPage = () => {
               <TradeLabel>获得</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
+                  placeholder={configData?.minTradeU && configData?.maxTradeU && quteCoin ? 
+                    `${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
+                    ''}
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -464,9 +491,6 @@ const FlashPage: NextPage = () => {
                     iconUrl: item.iconUrl
                   }))}
                 />
-
-
-
               </TradeInputWrapper>
 
             </TradeSection>
