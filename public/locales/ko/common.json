@@ -103,6 +103,7 @@
     "bill": "거래 내역",
     "spotTrade": "현물 거래",
     "spotOrder": "현물 주문",
+    "flashOrder":"플래시 주문",
     "overView": "개요",
     "safetyCenter": "보안 센터",
     "identity": "신원 인증",

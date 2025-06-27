@@ -28,6 +28,7 @@ import appStore from "@/store";
 import { cut, division, nul, roundDown, formatted } from '@/utils'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { useRouter } from 'next/router';
+import { SvgIcon } from "@/components/icon"
 import { toast } from "sonner";
 
 // 格式化价格并限制字符长度，最多16个字符（包括省略号）
@@ -663,7 +664,7 @@ export default function MarketData() {
       || [],
     [hotMarketList, newPrice]
   );
-    // const filteredMarketDataUp = useMemo(() =>
+  // const filteredMarketDataUp = useMemo(() =>
   //     newPrice?.sort(
   //       (a: any, b: any) => {
   //         // const achangePercent = (a.close_price - a.open_price) / a.open_price;
@@ -676,39 +677,39 @@ export default function MarketData() {
   //   [newPrice]
   // );
 
-  const filteredMarketDataDown = useMemo(() =>{
-      if (!Array.isArray(newPrice)) return [];
-      // 先分组
-      const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
-      const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
+  const filteredMarketDataDown = useMemo(() => {
+    if (!Array.isArray(newPrice)) return [];
+    // 先分组
+    const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
+    const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
 
-      // 排序
-      withPercent.sort((a, b) => a.priceChangePercent - b.priceChangePercent); // 从小到大
-      // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
+    // 排序
+    withPercent.sort((a, b) => a.priceChangePercent - b.priceChangePercent); // 从小到大
+    // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
 
-      // 合并
-      const result = [...withPercent, ...withoutPercent];
+    // 合并
+    const result = [...withPercent, ...withoutPercent];
 
-      // 取前7个
-      return result.slice(0, 7);
-    },[newPrice]
+    // 取前7个
+    return result.slice(0, 7);
+  }, [newPrice]
   );
-  const filteredMarketDataUp = useMemo(() =>{
-      if (!Array.isArray(newPrice)) return [];
-      // 先分组
-      const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
-      const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
+  const filteredMarketDataUp = useMemo(() => {
+    if (!Array.isArray(newPrice)) return [];
+    // 先分组
+    const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
+    const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
 
-      // 排序
-      withPercent.sort((a, b) => b.priceChangePercent - a.priceChangePercent); // 从大到小
-      // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
+    // 排序
+    withPercent.sort((a, b) => b.priceChangePercent - a.priceChangePercent); // 从大到小
+    // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
 
-      // 合并
-      const result = [...withPercent, ...withoutPercent];
+    // 合并
+    const result = [...withPercent, ...withoutPercent];
 
-      // 取前7个
-      return result.slice(0, 7);
-    },[newPrice]
+    // 取前7个
+    return result.slice(0, 7);
+  }, [newPrice]
   );
 
 
@@ -736,16 +737,18 @@ export default function MarketData() {
       }),
       render: (text, record, index) => (
         <div className="flex-x align-center">
-          {index + 1}&nbsp;&nbsp;
+          <span className="mr-3">{index + 1}</span>
           <Image
             src={record.iconUrl}
             alt=""
             width={20}
             height={20}
-            className="mr-1"
+            // className="mr-1"
             style={{ width: 20, height: 20, borderRadius: '50%' }}
+            preview={false}
           />
           <button
+            className="ml-1"
             onClick={() => {
               if (record.symbol) {
                 const symbol = `${record.symbol}`
@@ -890,7 +893,7 @@ export default function MarketData() {
         const coinSymbol = symbol?.[0]
         const symbolPairs = `${record.coinSymbol || '--'}/${record.baseSymbol || '--'}`
         return <div className="flex-x align-center">
-          {index + 1}&nbsp;&nbsp;
+          <span className="mr-3">{index + 1}</span>
           <Image
             src={record.iconUrl || ''}
             alt=""
@@ -898,8 +901,10 @@ export default function MarketData() {
             height={20}
             className="mr-1"
             style={{ width: 20, height: 20, borderRadius: '50%' }}
+            preview={false}
           />
           <button
+            className="ml-1"
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
                 const symbol = `${record.coinSymbol}/${record.baseSymbol}`

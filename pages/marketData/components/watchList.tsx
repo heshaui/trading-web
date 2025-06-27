@@ -420,9 +420,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
             setSearchValue(filteredValue);
           }}
           placeholder={t('header.searchInput')}
-          // onChange={handleSearchChange}  // 修正为正确的处理函数
-          // onKeyPress={handleKeyPress}    // 添加回车键处理
-          prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+          suffix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
           // style={{ width: "242px", marginBottom: 16 }}
           className={`${styles.input_box} modal-input`}
         />

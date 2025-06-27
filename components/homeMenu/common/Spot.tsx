@@ -65,6 +65,7 @@ export default function SpotMenuItems() {
                         ? "/images/home_menu/icon_flash_line.png"
                         : "/images/home_menu/icon_flash_line_dark.png"}
                     h5Text={t('flash.order.title')}
+                    h5Text={t('router.flashOrder')}  //'闪兑订单'
                     spanText=""
                     onClick={() => {
                         router.push('/flashOrder')

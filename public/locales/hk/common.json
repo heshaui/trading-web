@@ -104,6 +104,7 @@
     "bill":"账单明细",
     "spotTrade":"现货交易",
     "spotOrder":"现货订单",
+    "flashOrder":"闪兑订单",
     "overView":"总览",
     "safetyCenter":"安全中心",
     "identity":"身份认证",
