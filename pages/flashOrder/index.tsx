@@ -15,6 +15,7 @@ import { getCoinAll } from '@/services/assets';
 import { NoData } from '@/components/noData';
 import type { GetStaticProps } from 'next';
 import { Iconify } from "@/components/icon"
+import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
 
 
 interface TransactionRecord {
@@ -214,10 +215,10 @@ const FlashOrderPage = () => {
                         <span>{record.receiveCoin}</span>
                     </div>
                     <div className='flex items-center gap-1'>
-                        <span>{record.price}</span>
+                        <span>{1}</span>
                         <span>{record.receiveCoin}</span>
                         <span>=</span>
-                        <span>1</span>
+                        <span>{record.price ? getCoinRound(record.sendCoin, 1/Number(record.price)) : '-'}</span>
                         <span>{record.sendCoin}</span>
                     </div>
                 </div>
