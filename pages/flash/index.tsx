@@ -412,7 +412,7 @@ const FlashPage: NextPage = () => {
                       setPayAmount(value);
                       // 验证金额限额
                       setIsAmountValid(validateAmount(value, baseCoin));
-                      if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
+                      if (value && exchangeRate) {
                         const calculatedAmount = (Number(value) * Number(exchangeRate));
                         // 保持合理的精度显示
                         const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
