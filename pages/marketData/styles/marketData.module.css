@@ -323,9 +323,9 @@ html[lang="en"] .cardtitle {
     grid-template-columns: 1fr;
   }
 
-  /* .auto_item{
-         width: 50%;
-     } */
+  .marketData_tabs {
+    min-width: 560px;
+  }
 }
 
 @media (max-width: 1080px) {
