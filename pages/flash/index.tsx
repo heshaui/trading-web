@@ -419,6 +419,9 @@ const FlashPage: NextPage = () => {
                         // 保持合理的精度显示
                         const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
                         setReceiveAmount(formattedAmount);
+                      } else if (value === '') {
+                        // 当支付金额被清空时，也清空接收金额
+                        setReceiveAmount('');
                       }
                     }
                   }}
@@ -527,6 +530,9 @@ const FlashPage: NextPage = () => {
                         
                         // 验证计算出的支付金额是否在限额范围内
                         setIsAmountValid(validateAmount(calculatedPayAmount.toString(), baseCoin));
+                      } else if (value === '') {
+                        // 当接收金额被清空时，也清空支付金额
+                        setPayAmount('');
                       }
                       // 延迟重置标志，避免立即被 useEffect 覆盖
                       setTimeout(() => setIsManualReceiveInput(false), 100);
