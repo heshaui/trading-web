@@ -28,6 +28,7 @@ import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import { toast } from "sonner"
 import { getUserExchangeCoinTypeList } from '@/services/spot';
 import { roundDown, formatted } from '@/utils'
+import { useThemeMode } from '@/hooks/useThemeMode'
 
 
 interface SpotSelectProps {
@@ -45,16 +46,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const router = useRouter();
   const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all"); // 当前选中的tab
-  const [sortField, setSortField] = useState<string>("");
-  // const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+       const { isDayMode } = useThemeMode()
   const [searchValue, setSearchValue] = useState('')
   const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
   const [tableLoading, setTableLoading] = useState(false)
   const currencyPairsArray = appStore.currencyPairs || [];
   const [tabsItem, setTabsItem] = useState<TabsProps["items"]>([])
-  const [exchangeCoin, setExchangeCoin] = useState<string[]>([])
   // 标签页配置
   const initTabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
@@ -93,7 +91,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       title: t('header.name'),
       dataIndex: 'coinSymbol',
       key: 'coinSymbol',
-      width: 100,
+      width: 200,
       render: (text, record) => (
         <div className={`${styles.pair_name} flex-x align-center`}>
           <span
@@ -123,7 +121,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       title: t('header.lastPrice'),
       dataIndex: 'price',
       key: 'price',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => (a.price || 0) - (b.price || 0),
       render: (_price, record) => {
@@ -155,7 +153,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       title: t('header.change24h'),
       dataIndex: 'closePrice',
       key: 'closePrice',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
@@ -178,7 +176,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       title: `${t("header.high24h")}/${t("header.low24h")}`,
       dataIndex: 'height',
       key: 'height',
-      align: 'center',
+      align: 'left',
       width: 200,
       render: (_marketValue, record) => {
         // const height = record.height || '0'
@@ -199,7 +197,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       title: t("header.volume24h"),
       dataIndex: 'volume',
       key: 'volume',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => {
         // const aQuantity = parseFloat(a.quantity) / 1000000
@@ -230,11 +228,11 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             }}
           >
             <Image
-              src={'/images/market/icon_Trade.svg'}
+               src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
               alt={'trade'}
-              width={28}
-              height={28}
-              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              width={24}
+              height={24}
+              style={{ borderRadius: '50%', height: '24px', width: '24px' }}
               preview={false} />
           </button>
         </Tooltip>
@@ -443,7 +441,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             size="middle"
             bordered={false}
             loading={tableLoading}
-            className={`${styles.allCoinsTable} spot-table-box w-full`}
+            className={`${styles.allCoinsTable} markerData-table w-full`}
             showSorterTooltip={false}
             locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
           />

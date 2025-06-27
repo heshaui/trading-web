@@ -17,6 +17,8 @@ import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { getCoinRate } from '@/utils/getUseRate'
 import { roundDown, formatted } from '@/utils'
+import { useThemeMode } from '@/hooks/useThemeMode'
+
 
 // 添加props接口定义
 interface AllCoinsProps {
@@ -40,6 +42,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
   // const [usdtPrice, setUsdtPrice] = useState({} as usdtPriceType)
   const [tableLoading, setTableLoading] = useState(false)
   const usdtPrice = appStore.getUsdtRate() || appStore.usdtRate
+    const { isDayMode } = useThemeMode()
 
 
   // console.log(currencyPairs, 99987);
@@ -127,7 +130,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'coinName',
       key: 'coinName',
       align: "left",
-      width: 100,
+      width: 200,
       onHeaderCell: () => ({
         style: {
           textAlign: "left",
@@ -156,7 +159,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.price'),
       dataIndex: 'price',
       key: 'price',
-      align: 'center',
+      align: 'left',
       width: 260,
       sorter: (a, b) => {
         let aPrice
@@ -185,7 +188,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           // return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
           // const price = usdtPrice.nowPrice ? roundDown(_price, record.baseCoinScale || 0) : '0'
-          const text = formatted(usdtPrice.nowPrice||1)
+          const text = formatted(usdtPrice.nowPrice || 1)
           return <span>${text || 1}</span>
           // return <span>${usdtPrice.nowPrice || 1}</span>
         } else {
@@ -200,7 +203,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.change24h'),
       dataIndex: 'closePrice',
       key: 'closePrice',
-      align: 'center',
+      align: 'left',
       width: 260,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
@@ -218,7 +221,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.marketCap'),
       dataIndex: 'marketValue',
       key: 'marketValue',
-      align: 'center',
+      align: 'left',
       width: 260,
       sorter: (a, b) => {
         // 将市值转换为统一单位进行比较
@@ -237,7 +240,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       },
       render: (_marketValue, record) => {
         const unit = _marketValue.split('_')[1]
-        let unitValue = '--'
+        let unitValue 
         if (unit === 'B') {
           unitValue = t('header.billion')
         } else if (unit === 'M') {
@@ -247,8 +250,9 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         }
         // return <span>{_marketValue || "0"}</span>
         // return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
-        return <span>${parseFloat(_marketValue || "0").toLocaleString()}&nbsp;{unitValue}
-        </span>
+        return _marketValue ? <p>${parseFloat(_marketValue || "0").toLocaleString()}&nbsp;
+          {unitValue?<span>{unitValue}</span>:''}
+        </p> : '--'
       },
     },
     {
@@ -269,11 +273,19 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       //   },
       // }),
       render: (_, record) => {
+        const symbolName = `${record.coinSymbol}/${record.baseSymbol}`;
+        let flag = false
+        if(record.coinSymbol && record.baseSymbol){
+          flag = true
+        } else if (record.isDirectPair === 2&&pairsNewPrice?.find(item=>item.coinSymbol==='USDT'||item.baseSymbol==='USDT')) {
+          flag = true
+        } else {
+          flag = false
+        }
 
-        return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
+        return (flag)?<Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
             onClick={() => {
-              const symbolName = `${record.coinSymbol}/${record.baseSymbol}`;
               if (record.coinSymbol && record.baseSymbol) {
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
               } else {
@@ -283,14 +295,14 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           >
             {/* { `${record.coinSymbol}/${record.baseSymbol}`} */}
             <Image
-              src={'/images/market/icon_Trade.svg'}
+              src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
               alt={'trade'}
-              width={28}
-              height={28}
-              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              width={24}
+              height={24}
+              style={{ borderRadius: '50%', height: '24px', width: '24px' }}
               preview={false} />
           </button>
-        </Tooltip>
+        </Tooltip>:'--'
       },
     },
   ];
@@ -381,7 +393,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           size="middle"
           bordered={false}
           loading={tableLoading}
-          className={`${styles.allCoinsTable} spot-table-box w-full`}
+          className={`${styles.allCoinsTable} markerData-table w-full`}
           showSorterTooltip={false}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />

@@ -30,6 +30,20 @@ import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 
+// 格式化价格并限制字符长度，最多16个字符（包括省略号）
+const formatPriceWithLimit = (price: string | number | undefined, maxLength: number = 16): string => {
+  if (!price) return '--';
+  
+  const formattedPrice = parseFloat(price.toString() || '0').toLocaleString();
+  
+  if (formattedPrice.length <= maxLength) {
+    return formattedPrice;
+  } else {
+    // 确保包括省略号在内总长度不超过maxLength
+    return formattedPrice.substring(0, maxLength - 3) + '...';
+  }
+};
+
 
 export default function MarketData() {
   const { t } = useTranslation("market");
@@ -805,9 +819,9 @@ export default function MarketData() {
       // width: 150,
       render: (text, record) => (
         <div style={{height:42}} className="flex-y justify-center">
-          <div>{record.price ? parseFloat(record.price || "0").toLocaleString() : '--'}</div>
+          <div>{record.price ? formatPriceWithLimit(record.price) : '--'}</div>
           {record.price&&<div style={{ fontSize: "12px", color: "#999" }}>
-            ${parseFloat(record.price || "0").toLocaleString()}
+            ${formatPriceWithLimit(record.price)}
           </div>}
         </div>
       ),
@@ -955,9 +969,9 @@ export default function MarketData() {
       }),
       render: (_text, record) => (
         <div style={{height:42}} className="flex-y justify-center">
-          <div>{_text ? parseFloat(_text || "0").toLocaleString() : "--"}</div>
+          <div>{_text ? formatPriceWithLimit(_text) : "--"}</div>
           {_text&&<div style={{ fontSize: "12px", color: "#999" }}>
-                ${parseFloat(_text || "0").toLocaleString()}
+                ${formatPriceWithLimit(_text)}
               </div>}
         </div>
       ),
@@ -1152,7 +1166,7 @@ export default function MarketData() {
                     pagination={false}
                     size="small"
                     bordered={false}
-                    className={styles.table}
+                    className={`${styles.table} markerData-ranking`}
                     // scroll={{ y: '400' }}
                     // style={{ height: '300px' }}
                     locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
@@ -1181,7 +1195,7 @@ export default function MarketData() {
                     pagination={false}
                     size="small"
                     bordered={false}
-                    className={styles.table}
+                    className={`${styles.table} markerData-ranking`}
                     locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                   />
                 </div>
@@ -1207,7 +1221,7 @@ export default function MarketData() {
                     pagination={false}
                     size="small"
                     bordered={false}
-                    className={styles.table}
+                    className={`${styles.table} markerData-ranking`}
                     locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
                   />
                 </div>

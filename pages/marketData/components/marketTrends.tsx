@@ -84,7 +84,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
     <div className='position-relative'>
       <Tabs
         items={items}
-        className="custom-tabs2"
+        className="marketData-tabs"
         activeKey={activeTab}
         destroyInactiveTabPane={true}
         indicator={{ size: (origin) => origin - 35, align: 'center' }}
