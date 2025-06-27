@@ -16,6 +16,7 @@ export interface ImageSelectOption {
   sort?: number;
   price?: number;
   localPrice?: string;
+  balance?: string;
 }
 
 interface ImageSelectProps {
@@ -31,6 +32,7 @@ interface ImageSelectProps {
   showHistory?: boolean;
   maxHistory?: number;
   showPrice?: boolean;
+  showBalance?: boolean;
   defaultOpen?: boolean;
 }
 
@@ -47,6 +49,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
   showHistory = true,
   maxHistory = 4,
   showPrice = true,
+  showBalance = false,
   defaultOpen = false
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -54,19 +57,66 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
   const [filteredOptions, setFilteredOptions] = useState<ImageSelectOption[]>([]);
   const selectRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation(['common']);
+  // 排序函数：按转换后的金额从大到小排序
+  const sortOptionsByBalance = (optionsToSort: ImageSelectOption[]) => {
+    if (!showBalance) {
+      return optionsToSort;
+    }
+    
+    return [...optionsToSort].sort((a, b) => {
+      const balanceA = Number(a.balance || 0);
+      const balanceB = Number(b.balance || 0);
+      
+      // 计算转换后的USD价值
+      let valueA = 0;
+      let valueB = 0;
+      
+      try {
+        if (balanceA > 0 && a.coinName) {
+          const rateA = getRate(a.coinName, balanceA, 'USD');
+          valueA = Number(rateA.rate) || 0;
+        }
+      } catch (error) {
+        valueA = 0;
+      }
+      
+      try {
+        if (balanceB > 0 && b.coinName) {
+          const rateB = getRate(b.coinName, balanceB, 'USD');
+          valueB = Number(rateB.rate) || 0;
+        }
+      } catch (error) {
+        valueB = 0;
+      }
+      
+      // 按转换后的价值从大到小排序
+      if (valueA !== valueB) {
+        return valueB - valueA;
+      }
+      
+      // 价值相同时按币种名称排序
+      return (a.coinName || a.label).localeCompare(b.coinName || b.label);
+    });
+  };
+
   // 过滤选项
   useEffect(() => {
+    let filtered: ImageSelectOption[];
+    
     if (!searchValue) {
-      setFilteredOptions(options);
+      filtered = options;
     } else {
-      const filtered = options.filter(option =>
+      filtered = options.filter(option =>
         option.coinName?.toLowerCase().includes(searchValue.toLowerCase()) ||
         option.nameDefault?.toLowerCase().includes(searchValue.toLowerCase()) ||
         option.label.toLowerCase().includes(searchValue.toLowerCase())
       );
-      setFilteredOptions(filtered);
     }
-  }, [searchValue, options]);
+    
+    // 应用排序
+    const sorted = sortOptionsByBalance(filtered);
+    setFilteredOptions(sorted);
+  }, [searchValue, options, showBalance]);
 
   // 初始化时触发onFocus
   useEffect(() => {
@@ -240,12 +290,18 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
                             </div>
                           )}
                         </div>
-                          { option.coinName && (
-                            <div className={styles.optionPriceWrapper}>
-                              <div className={styles.optionPrice}>{getCoinRate(option.coinName,1).coinRate}</div>
-                              <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName, getCoinRate(option.coinName,1).price, 'USD').ratetext}</div>
-                            </div>
-                          )}
+                        {showBalance && option.balance && Number(option.balance) > 0 && (
+                          <div className={styles.optionPriceWrapper}>
+                            <div className={styles.optionPrice}>{getCoinRound(option.coinName || '', option.balance)}</div>
+                            <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName || '', option.balance, 'USD').ratetext}</div>
+                          </div>
+                        )}
+                        {showPrice && !showBalance && option.coinName && (
+                          <div className={styles.optionPriceWrapper}>
+                            <div className={styles.optionPrice}>{getCoinRate(option.coinName,1).coinRate}</div>
+                            <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName, getCoinRate(option.coinName,1).price, 'USD').ratetext}</div>
+                          </div>
+                        )}
 
                       </div>
                     ))

@@ -44,8 +44,8 @@ const FlashPage: NextPage = () => {
 
   const [baseCoin, setBaseCoin] = useState<string>('');
   const [quteCoin, setQuteCoin] = useState<string>('');
-  const [userAll,setUserAll] = useState<any[]>([]);
-  const [isAuth, setIsAuth] = useState<boolean>(true);
+  const [userAll,setUserAll] = useState<any[]>([]); 
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
   const [isAmountValid, setIsAmountValid] = useState<boolean>(true); // 金额是否在限额范围内
@@ -100,7 +100,7 @@ const FlashPage: NextPage = () => {
     }
   }
 
-  const gerFlashConfig = async () => {
+  const gerFlashConfig = async (hasUrlParam: boolean = false) => {
     try {
       const config = await appStore.loadFlashConfig();
       const flashConvertSwitch = config.flashConvertSwitch
@@ -111,10 +111,14 @@ const FlashPage: NextPage = () => {
       // 获取可用的币种列表（过滤掉 isTradeConvert 为 0 的币种）
       const availableCoins = coinList.filter(item => item.isTradeConvert !== 0);
       
-      // 检查配置中的 baseCoin 是否在可用列表中，如果不在则使用第一个
-      const validBaseCoin = availableCoins.find(coin => coin.coinName === config.baseCoin) 
-        ? config.baseCoin 
-        : (availableCoins[0]?.coinName || '');
+      // 如果URL中有参数，则不设置baseCoin，只设置quoteCoin
+      if (!hasUrlParam) {
+        // 检查配置中的 baseCoin 是否在可用列表中，如果不在则使用第一个
+        const validBaseCoin = availableCoins.find(coin => coin.coinName === config.baseCoin) 
+          ? config.baseCoin 
+          : (availableCoins[0]?.coinName || '');
+        setBaseCoin(validBaseCoin);
+      }
       
       // 检查配置中的 quoteCoin 是否在可用列表中，如果不在则使用第一个（但要避免与 baseCoin 相同）
       let validQuoteCoin = availableCoins.find(coin => coin.coinName === config.quoteCoin) 
@@ -122,11 +126,10 @@ const FlashPage: NextPage = () => {
         : (availableCoins[1]?.coinName || availableCoins[0]?.coinName || '');
       
       // 确保 quoteCoin 与 baseCoin 不同
-      if (validQuoteCoin === validBaseCoin && availableCoins.length > 1) {
-        validQuoteCoin = availableCoins.find(coin => coin.coinName !== validBaseCoin)?.coinName || '';
+      if (validQuoteCoin === baseCoin && availableCoins.length > 1) {
+        validQuoteCoin = availableCoins.find(coin => coin.coinName !== baseCoin)?.coinName || '';
       }
       
-      setBaseCoin(validBaseCoin);
       setQuteCoin(validQuoteCoin);
     } catch (error) {
     }
@@ -243,12 +246,30 @@ const FlashPage: NextPage = () => {
   }
   }, [])
 
-  // 当 coinList 加载完成后执行配置获取
+  // 当 coinList 加载完成后执行配置获取和URL参数处理
   useEffect(() => {
-    if (coinList && coinList.length > 0) {
-      gerFlashConfig()
+    if (coinList && coinList.length > 0 && router.isReady) {
+      // 检查URL中是否有参数
+      const urlParams = new URLSearchParams(router.asPath.split('?')[1]);
+      const coinName = Array.from(urlParams.keys())[0]; // 获取第一个参数名作为币种名
+      
+      let hasUrlParam = false;
+      
+      if (coinName && typeof coinName === 'string') {
+        // 检查币种是否在可用列表中
+        const availableCoins = coinList.filter(item => item.isTradeConvert !== 0);
+        const targetCoin = availableCoins.find(coin => coin.coinName === coinName);
+        
+        if (targetCoin) {
+          setBaseCoin(coinName);
+          hasUrlParam = true;
+        }
+      }
+      
+      // 执行配置获取，传入是否有URL参数的标记
+      gerFlashConfig(hasUrlParam);
     }
-  }, [coinList])
+  }, [coinList, router.isReady, router.asPath])
 
   useEffect(() => {
     setIsClientReady(true);
@@ -350,7 +371,6 @@ const FlashPage: NextPage = () => {
         <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer',marginTop:'26px' }}>
           <div style={{display:'flex',alignItems:'center'}}>
           <Image src={isDayMode ? '/images/flash/dayFrame.png' : '/images/flash/dayFrame_dark.png'} width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>{t('spotTrading')}</p>
-
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
           <Image src={isDayMode ? '/images/flash/dayOrder.png' : '/images/flash/dayOrder_dark.png'} width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>{t('orderHistory')}</p>
@@ -358,8 +378,6 @@ const FlashPage: NextPage = () => {
              
             </div>
         <ContentWrapper>
-
-      
           <TradeContainer>
             <TradeSection>
               <TradeLabel>{t('pay')}</TradeLabel>
@@ -397,18 +415,35 @@ const FlashPage: NextPage = () => {
                 >{t('max')}</MaxLabel>
                 <ImageSelect
                   value={baseCoin}
-                  onChange={(value) => setBaseCoin(value)}
+                  onChange={(value) => {
+                    setBaseCoin(value)
+                    setPayAmount('')
+                    setReceiveAmount('')
+                    // 如果选择的baseCoin与quteCoin相同，自动切换quteCoin到其他币种
+                    if (value === quteCoin) {
+                      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== value);
+                      if (availableCoins.length > 0) {
+                        setQuteCoin(availableCoins[0].coinName);
+                      }
+                    }
+                  }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}
+                  showBalance={true}
+                  showPrice={false}
                   className={styles.compactImageSelect}
-                  options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
-                    label: item.coinName,
-                    value: item.coinName,
-                    coinName: item.coinName,
-                    iconUrl: item.iconUrl,
-                    nameDefault: item.nameDefault
-                  }))}
+                  options={coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== quteCoin).map(item=>{
+                    const userBalance = userAll.find(user => user.coinName === item.coinName);
+                    return {
+                      label: item.coinName,
+                      value: item.coinName,
+                      coinName: item.coinName,
+                      iconUrl: item.iconUrl,
+                      nameDefault: item.nameDefault,
+                      balance: userBalance?.balance || '0'
+                    };
+                  })}
                 />
                   
 
@@ -464,7 +499,7 @@ const FlashPage: NextPage = () => {
                     }
                   }}
                 />
-                <MaxLabel 
+                {/* <MaxLabel 
                   style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === quteCoin);
@@ -480,21 +515,38 @@ const FlashPage: NextPage = () => {
                       }
                     }
                   }}
-                >{t('max')}</MaxLabel>
+                >{t('max')}</MaxLabel> */}
                 <ImageSelect
                   value={quteCoin}
-                  onChange={(value) => setQuteCoin(value)}
+                  onChange={(value) => {
+                    setQuteCoin(value)
+                    setPayAmount('')
+                    setReceiveAmount('')
+                    // 如果选择的quteCoin与baseCoin相同，自动切换baseCoin到其他币种
+                    if (value === baseCoin) {
+                      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== value);
+                      if (availableCoins.length > 0) {
+                        setBaseCoin(availableCoins[0].coinName);
+                      }
+                    }
+                  }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}
+                  showBalance={true}
+                  showPrice={false}
                   className={styles.compactImageSelect}
-                  options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
-                    label: item.coinName,
-                    value: item.coinName,
-                    coinName: item.coinName,
-                    nameDefault: item.nameDefault,
-                    iconUrl: item.iconUrl
-                  }))}
+                  options={coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== baseCoin).map(item=>{
+                    const userBalance = userAll.find(user => user.coinName === item.coinName);
+                    return {
+                      label: item.coinName,
+                      value: item.coinName,
+                      coinName: item.coinName,
+                      nameDefault: item.nameDefault,
+                      iconUrl: item.iconUrl,
+                      balance: userBalance?.balance || '0'
+                    };
+                  })}
                 />
               </TradeInputWrapper>
 
@@ -567,7 +619,6 @@ const FlashPage: NextPage = () => {
 
 
 
-          <FooterText>{t('footer')}</FooterText>
         </ContentWrapper>
         <FAQSection>
             <FAQTitle>{t('faq.title')}</FAQTitle>

@@ -38,13 +38,11 @@ const AssetsMainPage = observer(() => {
     })
     const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
     const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
-    // const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const [rateKeyName, setRateKeyName] = useState('');
 
 
     const paramdataRef = useRef(pageParam);
     // 获取币种列表
-    // const { coinList } = useCoinList(true);
     const coinList = appStore.getCoinList(); // 获取币种信息
     const [form] = Form.useForm();
     // 获取汇率数据
@@ -172,9 +170,13 @@ const AssetsMainPage = observer(() => {
                         {t('assetsAccount.button.trade')}
                     </button>
                     {/* //闪兑 */}
-                    <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={goFlash}>
-                        闪兑
-                    </button>
+                    {
+                    coinList.find(item=>item.coinName===record.coinName)?.isTradeConvert===1&&
+                         <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={()=>goFlash(record.coinName)}>
+                         闪兑
+                     </button>
+                    }
+                   
                 </>
             },
         },
@@ -186,8 +188,8 @@ const AssetsMainPage = observer(() => {
     const [banlanceLoading, setBanlanceLoading] = useState(true);
     // const [todayEarningsLoading, setTodayEarningsLoading] = useState(true);
     const [kLineLoading, setKLineLoading] = useState(true);
-    const goFlash=async()=>{
-        router.push('/flash');
+    const goFlash=async(coinName:string)=>{
+        router.push(`/flash?${coinName}`);
 
     }
 
