@@ -178,6 +178,8 @@ const FlashPage: NextPage = () => {
           const calculatedAmount = (Number(payAmount) * Number(res.data)).toFixed(8);
           setReceiveAmount(calculatedAmount);
         }
+      }else{
+        setExchangeRate('')
       }
     } catch (error) {
       console.error('Failed to get flash price:', error)
