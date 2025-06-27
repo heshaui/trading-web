@@ -280,7 +280,7 @@ const FlashOrderPage = () => {
                 </div>
                 
                 {/* 实名认证提醒 */}
-                {configData?.realNameRequired && !isAuth && (
+                {/* {configData?.realNameRequired && !isAuth && (
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -299,7 +299,7 @@ const FlashOrderPage = () => {
                             {t('authNotice.button')}
                         </Button>
                     </div>
-                )}
+                )} */}
                 
                 <div className={`flex items-center gap-4 my-4 ${styles.filterContainer}`}>
                     <Space size={16}>
