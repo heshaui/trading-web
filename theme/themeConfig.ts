@@ -12,12 +12,17 @@ const defaultTheme: ThemeConfig = {
     // colorSplit: 'var(--background14)', // 分割线颜色
     colorIconHover: 'var(--text-color6)',
     colorIcon: 'var(--text-color6)',
-    
+    colorBorder: 'var(--border-color6)',
     colorBgContainer: 'transparent', //组件的容器背景色-默认按钮、输入框、单选框、复选框
-
+    
   },
   components: {
-
+    Button: {
+      defaultShadow: 'none',
+      primaryShadow: 'none',
+     
+     
+    },
     Collapse: {
   
 

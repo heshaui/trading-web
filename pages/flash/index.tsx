@@ -1176,7 +1176,7 @@ const CloseButton = styled.button`
 `;
 
 const ModalContent = styled.div`
-  padding: 20px;
+  padding:35px;
 `;
 
 const ExchangeInfo = styled.div`
@@ -1266,7 +1266,7 @@ const PriceExpiredAlert = styled.div`
   color: #FF8A26;
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 30px 0;
   
 `;
 

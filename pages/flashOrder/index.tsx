@@ -266,6 +266,12 @@ const FlashOrderPage = () => {
                         headerBorderRadius: 0, // 表头圆角
                         fontSize: 13,
                         },
+                        Select: {
+                            selectorBg	: "var(--background7)",
+                          },
+                          DatePicker: {
+                            activeBg: "var(--background7)",
+                          },
                         Pagination: {
                             itemActiveBg: 'transparent',
                             itemBg: 'transparent',
