@@ -4,7 +4,7 @@ import type { GetStaticProps } from 'next';
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
 	return {
 		props: {
-			...(await serverSideTranslations(locale || 'en', ['spot','common'])),
+			...(await serverSideTranslations(locale || 'en', ['flash','spot','common'])),
 		},
 	};
 };

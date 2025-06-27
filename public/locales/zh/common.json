@@ -139,5 +139,13 @@
   },
   "scrollableTabs":{
     "all": "全部"
+  },
+  "imageSelect":{
+    "search": "搜索",
+    "noData": "暂无数据",
+    "noSearchData": "暂无搜索结果",
+    "loading": "加载中...",
+    "selectCoin": "选择币种",
+    "searchHistory": "搜索历史"
   }
 }

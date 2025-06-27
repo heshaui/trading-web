@@ -16,6 +16,7 @@ import { useCoinList } from '@/hooks/use-coinList';
 import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
 import ImageSelect, { ImageSelectOption } from '@/components/ImageSelect';
 import styles from './flash.module.css';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 
 
@@ -24,7 +25,7 @@ const { Panel } = Collapse;
 
 const FlashPage: NextPage = () => {
 
-  const { t } = useTranslation(['spot','common']);
+  const { t } = useTranslation(['flash','spot','common']);
   const [payAmount, setPayAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>();
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState<boolean>(false);
@@ -48,17 +49,19 @@ const FlashPage: NextPage = () => {
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
   const [isAmountValid, setIsAmountValid] = useState<boolean>(true); // 金额是否在限额范围内
+  const [flashDisable, setFlashDisable] = useState<boolean>(true); // 闪兑功能是否禁用
   const {coinList} = useCoinList();
 
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
-  console.log('coinLists',coinList)
+  const { isDayMode } = useThemeMode();
+
 
   const flashConfigData = appStore.getKvConfig('flash_img');
   const langKey = appStore.getLang() || 'en_US';
-  
-  const headerBgImage = flashConfigData?.[langKey]?.img;
+
+  const headerBgImage = flashConfigData&&flashConfigData?.[langKey]?.img;
 
   const headerTitle = flashConfigData && flashConfigData[langKey] 
                         ? flashConfigData[langKey].title 
@@ -84,11 +87,9 @@ const FlashPage: NextPage = () => {
       return true; // 如果不是数字，不显示限额错误
     }
     
-    // 将支付币种换算成USDT等价值
-    const usdtRate = getCoinRate(coinName, 'USDT');
-    const usdtEquivalent = numAmount * (Number(usdtRate) || 1);
-    
-    return usdtEquivalent >= Number(configData.minTradeU) && usdtEquivalent <= Number(configData.maxTradeU);
+    const minTradeU = getCoinRate(coinName, configData.minTradeU, 'USDT', 1).coinRate;
+    const maxTradeU = getCoinRate(coinName, configData.maxTradeU, 'USDT', 1).coinRate;
+    return Number(numAmount) >= Number(minTradeU) && Number(numAmount) <= Number(maxTradeU);
   };
 
 
@@ -102,8 +103,31 @@ const FlashPage: NextPage = () => {
   const gerFlashConfig = async () => {
     try {
       const config = await appStore.loadFlashConfig();
-      setBaseCoin(config.baseCoin);
-      setQuteCoin(config.quoteCoin);
+      const flashConvertSwitch = config.flashConvertSwitch
+      
+      // 设置闪兑功能开关状态
+      setFlashDisable(flashConvertSwitch);
+      
+      // 获取可用的币种列表（过滤掉 isTradeConvert 为 0 的币种）
+      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0);
+      
+      // 检查配置中的 baseCoin 是否在可用列表中，如果不在则使用第一个
+      const validBaseCoin = availableCoins.find(coin => coin.coinName === config.baseCoin) 
+        ? config.baseCoin 
+        : (availableCoins[0]?.coinName || '');
+      
+      // 检查配置中的 quoteCoin 是否在可用列表中，如果不在则使用第一个（但要避免与 baseCoin 相同）
+      let validQuoteCoin = availableCoins.find(coin => coin.coinName === config.quoteCoin) 
+        ? config.quoteCoin 
+        : (availableCoins[1]?.coinName || availableCoins[0]?.coinName || '');
+      
+      // 确保 quoteCoin 与 baseCoin 不同
+      if (validQuoteCoin === validBaseCoin && availableCoins.length > 1) {
+        validQuoteCoin = availableCoins.find(coin => coin.coinName !== validBaseCoin)?.coinName || '';
+      }
+      
+      setBaseCoin(validBaseCoin);
+      setQuteCoin(validQuoteCoin);
     } catch (error) {
     }
   }
@@ -206,7 +230,6 @@ const FlashPage: NextPage = () => {
 
 
   useEffect(() => {
-    gerFlashConfig()
     getUserAllBala()
     const userInfo = localStorage.getItem('imbit_userInfo');
     if (userInfo) {
@@ -219,6 +242,13 @@ const FlashPage: NextPage = () => {
     }
   }
   }, [])
+
+  // 当 coinList 加载完成后执行配置获取
+  useEffect(() => {
+    if (coinList && coinList.length > 0) {
+      gerFlashConfig()
+    }
+  }, [coinList])
 
   useEffect(() => {
     setIsClientReady(true);
@@ -302,7 +332,7 @@ const FlashPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{t('闪兑')} | {t('Trading Platform')}</title>
+        <title>{t('title')} | {t('common:title')}</title>
       </Head>
       <PageContainer>
         <Header bgImage={headerBgImage}>
@@ -312,18 +342,18 @@ const FlashPage: NextPage = () => {
         { configData?.realNameRequired&&!isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
-            <NoticeTitle>未完成身份认证</NoticeTitle>
-            <NoticeDescription>完成身份认证，解锁全部功能</NoticeDescription>
+            <NoticeTitle>{t('authNotice.title')}</NoticeTitle>
+            <NoticeDescription>{t('authNotice.description')}</NoticeDescription>
           </NoticeContent>
-          <Button type="primary" shape="round" onClick={()=>router.push('/userCenter/identity')}>立即认证</Button>
+          <Button type="primary" shape="round" onClick={()=>router.push('/userCenter/identity')}>{t('authNotice.button')}</Button>
         </AuthNoticeWrapper>}
         <div style={{display:'flex',justifyContent:'flex-end',width:'700px',cursor:'pointer',marginTop:'26px' }}>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='/images/flash/dayFrame.png' width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>现货交易</p>
+          <Image src={isDayMode ? '/images/flash/dayFrame.png' : '/images/flash/dayFrame_dark.png'} width={20} height={20} alt="" preview={false} /> <p style={{marginLeft:'5px',marginRight:'12px'}} onClick={() => goPage(1)}>{t('spotTrading')}</p>
 
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
-          <Image src='/images/flash/dayOrder.png' width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>订单记录</p>
+          <Image src={isDayMode ? '/images/flash/dayOrder.png' : '/images/flash/dayOrder_dark.png'} width={20} height={20} alt="" preview={false} /><p style={{marginLeft:'5px'}} onClick={() => goPage(2)}>{t('orderHistory')}</p>
           </div>
              
             </div>
@@ -332,19 +362,18 @@ const FlashPage: NextPage = () => {
       
           <TradeContainer>
             <TradeSection>
-              <TradeLabel>支付</TradeLabel>
+              <TradeLabel>{t('pay')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                   placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
+                   placeholder={configData?.minTradeU && configData?.maxTradeU && baseCoin ? 
+                     `${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
+                     ''}
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
                     setPayAmount(value);
-                    
                     // 验证金额限额
                     setIsAmountValid(validateAmount(value, baseCoin));
-                    
-                    // Calculate receive amount when pay amount changes
                     if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
                       const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
                       setReceiveAmount(calculatedAmount);
@@ -357,18 +386,15 @@ const FlashPage: NextPage = () => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
                     if (currentCoin && currentCoin.balance) {
                       setPayAmount(currentCoin.balance);
-                      
                       // 验证最大金额是否在限额范围内
                       setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
-                      
-                      // Also calculate the receive amount based on the max balance
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
                         const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
                         setReceiveAmount(calculatedAmount);
                       }
                     }
                   }}
-                >最大</MaxLabel>
+                >{t('max')}</MaxLabel>
                 <ImageSelect
                   value={baseCoin}
                   onChange={(value) => setBaseCoin(value)}
@@ -391,33 +417,39 @@ const FlashPage: NextPage = () => {
               </TradeInputWrapper>
              
             </TradeSection>
-             <AvailableAmount>现货可用 {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             {/* 现货可用余额 - 只在没有错误提示时显示 */}
+             {!(payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
+              Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0)) &&
+              !(payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU) && (
+               <AvailableAmount>{t('available')} {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
+             )}
+             
              {/* 余额不足提示 */}
              {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
               Number(payAmount) > Number(userAll.find(item=>item.coinName===baseCoin)?.balance || 0) && (
                 <InsufficientBalanceAlert>
-                  现货账户余额不足，前往充值
+                  {t('insufficientBalance')}
                 </InsufficientBalanceAlert>
               )}
               
              {/* 限额错误提示 */}
              {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
                 <AmountLimitAlert>
-                  限额：{configData.minTradeU} USDT - {configData.maxTradeU} USDT
+                  {t('amountLimit')}：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
                 </AmountLimitAlert>
               )}
 
             <SwapButtonWrapper>
-              <SwapButton onClick={swapCoins}>
-                <SwapOutlined style={{ color: '#fff', fontSize: '20px' }} />
-              </SwapButton>
+              <Image src='/images/flash/icon_Trading.svg' width={50} height={50} alt="" preview={false} onClick={swapCoins}  style={{cursor:'pointer'}} />
             </SwapButtonWrapper>
 
             <TradeSection>
-              <TradeLabel>获得</TradeLabel>
+              <TradeLabel>{t('receive')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
-                  placeholder={`${configData?.minTradeU}-${configData?.maxTradeU}`}
+                  placeholder={configData?.minTradeU && configData?.maxTradeU && quteCoin ? 
+                    `${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
+                    ''}
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -448,7 +480,7 @@ const FlashPage: NextPage = () => {
                       }
                     }
                   }}
-                >最大</MaxLabel>
+                >{t('max')}</MaxLabel>
                 <ImageSelect
                   value={quteCoin}
                   onChange={(value) => setQuteCoin(value)}
@@ -459,23 +491,22 @@ const FlashPage: NextPage = () => {
                   options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
+                    coinName: item.coinName,
+                    nameDefault: item.nameDefault,
                     iconUrl: item.iconUrl
                   }))}
                 />
-
-
-
               </TradeInputWrapper>
 
             </TradeSection>
                           <MarketPrice>
-                            <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
+                            <Tooltip title={t('exchangeRateTooltip')}>
                 <span style={{ textDecoration: 'underline', textDecorationStyle: 'dashed',cursor:'pointer'}}>
-                兑换比例:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
+                {t('exchangeRate')}:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>预览</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
@@ -504,7 +535,12 @@ const FlashPage: NextPage = () => {
               }}
               onRefreshPrice={async () => {
                 await getPreTrade();
-                setRefreshCount(prev => prev + 1);
+                // 如果已经达到5次，则重置计数器，否则增加计数
+                if (refreshCount >= 5) {
+                  setRefreshCount(0);
+                } else {
+                  setRefreshCount(prev => prev + 1);
+                }
                 // 手动刷新时暂时隐藏过期提示，但会在新的倒计时结束后重新显示
                 setPriceExpired(false);
               }}
@@ -516,6 +552,7 @@ const FlashPage: NextPage = () => {
               visible={isSuccessModalVisible}
               onClose={() => setIsSuccessModalVisible(false)}
               tradeResult={tradeResult}
+              isDayMode={isDayMode}
               router={router} // Pass router instance
             />
             )}
@@ -524,46 +561,47 @@ const FlashPage: NextPage = () => {
             <FailureModal
               visible={isFailureModalVisible}
               onClose={() => setIsFailureModalVisible(false)}
+              isDayMode={isDayMode}
             />
           </TradeContainer>
 
 
 
-          <FooterText>您可以随时使用闪兑服务换取数字资产！</FooterText>
+          <FooterText>{t('footer')}</FooterText>
         </ContentWrapper>
         <FAQSection>
-            <FAQTitle>常见问题</FAQTitle>
-            <StyledCollapse expandIconPosition="end" defaultActiveKey={['1', '2', '3', '4', '5']}>
+            <FAQTitle>{t('faq.title')}</FAQTitle>
+            <StyledCollapse expandIconPosition="end" >
               {/* Using default expand icon */}
               <Panel
-                header="如何使用闪兑交易功能?"
+                header={t('faq.q1.question')}
                 key="1"
               >
-                <p>选择您需要兑换的币种并输入兑换金额，我们将提供最优汇率。如果您对当前汇率满意，点击兑换后，获得币种将发送至您的现货账户。兑换前请确保现货账户余额充足，如果您在使用过程中有任何问题请及时与我们的客服沟通。</p>
+                <p>{t('faq.q1.answer')}</p>
               </Panel>
               <Panel
-                header="闪兑功能是否收取手续费？"
+                header={t('faq.q2.question')}
                 key="2"
               >
-                <p>闪兑不收取手续费，预览兑换时，显示的资产报价数量是您账户中将实际收到的数量。</p>
+                <p>{t('faq.q2.answer')}</p>
               </Panel>
               <Panel
-                header="闪兑和现货交易有什么不同？"
+                header={t('faq.q3.question')}
                 key="3"
               >
-                <p>不同于订单撮合模式，闪兑使用的是柜台报价模式，不产生任何交易手续费。因此，闪兑价格与现货盘口价格存在一定的差价。首先用户基于特定币对进行询价，系统会根据当前市场提供一个有竞争力的价格，如果用户接受了柜台的报价，点击确认后就可以快速交易。交易之前确保您的余额充足。</p>
+                <p>{t('faq.q3.answer')}</p>
               </Panel>
               <Panel
-                header="闪兑获得的资产在哪里查看？"
+                header={t('faq.q4.question')}
                 key="4"
               >
-                <p>闪兑获得币种资产将自动划转至您的现货账户。</p>
+                <p>{t('faq.q4.answer')}</p>
               </Panel>
               <Panel
-                header="如何查看闪兑交易订单？"
+                header={t('faq.q5.question')}
                 key="5"
               >
-                <p>您可以在闪兑页面点击右上角订单记录查看，或者点击订单中心- 闪兑订单进行查看。</p>
+                <p>{t('faq.q5.answer')}</p>
               </Panel>
             </StyledCollapse>
           </FAQSection>
@@ -650,11 +688,16 @@ const TradeContainer = styled.div`
 `;
 
 const TradeSection = styled.div`
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  border: 1px solid var(--border-color6);
+  border-radius: 8px;
   padding: 15px;
   overflow: visible;
   position: relative;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--text-color3);
+  }
 `;
 
 const TradeLabel = styled.div`
@@ -696,16 +739,17 @@ const AvailableAmount = styled.div`
 
 const InsufficientBalanceAlert = styled.div`
   font-size: 12px;
-  color: #ff5722;
+  color: #F73711;
   margin-top: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   text-align: left;
 `;
 
 const AmountLimitAlert = styled.div`
   font-size: 12px;
-  color: #ff5722;
-  margin-bottom: 20px;
+  color: #F73711;
+  margin-top: 5px;
+  margin-bottom: 5px;
   text-align: left;
   border-radius: 4px;
 `;
@@ -725,6 +769,7 @@ const SwapButtonWrapper = styled.div`
   position: relative;
   z-index: 1;
   margin: 30px 0;
+  color: var(--text-color3);
 `;
 
 const SwapButton = styled.div`
@@ -782,7 +827,7 @@ const FooterText = styled.div`
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common','spot'])),
+      ...(await serverSideTranslations(locale, ['common','spot','flash'])),
     },
   };
 }
@@ -823,6 +868,8 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   refreshCount,
   preTradeData
 }) => {
+  const { t } = useTranslation(['flash','common']);
+  
   // State to track if exchange rate is flipped
   const [isRateFlipped, setIsRateFlipped] = useState<boolean>(false);
 
@@ -872,7 +919,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
     >
       <ModalContainer>
         <ModalHeader>
-          <ModalTitle>确认兑换</ModalTitle>
+          <ModalTitle>{t('confirmModal.title')}</ModalTitle>
           <CloseButton onClick={onClose}>
             <CloseOutlined />
           </CloseButton>
@@ -884,7 +931,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
               <ModalCurrencyIcon>
                 <Image src={payIcon} alt={payCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
               </ModalCurrencyIcon>
-              <CurrencyDirection>从</CurrencyDirection>
+              <CurrencyDirection>{t('confirmModal.from')}</CurrencyDirection>
               <CurrencyAmount>{payAmount} {payCurrency}</CurrencyAmount>
             </CurrencySection>
             <ArrowIcon>
@@ -894,15 +941,15 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
               <ModalCurrencyIcon>
                 <Image src={receiveIcon} alt={receiveCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
               </ModalCurrencyIcon>
-              <CurrencyDirection>至</CurrencyDirection>
+              <CurrencyDirection>{t('confirmModal.to')}</CurrencyDirection>
               <CurrencyAmount>{receiveAmount} {receiveCurrency}</CurrencyAmount>
             </CurrencySection>
           </ExchangeInfo>
 
           <ExchangeDetails>
             <DetailRow>
-              <Tooltip title="兑换比例为预估值，最终兑换数量已实际成交为准">
-                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>兑换率</DetailLabel>
+              <Tooltip title={t('exchangeRateTooltip')}>
+                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>{t('confirmModal.exchangeRate')}</DetailLabel>
               </Tooltip>
               <DetailValue>
                 {exchangeRateDisplay.leftValue}{exchangeRateDisplay.leftCoin} = {exchangeRateDisplay.rightValue} {exchangeRateDisplay.rightCoin} 
@@ -914,13 +961,13 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
             </DetailRow>
 
             <DetailRow>
-                <DetailLabel style={{ cursor: 'pointer' }}>交易手续费</DetailLabel>
-              <DetailValue className="fee">0手续费</DetailValue>
+                <DetailLabel style={{ cursor: 'pointer' }}>{t('confirmModal.tradingFee')}</DetailLabel>
+              <DetailValue className="fee">{t('confirmModal.zeroFee')}</DetailValue>
             </DetailRow>
 
             <DetailRow>
-              <Tooltip title="闪兑采用报价模式，不产生额外手续费">
-                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>您将支付</DetailLabel>
+              <Tooltip title={t('exchangeRateTooltip')}>
+                <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>{t('confirmModal.youWillPay')}</DetailLabel>
               </Tooltip>
               <DetailValue>{payAmount} {payCurrency}</DetailValue>
             </DetailRow>
@@ -929,18 +976,23 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
           {priceExpired && (
             <PriceExpiredAlert>
               <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
-              该报价已过期，请重新获取报价
+              {t('confirmModal.priceExpired')}
             </PriceExpiredAlert>
           )}
 
           <Button
-            onClick={onConfirm}
+            onClick={refreshCount >= 5 && priceExpired ? onRefreshPrice : onConfirm}
             loading={isLoading}
             type='primary' 
             shape='round'
             style={{width:'100%',height:'50px'}}
           >
-            {countdown > 0 ? `兑换 (${countdown}S)` : '兑换'}
+            {refreshCount >= 5 && priceExpired 
+              ? t('confirmModal.refreshPrice')
+              : countdown > 0 
+                ? t('confirmModal.exchangeWithCountdown', { seconds: countdown }) 
+                : t('confirmModal.exchange')
+            }
           </Button>
         </ModalContent>
       </ModalContainer>
@@ -1082,10 +1134,12 @@ interface SuccessModalProps {
   onClose: () => void;
   tradeResult: any;
   router: NextRouter; // Add router prop
+  isDayMode: boolean;
 }
 
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult, router }) => {
+const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResult, router,isDayMode}) => {
+  const { t } = useTranslation(['flash','common']);
 
   const goAssest = async () => {
     if (!router.isReady) {
@@ -1109,30 +1163,17 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
             <div style={{ 
-              width: '80px', 
-              height: '80px', 
-              borderRadius: '50%', 
-              border: '2px solid #333',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              background: '#fff'
             }}>
-              <div style={{ 
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 87, 34, 0.1)',
-                zIndex: 0
-              }} />
-              <CheckOutlined style={{ fontSize: '40px', color: '#FF5722', zIndex: 1 }} />
-            </div>
+             <Image src={isDayMode ? '/images/flash/success.svg' : '/images/flash/success_dark.png'} width={160} height={100} alt="" preview={false} />
+             </div>
           </div>
           
-          <h2 style={{ fontSize: '24px', margin: '0 0 5px 0' }}>成功</h2>
-          <p style={{ fontSize: '16px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('successModal.title')}</h2>
+          <p style={{ fontSize: '12px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
           
           <div style={{ 
             border: '1px solid #DCDCDC', 
@@ -1141,36 +1182,36 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
             marginBottom: '20px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>您已收到</span>
+              <span>{t('successModal.youReceived')}</span>
               <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>兑换率</span>
+              <span>{t('successModal.exchangeRate')}</span>
               <span>1{tradeResult?.sendCoin} = {tradeResult?.exchangeRate} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>交易手续费</span>
+              <span>{t('successModal.tradingFee')}</span>
               <span>0</span>
             </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
             <Button 
               onClick={onClose} 
-              style={{ flex: 1, height: '50px' }}
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
-              好的
+              {t('successModal.ok')}
             </Button>
             <Button 
               type="primary" 
-              style={{ flex: 1, height: '50px' }} 
               shape="round"
               onClick={goAssest}
+              style={{width:'100px',height:'40px'}}
             >
-              前往资产
+              {t('successModal.goToAssets')}
             </Button>
           </div>
         </div>
@@ -1183,9 +1224,12 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
 interface FailureModalProps {
   visible: boolean;
   onClose: () => void;
+  isDayMode: boolean;
 }
 
-const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
+const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode }) => {
+  const { t } = useTranslation(['flash','common']);
+  
   return (
     <Modal
       open={visible}
@@ -1193,50 +1237,42 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose }) => {
       closable={false}
       centered
       width={470}
+      styles={{
+        body: {
+          padding: '0px'
+        }
+      }}
     >
       <ModalContainer>
         <div style={{ padding: '30px 20px', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <div style={{ 
-              width: '80px', 
-              height: '80px', 
-              borderRadius: '50%', 
-              border: '2px solid #333',
+            <div style={{  
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              background: '#fff'
             }}>
-              <div style={{ 
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 87, 34, 0.1)',
-                zIndex: 0
-              }} />
-              <CloseOutlined style={{ fontSize: '40px', color: '#FF5722', zIndex: 1 }} />
+              <Image src={isDayMode ? '/images/flash/fail.svg' : '/images/flash/fail_dark.png'} width={160} height={100} alt="" preview={false} />
             </div>
           </div>
           
-          <h2 style={{ fontSize: '24px', margin: '0 0 5px 0' }}>下单失败</h2>
-          <p style={{ fontSize: '16px', color: '#666', margin: '0 0 20px 0' }}>兑换率失效，交易取消！</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('failureModal.title')}</h2>
+          <p style={{ fontSize: '20px', color: '#666', margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
             <Button 
               onClick={onClose} 
-              style={{ flex: 1, height: '50px', width: '100%' }}
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
-              好的
+              {t('failureModal.ok')}
             </Button>
             <Button 
               type="primary" 
-              style={{ flex: 1, height: '50px' }} 
               shape="round"
+              style={{width:'100px',height:'40px'}}
             >
-              查看资产
+              {t('failureModal.viewAssets')}
             </Button>
           </div>
         </div>
