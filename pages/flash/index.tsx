@@ -401,12 +401,19 @@ const FlashPage: NextPage = () => {
                     setBaseCoin(value)
                     setPayAmount('')
                     setReceiveAmount('')
+                    // 如果选择的baseCoin与quteCoin相同，自动切换quteCoin到其他币种
+                    if (value === quteCoin) {
+                      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== value);
+                      if (availableCoins.length > 0) {
+                        setQuteCoin(availableCoins[0].coinName);
+                      }
+                    }
                   }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}
                   className={styles.compactImageSelect}
-                  options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
+                  options={coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== quteCoin).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
                     coinName: item.coinName,
@@ -491,12 +498,19 @@ const FlashPage: NextPage = () => {
                     setQuteCoin(value)
                     setPayAmount('')
                     setReceiveAmount('')
+                    // 如果选择的quteCoin与baseCoin相同，自动切换baseCoin到其他币种
+                    if (value === baseCoin) {
+                      const availableCoins = coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== value);
+                      if (availableCoins.length > 0) {
+                        setBaseCoin(availableCoins[0].coinName);
+                      }
+                    }
                   }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}
                   className={styles.compactImageSelect}
-                  options={coinList.filter(item => item.isTradeConvert !== 0).map(item=>({
+                  options={coinList.filter(item => item.isTradeConvert !== 0 && item.coinName !== baseCoin).map(item=>({
                     label: item.coinName,
                     value: item.coinName,
                     coinName: item.coinName,
