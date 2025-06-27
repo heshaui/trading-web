@@ -1155,7 +1155,7 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color4);
 `;
 
 const ModalTitle = styled.h3`
@@ -1233,7 +1233,7 @@ const ExchangeDetails = styled.div`
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
-   border:1px solid #DCDCDC;
+   border:1px solid var(--border-color4);
    font-sze:14px;
 `;
 
@@ -1404,6 +1404,13 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
           <p style={{ fontSize: '20px', color: '#666', margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
           
           <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
+          <Button 
+              type="primary" 
+              shape="round"
+              style={{width:'100px',height:'40px'}}
+            >
+              {t('failureModal.viewAssets')}
+            </Button>
             <Button 
               onClick={onClose} 
               shape="round"
@@ -1411,13 +1418,7 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
             >
               {t('failureModal.ok')}
             </Button>
-            <Button 
-              type="primary" 
-              shape="round"
-              style={{width:'100px',height:'40px'}}
-            >
-              {t('failureModal.viewAssets')}
-            </Button>
+           
           </div>
         </div>
       </ModalContainer>

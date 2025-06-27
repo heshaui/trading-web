@@ -298,7 +298,7 @@ const FlashOrderPage = () => {
                                 className={styles.datePicker}
                                 format="YYYY-MM-DD"
                                 allowClear={false}
-                                style={{ width: 280 }}
+                                style={{ width: 280,height:'50px' }}
                                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                                     className={`${styles.title_color}`} size={20} />}
                                 disabledDate={(current) => {
@@ -312,7 +312,7 @@ const FlashOrderPage = () => {
                                 value={selectedCoin}
                                 onChange={(value) => setSelectedCoin(value)}
                                 className={styles.coinSelect}
-                                style={{ width: 160 }}
+                                style={{ width: 160 ,height:'50px'}}
                                 placeholder={t('all')}
                                 options={[
                                     { value: '', label: t('all') },
