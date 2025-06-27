@@ -23,13 +23,11 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 const { Panel } = Collapse;
 
 // Styled Components
-const StyledButton = styled(Button)`
-  &.ant-btn[disabled] {
-    background-color: var(--border-color-disable);
-    border-color: var(--border-color-disable);
-
-    
-  
+const StyledButton = styled(Button)<{ $isDayMode?: boolean }>`
+  &.ant-btn-primary[disabled] {
+    background-color: ${props => props.$isDayMode ? '#F0F0F0' : '#363638'} !important;
+    border-color: ${props => props.$isDayMode ? '#F0F0F0' : '#363638'} !important;
+    color: #999999 !important;
   }
 `;
 
@@ -597,7 +595,7 @@ const FlashPage: NextPage = () => {
                 {t('exchangeRate')}:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
                 </Tooltip>
               </MarketPrice>
-            <StyledButton onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</StyledButton>
+            <StyledButton $isDayMode={isDayMode} onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</StyledButton>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
