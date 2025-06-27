@@ -26,7 +26,7 @@ import { NoData } from '@/components/noData';
 import WebSocketService from '@/utils/websocket';
 import { getToken } from '@/request';
 const AssetsMainPage = observer(() => {
-    const { t } = useTranslation(['assets']);
+    const { t } = useTranslation(['assets','flash']);
     const [initTableData, setInitTableData] = useState<DataType[]>([])
     const [tableData, setTableData] = useState<DataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);
@@ -173,7 +173,7 @@ const AssetsMainPage = observer(() => {
                     {
                     coinList.find(item=>item.coinName===record.coinName)?.isTradeConvert===1&&
                          <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={()=>goFlash(record.coinName)}>
-                         闪兑
+                         {t('flash.flash')}
                      </button>
                     }
                    

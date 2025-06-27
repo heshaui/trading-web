@@ -149,5 +149,10 @@
     "selectCoin": "Select Coin",
     "searchHistory": "Search History",
     "balance": "Balance"
+  },
+  "flash":{
+    "order":{
+      "title": "Flash Swap Order"
+    }
   }
 }

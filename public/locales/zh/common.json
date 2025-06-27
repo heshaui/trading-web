@@ -149,5 +149,10 @@
     "selectCoin": "选择币种",
     "searchHistory": "搜索历史",
     "balance": "余额"
+  },
+  "flash":{
+    "order":{
+      "title": "闪兑订单"
+    }
   }
 }
