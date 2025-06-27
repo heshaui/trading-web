@@ -267,7 +267,7 @@ const FlashOrderPage = () => {
                         fontSize: 13,
                         },
                         Select: {
-                            selectorBg	: "var(--background6)",
+
                           },
                           DatePicker: {
                             activeBg: "var(--background6)",
@@ -291,7 +291,7 @@ const FlashOrderPage = () => {
 
 
                     <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px',backgroundColor: 'var(--background7)',borderTopLeftRadius:'8px',borderTopRightRadius:'8px' }}>
-                        <Space size={16} style={{backgroundColor: 'var(--background7)'}}>
+                        <Space size={16} >
 
                             <RangePicker
                                 value={dateRange}
@@ -299,7 +299,7 @@ const FlashOrderPage = () => {
                                 className={styles.datePicker}
                                 format="YYYY-MM-DD"
                                 allowClear={false}
-                                style={{ width: 280,height:'50px',backgroundColor: 'var(--background7)!important' }}
+                                style={{ width: 280,height:'50px' }}
                                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                                     className={`${styles.title_color}`} size={20} />}
                                 disabledDate={(current) => {
@@ -313,7 +313,7 @@ const FlashOrderPage = () => {
                                 value={selectedCoin}
                                 onChange={(value) => setSelectedCoin(value)}
                                 className={styles.coinSelect}
-                                style={{ width: 160 ,height:'50px',backgroundColor: 'var(--background7)!important'}}
+                                style={{ width: 160 ,height:'50px'}}
                                 placeholder={t('all')}
                                 options={[
                                     { value: '', label: t('all') },
