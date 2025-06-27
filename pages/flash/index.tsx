@@ -1265,7 +1265,7 @@ const ModalCurrencyIcon = styled.div`
 `;
 
 const CurrencyDirection = styled.div`
-  color: #999;
+  color: var(--text-color6);
   margin-bottom: 5px;
 `;
 
@@ -1274,7 +1274,7 @@ const CurrencyAmount = styled.div`
 `;
 
 const ArrowIcon = styled.div`
-  color: #999;
+  color: var(--text-color6);
   font-size: 24px;
   margin: 0 15px;
 `;
@@ -1376,6 +1376,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
             marginBottom: '20px',
            
           }}>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span style={{color:'var(--text-color6)'}}>{t('successModal.youReceived')}</span>
               <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
