@@ -715,17 +715,23 @@ const Header = styled.div<{
 }>`
   width: 100%;
   color: white;
-  padding: 20px 0;
+  height: 160px;
   text-align: center;
   background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+    font-size: 32px;
 `;
 
 const HeaderSubtitle = styled.div`
   color: #999;
-  margin-top: 5px;
+  margin-top: 10px;
+
 `;
 
 const ContentWrapper = styled.div`
