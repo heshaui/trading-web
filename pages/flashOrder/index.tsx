@@ -325,7 +325,7 @@ const FlashOrderPage = () => {
                             />
                         </Space>
                     </div>
-                                <Image src="/images/flash/Vector.svg" alt="flash_order" width={100} height={100} />
+                                
                     <div className={`${styles.card_bgc5} `} style={{borderBottomLeftRadius:'8px',borderBottomRightRadius:'8px'}}>
                         {/* 充值 */}
                         <div className={`${styles.table_box} w-full `}>

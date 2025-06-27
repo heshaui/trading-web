@@ -903,6 +903,10 @@ const StyledCollapse = styled(Collapse)`
   
   .ant-collapse-content {
     border-top: none;
+    
+    p {
+      color: var(--text-color4);
+    }
   }
 `;
 
