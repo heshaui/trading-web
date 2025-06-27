@@ -16,6 +16,7 @@ export interface ImageSelectOption {
   sort?: number;
   price?: number;
   localPrice?: string;
+  balance?: string;
 }
 
 interface ImageSelectProps {
@@ -31,6 +32,7 @@ interface ImageSelectProps {
   showHistory?: boolean;
   maxHistory?: number;
   showPrice?: boolean;
+  showBalance?: boolean;
   defaultOpen?: boolean;
 }
 
@@ -47,6 +49,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
   showHistory = true,
   maxHistory = 4,
   showPrice = true,
+  showBalance = false,
   defaultOpen = false
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -240,12 +243,18 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
                             </div>
                           )}
                         </div>
-                          { option.coinName && (
-                            <div className={styles.optionPriceWrapper}>
-                              <div className={styles.optionPrice}>{getCoinRate(option.coinName,1).coinRate}</div>
-                              <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName, getCoinRate(option.coinName,1).price, 'USD').ratetext}</div>
-                            </div>
-                          )}
+                        {showBalance && option.balance && Number(option.balance) > 0 && (
+                          <div className={styles.optionPriceWrapper}>
+                            <div className={styles.optionPrice}>{getCoinRound(option.coinName || '', option.balance)}</div>
+                            <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName || '', option.balance, 'USD').ratetext}</div>
+                          </div>
+                        )}
+                        {showPrice && !showBalance && option.coinName && (
+                          <div className={styles.optionPriceWrapper}>
+                            <div className={styles.optionPrice}>{getCoinRate(option.coinName,1).coinRate}</div>
+                            <div className={styles.optionPriceLocal}>≈ {getRate(option.coinName, getCoinRate(option.coinName,1).price, 'USD').ratetext}</div>
+                          </div>
+                        )}
 
                       </div>
                     ))

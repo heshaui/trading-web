@@ -146,6 +146,7 @@
     "noSearchData": "No search results",
     "loading": "Loading...",
     "selectCoin": "Select Coin",
-    "searchHistory": "Search History"
+    "searchHistory": "Search History",
+    "balance": "Balance"
   }
 }
