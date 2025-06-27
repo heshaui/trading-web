@@ -49,6 +49,7 @@ const FlashPage: NextPage = () => {
   const [countdown, setCountdown] = useState<number>(0);
   const [refreshCount, setRefreshCount] = useState<number>(0); // 重新请求次数计数器
   const [isAmountValid, setIsAmountValid] = useState<boolean>(true); // 金额是否在限额范围内
+  const [flashDisable, setFlashDisable] = useState<boolean>(true); // 闪兑功能是否禁用
   const {coinList} = useCoinList();
 
 
@@ -102,6 +103,10 @@ const FlashPage: NextPage = () => {
   const gerFlashConfig = async () => {
     try {
       const config = await appStore.loadFlashConfig();
+      const flashConvertSwitch = config.flashConvertSwitch
+      
+      // 设置闪兑功能开关状态
+      setFlashDisable(flashConvertSwitch);
       
       // 获取可用的币种列表（过滤掉 isTradeConvert 为 0 的币种）
       const availableCoins = coinList.filter(item => item.isTradeConvert !== 0);
@@ -501,7 +506,7 @@ const FlashPage: NextPage = () => {
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
