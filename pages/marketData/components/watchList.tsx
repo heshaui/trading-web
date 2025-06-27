@@ -31,6 +31,7 @@ import { pairsNewPriceType } from '@/type/marketData/marketData';
 import { getSpotData } from '@/services/marketData'
 // import {getRound} from '@/utils/getUseRate'
 import { roundDown, formatted } from '@/utils'
+import { useThemeMode } from '@/hooks/useThemeMode'
 
 
 interface SelfSelectProps {
@@ -48,14 +49,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 }) => {
   const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all");
-  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-  const [sortField, setSortField] = useState<string>("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [showVolume, setShowVolume] = useState<boolean>(false);
+     const { isDayMode } = useThemeMode()
+ 
   const { isLoggedIn } = useAuth(); // 获取登录状态
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('')
-  const [exchangeCoin, setExchangeCoin] = useState<pairsNewPriceType[]>([])
   const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
   const [tableLoading, setTableLoading] = useState(false)
   // // 标签页配置
@@ -82,7 +80,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       title: t('header.name'),
       dataIndex: 'coinSymbol',
       key: 'coinSymbol',
-      width: 100,
+      width: 200,
       render: (text, record) => (
         <div className={`${styles.pair_name} flex-x align-center`}>
           <span
@@ -112,7 +110,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       title: t('header.lastPrice'),
       dataIndex: 'price',
       key: 'price',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => (a.price || 0) - (b.price || 0),
       render: (_price, record) => {
@@ -126,7 +124,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       title: t('header.change24h'),
       dataIndex: 'closePrice',
       key: 'closePrice',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
@@ -145,7 +143,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       title: `${t("header.high24h")}/${t("header.low24h")}`,
       dataIndex: 'height',
       key: 'height',
-      align: 'center',
+      align: 'left',
       width: 200,
       // render: (_marketValue, record) => {
       //   // {pair.high_price || "--"}/{pair.low_price || "--"}
@@ -185,7 +183,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       title: t("header.volume24h"),
       dataIndex: 'volume',
       key: 'volume',
-      align: 'center',
+      align: 'left',
       width: 200,
       sorter: (a, b) => {
         // const aQuantity = parseFloat(a.quantity) / 1000000
@@ -218,11 +216,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
             }}
           >
             <Image
-              src={'/images/market/icon_Trade.svg'}
+              src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
               alt={'trade'}
-              width={28}
-              height={28}
-              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+              width={24}
+              height={24}
+              style={{ borderRadius: '50%', height: '24px', width: '24px' }}
               preview={false} />
           </button>
         </Tooltip>
@@ -418,7 +416,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
           pagination={false}
           size="middle"
           bordered={false}
-          className={`${styles.allCoinsTable} spot-table-box w-full`}
+          className={`${styles.allCoinsTable} markerData-table w-full`}
           showSorterTooltip={false}
           locale={{
             emptyText: <>
