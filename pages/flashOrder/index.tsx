@@ -281,7 +281,7 @@ const FlashOrderPage = () => {
                     </h2>
                 </div>
 
-                <div className='radius-2 bg-white'>
+                <div className='radius-2' style={{ backgroundColor: 'var(--background7)' }}>
 
 
                     <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px' }}>
@@ -307,9 +307,9 @@ const FlashOrderPage = () => {
                                 onChange={(value) => setSelectedCoin(value)}
                                 className={styles.coinSelect}
                                 style={{ width: 160 }}
-                                placeholder={t('scrollableTabs.all')}
+                                placeholder={t('all')}
                                 options={[
-                                    { value: '', label: t('scrollableTabs.all') },
+                                    { value: '', label: t('all') },
                                     ...coinList.filter((item: any) => item.isTradeConvert !== 0).map(item => ({
                                         value: item.coinName,
                                         label: item.coinName
