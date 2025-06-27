@@ -165,7 +165,8 @@ export default function MarketData() {
 
         const processedData = response.data.map((item: any) => {
           return {
-            iconUrl:item.iconUrl,
+            iconUrl: item.iconUrl,
+            baseCoinScale:item.baseCoinScale,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
@@ -749,7 +750,10 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { paddingLeft: "20px" },
+        style: {
+          paddingLeft: "20px",
+          fontSize: "14px",
+        },
       }),
       render: (text, record, index) => (
         <div className="flex-x align-center">
@@ -789,16 +793,22 @@ export default function MarketData() {
           // textAlign: "center",
         },
       }),
+      onCell: () => ({
+        style: { 
+          fontSize: "14px",
+          padding:"5px 8px"
+        },
+      }),
       align: "left",
       dataIndex: "price",
       key: "price",
       // width: 150,
       render: (text, record) => (
-        <div>
+        <div style={{height:42}} className="flex-y justify-center">
           <div>{record.price ? parseFloat(record.price || "0").toLocaleString() : '--'}</div>
-          <div style={{ fontSize: "12px", color: "#999" }}>
+          {record.price&&<div style={{ fontSize: "12px", color: "#999" }}>
             ${parseFloat(record.price || "0").toLocaleString()}
-          </div>
+          </div>}
         </div>
       ),
     },
@@ -852,6 +862,11 @@ export default function MarketData() {
           // textAlign: "left",
         },
       }),
+      onCell: () => ({
+        style: { 
+          fontSize: "14px",
+        },
+      }),
       render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
         const changePercent = record.priceChangePercent||0
@@ -886,7 +901,10 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { paddingLeft: "20px" },
+        style: {
+          paddingLeft: "20px",
+          fontSize:"14px"
+         },
       }),
       render: (text, record, index) => {
         const symbol = record.symbol?.split("_")
@@ -925,17 +943,22 @@ export default function MarketData() {
       onHeaderCell: () => ({
         style: {
           // minWidth: "150px",
-          // height: "27px",
           fontSize: "14px",
           // lineHeight: "20px",
         },
       }),
+      onCell: () => ({
+        style: { 
+          fontSize: "14px",
+          padding:"5px 8px"
+        },
+      }),
       render: (_text, record) => (
-        <div>
+        <div style={{height:42}} className="flex-y justify-center">
           <div>{_text ? parseFloat(_text || "0").toLocaleString() : "--"}</div>
-          <div style={{ fontSize: "12px", color: "#999" }}>
-            ${_text ? parseFloat(_text || "0").toLocaleString() : "0"}
-          </div>
+          {_text&&<div style={{ fontSize: "12px", color: "#999" }}>
+                ${parseFloat(_text || "0").toLocaleString()}
+              </div>}
         </div>
       ),
     },
@@ -952,6 +975,11 @@ export default function MarketData() {
           fontSize: "14px",
           lineHeight: "20px",
           // textAlign: "left",
+        },
+      }),
+      onCell: () => ({
+        style: { 
+          fontSize: "14px",
         },
       }),
       render: (_closePrice: any, record: TradeRakingResp, index: number) => {
@@ -1023,6 +1051,7 @@ export default function MarketData() {
 
     try {
       appStore.loadCurrencyPairs()
+      appStore.loadUsdtRate()
       // .then(() => {
       //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
       //   setNewPrice(coinPair)

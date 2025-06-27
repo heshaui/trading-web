@@ -48,8 +48,8 @@ html[lang="en"] .section_title {
 
 /* 单个排行榜容器 */
 .ranking_list {
-  width: 380px;
-  height: 456px;
+  min-width: 380px;
+  height: 483px;
   border: 1px solid var(--border-color4);
   border-radius: 5px;
 }
@@ -109,7 +109,7 @@ html[lang="en"] .section_title {
 }
 
 .cardHeader {
-  margin-top: 17px;
+  /* margin-top: 17px; */
   padding: 16px 24px;
   display: flex;
   align-items: center;

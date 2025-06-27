@@ -27,6 +27,7 @@ import { getSpotData, getClassLabel } from '@/services/marketData'
 import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import { toast } from "sonner"
 import { getUserExchangeCoinTypeList } from '@/services/spot';
+import { roundDown, formatted } from '@/utils'
 
 
 interface SpotSelectProps {
@@ -125,9 +126,13 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       align: 'center',
       width: 200,
       sorter: (a, b) => (a.price || 0) - (b.price || 0),
-      render: (_price) => {
+      render: (_price, record) => {
         // ${parseFloat(_price || "0").toLocaleString()}
-        return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
+        // return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
+        const price = _price ? roundDown(_price, record.baseCoinScale || 0) : '0'
+        const text = formatted(price)
+        // return <span>{parseFloat(price || "0").toLocaleString()}/${parseFloat(record.price || "0").toLocaleString()}</span>
+        return <span>{text}/${text}</span>
       },
     },
     // {
@@ -176,10 +181,17 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
       align: 'center',
       width: 200,
       render: (_marketValue, record) => {
-        const height = record.height || '0'
-        const lower = record.lower || '0'
-        // const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
-        const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
+        // const height = record.height || '0'
+        // const lower = record.lower || '0'
+        // // const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
+        // const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
+        // return <span>{price}</span>
+        const heightText = record.height ? roundDown(record.height, record.baseCoinScale || 0) : '0'
+        const lowerText = record.lower ? roundDown(record.lower, record.baseCoinScale || 0) : '0'
+
+        const height = formatted(heightText)
+        const lower = formatted(lowerText)
+        const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
         return <span>{price}</span>
       },
     },
@@ -193,7 +205,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
         // const aQuantity = parseFloat(a.quantity) / 1000000
         // const bQuantity = parseFloat(b.quantity) / 1000000
         // return aQuantity - bQuantity
-        return Number(a.volume||0)-Number( b.volume||0)
+        return Number(a.volume || 0) - Number(b.volume || 0)
       },
       render: (_volume, record) => {
         // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
