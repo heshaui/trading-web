@@ -21,7 +21,7 @@ export default function SpotMenuItems() {
     const configData = appStore.getFlashConfig();
 
     // t - 多语言
-    const { t, i18n } = useTranslation('common');
+    const { t, i18n } = useTranslation(['common']);
     // 获取主题状态
     const { isDayMode } = useThemeMode();
 
@@ -64,7 +64,7 @@ export default function SpotMenuItems() {
                     src={isDayMode
                         ? "/images/home_menu/icon_flash_line.png"
                         : "/images/home_menu/icon_flash_line_dark.png"}
-                    h5Text='闪兑订单'
+                    h5Text={t('flash.order.title')}
                     spanText=""
                     onClick={() => {
                         router.push('/flashOrder')
