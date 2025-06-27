@@ -373,7 +373,8 @@
 }
 
 .allCoins_tabs {
-    max-width: 80%;
+    max-width: 800px;
+    /* max-width: 42vw; */
 }
 
 .tip_color {

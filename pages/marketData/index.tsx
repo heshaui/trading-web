@@ -25,16 +25,18 @@ import {
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
 import appStore from "@/store";
-import { cut, division, nul } from '@/utils'
+import { cut, division, nul,roundDown, formatted } from '@/utils'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 
 // 格式化价格并限制字符长度，最多16个字符（包括省略号）
-const formatPriceWithLimit = (price: string | number | undefined, maxLength: number = 16): string => {
+const formatPriceWithLimit = (price: string | number | undefined,coinScale:number): string => {
   if (!price) return '--';
-  
-  const formattedPrice = parseFloat(price.toString() || '0').toLocaleString();
+  const maxLength: number = 16
+  const _priceNum = roundDown(Number(price||0),coinScale)
+  // const formattedPrice = parseFloat(text).toLocaleString();
+  const formattedPrice = formatted(_priceNum)
   
   if (formattedPrice.length <= maxLength) {
     return formattedPrice;
@@ -815,13 +817,13 @@ export default function MarketData() {
       }),
       align: "left",
       dataIndex: "price",
-      key: "price",
-      // width: 150,
+      // key: "price",
+      // width: 250,
       render: (text, record) => (
-        <div style={{height:42}} className="flex-y justify-center">
-          <div>{record.price ? formatPriceWithLimit(record.price) : '--'}</div>
+        <div style={{height:42,minWidth:'33%'}} className="flex-y justify-center">
+          <div>{record.price ? formatPriceWithLimit(record.price,record.baseCoinScale || 0) : '--'}</div>
           {record.price&&<div style={{ fontSize: "12px", color: "#999" }}>
-            ${formatPriceWithLimit(record.price)}
+            ${formatPriceWithLimit(record.price,record.baseCoinScale || 0)}
           </div>}
         </div>
       ),
@@ -954,6 +956,7 @@ export default function MarketData() {
       title: t("rankingList.latestPrice"),
       dataIndex: "close_price",
       key: "close_price",
+      // width: 250,
       onHeaderCell: () => ({
         style: {
           // minWidth: "150px",
@@ -968,10 +971,10 @@ export default function MarketData() {
         },
       }),
       render: (_text, record) => (
-        <div style={{height:42}} className="flex-y justify-center">
-          <div>{_text ? formatPriceWithLimit(_text) : "--"}</div>
+        <div style={{height:42,minWidth:'33%'}} className="flex-y justify-center">
+          <div>{_text ? formatPriceWithLimit(_text, record.baseCoinScale || 0) : "--"}</div>
           {_text&&<div style={{ fontSize: "12px", color: "#999" }}>
-                ${formatPriceWithLimit(_text)}
+                ${formatPriceWithLimit(_text, record.baseCoinScale || 0)}
               </div>}
         </div>
       ),
