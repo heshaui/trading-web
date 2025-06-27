@@ -580,6 +580,7 @@ const FlashPage: NextPage = () => {
               countdown={countdown}
               refreshCount={refreshCount}
               preTradeData={preTradeData}
+              setPreTradeData={setPreTradeData}
               onConfirm={() => {
                 setIsLoading(true)
                 // Simulate API call
@@ -900,6 +901,7 @@ interface ConfirmExchangeModalProps {
   countdown: number;
   refreshCount: number;
   preTradeData: any;
+  setPreTradeData: (data: any) => void;
 }
 
 const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
@@ -917,11 +919,12 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   coinList,
   countdown,
   refreshCount,
-  preTradeData
+  preTradeData,
+  setPreTradeData
 }) => {
   const { t } = useTranslation(['flash','common']);
   
-  // State to track if exchange rate is flipped
+  // State to track if exchange rate display is flipped
   const [isRateFlipped, setIsRateFlipped] = useState<boolean>(false);
 
   // Find the coin icons for the selected currencies
@@ -933,27 +936,103 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
   const payIcon = findCoinIcon(payCurrency)
   const receiveIcon = findCoinIcon(receiveCurrency)
 
-  // Function to toggle exchange rate display
-  const toggleExchangeRate = () => {
-    setIsRateFlipped(!isRateFlipped);
+  // Get display currency info based on API data
+  const getDisplayCurrencyInfo = () => {
+    if (preTradeData?.send && preTradeData?.receive && preTradeData?.price) {
+      // 根据接口返回的数据确定显示的币种
+      const displaySendCoin = preTradeData.send;
+      const displayReceiveCoin = preTradeData.receive;
+      
+      // 计算对应的金额
+      let displaySendAmount = payAmount;
+      let displayReceiveAmount = receiveAmount;
+      
+      // 如果接口返回的币种与原始币种不同，说明发生了切换
+      if (displaySendCoin !== payCurrency) {
+        // 币种切换了，需要重新计算金额
+        // 这时原来的 payAmount 应该作为接收金额，我们需要根据新汇率计算发送金额
+        displayReceiveAmount = payAmount;
+        if (preTradeData.price && !isNaN(Number(preTradeData.price)) && Number(preTradeData.price) > 0) {
+          displaySendAmount = (Number(payAmount) / Number(preTradeData.price)).toFixed(8);
+        } else {
+          displaySendAmount = receiveAmount || '';
+        }
+      } else {
+        // 币种没有切换，根据新汇率重新计算接收金额
+        if (preTradeData.price && !isNaN(Number(preTradeData.price)) && !isNaN(Number(payAmount))) {
+          displayReceiveAmount = (Number(payAmount) * Number(preTradeData.price)).toFixed(8);
+        }
+      }
+      
+      return {
+        sendCoin: displaySendCoin,
+        sendAmount: displaySendAmount,
+        sendIcon: findCoinIcon(displaySendCoin),
+        receiveCoin: displayReceiveCoin,
+        receiveAmount: displayReceiveAmount,
+        receiveIcon: findCoinIcon(displayReceiveCoin)
+      };
+    }
+    
+    // 默认显示原始数据
+    return {
+      sendCoin: payCurrency,
+      sendAmount: payAmount,
+      sendIcon: payIcon,
+      receiveCoin: receiveCurrency,
+      receiveAmount: receiveAmount,
+      receiveIcon: receiveIcon
+    };
+  };
+
+  const displayInfo = getDisplayCurrencyInfo();
+
+  // Function to toggle exchange rate display and request new rate
+  const toggleExchangeRate = async () => {
+    // 根据当前的切换状态决定请求的币种对
+    const data = {
+      send: isRateFlipped ? payCurrency : receiveCurrency,
+      receive: isRateFlipped ? receiveCurrency : payCurrency
+    }
+    
+    try {
+      const res = await preTrade(data)
+      if (res.code === '0') {
+        setPreTradeData(res.data)
+        setIsRateFlipped(!isRateFlipped) // 切换显示状态
+      }
+    } catch (error) {
+      console.error('Failed to get reversed exchange rate:', error)
+    }
   }
 
-  // Calculate the display values for exchange rate (币种和数值位置都互换)
+  // Calculate the display values for exchange rate based on flip state
   const getExchangeRateDisplay = () => {
     if (!preTradeData?.price) return { leftValue: '1', leftCoin: payCurrency, rightValue: '--', rightCoin: receiveCurrency };
     
+    // 根据切换状态显示汇率
     if (isRateFlipped) {
-      // 左右位置完全互换：数值和币种都互换
-      return { leftValue: preTradeData.price, leftCoin: receiveCurrency, rightValue: '1', rightCoin: payCurrency };
+      // 切换后：显示 1 receiveCurrency = X payCurrency
+      return { 
+        leftValue: '1', 
+        leftCoin: receiveCurrency, 
+        rightValue: preTradeData.price, 
+        rightCoin: payCurrency 
+      };
     } else {
-      // 正常显示：1 币种A = 数值 币种B
-      return { leftValue: '1', leftCoin: payCurrency, rightValue: preTradeData.price, rightCoin: receiveCurrency };
+      // 默认：显示 1 payCurrency = X receiveCurrency
+      return { 
+        leftValue: '1', 
+        leftCoin: payCurrency, 
+        rightValue: preTradeData.price, 
+        rightCoin: receiveCurrency 
+      };
     }
   }
 
   const exchangeRateDisplay = getExchangeRateDisplay();
 
-  // Reset rate flip state when modal closes
+  // Reset flip state when modal closes
   React.useEffect(() => {
     if (!visible) {
       setIsRateFlipped(false);
@@ -980,20 +1059,20 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
           <ExchangeInfo>
             <CurrencySection>
               <ModalCurrencyIcon>
-                <Image src={payIcon} alt={payCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
+                <Image src={displayInfo.sendIcon} alt={displayInfo.sendCoin} preview={false} style={{ width: '100%', height: '100%' }} />
               </ModalCurrencyIcon>
               <CurrencyDirection>{t('confirmModal.from')}</CurrencyDirection>
-              <CurrencyAmount>{payAmount} {payCurrency}</CurrencyAmount>
+              <CurrencyAmount>{displayInfo.sendAmount} {displayInfo.sendCoin}</CurrencyAmount>
             </CurrencySection>
             <ArrowIcon>
               <ArrowRightOutlined />
             </ArrowIcon>
             <CurrencySection>
               <ModalCurrencyIcon>
-                <Image src={receiveIcon} alt={receiveCurrency} preview={false} style={{ width: '100%', height: '100%' }} />
+                <Image src={displayInfo.receiveIcon} alt={displayInfo.receiveCoin} preview={false} style={{ width: '100%', height: '100%' }} />
               </ModalCurrencyIcon>
               <CurrencyDirection>{t('confirmModal.to')}</CurrencyDirection>
-              <CurrencyAmount>{receiveAmount} {receiveCurrency}</CurrencyAmount>
+              <CurrencyAmount>{displayInfo.receiveAmount} {displayInfo.receiveCoin}</CurrencyAmount>
             </CurrencySection>
           </ExchangeInfo>
 
@@ -1020,7 +1099,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
               <Tooltip title={t('exchangeRateTooltip')}>
                 <DetailLabel style={{ textDecoration: 'underline', textDecorationStyle: 'dashed', textUnderlineOffset: '4px', cursor: 'pointer' }}>{t('confirmModal.youWillPay')}</DetailLabel>
               </Tooltip>
-              <DetailValue>{payAmount} {payCurrency}</DetailValue>
+              <DetailValue>{displayInfo.sendAmount} {displayInfo.sendCoin}</DetailValue>
             </DetailRow>
           </ExchangeDetails>
 
