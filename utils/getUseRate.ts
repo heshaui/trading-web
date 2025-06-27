@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js';
 * @param type 方向 0:正向-币种coinSymbol换算 计价币种baseSymbol 1:反向-计价币种计价币种baseSymbol换算 币种币种coinSymbol换算
 * @returns 汇率
 */
-// 币种汇率换算
+// 单个币种-币种汇率换算
 export const getCoinRate = (symbolName: string, priceNum: string | number, baseSymbolName: string = 'USDT', type: number = 0) => {
     try {
         // 获取币种信息 coin-usdt
@@ -82,7 +82,7 @@ export const getCoinRate = (symbolName: string, priceNum: string | number, baseS
 * @param rateName 汇率符号
 * @returns ratetext 汇率返回内容1,rate 换算后汇率,symbol 汇率符号,shortName 汇率名称
 */
-// 法币汇率换算
+// 单个币种-法币汇率换算
 export const getRate = (symbolName: string, priceNum: string | number, rateName: string = 'USD', baseSymbolName: string = 'USDT') => {
     try {
 
@@ -201,6 +201,7 @@ export const getRate = (symbolName: string, priceNum: string | number, rateName:
     }
 };
 
+// 币对价格-换算为法币
 
 
 // 币对精度

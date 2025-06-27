@@ -2,7 +2,8 @@ import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, get
 import { getCoinAll } from '@/services/assets';
 import appStore from '@/store/index';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
-import {CurrencyPairType,CoinType } from "@/type/assets/spot/exchange"
+import { getUsdtPriceWithStables } from "@/services/marketData"
+import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 // 获取所有币对数据
 export async function fetchAllCurrencyPairs() {
     const userToken = appStore.getUserToken();
@@ -12,33 +13,33 @@ export async function fetchAllCurrencyPairs() {
         if (coinListResponse.code !== '0') {
             throw new Error('Failed to load coin list');
         }
-        
+
         const coinList = coinListResponse.data || [];
         // console.log('coinList', coinList);
-        
+
         // 2. 获取交易对组信息
         const groupResponse = await getExchangeGroup();
         if (groupResponse.code !== '0') {
             throw new Error('Failed to load exchange groups');
         }
-        
+
         const groups = groupResponse.data || [];
         // console.log('groups', groups);
-        
+
         // 3. 获取用户自选币对（如果用户已登录）
         let favoriteCoins: any[] = [];
-        
-        if(userToken){
-        try {
-            const favoriteResponse = await getUserExchangeCoinTypeList();
-            if (favoriteResponse.code === '0') {
-                favoriteCoins = favoriteResponse.data || [];
-            }
-        } catch (error) {
+
+        if (userToken) {
+            try {
+                const favoriteResponse = await getUserExchangeCoinTypeList();
+                if (favoriteResponse.code === '0') {
+                    favoriteCoins = favoriteResponse.data || [];
+                }
+            } catch (error) {
                 console.error('Error loading favorite coins:', error);
             }
         }
-        
+
         // 4. 获取币对价格数据
         const priceResponse = await getExchangeCoinAllPrice();
         let priceData: any[] = [];
@@ -46,35 +47,35 @@ export async function fetchAllCurrencyPairs() {
             priceData = priceResponse.data || [];
             // console.log('priceData', priceData);
         }
-        
+
         // 5. 合并数据并转换为CurrencyPairType格式
         const processedPairs: CurrencyPairType[] = [];
-        
+
         coinList.forEach((coin: any) => {
             // 查找对应的组信息
-            const group = groups.find((g: any) => 
-                g.baseSymbol === coin.baseSymbol && 
+            const group = groups.find((g: any) =>
+                g.baseSymbol === coin.baseSymbol &&
                 g.coinSymbol === coin.coinSymbol
             );
-            
+
             // 确定是否为自选币对
             const pairId = coin.id;
-            const isFavorite = favoriteCoins.some((favCoin: any) => 
+            const isFavorite = favoriteCoins.some((favCoin: any) =>
                 favCoin === pairId.toString()
             );
-            
+
             // 查找价格数据
-            const priceInfo = priceData.find((p: any) => 
-                p.baseSymbol === coin.baseSymbol && 
+            const priceInfo = priceData.find((p: any) =>
+                p.baseSymbol === coin.baseSymbol &&
                 p.coinSymbol === coin.coinSymbol
             );
-            
+
             // 计算价格变化百分比
             let priceChangePercent = 0;
             if (priceInfo && priceInfo.yesterdayPrice && priceInfo.yesterdayPrice > 0) {
                 priceChangePercent = ((priceInfo.price - priceInfo.yesterdayPrice) / priceInfo.yesterdayPrice) * 100;
             }
-            
+
             // 转换为标准CurrencyPairType格式
             const currencyPair: CurrencyPairType = {
 
@@ -108,13 +109,13 @@ export async function fetchAllCurrencyPairs() {
                 price: priceInfo?.price,
                 yesterdayPrice: priceInfo?.yesterdayPrice,
                 quantity: priceInfo?.quantity || 0,
-                priceChangePercent:priceChangePercent
+                priceChangePercent: priceChangePercent
             };
-            
+
             // console.log('currencyPair', currencyPair);
             processedPairs.push(currencyPair);
         });
-        
+
         return {
             success: true,
             data: processedPairs,
@@ -195,13 +196,13 @@ export async function fetchCurrencyPairPrices() {
             error
         };
     }
-} 
+}
 
 // 获取所有币种
 // 获取所有币种
 export async function fetchAllCoin(needPrice: boolean = false) {
     const userToken = appStore.getUserToken();
-    if(!userToken) return{
+    if (!userToken) return {
         success: false,
         data: [],
         rawData: [],
@@ -250,5 +251,28 @@ export async function fetchAllCoin(needPrice: boolean = false) {
             rawData: [],
             error
         };
+    }
+}
+
+// 获取USDT相对USD价格
+export const fetchUsdtPrice = async () => {
+    try {
+
+        const UsdPriceRes = await getUsdtPriceWithStables()
+        if (UsdPriceRes.code !== '0') {
+            return {
+                success: false,
+                data: {},
+            }
+        }
+        return {
+            success: true,
+            data: UsdPriceRes.data,
+        }
+    } catch (error) {
+        return {
+            success: false,
+            data: {},
+        }
     }
 }

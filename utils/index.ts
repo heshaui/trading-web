@@ -6,7 +6,8 @@ import {
     lastD,
     roundOff, 
     roundDown, 
-    roundUp
+    roundUp,
+    formatted
     } from './math';
 // import myStorage from './myStorage'
 import { diffTime,formatTime } from './time'
@@ -47,4 +48,5 @@ export {
     roundUp, //精度 向上取整/进一法
     countNum, // 预估金额
     withdrawFee, // 手续费
+    formatted
 }

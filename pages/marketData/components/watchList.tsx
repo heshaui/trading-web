@@ -10,7 +10,7 @@ import {
   Tooltip,
   Image
 } from "antd";
-import { useState, useEffect,useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "next-i18next";
 import { SearchOutlined } from "@ant-design/icons";
 import {
@@ -27,8 +27,10 @@ import { NoData } from '@/components/noData'
 import { cut, division, nul } from '@/utils'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { toast } from "sonner"
-import {  pairsNewPriceType } from '@/type/marketData/marketData';
+import { pairsNewPriceType } from '@/type/marketData/marketData';
 import { getSpotData } from '@/services/marketData'
+// import {getRound} from '@/utils/getUseRate'
+import { roundDown, formatted } from '@/utils'
 
 
 interface SelfSelectProps {
@@ -113,9 +115,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       align: 'center',
       width: 200,
       sorter: (a, b) => (a.price || 0) - (b.price || 0),
-      render: (_price) => {
-        // return <span>{_price || '0'}</span>
-        return <span>{parseFloat(_price || "0").toLocaleString()}/${parseFloat(_price || "0").toLocaleString()}</span>
+      render: (_price, record) => {
+        const price = _price ? roundDown(_price, record.baseCoinScale || 0) : '0'
+        const text = formatted(price)
+        // return <span>{parseFloat(price || "0").toLocaleString()}/${parseFloat(record.price || "0").toLocaleString()}</span>
+        return <span>{text}/${text}</span>
       },
     },
     {
@@ -127,11 +131,11 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
         const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-        return Number(aPrice||0) - Number(bPrice||0)
+        return Number(aPrice || 0) - Number(bPrice || 0)
       },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
-        const percent =price*100
+        const percent = price * 100
         // const percent = price
         return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
           {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
@@ -149,10 +153,17 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       //   return <span>{price}</span>
       // },
       render: (_marketValue, record) => {
-        const height=record.height||"0"
-        const lower=record.lower||"0"
+        const heightText = record.height ? roundDown(record.height, record.baseCoinScale || 0) : '0'
+        const lowerText = record.lower ? roundDown(record.lower, record.baseCoinScale || 0) : '0'
+   
+        const height = formatted(heightText)
+        const lower = formatted(lowerText)
+        const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
+
+        // const height=record.height||"0"
+        // const lower=record.lower||"0"
         // const price = `${record.height ?height: "--"}/${record.lower ?lower: "--"}`
-        const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
+        // const price = `${record.height ? parseFloat(height || "0").toLocaleString() : "--"}/${record.lower ? parseFloat(lower || "0").toLocaleString() : "--"}`
         return <span>{price}</span>
       },
     },
@@ -180,7 +191,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         // const aQuantity = parseFloat(a.quantity) / 1000000
         // const bQuantity = parseFloat(b.quantity) / 1000000
         // return aQuantity - bQuantity
-        return Number(a.volume||0)-Number( b.volume||0)
+        return Number(a.volume || 0) - Number(b.volume || 0)
       },
       render: (_volume, record) => {
         // return <span>{`${(parseFloat(record.quantity) / 1000000).toFixed(2)}M` || '--'}</span>
@@ -261,7 +272,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
   );
   // useEffect(() => {
   //   console.log(filteredPairs,999);
-    
+
   // }, [filteredPairs]);
   const handleFavoriteChange = async (value: number, pair: any) => {
     const isFavorite = value === 1;
@@ -310,9 +321,9 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
         //   }
         // })
         //   setSpotList(resData)
-        const resData = res.data.map((item:any) => {
+        const resData = res.data.map((item: any) => {
           return {
-            exchangeCoinId:item.exchangeCoinId,
+            exchangeCoinId: item.exchangeCoinId,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };

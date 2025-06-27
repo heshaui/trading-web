@@ -16,6 +16,7 @@ import appStore from "@/store";
 import { NoData } from '@/components/noData'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { getCoinRate } from '@/utils/getUseRate'
+import { roundDown, formatted } from '@/utils'
 
 // 添加props接口定义
 interface AllCoinsProps {
@@ -29,24 +30,25 @@ interface usdtPriceType {
   yesterdayPrice: string
 }
 const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: AllCoinsProps) => {
-  const { t,i18n } = useTranslation('market');
+  const { t, i18n } = useTranslation('market');
   // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const router = useRouter();
   // const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
   const [activeTab, setActiveTab] = useState('all');
   const [searchValue, setSearchValue] = useState('')
-  const [usdtPrice, setUsdtPrice] = useState({} as usdtPriceType)
+  // const [usdtPrice, setUsdtPrice] = useState({} as usdtPriceType)
   const [tableLoading, setTableLoading] = useState(false)
+  const usdtPrice = appStore.getUsdtRate() || appStore.usdtRate
 
 
   // console.log(currencyPairs, 99987);
-  const getUsdtPrice = async () => {
-    const res = await getUsdtPriceWithStables()
-    if (res?.code === '0') {
-      setUsdtPrice(res.data)
-    }
-  }
+  // const getUsdtPrice = async () => {
+  //   const res = await getUsdtPriceWithStables()
+  //   if (res?.code === '0') {
+  //     setUsdtPrice(res.data)
+  //   }
+  // }
   // 获取所有币种接口
   const fetchAllcoins = async () => {
     setTableLoading(true)
@@ -92,9 +94,9 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       setTableLoading(false)
     }
   };
-  useEffect(() => {
-    getUsdtPrice()
-  }, [])
+  // useEffect(() => {
+  //   getUsdtPrice()
+  // }, [])
   useEffect(() => {
     fetchAllcoins()
   }, [usdtPrice])
@@ -124,7 +126,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.name'),
       dataIndex: 'coinName',
       key: 'coinName',
-      align:"left",
+      align: "left",
       width: 100,
       onHeaderCell: () => ({
         style: {
@@ -162,26 +164,35 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         if (a.isDirectPair === 0) {
           const coinRate = getCoinRate(a.coinName, a.price)
           aPrice = coinRate.coinRate || 0
-        }else {
+        } else {
           aPrice = Number(a.price || 0);
         }
         if (b.isDirectPair === 0) {
           const coinRate = getCoinRate(b.coinName, b.price)
           bPrice = coinRate.coinRate || 0
-        }else {
+        } else {
           bPrice = Number(b.price || 0);
         }
         return Number(aPrice || 0) - Number(bPrice || 0)
       },
       render: (_price, record) => {
+        // let price
         if (record.isDirectPair === 0) {
           const coinRate = getCoinRate(record.coinName, _price)
-          return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
-          // return <span>{parseFloat(_price || '0').toLocaleString()}</span>
+          const price = _price ? roundDown(coinRate.coinRate || 0, record.baseCoinScale || 0) : '0'
+          const text = formatted(price)
+          return <span>${text}</span>
+          // return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
         } else if (record.isDirectPair === 2) {
-          return <span>${usdtPrice.nowPrice||1}</span>
+          // const price = usdtPrice.nowPrice ? roundDown(_price, record.baseCoinScale || 0) : '0'
+          const text = formatted(usdtPrice.nowPrice||1)
+          return <span>${text || 1}</span>
+          // return <span>${usdtPrice.nowPrice || 1}</span>
         } else {
-          return <span>${parseFloat(_price || '0').toLocaleString()}</span>
+          const price = _price ? roundDown(_price || 0, record.baseCoinScale || 0) : '0'
+          const text = formatted(price)
+          return <span>${text}</span>
+          // return <span>${parseFloat(_price || '0').toLocaleString()}</span>
         }
       },
     },
@@ -194,7 +205,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
         const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
-        return Number(aPrice||0) - Number(bPrice||0)
+        return Number(aPrice || 0) - Number(bPrice || 0)
       },
       render: (_price, record) => {
         const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
@@ -209,16 +220,30 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       key: 'marketValue',
       align: 'center',
       width: 260,
-      sorter: (a, b) => (a.marketValue||0) - (b.marketValue||0),
+      sorter: (a, b) => {
+        // 将市值转换为统一单位进行比较
+        const convertToNumber = (value: string) => {
+          if (!value) return 0;
+          const [numStr, unit] = value.split('_');
+          const num = parseFloat(numStr || '0');
+
+          if (unit === 'B') return num * 1000000000;
+          if (unit === 'M') return num * 1000000;
+          if (unit === 'K') return num * 1000;
+          return num;
+        };
+
+        return convertToNumber(a.marketValue) - convertToNumber(b.marketValue);
+      },
       render: (_marketValue, record) => {
         const unit = _marketValue.split('_')[1]
-        let unitValue='--'
+        let unitValue = '--'
         if (unit === 'B') {
-          unitValue=t('header.billion')
+          unitValue = t('header.billion')
         } else if (unit === 'M') {
-          unitValue=t('header.million')
+          unitValue = t('header.million')
         } else if (unit === 'K') {
-          unitValue=t('header.kthousand')
+          unitValue = t('header.kthousand')
         }
         // return <span>{_marketValue || "0"}</span>
         // return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
@@ -275,7 +300,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       allInitCoins?.map((item: any) => {
         const directData = pairsNewPrice?.find(p => p.coinSymbol === item.coinName && p.baseSymbol === 'USDT')
         const reverseData = pairsNewPrice?.find(p => p.baseSymbol === item.coinName && p.coinSymbol === 'USDT')
-       
+
         if (directData) {
           return {
             ...item,

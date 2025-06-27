@@ -9,10 +9,11 @@ import {
     addToFavorites,
     removeFromFavorites,
     fetchAllCoin,
+    fetchUsdtPrice
 } from './currencyPairService';
 import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
-import { inviteInfoType } from "@/type/userCenter/overview"
+import { inviteInfoType,usdtRateType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
 import { getConfig } from '@/services/flash';
 // const { isLoggedIn} = useAuth()
@@ -59,6 +60,7 @@ class AppStore {
     // 添加 flash 配置状态
     flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
     isLoadingFlashConfig: boolean = false;
+    usdtRate: usdtRateType={} as usdtRateType
 
     constructor() {
         // 使状态响应式
@@ -77,6 +79,7 @@ class AppStore {
             this.initKvConfig();
             this.initBanlanceShow(); //初始化资产显示状态
             this.initFlashConfigFromStorage(); // 初始化闪兑配置
+            this.initUsdtRateFromStorage(); //初始化USDT和USD汇率
         }
     }
 
@@ -769,12 +772,39 @@ class AppStore {
     getFlashConfig() {
         return this.flashConfig;
     }
-
     clearFlashConfig() {
         this.flashConfig = { minTradeU: 0, maxTradeU: 0 };
         if (isBrowser()) {
             localStorage.removeItem(LOCAL_STORAGE_KEY.FLASH_CONFIG);
         }
+    }
+
+    async loadUsdtRate() {
+        const result = await fetchUsdtPrice();
+        if (result.success) {
+                this.setUsdtRate(result.data);
+
+        }
+    }
+    initUsdtRateFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const usdtRateJson = localStorage.getItem(LOCAL_STORAGE_KEY.USDT_RATE);
+            if (usdtRateJson) {
+                this.usdtRate = JSON.parse(usdtRateJson);
+            }
+        } catch (error) {
+            console.error('Failed to load usdt rate from storage:', error);
+        }
+    }
+    setUsdtRate(price: any) {
+        this.usdtRate = price;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USDT_RATE, JSON.stringify(price));
+        }
+    }
+    getUsdtRate(): usdtRateType {
+        return this.usdtRate;
     }
 }
 

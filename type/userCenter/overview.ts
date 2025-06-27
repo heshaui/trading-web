@@ -101,3 +101,8 @@ export interface inviteInfoType {
     rechargeLimit: number,
     isRealname: string
 }
+export interface usdtRateType {
+    nowPrice: string|number,
+    yesterdayPrice: string|number
+
+}
