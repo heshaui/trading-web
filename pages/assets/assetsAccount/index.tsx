@@ -172,7 +172,7 @@ const AssetsMainPage = observer(() => {
                     {/* //闪兑 */}
                     {
                     coinList.find(item=>item.coinName===record.coinName)?.isTradeConvert===1&&
-                         <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={()=>goFlash(record.coinName)}>
+                         <button className={`${styles.theme_color} font-12 font-w-500`} onClick={()=>goFlash(record.coinName)}>
                          {t('flash.flash')}
                      </button>
                     }
