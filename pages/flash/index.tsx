@@ -334,7 +334,7 @@ const FlashPage: NextPage = () => {
           // 倒计时结束时自动重新请求接口，最多5次
           if (refreshCount < 5) {
             // 还有重试次数，先显示过期提示，然后重新请求
-            setPriceExpired(true);
+            // setPriceExpired(true);
             setTimeout(() => {
               setPriceExpired(false);
               getPreTrade();
@@ -1440,19 +1440,20 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
           
           <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
           <Button 
-              type="primary" 
-              shape="round"
-              style={{width:'100px',height:'40px'}}
-            >
-              {t('failureModal.viewAssets')}
-            </Button>
-            <Button 
               onClick={onClose} 
               shape="round"
               style={{width:'100px',height:'40px'}}
             >
               {t('failureModal.ok')}
             </Button>
+          <Button 
+              type="primary" 
+              shape="round"
+              style={{width:'100px',height:'40px'}}
+            >
+              {t('failureModal.viewAssets')}
+            </Button>
+           
            
           </div>
         </div>
