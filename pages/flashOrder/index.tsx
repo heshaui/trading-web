@@ -300,7 +300,7 @@ const FlashOrderPage = () => {
                                 className={styles.datePicker}
                                 format="YYYY-MM-DD"
                                 allowClear={false}
-                                style={{ width: 280,height:'50px' }}
+                                style={{ width: 280,height:'50px',boxShadow: 'none' }}
                                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                                     className={`${styles.title_color}`} size={20} />}
                                 disabledDate={(current) => {
