@@ -445,7 +445,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
               setSearchValue(filteredValue);
             }}
             placeholder={t('header.searchInput')}
-            prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+            suffix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
             className={`${styles.input_box} modal-input`}
           />
         </div>
