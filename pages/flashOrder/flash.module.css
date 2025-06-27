@@ -93,19 +93,6 @@
 .strong_color {
     color: var(--btncolor5)
 }
-.input_box {
-    width: 188px !important;
-    height: 40px;
-    background: var(--background7) !important;
-    color: var(--text-color6) !important;
-}
-.select_box {
-    width: 165px;
-    height: 40px !important;
-    min-width:165px;
-    color: var(--text-color6) !important;
-    background: var(--background7) !important;
-}
 
 .header_content_item{
     width: 30%;
@@ -161,47 +148,8 @@
 /* @media (min-width: 1680px) {} */
 
 /* Filter Components Styling */
-.filterContainer {
-    padding: 12px 24px;
-    background: var(--background7);
-}
 
-.datePicker {
-    background: var(--background7) !important;
-    color: var(--text-color5) !important;
-    border-color: var(--border-color4) !important;
-}
 
-.datePicker :global(.ant-picker-input > input) {
-    color: var(--text-color5) !important;
-}
-
-.datePicker :global(.ant-picker-separator) {
-    color: var(--text-color6) !important;
-}
-
-.datePicker :global(.ant-picker-suffix) {
-    color: var(--text-color6) !important;
-}
-
-.coinSelect {
-    background: var(--background7) !important;
-    color: var(--text-color5) !important;
-    border-color: var(--border-color4) !important;
-}
-
-.coinSelect :global(.ant-select-selector) {
-    background: var(--background7) !important;
-    color: var(--text-color5) !important;
-}
-
-.coinSelect :global(.ant-select-selection-item) {
-    color: var(--text-color5) !important;
-}
-
-.coinSelect :global(.ant-select-arrow) {
-    color: var(--text-color6) !important;
-}
 
 /* 表头只显示顶部和底部边框，去掉列间分割线 */
 .table_box :global(.ant-table-thead > tr > th) {

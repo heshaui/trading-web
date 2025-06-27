@@ -62,6 +62,7 @@ const FlashPage: NextPage = () => {
   const [flashDisable, setFlashDisable] = useState<boolean>(true); // 闪兑功能是否禁用
   const {coinList} = useCoinList();
 
+  const [isManualReceiveInput, setIsManualReceiveInput] = useState<boolean>(false);
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
@@ -309,14 +310,16 @@ const FlashPage: NextPage = () => {
 
   // Calculate receive amount when pay amount or exchange rate changes
   useEffect(() => {
-    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate))) {
-      const calculatedAmount = (Number(payAmount) * Number(exchangeRate)).toFixed(8);
-      setReceiveAmount(calculatedAmount);
+    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate)) && !isManualReceiveInput) {
+      const calculatedAmount = (Number(payAmount) * Number(exchangeRate));
+      // 只有当计算结果需要显示多位小数时才使用 toFixed，否则保持原始精度
+      const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
+      setReceiveAmount(formattedAmount);
       
       // 当汇率变化时，重新验证支付金额是否在限额范围内
       setIsAmountValid(validateAmount(payAmount, baseCoin));
     }
-  }, [payAmount, exchangeRate])
+  }, [payAmount, exchangeRate, isManualReceiveInput])
 
   // Countdown timer effect based on expireTime
   useEffect(() => {
@@ -405,12 +408,18 @@ const FlashPage: NextPage = () => {
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setPayAmount(value);
-                    // 验证金额限额
-                    setIsAmountValid(validateAmount(value, baseCoin));
-                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
-                      const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
-                      setReceiveAmount(calculatedAmount);
+                    // 只允许输入数字和小数点，不允许以小数点开头，不允许多个小数点
+                    const regex = /^([0-9]+\.?[0-9]*|0\.[0-9]*)$/;
+                    if (value === '' || regex.test(value)) {
+                      setPayAmount(value);
+                      // 验证金额限额
+                      setIsAmountValid(validateAmount(value, baseCoin));
+                      if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
+                        const calculatedAmount = (Number(value) * Number(exchangeRate));
+                        // 保持合理的精度显示
+                        const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
+                        setReceiveAmount(formattedAmount);
+                      }
                     }
                   }}
                 />
@@ -423,8 +432,10 @@ const FlashPage: NextPage = () => {
                       // 验证最大金额是否在限额范围内
                       setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
-                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
-                        setReceiveAmount(calculatedAmount);
+                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate));
+                        // 保持合理的精度显示
+                        const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
+                        setReceiveAmount(formattedAmount);
                       }
                     }
                   }}
@@ -504,14 +515,21 @@ const FlashPage: NextPage = () => {
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setReceiveAmount(value);
-                    // Calculate pay amount when receive amount changes
-                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
-                      const calculatedPayAmount = (Number(value) / Number(exchangeRate)).toFixed(8);
-                      setPayAmount(calculatedPayAmount);
-                      
-                      // 验证计算出的支付金额是否在限额范围内
-                      setIsAmountValid(validateAmount(calculatedPayAmount, baseCoin));
+                    // 只允许输入数字和小数点，不允许以小数点开头，不允许多个小数点
+                    const regex = /^([0-9]+\.?[0-9]*|0\.[0-9]*)$/;
+                    if (value === '' || regex.test(value)) {
+                      setIsManualReceiveInput(true);
+                      setReceiveAmount(value);
+                      // Calculate pay amount when receive amount changes
+                      if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
+                        const calculatedPayAmount = (Number(value) / Number(exchangeRate))
+                        setPayAmount(calculatedPayAmount.toString());
+                        
+                        // 验证计算出的支付金额是否在限额范围内
+                        setIsAmountValid(validateAmount(calculatedPayAmount.toString(), baseCoin));
+                      }
+                      // 延迟重置标志，避免立即被 useEffect 覆盖
+                      setTimeout(() => setIsManualReceiveInput(false), 100);
                     }
                   }}
                 />
