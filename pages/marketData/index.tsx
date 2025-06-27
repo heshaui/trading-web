@@ -723,7 +723,7 @@ export default function MarketData() {
         style: {
           minWidth: "165px",
           height: "27px",
-          paddingLeft: "38px",
+          paddingLeft: "20px",
           fontSize: "14px",
           lineHeight: "20px",
         },
@@ -874,7 +874,7 @@ export default function MarketData() {
         style: {
           minWidth: "165px",
           height: "27px",
-          paddingLeft: "38px",
+          paddingLeft: "20px",
           fontSize: "14px",
           lineHeight: "20px",
         },
