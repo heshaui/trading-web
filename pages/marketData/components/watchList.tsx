@@ -49,13 +49,16 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 }) => {
   const { t } = useTranslation(["market"]);
   const [activeTab, setActiveTab] = useState("all");
-     const { isDayMode } = useThemeMode()
- 
+  const { isDayMode } = useThemeMode()
+
   const { isLoggedIn } = useAuth(); // 获取登录状态
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('')
   const [spotList, setSpotList] = useState<pairsNewPriceType[]>([])
   const [tableLoading, setTableLoading] = useState(false)
+  const [isHover, setIsHover] = useState(false);
+  const [exchangeCoinId, setExchangeCoinId] = useState(null);
+
   // // 标签页配置
   // const tabsItem: TabsProps["items"] = [
   //   { key: "1", label: t("header.mainArea") },
@@ -153,7 +156,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
       render: (_marketValue, record) => {
         const heightText = record.height ? roundDown(record.height, record.baseCoinScale || 0) : '0'
         const lowerText = record.lower ? roundDown(record.lower, record.baseCoinScale || 0) : '0'
-   
+
         const height = formatted(heightText)
         const lower = formatted(lowerText)
         const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
@@ -214,21 +217,50 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               }
             }}
+            onMouseEnter={() => {
+              setIsHover(true)
+              setExchangeCoinId(record.exchangeCoinId)
+            }}
+            onMouseLeave={() => {
+              setIsHover(false)
+              setExchangeCoinId(null)
+            }}
           >
-            <Image
-              src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
+            {/* <Image
+              src={isDayMode ? '/images/market/icon_Trade.svg' : '/images/market/icon_Trade_dark.svg'}
               alt={'trade'}
               width={24}
               height={24}
               style={{ borderRadius: '50%', height: '24px', width: '24px' }}
-              preview={false} />
+              preview={false} /> */}
+              <TradeIcon
+                key={record.exchangeCoinId}
+                isDayMode={isDayMode}
+                coinId={record.exchangeCoinId}
+  />
           </button>
         </Tooltip>
       },
     },
   ];
 
+  const TradeIcon = ({ isDayMode, coinId }: { isDayMode: boolean, coinId: number }) => {
+    const normalSrc = isDayMode
+      ? '/images/market/icon_Trade.svg'
+      : '/images/market/icon_Trade_dark.svg';
+    const hoverSrc = '/images/market/icon_Trade_hover.svg';
 
+    return (
+      <Image
+        src={(isHover&&coinId===exchangeCoinId) ? hoverSrc : normalSrc}
+        alt="trade"
+        width={24}
+        height={24}
+        style={{ borderRadius: '50%', height: '24px', width: '24px', cursor: 'pointer' }}
+        preview={false}
+      />
+    );
+  }
   // 处理前往市场按钮点击/登录按钮点击
   const handleGoToMarket = () => {
     if (onTabChange && isLoggedIn) {

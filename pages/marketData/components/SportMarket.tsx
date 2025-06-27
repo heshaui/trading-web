@@ -53,6 +53,8 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
   const [tableLoading, setTableLoading] = useState(false)
   const currencyPairsArray = appStore.currencyPairs || [];
   const [tabsItem, setTabsItem] = useState<TabsProps["items"]>([])
+  const [isHover, setIsHover] = useState(false);
+  const [exchangeCoinId, setExchangeCoinId] = useState(null);
   // 标签页配置
   const initTabsItem: TabsProps["items"] = [
     { key: "1", label: t("header.mainArea") },
@@ -226,19 +228,42 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               }
             }}
+            onMouseEnter={() => {
+              setIsHover(true)
+              setExchangeCoinId(record.exchangeCoinId)
+            }}
+            onMouseLeave={() => {
+              setIsHover(false)
+              setExchangeCoinId(null)
+            }}
           >
-            <Image
-               src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
-              alt={'trade'}
-              width={24}
-              height={24}
-              style={{ borderRadius: '50%', height: '24px', width: '24px' }}
-              preview={false} />
+            <TradeIcon
+                key={record.exchangeCoinId}
+                isDayMode={isDayMode}
+                coinId={record.exchangeCoinId}
+  />
           </button>
         </Tooltip>
       },
     },
   ];
+  const TradeIcon = ({ isDayMode, coinId }: { isDayMode: boolean, coinId: number }) => {
+    const normalSrc = isDayMode
+      ? '/images/market/icon_Trade.svg'
+      : '/images/market/icon_Trade_dark.svg';
+    const hoverSrc = '/images/market/icon_Trade_hover.svg';
+
+    return (
+      <Image
+        src={(isHover&&coinId===exchangeCoinId) ? hoverSrc : normalSrc}
+        alt="trade"
+        width={24}
+        height={24}
+        style={{ borderRadius: '50%', height: '24px', width: '24px', cursor: 'pointer' }}
+        preview={false}
+      />
+    );
+  }
   const getSpotList = async () => {
     setTableLoading(true)
     try {
@@ -432,6 +457,9 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
             showAllTab={true}
             allTabLabel={t("header.all")}
             className={styles.allCoins_tabs}
+            visibleNum={6}
+            hideSwitchNoContent={true}
+            allBtnIsThemeColor={true}
           />
           <Table
             columns={columns}

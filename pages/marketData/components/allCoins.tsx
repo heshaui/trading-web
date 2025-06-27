@@ -44,7 +44,8 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
   const usdtPrice = appStore.getUsdtRate() || appStore.usdtRate
     const { isDayMode } = useThemeMode()
 
-
+    const [isHover, setIsHover] = useState(false);
+    const [exchangeCoinId, setExchangeCoinId] = useState(null);
   // console.log(currencyPairs, 99987);
   // const getUsdtPrice = async () => {
   //   const res = await getUsdtPriceWithStables()
@@ -292,21 +293,42 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
                 router.push(`${ROUTER_KEY_SPOT.INDEX}`)
               }
             }}
+            onMouseEnter={() => {
+              setIsHover(true)
+              setExchangeCoinId(record.coinName)
+            }}
+            onMouseLeave={() => {
+              setIsHover(false)
+              setExchangeCoinId(null)
+            }}
           >
-            {/* { `${record.coinSymbol}/${record.baseSymbol}`} */}
-            <Image
-              src={isDayMode?'/images/market/icon_Trade.svg':'/images/market/icon_Trade_dark.svg'}
-              alt={'trade'}
-              width={24}
-              height={24}
-              style={{ borderRadius: '50%', height: '24px', width: '24px' }}
-              preview={false} />
+             <TradeIcon
+                key={record.coinName}
+                isDayMode={isDayMode}
+                coinId={record.coinName}
+  />
           </button>
         </Tooltip>:'--'
       },
     },
   ];
+  const TradeIcon = ({ isDayMode, coinId }: { isDayMode: boolean, coinId: number }) => {
+    const normalSrc = isDayMode
+      ? '/images/market/icon_Trade.svg'
+      : '/images/market/icon_Trade_dark.svg';
+    const hoverSrc = '/images/market/icon_Trade_hover.svg';
 
+    return (
+      <Image
+        src={(isHover&&coinId===exchangeCoinId) ? hoverSrc : normalSrc}
+        alt="trade"
+        width={24}
+        height={24}
+        style={{ borderRadius: '50%', height: '24px', width: '24px', cursor: 'pointer' }}
+        preview={false}
+      />
+    );
+  }
   const filteredPairs = useMemo(
     () =>
       allInitCoins?.map((item: any) => {
