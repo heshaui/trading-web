@@ -339,7 +339,7 @@ const FlashPage: NextPage = () => {
           <h1>{headerTitle}</h1>
           <HeaderSubtitle>{headerSubtitle}</HeaderSubtitle>
         </Header>
-        { configData?.realNameRequired&&!isAuth&&<AuthNoticeWrapper>
+        { configData?.realNameRequired&&isAuth&&<AuthNoticeWrapper>
           <Image src='/images/flash/identy.png' width={80} height={74} alt="" preview={false} />
           <NoticeContent>
             <NoticeTitle>{t('authNotice.title')}</NoticeTitle>
@@ -528,7 +528,7 @@ const FlashPage: NextPage = () => {
                 </Tooltip>
               </MarketPrice>
 
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
+            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
