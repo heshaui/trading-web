@@ -415,8 +415,8 @@ const FlashPage: NextPage = () => {
                       if (value && exchangeRate) {
                         const calculatedAmount = (Number(value) * Number(exchangeRate));
                         // 保持合理的精度显示
-                        const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
-                        setReceiveAmount(formattedAmount);
+                        const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
                       } else if (value === '') {
                         // 当支付金额被清空时，也清空接收金额
                         setReceiveAmount('');
@@ -428,15 +428,31 @@ const FlashPage: NextPage = () => {
                   style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
-                    if (currentCoin && currentCoin.balance) {
-                      setPayAmount(currentCoin.balance);
+                    if (currentCoin && currentCoin.balance && configData?.maxTradeU) {
+                      // 获取最大限额（转换为当前币种）
+                      const maxTradeAmount = getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate;
+                      // 比较用户余额和最大限额，取较小值
+                      const maxAmount = Number(currentCoin.balance) > Number(maxTradeAmount) 
+                        ? maxTradeAmount 
+                        : currentCoin.balance;
+                      const maxAmountRound = getCoinRound(baseCoin,maxAmount)
+                      setPayAmount(maxAmountRound.toString());
                       // 验证最大金额是否在限额范围内
+                      setIsAmountValid(validateAmount(maxAmount, baseCoin));
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(maxAmount))) {
+                        const calculatedAmount = (Number(maxAmount) * Number(exchangeRate));
+                        // 保持合理的精度显示
+                        const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
+                      }
+                    } else if (currentCoin && currentCoin.balance) {
+                      // 如果没有配置最大限额，则使用用户余额
+                      setPayAmount(currentCoin.balance);
                       setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
-                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate));
-                        // 保持合理的精度显示
-                        const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
-                        setReceiveAmount(formattedAmount);
+                          const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate));
+                          const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
                       }
                     }
                   }}
