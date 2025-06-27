@@ -22,6 +22,16 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 
 const { Panel } = Collapse;
 
+// Styled Components
+const StyledButton = styled(Button)`
+  &.ant-btn[disabled] {
+    background-color: var(--border-color-disable);
+    border-color: var(--border-color-disable);
+
+    
+  
+  }
+`;
 
 const FlashPage: NextPage = () => {
 
@@ -130,6 +140,9 @@ const FlashPage: NextPage = () => {
         validQuoteCoin = availableCoins.find(coin => coin.coinName !== baseCoin)?.coinName || '';
       }
       
+      if(configData?.realNameRequired===false&&configData?.flashConvertSwitch===true){
+        setIsAuth(true)
+      }
       setQuteCoin(validQuoteCoin);
     } catch (error) {
     }
@@ -242,6 +255,7 @@ const FlashPage: NextPage = () => {
       if(parsedInfo.realnessStatus === 1){
         setIsAuth(true)
       }
+      
     }
   }
   }, [])
@@ -557,8 +571,7 @@ const FlashPage: NextPage = () => {
                 {t('exchangeRate')}:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
                 </Tooltip>
               </MarketPrice>
-
-            <Button onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</Button>
+            <StyledButton onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</StyledButton>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
@@ -769,9 +782,9 @@ const TradeInputWrapper = styled.div`
 const StyledInput = styled(Input)`
   border: none;
   flex: 1;
-  &:focus {
-    box-shadow: none;
-  }
+  transition: all 0.3s ease;
+  
+
 `;
 
 const MaxLabel = styled.span`
@@ -856,7 +869,7 @@ const StyledCollapse = styled(Collapse)`
   border: none;
   
   .ant-collapse-item {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color4);
   }
   
   .ant-collapse-header {
@@ -1247,13 +1260,14 @@ const DetailValue = styled.div`
 `;
 
 const PriceExpiredAlert = styled.div`
-  background-color: #FFF7E6;
+  background-color: #FF8A2614;
   border-radius: 4px;
   padding: 10px 15px;
-  color: #D46B08;
+  color: #FF8A26;
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  
 `;
 
 
