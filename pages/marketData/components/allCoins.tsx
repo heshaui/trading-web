@@ -161,7 +161,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'price',
       key: 'price',
       align: 'left',
-      width: 260,
+      width: 270,
       sorter: (a, b) => {
         let aPrice
         let bPrice
@@ -205,7 +205,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'closePrice',
       key: 'closePrice',
       align: 'left',
-      width: 260,
+      width: 270,
       sorter: (a, b) => {
         const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
         const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
@@ -223,7 +223,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       dataIndex: 'marketValue',
       key: 'marketValue',
       align: 'left',
-      width: 260,
+      width: 270,
       sorter: (a, b) => {
         // 将市值转换为统一单位进行比较
         const convertToNumber = (value: string) => {
@@ -258,10 +258,10 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
     },
     {
       title: t('marketList.tableHeaders.action'),
-      align: 'center',
+      align: 'right',
       dataIndex: 'action',
       key: 'action',
-      width: 160,
+      width: 80,
       // onHeaderCell: () => ({
       //   style: {
       //     // textAlign: "left",
