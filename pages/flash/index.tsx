@@ -1319,26 +1319,27 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           </div>
           
           <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('successModal.title')}</h2>
-          <p style={{ fontSize: '12px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
+          <p style={{ fontSize: '12px', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
           
           <div style={{ 
-            border: '1px solid #DCDCDC', 
+            border: '1px solid var(--border-color4)', 
             borderRadius: '8px', 
             padding: '15px',
-            marginBottom: '20px'
+            marginBottom: '20px',
+           
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>{t('successModal.youReceived')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.youReceived')}</span>
               <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>{t('successModal.exchangeRate')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.exchangeRate')}</span>
               <span>1{tradeResult?.sendCoin} = {tradeResult?.exchangeRate} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>{t('successModal.tradingFee')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.tradingFee')}</span>
               <span>0</span>
             </div>
           </div>
@@ -1402,8 +1403,8 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
             </div>
           </div>
           
-          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('failureModal.title')}</h2>
-          <p style={{ fontSize: '20px', color: '#666', margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0',fontWeight:'500' }}>{t('failureModal.title')}</h2>
+          <p style={{ fontSize: '20px',  margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
           
           <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
           <Button 
