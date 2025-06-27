@@ -284,7 +284,7 @@ const FlashOrderPage = () => {
                 <div className='radius-2' style={{ backgroundColor: 'var(--background7)' }}>
 
 
-                    <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px' }}>
+                    <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px',backgroundColor: 'var(--background7)' }}>
                         <Space size={16}>
                             <RangePicker
                                 value={dateRange}
