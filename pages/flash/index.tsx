@@ -475,7 +475,7 @@ const FlashPage: NextPage = () => {
                     }
                   }}
                 />
-                <MaxLabel 
+                {/* <MaxLabel 
                   style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === quteCoin);
@@ -491,7 +491,7 @@ const FlashPage: NextPage = () => {
                       }
                     }
                   }}
-                >{t('max')}</MaxLabel>
+                >{t('max')}</MaxLabel> */}
                 <ImageSelect
                   value={quteCoin}
                   onChange={(value) => {
