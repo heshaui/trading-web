@@ -397,7 +397,11 @@ const FlashPage: NextPage = () => {
                 >{t('max')}</MaxLabel>
                 <ImageSelect
                   value={baseCoin}
-                  onChange={(value) => setBaseCoin(value)}
+                  onChange={(value) => {
+                    setBaseCoin(value)
+                    setPayAmount('')
+                    setReceiveAmount('')
+                  }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}
@@ -483,7 +487,11 @@ const FlashPage: NextPage = () => {
                 >{t('max')}</MaxLabel>
                 <ImageSelect
                   value={quteCoin}
-                  onChange={(value) => setQuteCoin(value)}
+                  onChange={(value) => {
+                    setQuteCoin(value)
+                    setPayAmount('')
+                    setReceiveAmount('')
+                  }}
                   showSearch={true}
                   showHistory={false}
                   maxHistory={0}

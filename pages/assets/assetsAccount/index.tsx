@@ -172,9 +172,12 @@ const AssetsMainPage = observer(() => {
                         {t('assetsAccount.button.trade')}
                     </button>
                     {/* //闪兑 */}
-                    <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={goFlash}>
-                        闪兑
-                    </button>
+                    {record.isTradeConvert===1&&
+                         <button className={`${coinPairData ? styles.theme_color : styles.tip_color2} font-12 font-w-500`} onClick={goFlash}>
+                         闪兑
+                     </button>
+                    }
+                   
                 </>
             },
         },

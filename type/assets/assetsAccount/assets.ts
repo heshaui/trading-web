@@ -6,7 +6,8 @@ export interface DataType {
     coinId: string,
     coinName: string,
     iconUrl: string,
-    nameDefault: string
+    nameDefault: string,
+    isTradeConvert:number
 }
 export interface BalanceAllType {
     usdBalance?: number | string,
