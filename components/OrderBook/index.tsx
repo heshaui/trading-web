@@ -60,132 +60,57 @@ const OrderBook = ({
   }, [currentPair]);
 
   useEffect(() => {
-    // 直接使用bookData中的asks和bids数据
+    console.log("OrderBook 收到数据:", bookData);
+    
+    // 直接使用WebSocket推送的完整30档位数据
     if (bookData && (bookData.asks || bookData.bids)) {
-      // 处理卖单数据 - 直接使用asks数据
+      // 处理卖单数据 - 直接使用完整的asks数据
       if (bookData.asks && Array.isArray(bookData.asks)) {
-        // 获取当前卖单列表的副本
-        const currentSellOrders = [...sellOrders];
-        const updatedSellOrders: Order[] = [];
-        const priceMap = new Map<number, number>();
-
-        // 首先将现有的价格和数量存入Map中
-        currentSellOrders.forEach((order) => {
-          priceMap.set(order.price, order.amount);
-        });
-
-        // 处理新的数据
-        bookData.asks.forEach((item: [number, number]) => {
-          const price = Number(item[0]);
-          const amount = Number(item[1]);
-
-          if (amount < 0) {
-            // 如果数量为负，从现有数量中减去
-            const existingAmount = priceMap.get(price) || 0;
-            const newAmount = cut(
-              Number(existingAmount),
-              Math.abs(Number(amount))
-            );
-            if (Number(newAmount) > 0) {
-              priceMap.set(price, Number(newAmount));
-            } else {
-              priceMap.delete(price); // 如果数量变为0或负数，删除此价格
-            }
-          } else {
-            // 如果数量为正，正常添加或更新
-            priceMap.set(price, amount);
-          }
-        });
-
-        // 将Map转换回数组并过滤掉数量为0的订单
-        priceMap.forEach((amount, price) => {
-          if (amount > 0) {
-            // 只添加数量大于0的订单
+        const processedSellOrders: Order[] = bookData.asks
+          // .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
+          .map((item: [number, number]) => {
+            const price = Number(item[0]);
+            const amount = Number(item[1]);
             const total = nul(price, amount);
-            updatedSellOrders.push({ price, amount, total });
-          }
-        });
+            return { price, amount, total };
+          })
 
-        // 卖单按价格降序排列（价格高的排在上面）
-        updatedSellOrders.sort((a: Order, b: Order) => b.price - a.price);
-        if (colorMode === 1) {
-          setSellOrders(updatedSellOrders.splice(0, 10));
-        } else {
-          setSellOrders(updatedSellOrders.splice(0, 20));
-        }
+          // .sort((a: Order, b: Order) => b.price - a.price); // 卖单按价格降序排列
+
+        // 根据显示模式限制显示数量
+        const maxSellOrders = colorMode === 1 ? 10 : 20;
+        setSellOrders(processedSellOrders.slice(0, maxSellOrders).reverse());
       }
 
-      // 处理买单数据 - 直接使用bids数据
+      // 处理买单数据 - 直接使用完整的bids数据
       if (bookData.bids && Array.isArray(bookData.bids)) {
-        // 获取当前买单列表的副本
-        const currentBuyOrders = [...buyOrders];
-        const updatedBuyOrders: Order[] = [];
-        const priceMap = new Map<number, number>();
-
-        // 首先将现有的价格和数量存入Map中
-        currentBuyOrders.forEach((order) => {
-          priceMap.set(order.price, order.amount);
-        });
-
-        // 处理新的数据
-        bookData.bids.forEach((item: [number, number]) => {
-          const price = Number(item[0]);
-          const amount = Number(item[1]);
-
-          if (amount < 0) {
-            // 如果数量为负，从现有数量中减去
-            const existingAmount = priceMap.get(price) || 0;
-            const newAmount = cut(
-              Number(existingAmount),
-              Math.abs(Number(amount))
-            );
-
-            if (Number(newAmount) > 0) {
-              priceMap.set(price, Number(newAmount));
-            } else {
-              priceMap.delete(price); // 如果数量变为0或负数，删除此价格
-            }
-          } else {
-            // 如果数量为正，正常添加或更新
-            priceMap.set(price, amount);
-          }
-        });
-
-        // 将Map转换回数组并过滤掉数量为0的订单
-        priceMap.forEach((amount, price) => {
-          if (amount > 0) {
-            // 只添加数量大于0的订单
+        const processedBuyOrders: Order[] = bookData.bids
+          // .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
+          .map((item: [number, number]) => {
+            const price = Number(item[0]);
+            const amount = Number(item[1]);
             const total = nul(price, amount);
-            updatedBuyOrders.push({ price, amount, total });
-          }
-        });
+            return { price, amount, total };
+          })
+          // .sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
 
-        // 买单按价格降序排列
-        updatedBuyOrders.sort((a: Order, b: Order) => b.price - a.price);
-        if (colorMode === 1) {
-          setBuyOrders(updatedBuyOrders.splice(0, 10));
-        } else {
-          setBuyOrders(updatedBuyOrders.splice(0, 20));
-        }
+        // 根据显示模式限制显示数量
+        const maxBuyOrders = colorMode === 1 ? 10 : 20;
+        setBuyOrders(processedBuyOrders.slice(0, maxBuyOrders).reverse());
       }
 
-      // 计算当前价格
+      // 计算当前价格和买卖比例
       if (bookData.asks?.length > 0 && bookData.bids?.length > 0) {
         const topAskPrice = Number(bookData.asks[0][0]);
         const topBidPrice = Number(bookData.bids[0][0]);
-        const midPrice = (topAskPrice + topBidPrice) / 2;
-        // if (currentPrice === 0) {
-        //   setCurrentPrice(midPrice);
-        // }
-
+        
         // 计算买卖比例
         const totalSellAmount = bookData.asks.reduce(
           (sum: number, item: [number, number]) => sum + Number(item[1]),
           0
         );
         const totalBuyAmount = bookData.bids.reduce(
-          (sum: number, item: [number, number]) =>
-            sum + Math.abs(Number(item[1])),
+          (sum: number, item: [number, number]) => sum + Number(item[1]),
           0
         );
         const total = totalSellAmount + totalBuyAmount;
@@ -200,7 +125,7 @@ const OrderBook = ({
         setCurrentPrice(Number(bookData.bids[0][0]));
       }
     }
-  }, [bookData, currentPrice, priceScale, colorMode]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
+  }, [bookData, colorMode]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
   // 注意：这里故意不将sellOrders和buyOrders添加到依赖数组中，因为每次更新这些状态会触发新的effect执行，造成无限循环
 
   // 添加处理交易数据的效果
