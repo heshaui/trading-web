@@ -369,7 +369,7 @@ const ExchangePage = () => {
         process.env.NEXT_PUBLIC_WS_API_BASE
       }/ws/${currentPair.coinSymbol.toUpperCase()}_${currentPair.baseSymbol.toUpperCase()}_${
         currentPair.groupStatus
-      }@depth`
+      }@depth_30_levels`
     );
     depthWsRef.current = websocket;
     console.log("websocket的环境变量", websocket);
@@ -398,119 +398,27 @@ const ExchangePage = () => {
           return;
         }
 
-        // 更新深度数据而不是直接覆盖
-        setDepthData((prevData: any) => {
-          // 如果还没有初始数据，则创建一个新的数据结构
-          if (!prevData || !prevData.bids) {
-            return {
-              asks: data.asks || [],
-              bids: data.bids || [],
-            };
-          }
+        // 直接使用WebSocket推送的完整30档位数据
+        console.log("收到深度数据:", data);
+        
+        setDepthData(() => {
+          // 处理买单(bids) - 按价格降序排列
+          const processedBids = (data.bids || [])
+            .filter((bid: any) => bid && bid.length >= 2 && Number(bid[1]) > 0)
+            .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
 
-          // 创建当前数据的副本
-          const newData = {
-            asks: [...(prevData.asks || [])],
-            bids: [...(prevData.bids || [])],
+          // 处理卖单(asks) - 按价格升序排列  
+          const processedAsks = (data.asks || [])
+            .filter((ask: any) => ask && ask.length >= 2 && Number(ask[1]) > 0)
+            .sort((a: any, b: any) => parseFloat(a[0]) - parseFloat(b[0]));
+
+          const newDepthData = {
+            asks: processedAsks,
+            bids: processedBids,
           };
-
-          // 处理买单(bids)更新
-          if (data.bids && Array.isArray(data.bids)) {
-            // 先对当前买单按价格降序排列
-            newData.bids.sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]));
-
-            data.bids.forEach((newBid: any) => {
-              const [price, quantity] = newBid;
-              const priceFloat = parseFloat(price);
-              const quantityNum = Number(quantity);
-
-              // 查找是否存在此价格档位
-              const existingIndex = newData.bids.findIndex(
-                (bid) => bid[0] === price
-              );
-
-              if (existingIndex > -1) {
-                const currentQuantity = Number(newData.bids[existingIndex][1]);
-                let newQuantity;
-
-                // 如果数量为负数，进行减法操作
-                if (quantityNum < 0) {
-                  newQuantity = currentQuantity - Math.abs(quantityNum);
-                } else {
-                  // 否则进行累加
-                  newQuantity = currentQuantity + quantityNum;
-                }
-
-                if (newQuantity <= 0) {
-                  // 如果计算后小于等于0，移除该档位
-                  newData.bids.splice(existingIndex, 1);
-                } else {
-                  // 否则更新为计算后的数量
-                  newData.bids[existingIndex][1] = newQuantity.toString();
-                }
-              } else if (quantity !== "0" && quantityNum > 0) {
-                // 按价格降序插入新买单
-                let insertIndex = 0;
-                while (
-                  insertIndex < newData.bids.length &&
-                  parseFloat(newData.bids[insertIndex][0]) > priceFloat
-                ) {
-                  insertIndex++;
-                }
-                newData.bids.splice(insertIndex, 0, newBid);
-              }
-            });
-          }
-
-          // 处理卖单(asks)更新
-          if (data.asks && Array.isArray(data.asks)) {
-            // 先对当前卖单按价格升序排列（修正为升序）
-            newData.asks.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
-
-            data.asks.forEach((newAsk: any) => {
-              const [price, quantity] = newAsk;
-              const priceFloat = parseFloat(price);
-              const quantityNum = Number(quantity);
-
-              // 查找是否存在此价格档位
-              const existingIndex = newData.asks.findIndex(
-                (ask) => ask[0] === price
-              );
-
-              if (existingIndex > -1) {
-                const currentQuantity = Number(newData.asks[existingIndex][1]);
-                let newQuantity;
-
-                // 如果数量为负数，进行减法操作
-                if (quantityNum < 0) {
-                  newQuantity = currentQuantity - Math.abs(quantityNum);
-                } else {
-                  // 否则进行累加
-                  newQuantity = currentQuantity + quantityNum;
-                }
-
-                if (newQuantity <= 0) {
-                  // 如果计算后小于等于0，移除该档位
-                  newData.asks.splice(existingIndex, 1);
-                } else {
-                  // 否则更新为计算后的数量
-                  newData.asks[existingIndex][1] = newQuantity.toString();
-                }
-              } else if (quantity !== "0" && quantityNum > 0) {
-                // 按价格升序插入新卖单
-                let insertIndex = 0;
-                while (
-                  insertIndex < newData.asks.length &&
-                  parseFloat(newData.asks[insertIndex][0]) < priceFloat
-                ) {
-                  insertIndex++;
-                }
-                newData.asks.splice(insertIndex, 0, newAsk);
-              }
-            });
-          }
-
-          return newData;
+          
+          console.log("处理后的深度数据:", newDepthData);
+          return newDepthData;
         });
       } catch (error) {
         console.error("WebSocket message processing failed:", error);
@@ -527,8 +435,8 @@ const ExchangePage = () => {
 
       // 确保bids和asks是数组并限制为10条
       const formattedData = {
-        bids: Array.isArray(data.bids) ? data.bids.slice(0, 20) : [],
-        asks: Array.isArray(data.asks) ? data.asks.slice(0, 20) : [],
+        bids: Array.isArray(data.bids) ? data.bids.slice(0, 30) : [],
+        asks: Array.isArray(data.asks) ? data.asks.slice(0, 30) : [],
       };
 
       // 设置初始深度数据
