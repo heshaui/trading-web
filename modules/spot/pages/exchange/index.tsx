@@ -193,7 +193,7 @@ const ExchangePage = () => {
           return combinedData.slice(0, maxEntries);
         });
       } catch (error) {
-        console.log(error);
+
       }
     });
   }, [currentPair]);
@@ -372,7 +372,6 @@ const ExchangePage = () => {
       }@depth_30_levels`
     );
     depthWsRef.current = websocket;
-    console.log("websocket的环境变量", websocket);
 
     websocket.connect((message: string) => {
       try {
@@ -398,8 +397,7 @@ const ExchangePage = () => {
           return;
         }
 
-        // 直接使用WebSocket推送的完整30档位数据
-        console.log("收到深度数据:", data);
+
         
         setDepthData(() => {
           // 处理买单(bids) - 按价格降序排列
@@ -417,11 +415,9 @@ const ExchangePage = () => {
             bids: processedBids,
           };
           
-          console.log("处理后的深度数据:", newDepthData);
           return newDepthData;
         });
       } catch (error) {
-        console.error("WebSocket message processing failed:", error);
       }
     });
   }, [currentPair]);
