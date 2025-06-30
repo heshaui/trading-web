@@ -268,5 +268,8 @@
     "select": {
         "pending": "지급 대기",
         "done": "완료됨"
+    },
+    "flash": {
+        "flash": "플래시 스왑"
     }
 }

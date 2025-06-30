@@ -569,7 +569,8 @@
 .markerData-ranking .ant-table-column-sorter {
     color: var(--text-color6) !important;
 }
-
+.spot-table-box .ant-table-column-sorter-up,
+.spot-table-box .ant-table-column-sorter-down,
 .markerData-table .ant-table-column-sorter-up,
 .markerData-table .ant-table-column-sorter-down,
 .markerData-ranking .ant-table-column-sorter-up,
@@ -686,6 +687,6 @@
 }
 
 
-.ant-modal-content{
+/* .ant-modal-content{
   padding: 10px 0 15px 0 !important;
-}
+} */

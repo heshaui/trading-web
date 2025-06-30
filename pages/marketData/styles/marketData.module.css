@@ -5,6 +5,7 @@
 }
 
 .main_page_box {
+  max-width: 1200px;
   width: 90%;
   display: flex;
   flex-direction: column;
@@ -13,7 +14,7 @@
 
 .ranking_box {
   width: 100%;
-  height: 50%;
+  /* height: 50%; */
   /* background-color: var(--bg-color2); */
 }
 
@@ -49,7 +50,7 @@ html[lang="en"] .section_title {
 /* 单个排行榜容器 */
 .ranking_list {
   min-width: 380px;
-  height: 483px;
+  height: 490px;
   border: 1px solid var(--border-color4);
   border-radius: 5px;
 }
@@ -57,9 +58,12 @@ html[lang="en"] .section_title {
 .ranking_content {
   overflow: hidden;
   overflow-y: auto;
-
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
-
+.ranking_content::-webkit-scrollbar {
+  display: none;
+}
 /* .section_title {
   width: 96px;
   height: 68px;
@@ -110,7 +114,7 @@ html[lang="en"] .section_title {
 
 .cardHeader {
   /* margin-top: 17px; */
-  padding: 16px 24px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
 }
@@ -150,7 +154,7 @@ html[lang="en"] .cardtitle {
 }
 
 .positive {
-  color: #52c41a;
+  color: #00C788;
 }
 
 .negative {
@@ -165,7 +169,7 @@ html[lang="en"] .cardtitle {
   height: 47px;
   margin-top: -50px;
   margin-left: 1293px;
-  /* background: #52c41a; */
+  /* background: #00C788; */
 
 }
 
@@ -323,9 +327,9 @@ html[lang="en"] .cardtitle {
     grid-template-columns: 1fr;
   }
 
-  /* .auto_item{
-         width: 50%;
-     } */
+  .marketData_tabs {
+    min-width: 560px;
+  }
 }
 
 @media (max-width: 1080px) {

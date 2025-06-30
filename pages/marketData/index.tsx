@@ -25,19 +25,20 @@ import {
 import WebSocketService from "@/utils/websocket";
 import { NoData } from '@/components/noData'
 import appStore from "@/store";
-import { cut, division, nul,roundDown, formatted } from '@/utils'
+import { cut, division, nul, roundDown, formatted } from '@/utils'
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
 import { useRouter } from 'next/router';
+import { SvgIcon } from "@/components/icon"
 import { toast } from "sonner";
 
 // 格式化价格并限制字符长度，最多16个字符（包括省略号）
-const formatPriceWithLimit = (price: string | number | undefined,coinScale:number): string => {
+const formatPriceWithLimit = (price: string | number | undefined, coinScale: number): string => {
   if (!price) return '--';
   const maxLength: number = 16
-  const _priceNum = roundDown(Number(price||0),coinScale)
+  const _priceNum = roundDown(Number(price || 0), coinScale)
   // const formattedPrice = parseFloat(text).toLocaleString();
   const formattedPrice = formatted(_priceNum)
-  
+
   if (formattedPrice.length <= maxLength) {
     return formattedPrice;
   } else {
@@ -174,7 +175,7 @@ export default function MarketData() {
     try {
       // const response = await getExchangeCoinAllPrice();
       const response = await getSpotData({});
-      
+
       if (response?.code === "0") {
         // 同时更新 state 和 ref
         initNewPair.current = response.data;
@@ -182,7 +183,7 @@ export default function MarketData() {
         const processedData = response.data.map((item: any) => {
           return {
             iconUrl: item.iconUrl,
-            baseCoinScale:item.baseCoinScale,
+            baseCoinScale: item.baseCoinScale,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
           };
@@ -663,89 +664,52 @@ export default function MarketData() {
       || [],
     [hotMarketList, newPrice]
   );
-  // const filteredMarketDataDown = useMemo(
-  //   () =>
-  //     // HotMarketList
-  //     //   ?.map((pairs: any) => {
-  //     //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
-  //     //   return {
-  //     //     ...pairs,
-  //     //     ...spotListArr,
-  //     //   }
-
-  //     // })
-  //     marketDataDown.filter((items: any) => {
-  //       const changePercent = (items.close_price - items.open_price) / items.open_price;
-  //       return changePercent <= 0
-  //     }).sort(
+  // const filteredMarketDataUp = useMemo(() =>
+  //     newPrice?.sort(
   //       (a: any, b: any) => {
-  //         const achangePercent = (a.close_price - a.open_price) / a.open_price;
-  //         const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-  //         return achangePercent - bchangePercent
-  //       })
+  //         // const achangePercent = (a.close_price - a.open_price) / a.open_price;
+  //         // const bchangePercent = (b.close_price - b.open_price) / b.open_price;
+  //         const achangePercent = a.priceChangePercent
+  //         const bchangePercent = b.priceChangePercent
+  //         return (bchangePercent || 0) - (achangePercent || 0)
+  //       }).slice(0, 7)
   //     || [],
-  //   [marketDataDown]
+  //   [newPrice]
   // );
-  const filteredMarketDataDown = useMemo(
-    () =>
-      // newPrice ?.map((pairs: any) => {
-      //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
-      //   return {
-      //     ...pairs,
-      //     ...spotListArr,
-      //   }
 
-      // })
-      // newPrice?.filter((items: any) => {
-      //   const changePercent = (items.close_price - items.open_price) / items.open_price;
-      //   return changePercent <= 0
-      // })
-      newPrice?.sort(
-        (a: any, b: any) => {
-          const achangePercent = (a.close_price - a.open_price) / a.open_price;
-          const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-          return (achangePercent || 0) - (bchangePercent || 0)
-        }).slice(0, 7)
-      || [],
-    [newPrice]
+  const filteredMarketDataDown = useMemo(() => {
+    if (!Array.isArray(newPrice)) return [];
+    // 先分组
+    const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
+    const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
+
+    // 排序
+    withPercent.sort((a, b) => a.priceChangePercent - b.priceChangePercent); // 从小到大
+    // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
+
+    // 合并
+    const result = [...withPercent, ...withoutPercent];
+
+    // 取前7个
+    return result.slice(0, 7);
+  }, [newPrice]
   );
+  const filteredMarketDataUp = useMemo(() => {
+    if (!Array.isArray(newPrice)) return [];
+    // 先分组
+    const withPercent = newPrice.filter(item => item.priceChangePercent !== undefined && item.priceChangePercent !== null);
+    const withoutPercent = newPrice.filter(item => item.priceChangePercent === undefined || item.priceChangePercent === null);
 
-  // const filteredMarketDataUp = useMemo(
-  //   () =>
-  //     // HotMarketList?.map((pairs: any) => {
-  //     //   const spotListArr = newPrice?.find(item => item?.coinSymbol === pairs?.coinSymbol && item?.baseSymbol === pairs?.baseSymbol);
-  //     //   return {
-  //     //     ...pairs,
-  //     //     ...spotListArr,
-  //     //   }
+    // 排序
+    withPercent.sort((a, b) => b.priceChangePercent - a.priceChangePercent); // 从大到小
+    // 如果你想从小到大，改成 a.priceChangePercent - b.priceChangePercent
 
-  //     // })
-  //     marketDataUp.filter((items: any) => {
-  //       const changePercent = (items.close_price - items.open_price) / items.open_price;
-  //       return changePercent >= 0
-  //     }).sort(
-  //       (a: any, b: any) => {
-  //         const achangePercent = (a.close_price - a.open_price) / a.open_price;
-  //         const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-  //         return bchangePercent - achangePercent
-  //       })
-  //     || [],
-  //   [marketDataUp]
-  // );
-  const filteredMarketDataUp = useMemo(
-    () =>
-      //   newPrice ?.filter((items: any) => {
-      //     const changePercent = (items.close_price - items.open_price) / items.open_price;
-      //     return changePercent >= 0
-      // })
-      newPrice?.sort(
-        (a: any, b: any) => {
-          const achangePercent = (a.close_price - a.open_price) / a.open_price;
-          const bchangePercent = (b.close_price - b.open_price) / b.open_price;
-          return (bchangePercent || 0) - (achangePercent || 0)
-        }).slice(0, 7)
-      || [],
-    [newPrice]
+    // 合并
+    const result = [...withPercent, ...withoutPercent];
+
+    // 取前7个
+    return result.slice(0, 7);
+  }, [newPrice]
   );
 
 
@@ -760,7 +724,7 @@ export default function MarketData() {
         style: {
           minWidth: "165px",
           height: "27px",
-          paddingLeft: "38px",
+          paddingLeft: "20px",
           fontSize: "14px",
           lineHeight: "20px",
         },
@@ -773,16 +737,18 @@ export default function MarketData() {
       }),
       render: (text, record, index) => (
         <div className="flex-x align-center">
-          {index + 1}&nbsp;&nbsp;
+          <span className="mr-3">{index + 1}</span>
           <Image
             src={record.iconUrl}
             alt=""
             width={20}
             height={20}
-            className="mr-1"
+            // className="mr-1"
             style={{ width: 20, height: 20, borderRadius: '50%' }}
+            preview={false}
           />
           <button
+            className="ml-1"
             onClick={() => {
               if (record.symbol) {
                 const symbol = `${record.symbol}`
@@ -794,7 +760,7 @@ export default function MarketData() {
             }}
           >
             {record.symbol}
-            </button>
+          </button>
         </div>
       ),
     },
@@ -810,9 +776,9 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { 
+        style: {
           fontSize: "14px",
-          padding:"5px 8px"
+          padding: "5px 8px"
         },
       }),
       align: "left",
@@ -820,10 +786,10 @@ export default function MarketData() {
       // key: "price",
       // width: 250,
       render: (text, record) => (
-        <div style={{height:42,minWidth:'33%'}} className="flex-y justify-center">
-          <div>{record.price ? formatPriceWithLimit(record.price,record.baseCoinScale || 0) : '--'}</div>
-          {record.price&&<div style={{ fontSize: "12px", color: "#999" }}>
-            ${formatPriceWithLimit(record.price,record.baseCoinScale || 0)}
+        <div style={{ height: 42, minWidth: '33%' }} className="flex-y justify-center">
+          <div>{record.price ? formatPriceWithLimit(record.price, record.baseCoinScale || 0) : '--'}</div>
+          {record.price && <div style={{ fontSize: "12px", color: "#999" }}>
+            ${formatPriceWithLimit(record.price, record.baseCoinScale || 0)}
           </div>}
         </div>
       ),
@@ -879,14 +845,14 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { 
+        style: {
           fontSize: "14px",
         },
       }),
       render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        const changePercent = record.priceChangePercent||0
- const isPositive = changePercent !== undefined && changePercent > 0;
+        const changePercent = record.priceChangePercent || 0
+        const isPositive = changePercent !== undefined && changePercent > 0;
         const isNegative = changePercent !== undefined && changePercent < 0;
         // const textColor = isPositive
         //   ? "var(--color-success)"
@@ -899,7 +865,7 @@ export default function MarketData() {
         );
       },
     },
-    
+
   ];
   // 涨跌
   const columnsTrading: ColumnsType<TradeRakingResp> = [
@@ -911,7 +877,7 @@ export default function MarketData() {
         style: {
           minWidth: "165px",
           height: "27px",
-          paddingLeft: "38px",
+          paddingLeft: "20px",
           fontSize: "14px",
           lineHeight: "20px",
         },
@@ -919,24 +885,26 @@ export default function MarketData() {
       onCell: () => ({
         style: {
           paddingLeft: "20px",
-          fontSize:"14px"
-         },
+          fontSize: "14px"
+        },
       }),
       render: (text, record, index) => {
         const symbol = record.symbol?.split("_")
         const coinSymbol = symbol?.[0]
         const symbolPairs = `${record.coinSymbol || '--'}/${record.baseSymbol || '--'}`
         return <div className="flex-x align-center">
-          {index + 1}&nbsp;&nbsp;
+          <span className="mr-3">{index + 1}</span>
           <Image
-            src={record.iconUrl||''}
+            src={record.iconUrl || ''}
             alt=""
             width={20}
             height={20}
             className="mr-1"
             style={{ width: 20, height: 20, borderRadius: '50%' }}
+            preview={false}
           />
           <button
+            className="ml-1"
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
                 const symbol = `${record.coinSymbol}/${record.baseSymbol}`
@@ -965,24 +933,68 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { 
+        style: {
           fontSize: "14px",
-          padding:"5px 8px"
+          padding: "5px 8px"
         },
       }),
       render: (_text, record) => (
-        <div style={{height:42,minWidth:'33%'}} className="flex-y justify-center">
+        <div style={{ height: 42, minWidth: '33%' }} className="flex-y justify-center">
           <div>{_text ? formatPriceWithLimit(_text, record.baseCoinScale || 0) : "--"}</div>
-          {_text&&<div style={{ fontSize: "12px", color: "#999" }}>
-                ${formatPriceWithLimit(_text, record.baseCoinScale || 0)}
-              </div>}
+          {_text && <div style={{ fontSize: "12px", color: "#999" }}>
+            ${formatPriceWithLimit(_text, record.baseCoinScale || 0)}
+          </div>}
         </div>
       ),
     },
+    // {
+    //   title: t("rankingList.change24h"),
+    //   dataIndex: "close_price",
+    //   key: "close_price",
+    //   align: "right",
+    //   width: 150,
+    //   onHeaderCell: () => ({
+    //     style: {
+    //       minWidth: "70px",
+    //       height: "27px",
+    //       fontSize: "14px",
+    //       lineHeight: "20px",
+    //       // textAlign: "left",
+    //     },
+    //   }),
+    //   onCell: () => ({
+    //     style: { 
+    //       fontSize: "14px",
+    //     },
+    //   }),
+    //   render: (_closePrice: any, record: TradeRakingResp, index: number) => {
+    //     // 根据涨跌幅确定颜色
+    //     // const changePercent = record.priceChangePercent
+    //     const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
+    //     const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
+    //     const changePercent = changePrice ? changePercent1 * 100 : 0
+    //     const isPositive = changePercent !== undefined && Number(changePercent) > 0;
+    //     const isNegative = changePercent !== undefined && Number(changePercent) < 0;
+    //     const prefix = isPositive ? "+" : "";
+    //     return (
+    //       <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //         {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
+    //       </span>
+    //     )
+    //     // const isPositive = _closePrice !== undefined && _closePrice > 0;
+    //     // const isNegative = _closePrice !== undefined && _closePrice < 0;
+    //     // const prefix = isPositive ? "+" : "";
+    //     // return (
+    //     //   <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //     //     {_closePrice !== undefined ? `${prefix}${_closePrice}%` : `${Number(0).toFixed(2)}%`}
+    //     //   </span>
+    //     // );
+    //   }
+    // },
     {
       title: t("rankingList.change24h"),
-      dataIndex: "close_price",
-      key: "close_price",
+      dataIndex: "priceChangePercent",
+      key: "priceChangePercent",
       align: "right",
       width: 150,
       onHeaderCell: () => ({
@@ -995,16 +1007,13 @@ export default function MarketData() {
         },
       }),
       onCell: () => ({
-        style: { 
+        style: {
           fontSize: "14px",
         },
       }),
-      render: (_closePrice: any, record: TradeRakingResp, index: number) => {
+      render: (_price: any, record: TradeRakingResp, index: number) => {
         // 根据涨跌幅确定颜色
-        // const changePercent = record.priceChangePercent
-        const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
-        const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
-        const changePercent = changePrice ? changePercent1 * 100 : 0
+        const changePercent = _price || 0
         const isPositive = changePercent !== undefined && Number(changePercent) > 0;
         const isNegative = changePercent !== undefined && Number(changePercent) < 0;
         const prefix = isPositive ? "+" : "";
@@ -1232,7 +1241,7 @@ export default function MarketData() {
             </div>
           </div>
           {/* 行情 */}
-          <div className={`${styles.ranking_box}`}>
+          <div className={`${styles.ranking_box} ${styles.marketData_tabs}`}>
             <p className={`${styles.section_title}`}>
               {t("marketData.marketTrends")}
             </p>

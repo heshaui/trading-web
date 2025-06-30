@@ -45,23 +45,19 @@ import WebSocketService from "@/utils/websocket";
 import { getToken } from "@/request";
 
 const AssetsMainPage = observer(() => {
-  const { t } = useTranslation(["assets"]);
-  const [initTableData, setInitTableData] = useState<DataType[]>([]);
-  const [tableData, setTableData] = useState<DataType[]>([]);
-  const [tableLoading, setTableLoading] = useState(false);
-  const router = useRouter();
-  const [total, setTotal] = useState(0);
-  const [pageParam, setPageParam] = useState({
-    page: 1,
-    pageSize: 10,
-  });
-  const [balanceAll, setBalanceAll] = useState<BalanceAllType>(
-    {} as BalanceAllType
-  );
-  const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>(
-    {} as YesterdayBalanceType
-  );
-  const [rateKeyName, setRateKeyName] = useState("");
+    const { t } = useTranslation(['assets','flash']);
+    const [initTableData, setInitTableData] = useState<DataType[]>([])
+    const [tableData, setTableData] = useState<DataType[]>([]);
+    const [tableLoading, setTableLoading] = useState(false);
+    const router = useRouter();
+    const [total, setTotal] = useState(0);
+    const [pageParam, setPageParam] = useState({
+        page: 1,
+        pageSize: 10
+    })
+    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
+    const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
+    const [rateKeyName, setRateKeyName] = useState('');
 
   const paramdataRef = useRef(pageParam);
   // 获取币种列表

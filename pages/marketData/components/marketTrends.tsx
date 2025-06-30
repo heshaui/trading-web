@@ -81,7 +81,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
   ];
 
   return (
-    <div className='position-relative'>
+    <div className={`position-relative `}>
       <Tabs
         items={items}
         className="marketData-tabs"

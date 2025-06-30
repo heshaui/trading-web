@@ -15,6 +15,7 @@ import { getCoinAll } from '@/services/assets';
 import { NoData } from '@/components/noData';
 import type { GetStaticProps } from 'next';
 import { Iconify } from "@/components/icon"
+import { getRate, getCoinRate, getCoinRound } from '@/utils/getUseRate';
 
 
 interface TransactionRecord {
@@ -214,10 +215,10 @@ const FlashOrderPage = () => {
                         <span>{record.receiveCoin}</span>
                     </div>
                     <div className='flex items-center gap-1'>
-                        <span>{record.price}</span>
+                        <span>{1}</span>
                         <span>{record.receiveCoin}</span>
                         <span>=</span>
-                        <span>1</span>
+                        <span>{record.price ? getCoinRound(record.sendCoin, 1/Number(record.price)) : '-'}</span>
                         <span>{record.sendCoin}</span>
                     </div>
                 </div>
@@ -252,7 +253,7 @@ const FlashOrderPage = () => {
     ];
 
     return (
-        <div >
+        <div>
             <ConfigProvider
                 theme={{
                     components: {
@@ -260,17 +261,17 @@ const FlashOrderPage = () => {
                             headerBg: "transparent",
                         headerColor: "var(--text-color6)",
                         headerSplitColor: "transparent", // 表头分割线颜色
-                        rowExpandedBg: "var(--background10)", // 表格行展开背景色
+                        rowExpandedBg: "var(--background6)", // 表格行展开背景色
                         borderColor: "transparent",
                         // stickyScrollBarBg:"transparent",
                         headerBorderRadius: 0, // 表头圆角
                         fontSize: 13,
                         },
                         Select: {
-                            selectorBg	: "var(--background7)",
+
                           },
                           DatePicker: {
-                            activeBg: "var(--background7)",
+                            activeBg: "var(--background6)",
                           },
                         Pagination: {
                             itemActiveBg: 'transparent',
@@ -287,18 +288,19 @@ const FlashOrderPage = () => {
                     </h2>
                 </div>
 
-                <div className='radius-2' style={{ backgroundColor: 'var(--background7)' }}>
+                <div className='radius-2' style={{ backgroundColor: 'var(--background6)' }}>
 
 
-                    <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px',backgroundColor: 'var(--background7)' }}>
-                        <Space size={16}>
+                    <div className={`flex items-center gap-4 ${styles.header_box}`} style={{ padding: '25px 20px',backgroundColor: 'var(--background7)',borderTopLeftRadius:'8px',borderTopRightRadius:'8px' }}>
+                        <Space size={16} >
+
                             <RangePicker
                                 value={dateRange}
                                 onChange={(dates) => setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])}
                                 className={styles.datePicker}
                                 format="YYYY-MM-DD"
                                 allowClear={false}
-                                style={{ width: 280,height:'50px' }}
+                                style={{ width: 280,height:'50px',boxShadow: 'none' }}
                                 suffixIcon={<Iconify icon="cuida:calendar-outline"
                                     className={`${styles.title_color}`} size={20} />}
                                 disabledDate={(current) => {
@@ -324,8 +326,8 @@ const FlashOrderPage = () => {
                             />
                         </Space>
                     </div>
-
-                    <div className={`${styles.card_bgc5} `}>
+                                
+                    <div className={`${styles.card_bgc5} `} style={{borderBottomLeftRadius:'8px',borderBottomRightRadius:'8px'}}>
                         {/* 充值 */}
                         <div className={`${styles.table_box} w-full `}>
                             <div className={`${styles.table_box_inner} `}
@@ -337,9 +339,8 @@ const FlashOrderPage = () => {
                                     dataSource={data}
                                     pagination={{
                                         ...pagination,
-                                        showSizeChanger: true,
-                                        showQuickJumper: true,
-                                        showTotal: (total) => t('order.pagination.total', { total }),
+                                        showSizeChanger: false,
+                                        showQuickJumper: false,
                                         pageSizeOptions: ['10', '20', '50', '100'],
                                     }}
                                    

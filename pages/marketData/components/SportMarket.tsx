@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import styles from "./styles/spotHeader_select.module.css";
+import styles from "./styles/markerTable.module.css";
 import { ConfigProvider, Rate, Table, Tooltip, Image, Input } from "antd";
 import { Iconify } from "@/components/icon";
 import { useState, useEffect, useMemo } from "react";
@@ -445,7 +445,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
               setSearchValue(filteredValue);
             }}
             placeholder={t('header.searchInput')}
-            prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+            suffix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
             className={`${styles.input_box} modal-input`}
           />
         </div>

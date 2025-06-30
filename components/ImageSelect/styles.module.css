@@ -78,7 +78,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px 24px 20px 24px;
-
+  border-bottom: 1px solid var(--border-color4);
   border-radius: 12px 12px 0 0;
 }
 
@@ -86,7 +86,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-color5, #333);
+  color: var(--text-color5);
   letter-spacing: -0.02em;
 }
 
@@ -99,7 +99,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-color6, #666);
+  color: var(--text-color6);
   font-size: 16px;
 }
 
@@ -115,7 +115,7 @@
 .searchInput {
 
   border-radius: 12px !important;
-  border: 1px solid #ccc !important;
+  border: 1px solid var(--border-color4) !important;
   padding: 8px 16px !important;
   height: 44px !important;
 }
@@ -141,12 +141,12 @@
   justify-content: center;
   gap: 8px;
   padding: 24px;
-  color: var(--text-color6, #666);
+  color: var(--text-color6);
 }
 
 .historySection {
   padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color2, #f0f0f0);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .optionsSection {
@@ -157,7 +157,7 @@
 }
 
 .sectionTitle {
-  color: var(--text-color6, #666);
+  color: var(--text-color6);
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 16px 0;
@@ -174,7 +174,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  background-color: var(--background10, #f5f5f5);
+  background-color: var(--background10);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;

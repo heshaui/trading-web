@@ -23,13 +23,11 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 const { Panel } = Collapse;
 
 // Styled Components
-const StyledButton = styled(Button)`
-  &.ant-btn[disabled] {
-    background-color: var(--border-color-disable);
-    border-color: var(--border-color-disable);
-
-    
-  
+const StyledButton = styled(Button)<{ $isDayMode?: boolean }>`
+  &.ant-btn-primary[disabled] {
+    background-color: ${props => props.$isDayMode ? '#F0F0F0' : '#363638'} !important;
+    border-color: ${props => props.$isDayMode ? '#F0F0F0' : '#363638'} !important;
+    color: #999999 !important;
   }
 `;
 
@@ -62,6 +60,7 @@ const FlashPage: NextPage = () => {
   const [flashDisable, setFlashDisable] = useState<boolean>(true); // 闪兑功能是否禁用
   const {coinList} = useCoinList();
 
+  const [isManualReceiveInput, setIsManualReceiveInput] = useState<boolean>(false);
 
   // 从 store 获取闪兑配置数据
   const configData = appStore.getFlashConfig();
@@ -309,14 +308,16 @@ const FlashPage: NextPage = () => {
 
   // Calculate receive amount when pay amount or exchange rate changes
   useEffect(() => {
-    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate))) {
-      const calculatedAmount = (Number(payAmount) * Number(exchangeRate)).toFixed(8);
-      setReceiveAmount(calculatedAmount);
+    if (payAmount && exchangeRate && !isNaN(Number(payAmount)) && !isNaN(Number(exchangeRate)) && !isManualReceiveInput) {
+      const calculatedAmount = (Number(payAmount) * Number(exchangeRate));
+      // 只有当计算结果需要显示多位小数时才使用 toFixed，否则保持原始精度
+      const formattedAmount = calculatedAmount % 1 === 0 ? calculatedAmount.toString() : calculatedAmount.toFixed(8).replace(/\.?0+$/, '');
+      setReceiveAmount(formattedAmount);
       
       // 当汇率变化时，重新验证支付金额是否在限额范围内
       setIsAmountValid(validateAmount(payAmount, baseCoin));
     }
-  }, [payAmount, exchangeRate])
+  }, [payAmount, exchangeRate, isManualReceiveInput])
 
   // Countdown timer effect based on expireTime
   useEffect(() => {
@@ -333,7 +334,7 @@ const FlashPage: NextPage = () => {
           // 倒计时结束时自动重新请求接口，最多5次
           if (refreshCount < 5) {
             // 还有重试次数，先显示过期提示，然后重新请求
-            setPriceExpired(true);
+            // setPriceExpired(true);
             setTimeout(() => {
               setPriceExpired(false);
               getPreTrade();
@@ -395,22 +396,32 @@ const FlashPage: NextPage = () => {
             </div>
         <ContentWrapper>
           <TradeContainer>
-            <TradeSection>
+            <TradeSection className={styles.tradeSection}>
               <TradeLabel>{t('pay')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
+                  className={styles.tradeInput}
                    placeholder={configData?.minTradeU && configData?.maxTradeU && baseCoin ? 
                      `${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
                      ''}
                   value={payAmount}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setPayAmount(value);
-                    // 验证金额限额
-                    setIsAmountValid(validateAmount(value, baseCoin));
-                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate))) {
-                      const calculatedAmount = (Number(value) * Number(exchangeRate)).toFixed(8);
-                      setReceiveAmount(calculatedAmount);
+                    // 只允许输入数字和小数点，不允许以小数点开头，不允许多个小数点
+                    const regex = /^([0-9]+\.?[0-9]*|0\.[0-9]*)$/;
+                    if (value === '' || regex.test(value)) {
+                      setPayAmount(value);
+                      // 验证金额限额
+                      setIsAmountValid(validateAmount(value, baseCoin));
+                      if (value && exchangeRate) {
+                        const calculatedAmount = (Number(value) * Number(exchangeRate));
+                        // 保持合理的精度显示
+                        const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
+                      } else if (value === '') {
+                        // 当支付金额被清空时，也清空接收金额
+                        setReceiveAmount('');
+                      }
                     }
                   }}
                 />
@@ -418,13 +429,31 @@ const FlashPage: NextPage = () => {
                   style={{ borderRight: '1px solid #DCDCDC', paddingRight: '4px', cursor: 'pointer' }}
                   onClick={() => {
                     const currentCoin = userAll.find(item => item.coinName === baseCoin);
-                    if (currentCoin && currentCoin.balance) {
-                      setPayAmount(currentCoin.balance);
+                    if (currentCoin && currentCoin.balance && configData?.maxTradeU) {
+                      // 获取最大限额（转换为当前币种）
+                      const maxTradeAmount = getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate;
+                      // 比较用户余额和最大限额，取较小值
+                      const maxAmount = Number(currentCoin.balance) > Number(maxTradeAmount) 
+                        ? maxTradeAmount 
+                        : currentCoin.balance;
+                      const maxAmountRound = getCoinRound(baseCoin,maxAmount)
+                      setPayAmount(maxAmountRound.toString());
                       // 验证最大金额是否在限额范围内
+                      setIsAmountValid(validateAmount(maxAmount, baseCoin));
+                      if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(maxAmount))) {
+                        const calculatedAmount = (Number(maxAmount) * Number(exchangeRate));
+                        // 保持合理的精度显示
+                        const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
+                      }
+                    } else if (currentCoin && currentCoin.balance) {
+                      // 如果没有配置最大限额，则使用用户余额
+                      setPayAmount(currentCoin.balance);
                       setIsAmountValid(validateAmount(currentCoin.balance, baseCoin));
                       if (exchangeRate && !isNaN(Number(exchangeRate)) && !isNaN(Number(currentCoin.balance))) {
-                        const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate)).toFixed(8);
-                        setReceiveAmount(calculatedAmount);
+                          const calculatedAmount = (Number(currentCoin.balance) * Number(exchangeRate));
+                          const formattedAmount = getCoinRound(quteCoin,calculatedAmount)
+                        setReceiveAmount(formattedAmount.toString());
                       }
                     }
                   }}
@@ -461,10 +490,6 @@ const FlashPage: NextPage = () => {
                     };
                   })}
                 />
-                  
-
-
-
               </TradeInputWrapper>
              
             </TradeSection>
@@ -474,6 +499,14 @@ const FlashPage: NextPage = () => {
               !(payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU) && (
                <AvailableAmount>{t('available')} {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
              )}
+
+                 {/* 限额错误提示 */}
+                 {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
+                <AmountLimitAlert>
+                  {t('amountLimit')}：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
+                </AmountLimitAlert>
+              )}
+
              
              {/* 余额不足提示 */}
              {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
@@ -483,35 +516,40 @@ const FlashPage: NextPage = () => {
                 </InsufficientBalanceAlert>
               )}
               
-             {/* 限额错误提示 */}
-             {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
-                <AmountLimitAlert>
-                  {t('amountLimit')}：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
-                </AmountLimitAlert>
-              )}
-
+         
             <SwapButtonWrapper>
               <Image src='/images/flash/icon_Trading.svg' width={50} height={50} alt="" preview={false} onClick={swapCoins}  style={{cursor:'pointer'}} />
             </SwapButtonWrapper>
 
-            <TradeSection>
+            <TradeSection className={styles.tradeSection}>
               <TradeLabel>{t('receive')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
+                  className={styles.tradeInput}
                   placeholder={configData?.minTradeU && configData?.maxTradeU && quteCoin ? 
                     `${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
                     ''}
                   value={receiveAmount}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setReceiveAmount(value);
-                    // Calculate pay amount when receive amount changes
-                    if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
-                      const calculatedPayAmount = (Number(value) / Number(exchangeRate)).toFixed(8);
-                      setPayAmount(calculatedPayAmount);
-                      
-                      // 验证计算出的支付金额是否在限额范围内
-                      setIsAmountValid(validateAmount(calculatedPayAmount, baseCoin));
+                    // 只允许输入数字和小数点，不允许以小数点开头，不允许多个小数点
+                    const regex = /^([0-9]+\.?[0-9]*|0\.[0-9]*)$/;
+                    if (value === '' || regex.test(value)) {
+                      setIsManualReceiveInput(true);
+                      setReceiveAmount(value);
+                      // Calculate pay amount when receive amount changes
+                      if (value && exchangeRate && !isNaN(Number(value)) && !isNaN(Number(exchangeRate)) && Number(exchangeRate) > 0) {
+                        const calculatedPayAmount = (Number(value) / Number(exchangeRate))
+                        setPayAmount(calculatedPayAmount.toString());
+                        
+                        // 验证计算出的支付金额是否在限额范围内
+                        setIsAmountValid(validateAmount(calculatedPayAmount.toString(), baseCoin));
+                      } else if (value === '') {
+                        // 当接收金额被清空时，也清空支付金额
+                        setPayAmount('');
+                      }
+                      // 延迟重置标志，避免立即被 useEffect 覆盖
+                      setTimeout(() => setIsManualReceiveInput(false), 100);
                     }
                   }}
                 />
@@ -573,7 +611,7 @@ const FlashPage: NextPage = () => {
                 {t('exchangeRate')}:  </span>{!exchangeRate || !payAmount? '--': `1${baseCoin} ≈ ${exchangeRate} ${quteCoin}`}
                 </Tooltip>
               </MarketPrice>
-            <StyledButton onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</StyledButton>
+            <StyledButton $isDayMode={isDayMode} onClick={() => handleConfirm()} type='primary' style={{width:'100%',height:'50px'}} shape="round" disabled={!flashDisable || !isAuth || !payAmount || !receiveAmount || Number(payAmount) <= 0 || Number(receiveAmount) <= 0 || !isAmountValid}>{t('preview')}</StyledButton>
 
             {/* Confirmation Modal */}
             <ConfirmExchangeModal
@@ -693,17 +731,23 @@ const Header = styled.div<{
 }>`
   width: 100%;
   color: white;
-  padding: 20px 0;
+  height: 160px;
   text-align: center;
   background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+    font-size: 32px;
 `;
 
 const HeaderSubtitle = styled.div`
   color: #999;
-  margin-top: 5px;
+  margin-top: 10px;
+
 `;
 
 const ContentWrapper = styled.div`
@@ -740,7 +784,7 @@ const NoticeTitle = styled.div`
 `;
 
 const NoticeDescription = styled.div`
-  color: #666;
+  color: var(--text-color4);
   font-size: 14px;
 `;
 
@@ -761,9 +805,16 @@ const TradeSection = styled.div`
   overflow: visible;
   position: relative;
   transition: all 0.3s ease;
+  cursor: pointer;
   
   &:hover {
-    border-color: var(--text-color3);
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 1px var(--text-color3) !important;
+  }
+  
+  &:focus-within {
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 1px var(--text-color3) !important;
   }
 `;
 
@@ -782,11 +833,27 @@ const TradeInputWrapper = styled.div`
 `;
 
 const StyledInput = styled(Input)`
-  border: none;
+  border: none !important;
+  box-shadow: none !important;
   flex: 1;
-  transition: all 0.3s ease;
+  transition: none;
+  background: transparent !important;
+  outline: none !important;
+  padding: 8px 0;
+  font-size: 16px;
   
-
+  &:hover,
+  &:focus,
+  &:active,
+  &.ant-input:hover,
+  &.ant-input:focus,
+  &.ant-input:active,
+  &.ant-input-focused {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    outline: none !important;
+  }
 `;
 
 const MaxLabel = styled.span`
@@ -881,6 +948,10 @@ const StyledCollapse = styled(Collapse)`
   
   .ant-collapse-content {
     border-top: none;
+    
+    p {
+      color: var(--text-color4);
+    }
   }
 `;
 
@@ -1061,6 +1132,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
       closable={false}
       centered
       width={470}
+      className={styles.modalBox}
     >
       <ModalContainer>
         <ModalHeader>
@@ -1217,7 +1289,7 @@ const ModalCurrencyIcon = styled.div`
 `;
 
 const CurrencyDirection = styled.div`
-  color: #999;
+  color: var(--text-color6);
   margin-bottom: 5px;
 `;
 
@@ -1226,7 +1298,7 @@ const CurrencyAmount = styled.div`
 `;
 
 const ArrowIcon = styled.div`
-  color: #999;
+  color: var(--text-color6);
   font-size: 24px;
   margin: 0 15px;
 `;
@@ -1250,7 +1322,7 @@ const DetailRow = styled.div`
 `;
 
 const DetailLabel = styled.div`
-  color: #666;
+  color: var(--text-color6);
 `;
 
 const DetailValue = styled.div`
@@ -1319,26 +1391,28 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
           </div>
           
           <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('successModal.title')}</h2>
-          <p style={{ fontSize: '12px', color: '#666', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
+          <p style={{ fontSize: '12px', margin: '0 0 20px 0' }}>{tradeResult?.sendAmount} {tradeResult?.sendCoin}</p>
           
           <div style={{ 
-            border: '1px solid #DCDCDC', 
+            border: '1px solid var(--border-color4)', 
             borderRadius: '8px', 
             padding: '15px',
-            marginBottom: '20px'
+            marginBottom: '20px',
+           
           }}>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>{t('successModal.youReceived')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.youReceived')}</span>
               <span>{tradeResult?.receiveAmount} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>{t('successModal.exchangeRate')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.exchangeRate')}</span>
               <span>1{tradeResult?.sendCoin} = {tradeResult?.exchangeRate} {tradeResult?.receiveCoin}</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>{t('successModal.tradingFee')}</span>
+              <span style={{color:'var(--text-color6)'}}>{t('successModal.tradingFee')}</span>
               <span>0</span>
             </div>
           </div>
@@ -1402,10 +1476,17 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
             </div>
           </div>
           
-          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0' }}>{t('failureModal.title')}</h2>
-          <p style={{ fontSize: '20px', color: '#666', margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
+          <h2 style={{ fontSize: '20px', margin: '0 0 5px 0',fontWeight:'500' }}>{t('failureModal.title')}</h2>
+          <p style={{ fontSize: '20px',  margin: '0 0 20px 0' }}>{t('failureModal.description')}</p>
           
           <div style={{ display: 'flex', gap: '10px',justifyContent:'center' }}>
+          <Button 
+              onClick={onClose} 
+              shape="round"
+              style={{width:'100px',height:'40px'}}
+            >
+              {t('failureModal.ok')}
+            </Button>
           <Button 
               type="primary" 
               shape="round"
@@ -1413,13 +1494,7 @@ const FailureModal: React.FC<FailureModalProps> = ({ visible, onClose,isDayMode 
             >
               {t('failureModal.viewAssets')}
             </Button>
-            <Button 
-              onClick={onClose} 
-              shape="round"
-              style={{width:'100px',height:'40px'}}
-            >
-              {t('failureModal.ok')}
-            </Button>
+           
            
           </div>
         </div>
