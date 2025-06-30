@@ -56,7 +56,8 @@ export default function MarketData() {
   const [marketDataDown, setMarketDataDown] = useState<TradeRakingResp[]>([]);
   const [hotMarketList, setHotMarketList] = useState<HotMarketSymbol[]>([]);
   const [newPrice, setNewPrice] = useState<any[]>([]);
-  const [tenantId, setTenantId] = useState<string>('');
+  // const [tenantId, setTenantId] = useState<string>('');
+  const tenantId = useRef<string>('');
   const initNewPair = useRef<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tradeData, setTradeData] = useState<any>(null);
@@ -150,7 +151,8 @@ export default function MarketData() {
     try {
       const response = await getHotData();
       if (response?.code === "0") {
-        setTenantId(response.data?.[0]?.tenantId)
+        // setTenantId(response.data?.[0]?.tenantId)
+        tenantId.current = response.data?.[0]?.tenantId||''
         // const sortData = response.data?.map((item: any) => {
         //   const pairsData = newPrice?.find(p => p.coinSymbol === item.coinSymbol && p.baseSymbol === item.baseSymbol)
         //   return {
@@ -428,11 +430,11 @@ export default function MarketData() {
 
       console.log("多通道WebSocket连接成功，发送订阅消息");
       // 使用 useRef 中存储的币对数据构建 channels 参数
-      const currentTenantId = tenantId || userInfo?.tenantId
+      const currentTenantId = tenantId.current || userInfo?.tenantId
 
       // 检查 ref 中是否有数据
       if (initNewPair.current.length === 0 || !currentTenantId) {
-        console.log("币对数据尚未准备好，等待下一次尝试");
+        console.log("币对数据或商户ID尚未准备好，等待下一次尝试", currentTenantId, initNewPair.current.length);
         return; // 如果没有数据，则等待下一次尝试
       }
       const channels = initNewPair.current.map(pair => {
@@ -1077,7 +1079,7 @@ export default function MarketData() {
 
     try {
       appStore.loadCurrencyPairs()
-      appStore.loadUsdtRate()
+      // appStore.loadUsdtRate()
       // .then(() => {
       //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
       //   setNewPrice(coinPair)
