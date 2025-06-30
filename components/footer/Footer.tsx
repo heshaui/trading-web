@@ -147,7 +147,7 @@ export default function Footer() {
       fetchFooterSetting();
       setSelectedLang(
         languageList.find((item) => item.key.includes(i18n.language))?.span ||
-          i18n.language
+        i18n.language
       );
     }
   }, [allConfig, langKey, languageList]);
@@ -336,7 +336,7 @@ export default function Footer() {
     <>
       {" "}
       {footerConfig &&
-      (footerConfig.toString() === "0" || footerConfig?.status == "0") ? (
+        (footerConfig.toString() === "0" || footerConfig?.status == "0") ? (
         <ConfigProvider
           theme={{
             components: {
@@ -359,111 +359,112 @@ export default function Footer() {
             },
           }}
         >
-          <div
-            className={styles.footerContainer}
-            style={{ borderTop: "0.5px solid #37373A" }}
-          >
-            <div className={styles.logoAndButton}>
-              <div className={styles.logo}>
-                <Image
-                  src={logoUrl || ""}
-                  alt="footer logo"
-                  width={140} // 设置为0，让图片保持原始宽高比
-                  height={140} // 固定高度
-                  style={{ width: "auto", height: "28px" }} // 使用style控制宽度自适应
+          <div className={`${styles.footer_container_box} flex-x-cc`} style={{ borderTop: "0.5px solid #37373A" }}>
+            <div
+              className={`${styles.footerContainer}`}
+              
+            >
+
+              <div className={styles.logoAndButton}>
+                <div className={styles.logo}>
+                  <Image
+                    src={logoUrl || ""}
+                    alt="footer logo"
+                    width={140} // 设置为0，让图片保持原始宽高比
+                    height={140} // 固定高度
+                    style={{ width: "auto", height: "28px" }} // 使用style控制宽度自适应
                   // onError={() => setLogoUrl('')} // 图片加载失败时使用默认值
-                />
-              </div>
-              <p suppressHydrationWarning>{`©2023 - 2024 ${
-                allConfig?.tenant_cache_name || ""
-              }.`}</p>
-              <div className={`${styles.footer_left}`}>
-                <Row className="mt-3">
-                  <Col>
-                    <h6 style={{ color: "#FFFFFF", fontSize: 12 }}>
-                      {/* 社区 */}
-                      {t("footer.community")}
-                    </h6>
-                  </Col>
-                </Row>
-                <Row align="middle" className="mb-2 pt-4">
-                  {renderSocialMediaIcons()}
-                </Row>
-                <Dropdown
-                  className="w-full"
-                  menu={{
-                    items: languageList.map((item) => ({
-                      ...item,
-                      label: item.span,
-                      key: item.key,
-                    })),
-                    onClick: ({ key }: { key: string }) => {
-                      setLangChange(key);
-                    },
-                  }}
-                  trigger={["click"]}
-                >
-                  <Button className="px-4">
-                    <div className="flex-x-cc w-full">
-                      <div className="flex-x-cc  flex-1">
-                        <div className="mr-1">
+                  />
+                </div>
+                <p suppressHydrationWarning>{`©2023 - 2024 ${allConfig?.tenant_cache_name || ""
+                  }.`}</p>
+                <div className={`${styles.footer_left}`}>
+                  <Row className="mt-3">
+                    <Col>
+                      <h6 style={{ color: "#FFFFFF", fontSize: 12 }}>
+                        {/* 社区 */}
+                        {t("footer.community")}
+                      </h6>
+                    </Col>
+                  </Row>
+                  <Row align="middle" className="mb-2 pt-4">
+                    {renderSocialMediaIcons()}
+                  </Row>
+                  <Dropdown
+                    className="w-full"
+                    menu={{
+                      items: languageList.map((item) => ({
+                        ...item,
+                        label: item.span,
+                        key: item.key,
+                      })),
+                      onClick: ({ key }: { key: string }) => {
+                        setLangChange(key);
+                      },
+                    }}
+                    trigger={["click"]}
+                  >
+                    <Button className="px-4">
+                      <div className="flex-x-cc w-full">
+                        <div className="flex-x-cc  flex-1">
+                          <div className="mr-1">
+                            <Image
+                              src="/images/footer/icon_earth_line.png"
+                              alt=""
+                              width={20}
+                              height={20}
+                            />
+                          </div>
+                          <div
+                            className="flex-1 text-left"
+                            style={{
+                              fontSize: "12px",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {selectedLang}
+                          </div>
+                        </div>
+                        <div className="flex-x align-center justify-end">
                           <Image
-                            src="/images/footer/icon_earth_line.png"
+                            src="/images/footer/icon_down_line.png"
                             alt=""
                             width={20}
                             height={20}
                           />
                         </div>
-                        <div
-                          className="flex-1 text-left"
-                          style={{
-                            fontSize: "12px",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {selectedLang}
+                      </div>
+                    </Button>
+                  </Dropdown>
+                  <div style={{ marginTop: "10px" }}></div>
+                  <Dropdown
+                    className="w-full"
+                    menu={menuProps2}
+                    trigger={["click"]}
+                  >
+                    <Button className="px-4">
+                      <div className="flex-x-cc w-full">
+                        <div className="mr-1">
+                          <Image
+                            src="/images/footer/icon_download_line.png"
+                            alt=""
+                            width={20}
+                            height={20}
+                          />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <span style={{ fontSize: "12px", color: "#FFFFFF" }}>
+                            {/* 下载APP */}
+                            {t("footer.downloadApp")}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex-x align-center justify-end">
-                        <Image
-                          src="/images/footer/icon_down_line.png"
-                          alt=""
-                          width={20}
-                          height={20}
-                        />
-                      </div>
-                    </div>
-                  </Button>
-                </Dropdown>
-                <div style={{ marginTop: "10px" }}></div>
-                <Dropdown
-                  className="w-full"
-                  menu={menuProps2}
-                  trigger={["click"]}
-                >
-                  <Button className="px-4">
-                    <div className="flex-x-cc w-full">
-                      <div className="mr-1">
-                        <Image
-                          src="/images/footer/icon_download_line.png"
-                          alt=""
-                          width={20}
-                          height={20}
-                        />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <span style={{ fontSize: "12px", color: "#FFFFFF" }}>
-                          {/* 下载APP */}
-                          {t("footer.downloadApp")}
-                        </span>
-                      </div>
-                    </div>
-                  </Button>
-                </Dropdown>
+                    </Button>
+                  </Dropdown>
+                </div>
               </div>
-            </div>
-            <div className={`${styles.footer} flex-x`} suppressHydrationWarning>
-              {/* {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ? renderCustomFooter() :
+              <div className={`${styles.footer} flex-x`} suppressHydrationWarning>
+                {/* {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ? renderCustomFooter() :
                         (
                             <div
                                 // style={{ color: 'pink' }}
@@ -471,7 +472,8 @@ export default function Footer() {
                             />
                         )
                     } */}
-              {renderCustomFooter()}
+                {renderCustomFooter()}
+              </div>
             </div>
           </div>
         </ConfigProvider>
