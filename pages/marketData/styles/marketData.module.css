@@ -14,7 +14,7 @@
 
 .ranking_box {
   width: 100%;
-  height: 50%;
+  /* height: 50%; */
   /* background-color: var(--bg-color2); */
 }
 
@@ -50,7 +50,7 @@ html[lang="en"] .section_title {
 /* 单个排行榜容器 */
 .ranking_list {
   min-width: 380px;
-  height: 483px;
+  height: 490px;
   border: 1px solid var(--border-color4);
   border-radius: 5px;
 }
