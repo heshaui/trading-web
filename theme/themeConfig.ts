@@ -4,7 +4,7 @@ import { getThemeColorFromStorage } from '@/hooks/themes';
 // 默认主题配置
 const defaultTheme: ThemeConfig = {
   token: {
-    fontSize: 16,
+    fontSize: 14,
     colorPrimary: getThemeColorFromStorage(),
     colorBgElevated: 'var(--background3)', //浮层容器背景色
     colorText: 'var(--text-color5)', // 最深的文本色-默认的文本颜色
@@ -12,10 +12,27 @@ const defaultTheme: ThemeConfig = {
     // colorSplit: 'var(--background14)', // 分割线颜色
     colorIconHover: 'var(--text-color6)',
     colorIcon: 'var(--text-color6)',
+    colorBorder: 'var(--border-color6)',
     colorBgContainer: 'transparent', //组件的容器背景色-默认按钮、输入框、单选框、复选框
-
+    
   },
   components: {
+    Button: {
+      defaultShadow: 'none',
+      primaryShadow: 'none',
+     
+     
+    },
+    Collapse: {
+  
+
+    },
+    Modal: {
+      headerBg: 'var(--help-center-card-bg)',
+      contentBg: 'var(--help-center-card-bg)',
+      footerBg: 'var(--help-center-card-bg)',
+
+    },
     Breadcrumb: {
       separatorColor: 'var(--text-color6)', // 分隔符颜色
     },

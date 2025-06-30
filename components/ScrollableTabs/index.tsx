@@ -15,6 +15,9 @@ interface CustomTabsProps {
     showAllTab?: boolean;
     allTabLabel?: string;
     className?: string;
+    visibleNum?: number;
+    hideSwitchNoContent?: boolean; //无切换时是否隐藏
+    allBtnIsThemeColor?: boolean; //所有按钮是否为主题色
 }
 // const { t } = useTranslation(['common']);
 const CustomTabs: React.FC<CustomTabsProps> = ({
@@ -23,15 +26,16 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
     defaultActiveKey = 'all',
     showAllTab = true,
     allTabLabel = 'All' , //
-    className = ''
-
-
+    className = '',
+    visibleNum=6,
+    hideSwitchNoContent = false,
+    allBtnIsThemeColor= false
 }) => {
     const [activeKey, setActiveKey] = useState(defaultActiveKey);
     const [startIndex, setStartIndex] = useState(0);
     
     // 一次显示的标签数量
-    const visibleCount = 6;
+    const visibleCount = visibleNum
     
     // 处理标签点击
     const handleTabClick = (key: string) => {
@@ -66,11 +70,13 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
     
     return (
         <div className={`${styles.custom_tabs_container} ${className}`}>
-            <div className={styles.tabs_nav}>
+            <div className={styles.tabs_nav} >
                 {/* 全部标签 */}
                 {showAllTab && (
                     <div 
-                        className={`${styles.all_tab} ${activeKey === 'all' ? styles.active_tab : ''} ${styles.title_color}`}
+                    //styles.active_tab
+                        className={` ${styles.all_tab} 
+                        ${activeKey === 'all' ? (allBtnIsThemeColor?styles.default_btn:styles.active_tab) : styles.title_color} `}
                         onClick={() => handleTabClick('all')}
                     >
                         {allTabLabel}
@@ -78,12 +84,12 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
                 )}
                 
                 {/* 左箭头 */}
-                <div 
-                    className={`${styles.scroll_button} ${isAtStart ? styles.disabled_button : ''}`}
+               { (hideSwitchNoContent&&(!isAtStart||!isAtEnd))&&<div 
+                    className={`${styles.scroll_button} ${isAtStart ? `${styles.disabled_button } cursor-disable`: ''}`}
                     onClick={handleScrollLeft}
                 >
                     <Iconify icon="mingcute:left-line" size={16} />
-                </div>
+                </div>}
                 
                 {/* 标签容器 */}
                 <div className={styles.tabs_scroll_container}>
@@ -101,12 +107,12 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
                 </div>
                 
                 {/* 右箭头 */}
-                <div 
+                {(hideSwitchNoContent&&(!isAtStart||!isAtEnd))&&<div 
                     className={`${styles.scroll_button} ${isAtEnd ? styles.disabled_button : ''}`}
                     onClick={handleScrollRight}
                 >
                     <Iconify icon="mingcute:right-line" size={16} />
-                </div>
+                </div>}
             </div>
         </div>
     );

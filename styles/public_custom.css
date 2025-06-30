@@ -355,9 +355,10 @@
     border: 1px solid var(--border-color7) !important;
 }
 
-.custom-collapse .ant-collapse-item:hover{
+.custom-collapse .ant-collapse-item:hover {
     border: 1px solid var(--border-color) !important;
 }
+
 /* .custom-collapse .ant-collapse-item {
     border: 1px solid var(--border-color) !important;
 } */
@@ -391,24 +392,32 @@
 /*table 表格组件 */
 /* 背景色/各行背景色 */
 .table-box .ant-table,
-.spot-table-box .ant-table {
+.spot-table-box .ant-table,
+.markerData-ranking .ant-table,
+.markerData-table .ant-table {
     background: transparent !important;
     color: var(--text-color5) !important;
     font-size: 14px !important;
     font-weight: 500 !important;
 }
+
 /* 左右滚动两侧投影 */
 .table-box .ant-table-container::before,
 .table-box2 .ant-table-container::before,
 .spot-table-box .ant-table-container::before,
 .table-box .ant-table-container::after,
 .table-box2 .ant-table-container::after,
-.spot-table-box .ant-table-container::after{
+.spot-table-box .ant-table-container::after,
+.markerData-ranking .ant-table-container::after,
+.markerData-table .ant-table-container::after {
     box-shadow: none !important;
 }
+
 /* 表头文字*/
 .table-box .ant-table-thead,
-.spot-table-box .ant-table-thead {
+.spot-table-box .ant-table-thead,
+.markerData-ranking .ant-table-thead,
+.markerData-table .ant-table-thead {
     font-weight: 400 !important;
     font-size: 12px !important;
 }
@@ -423,7 +432,9 @@
 
 /* 展开行hover背景色 */
 .table-box .ant-table-cell-row-hover,
-.spot-table-box .ant-table-cell-row-hover {
+.spot-table-box .ant-table-cell-row-hover,
+.markerData-ranking .ant-table-cell-row-hover,
+.markerData-table .ant-table-cell-row-hover {
     background: var(--bgc-color) !important;
     color: var(--text-color5) !important;
 }
@@ -434,7 +445,9 @@
 
 /* 选中行 颜色 */
 .table-box .ant-table-row-selected>.ant-table-cell,
-.spot-table-box .ant-table-row-selected>.ant-table-cell {
+.spot-table-box .ant-table-row-selected>.ant-table-cell,
+.markerData-ranking .ant-table-row-selected>.ant-table-cell,
+.markerData-table .ant-table-row-selected>.ant-table-cell {
     background: var(--bgc-color) !important;
 }
 
@@ -454,11 +467,12 @@
     /* padding: 16px 0 !important; */
     padding-left: 24px !important;
 }
+
 .table-box .ant-table-expanded-row .ant-table-cell,
-.table-box2 .ant-table-expanded-row .ant-table-cell
-{
-border-radius: 8px !important;
+.table-box2 .ant-table-expanded-row .ant-table-cell {
+    border-radius: 8px !important;
 }
+
 .spot-table-box .ant-table-expanded-row>.ant-table-cell {
     border-radius: 8px !important;
     padding: 0px !important;
@@ -482,6 +496,12 @@ border-radius: 8px !important;
     border-top: 0.5px solid var(--border-color4) !important;
 }
 
+.markerData-table .ant-table-thead>tr>th {
+    border-bottom: 0.5px solid var(--border-color4) !important;
+}
+
+/* .markerData-ranking .markerData-table*/
+
 .spot-table-box2 .ant-table-thead>tr>th {
     border-bottom: none !important;
     border-top: none !important;
@@ -491,7 +511,11 @@ border-radius: 8px !important;
 .table-box .ant-table-placeholder,
 .table-box .ant-table-placeholder:hover>td,
 .spot-table-box .ant-table-placeholder,
-.spot-table-box .ant-table-placeholder:hover>td {
+.spot-table-box .ant-table-placeholder:hover>td,
+.markerData-table .ant-table-placeholder,
+.markerData-table .ant-table-placeholder:hover>td,
+ .markerData-ranking .ant-table-placeholder,
+.markerData-ranking .ant-table-placeholder:hover>td {
     background: transparent !important;
 }
 
@@ -528,13 +552,7 @@ border-radius: 8px !important;
 .spot-table-box .ant-select-open .ant-select-selection-item {
     color: var(--text-color4) !important;
 }
-.spot-table-box .ant-table-column-sorters{
-    justify-content: center !important;
 
-}
-.spot-table-box .ant-table-column-sorters>.ant-table-column-title{
-    flex:none !important;
-  }
 .spot-pagination .ant-pagination-simple-pager {
     color: var(--text-color5) !important;
 }
@@ -546,13 +564,53 @@ border-radius: 8px !important;
 
 /* 表格排序图标颜色 */
 .spot-table-box .ant-table-column-sorter,
-.table-box .ant-table-column-sorter {
+.table-box .ant-table-column-sorter,
+.markerData-table .ant-table-column-sorter,
+.markerData-ranking .ant-table-column-sorter {
+    color: var(--text-color6) !important;
+}
+.spot-table-box .ant-table-column-sorter-up,
+.spot-table-box .ant-table-column-sorter-down,
+.markerData-table .ant-table-column-sorter-up,
+.markerData-table .ant-table-column-sorter-down,
+.markerData-ranking .ant-table-column-sorter-up,
+.markerData-ranking .ant-table-column-sorter-down {
+    font-size: 12px !important;
+    /* color: var(--text-color6) !important; */
+}
+.markerData-table .ant-table-column-sorter-up:hover,
+.markerData-table .ant-table-column-sorter-down:hover,
+.markerData-ranking .ant-table-column-sorter-up:hover,
+.markerData-ranking .ant-table-column-sorter-down:hover {
     color: var(--text-color5) !important;
+}
+.markerData-table .ant-table-column-sorter-up.active,
+.markerData-table .ant-table-column-sorter-down.active{
+    color: var(--text-color5) !important;
+}
+
+.spot-table-box .ant-table-column-sorters,
+.markerData-table .ant-table-column-sorters {
+    justify-content: flex-start !important;
+
+}
+
+.spot-table-box .ant-table-column-sorters>.ant-table-column-title,
+.markerData-table .ant-table-column-sorters>.ant-table-column-title {
+    flex: none !important;
+}
+/* 排序选中背景及hover样式 */
+.markerData-table .ant-table-thead th.ant-table-column-sort,
+.markerData-table .ant-table-thead th.ant-table-column-has-sorters:hover,
+.markerData-table td.ant-table-column-sort{
+    background: transparent !important;
 }
 
 /* 表格隐藏滚动条 */
 .table-box .ant-table-body,
-.spot-table-box .ant-table-body {
+.spot-table-box .ant-table-body,
+.markerData-table .ant-table-body,
+.markerData-ranking .ant-table-body {
 
     /* 隐藏滚动条 - Webkit浏览器 (Chrome, Safari, Edge) */
     &::-webkit-scrollbar {
@@ -601,16 +659,24 @@ border-radius: 8px !important;
     border-color: transparent !important;
 }
 
-.custom-tabs2 .ant-tabs-nav::before {
+.custom-tabs2 .ant-tabs-nav::before{
     border-color: var(--border-color4) !important;
 }
 
+.marketData-tabs>.ant-tabs-nav::before {
+    border-bottom: 0.5px solid var(--border-color4) !important;
+
+}
 .custom-tabs2 .ant-tabs-tab {
     margin: 0 0 0 24px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
-
+.marketData-tabs .ant-tabs-tab {
+    margin: 0 24px 16px 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 .spot-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
 }
@@ -619,3 +685,8 @@ border-radius: 8px !important;
 .radio-custom .ant-radio-wrapper-block {
     justify-content: flex-start !important;
 }
+
+
+/* .ant-modal-content{
+  padding: 10px 0 15px 0 !important;
+} */

@@ -104,6 +104,7 @@
     "bill":"明細書",
     "spotTrade":"スポット取引",
     "spotOrder":"スポット注文",
+    "flashOrder":"フラッシュ注文",
     "overView":"概要",
     "safetyCenter":"セキュリティセンター",
     "identity":"本人確認",
@@ -139,5 +140,18 @@
   },
   "scrollableTabs":{
     "all": "すべて"
+  },
+  "imageSelect": {
+    "search": "検索",
+    "noData": "データがありません",
+    "noSearchData": "検索結果がありません",
+    "loading": "読み込み中...",
+    "selectCoin": "通貨を選択",
+    "searchHistory": "検索履歴"
+  },
+  "flash":{
+    "order":{
+      "title": "フラッシュスワップ注文"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 // import UserCenterLayout from '@/components/UserCenterLayout/Layout';
 import styles from "../../styles/overview.module.css"
 import { Iconify } from "@/components/icon"
@@ -43,7 +43,7 @@ const AssetsPage: React.FC = observer(() => {
     const [isClient, setIsClient] = useState(false);
     const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
     const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
-    const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
+    // const [todayEarnings, setTodayEarnings] = useState<TodayEarningsType>({} as TodayEarningsType);
     const balanceDataRef = useRef<WebSocketService | null>(null);
 
     // 获取所有币种余额
@@ -53,20 +53,42 @@ const AssetsPage: React.FC = observer(() => {
             const res = await getUserBalanceAll();
             if (res.code === '0') {
                 setTableData(res.data || []);
-                const totalUsd = res.data.reduce((sum: number, curr: any) => {
+                // const totalUsd = res.data.reduce((sum: number, curr: any) => {
+                //     const coinTotal = add(
+                //         add(curr.balance || 0, curr.releaseBalance || 0),
+                //         curr.frozenBalance || 0
+                //     );
+                //     const balance = getCoinRate(curr.coinName, coinTotal).coinRate
+                //     return sum + Number(balance) || 0;
+                // }, 0);
+                const balance = res.data.reduce((sum: number, curr: any) => {
                     const coinTotal = add(
                         add(curr.balance || 0, curr.releaseBalance || 0),
                         curr.frozenBalance || 0
                     );
                     const balance = getCoinRate(curr.coinName, coinTotal).coinRate
-                    return sum + Number(balance) || 0;
+
+                    return sum + Number(balance) || 0
+                }, 0);
+                const todayBalance = res.data.reduce((sum: number, curr: any) => {
+                    const coinTotal = add(
+                        add(curr.balance || 0, curr.releaseBalance || 0),
+                        curr.frozenBalance || 0
+                    );
+                    const coinTotalToday = coinTotalCount(coinTotal, curr.recharge, curr.withdrawal, curr.gift)
+                    const todayBalance = getCoinRate(curr.coinName, coinTotalToday).coinRate
+
+                    return sum + Number(todayBalance) || 0
                 }, 0);
                 const rateKeyName = rateKey.split('-')[0].trim()
-                const usdRate = getRate('USDT', totalUsd || 0, rateKeyName) //获取汇率
+                const usdRate = getRate('USDT', balance || 0, rateKeyName).rate
+                const usdTodayEarnings = getRate('USDT', todayBalance || 0, rateKeyName)
                 setBalanceAll({
-                    usdBalance: Number(usdRate.rate) || 0,
-                    balance: totalUsd,
-                    symbol: usdRate.symbol
+                    usdBalance: usdRate || 0,
+                    balance: balance || 0,
+                    usdTodayEarnings: usdTodayEarnings.rate || 0,
+                    todayEarnings: todayBalance || 0,
+                    symbol: usdTodayEarnings.symbol
                 });
             }
         } catch (error) {
@@ -75,8 +97,41 @@ const AssetsPage: React.FC = observer(() => {
             // setTableLoading(false);
         }
     };
+    // const waxAndWane = () => {
+    //     // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
+    //     // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
+    //     const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
+    //     const banlanceShow = cut(add(Number(banlance1), Number(balanceDay.usdWithdraw)), Number(todayEarnings.usdGift))
 
-
+    //     return banlanceShow || 0
+    // }
+    const waxAndWane = (todayBalance: number | string, balanceLastDay: number | string) => {
+        // balance今日余额 balanceLastDay昨日余额
+        const banlanceShow = cut(Number(todayBalance), Number(balanceLastDay))
+        return banlanceShow || 0
+    }
+    
+    const todayProfit = useMemo(() => {
+        return waxAndWane(
+            balanceAll?.usdTodayEarnings || 0,
+            balanceDay?.usdBalanceAll || 0
+        );
+    }, [balanceAll?.usdTodayEarnings, balanceDay?.usdBalanceAll])
+    const coinTotalCount = (balance: number | string,
+        recharge: number | string,
+        withdrawal: number | string,
+        gift: number | string,
+    ) => {
+        const balanceNum = Number(balance);
+        const rechargeNum = Number(recharge);
+        const withdrawalNum = Number(withdrawal);
+        const giftNum = Number(gift);
+        const coinTotal = cut(add(
+            Number(cut(balanceNum, rechargeNum)),
+            withdrawalNum
+        ), giftNum)
+        return coinTotal
+    }
     // 获取用户余额以及充值金额 日K线
     const getUserBalanceDay = async () => {
         try {
@@ -87,8 +142,8 @@ const AssetsPage: React.FC = observer(() => {
                 // const withdraw = getRate('USDT', res.data[0].withdraw, rateKeyName)
 
                 const usdBalance = await getRate('USDT', res.data?.[0]?.balance || 0, rateKeyName);
-                const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge || 0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.[0]?.withdraw || 0, rateKeyName)
+                // const usdRecharge = await getRate('USDT', res.data?.[0]?.recharge || 0, rateKeyName);
+                // const usdWithdraw = await getRate('USDT', res.data?.[0]?.withdraw || 0, rateKeyName)
                 const initData = res.data.map((item: any) => {
                     const usdBalance = getRate('USDT', item.balance, rateKeyName)
                     return {
@@ -101,48 +156,41 @@ const AssetsPage: React.FC = observer(() => {
                 setBalanceByDay(initData);
                 setBalanceDay({
                     balanceAll: res.data?.[0]?.balance || 0,
-                    balance: res.data?.[0]?.recharge || 0,
-                    withdraw: res.data?.[0]?.withdraw || 0,
+                    // balance: res.data?.[0]?.recharge || 0,
+                    // withdraw: res.data?.[0]?.withdraw || 0,
                     usdBalanceAll: usdBalance.rate || 0,
-                    usdBalance: usdRecharge.rate || 0,
-                    usdWithdraw: usdWithdraw.rate || 0
+                    // usdBalance: usdRecharge.rate || 0,
+                    // usdWithdraw: usdWithdraw.rate || 0
                 });
             }
         } catch (error) {
             toast.error(String(error));
         }
     };
-    // 获取今日充值
-    const getTodayEarningsData = async () => {
-        try {
-            const res = await getTodayEarnings();
-            if (res.code === '0') {
-                const rateKeyName = rateKey.split('-')[0].trim()
-                const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
-                const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
-                const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
+    // // 获取今日充值
+    // const getTodayEarningsData = async () => {
+    //     try {
+    //         const res = await getTodayEarnings();
+    //         if (res.code === '0') {
+    //             const rateKeyName = rateKey.split('-')[0].trim()
+    //             const usdBalance = await getRate('USDT', res.data?.balance || 0, rateKeyName);
+    //             const usdWithdraw = await getRate('USDT', res.data?.withdraw || 0, rateKeyName);
+    //             const usdGift = await getRate('USDT', res.data?.gift || 0, rateKeyName);
 
-                setTodayEarnings({
-                    usdBalance: Number(usdBalance.rate) || 0,
-                    usdWithdraw: Number(usdWithdraw.rate) || 0,
-                    usdGift: Number(usdGift.rate) || 0,
-                    balance: res.data?.balance || 0,
-                    withdraw: res.data?.withdraw || 0,
-                    gift: res.data?.gift || 0
-                });
-            }
-        } catch (error) {
-            toast.error(String(error));
-        }
-    };
-    const waxAndWane = () => {
-        // const waxAndWane = (balance: number | string, balanceLastDay: number | string, toUp: number | string) => {
-        // const banlanceShow =cut(Number(cut(Number(balance), Number(balanceLastDay))), Number(toUp))
-        const banlance1 = cut(Number(cut(Number(balanceAll.usdBalance), Number(balanceDay.usdBalanceAll))), Number(todayEarnings.usdBalance))
-        const banlanceShow = cut(add(Number(banlance1), Number(balanceDay.usdWithdraw)), Number(todayEarnings.usdGift))
+    //             setTodayEarnings({
+    //                 usdBalance: Number(usdBalance.rate) || 0,
+    //                 usdWithdraw: Number(usdWithdraw.rate) || 0,
+    //                 usdGift: Number(usdGift.rate) || 0,
+    //                 balance: res.data?.balance || 0,
+    //                 withdraw: res.data?.withdraw || 0,
+    //                 gift: res.data?.gift || 0
+    //             });
+    //         }
+    //     } catch (error) {
+    //         toast.error(String(error));
+    //     }
+    // };
 
-        return banlanceShow || 0
-    }
     // 设置WebSocket连接
     const setupBalanceWebSocket = useCallback(() => {
         // 如果已经有连接，不要重复创建
@@ -195,7 +243,7 @@ const AssetsPage: React.FC = observer(() => {
                     setBalanceAll({
                         usdBalance: Number(usdRate.rate) || 0,
                         balance: totalUsd,
-                        symbol: usdRate.symbol
+                        symbol: usdRate.symbol,
                     });
                 }
             } catch (error) {
@@ -227,7 +275,7 @@ const AssetsPage: React.FC = observer(() => {
     useEffect(() => {
         getUserBalanceAllData();
         getUserBalanceDay()
-        getTodayEarningsData()
+        // getTodayEarningsData()
     }, [rateKey]);
     useEffect(() => {
         // 只在客户端执
@@ -263,7 +311,7 @@ const AssetsPage: React.FC = observer(() => {
                     {banlanceShow ? <> <p className='font-32 font-w-700'>{balanceAll.balance} USDT
                         {/* {tableData?.[0]?.balance || '--'} */}
                     </p>
-                        <p className={`${styles.tip_color} font-14`}>≈&nbsp;{balanceAll.symbol}&nbsp;{balanceAll.usdBalance}</p></> :
+                        <p className={`${styles.tip_color} font-14`}>≈&nbsp;{balanceAll?.symbol||'--'}&nbsp;{balanceAll.usdBalance}</p></> :
                         <>
                             <p className='font-32 font-w-700'>******</p>
                             <p className={`${styles.tip_color} font-14`}>******</p>
@@ -272,10 +320,10 @@ const AssetsPage: React.FC = observer(() => {
                         {/* 今日盈亏 */}
                         {t('overview.assets.todayProfitLoss')}
                         <Iconify icon="ep:warning" className='cursor-pointer mx-1' size={12} />
-                        {banlanceShow ? <span className={`${Number(waxAndWane()) > 0 ? styles.success_icon : Number(waxAndWane()) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
-                            {Number(waxAndWane()) < 0 ? "-" : "+"}
-                            &nbsp;{balanceAll.symbol}&nbsp;
-                            {Number(waxAndWane()) ? Math.abs(Number(waxAndWane())) : 0}
+                        {banlanceShow ? <span className={`${Number(todayProfit) > 0 ? styles.success_icon : Number(todayProfit) < 0 ? styles.error_icon : styles.tip_color} font-12`}>
+                            {Number(todayProfit) < 0 ? "-" : "+"}
+                            &nbsp;{balanceAll?.symbol||'--'}&nbsp;
+                            {Number(todayProfit) ? Math.abs(Number(todayProfit)) : 0}
                         </span> :
                             <span className={`${styles.tip_color} font-12 flex-x-cc`}>******</span>
                         }

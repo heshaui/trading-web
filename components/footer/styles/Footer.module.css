@@ -1,62 +1,67 @@
 .footerContainer {
-    padding: 40px 120px;
-    display: flex;
-    background-color: #0C0D0C;
+  padding: 40px 0 ;
+  display: flex;
+  width: 100%;
+  /* background-color: #0c0d0c; */
+  max-width: 1200px;
+}
+.footer_container_box{
+  width: 100%;
+  background-color: #0c0d0c;
 }
 .footerContainer .logoAndButton {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-   
-    margin-right: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 60px;
 }
 .footerContainer .logoAndButton .logo {
-    /* width: 145px; */
-    height: 28px;
+  /* width: 145px; */
+  height: 28px;
 }
-.footer_left{
-    min-width: 145px;
+.footer_left {
+  min-width: 145px;
 }
 .footerContainer .logoAndButton .logo img {
-    /* max-width: 140px; */
-    width: 'auto';
-    height: 100%;
+  /* max-width: 140px; */
+  width: "auto";
+  height: 100%;
 }
 .footerContainer .logoAndButton p {
-    margin: 8px 0 0 0;
-    color: #A4A5AC;
-    font-size: 14px;
-    white-space: nowrap;
+  margin: 8px 0 0 0;
+  color: #a4a5ac;
+  font-size: 14px;
+  white-space: nowrap;
 }
 .footerContainer .footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
-.footer_content{
-    width: 25%;
+.footer_content {
+  width: 25%;
 }
 .footerContainer .footerList h5 {
-    font-size: 14px;
-    margin-bottom: 20px;
-    color: #A4A5AC;
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #a4a5ac;
 }
 .footerContainer .footerList ul li {
-    font-size: 12px;
-    color: #A4A5AC;
-    margin-top: 10px;
-    cursor: pointer;
+  font-size: 12px;
+  color: #a4a5ac;
+  margin-top: 10px;
+  cursor: pointer;
 }
 .footerContainer .footerList ul li:first-child {
-    margin-top: 0;
+  margin-top: 0;
 }
 .footerContainer .footerList ul li:hover {
-    color: #F4F4F4;
+  color: #f4f4f4;
 }
 .footer {
-    flex-wrap: wrap;
-    justify-content:flex-start !important;
+  flex-wrap: wrap;
+  justify-content: flex-start !important;
 }
-.title_color{
-    color: #F4F4F4;
+.title_color {
+  color: #f4f4f4;
 }

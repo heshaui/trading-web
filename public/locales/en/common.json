@@ -104,6 +104,7 @@
     "bill": "Transaction History",
     "spotTrade": "Spot Trading",
     "spotOrder": "Spot Orders",
+    "flashOrder":"Flash Orders",
     "overView": "Overview",
     "safetyCenter": "Security Center",
     "identity": "Identity Verification",
@@ -139,5 +140,19 @@
   },
   "scrollableTabs": {
     "all": "All"
+  },
+  "imageSelect": {
+    "search": "Search",
+    "noData": "No data",
+    "noSearchData": "No search results",
+    "loading": "Loading...",
+    "selectCoin": "Select Coin",
+    "searchHistory": "Search History",
+    "balance": "Balance"
+  },
+  "flash":{
+    "order":{
+      "title": "Flash Swap Order"
+    }
   }
 }

@@ -139,7 +139,7 @@
             "title": "Document Verification",
             "inputTip": "Please ensure the information entered matches your document exactly",
             "country": {
-                "title": "Country",
+                "title": "Country or region",
                 "placeholder": "Select"
             },
             "idType": {

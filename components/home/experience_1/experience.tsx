@@ -17,7 +17,7 @@ const bgStyle: CSSProperties = {
     backgroundSize: 'contain', // 改为contain以保持图像原始比例 cover
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat', // 改为no-repeat防止重复
-    width: '1440px',
+    maxWidth: '100%',
     height: '820px',
 };
 interface isLoginType {

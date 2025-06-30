@@ -9,11 +9,13 @@ import {
     addToFavorites,
     removeFromFavorites,
     fetchAllCoin,
+    fetchUsdtPrice
 } from './currencyPairService';
 import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
-import { inviteInfoType } from "@/type/userCenter/overview"
+import { inviteInfoType,usdtRateType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
+import { getConfig } from '@/services/flash';
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
@@ -54,6 +56,12 @@ class AppStore {
     kvConfig: Record<string, any> = {};
     inviteInfo: inviteInfoType = {} as inviteInfoType;
     banlanceShow: boolean = true;
+    
+    // 添加 flash 配置状态
+    flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
+    isLoadingFlashConfig: boolean = false;
+    usdtRate: usdtRateType={} as usdtRateType
+
     constructor() {
         // 使状态响应式
         makeAutoObservable(this);
@@ -70,6 +78,8 @@ class AppStore {
             this.initCoinList(); //加载币种数据
             this.initKvConfig();
             this.initBanlanceShow(); //初始化资产显示状态
+            this.initFlashConfigFromStorage(); // 初始化闪兑配置
+            this.initUsdtRateFromStorage(); //初始化USDT和USD汇率
         }
     }
 
@@ -110,7 +120,7 @@ class AppStore {
                 ...this.updateFlag,
                 orderUpdate: this.updateFlag.orderUpdate + 1
             };
-        }else if (type === 3) {
+        } else if (type === 3) {
             this.updateFlag = {
                 ...this.updateFlag,
                 orderDelect: this.updateFlag.orderDelect + 1
@@ -427,7 +437,7 @@ class AppStore {
         return this.currencyPairs;
     }
 
-    // 更新币对信息
+    // 更新币对信息1
     updateCurrencyPair(pairId: string, data: Partial<CurrencyPairType>) {
         const pairIndex = this.currencyPairs.findIndex(pair => pair.id === pairId);
         if (pairIndex > -1) {
@@ -446,7 +456,43 @@ class AppStore {
             }
         }
     }
+    // 更新某个币对信息2
+    updateCoinPair(coinSymbol: string, baseSymbol: string, data: Partial<CurrencyPairType>) {
+        const pairIndex = this.currencyPairs.findIndex(pair => pair.coinSymbol === coinSymbol && pair.baseSymbol === baseSymbol);
+        if (pairIndex > -1) {
+            this.currencyPairs[pairIndex] = {
+                ...this.currencyPairs[pairIndex],
+                ...data
+            };
+            // 如果更新的是当前选中的币对，也更新currentPair
+            if (this.currentPair?.coinSymbol === coinSymbol && this.currentPair?.baseSymbol === baseSymbol) {
+                this.currentPair = this.currencyPairs[pairIndex];
+            }
 
+            if (isBrowser()) {
+                localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+            }
+        }
+    }
+    // 更新所有
+    updateCurrencyPairAll(data: Partial<CurrencyPairType>[]) {
+        this.currencyPairs = this.currencyPairs.map(pair => {
+            const currentPair = data.find((d: any) => d.coinSymbol === pair.coinSymbol && d.baseSymbol === pair.baseSymbol)
+            if (this.currentPair?.id === pair.id) {
+                this.currentPair = {
+                    ...pair,
+                    ...currentPair
+                }
+            }
+            return {
+                ...pair,
+                ...currentPair
+            };
+        });
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CURRENCY_PAIRS, JSON.stringify(this.currencyPairs));
+        }
+    }
 
 
     // 使用计算属性替代方法
@@ -675,10 +721,90 @@ class AppStore {
     }
     initBanlanceShow() {
         if (!isBrowser()) return;
-        const banlanceShow = sessionStorage.getItem('banlanceShow')|| 'true';
+        const banlanceShow = sessionStorage.getItem('banlanceShow') || 'true';
         if (banlanceShow) {
             this.banlanceShow = JSON.parse(banlanceShow);
         }
+    }
+
+    // Flash 配置相关方法
+    initFlashConfigFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const flashConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.FLASH_CONFIG);
+            if (flashConfigJson) {
+                this.flashConfig = JSON.parse(flashConfigJson);
+            }
+        } catch (error) {
+            console.error('Failed to load flash config from storage:', error);
+        }
+    }
+
+    async loadFlashConfig() {
+        try {
+            this.isLoadingFlashConfig = true;
+            const data = {};
+            const res = await getConfig(data);
+            
+            if (res.code === '0') {
+                this.setFlashConfig(res.data);
+                return res.data;
+            } else {
+                throw new Error('Failed to load flash config');
+            }
+        } catch (error) {
+            console.error('Error loading flash config:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingFlashConfig = false;
+            });
+        }
+    }
+
+    setFlashConfig(config: any) {
+        this.flashConfig = config;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.FLASH_CONFIG, JSON.stringify(config));
+        }
+    }
+
+    getFlashConfig() {
+        return this.flashConfig;
+    }
+    clearFlashConfig() {
+        this.flashConfig = { minTradeU: 0, maxTradeU: 0 };
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.FLASH_CONFIG);
+        }
+    }
+
+    async loadUsdtRate() {
+        const result = await fetchUsdtPrice();
+        if (result.success) {
+                this.setUsdtRate(result.data);
+
+        }
+    }
+    initUsdtRateFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const usdtRateJson = localStorage.getItem(LOCAL_STORAGE_KEY.USDT_RATE);
+            if (usdtRateJson) {
+                this.usdtRate = JSON.parse(usdtRateJson);
+            }
+        } catch (error) {
+            console.error('Failed to load usdt rate from storage:', error);
+        }
+    }
+    setUsdtRate(price: any) {
+        this.usdtRate = price;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USDT_RATE, JSON.stringify(price));
+        }
+    }
+    getUsdtRate(): usdtRateType {
+        return this.usdtRate;
     }
 }
 

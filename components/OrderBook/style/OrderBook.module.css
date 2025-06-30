@@ -83,6 +83,9 @@
   padding: 10px 0;
   border-bottom: 1px solid var(--background16);
 }
+.labels span{
+  color: var(--text-color6);
+}
 
 .sortIcon {
   display: inline-block;
@@ -253,7 +256,7 @@
   color: #00c788;
   border: 2px solid #00c788;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--background9);
   font-weight: bold;
   font-size: 12px;
   z-index: 2;
@@ -268,7 +271,7 @@
   color: #ff6347;
   border: 2px solid #ff6347;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--background9);
   font-weight: bold;
   font-size: 12px;
   z-index: 2;

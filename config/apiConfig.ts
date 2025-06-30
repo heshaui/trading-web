@@ -22,6 +22,8 @@ export const LOCAL_STORAGE_KEY = {
     LANG: 'lang', // 当前语言
     LANGUAGE_LIST:'cachedLanguageList', //语言列表
     KV_CONFIG:'kv_config', // kv配置
+    FLASH_CONFIG: 'flash_config', // 闪兑配置
+    USDT_RATE:'usdt_rate' // USDT汇率
 };
 
 export const KV_KEYS = [
@@ -49,7 +51,6 @@ export const ROUTER_KEY_ASSETS = {
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
     SPOT_ORDER: "/spotOrder", //现货订单
-    EXCHANGE: "/exchange", //现货交易
 };
 export const ROUTER_KEY_OPEN = {
     LOGIN:"/login", //登录页面

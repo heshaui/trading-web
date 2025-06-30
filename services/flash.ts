@@ -51,8 +51,14 @@ export function records(data: RecordsRequestParams): Promise<any> {
 
 
 export function getPrice(data: TradeRequestParams): Promise<any> {
-  console.log(data)
   return request(`${fixUrl}/assets-web/v1/trade_convert/price/${data.send}/${data.receive}`, {
     method: 'GET'
   });
 }
+
+export function preTrade(data: TradeRequestParams): Promise<any> {
+  return request(`${fixUrl}/assets-web/v1/trade_convert/pre_trade/${data.send}/${data.receive}`, {
+    method: 'GET'
+  });
+}
+

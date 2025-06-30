@@ -4,17 +4,21 @@ import type { ColumnsType } from 'antd/es/table';
 import { CoinMarket, pairsNewPriceType } from '@/type/marketData/marketData';
 import styles from '../styles/marketData.module.css';
 import { useTranslation } from 'next-i18next';
-import { getAllCoinsData } from '@/services/marketData'
+import { getAllCoinsData, getUsdtPriceWithStables } from '@/services/marketData'
 import { SearchOutlined } from '@ant-design/icons';
 import SimpleScrollTabs from '@/components/ScrollableTabs';
 import type { TabsProps } from 'antd';
 import { toast } from 'sonner';
-import { cut } from '@/utils'
+import { cut, division, nul } from '@/utils'
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
 import appStore from "@/store";
 import { NoData } from '@/components/noData'
-import {ROUTER_KEY_SPOT} from "@/config/apiConfig"
+import { ROUTER_KEY_SPOT } from "@/config/apiConfig"
+import { getCoinRate } from '@/utils/getUseRate'
+import { roundDown, formatted } from '@/utils'
+import { useThemeMode } from '@/hooks/useThemeMode'
+
 
 // 添加props接口定义
 interface AllCoinsProps {
@@ -23,19 +27,32 @@ interface AllCoinsProps {
   currencyPairs?: any[];
   pairsNewPrice?: pairsNewPriceType[];
 }
+interface usdtPriceType {
+  nowPrice: string,
+  yesterdayPrice: string
+}
 const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: AllCoinsProps) => {
-  const { t } = useTranslation('market');
+  const { t, i18n } = useTranslation('market');
   // const { isLoggedIn } = useAuth(); // 使用 useAuth 获取登录状态
   const router = useRouter();
   // const [allCoins, setAllcoins] = useState<CoinMarket[]>([])
   const [allInitCoins, setAllInitCoins] = useState<pairsNewPriceType[]>([])
   const [activeTab, setActiveTab] = useState('all');
   const [searchValue, setSearchValue] = useState('')
-  const [tableLoading,setTableLoading]=useState(false)
+  // const [usdtPrice, setUsdtPrice] = useState({} as usdtPriceType)
+  const [tableLoading, setTableLoading] = useState(false)
+  const usdtPrice = appStore.getUsdtRate() || appStore.usdtRate
+    const { isDayMode } = useThemeMode()
 
-
+    const [isHover, setIsHover] = useState(false);
+    const [exchangeCoinId, setExchangeCoinId] = useState(null);
   // console.log(currencyPairs, 99987);
-
+  // const getUsdtPrice = async () => {
+  //   const res = await getUsdtPriceWithStables()
+  //   if (res?.code === '0') {
+  //     setUsdtPrice(res.data)
+  //   }
+  // }
   // 获取所有币种接口
   const fetchAllcoins = async () => {
     setTableLoading(true)
@@ -43,32 +60,50 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       const response = await getAllCoinsData()
       if (response?.code === '0') {
         const resData = response.data?.map((item: CoinMarket) => {
-          const pairsData = currencyPairs?.find(p => p.coinSymbol === item.coinName)
-          if (pairsData) {
+          const directData = pairsNewPrice?.find(p => p.coinSymbol === item.coinName && p.baseSymbol === 'USDT')
+          const reverseData = pairsNewPrice?.find(p => p.baseSymbol === item.coinName && p.coinSymbol === 'USDT')
+          if (directData) {
             return {
               ...item,
-              ...pairsData
+              ...directData,
+              isDirectPair: 1
+            }
+          } else if (reverseData) {
+            return {
+              ...item,
+              ...reverseData,
+              isDirectPair: 0
+            }
+          } else if (item.coinName === 'USDT') {
+            return {
+              ...item,
+              isDirectPair: 2,
+              price: usdtPrice.nowPrice,
+              yesterdayPrice: usdtPrice.yesterdayPrice
             }
           } else {
-            return item
+            return {
+              ...item,
+              isDirectPair: 3
+            }
           }
 
         })
         // setAllcoins(resData)
         setAllInitCoins(resData)
-        // console.log(resData, 99987);
-
-        // console.log(resData, 99987);
       }
     } catch (error) {
       toast.error(String(error))
-    }finally {
+    } finally {
       setTableLoading(false)
     }
   };
+  // useEffect(() => {
+  //   getUsdtPrice()
+  // }, [])
   useEffect(() => {
     fetchAllcoins()
-  }, [currencyPairs])
+  }, [usdtPrice])
 
   // 标签页配置
   const tabsItem: TabsProps['items'] = [
@@ -95,10 +130,13 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       title: t('marketList.tableHeaders.name'),
       dataIndex: 'coinName',
       key: 'coinName',
-      width: 100,
-      // onHeaderCell: () => ({
-      //   style: { paddingLeft: '20px' },
-      // }),
+      align: "left",
+      width: 200,
+      onHeaderCell: () => ({
+        style: {
+          textAlign: "left",
+        },
+      }),
       // onCell: () => ({
       //   style: { paddingLeft: '20px' },
       // }),
@@ -106,46 +144,116 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
         <div className='flex align-center'>
           <Image src={record?.iconUrl} alt={text} width={28} height={28}
             style={{ borderRadius: '50%', height: '28px', width: '28px' }}
+            preview={false}
             className='mr-1' />
           <p className='font-w-500 font-14 flex-x ml-1'>
-            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span>
+            {/* {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;/&nbsp;{record?.baseSymbol || '--'}</span> */}
+            {`${text}`}<span className={`font-w-400 font-14 ${styles.tip_color}`}>&nbsp;{record?.nameDefault || '--'}</span>
           </p>
         </div>
       ),
+      sorter: (a, b) => {
+        return a.coinName.localeCompare(b.coinName);
+      },
     },
     {
       title: t('marketList.tableHeaders.price'),
       dataIndex: 'price',
       key: 'price',
-      align: 'center',
-      sorter: (a, b) => a.price - b.price,
-      render: (price) => {
-        return <span>{price || '0'}</span>
+      align: 'left',
+      width: 270,
+      sorter: (a, b) => {
+        let aPrice
+        let bPrice
+        if (a.isDirectPair === 0) {
+          const coinRate = getCoinRate(a.coinName, a.price)
+          aPrice = coinRate.coinRate || 0
+        } else {
+          aPrice = Number(a.price || 0);
+        }
+        if (b.isDirectPair === 0) {
+          const coinRate = getCoinRate(b.coinName, b.price)
+          bPrice = coinRate.coinRate || 0
+        } else {
+          bPrice = Number(b.price || 0);
+        }
+        return Number(aPrice || 0) - Number(bPrice || 0)
+      },
+      render: (_price, record) => {
+        // let price
+        if (record.isDirectPair === 0) {
+          const coinRate = getCoinRate(record.coinName, _price)
+          const price = _price ? roundDown(coinRate.coinRate || 0, record.baseCoinScale || 0) : '0'
+          const text = formatted(price)
+          return <span>${text}</span>
+          // return <span>${parseFloat(coinRate.coinRate?.toString() || '0').toLocaleString()}</span>
+        } else if (record.isDirectPair === 2) {
+          // const price = usdtPrice.nowPrice ? roundDown(_price, record.baseCoinScale || 0) : '0'
+          const text = formatted(usdtPrice.nowPrice || 1)
+          return <span>${text || 1}</span>
+          // return <span>${usdtPrice.nowPrice || 1}</span>
+        } else {
+          const price = _price ? roundDown(_price || 0, record.baseCoinScale || 0) : '0'
+          const text = formatted(price)
+          return <span>${text}</span>
+          // return <span>${parseFloat(_price || '0').toLocaleString()}</span>
+        }
       },
     },
     {
       title: t('marketList.tableHeaders.change24h'),
-      dataIndex: 'yesterdayPrice',
-      key: 'yesterdayPrice',
-      align: 'center',
+      dataIndex: 'closePrice',
+      key: 'closePrice',
+      align: 'left',
+      width: 270,
       sorter: (a, b) => {
-        const aPrice = cut(Number(a.price) || 0, Number(a.yesterdayPrice) || 0) || 0
-        const bPrice = cut(Number(b.price) || 0, Number(b.yesterdayPrice) || 0) || 0
-        return Number(aPrice) - Number(bPrice)
+        const aPrice = division(Number(cut(Number(a.closePrice) || 0, Number(a.openPrice) || 0)), Number(a.openPrice))
+        const bPrice = division(Number(cut(Number(b.closePrice) || 0, Number(b.openPrice) || 0)), Number(b.openPrice))
+        return Number(aPrice || 0) - Number(bPrice || 0)
       },
       render: (_price, record) => {
-        const price = cut(Number(record.price) || 0, Number(record.yesterdayPrice) || 0) || 0
-        return <span>{price || '0'}</span>
+        const price = record.openPrice ? division(Number(cut(Number(_price) || 0, Number(record.openPrice) || 0)), Number(record.openPrice)) : 0
+        const percent = nul(price, 100) //price  
+        return <span className={`${Number(percent) > 0 ? styles.success_icon : Number(percent) < 0 ? styles.error_icon : ''}`}>
+          {Number(percent) > 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`} </span>
       },
     },
     {
       title: t('marketList.tableHeaders.marketCap'),
       dataIndex: 'marketValue',
       key: 'marketValue',
-      align: 'center',
-      // sorter: (a, b) => a.marketValue - b.marketValue,
+      align: 'left',
+      width: 270,
+      sorter: (a, b) => {
+        // 将市值转换为统一单位进行比较
+        const convertToNumber = (value: string) => {
+          if (!value) return 0;
+          const [numStr, unit] = value.split('_');
+          const num = parseFloat(numStr || '0');
+
+          if (unit === 'B') return num * 1000000000;
+          if (unit === 'M') return num * 1000000;
+          if (unit === 'K') return num * 1000;
+          return num;
+        };
+
+        return convertToNumber(a.marketValue) - convertToNumber(b.marketValue);
+      },
       render: (_marketValue, record) => {
-        return <span>{_marketValue || '--'}</span>
+        const unit = _marketValue.split('_')[1]
+        let unitValue 
+        if (unit === 'B') {
+          unitValue = t('header.billion')
+        } else if (unit === 'M') {
+          unitValue = t('header.million')
+        } else if (unit === 'K') {
+          unitValue = t('header.kthousand')
+        }
+        // return <span>{_marketValue || "0"}</span>
+        // return <span>${parseFloat(_marketValue || "0").toLocaleString()}</span>
+        return _marketValue ? <p>${parseFloat(_marketValue || "0").toLocaleString()}&nbsp;
+          {unitValue?<span>{unitValue}</span>:''}
+        </p> : '--'
       },
     },
     {
@@ -153,48 +261,126 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
       align: 'right',
       dataIndex: 'action',
       key: 'action',
+      width: 80,
+      // onHeaderCell: () => ({
+      //   style: {
+      //     // textAlign: "left",
+      //      paddingRight:"20px"
+      //   },
+      // }),
+      // onCell: () => ({
+      //   style: { 
+      //     paddingRight:"20px"
+      //   },
+      // }),
       render: (_, record) => {
+        const symbolName = `${record.coinSymbol}/${record.baseSymbol}`;
+        let flag = false
+        if(record.coinSymbol && record.baseSymbol){
+          flag = true
+        } else if (record.isDirectPair === 2&&pairsNewPrice?.find(item=>item.coinSymbol==='USDT'||item.baseSymbol==='USDT')) {
+          flag = true
+        } else {
+          flag = false
+        }
 
-        return <Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
+        return (flag)?<Tooltip title={t('marketList.tableHeaders.trade')} placement="left">
           <button
             onClick={() => {
               if (record.coinSymbol && record.baseSymbol) {
-                router.push(`${ROUTER_KEY_SPOT.EXCHANGE}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.coinSymbol}/${record.baseSymbol}`)
+              } else {
+                router.push(`${ROUTER_KEY_SPOT.INDEX}`)
               }
             }}
+            onMouseEnter={() => {
+              setIsHover(true)
+              setExchangeCoinId(record.coinName)
+            }}
+            onMouseLeave={() => {
+              setIsHover(false)
+              setExchangeCoinId(null)
+            }}
           >
-            <Image
-              src={'/images/market/icon_Trade.svg'}
-              alt={'trade'}
-              width={28}
-              height={28}
-              style={{ borderRadius: '50%', height: '28px', width: '28px' }}
-              preview={false} />
+             <TradeIcon
+                key={record.coinName}
+                isDayMode={isDayMode}
+                coinId={record.coinName}
+  />
           </button>
-        </Tooltip>
+        </Tooltip>:'--'
       },
     },
   ];
+  const TradeIcon = ({ isDayMode, coinId }: { isDayMode: boolean, coinId: number }) => {
+    const normalSrc = isDayMode
+      ? '/images/market/icon_Trade.svg'
+      : '/images/market/icon_Trade_dark.svg';
+    const hoverSrc = '/images/market/icon_Trade_hover.svg';
 
-  const filteredPairs = React.useMemo(
+    return (
+      <Image
+        src={(isHover&&coinId===exchangeCoinId) ? hoverSrc : normalSrc}
+        alt="trade"
+        width={24}
+        height={24}
+        style={{ borderRadius: '50%', height: '24px', width: '24px', cursor: 'pointer' }}
+        preview={false}
+      />
+    );
+  }
+  const filteredPairs = useMemo(
     () =>
-      allInitCoins?.filter((pair) => {
-        // 搜索过滤
-        const matchesSearch = searchValue ? (
-          (pair?.coinSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
-          (pair?.baseSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
-          (pair?.coinName?.toLowerCase()?.includes(searchValue?.toLowerCase() || ''))
-        ) : true;
+      allInitCoins?.map((item: any) => {
+        const directData = pairsNewPrice?.find(p => p.coinSymbol === item.coinName && p.baseSymbol === 'USDT')
+        const reverseData = pairsNewPrice?.find(p => p.baseSymbol === item.coinName && p.coinSymbol === 'USDT')
 
-        // // 标签过滤
-        // const matchesTab =
-        // activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
+        if (directData) {
+          return {
+            ...item,
+            ...directData,
+            isDirectPair: 1
+          }
+        } else if (reverseData) {
+          return {
+            ...item,
+            ...reverseData,
+            isDirectPair: 0
+          }
+        } else if (item.coinName === 'USDT') {
+          return {
+            ...item,
+            isDirectPair: 2,
+            price: usdtPrice.nowPrice,
+            yesterdayPrice: usdtPrice.yesterdayPrice
+          }
+        } else {
+          return {
+            ...item,
+            isDirectPair: 3
+          }
+        }
+      })
+        ?.filter((pair) => {
+          // 搜索过滤
+          const matchesSearch = searchValue ? (
+            (pair?.coinSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
+            (pair?.baseSymbol?.toLowerCase()?.includes(searchValue?.toLowerCase() || '')) ||
+            (pair?.coinName?.toLowerCase()?.includes(searchValue?.toLowerCase() || ''))
+          ) : true;
 
-        return matchesSearch //&& matchesTab;
-      }) || [],
-    [allInitCoins, searchValue, activeTab]
+          // // 标签过滤
+          // const matchesTab =
+          // activeTab&&activeTab === "all" ? true : pair.classLabel === activeTab;
+
+          return matchesSearch //&& matchesTab;
+        }) || [],
+    [allInitCoins, searchValue, pairsNewPrice]
   );
+  // useEffect(() => {
+  //   console.log(filteredPairs, 999);
 
+  // }, [filteredPairs])
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
@@ -206,24 +392,21 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           allowClear
           size="middle"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          // onChange={(e) => setSearchValue(e.target.value)}
+          onChange={(e) => {
+            // 只允许数字和英文字母
+            const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+            setSearchValue(filteredValue);
+          }}
           placeholder={t('header.searchInput')}
           // onChange={handleSearchChange}  // 修正为正确的处理函数
           // onKeyPress={handleKeyPress}    // 添加回车键处理
-          prefix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
+          suffix={<SearchOutlined style={{ color: 'var(--text-color4)', fontSize: 16 }} />}
           // style={{ width: "242px", marginBottom: 16 }}
           className={`${styles.input_box} modal-input`}
         />
       </div>
       <div>
-        {/* <SimpleScrollTabs
-          items={tabsItem}
-          onChange={handleTabClick}
-          defaultActiveKey={activeTab}
-          showAllTab={true}
-          allTabLabel={t('header.all')}
-          className={styles.allCoins_tabs}
-        /> */}
         <Table
           columns={columns}
           dataSource={filteredPairs}
@@ -232,7 +415,7 @@ const AllCoins: React.FC<AllCoinsProps> = ({ currencyPairs, pairsNewPrice }: All
           size="middle"
           bordered={false}
           loading={tableLoading}
-          className={`${styles.allCoinsTable} spot-table-box w-full`}
+          className={`${styles.allCoinsTable} markerData-table w-full`}
           showSorterTooltip={false}
           locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
         />

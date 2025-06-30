@@ -102,7 +102,7 @@ export interface coinInfoType {
 }
 export interface limitType {
     max: string,
-    min: string,
+    mix: string,
     unit: string
 }
 

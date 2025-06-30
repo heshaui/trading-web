@@ -232,6 +232,8 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
             <div className={`font-16 font-w-400 mb-2_5 ${styles.tip_title}`}>{t('security.lockSafe.newPassword')}</div>
             <Form.Item name="password" rules={[{ validator: validatePassword }]}>
               <Input.Password maxLength={100}
+                autoComplete="off"
+                styles={{ input: { color: "var(--text-color5)" } }}
                 placeholder={t('security.lockSafe.inputPassword')}
                 allowClear={true}
                 className={`${styles.input_box} modal-input `}
@@ -281,6 +283,8 @@ function LockModal({ open, onCancel, type, onOk }: Props) {
                 }),
               ]}>
               <Input.Password
+                autoComplete="off"
+                styles={{ input: { color: "var(--text-color5)" } }}
                 allowClear
                 placeholder={t('security.lockSafe.checkPassword')}
                 className={`${styles.authcode_input} ${styles.input_box} modal-input`}

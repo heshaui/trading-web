@@ -15,13 +15,14 @@ import appStore from '@/store';
 import SelfSelect from '@/modules/spot/pages/compontents/spotChart_header/SelfSelect'
 type Props = {
   tradeData?: any;
+  
 }
 
 const TrendsTable = observer(({ tradeData }: Props) => {
   const { t } = useTranslation("market");
-  const [activeTab, setActiveTab] = useState('1'); // 默认选中第2个tab
+  const [activeTab, setActiveTab] = useState('2'); // 默认选中第2个tab
   const [searchKeyword, setSearchKeyword] = useState(''); // 搜索关键词状态
-  const currencyPairsArray = appStore.currencyPairs || [];
+  const currencyPairsArray = appStore.getCurrentPairList() || appStore.currencyPairs || [];
   // 处理搜索输入变化
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
@@ -52,7 +53,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
         <WatchList
           currencyPairs={currencyPairsArray}
           onPairSelect={handlePairSelect}
-          // searchValue={searchKeyword}
+          pairsNewPrice={tradeData}
           onTabChange={onChange} />
       </div>
       ,
@@ -71,6 +72,7 @@ const TrendsTable = observer(({ tradeData }: Props) => {
       label: t("marketList.tabs.spotMarket"),
       children: <div style={{ minHeight: "45vh",paddingBottom: '20px' }}><SportMarket
         currencyPairs={currencyPairsArray}
+        pairsNewPrice={tradeData}
         onPairSelect={handlePairSelect}
        
         // searchValue={searchKeyword}
@@ -79,11 +81,12 @@ const TrendsTable = observer(({ tradeData }: Props) => {
   ];
 
   return (
-    <div className='position-relative'>
+    <div className={`position-relative `}>
       <Tabs
         items={items}
-        className="custom-tabs2"
+        className="marketData-tabs"
         activeKey={activeTab}
+        destroyInactiveTabPane={true}
         indicator={{ size: (origin) => origin - 35, align: 'center' }}
         onChange={onChange}
       />

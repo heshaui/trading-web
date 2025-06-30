@@ -263,5 +263,8 @@
     "select":{
         "pending":"待发放",
         "done":"已完成"
+    },
+    "flash":{
+        "flash": "闪兑"
     }
 }
