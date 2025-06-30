@@ -784,7 +784,7 @@ const NoticeTitle = styled.div`
 `;
 
 const NoticeDescription = styled.div`
-  color: #666;
+  color: var(--text-color4);
   font-size: 14px;
 `;
 
@@ -808,6 +808,12 @@ const TradeSection = styled.div`
   
   &:hover {
     border-color: var(--text-color3);
+    box-shadow: 0 0 0 1px var(--text-color3);
+  }
+  
+  &:focus-within {
+    border-color: var(--text-color3);
+    box-shadow: 0 0 0 1px var(--text-color3);
   }
 `;
 
@@ -830,7 +836,15 @@ const StyledInput = styled(Input)`
   flex: 1;
   transition: all 0.3s ease;
   
-
+  &:hover {
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 2px rgba(var(--text-color3-rgb), 0.1) !important;
+  }
+  
+  &:focus {
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 2px rgba(var(--text-color3-rgb), 0.1) !important;
+  }
 `;
 
 const MaxLabel = styled.span`
@@ -1298,7 +1312,7 @@ const DetailRow = styled.div`
 `;
 
 const DetailLabel = styled.div`
-  color: #666;
+  color: var(--text-color4);
 `;
 
 const DetailValue = styled.div`
