@@ -499,6 +499,14 @@ const FlashPage: NextPage = () => {
               !(payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU) && (
                <AvailableAmount>{t('available')} {getCoinRound(baseCoin,userAll.find(item=>item.coinName===baseCoin)?.balance) } {baseCoin} <Image src='/images/flash/add.png' style={{marginTop:'3px',cursor:'pointer'}} width={16} height={16} alt="" preview={false} onClick={()=>{setSpotModal(true)}} /></AvailableAmount>
              )}
+
+                 {/* 限额错误提示 */}
+                 {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
+                <AmountLimitAlert>
+                  {t('amountLimit')}：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
+                </AmountLimitAlert>
+              )}
+
              
              {/* 余额不足提示 */}
              {payAmount && baseCoin && userAll.find(item=>item.coinName===baseCoin) && 
@@ -508,13 +516,7 @@ const FlashPage: NextPage = () => {
                 </InsufficientBalanceAlert>
               )}
               
-             {/* 限额错误提示 */}
-             {payAmount && !isAmountValid && configData?.minTradeU && configData?.maxTradeU && (
-                <AmountLimitAlert>
-                  {t('amountLimit')}：{getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)} {baseCoin} - {getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)} {baseCoin}
-                </AmountLimitAlert>
-              )}
-
+         
             <SwapButtonWrapper>
               <Image src='/images/flash/icon_Trading.svg' width={50} height={50} alt="" preview={false} onClick={swapCoins}  style={{cursor:'pointer'}} />
             </SwapButtonWrapper>
