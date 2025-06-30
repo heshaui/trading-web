@@ -396,10 +396,11 @@ const FlashPage: NextPage = () => {
             </div>
         <ContentWrapper>
           <TradeContainer>
-            <TradeSection>
+            <TradeSection className={styles.tradeSection}>
               <TradeLabel>{t('pay')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
+                  className={styles.tradeInput}
                    placeholder={configData?.minTradeU && configData?.maxTradeU && baseCoin ? 
                      `${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(baseCoin,getCoinRate(baseCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
                      ''}
@@ -489,10 +490,6 @@ const FlashPage: NextPage = () => {
                     };
                   })}
                 />
-                  
-
-
-
               </TradeInputWrapper>
              
             </TradeSection>
@@ -522,10 +519,11 @@ const FlashPage: NextPage = () => {
               <Image src='/images/flash/icon_Trading.svg' width={50} height={50} alt="" preview={false} onClick={swapCoins}  style={{cursor:'pointer'}} />
             </SwapButtonWrapper>
 
-            <TradeSection>
+            <TradeSection className={styles.tradeSection}>
               <TradeLabel>{t('receive')}</TradeLabel>
               <TradeInputWrapper>
                 <StyledInput
+                  className={styles.tradeInput}
                   placeholder={configData?.minTradeU && configData?.maxTradeU && quteCoin ? 
                     `${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.minTradeU, 'USDT', 1).coinRate)}-${getCoinRound(quteCoin,getCoinRate(quteCoin, configData.maxTradeU, 'USDT', 1).coinRate)}` : 
                     ''}
@@ -805,15 +803,16 @@ const TradeSection = styled.div`
   overflow: visible;
   position: relative;
   transition: all 0.3s ease;
+  cursor: pointer;
   
   &:hover {
-    border-color: var(--text-color3);
-    box-shadow: 0 0 0 1px var(--text-color3);
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 1px var(--text-color3) !important;
   }
   
   &:focus-within {
-    border-color: var(--text-color3);
-    box-shadow: 0 0 0 1px var(--text-color3);
+    border-color: var(--text-color3) !important;
+    box-shadow: 0 0 0 1px var(--text-color3) !important;
   }
 `;
 
@@ -832,18 +831,26 @@ const TradeInputWrapper = styled.div`
 `;
 
 const StyledInput = styled(Input)`
-  border: none;
+  border: none !important;
+  box-shadow: none !important;
   flex: 1;
-  transition: all 0.3s ease;
+  transition: none;
+  background: transparent !important;
+  outline: none !important;
+  padding: 8px 0;
+  font-size: 16px;
   
-  &:hover {
-    border-color: var(--text-color3) !important;
-    box-shadow: 0 0 0 2px rgba(var(--text-color3-rgb), 0.1) !important;
-  }
-  
-  &:focus {
-    border-color: var(--text-color3) !important;
-    box-shadow: 0 0 0 2px rgba(var(--text-color3-rgb), 0.1) !important;
+  &:hover,
+  &:focus,
+  &:active,
+  &.ant-input:hover,
+  &.ant-input:focus,
+  &.ant-input:active,
+  &.ant-input-focused {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    outline: none !important;
   }
 `;
 
@@ -1123,6 +1130,7 @@ const ConfirmExchangeModal: React.FC<ConfirmExchangeModalProps> = ({
       closable={false}
       centered
       width={470}
+      className={styles.modalBox}
     >
       <ModalContainer>
         <ModalHeader>
@@ -1312,7 +1320,7 @@ const DetailRow = styled.div`
 `;
 
 const DetailLabel = styled.div`
-  color: var(--text-color4);
+  color: var(--text-color6);
 `;
 
 const DetailValue = styled.div`
