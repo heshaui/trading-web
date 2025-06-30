@@ -5,6 +5,7 @@
 }
 
 .main_page_box {
+  max-width: 1200px;
   width: 90%;
   display: flex;
   flex-direction: column;
@@ -57,9 +58,12 @@ html[lang="en"] .section_title {
 .ranking_content {
   overflow: hidden;
   overflow-y: auto;
-
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
-
+.ranking_content::-webkit-scrollbar {
+  display: none;
+}
 /* .section_title {
   width: 96px;
   height: 68px;
@@ -110,7 +114,7 @@ html[lang="en"] .section_title {
 
 .cardHeader {
   /* margin-top: 17px; */
-  padding: 16px 24px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
 }
