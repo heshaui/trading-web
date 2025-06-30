@@ -193,7 +193,7 @@ const ExchangePage = () => {
           return combinedData.slice(0, maxEntries);
         });
       } catch (error) {
-        console.log(error);
+
       }
     });
   }, [currentPair]);
@@ -372,7 +372,6 @@ const ExchangePage = () => {
       }@depth_30_levels`
     );
     depthWsRef.current = websocket;
-    console.log("websocket的环境变量", websocket);
 
     websocket.connect((message: string) => {
       try {
@@ -398,30 +397,27 @@ const ExchangePage = () => {
           return;
         }
 
-        // 直接使用WebSocket推送的完整30档位数据
-        console.log("收到深度数据:", data);
+
         
         setDepthData(() => {
           // 处理买单(bids) - 按价格降序排列
           const processedBids = (data.bids || [])
-            .filter((bid: any) => bid && bid.length >= 2 && Number(bid[1]) > 0)
-            .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
+            // .filter((bid: any) => bid && bid.length >= 2 && Number(bid[1]) > 0)
+            // .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
 
           // 处理卖单(asks) - 按价格升序排列  
           const processedAsks = (data.asks || [])
-            .filter((ask: any) => ask && ask.length >= 2 && Number(ask[1]) > 0)
-            .sort((a: any, b: any) => parseFloat(a[0]) - parseFloat(b[0]));
+            // .filter((ask: any) => ask && ask.length >= 2 && Number(ask[1]) > 0)
+            // .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
 
           const newDepthData = {
             asks: processedAsks,
             bids: processedBids,
           };
           
-          console.log("处理后的深度数据:", newDepthData);
           return newDepthData;
         });
       } catch (error) {
-        console.error("WebSocket message processing failed:", error);
       }
     });
   }, [currentPair]);
