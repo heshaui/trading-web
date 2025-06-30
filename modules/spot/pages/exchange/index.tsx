@@ -402,13 +402,13 @@ const ExchangePage = () => {
         setDepthData(() => {
           // 处理买单(bids) - 按价格降序排列
           const processedBids = (data.bids || [])
-            .filter((bid: any) => bid && bid.length >= 2 && Number(bid[1]) > 0)
-            .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
+            // .filter((bid: any) => bid && bid.length >= 2 && Number(bid[1]) > 0)
+            // .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
 
           // 处理卖单(asks) - 按价格升序排列  
           const processedAsks = (data.asks || [])
-            .filter((ask: any) => ask && ask.length >= 2 && Number(ask[1]) > 0)
-            .sort((a: any, b: any) => parseFloat(a[0]) - parseFloat(b[0]));
+            // .filter((ask: any) => ask && ask.length >= 2 && Number(ask[1]) > 0)
+            // .sort((a: any, b: any) => parseFloat(b[0]) - parseFloat(a[0]));
 
           const newDepthData = {
             asks: processedAsks,

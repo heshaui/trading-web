@@ -67,35 +67,36 @@ const OrderBook = ({
       // 处理卖单数据 - 直接使用完整的asks数据
       if (bookData.asks && Array.isArray(bookData.asks)) {
         const processedSellOrders: Order[] = bookData.asks
-          .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
+          // .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
           .map((item: [number, number]) => {
             const price = Number(item[0]);
             const amount = Number(item[1]);
             const total = nul(price, amount);
             return { price, amount, total };
           })
-          .sort((a: Order, b: Order) => b.price - a.price); // 卖单按价格降序排列
+
+          // .sort((a: Order, b: Order) => b.price - a.price); // 卖单按价格降序排列
 
         // 根据显示模式限制显示数量
         const maxSellOrders = colorMode === 1 ? 10 : 20;
-        setSellOrders(processedSellOrders.slice(0, maxSellOrders));
+        setSellOrders(processedSellOrders.slice(0, maxSellOrders).reverse());
       }
 
       // 处理买单数据 - 直接使用完整的bids数据
       if (bookData.bids && Array.isArray(bookData.bids)) {
         const processedBuyOrders: Order[] = bookData.bids
-          .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
+          // .filter((item: [number, number]) => item && item.length >= 2 && Number(item[1]) > 0)
           .map((item: [number, number]) => {
             const price = Number(item[0]);
             const amount = Number(item[1]);
             const total = nul(price, amount);
             return { price, amount, total };
           })
-          .sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
+          // .sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
 
         // 根据显示模式限制显示数量
         const maxBuyOrders = colorMode === 1 ? 10 : 20;
-        setBuyOrders(processedBuyOrders.slice(0, maxBuyOrders));
+        setBuyOrders(processedBuyOrders.slice(0, maxBuyOrders).reverse());
       }
 
       // 计算当前价格和买卖比例
