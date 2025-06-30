@@ -1,23 +1,26 @@
 import { SearchOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Table, Button, ConfigProvider } from "antd";
 import { useState } from "react";
-import style from "../styles/TokenList.module.css";
 
 const dataSource = [
   {
     key: "1",
     name: "USDT",
-    age:'2.82 ~ 3.20%',
+    age: "2.82 ~ 3.20%",
     address: "定期",
   },
   {
     key: "2",
     name: "BTC",
-    age: '5.00 ~ 13.20%',
+    age: "5.00 ~ 13.20%",
     address: "活期",
   },
 ];
-export const TokenList = () => {
+export const TokenList = ({
+  setOpenSubscribe,
+}: {
+  setOpenSubscribe: (open: boolean) => void;
+}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
   const handleExpand = (key: React.Key) => {
@@ -79,10 +82,10 @@ export const TokenList = () => {
             headerSplitColor: "transparent",
             borderColor: "transparent",
             rowExpandedBg: "var(--bgc-color)",
-            cellPaddingInline:0,
-            headerColor:"var(--text-color6)",
-            fontWeightStrong:400,
-            headerBorderRadius:0
+            cellPaddingInline: 0,
+            headerColor: "var(--text-color6)",
+            fontWeightStrong: 400,
+            headerBorderRadius: 0,
           },
         },
       }}
@@ -110,34 +113,53 @@ export const TokenList = () => {
           components={{
             header: {
               cell: (props) => (
-                <th {...props} style={{ 
-                  borderTop: '1px solid #DCDCDC',
-                  borderBottom: '1px solid #DCDCDC'
-                }} />
-              )
-            }
+                <th
+                  {...props}
+                  style={{
+                    borderTop: "1px solid #DCDCDC",
+                    borderBottom: "1px solid #DCDCDC",
+                  }}
+                />
+              ),
+            },
           }}
           bordered={false}
           expandable={{
-            expandedRowRender: record => (
+            expandedRowRender: (record) => (
               <table>
                 <tr className="h-[64px]">
                   <td className="w-[30%]"></td>
                   <td className="w-[30%]">2.82 ~ 3.20%</td>
                   <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]"><Button type="primary" shape="round">购买</Button></td>
+                  <td className="w-[10%]">
+                    <Button
+                      type="primary"
+                      shape="round"
+                      onClick={() => setOpenSubscribe(true)}
+                    >
+                      购买
+                    </Button>
+                  </td>
                 </tr>
                 <tr className="h-[64px]">
                   <td className="w-[30%]"></td>
                   <td className="w-[30%]">2.82 ~ 3.20%</td>
                   <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]"><Button type="primary" shape="round">购买</Button></td>
+                  <td className="w-[10%]">
+                    <Button type="primary" shape="round">
+                      购买
+                    </Button>
+                  </td>
                 </tr>
                 <tr className="h-[64px]">
                   <td className="w-[30%]"></td>
                   <td className="w-[30%]">2.82 ~ 3.20%</td>
                   <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]"><Button type="primary" shape="round">购买</Button></td>
+                  <td className="w-[10%]">
+                    <Button type="primary" shape="round">
+                      购买
+                    </Button>
+                  </td>
                 </tr>
               </table>
             ),

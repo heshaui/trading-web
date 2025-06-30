@@ -5,10 +5,8 @@ import styles from "../styles/MyFinancial.module.css";
 export const MyFinancial = observer(() => {
   const { t } = useTranslation(["financial"]);
   return (
-    <div style={{
-      background: "linear-gradient(270deg, #E6EFFF 0%, #EBF2FF 46%, #FAFBFF 100%)",
-    }} className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px]">
-      <div style={{ flex: 1 }}>
+    <div className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px]">
+      <div className="flex-1">
         <div
           className="font-w-600 text-[48px] mb-[16px] leading-[normal]"
           style={{ color: "var(--text-color5)" }}
@@ -39,8 +37,8 @@ export const MyFinancial = observer(() => {
         <div className={` flex flex-ai-center flex-jc-between mb-[40px]`}>
           <div className="font-w-400 text-[24px]">我的资产</div>
           <div className="flex flex-ai-center flex-jc-between gap-[8px]">
-            <div style={{ width: 24, height: 24, background: "red" }}></div>
-            <div style={{ width: 24, height: 24, background: "red" }}></div>
+            <div className="w-[24px] h-[24px] bg-[#FF4D4F]"></div>
+            <div className="w-[24px] h-[24px] bg-[#FF4D4F]"></div>
           </div>
         </div>
         <div

@@ -260,7 +260,7 @@ const ProductRule: React.FC = () => {
   );
 };
 
-export const SubscribeModal = () => {
+ const SubscribeModal = ({ openSubscribe, setOpenSubscribe, setOpenConfirm }: { openSubscribe: boolean; setOpenSubscribe: (open: boolean) => void; setOpenConfirm: (open: boolean) => void }) => {
   const [tabsKey, setTabsKey] = useState("1");
 
   const items = [
@@ -296,7 +296,8 @@ export const SubscribeModal = () => {
           footer: style.modal_footer,
           content: style.modal_content,
         }}
-        open={true}
+        open={openSubscribe}
+        onCancel={() => setOpenSubscribe(false)}
         title={<div>USDT</div>}
         closable={{ "aria-label": "Custom Close Button" }}
         footer={
@@ -307,6 +308,7 @@ export const SubscribeModal = () => {
                   background: "var(--cancel-btn)",
                   color: "var(--cancel-color)",
                 }}
+                onClick={() => setOpenSubscribe(false)}
                 shape="round"
                 size="large"
                 className="h-[50px] flex-1 border-0"
@@ -318,6 +320,7 @@ export const SubscribeModal = () => {
                 shape="round"
                 size="large"
                 className="h-[50px] flex-1"
+                onClick={() => setOpenConfirm(true)}
               >
                 申购
               </Button>
@@ -336,3 +339,5 @@ export const SubscribeModal = () => {
     </ConfigProvider>
   );
 };
+
+export default SubscribeModal;
