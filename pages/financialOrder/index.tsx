@@ -5,6 +5,7 @@ import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLa
 import { ConfigProvider, DatePicker, Select, Space, Table, Tabs } from "antd";
 import NoData from "@/components/noData/noData";
 import { useState } from "react";
+import Head from "next/head";
 const { RangePicker } = DatePicker;
 
 const tableData = [
@@ -56,6 +57,7 @@ const FinancialOrder = () => {
               <Select
                 prefix="币种"
                 className="w-[200px] h-[50px]"
+                style={{textAlign: 'end'}}
                 options={[
                   {
                     label: "全部",
@@ -66,6 +68,7 @@ const FinancialOrder = () => {
               <Select
                 prefix="类型"
                 className="w-[200px] h-[50px]"
+                style={{textAlign: 'end'}}
                 options={[
                   {
                     label: "全部",
@@ -123,14 +126,20 @@ const FinancialOrder = () => {
           Tabs: {
             horizontalMargin: "0px",
           },
+          Select: {
+            optionSelectedBg: "var(--background10)",
+          },
+        },
+        token: {
+          // 可以在这里添加更多自定义token
         },
       }}
     >
       <div className="w-[100%] h-[100%]">
-        <div className="mb-[10px]">理财订单</div>
-        <div className="w-[100%] h-[100%] bg-[#fff] rounded-[10px]">
+        <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">理财订单</div>
+        <div className="w-[100%] h-[100%] bg-[var(--btncolor7)] rounded-[10px]">
           <Tabs
-            tabBarStyle={{padding: "0 20px"}}
+            tabBarStyle={{padding: "0 20px",height: "72px"}}
             items={items}
           />
         </div>

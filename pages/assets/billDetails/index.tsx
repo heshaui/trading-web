@@ -17,10 +17,10 @@ const BillDetails = () => {
       }}
     >
       <div className="h-[100%]">
-        <div className="text-[20px] text-[#0C0D0C] font-[500] mb-[16px]">
+        <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
           账单明细
         </div>
-        <div className="rounded-[8px] bg-[#fff] h-[100%]">
+        <div className="rounded-[8px] bg-[var(--btncolor7)] h-[100%]">
           <Tabs
             defaultActiveKey="1"
             tabBarStyle={{

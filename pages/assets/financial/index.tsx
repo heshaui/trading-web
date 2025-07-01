@@ -53,7 +53,7 @@ const Financial = () => {
       dataIndex: "subscribeAmount",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             <div> {record.subscribeAmount} USDT</div>
             <div>≈$20.10</div>
           </div>
@@ -66,7 +66,7 @@ const Financial = () => {
       dataIndex: "annualRate",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             5.00%~3.20%
           </div>
         );
@@ -78,7 +78,7 @@ const Financial = () => {
       dataIndex: "totalIncome",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             <div>0.00000000 BTC</div>
             <div>≈$20.10</div>
           </div>
@@ -93,18 +93,18 @@ const Financial = () => {
       render: (_: any, record: any) => {
         return (
           <Space>
-            <Link
-              className="font-[400] text-[14px] text-[var(--theme-color)]"
+            <div
+              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
               onClick={() => setOpenConfirm(true)}
             >
               再次申购
-            </Link>
-            <Link
-              className="font-[400] text-[14px] text-[var(--theme-color)]"
+            </div>
+            <div
+              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
               onClick={() => setOpenRedemption(true)}
             >
               赎回
-            </Link>
+            </div>
           </Space>
         );
       },
@@ -124,8 +124,8 @@ const Financial = () => {
                 <th
                   {...props}
                   style={{
-                    borderTop: "1px solid #DCDCDC",
-                    borderBottom: "1px solid #DCDCDC",
+                    borderTop: "1px solid var(--border-color4)",
+                    borderBottom: "1px solid var(--border-color4)",
                   }}
                 />
               ),
@@ -174,44 +174,44 @@ const Financial = () => {
       >
         <div>
           {/* title */}
-          <div className="text-[20px] text-[#0C0D0C] font-[500] mb-[16px]">
+          <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
             理财账户
           </div>
           {/* content */}
-          <div className="w-[1152px] h-[728px] bg-[#FFF] rounded-[8px] p-[20px]">
+          <div className="w-[1152px] h-[728px] bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
             {/* 头部 */}
-            <div className="w-[1112px] h-[274px] bg-[#F5F5F5] rounded-[8px] mb-[30px]">
+            <div className="w-[1112px] h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
               {/* 顶部 */}
               <div className="p-[30px] flex justify-between items-end">
                 <div>
-                  <div className="text-[14px] text-[#676867] font-[400]">
+                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     总资产
                   </div>
-                  <div className="text-[32px] text-[#0C0D0C] font-[700]">
+                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     0.15 USD
                   </div>
-                  <div className="text-[14px] text-[#676867] font-[400]">
+                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     ≈ 1.12 CNY
                   </div>
                 </div>
                 <Button type="primary">理财产品</Button>
               </div>
-              <div className="m-[0px_30px] border-t border-[#E5E5E5]" />
+              <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
               {/* 底部 */}
               <div className="flex gap-[229px] p-[30px]">
                 <div>
-                  <div className="text-[14px] text-[#676867] font-[400]">
+                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     昨日收益（USDT）
                   </div>
-                  <div className="text-[32px] text-[#0C0D0C] font-[700]">
+                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     0.15 USD
                   </div>
                 </div>
                 <div>
-                  <div className="text-[14px] text-[#676867] font-[400]">
+                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     30日累计收益（USDT）
                   </div>
-                  <div className="text-[32px] text-[#0C0D0C] font-[700]">
+                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     0.15 USD
                   </div>
                 </div>
@@ -221,6 +221,7 @@ const Financial = () => {
             <Tabs
               items={items}
               activeKey={tabsKey}
+              tabBarStyle={{padding: "0 20px",height: "72px"}}
               onChange={(key) => setTabsKey(key)}
             />
           </div>
