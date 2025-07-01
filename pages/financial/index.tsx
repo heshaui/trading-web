@@ -1,9 +1,9 @@
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { observer } from "mobx-react-lite";
-import { MyFinancial } from "./components/MyFinancial";
-import { TokenList } from "./components/TokenList";
-import { Problem } from "./components/Problem";
+import MyFinancial from "./components/MyFinancial";
+import TokenList from "./components/TokenList";
+import Problem from "./components/Problem";
 import { useState } from "react";
 import ConfirmModal from "./components/ConfirmModal";
 import SubscribeModal from "./components/SubscribeModal";
