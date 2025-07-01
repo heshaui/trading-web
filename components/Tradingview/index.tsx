@@ -676,11 +676,11 @@ const Tradingview: React.ForwardRefRenderFunction<
               if (Array.isArray(item) && item.length >= 6) {
                 const bar = {
                   time: formatTimeValue(item[0]),
-                  open: Number(item[1] || 0),
-                  high: Number(item[2] || 0),
+                  open: Number(item[2] || 0),
+                  high: Number(item[1] || 0),
                   low: Number(item[3] || 0),
                   close: Number(item[4] || 0),
-                  volume: Number(item[5] || 0),
+                  volume: Number(item[6] || 0),
                 };
 
                 Object.keys(subscribers).forEach((key) => {
@@ -696,11 +696,11 @@ const Tradingview: React.ForwardRefRenderFunction<
             // 这是单个数据点数组
             const bar = {
               time: formatTimeValue(data[0]),
-              open: Number(data[1] || 0),
-              high: Number(data[2] || 0),
+              open: Number(data[2] || 0),
+              high: Number(data[1] || 0),
               low: Number(data[3] || 0),
               close: Number(data[4] || 0),
-              volume: Number(data[5] || 0),
+              volume: Number(data[6] || 0),
             };
 
             Object.keys(subscribers).forEach((key) => {
@@ -786,11 +786,11 @@ const Tradingview: React.ForwardRefRenderFunction<
               // 将数组格式转换为对象格式
               const bar = {
                 time: kline[0], // 时间戳
-                open: parseFloat(kline[1]), // 开盘价
-                high: parseFloat(kline[2]), // 最高价
+                open: parseFloat(kline[2]), // 开盘价
+                high: parseFloat(kline[1]), // 最高价
                 low: parseFloat(kline[3]), // 最低价
                 close: parseFloat(kline[4]), // 收盘价
-                volume: parseFloat(kline[5]), // 成交量
+                volume: parseFloat(kline[6]), // 成交量
               };
 
               // 将处理后的数据传递给TradingView
@@ -884,11 +884,11 @@ const Tradingview: React.ForwardRefRenderFunction<
             if (cachedData.type === "kline" && Array.isArray(cachedData.data)) {
               const formattedBars = cachedData.data.map((kline: any) => ({
                 time: kline[0],
-                open: parseFloat(kline[1]),
-                high: parseFloat(kline[2]),
+                open: parseFloat(kline[2]),
+                high: parseFloat(kline[1]),
                 low: parseFloat(kline[3]),
                 close: parseFloat(kline[4]),
-                volume: parseFloat(kline[5]),
+                volume: parseFloat(kline[6]),
               }));
 
               onHistoryCallback(formattedBars, {
@@ -916,11 +916,11 @@ const Tradingview: React.ForwardRefRenderFunction<
             if (data.type === "kline" && Array.isArray(data.data)) {
               const formattedBars = data.data.map((kline: any) => ({
                 time: kline[0],
-                open: parseFloat(kline[1]),
-                high: parseFloat(kline[2]),
+                open: parseFloat(kline[2]),
+                high: parseFloat(kline[1]),
                 low: parseFloat(kline[3]),
                 close: parseFloat(kline[4]),
-                volume: parseFloat(kline[5]),
+                volume: parseFloat(kline[6]),
               }));
 
               onHistoryCallback(formattedBars, {
