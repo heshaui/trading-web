@@ -57,22 +57,22 @@ export default function SpotMenuItems() {
                 />
             ),
         },
-        // ...(configData.flashConvertSwitch ? [{
-        //     key: '3',
-        //     label: (
-        //         <MenuItemLabel
-        //             src={isDayMode
-        //                 ? "/images/home_menu/icon_flash_line.png"
-        //                 : "/images/home_menu/icon_flash_line_dark.png"}
-        //             h5Text={t('flash.order.title')}
-        //             // h5Text={t('router.flashOrder')}  //'闪兑订单'
-        //             spanText=""
-        //             onClick={() => {
-        //                 router.push('/flashOrder')
-        //             }}
-        //         />
-        //     ),
-        // }] : [])
+        ...(configData.flashConvertSwitch ? [{
+            key: '3',
+            label: (
+                <MenuItemLabel
+                    src={isDayMode
+                        ? "/images/home_menu/icon_flash_line.png"
+                        : "/images/home_menu/icon_flash_line_dark.png"}
+                    h5Text={t('flash.order.title')}
+                    // h5Text={t('router.flashOrder')}  //'闪兑订单'
+                    spanText=""
+                    onClick={() => {
+                        router.push('/flashOrder')
+                    }}
+                />
+            ),
+        }] : [])
     ];
 
     return (

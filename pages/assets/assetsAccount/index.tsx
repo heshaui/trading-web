@@ -357,28 +357,6 @@ const AssetsMainPage = observer(() => {
         toast.error(t("assetsAccount.button.tradeError2"));
       }
     }
-
-    // console.log(12345,coinList);
-    // if (type === '1') {
-    //     if (coinData?.canWithdraw === 1) {
-    //         router.push(ROUTER_KEY_ASSETS.WITHDRAW_MONEY);
-    //     } else {
-    //         toast.error(t('assetsAccount.button.withdrawError'));
-    //     }
-    // } else if (type === '2') {
-    //     if (coinData?.canRecharge === 1) {
-    //         router.push(ROUTER_KEY_ASSETS.TOP_UP);
-    //     } else {
-    //         toast.error(t('assetsAccount.button.depositError'));
-    //     }
-
-    // } else if (type === '3') {
-    //     if (coinData?.canTransfer === 1) {
-    //         router.push(ROUTER_KEY_SPOT.INDEX);
-    //     } else {
-    //         toast.error(t('assetsAccount.button.tradeError'));
-    //     }
-    // }
   };
   const pageChange = async (page: number, pageSize: number) => {
     const pageData = {

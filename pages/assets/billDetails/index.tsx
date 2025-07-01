@@ -193,12 +193,12 @@ const AssetsMainPage = () => {
           {t('billDetails.title')}
         </h2>
       </div>
-      <div className={`${styles.card_bgc}  mt-3 `}
+      <div className={`${styles.card_bgc3}  mt-3 py-4`}
         style={{
           minHeight: '80vh'
         }}
       >
-        <div className={`${styles.table_header} w-full my-4 flex align-center`}>
+        <div className={`${styles.table_header} w-full mb-4 flex align-center px-6`}>
           <Select
             allowClear
             placeholder={t('billDetails.selectCoin')}
