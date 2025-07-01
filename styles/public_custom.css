@@ -191,14 +191,23 @@
 
 
 /* 步骤条连接线 */
-.custom-steps .ant-steps-item-process .ant-steps-item-tail::after,
+/* .custom-steps .ant-steps-item-process .ant-steps-item-tail::after,
 .custom-steps2 .ant-steps-item-process .ant-steps-item-tail::after {
     background-color: var(--text-color4) !important;
-}
+} */
 
 .custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
 .custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after {
     background-color: var(--text-color4) !important;
+}
+
+.withdraw_steps .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after,
+.custom-steps .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after,
+.custom-steps2 .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after {
+    background-color: transparent !important;
+    background-image: linear-gradient(to bottom, var(--text-color6) 50%, transparent 0);
+    background-size: 1px 10px;
+    background-repeat: repeat-y;
 }
 
 /* 身份认证-已完成 */
@@ -514,7 +523,7 @@
 .spot-table-box .ant-table-placeholder:hover>td,
 .markerData-table .ant-table-placeholder,
 .markerData-table .ant-table-placeholder:hover>td,
- .markerData-ranking .ant-table-placeholder,
+.markerData-ranking .ant-table-placeholder,
 .markerData-ranking .ant-table-placeholder:hover>td {
     background: transparent !important;
 }
@@ -569,6 +578,7 @@
 .markerData-ranking .ant-table-column-sorter {
     color: var(--text-color6) !important;
 }
+
 .spot-table-box .ant-table-column-sorter-up,
 .spot-table-box .ant-table-column-sorter-down,
 .markerData-table .ant-table-column-sorter-up,
@@ -578,14 +588,16 @@
     font-size: 12px !important;
     /* color: var(--text-color6) !important; */
 }
+
 .markerData-table .ant-table-column-sorter-up:hover,
 .markerData-table .ant-table-column-sorter-down:hover,
 .markerData-ranking .ant-table-column-sorter-up:hover,
 .markerData-ranking .ant-table-column-sorter-down:hover {
     color: var(--text-color5) !important;
 }
+
 .markerData-table .ant-table-column-sorter-up.active,
-.markerData-table .ant-table-column-sorter-down.active{
+.markerData-table .ant-table-column-sorter-down.active {
     color: var(--text-color5) !important;
 }
 
@@ -599,10 +611,11 @@
 .markerData-table .ant-table-column-sorters>.ant-table-column-title {
     flex: none !important;
 }
+
 /* 排序选中背景及hover样式 */
 .markerData-table .ant-table-thead th.ant-table-column-sort,
 .markerData-table .ant-table-thead th.ant-table-column-has-sorters:hover,
-.markerData-table td.ant-table-column-sort{
+.markerData-table td.ant-table-column-sort {
     background: transparent !important;
 }
 
@@ -659,7 +672,7 @@
     border-color: transparent !important;
 }
 
-.custom-tabs2 .ant-tabs-nav::before{
+.custom-tabs2 .ant-tabs-nav::before {
     border-color: var(--border-color4) !important;
 }
 
@@ -667,16 +680,19 @@
     border-bottom: 0.5px solid var(--border-color4) !important;
 
 }
+
 .custom-tabs2 .ant-tabs-tab {
     margin: 0 0 0 24px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
+
 .marketData-tabs .ant-tabs-tab {
     margin: 0 24px 16px 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
+
 .spot-tabs .ant-tabs-nav::before {
     border-color: transparent !important;
 }

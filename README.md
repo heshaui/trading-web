@@ -16,3 +16,10 @@ TRADING-WEB/
 ├── next.config.ts       # Next.js 配置文件
 ├── tsconfig.json        # TypeScript 配置文件
 └── README.md            # 项目文档说明
+
+
+
+
+ws kline 字段说明
+开盘时间  高  开  低  收  涨跌幅  成交量
+

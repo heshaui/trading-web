@@ -37,7 +37,7 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
       (a, b) =>
         // a.countryName.localeCompare(b.countryName)
         Number(a.sort) - Number(b.sort)
-    );
+    )
 
     // 转换为Select需要的格式
     return sortedList.map((item) => ({
@@ -86,7 +86,7 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
             id: item.id,
             status: item.status,
           };
-        });
+        }).filter((item: any) => item.status === 1);
         setCountryCodeList(data);
       }
     } catch (error) {

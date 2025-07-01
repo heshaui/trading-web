@@ -339,7 +339,7 @@ export default function MarketData() {
     }
 
     // 创建新的WebSocket连接
-    const wsUrl = "wss://ws80.imsaas.work/ws/multi";
+    const wsUrl = `${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/multi`;
     console.log("建立多通道WebSocket连接:", wsUrl);
 
     const ws = new WebSocketService(wsUrl);

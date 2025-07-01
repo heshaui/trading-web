@@ -28,6 +28,7 @@ import appStore from '@/store';
 import { observer } from 'mobx-react-lite';
 import { getRate, getCoinRate } from '@/utils/getUseRate';
 import { coinSelectType, coinExtAllListType, coinExtSelectType, addressSelectType, SearchHistoryItem, coinInfoType, limitType } from '@/type/assets/assetsAccount/withdraw';
+import WithdrawSteps from '../compontents/withDrawSteps'
 
 const WithdrawMoneyPage = observer(() => {
     const { t } = useTranslation('assets');
@@ -204,6 +205,8 @@ const WithdrawMoneyPage = observer(() => {
         const balance = await getUserBalanceData()
         setConinInfo(Object.assign(balance, option))
 
+        // 币种选中后自动请求网络列表
+        await getCoinExt(Number(value))
     }
     // 币种余额
     const getUserBalanceData = async () => {
@@ -312,18 +315,20 @@ const WithdrawMoneyPage = observer(() => {
                     minWithdrawFee: balance.minWithdrawFee || 0
                 });
             }
+
+            // 9. 历史选中按钮也需要请求网络列表
+            await getCoinExt(Number(coinId))
         } catch (error) {
             console.error('setFormCoin error:', error);
             toast.error(t('withdrawMoney.setCoinError'));
         }
     };
 
-    // 链名称(网络名称)
+    // 链名称(网络名称) - 已弃用，改为在币种选择时直接调用getCoinExt
     const getCoinExtList = async () => {
         const tenantId = form.getFieldValue('tenantId')
         if (!tenantId) {
             setCoinExtSelect([])
-
             return toast.error(t('assetsAccount.selectCoin'))
         }
         // 判断同币种不重复请求
@@ -354,7 +359,18 @@ const WithdrawMoneyPage = observer(() => {
     }
     // 币种对应的协议（网络）-通过币种协议获取网络id进行匹配
     const getCoinExt = async (tenantId: number) => {
+        if (!tenantId) {
+            setCoinExtSelect([])
+            return
+        }
+        
+        // 判断同币种不重复请求
+        if (coinIdHistory.toString() === tenantId.toString() || coinExtLoading) return
+        
+        setCoinExtSelect([]) //初始化
+        setCoinIdHistory(tenantId)
         setCoinExtLoading(true)
+        
         try {
             const res = await getcoinExtList(tenantId)
             if (res.code === '0') {
@@ -365,7 +381,6 @@ const WithdrawMoneyPage = observer(() => {
                         ...protocol,
                         label: `${protocol?.protocol || '--'}(${protocol?.protocolName || '--'})`,
                         value: item.protocolId,
-
                     }
                 })
                 setCoinExtSelect(coinExtList)
@@ -383,10 +398,26 @@ const WithdrawMoneyPage = observer(() => {
         if (value) {
             setConinInfo(Object.assign(coninInfo, option))
             form.setFieldValue('amount', coninInfo.minWithdrawAmount)
-            // console.log(Object.assign(coninInfo, option), 1235);
+            
+            // 检查当前选中的地址是否与新选择的网络兼容
+            const currentAddress = form.getFieldValue('addressId');
+            if (currentAddress) {
+                const selectedAddress = filteredAddressOptions.find(item => item.addressName === currentAddress);
+                if (selectedAddress) {
+                    const isCompatible = option.protocolName === selectedAddress.protocolName ||
+                                        option.protocol === selectedAddress.protocolName ||
+                                        option.protocolId === selectedAddress.protocolId;
+                    
+                    if (!isCompatible) {
+                        toast.warning(
+                            t('withdrawMoney.addressNetworkMismatch') || '当前地址与选择的网络不匹配，请重新选择地址'
+                        );
+                        // 清空地址选择
+                        form.setFieldValue('addressId', null);
+                    }
+                }
+            }
         } else {
-            // form.setFieldValue('amount',coninInfo.minWithdrawAmount)
-            // setCurrent(1)
             returnStep(2)
         }
         checkStep2Required()
@@ -421,7 +452,40 @@ const WithdrawMoneyPage = observer(() => {
         }
 
     }
-    const addressChange = (value: string, option: any) => {
+        const addressChange = (value: string, option: any) => {
+        // 查找选中的地址信息
+        const selectedAddress = filteredAddressOptions.find(item => item.addressName === value);
+        
+        if (selectedAddress) {
+            // 在coinExtSelect中查找匹配的网络
+            const matchedNetwork = coinExtSelect.find(coinExt => 
+                coinExt.protocolName === selectedAddress.protocolName ||
+                coinExt.protocol === selectedAddress.protocolName ||
+                coinExt.protocolId === selectedAddress.protocolId
+            );
+            
+            // 如果找到匹配的网络，自动回填到protocolId
+            if (matchedNetwork) {
+                form.setFieldValue('protocolId', matchedNetwork.value);
+                // 更新币种信息
+                setConinInfo(Object.assign(coninInfo, matchedNetwork));
+                // 设置最小提现金额
+                form.setFieldValue('amount', coninInfo.minWithdrawAmount);
+                
+                // 给用户提示网络已自动选择
+                toast.success(
+                    t('withdrawMoney.networkAutoSelected', { 
+                        network: matchedNetwork.protocolName || matchedNetwork.protocol 
+                    })
+                );
+            } else if (selectedAddress) {
+                // 如果地址存在但找不到匹配的网络，给出提示
+                toast.warning(
+                    t('withdrawMoney.networkNotFound') 
+                );
+            }
+        }
+        
         form.setFieldValue('addressId', value);
         // checkAddressMatch(value);
         checkStep2Required()
@@ -814,7 +878,7 @@ const WithdrawMoneyPage = observer(() => {
                 {current >= 0 && <>
                     <Form.Item name='tenantId' rules={[{ required: true, message: t('withdrawMoney.select') }]}>
                         <Select
-                            allowClear
+                            allowClear={false}
                             placeholder={t('withdrawMoney.select')}
                             options={coinSelect || []}  // 添加默认空数组
                             className={`${styles.select_box} custom-select`}
@@ -936,22 +1000,36 @@ const WithdrawMoneyPage = observer(() => {
                         <AutoComplete
                             style={{ height: 50 }}
                             open={dropdownOpen} // 控制下拉菜单的显示状态
-                            options={filteredAddressOptions.map(item => ({
-                                ...item,
-                                key: item.id,
-                                label: (
-                                    <div className="flex-y py-1" key={item.id}>
-                                        <p className={`${styles.title_color} font-14 font-w-400`}>{item.addressTitle}</p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>
-                                            {`${t('withdrawMoney.address')}：${item.addressName}`}
-                                        </p>
-                                        <p className={`${styles.tip_color2} font-14 font-w-400`}>
-                                            {`${t('withdrawMoney.network')}：${item.protocolName || '--'}`}
-                                        </p>
-                                    </div>
-                                ),
-                                value: item.addressName
-                            }))}
+                            options={filteredAddressOptions.map(item => {
+                                // 检查当前地址的protocolName是否在coinExtSelect中存在
+                                const isProtocolSupported = coinExtSelect.some(
+                                    coinExt => coinExt.protocolName === item.protocolName||coinExt.protocol === item.protocolName||
+                                    coinExt.protocolId === item.protocolId
+                                );
+                                
+                                return {
+                                    ...item,
+                                    key: item.id,
+                                    disabled: !isProtocolSupported, // 如果协议不支持则禁用
+                                    label: (
+                                        <div className={`flex-y py-1 ${!isProtocolSupported ? 'opacity-50' : ''}`} key={item.id}>
+                                            <p className={`${styles.title_color} font-14 font-w-400`}>{item.addressTitle}</p>
+                                            <p className={`${styles.tip_color2} font-14 font-w-400`}>
+                                                {`${t('withdrawMoney.address')}：${item.addressName}`}
+                                            </p>
+                                            <p className={`${styles.tip_color2} font-14 font-w-400`}>
+                                                {`${t('withdrawMoney.network')}：${item.protocolName || '--'}`}
+                                                {!isProtocolSupported && (
+                                                    <span className="ml-2 text-red-500 font-12">
+                                                        ({t('withdrawMoney.selectNetwork3Error')})
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    ),
+                                    value: item.addressName
+                                };
+                            })}
                             onFocus={(e) => {
                                 // 在输入框聚焦时获取地址列表，但不显示下拉菜单
                                 getUserAddressList();
@@ -959,18 +1037,25 @@ const WithdrawMoneyPage = observer(() => {
                                 e.preventDefault();
                             }}
                             notFoundContent={<NoAddress />}
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <button
-                                        type='button'
-                                        className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
-                                        onClick={() => router.push(ROUTER_KEY_ASSETS.ADDADRESS)}
-                                    >
-                                        {t('withdrawMoney.addAddress')}
-                                    </button>
-                                </>
-                            )}
+                            dropdownRender={(menu) => {
+                                // // 检查是否有可用的地址
+                                // const availableAddresses = filteredAddressOptions.filter(item => 
+                                //     coinExtSelect.some(coinExt => coinExt.protocolName === item.protocolName)
+                                // );
+                                
+                                return (
+                                    <>
+                                        {menu}
+                                        <button
+                                            type='button'
+                                            className={`default_btn font-16 font-w-500 mt-6 mb-6 ${styles.btn_style2}`}
+                                            onClick={() => router.push(ROUTER_KEY_ASSETS.ADDADRESS)}
+                                        >
+                                            {t('withdrawMoney.addAddress')}
+                                        </button>
+                                    </>
+                                );
+                            }}
                             onChange={(value, option) => {
                                 addressChange(value, option);
                                 setDropdownOpen(false); // 选择后关闭下拉菜单
@@ -986,8 +1071,10 @@ const WithdrawMoneyPage = observer(() => {
                                     <div
                                         onClick={(e) => {
                                             e.stopPropagation(); // 阻止事件冒泡
-                                            getUserAddressList(); // 点击图标时获取地址列表
                                             setDropdownOpen(!dropdownOpen); // 切换下拉菜单的显示状态
+                                            if(dropdownOpen) return
+                                                getUserAddressList(); // 点击图标时获取地址列表
+                                            
                                         }}
                                         style={{ cursor: 'pointer' }}
                                     >
@@ -1032,7 +1119,7 @@ const WithdrawMoneyPage = observer(() => {
                                 </>
                                 )}
                                 notFoundContent={<NoData title={t('withdrawMoney.noRecord')} />}
-                                onFocus={getCoinExtList}
+                                // onFocus={getCoinExtList}
                                 loading={coinExtLoading}
                                 onChange={coinExtChange}
                             />
@@ -1248,33 +1335,7 @@ const WithdrawMoneyPage = observer(() => {
                                 </Form>
                             </ConfigProvider>
                         </div>
-                        <div className={`${styles.notice_box}`}>
-                            <div>
-                                <h5 className={`font-w-500 font-16 mb-4`}>
-                                    {/* 常见问题 */}
-                                    {t('withdrawMoney.faq')}
-                                </h5>
-                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                    {/* <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item1')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item2')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item3')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item4')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item5')}</li> */}
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.faqList.item6')}</li>
-                                </ul>
-                            </div>
-                            <div className=''>
-                                <h5 className={`font-w-500 font-16 mb-4`}>
-                                    {/* 提现须知 */}
-                                    {t('withdrawMoney.notice')}
-                                </h5>
-                                <ul className={`font-14 font-w-400 ${styles.tip_color}`}>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item1')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item2')}</li>
-                                    <li className={`mb-2_5`}>{t('withdrawMoney.noticeList.item3')}</li>
-                                </ul>
-                            </div>
-                        </div>
+                       <WithdrawSteps />
                     </div>
                     <TableBox coinId={form.getFieldValue('tenantId')} coinAll={coinSelect} />
 

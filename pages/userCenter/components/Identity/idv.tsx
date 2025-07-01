@@ -133,10 +133,11 @@ function ResetPassword({ onNext }: IDVProps) {
             if (res.code === '0') {
                 const info = res.data.map((item: ICountryData) => {
                     return {
+                        ...item,
                         label: item.countryName,
                         value: item.areaCode
                     }
-                })
+                }).filter((item: any) => item.status === 1);
                 setCountryData(info);
             }
 

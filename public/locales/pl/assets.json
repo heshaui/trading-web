@@ -99,7 +99,11 @@
         "addAddress": "Add Address",
         "selectNetwork2": "Please Select Network",
         "selectNetwork2Error": "Selected network does not match address network",
-        "networkWarning": "Please note that only deposit networks supported by Metawave platform are shown here. Using unsupported networks may result in asset loss.",
+        "selectNetwork3Error": "This address has no corresponding network",
+        "networkAutoSelected": "Network automatically selected: {{network}}",
+        "networkNotFound": "Network not found for this address, please select manually",
+        "addressNetworkMismatch": "Current address does not match selected network, please reselect address",
+         "networkWarning": "Please note that only deposit networks supported by Metawave platform are shown here. Using unsupported networks may result in asset loss.",
         "networkWarning2": "Please note that only deposit networks supported by {{platformName}} platform are shown here. Using unsupported networks may result in asset loss.",
         "memoWarning": "When withdrawing to other exchanges, a tag must be filled in, otherwise the withdrawal will fail",
         "memoConfirm": "Please confirm whether the receiving address requires MEMO",
@@ -263,5 +267,19 @@
     "select": {
         "pending": "Pending",
         "done": "Completed"
+    },
+    "flash": {
+        "flash": "Flash Swap"
+    },
+    "withdrawSteps": {
+        "title": "How to Withdraw Cryptocurrency",
+        "stepTitle1": "Select Currency",
+        "stepTip1": "Choose the currency you want to withdraw.",
+        "stepTitle2": "Withdrawal Address",
+        "stepTip2": "External Address: Copy the deposit platform's address and Memo (if necessary) to this platform. Please ensure that the network you select matches the deposit platform's network, otherwise it will cause asset loss.",
+        "stepTitle3": "Enter Withdrawal Information",
+        "stepTip3": "Please confirm the withdrawal amount and fees.",
+        "stepTitle4": "Order Review",
+        "stepTip4": "After blockchain confirmation, your withdrawal information will be transferred to the deposit platform."
     }
 }
