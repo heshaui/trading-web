@@ -7,6 +7,7 @@
   align-items: center;
   background-color: #0c0d0c;
   border-bottom: 0.5px solid #37373a;
+  min-width: 1200px;
 }
 
 .logo {
@@ -44,14 +45,13 @@
   /* visibility: visible; */
 }
 
-@media (max-width: 900px) {
+/* @media (max-width: 900px) {
   .menuListContainer .collapsedMenu {
     transform: translateX(-80%);
     opacity: 0;
-    /* visibility: hidden; */
     display: none;
   }
-}
+} */
 
 .menuList {
   margin-right: 20px;
@@ -333,6 +333,7 @@
 }
 
 .loginContent {
+  min-width: 212px;
   font-size: 12px;
   margin-left: 12px;
 }

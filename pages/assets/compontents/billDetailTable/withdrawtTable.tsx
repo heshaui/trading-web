@@ -129,7 +129,7 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
       width: 128,
       align: "center",
       render: (_status, record) => {
-        return < >{record.status == '1' ?
+        return < >{record?.status?.toString() == '1' || record?.status?.toString() == '0' ?
           <button className={`${styles.theme_color}`}
             onClick={() => {
               setOpen(true)
