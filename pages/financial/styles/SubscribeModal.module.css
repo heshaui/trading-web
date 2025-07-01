@@ -1,0 +1,21 @@
+.modal_body {
+}
+.modal_header {
+  height: 60px !important;
+  padding: 0 20px !important;
+  border-radius: 10px 10px 0px 0px;
+  background: #fff;
+  box-shadow: 0px -0.5px 0px 0px #dcdcdc inset;
+}
+.modal_header .ant-modal-title {
+  line-height: 60px !important;
+}
+
+.modal_footer {
+  width: 100%;
+  margin-top: 0 !important;
+  border-radius: 0 0 10px 10px !important;
+}
+.modal_content {
+  padding: 0 !important;
+}
