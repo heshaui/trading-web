@@ -8,9 +8,26 @@ import {
   Switch,
   Tabs,
 } from "antd";
-import style from "../styles/SubscribeModal.module.css";
 import { useState } from "react";
+import { createStyles } from "antd-style";
 
+const useStyle = createStyles(() => ({
+  "my-modal-header": {
+    height: "60px !important",
+    padding: "0 20px !important",
+    borderRadius: "10px 10px 0px 0px",
+    background: "#fff",
+    boxShadow: "0px -0.5px 0px 0px #dcdcdc inset",
+  },
+  "my-modal-footer": {
+    width: "100%",
+    marginTop: "0 !important",
+    borderRadius: "0 0 10px 10px !important",
+  },
+  "my-modal-content": {
+    padding: "0 !important",
+  },
+}));
 const Subscription: React.FC = () => {
   const [timerIndex, setTimerIndex] = useState(0); //申购时间选择
   const [amount, setAmount] = useState(0); //申购数量
@@ -59,7 +76,7 @@ const Subscription: React.FC = () => {
         </div>
       </div>
       {/* 提示 */}
-      <div className="rounded-[8px] bg-[#FF8A260D] p-[10px_16px] text-[#FF8A26] text-[14px] font-[500]">
+      <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
         该产品支持提前赎回，查看规则
       </div>
     </div>
@@ -260,8 +277,17 @@ const ProductRule: React.FC = () => {
   );
 };
 
- const SubscribeModal = ({ openSubscribe, setOpenSubscribe, setOpenConfirm }: { openSubscribe: boolean; setOpenSubscribe: (open: boolean) => void; setOpenConfirm: (open: boolean) => void }) => {
+const SubscribeModal = ({
+  openSubscribe,
+  setOpenSubscribe,
+  setOpenConfirm,
+}: {
+  openSubscribe: boolean;
+  setOpenSubscribe: (open: boolean) => void;
+  setOpenConfirm: (open: boolean) => void;
+}) => {
   const [tabsKey, setTabsKey] = useState("1");
+  const { styles } = useStyle();
 
   const items = [
     {
@@ -290,11 +316,9 @@ const ProductRule: React.FC = () => {
     >
       <Modal
         classNames={{
-          body: style.modal_body,
-          mask: style.modal_mask,
-          header: style.modal_header,
-          footer: style.modal_footer,
-          content: style.modal_content,
+          header: styles["my-modal-header"],
+          footer: styles["my-modal-footer"],
+          content: styles["my-modal-content"],
         }}
         open={openSubscribe}
         onCancel={() => setOpenSubscribe(false)}
@@ -304,14 +328,10 @@ const ProductRule: React.FC = () => {
           tabsKey === "1" ? (
             <div className="p-[30px_55px] flex justify-around gap-[20px]">
               <Button
-                style={{
-                  background: "var(--cancel-btn)",
-                  color: "var(--cancel-color)",
-                }}
+                className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
                 onClick={() => setOpenSubscribe(false)}
                 shape="round"
                 size="large"
-                className="h-[50px] flex-1 border-0"
               >
                 取消
               </Button>

@@ -16,7 +16,7 @@ const dataSource = [
     address: "活期",
   },
 ];
-export const TokenList = ({
+const TokenList = ({
   setOpenSubscribe,
 }: {
   setOpenSubscribe: (open: boolean) => void;
@@ -95,7 +95,7 @@ export const TokenList = ({
           <Input
             className="w-[188px] h-[40px]"
             placeholder="搜索"
-            prefix={<SearchOutlined style={{ color: "var(--text-color5)" }} />}
+            prefix={<SearchOutlined className="text-[var(--text-color5)]" />}
           />
           <Select
             defaultValue="lucy"
@@ -175,3 +175,6 @@ export const TokenList = ({
     </ConfigProvider>
   );
 };
+
+
+export default TokenList;

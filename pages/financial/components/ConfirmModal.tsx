@@ -20,14 +20,10 @@ const ConfirmModal = ({
       footer={
         <div className="p-[30px_55px] flex justify-around gap-[20px]">
           <Button
-            style={{
-              background: "var(--cancel-btn)",
-              color: "var(--cancel-color)",
-            }}
+            className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
             onClick={() => setOpenConfirm(false)}
             shape="round"
             size="large"
-            className="h-[50px] flex-1 border-0"
           >
             前往理财
           </Button>
