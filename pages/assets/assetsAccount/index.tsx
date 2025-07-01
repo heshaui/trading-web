@@ -146,7 +146,7 @@ const AssetsMainPage = observer(() => {
             // width: 128,
             align: "right",
             render: (_text, record) => {
-                console.log('recordLIst', record)
+                // console.log('recordLIst', record)
                 const coin = coinList.find((item: any) => item.coinName === record.coinName);
                 const coinPairData = coinPair.find((item: any) => item.baseSymbol === record.coinName ||
                     item.coinSymbol === record.coinName || record.coinId === item.baseSymbol || record.coinId === item.coinSymbol);

@@ -99,6 +99,10 @@
         "addAddress": "添加地址",
         "selectNetwork2": "请选择网络",
         "selectNetwork2Error": "所选网络与地址对应网络不匹配",
+        "selectNetwork3Error": "该地址无对应网络",
+        "networkAutoSelected": "网络已自动匹配{{network}}",
+        "networkNotFound": "该地址无对应网络，请手动选择",
+        "addressNetworkMismatch": "当前地址与选择的网络不匹配，请重新选择地址",
         "networkWarning": "请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。",
         "networkWarning2": "请注意，这里仅展示了{{platformName}}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。",
         "memoWarning": "提币至其他交易所时需要填写标签，否则提币将失败",
@@ -263,5 +267,19 @@
     "select":{
         "pending":"待发放",
         "done":"已完成"
+    },
+    "flash": {
+        "flash": "Flash Swap"
+    },
+    "withdrawSteps": {
+        "title": "How to Withdraw Cryptocurrency",
+        "stepTitle1": "Select Currency",
+        "stepTip1": "Choose the currency you want to withdraw.",
+        "stepTitle2": "Withdrawal Address",
+        "stepTip2": "External Address: Copy the deposit platform's address and Memo (if necessary) to this platform. Please ensure that the network you select matches the deposit platform's network, otherwise it will cause asset loss.",
+        "stepTitle3": "Enter Withdrawal Information",
+        "stepTip3": "Please confirm the withdrawal amount and fees.",
+        "stepTitle4": "Order Review",
+        "stepTip4": "After blockchain confirmation, your withdrawal information will be transferred to the deposit platform."
     }
 }
