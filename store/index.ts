@@ -379,6 +379,8 @@ class AppStore {
 
                 // 更新币对列表
                 this.setCurrencyPairs(result.data);
+                this.usdtRate = result.usdtPrice;
+                this.setUsdtRate(result.usdtPrice);
 
                 // 如果没有当前选中的币对，设置第一个为当前币对
                 if (!this.currentPair && result.data.length > 0) {
@@ -559,6 +561,7 @@ class AppStore {
                 runInAction(() => {
                     this.coinList = result.data;
                     this.setCoinList(result.data);
+            
                 });
                 return result.data;
             } else {

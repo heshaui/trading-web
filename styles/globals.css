@@ -78,6 +78,7 @@
   --background-menu-item: #F4F4F4;
   --card-shadow: #A5A5A533;
   --border-color-disable: #F0F0F0;
+  --dropdown-menu-hover: #F4F4F4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -157,8 +158,7 @@
     --background-menu-item: #0C0D0C;
     --card-shadow: #01367433;
     --border-color-disable: #363638;
-
-
+    --dropdown-menu-hover: #454545;
   }
 }
 

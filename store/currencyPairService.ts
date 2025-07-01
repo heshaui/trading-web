@@ -4,6 +4,7 @@ import appStore from '@/store/index';
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
 import { getUsdtPriceWithStables } from "@/services/marketData"
 import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
+import { usdtRateType } from "@/type/userCenter/overview"
 // 获取所有币对数据
 export async function fetchAllCurrencyPairs() {
     const userToken = appStore.getUserToken();
@@ -116,10 +117,18 @@ export async function fetchAllCurrencyPairs() {
             processedPairs.push(currencyPair);
         });
 
+        //6.  获取USDT相对USD价格
+        const UsdPriceRes = await getUsdtPriceWithStables()
+        if (UsdPriceRes.code !== '0') {
+            throw new Error('Failed to load UsdtPrice');
+        }
+        const UsdPrice = UsdPriceRes.data;
+
         return {
             success: true,
             data: processedPairs,
-            rawData: coinList
+            rawData: coinList,
+            usdtPrice: UsdPrice
         };
     } catch (error) {
         console.error('Error fetching currency pairs:', error);
@@ -127,7 +136,8 @@ export async function fetchAllCurrencyPairs() {
             success: false,
             error,
             data: [],
-            rawData: []
+            rawData: [],
+            usdtPrice: {} as usdtRateType
         };
     }
 }
