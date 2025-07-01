@@ -755,7 +755,7 @@ export default function MarketData() {
             onClick={() => {
               if (record.symbol) {
                 const symbol = `${ record.symbol } `
-                router.push(`${ ROUTER_KEY_SPOT.INDEX }?symbol = ${ symbol } `)
+                router.push(`${ ROUTER_KEY_SPOT.INDEX }?symbol=${symbol}`)
               } else {
                 toast.error(t('header.routerErr'))
                 router.push(`${ ROUTER_KEY_SPOT.INDEX } `)
