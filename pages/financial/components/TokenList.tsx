@@ -95,7 +95,7 @@ const TokenList = ({
           <Input
             className="w-[188px] h-[40px]"
             placeholder="搜索"
-            prefix={<SearchOutlined style={{ color: "var(--text-color5)" }} />}
+            prefix={<SearchOutlined className="text-[var(--text-color5)]" />}
           />
           <Select
             defaultValue="lucy"

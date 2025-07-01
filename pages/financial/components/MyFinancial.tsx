@@ -1,41 +1,38 @@
 import { observer } from "mobx-react-lite";
 import { useTranslation } from "react-i18next";
-import styles from "../styles/MyFinancial.module.css";
-
-
+// import { getPurchaseDisplay } from "@/services/financial";
+// import { useEffect } from "react";
 
 const MyFinancial = observer(() => {
   const { t } = useTranslation(["financial"]);
+
+  // const init = async () => {
+  //   const res = await getPurchaseDisplay();
+  //   console.log(res);
+  // }
+
+  // useEffect(() => {
+  //   init();
+  // }, []);
+
   return (
     <div className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px]">
       <div className="flex-1">
-        <div
-          className="font-w-600 text-[48px] mb-[16px] leading-[normal]"
-          style={{ color: "var(--text-color5)" }}
-        >
+        <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
           Staking
         </div>
-        <div
-          className="font-w-400 text-[20px] mb-[12px] leading-[normal]"
-          style={{ color: "var(--text-color6)" }}
-        >
+        <div className="font-w-400 text-[20px] mb-[12px] leading-[normal] text-[var(--text-color6)]">
           门槛低 | 安全性高 | 收益率高
         </div>
-        <div
-          className="font-w-400 text-[18px] mb-[20px] leading-[normal]"
-          style={{ color: "var(--text-color6)" }}
-        >
+        <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)]">
           一站式综合理财服务中心，拥有活期、定期理财方案，为用户提供多个种类上百种数
           字货币金融产品
         </div>
-        <div
-          className="font-w-400 text-[22px]"
-          style={{ color: "var(--theme-color)" }}
-        >
+        <div className="font-w-400 text-[22px] text-[color:var(--theme-color)]">
           什么是Staking？
         </div>
       </div>
-      <div className={styles.right_box}>
+      <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
         <div className={` flex flex-ai-center flex-jc-between mb-[40px]`}>
           <div className="font-w-400 text-[24px]">我的资产</div>
           <div className="flex flex-ai-center flex-jc-between gap-[8px]">
@@ -43,9 +40,7 @@ const MyFinancial = observer(() => {
             <div className="w-[24px] h-[24px] bg-[#FF4D4F]"></div>
           </div>
         </div>
-        <div
-          className={`${styles.right_box_bottom} flex flex-ai-center flex-jc-between`}
-        >
+        <div className="flex flex-ai-center flex-jc-between">
           <div className="text-[16px] flex flex-column gap-[18px]">
             <div>我的持仓</div>
             <div>***</div>
@@ -63,6 +58,5 @@ const MyFinancial = observer(() => {
     </div>
   );
 });
-
 
 export default MyFinancial;
