@@ -8,7 +8,6 @@ import {
   Switch,
   Tabs,
 } from "antd";
-import style from "../styles/SubscribeModal.module.css";
 import { useState } from "react";
 import { createStyles } from "antd-style";
 
@@ -77,7 +76,7 @@ const Subscription: React.FC = () => {
         </div>
       </div>
       {/* 提示 */}
-      <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500]" style={{ color: "var(--theme-color)", background: "var(--bgc-color)" }}>
+      <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
         该产品支持提前赎回，查看规则
       </div>
     </div>
@@ -329,14 +328,10 @@ const SubscribeModal = ({
           tabsKey === "1" ? (
             <div className="p-[30px_55px] flex justify-around gap-[20px]">
               <Button
-                style={{
-                  background: "var(--cancel-btn)",
-                  color: "var(--cancel-color)",
-                }}
+                className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
                 onClick={() => setOpenSubscribe(false)}
                 shape="round"
                 size="large"
-                className="h-[50px] flex-1 border-0"
               >
                 取消
               </Button>

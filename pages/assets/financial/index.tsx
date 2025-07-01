@@ -90,19 +90,17 @@ const Financial = () => {
       title: "操作",
       dataIndex: "action",
       align: "right" as const,
-      render: (text: string) => {
+      render: (_: any, record: any) => {
         return (
           <Space>
             <Link
-              style={{ color: "var(--theme-color)" }}
-              className="font-[400] text-[14px]"
+              className="font-[400] text-[14px] text-[var(--theme-color)]"
               onClick={() => setOpenConfirm(true)}
             >
               再次申购
             </Link>
             <Link
-              style={{ color: "var(--theme-color)" }}
-              className="font-[400] text-[14px]"
+              className="font-[400] text-[14px] text-[var(--theme-color)]"
               onClick={() => setOpenRedemption(true)}
             >
               赎回
@@ -120,11 +118,22 @@ const Financial = () => {
       label: "定期",
       children: (
         <Table
+          components={{
+            header: {
+              cell: (props) => (
+                <th
+                  {...props}
+                  style={{
+                    borderTop: "1px solid #DCDCDC",
+                    borderBottom: "1px solid #DCDCDC",
+                  }}
+                />
+              ),
+            },
+          }}
           columns={columns}
           dataSource={tableData}
           size="large"
-          scroll={{ x: "max-content", y: 500 }}
-          className={`table-box`}
           pagination={false}
           loading={tableLoading}
           locale={{ emptyText: <NoData /> }}
@@ -145,10 +154,7 @@ const Financial = () => {
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
       />
-      <ConfirmModal
-        openConfirm={openConfirm}
-        setOpenConfirm={setOpenConfirm}
-      />
+      <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
       <ConfigProvider
         theme={{
           components: {

@@ -73,10 +73,23 @@ const FinancialOrder = () => {
                   },
                 ]}
               />
-              <RangePicker className="w-[278px] h-[50px]"  />
+              <RangePicker className="w-[278px] h-[50px]" />
             </Space>
           </div>
           <Table
+            components={{
+              header: {
+                cell: (props) => (
+                  <th
+                    {...props}
+                    style={{
+                      borderTop: "1px solid #DCDCDC",
+                      borderBottom: "1px solid #DCDCDC",
+                    }}
+                  />
+                ),
+              },
+            }}
             columns={columns}
             dataSource={tableData}
             size="large"
@@ -117,10 +130,7 @@ const FinancialOrder = () => {
         <div className="mb-[10px]">理财订单</div>
         <div className="w-[100%] h-[100%] bg-[#fff] rounded-[10px]">
           <Tabs
-            tabBarStyle={{
-              padding: "0 20px",
-              marginBottom: "0",
-            }}
+            tabBarStyle={{padding: "0 20px"}}
             items={items}
           />
         </div>
