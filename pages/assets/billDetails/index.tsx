@@ -4,7 +4,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import NumberToken from "./numberToken";
 import Financial from "./financial";
-
+import styles from "../styles/billDetails.module.css"
 const BillDetails = () => {
   return (
     <ConfigProvider

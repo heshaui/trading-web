@@ -64,9 +64,9 @@
 
 
 
-.selectModal .ant-modal-content {
-  padding: 0;
-  border-radius: 12px;
+
+.selectModal :global(.ant-modal-content) {
+  padding: 10px 0 15px 0 !important;
 }
 
 .modalContent {
