@@ -16,7 +16,10 @@
     border-radius: 8px;
     padding: 30px;
 }
-
+.card_bgc3 {
+    background-color: var(--background7);
+    border-radius: 8px;
+}
 .success_icon {
     color: #00C788;
 }

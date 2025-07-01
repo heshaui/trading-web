@@ -99,7 +99,7 @@ const SpotMainPage = observer(() => {
       align: "center",
       width: 148,
       render: (_text, record) => <button type='button'
-        className={`${record.direction === 1 ? styles.success_hover : record.direction?.toString() === '0' ? styles.error_hover : ''}`}
+      className={`${record.direction === 1 ? styles.error_hover : record.direction?.toString() === '0' ? styles.success_hover : ''}`}
         onClick={() => {
           router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${record.symbol}`)
         }}

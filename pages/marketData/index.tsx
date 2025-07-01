@@ -752,8 +752,8 @@ export default function MarketData() {
           <button
             className="ml-1"
             onClick={() => {
-              if (record.symbol) {
-                const symbol = `${record.symbol}`
+              if (record.symbol || (record.coinSymbol && record.baseSymbol)) {
+                const symbol=`${record.symbol}` //`${record.coinSymbol}/${record.baseSymbol}`
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               } else {
                 toast.error(t('header.routerErr'))
