@@ -33,7 +33,7 @@ const items = [
   },
 ];
 
-export const Problem = () => {
+ const Problem = () => {
   return (
     <ConfigProvider
       theme={{
@@ -65,3 +65,5 @@ export const Problem = () => {
     </ConfigProvider>
   );
 };
+
+export default Problem;

@@ -16,7 +16,7 @@ const dataSource = [
     address: "活期",
   },
 ];
-export const TokenList = ({
+const TokenList = ({
   setOpenSubscribe,
 }: {
   setOpenSubscribe: (open: boolean) => void;
@@ -175,3 +175,6 @@ export const TokenList = ({
     </ConfigProvider>
   );
 };
+
+
+export default TokenList;

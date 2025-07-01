@@ -2,7 +2,9 @@ import { observer } from "mobx-react-lite";
 import { useTranslation } from "react-i18next";
 import styles from "../styles/MyFinancial.module.css";
 
-export const MyFinancial = observer(() => {
+
+
+const MyFinancial = observer(() => {
   const { t } = useTranslation(["financial"]);
   return (
     <div className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px]">
@@ -61,3 +63,6 @@ export const MyFinancial = observer(() => {
     </div>
   );
 });
+
+
+export default MyFinancial;
