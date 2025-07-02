@@ -111,7 +111,7 @@ const Financial = () => {
         <Table
           className={styles.table}
           columns={columns}
-          dataSource={tableData}
+          // dataSource={tableData}
           pagination={false}
           loading={tableLoading}
           locale={{ emptyText: <NoData /> }}
@@ -160,9 +160,9 @@ const Financial = () => {
             理财账户
           </div>
           {/* content */}
-          <div className="w-[1152px] h-[728px] bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
+          <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
             {/* 头部 */}
-            <div className="w-[1112px] h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
+            <div className="h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
               {/* 顶部 */}
               <div className="p-[30px] flex justify-between items-end">
                 <div>

@@ -42,7 +42,7 @@ const Financial = () => {
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
-          <div className="text-[#0C0D0C] font-[500] text-[14px]">
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>100 BTC</div>
             <div>≈￥700.23</div>
           </div>
@@ -75,7 +75,7 @@ const Financial = () => {
         },
       }}
     >
-      <div className="flex items-center gap-[20px] p-[30px_20px]">
+      <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
         <Select options={[]} className={`w-[200px] h-[50px]`} />
         <Select options={[]} className={`w-[200px] h-[50px]`} />
         <Select options={[]} className={`w-[200px] h-[50px]`} />
