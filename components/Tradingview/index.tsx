@@ -9,6 +9,7 @@ import { widget } from "../../public/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import WebSocketService from "@/utils/websocket";
 import { useThemeMode } from "@/hooks/useThemeMode";
+import jstz from 'jstz';
 export interface TradingviewProps {
   symbol?: string;
   showLeftToolbar?: boolean;
@@ -39,6 +40,7 @@ const Tradingview: React.ForwardRefRenderFunction<
   },
   ref
 ) => {
+  const timezone = jstz.determine();
   const { isDayMode } = useThemeMode();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [tvWidget, setTvWidget] = useState<any>(null);
@@ -162,7 +164,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           fullscreen: false,
           autosize: true,
           enabled_features: ["study_templates"],
-          timezone: "Asia/Shanghai",
+          timezone: timezone.name(),
           debug: false,
           theme: isDayMode ? "light" : "dark",
           disabled_features: disabledFeatures,
@@ -292,7 +294,7 @@ const Tradingview: React.ForwardRefRenderFunction<
           fullscreen: false,
           autosize: true,
           enabled_features: ["study_templates"],
-          timezone: "Asia/Shanghai",
+          timezone: timezone.name(),
           debug: false,
           theme: isDayMode ? "light" : "dark",
           disabled_features: disabledFeatures,
@@ -828,7 +830,7 @@ const Tradingview: React.ForwardRefRenderFunction<
               description: `${baseSymbol}/USDT`,
               type: "crypto",
               session: "24x7",
-              timezone: "Etc/UTC",
+              timezone: timezone.name(),
               exchange: "",
               minmov: 1,
               pricescale: 100000,
