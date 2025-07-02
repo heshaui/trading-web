@@ -60,7 +60,6 @@ const OrderBook = ({
   }, [currentPair]);
 
   useEffect(() => {
-    console.log("OrderBook 收到数据:", bookData);
     
     // 直接使用WebSocket推送的完整30档位数据
     if (bookData && (bookData.asks || bookData.bids)) {
