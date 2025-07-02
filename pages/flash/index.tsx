@@ -1360,10 +1360,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose, tradeResu
   const { t } = useTranslation(['flash','common']);
 
   const goAssest = async () => {
-    if (!router.isReady) {
-      console.warn("SuccessModal router not ready for goAssest navigation.");
-      return;
-    }
+ 
           router.push('/assets/assetsAccount');
 
   }
