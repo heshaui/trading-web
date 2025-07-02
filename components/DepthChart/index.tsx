@@ -14,7 +14,6 @@ interface DepthChartProps {
 const DepthChart = ({ data }: DepthChartProps) => {
   const { t } = useTranslation(['common']);
 
-  console.log("DepthChartProps", data);
   
   // 检查数据是否有效
   if (!data || !data.bids || !data.asks) {

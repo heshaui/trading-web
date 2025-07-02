@@ -52,7 +52,7 @@ const TokenList = ({
       localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || "{}"
     );
     if (
-      financialConfig.isRealname &&
+      financialConfig?.isRealname &&
       financialConfig.isRealname === StatusEnum.OPEN &&
       userInfo.authStatus === 1
     ) {

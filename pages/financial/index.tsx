@@ -29,21 +29,28 @@ export default observer(function FinancialPage() {
 
   // 初始化功能配置
   const initFinancialConfig = async () => {
-    const res = await getFinancialConfig();
-    if (res.code === "0") {
-      setFinancialConfig(res.data);
+    try {
+      const res = await getFinancialConfig();
+      if (res.code === "0") {
+        setFinancialConfig(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to load financial config:', error);
     }
   };
 
   useEffect(() => {
-    initFinancialConfig();
+    // 确保只在客户端执行
+    if (typeof window !== 'undefined') {
+      initFinancialConfig();
+    }
   }, []);
   return (
     <>
       <MyFinancial financialConfig={financialConfig} />
       <TokenList setOpenSubscribe={setOpenSubscribe} financialConfig={financialConfig} />
       {
-        financialConfig.isDisplayBackground && financialConfig.isDisplayBackground === StatusEnum.OPEN && (
+        financialConfig?.isDisplayBackground && financialConfig.isDisplayBackground === StatusEnum.OPEN && (
           <Problem />
         )
       }
