@@ -33,7 +33,7 @@ const items = [
   },
 ];
 
-export const Problem = () => {
+const Problem = () => {
   return (
     <ConfigProvider
       theme={{
@@ -46,10 +46,7 @@ export const Problem = () => {
       }}
     >
       <div className="p-[30px_120px]">
-        <div
-          className="text-[32px] font-w-500 mb-[40px]"
-          style={{ color: "var(--text-color5)" }}
-        >
+        <div className="text-[32px] font-w-500 mb-[40px] text-[var(--text-color5)]">
           常见问题
         </div>
 
@@ -65,3 +62,5 @@ export const Problem = () => {
     </ConfigProvider>
   );
 };
+
+export default Problem;

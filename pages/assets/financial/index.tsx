@@ -14,6 +14,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useState } from "react";
 import RedemptionModal from "./components/RedemptionModal";
+import ConfirmModal from "./components/ConfirmModal";
 const { Link } = Typography;
 
 const tableData = [
@@ -26,96 +27,113 @@ const tableData = [
   },
 ];
 
-const columns = [
-  {
-    title: "币种",
-    dataIndex: "tokenName",
-    width: "190px",
-  },
-  {
-    title: "自动申购",
-    dataIndex: "autoSubscribe",
-    render: (text: number) => {
-      return <Switch size="small" checked={text === 1} />;
-    },
-    width: "190px",
-  },
-  {
-    title: "申购金额",
-    dataIndex: "subscribeAmount",
-    render: (_: any, record: any) => {
-      return (
-        <div className="text-[14px] text-[#0C0D0C] font-[400]">
-          <div> {record.subscribeAmount} USDT</div>
-          <div>≈$20.10</div>
-        </div>
-      );
-    },
-    width: "190px",
-  },
-  {
-    title: "年利率",
-    dataIndex: "annualRate",
-    render: (_: any, record: any) => {
-      return (
-        <div className="text-[14px] text-[#0C0D0C] font-[400]">5.00%~3.20%</div>
-      );
-    },
-    width: "190px",
-  },
-  {
-    title: "累计收益",
-    dataIndex: "totalIncome",
-    render: (_: any, record: any) => {
-      return (
-        <div className="text-[14px] text-[#0C0D0C] font-[400]">
-          <div>0.00000000 BTC</div>
-          <div>≈$20.10</div>
-        </div>
-      );
-    },
-    width: "190px",
-  },
-  {
-    title: "操作",
-    dataIndex: "action",
-    align: "right" as const,
-    render: (text: string) => {
-      return (
-        <Space>
-          <Link
-            style={{ color: "var(--theme-color)" }}
-            className="font-[400] text-[14px]"
-          >
-            再次申购
-          </Link>
-          <Link
-            style={{ color: "var(--theme-color)" }}
-            className="font-[400] text-[14px]"
-          >
-            赎回
-          </Link>
-        </Space>
-      );
-    },
-  },
-];
-
 const Financial = () => {
   const [tabsKey, setTabsKey] = useState("1");
   const [tableLoading, setTableLoading] = useState(false);
+  const [openRedemption, setOpenRedemption] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
 
+  // 表格列
+  const columns = [
+    {
+      title: "币种",
+      dataIndex: "tokenName",
+      width: "190px",
+    },
+    {
+      title: "自动申购",
+      dataIndex: "autoSubscribe",
+      render: (text: number) => {
+        return <Switch size="small" checked={text === 1} />;
+      },
+      width: "190px",
+    },
+    {
+      title: "申购金额",
+      dataIndex: "subscribeAmount",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+            <div> {record.subscribeAmount} USDT</div>
+            <div>≈$20.10</div>
+          </div>
+        );
+      },
+      width: "190px",
+    },
+    {
+      title: "年利率",
+      dataIndex: "annualRate",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+            5.00%~3.20%
+          </div>
+        );
+      },
+      width: "190px",
+    },
+    {
+      title: "累计收益",
+      dataIndex: "totalIncome",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[#0C0D0C] font-[400]">
+            <div>0.00000000 BTC</div>
+            <div>≈$20.10</div>
+          </div>
+        );
+      },
+      width: "190px",
+    },
+    {
+      title: "操作",
+      dataIndex: "action",
+      align: "right" as const,
+      render: (_: any, record: any) => {
+        return (
+          <Space>
+            <Link
+              className="font-[400] text-[14px] text-[var(--theme-color)]"
+              onClick={() => setOpenConfirm(true)}
+            >
+              再次申购
+            </Link>
+            <Link
+              className="font-[400] text-[14px] text-[var(--theme-color)]"
+              onClick={() => setOpenRedemption(true)}
+            >
+              赎回
+            </Link>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  // 切换tabs
   const items = [
     {
       key: "1",
       label: "定期",
       children: (
         <Table
+          components={{
+            header: {
+              cell: (props) => (
+                <th
+                  {...props}
+                  style={{
+                    borderTop: "1px solid #DCDCDC",
+                    borderBottom: "1px solid #DCDCDC",
+                  }}
+                />
+              ),
+            },
+          }}
           columns={columns}
           dataSource={tableData}
           size="large"
-          scroll={{ x: "max-content", y: 500 }}
-          className={`table-box`}
           pagination={false}
           loading={tableLoading}
           locale={{ emptyText: <NoData /> }}
@@ -129,9 +147,14 @@ const Financial = () => {
       children: <div>活期</div>,
     },
   ];
+
   return (
     <>
-      <RedemptionModal />
+      <RedemptionModal
+        openRedemption={openRedemption}
+        setOpenRedemption={setOpenRedemption}
+      />
+      <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
       <ConfigProvider
         theme={{
           components: {

@@ -6,6 +6,8 @@ import { i18n } from './next-i18next.config';
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',  
 })
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const TerserPlugin = require('terser-webpack-plugin');
 // const { i18n } = require('./next-i18next.config');
 
 const nextConfig: NextConfig = {
@@ -49,12 +51,28 @@ const nextConfig: NextConfig = {
     "rc-upload",
     "rc-util",
   ],
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       config.resolve.fallback = {
         fs: false, // 禁用 fs 模块
       };
     }
+    
+    // 在生产环境中移除 console 语句
+    if (!dev) {
+      config.optimization.minimizer = config.optimization.minimizer || [];
+      config.optimization.minimizer.push(
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: true, // 移除 console.log
+              drop_debugger: true, // 移除 debugger
+            },
+          },
+        })
+      );
+    }
+    
     config.module.rules.push({
       test: /\.m?js$/, // 匹配所有的 `.mjs` 和 `.js` 文件
       resolve: {
