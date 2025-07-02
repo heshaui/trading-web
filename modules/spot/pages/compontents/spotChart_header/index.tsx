@@ -15,7 +15,7 @@ import appStore from '@/store';
 import { addUserExchangeCoinType, canalUserExchangeCoinType } from '@/services/spot';
 import DrawerPop from '../DrawerPop';
 import { useRouter } from 'next/router';
-
+import { getPairsRate } from "@/utils/getUseRate";
 
 
 const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
@@ -337,7 +337,8 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                         <p className={`${isPriceUp ? styles.success_icon : styles.error_icon} font-16`}>
                             {close_price ? close_price.toFixed(2) : '--'}
                         </p>
-                        <p>¥{close_price ? (close_price * 7.2).toFixed(2) : '--'}</p>
+                        {/* <p>¥{close_price ? (close_price * 7.2).toFixed(2) : '--'}</p> */}
+                        <p>¥ {getPairsRate(close_price, 'CNY').rate}</p>
                     </li>
                     <li className='mr-9'>
                         <p>{t('spot.header.change24h')}</p>
