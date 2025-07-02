@@ -841,7 +841,6 @@ const Tradingview: React.ForwardRefRenderFunction<
               return;
             }
           }
-
           // 使用原始的时间间隔格式构建URL
           const url = `${process.env.NEXT_PUBLIC_WEB_API_BASE}/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
 
