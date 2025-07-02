@@ -1,7 +1,19 @@
 import { SearchOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
-import { Input, Select, Space, Table, Button, ConfigProvider } from "antd";
+import {
+  Input,
+  Select,
+  Space,
+  Table,
+  Button,
+  ConfigProvider,
+  Modal,
+} from "antd";
 import { useState } from "react";
 import styles from "../../../styles/components/Financial.module.css";
+import { FinancialConfig } from "../index";
+import { StatusEnum } from "@/services/financial";
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
+import { NoData } from "@/components/noData";
 
 const dataSource = [
   {
@@ -20,8 +32,10 @@ const dataSource = [
 
 const TokenList = ({
   setOpenSubscribe,
+  financialConfig,
 }: {
   setOpenSubscribe: (open: boolean) => void;
+  financialConfig: FinancialConfig;
 }) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
@@ -30,6 +44,45 @@ const TokenList = ({
       setExpandedRowKeys(expandedRowKeys.filter((k) => k !== key));
     } else {
       setExpandedRowKeys([...expandedRowKeys, key]);
+    }
+  };
+
+  const onSubscribe = (record: any) => {
+    const userInfo = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || "{}"
+    );
+    if (
+      financialConfig.isRealname &&
+      financialConfig.isRealname === StatusEnum.OPEN &&
+      userInfo.authStatus === 1
+    ) {
+      setOpenSubscribe(true);
+    } else {
+      console.log(record);
+      Modal.confirm({
+        className: styles.modal,
+        title: (
+          <div className="font-w-400 text-[16px] text-[var(--text-color5)]">
+            您需要完成以下操作后申购
+          </div>
+        ),
+        closable: true,
+        icon: null,
+        styles: {
+          content: {
+            backgroundColor: "var(--background12)",
+          },
+        },
+        content: (
+          <div className="flex gap-[10px] p-[32px_20px_73px_20px]">
+            <div className="font-w-400 text-[14px] text-[var(--text-color5)]">
+              绑定身份认证
+            </div>
+            <div className="text-[var(--theme-color)] cursor-pointer">前往</div>
+          </div>
+        ),
+        footer: null,
+      });
     }
   };
 
@@ -71,6 +124,71 @@ const TokenList = ({
           }
           onClick={() => handleExpand(record.key)}
         />
+      ),
+    },
+  ];
+
+  const expandedColumns = [
+    {
+      title: "",
+      dataIndex: "",
+      key: "",
+      width: "30%",
+    },
+    {
+      title: "年利率",
+      dataIndex: "age",
+      key: "age",
+      width: "30%",
+    },
+    {
+      title: "期限（天)",
+      dataIndex: "address",
+      key: "address",
+      width: "30%",
+    },
+    {
+      title: "操作",
+      dataIndex: "address",
+      key: "address",
+      width: "10%",
+      align: "right" as const,
+      render: (text: any, record: any, index: number) => (
+        <>
+          {index == 0 && (
+            <Button
+              onClick={() => onSubscribe(record)}
+              type="primary"
+              shape="round"
+            >
+              申购
+            </Button>
+          )}
+          {index == 1 && (
+            <Button
+              disabled
+              type="primary"
+              shape="round"
+              style={{
+                backgroundColor: "var(--theme-05)",
+              }}
+            >
+              售罄
+            </Button>
+          )}
+          {index == 2 && (
+            <Button
+              disabled
+              type="primary"
+              shape="round"
+              style={{
+                backgroundColor: "var(--theme-05)",
+              }}
+            >
+              暂停
+            </Button>
+          )}
+        </>
       ),
     },
   ];
@@ -120,7 +238,7 @@ const TokenList = ({
             expandedRowRender: (record) => (
               <Table
                 showHeader={false}
-                columns={columns}
+                columns={expandedColumns}
                 dataSource={dataSource}
                 bordered={false}
                 pagination={false}
@@ -132,6 +250,7 @@ const TokenList = ({
             onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]), // 展开的行
           }}
           dataSource={dataSource}
+          locale={{ emptyText: <NoData /> }}
           columns={columns}
         />
       </div>

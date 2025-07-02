@@ -19,3 +19,8 @@
 .tabs :global(.ant-tabs-nav::before) {
   border-bottom: none !important;
 }
+
+
+.modal :global(.ant-modal-close-icon) {
+  color: var(--text-color5) !important;
+}

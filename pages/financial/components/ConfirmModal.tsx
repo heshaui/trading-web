@@ -5,12 +5,10 @@ const ConfirmModal = ({
   success = true,
   openConfirm,
   setOpenConfirm,
-  setOpenSubscribe,
 }: {
   success?: boolean;
   openConfirm: boolean;
   setOpenConfirm: (open: boolean) => void;
-  setOpenSubscribe: (open: boolean) => void;
 }) => {
   return (
     <Modal

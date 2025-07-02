@@ -7,10 +7,12 @@ import {
   Flex,
   Switch,
   Tabs,
-  Divider
+  Divider,
+  Spin,
 } from "antd";
 import { useState } from "react";
 import { createStyles } from "antd-style";
+import { set } from "lodash";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -30,11 +32,15 @@ const useStyle = createStyles(() => ({
   },
 }));
 
-const suffix = <Flex align="center" gap={2}>
-  <div className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer">最大</div>
-  <Divider type="vertical" />
-  <div className="text-[14px] text-[var(--text-color5)] font-[400]">USDT</div>
-</Flex>
+const suffix = (
+  <Flex align="center" gap={2}>
+    <div className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer">
+      最大
+    </div>
+    <Divider type="vertical" />
+    <div className="text-[14px] text-[var(--text-color5)] font-[400]">USDT</div>
+  </Flex>
+);
 const Subscription: React.FC = () => {
   const [timerIndex, setTimerIndex] = useState(0); //申购时间选择
   const [amount, setAmount] = useState(0); //申购数量
@@ -45,11 +51,18 @@ const Subscription: React.FC = () => {
       {/* 选择时间 7天 */}
       <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
         <div
-        style={{
-          border: timerIndex === 0 ? '1px solid var(--theme-color)' : '1px solid var(--border-color4)'
-        }} 
-        className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${timerIndex === 0 ? 'border-[var(--theme-color)]' : 'border-[var(--border-color4)]'}`}
-        onClick={() => setTimerIndex(0)}
+          style={{
+            border:
+              timerIndex === 0
+                ? "1px solid var(--theme-color)"
+                : "1px solid var(--border-color4)",
+          }}
+          className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
+            timerIndex === 0
+              ? "border-[var(--theme-color)]"
+              : "border-[var(--border-color4)]"
+          }`}
+          onClick={() => setTimerIndex(0)}
         >
           <div>7天</div>
           <div className="text-[#00C788]">2.22%</div>
@@ -68,12 +81,18 @@ const Subscription: React.FC = () => {
         <div className="text-[14px] text-[var(--text-color5)] font-[400]">
           申购数量
         </div>
-        <Input placeholder="请输入申购数量" className="m-[10px_0] w-[100%] h-[50px]"  suffix={suffix} />
+        <Input
+          placeholder="请输入申购数量"
+          className="m-[10px_0] w-[100%] h-[50px]"
+          suffix={suffix}
+        />
         <div className="mb-[2px]">
-          <span className="text-[#9E9E9E] font-[400] mr-[10px]">现货可用:</span> 10.30 BTC
+          <span className="text-[#9E9E9E] font-[400] mr-[10px]">现货可用:</span>{" "}
+          10.30 BTC
         </div>
         <div>
-          <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span> 10,000 USDT
+          <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span>{" "}
+          10,000 USDT
         </div>
       </div>
       {/* 申购数量shownumber */}
@@ -104,7 +123,7 @@ const Subscription: React.FC = () => {
             申请数量0 - 1000 USDT
           </div>
           <div className="text-[var(--text-color6)] font-[400]">
-            年化利率3.20%
+            年化利率 3.20%
           </div>
         </div>
         <div className="flex flex-ai-center flex-jc-between text-[14px]">
@@ -112,7 +131,7 @@ const Subscription: React.FC = () => {
             申请数量 &gt; 1000 USDT
           </div>
           <div className="text-[var(--text-color6)] font-[400]">
-            年化利率1.20%
+            年化利率 1.20%
           </div>
         </div>
       </div>
@@ -333,13 +352,14 @@ const SubscribeModal = ({
   setOpenConfirm: (open: boolean) => void;
 }) => {
   const [tabsKey, setTabsKey] = useState("1");
+  const [loading, setLoading] = useState(false); //加载中
   const { styles } = useStyle();
 
   const items = [
     {
       key: "1",
       label: "申购",
-      children: <Subscription />,
+      children: <Subscription/>,
     },
     {
       key: "2",
@@ -347,9 +367,16 @@ const SubscribeModal = ({
       children: <ProductRule />,
     },
   ];
-  const onChange = (key: string) => {
-    console.log(key);
+
+  const onSubmit = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setOpenSubscribe(false);
+      setOpenConfirm(true);
+    }, 1000);
   };
+
 
   return (
     <ConfigProvider
@@ -378,15 +405,17 @@ const SubscribeModal = ({
                 onClick={() => setOpenSubscribe(false)}
                 shape="round"
                 size="large"
+                disabled={loading}
               >
                 取消
               </Button>
               <Button
+                loading={loading}
                 type="primary"
                 shape="round"
                 size="large"
                 className="h-[50px] flex-1"
-                onClick={() => setOpenConfirm(true)}
+                onClick={onSubmit}
               >
                 申购
               </Button>
@@ -394,13 +423,15 @@ const SubscribeModal = ({
           ) : null
         }
       >
-        <Tabs
-          activeKey={tabsKey}
-          defaultActiveKey="1"
-          tabBarStyle={{ padding: "0 28px" }}
-          items={items}
-          onChange={(key) => setTabsKey(key)}
-        />
+        <Spin spinning={loading}>
+          <Tabs
+            activeKey={tabsKey}
+            defaultActiveKey="1"
+            tabBarStyle={{ padding: "0 28px" }}
+            items={items}
+            onChange={(key) => setTabsKey(key)}
+          />
+        </Spin>
       </Modal>
     </ConfigProvider>
   );
