@@ -6,8 +6,7 @@ import appStore from "@/store";
 import { Tooltip, Select } from "antd";
 import { useTranslation } from "next-i18next";
 import { add, cut, nul, roundDown } from "@/utils/index";
-import { getRate } from "@/utils/getUseRate";
-import { getRound } from "@/utils/getUseRate";
+import { getPairsRate } from "@/utils/getUseRate";
 // 定义订单类型
 interface Order {
   price: number;
@@ -457,7 +456,8 @@ const OrderBook = ({
                 )}
               </span>
               <span className={styles.priceCny}>
-                ¥ {(currentPrice * 7.18).toFixed(1)}
+                {/* ¥ {(currentPrice * 7.18).toFixed(1)} */}
+                <p>¥ {getPairsRate(currentPrice, 'CNY').rate}</p>
               </span>
             </div>
           </div>
