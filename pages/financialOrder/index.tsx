@@ -5,7 +5,7 @@ import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLa
 import { ConfigProvider, DatePicker, Select, Space, Table, Tabs } from "antd";
 import NoData from "@/components/noData/noData";
 import { useState } from "react";
-import Head from "next/head";
+import styles from "../../styles/components/Financial.module.css";
 const { RangePicker } = DatePicker;
 
 const tableData = [
@@ -52,12 +52,12 @@ const FinancialOrder = () => {
       label: "定期",
       children: (
         <>
-          <div className="p-[24px_20px]">
+          <div className="p-[24px_20px]  border-t-[1px] border-t-[var(--border-color)]">
             <Space>
               <Select
                 prefix="币种"
                 className="w-[200px] h-[50px]"
-                style={{textAlign: 'end'}}
+                style={{ textAlign: "end" }}
                 options={[
                   {
                     label: "全部",
@@ -68,7 +68,7 @@ const FinancialOrder = () => {
               <Select
                 prefix="类型"
                 className="w-[200px] h-[50px]"
-                style={{textAlign: 'end'}}
+                style={{ textAlign: "end" }}
                 options={[
                   {
                     label: "全部",
@@ -80,19 +80,7 @@ const FinancialOrder = () => {
             </Space>
           </div>
           <Table
-            components={{
-              header: {
-                cell: (props) => (
-                  <th
-                    {...props}
-                    style={{
-                      borderTop: "1px solid #DCDCDC",
-                      borderBottom: "1px solid #DCDCDC",
-                    }}
-                  />
-                ),
-              },
-            }}
+            className={styles.table}
             columns={columns}
             dataSource={tableData}
             size="large"
@@ -125,21 +113,25 @@ const FinancialOrder = () => {
           },
           Tabs: {
             horizontalMargin: "0px",
+            inkBarColor: "var(--text-color5)", // 指示条颜色
+            itemSelectedColor: "var(--text-color5)", // 选中文本颜色
+            itemColor: "var(--text-color6)", // 文本颜色
+            itemHoverColor: "var(--text-color5)", // 悬停文本颜色
           },
           Select: {
             optionSelectedBg: "var(--background10)",
           },
         },
-        token: {
-          // 可以在这里添加更多自定义token
-        },
       }}
     >
       <div className="w-[100%] h-[100%]">
-        <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">理财订单</div>
+        <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
+          理财订单
+        </div>
         <div className="w-[100%] h-[100%] bg-[var(--btncolor7)] rounded-[10px]">
           <Tabs
-            tabBarStyle={{padding: "0 20px",height: "72px"}}
+            className={styles.tabs}
+            tabBarStyle={{ padding: "0 20px", height: "72px" }}
             items={items}
           />
         </div>

@@ -1,21 +1,12 @@
 import { NoData } from "@/components/noData";
 import { withAssetsLayout } from "@/components/sidebarLayout/AssetsLayout/userAssetsLayout";
-import {
-  Button,
-  ConfigProvider,
-  Divider,
-  Space,
-  Switch,
-  Table,
-  Tabs,
-  Typography,
-} from "antd";
+import { Button, ConfigProvider, Select, Space, Switch, Table, Tabs } from "antd";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useState } from "react";
 import RedemptionModal from "./components/RedemptionModal";
 import ConfirmModal from "./components/ConfirmModal";
-const { Link } = Typography;
+import styles from "../../../styles/components/Financial.module.css";
 
 const tableData = [
   {
@@ -118,19 +109,7 @@ const Financial = () => {
       label: "定期",
       children: (
         <Table
-          components={{
-            header: {
-              cell: (props) => (
-                <th
-                  {...props}
-                  style={{
-                    borderTop: "1px solid var(--border-color4)",
-                    borderBottom: "1px solid var(--border-color4)",
-                  }}
-                />
-              ),
-            },
-          }}
+          className={styles.table}
           columns={columns}
           dataSource={tableData}
           size="large"
@@ -168,6 +147,10 @@ const Financial = () => {
             },
             Tabs: {
               horizontalMargin: "0px",
+              inkBarColor: "var(--text-color5)", // 指示条颜色
+              itemSelectedColor: "var(--text-color5)", // 选中文本颜色
+              itemColor: "var(--text-color6)", // 文本颜色
+              itemHoverColor: "var(--text-color5)", // 悬停文本颜色
             },
           },
         }}
@@ -219,9 +202,11 @@ const Financial = () => {
             </div>
             {/* 表格 */}
             <Tabs
+              className={styles.tabs}
               items={items}
               activeKey={tabsKey}
-              tabBarStyle={{padding: "0 20px",height: "72px"}}
+              tabBarStyle={{ padding: "0 20px", height: "72px" }}
+              tabBarExtraContent={{ right: <Select className="w-[170px] h-[30px]" options={[]} /> }}
               onChange={(key) => setTabsKey(key)}
             />
           </div>
