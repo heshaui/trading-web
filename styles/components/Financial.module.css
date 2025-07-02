@@ -3,7 +3,9 @@
   border-top: 0.5px solid var(--border-color);
   border-bottom: 0.5px solid var(--border-color);
 }
-
+.table :global(.ant-table-thead) :global(.ant-table-cell) {
+  font-size: 12px !important;
+}
 .table :global(.ant-table-expanded-row) > :global(.ant-table-cell) {
   padding: 0 !important;
 }

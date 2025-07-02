@@ -112,7 +112,6 @@ const Financial = () => {
           className={styles.table}
           columns={columns}
           dataSource={tableData}
-          size="large"
           pagination={false}
           loading={tableLoading}
           locale={{ emptyText: <NoData /> }}

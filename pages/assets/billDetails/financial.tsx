@@ -2,6 +2,7 @@ import { NoData } from "@/components/noData";
 import { ConfigProvider, DatePicker, Select, Table } from "antd";
 import { useState } from "react";
 const { RangePicker } = DatePicker;
+import styles from "../../../styles/components/Financial.module.css";
 
 const tableData = [
   {
@@ -81,22 +82,9 @@ const Financial = () => {
         <RangePicker className="w-[278px] h-[50px]" />
       </div>
       <Table
-        components={{
-          header: {
-            cell: (props) => (
-              <th
-                {...props}
-                style={{
-                  borderTop: "1px solid #DCDCDC",
-                  borderBottom: "1px solid #DCDCDC",
-                }}
-              />
-            ),
-          },
-        }}
+        className={styles.table}
         columns={columns}
         dataSource={tableData}
-        size="large"
         pagination={false}
         loading={tableLoading}
         locale={{ emptyText: <NoData /> }}
