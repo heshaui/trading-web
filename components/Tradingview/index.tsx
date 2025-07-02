@@ -828,7 +828,7 @@ const Tradingview: React.ForwardRefRenderFunction<
               description: `${baseSymbol}/USDT`,
               type: "crypto",
               session: "24x7",
-              timezone: "Etc/UTC",
+              timezone: "Asia/Shanghai",
               exchange: "",
               minmov: 1,
               pricescale: 100000,
@@ -897,7 +897,6 @@ const Tradingview: React.ForwardRefRenderFunction<
               return;
             }
           }
-          console.log("请求的", originalInterval);
           // 使用原始的时间间隔格式构建URL
           const url = `${process.env.NEXT_PUBLIC_WEB_API_BASE}/kline/${symbol}/${originalInterval}/range?start_time=${startTime}&end_time=${endTime}&limit=1000`;
 
