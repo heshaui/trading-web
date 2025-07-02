@@ -158,7 +158,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
             width: 128,
             align: "center",
             render: (_status, record) => {
-                return < >{record.status == 1 ?
+                return < >{record?.status?.toString() == '1' || record?.status?.toString() == '0' ?
                     <button className={`${styles.theme_color}`}
                         onClick={() => {
                             setOpen(true)
@@ -197,21 +197,24 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
     const getStatus = (status: number) => {
         const statusText = Number(status)
+        // 状态: 0-创建, 1-待审核, 2-审核通过, 3-审核拒绝, 4-用户撤销  5 提现完成
         switch (statusText) {
-            case 0:
-                return t('withdrawTable.create') //'创建';
-            case 1:
-                return t('withdrawTable.pending') //'待审核'
-            case 2:
-                return t('withdrawTable.completed1') //已转出 //'完成'
-            case 3:
-                return t('withdrawTable.rejected') //'拒绝 '
-            case 4:
-                return t('withdrawTable.canceled') //'用户撤销'
-            default:
-                return statusText||'--'
+          case 0:
+            return t('withdrawTable.create') //'创建';
+          case 1:
+            return t('withdrawTable.pending') //'待审核'
+          case 2:
+            return t('withdrawTable.passed') //审核通过
+          case 3:
+            return t('withdrawTable.rejected') //'审核拒绝'
+          case 4:
+            return t('withdrawTable.canceled') //'用户撤销'
+          case 5:
+            return t('withdrawTable.completed') //'提现完成'
+          default:
+            return statusText || '--'
         }
-    }
+      }
 
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {

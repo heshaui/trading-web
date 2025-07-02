@@ -5,6 +5,7 @@ const textStyle = {
   fontWeight: "500",
   color: "var(--text-color5)",
   borderBottom: "1px solid var(--border-color4)",
+  borderRadius: "0",
 };
 
 const text = `

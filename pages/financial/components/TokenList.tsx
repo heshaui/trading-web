@@ -1,6 +1,7 @@
 import { SearchOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Table, Button, ConfigProvider } from "antd";
 import { useState } from "react";
+import styles from "../../../styles/components/Financial.module.css";
 
 const dataSource = [
   {
@@ -16,6 +17,7 @@ const dataSource = [
     address: "活期",
   },
 ];
+
 const TokenList = ({
   setOpenSubscribe,
 }: {
@@ -55,6 +57,7 @@ const TokenList = ({
       dataIndex: "address",
       key: "address",
       width: "10%",
+      align: "right" as const,
       render: (text: any, record: any, index: number) => (
         <Button
           type="text"
@@ -82,7 +85,8 @@ const TokenList = ({
             headerSplitColor: "transparent",
             borderColor: "transparent",
             rowExpandedBg: "var(--bgc-color)",
-            cellPaddingInline: 0,
+            // cellPaddingInline: 0,
+            // cellPaddingBlock: 0,
             headerColor: "var(--text-color6)",
             fontWeightStrong: 400,
             headerBorderRadius: 0,
@@ -110,60 +114,19 @@ const TokenList = ({
           />
         </Space>
         <Table
-          components={{
-            header: {
-              cell: (props) => (
-                <th
-                  {...props}
-                  style={{
-                    borderTop: "1px solid #DCDCDC",
-                    borderBottom: "1px solid #DCDCDC",
-                  }}
-                />
-              ),
-            },
-          }}
+          className={styles.table}
           bordered={false}
           expandable={{
             expandedRowRender: (record) => (
-              <table>
-                <tr className="h-[64px]">
-                  <td className="w-[30%]"></td>
-                  <td className="w-[30%]">2.82 ~ 3.20%</td>
-                  <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]">
-                    <Button
-                      type="primary"
-                      shape="round"
-                      onClick={() => setOpenSubscribe(true)}
-                    >
-                      购买
-                    </Button>
-                  </td>
-                </tr>
-                <tr className="h-[64px]">
-                  <td className="w-[30%]"></td>
-                  <td className="w-[30%]">2.82 ~ 3.20%</td>
-                  <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]">
-                    <Button type="primary" shape="round">
-                      购买
-                    </Button>
-                  </td>
-                </tr>
-                <tr className="h-[64px]">
-                  <td className="w-[30%]"></td>
-                  <td className="w-[30%]">2.82 ~ 3.20%</td>
-                  <td className="w-[30%]">活期</td>
-                  <td className="w-[10%]">
-                    <Button type="primary" shape="round">
-                      购买
-                    </Button>
-                  </td>
-                </tr>
-              </table>
+              <Table
+                showHeader={false}
+                columns={columns}
+                dataSource={dataSource}
+                bordered={false}
+                pagination={false}
+              />
             ),
-            expandIconColumnIndex: 0,
+            expandIconColumnIndex: 0, // 展开列的索引
             showExpandColumn: false, // 隐藏默认的展开列
             expandedRowKeys, // 展开的行
             onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]), // 展开的行
@@ -175,6 +138,5 @@ const TokenList = ({
     </ConfigProvider>
   );
 };
-
 
 export default TokenList;

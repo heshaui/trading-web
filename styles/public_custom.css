@@ -196,11 +196,12 @@
     background-color: var(--text-color4) !important;
 } */
 
-.custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
+/* .custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
 .custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after {
     background-color: var(--text-color4) !important;
-}
-
+} */
+.custom-steps .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
+.custom-steps2 .ant-steps-item-wait>.ant-steps-item-container>.ant-steps-item-tail::after,
 .withdraw_steps .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after,
 .custom-steps .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after,
 .custom-steps2 .ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-tail::after {
