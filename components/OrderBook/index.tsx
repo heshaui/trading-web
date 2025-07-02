@@ -17,12 +17,14 @@ interface Order {
 interface OrderBookProps {
   bookData: any;
   orderData: any;
+  klineData: any;
   priceClickHandler?: (price: number) => void;
 }
 
 const OrderBook = ({
   bookData,
   orderData,
+  klineData,
   priceClickHandler,
 }: OrderBookProps) => {
   const { t } = useTranslation(["spot"]);
@@ -117,11 +119,7 @@ const OrderBook = ({
           setBuyRatio(Number(((totalBuyAmount / total) * 100).toFixed(2)));
           setSellRatio(Number(((totalSellAmount / total) * 100).toFixed(2)));
         }
-      } else if (bookData.asks?.length > 0 && currentPrice === 0) {
-        setCurrentPrice(Number(bookData.asks[0][0]));
-      } else if (bookData.bids?.length > 0 && currentPrice === 0) {
-        setCurrentPrice(Number(bookData.bids[0][0]));
-      }
+      } 
     }
   }, [bookData, colorMode]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
   // 注意：这里故意不将sellOrders和buyOrders添加到依赖数组中，因为每次更新这些状态会触发新的effect执行，造成无限循环
@@ -162,7 +160,6 @@ const OrderBook = ({
       if (typedProcessedTrades.length > 0) {
         const newPrice = typedProcessedTrades[0].price;
         const newType = typedProcessedTrades[0].type;
-        const newTradePrice = typedProcessedTrades[0].tradePrice;
 
         setLastPrice((prevPrice) => {
           if (prevPrice > 0) {
@@ -172,8 +169,6 @@ const OrderBook = ({
             );
           }
 
-          // 更新当前价格为最新成交价
-          setCurrentPrice(newTradePrice);
           setPriceSource(newType);
 
           return newPrice;
@@ -201,10 +196,31 @@ const OrderBook = ({
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
-    if (!orderData || orderData.length === 0) {
-      setCurrentPrice(0);
-    }
+  
   }, [orderData]); // 保持正确的依赖项
+
+  // 使用klineData的收盘价更新currentPrice
+  useEffect(() => {
+
+    if (klineData && klineData.data && Array.isArray(klineData.data) && klineData.data.length > 0) {
+      // 获取最新的K线数据（最后一个元素）
+      const latestKline = klineData.data[klineData.data.length - 1];
+      if (latestKline && Array.isArray(latestKline) && latestKline.length > 4) {
+        const closePrice = Number(latestKline[4]); // 收盘价在索引4的位置
+        if (closePrice > 0) {
+          setCurrentPrice((prevPrice) => {
+            if (prevPrice > 0) {
+              // 设置价格方向
+              setPriceDirection(
+                closePrice > prevPrice ? "up" : closePrice < prevPrice ? "down" : ""
+              );
+            }
+            return closePrice;
+          });
+        }
+      }
+    }
+  }, [klineData]);
 
   const renderColorModeButtons = () => {
     return (
@@ -457,7 +473,7 @@ const OrderBook = ({
               </span>
               <span className={styles.priceCny}>
                 {/* ¥ {(currentPrice * 7.18).toFixed(1)} */}
-                <p>¥ {getPairsRate(currentPrice, 'CNY').rate}</p>
+                <p>¥ {getPairsRate(currentPrice, 'CNY').rate.toFixed(2)}</p>
               </span>
             </div>
           </div>
