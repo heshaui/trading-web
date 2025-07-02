@@ -55,6 +55,7 @@ const TokenList = ({
       dataIndex: "address",
       key: "address",
       width: "10%",
+      align: "right" as const,
       render: (text: any, record: any, index: number) => (
         <Button
           type="text"
@@ -82,7 +83,7 @@ const TokenList = ({
             headerSplitColor: "transparent",
             borderColor: "transparent",
             rowExpandedBg: "var(--bgc-color)",
-            cellPaddingInline: 0,
+            // cellPaddingInline: 0,
             headerColor: "var(--text-color6)",
             fontWeightStrong: 400,
             headerBorderRadius: 0,
