@@ -82,11 +82,10 @@ const FinancialOrder = () => {
           <Table
             className={styles.table}
             columns={columns}
-            dataSource={tableData}
+            // dataSource={tableData}
             pagination={false}
             loading={tableLoading}
             locale={{ emptyText: <NoData /> }}
-            showSorterTooltip={false}
           />
         </>
       ),
@@ -127,7 +126,7 @@ const FinancialOrder = () => {
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
           理财订单
         </div>
-        <div className="w-[100%] h-[100%] bg-[var(--btncolor7)] rounded-[10px]">
+        <div className="bg-[var(--btncolor7)] rounded-[10px]">
           <Tabs
             className={styles.tabs}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}

@@ -790,7 +790,7 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
         zIndex: 1000,
         placement: "top",
         // getPopupContainer: (triggerNode) => triggerNode,
-        color: "var(--theme-orange, #FF8C00)", // 设置悬浮框背景颜色为橙色
+        color: "var(--theme-color)", // 设置悬浮框背景颜色为橙色
         formatter: (value) => `${(value || 0).toFixed(2)}%`,
         autoAdjustOverflow: false,
       }}

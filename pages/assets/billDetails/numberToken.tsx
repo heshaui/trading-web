@@ -193,7 +193,7 @@ const NumberToken = () => {
       >
         <div>
           <div
-            className={`${styles.table_header} w-full flex align-center p-[30px_20px]`}
+            className={`${styles.table_header} w-full flex align-center p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]`}
           >
             <Select
               allowClear
