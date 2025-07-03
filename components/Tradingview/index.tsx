@@ -118,7 +118,18 @@ const Tradingview: React.ForwardRefRenderFunction<
         "symbol_change",
       ];
 
-      const lang = localStorage.getItem("lang") || "zh";
+      let lang = localStorage.getItem("lang") || "zh";
+      if (lang == "zh_CN") {
+        lang = "zh";
+      } else if (lang == "en_US") {
+        lang = "en";
+      } else if (lang == "ko_KR") {
+        lang = "ko";
+      } else if (lang == "vi_VN") {
+        lang = "vi";
+      } else {
+        lang = "en";
+      }
       const widgetOptions = {
         symbol: chartSymbol,
         datafeed: datafeed,
