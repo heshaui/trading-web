@@ -9,6 +9,7 @@ import ConfirmModal from "./components/ConfirmModal";
 import SubscribeModal from "./components/SubscribeModal";
 import { getFinancialConfig } from "@/services/financial";
 import { StatusEnum } from "@/services/financial";
+import { useAuth } from "@/context/AuthContext";
 
 export interface FinancialConfig {
   financialSwitch: StatusEnum | null;
@@ -18,6 +19,7 @@ export interface FinancialConfig {
 }
 
 export default observer(function FinancialPage() {
+  const { isLoggedIn } = useAuth();
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openSubscribe, setOpenSubscribe] = useState(false);
   const [financialConfig, setFinancialConfig] = useState<FinancialConfig>({
@@ -42,18 +44,16 @@ export default observer(function FinancialPage() {
   useEffect(() => {
     // 确保只在客户端执行
     if (typeof window !== 'undefined') {
-      initFinancialConfig();
+      if (isLoggedIn) {
+        initFinancialConfig();
+      }
     }
   }, []);
   return (
     <>
-      <MyFinancial financialConfig={financialConfig} />
-      <TokenList setOpenSubscribe={setOpenSubscribe} financialConfig={financialConfig} />
-      {
-        financialConfig?.isDisplayBackground && financialConfig.isDisplayBackground === StatusEnum.OPEN && (
-          <Problem />
-        )
-      }
+      <MyFinancial financialConfig={financialConfig} isLoggedIn={isLoggedIn} />
+      <TokenList setOpenSubscribe={setOpenSubscribe} financialConfig={financialConfig} isLoggedIn={isLoggedIn} />
+      <Problem />
       <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
       <SubscribeModal
         openSubscribe={openSubscribe}

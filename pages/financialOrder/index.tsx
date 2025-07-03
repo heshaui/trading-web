@@ -2,100 +2,264 @@
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
 import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
-import { ConfigProvider, DatePicker, Select, Space, Table, Tabs } from "antd";
+import {
+  ConfigProvider,
+  DatePicker,
+  Flex,
+  Select,
+  Space,
+  Table,
+  Tabs,
+} from "antd";
 import NoData from "@/components/noData/noData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../../styles/components/Financial.module.css";
+import {
+  FinancialOrderItem,
+  FinancialOrderListParams,
+  FinancialOrderStatusEnum,
+  getFinancialOrderList,
+} from "@/services/financial";
+import { getCoinAll } from "@/services/assets";
 const { RangePicker } = DatePicker;
+import { FinancialType } from "@/services/financial";
+import Image from "next/image";
+import { ColumnsType } from "antd/es/table";
 
-const tableData = [
-  {
-    tokenName: "USDT",
-    autoSubscribe: 1,
-    subscribeAmount: "1000",
-    annualRate: "10%",
-    totalIncome: "1000",
-  },
-];
-const FinancialOrder = () => {
-  const [tableLoading, setTableLoading] = useState(false);
-
+const TabsItem = ({
+  tableData,
+  coinList,
+  tableLoading,
+  setFormData,
+  formData,
+}: {
+  tableData: FinancialOrderItem[];
+  coinList: { coinName: string; id: string }[];
+  tableLoading: boolean;
+  setFormData: (data: FinancialOrderListParams) => void;
+  formData: FinancialOrderListParams;
+}) => {
   // 表格列
-  const columns = [
+  const columns: ColumnsType<FinancialOrderItem> = [
     {
       title: "币种",
-      dataIndex: "tokenName",
-      width: "190px",
+      dataIndex: "coinName",
+      key: "coinName",
+      render: (_: any, record: any) => {
+        return (
+          <Flex gap="8px">
+            {record.iconUrl && (
+              <Image width={24} height={24} src={record.iconUrl} alt="" />
+            )}
+            <div>{record.coinName}</div>
+          </Flex>
+        );
+      },
     },
     {
       title: "日期",
-      dataIndex: "autoSubscribe",
+      dataIndex: "createTime",
+      key: "createTime",
     },
     {
       title: "类型",
-      dataIndex: "subscribeAmount",
+      dataIndex: "type",
+      key: "type",
+      render: (_: any, record: any) => {
+        return (
+          <>
+            {record.type == FinancialType.FIXED && <div>定期</div>}
+            {record.type == FinancialType.CURRENT && <div>活期</div>}
+          </>
+        );
+      },
     },
     {
       title: "金额",
-      dataIndex: "annualRate",
+      dataIndex: "amount",
+      key: "amount",
+      render: (_: any, record: any) => {
+        return (
+          <div>
+            <div>{record.amount} USDT</div>
+            <div>≈￥{record.usdAmount}</div>
+          </div>
+        );
+      },
     },
     {
       title: "状态",
-      dataIndex: "totalIncome",
+      dataIndex: "status",
+      key: "status",
+      render: (_: any, record: any) => {
+        //1申购，2赎回，3利息
+        return (
+          <>
+            {record.status == FinancialOrderStatusEnum.PURCHASE && (
+              <div>申购</div>
+            )}
+            {record.status == FinancialOrderStatusEnum.REDEEM && (
+              <div>赎回</div>
+            )}
+            {record.status == FinancialOrderStatusEnum.INTEREST && (
+              <div>利息</div>
+            )}
+          </>
+        );
+      },
     },
   ];
+
+  //内容
+  return (
+    <>
+      <div className="p-[24px_20px]  border-t-[1px] border-t-[var(--border-color)]">
+        <Space>
+          <Select
+            value={formData.coinId}
+            prefix="币种"
+            className="w-[200px] h-[50px]"
+            style={{ textAlign: "end" }}
+            options={[
+              {
+                label: "全部",
+                value: null,
+              },
+              ...coinList.map((item) => ({
+                label: item.coinName,
+                value: item.id,
+              })),
+            ]}
+            onChange={(value) => setFormData({ ...formData, coinId: value })}
+          />
+          <Select
+            prefix="类型"
+            className="w-[200px] h-[50px]"
+            style={{ textAlign: "end" }}
+            value={formData.operationType}
+            onChange={(value) =>
+              setFormData({ ...formData, operationType: value })
+            }
+            options={[
+              {
+                label: "全部",
+                value: null,
+              },
+              {
+                label: "申购",
+                value: "申购",
+              },
+              {
+                label: "赎回",
+                value: "赎回",
+              },
+            ]}
+          />
+          <RangePicker
+            className="w-[278px] h-[50px]"
+            onChange={(value) =>
+              setFormData({
+                ...formData,
+                startTime: value?.[0]?.unix(),
+                endTime: value?.[1]?.unix(),
+              })
+            }
+          />
+        </Space>
+      </div>
+      <Table
+        className={styles.table}
+        columns={columns}
+        dataSource={tableData}
+        pagination={false}
+        loading={tableLoading}
+        locale={{ emptyText: <NoData /> }}
+      />
+    </>
+  );
+};
+const FinancialOrder = () => {
+  const [tableLoading, setTableLoading] = useState(false);
+  const [formData, setFormData] = useState<FinancialOrderListParams>({
+    type: FinancialType.FIXED,
+    coinId: null,
+    operationType: null,
+    startTime: null,
+    endTime: null,
+  });
+  const [tableData, setTableData] = useState<FinancialOrderItem[]>([]);
+  const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
+    []
+  );
 
   // 切换tabs
   const items = [
     {
-      key: "1",
+      key: String(FinancialType.FIXED),
       label: "定期",
       children: (
-        <>
-          <div className="p-[24px_20px]  border-t-[1px] border-t-[var(--border-color)]">
-            <Space>
-              <Select
-                prefix="币种"
-                className="w-[200px] h-[50px]"
-                style={{ textAlign: "end" }}
-                options={[
-                  {
-                    label: "全部",
-                    value: "all",
-                  },
-                ]}
-              />
-              <Select
-                prefix="类型"
-                className="w-[200px] h-[50px]"
-                style={{ textAlign: "end" }}
-                options={[
-                  {
-                    label: "全部",
-                    value: "all",
-                  },
-                ]}
-              />
-              <RangePicker className="w-[278px] h-[50px]" />
-            </Space>
-          </div>
-          <Table
-            className={styles.table}
-            columns={columns}
-            // dataSource={tableData}
-            pagination={false}
-            loading={tableLoading}
-            locale={{ emptyText: <NoData /> }}
-          />
-        </>
+        <TabsItem
+          tableData={tableData}
+          coinList={coinList}
+          tableLoading={tableLoading}
+          formData={formData}
+          setFormData={setFormData}
+        />
       ),
     },
     {
-      key: "2",
+      key: String(FinancialType.CURRENT),
       label: "活期",
-      children: <div>活期</div>,
+      children: (
+        <TabsItem
+          tableData={tableData}
+          coinList={coinList}
+          tableLoading={tableLoading}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      ),
     },
   ];
+
+  const fetchData = async (params: FinancialOrderListParams) => {
+    try {
+      setTableLoading(true);
+      const res = await getFinancialOrderList(params);
+      if (res.code === "0") {
+        setTableData(res.data);
+      }
+    } catch (error) {
+      console.error("获取数据失败:", error);
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  const fetchCoinList = async () => {
+    try {
+      const response = await getCoinAll();
+      if (response.code === "0" && Array.isArray(response.data)) {
+        setCoinList(
+          response.data.map((item: any) => ({
+            coinName: item.coinName,
+            id: item.coinId,
+          }))
+        );
+      } else {
+      }
+    } catch (error) {
+      console.error("获取币种列表失败:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoinList();
+  }, []);
+
+  useEffect(() => {
+    fetchData(formData);
+  }, [formData]);
 
   return (
     <ConfigProvider
@@ -131,6 +295,15 @@ const FinancialOrder = () => {
             className={styles.tabs}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
             items={items}
+            onChange={(key) =>
+              setFormData({
+                type: Number(key),
+                coinId: null,
+                operationType: null,
+                startTime: null,
+                endTime: null,
+              })
+            }
           />
         </div>
       </div>

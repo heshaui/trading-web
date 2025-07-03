@@ -1,16 +1,24 @@
 import { observer } from "mobx-react-lite";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 import { getBackgroundImageConfig, getMyPosition } from "@/services/financial";
 import { useEffect, useState } from "react";
 import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { Image } from "antd";
+import { Image, Modal, Tooltip } from "antd";
 import { FinancialConfig } from "../index";
 import { StatusEnum } from "@/services/financial";
+import { useRouter } from "next/router";
 
 const MyFinancial = observer(
-  ({ financialConfig }: { financialConfig: FinancialConfig }) => {
+  ({
+    financialConfig,
+    isLoggedIn,
+  }: {
+    financialConfig: FinancialConfig;
+    isLoggedIn: boolean;
+  }) => {
     const { t } = useTranslation(["financial"]);
+    const router = useRouter();
 
     const [showAmount, setShowAmount] = useState(false);
     const [myAmount, setMyAmount] = useState({
@@ -33,7 +41,7 @@ const MyFinancial = observer(
           setBgContent(res.data);
         }
       } catch (error) {
-        console.error('Failed to load background image config:', error);
+        console.error("Failed to load background image config:", error);
       }
     };
 
@@ -45,36 +53,59 @@ const MyFinancial = observer(
           setMyAmount(res.data);
         }
       } catch (error) {
-        console.error('Failed to load position data:', error);
+        console.error("Failed to load position data:", error);
       }
+    };
+
+    const openProblem = () => {
+      Modal.info({
+        title: "什么是" + bgContent.mainTitle + "？",
+        content: (
+          <div>
+            Staking是基于数字资产的理财，您购买的产品，在持仓期或锁仓期结束后均可以获得本息收益。主要包含“活期理财、定期理财”。我们将甄选优质项目提供丰富的持币收益，支持全球的持币用户参与。目前首发项目将提供“锁仓、持仓”等多种返利方式。持仓理财：用户只需持有该资产即可获得收益。定期理财：根据不同的项目，您可以选择不同项目的锁仓周期，到期后您将获得全部奖励和收益，若您在锁定期内提前将资产转出将损失已产生奖励。
+          </div>
+        ),
+      });
     };
 
     useEffect(() => {
       // 确保只在客户端执行
-      if (typeof window !== 'undefined') {
-        initBackgroundImage();
-        initMyPosition();
+      if (typeof window !== "undefined") {
+        if (isLoggedIn) {
+          initBackgroundImage();
+          initMyPosition();
+        }
       }
     }, []);
 
     return (
       <div
-        className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px] flex-wrap"
-        style={{ backgroundImage: `url(${bgContent.backgroundImage})`, backgroundSize: "cover", backgroundPosition: "center" }}
+        className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px] flex-wrap min-h-[412px]"
+        style={{
+          backgroundImage: `url(${bgContent.backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
         <div className="flex-1">
           <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
             {bgContent.mainTitle}
           </div>
-          <div className="font-w-400 text-[20px] mb-[12px] leading-[normal] text-[var(--text-color6)]">
+          {/* <div className="font-w-400 text-[20px] mb-[12px] leading-[normal] text-[var(--text-color6)]">
             门槛低 | 安全性高 | 收益率高
-          </div>
+          </div> */}
           <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)]">
             {bgContent.subTitle}
           </div>
-          <div className="font-w-400 text-[22px] text-[color:var(--theme-color)]">
-            什么是{bgContent.mainTitle}？
-          </div>
+          {financialConfig?.isDisplayBackground &&
+            financialConfig.isDisplayBackground === StatusEnum.OPEN && (
+              <div
+                className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
+                onClick={openProblem}
+              >
+                什么是{bgContent.mainTitle}？
+              </div>
+            )}
         </div>
         {financialConfig?.isDisplayAssets &&
           financialConfig.isDisplayAssets === StatusEnum.OPEN && (
@@ -99,19 +130,33 @@ const MyFinancial = observer(
                   </div>
                 </div>
                 <div className="flex flex-ai-center flex-jc-between gap-[8px]">
-                  <div className="w-[24px] h-[24px]">
-                    <Image
-                      preview={false}
-                      src={`/images/financial/a.svg`}
-                      alt=""
-                    />
+                  <div
+                    className="w-[24px] h-[24px] cursor-pointer"
+                    onClick={() => {
+                      router.push("/financialOrder");
+                    }}
+                  >
+                    <Tooltip title="理财订单">
+                      <Image
+                        preview={false}
+                        src={`/images/financial/a.svg`}
+                        alt=""
+                      />
+                    </Tooltip>
                   </div>
-                  <div className="w-[24px] h-[24px]">
-                    <Image
-                      preview={false}
-                      src={`/images/financial/b.svg`}
-                      alt=""
-                    />
+                  <div
+                    className="w-[24px] h-[24px] cursor-pointer"
+                    onClick={() => {
+                      router.push("/assets/financial");
+                    }}
+                  >
+                    <Tooltip title="理财账户">
+                      <Image
+                        preview={false}
+                        src={`/images/financial/b.svg`}
+                        alt=""
+                      />
+                    </Tooltip>
                   </div>
                 </div>
               </div>

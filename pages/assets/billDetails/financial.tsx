@@ -1,24 +1,31 @@
 import { NoData } from "@/components/noData";
 import { ConfigProvider, DatePicker, Select, Table } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
 import styles from "../../../styles/components/Financial.module.css";
-
-const tableData = [
-  {
-    id: 1,
-    date: "2021-01-01",
-    coin: "BTC",
-    productType: "活期",
-    operationType: "购买",
-    amount: "100 BTC",
-  },
-];
+import { getCoinAll } from "@/services/assets";
+import { ColumnsType } from "antd/es/table";
+import { getFinancialBillDetails } from "@/services/financial";
 
 const Financial = () => {
   const [tableLoading, setTableLoading] = useState(false);
+  const [tableData, setTableData] = useState<any[]>([]);
 
-  const columns = [
+  // 表单数据
+  const [formData, setFormData] = useState<any>({
+    coinId: null,
+    productType: null,
+    operationType: null,
+    startTime: null,
+    endTime: null,
+  });
+
+  // 币种列表
+  const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
+    []
+  );
+
+  const columns: ColumnsType<any> = [
     {
       title: "日期",
       dataIndex: "date",
@@ -50,6 +57,45 @@ const Financial = () => {
       },
     },
   ];
+  const fetchCoinList = async () => {
+    try {
+      const response = await getCoinAll();
+      if (response.code === "0" && Array.isArray(response.data)) {
+        setCoinList(
+          response.data.map((item: any) => ({
+            coinName: item.coinName,
+            id: item.coinId,
+          }))
+        );
+      } else {
+      }
+    } catch (error) {
+      console.error("获取币种列表失败:", error);
+    }
+  };
+
+  const fetchData = async (params: any) => {
+    try {
+      setTableLoading(true);
+      const response = await getFinancialBillDetails(params);
+      if (response.code === "0") {
+        setTableData(response.data);
+      } else {
+      }
+    } catch (error) {
+      console.error("获取数据失败:", error);
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoinList();
+  }, []);
+
+  useEffect(() => {
+    fetchData(formData);
+  }, [formData]);
 
   return (
     <ConfigProvider
@@ -76,10 +122,58 @@ const Financial = () => {
       }}
     >
       <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <RangePicker className="w-[278px] h-[50px]" />
+        <Select
+          value={formData.coinId}
+          prefix="币种"
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            {
+              label: "全部",
+              value: null,
+            },
+            ...coinList.map((item) => ({
+              label: item.coinName,
+              value: item.id,
+            })),
+          ]}
+          onChange={(value) => setFormData({ ...formData, coinId: value })}
+        />
+        <Select
+          prefix="类型"
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            { label: "全部", value: "all" },
+            { label: "活期", value: "活期" },
+            { label: "定期", value: "定期" },
+          ]}
+          onChange={(value) => setFormData({ ...formData, productType: value })}
+        />
+        <Select
+          prefix="操作类型"
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            { label: "全部", value: "all" },
+            { label: "赎回", value: "赎回" },
+            { label: "申购", value: "申购" },
+            { label: "利息", value: "利息" },
+          ]}
+          onChange={(value) =>
+            setFormData({ ...formData, operationType: value })
+          }
+        />
+        <RangePicker
+          className="w-[278px] h-[50px]"
+          onChange={(value) =>
+            setFormData({
+              ...formData,
+              startTime: value?.[0]?.unix(),
+              endTime: value?.[1]?.unix(),
+            })
+          }
+        />
       </div>
       <Table
         className={styles.table}
