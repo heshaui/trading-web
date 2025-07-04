@@ -54,7 +54,6 @@ const Problem = () => {
         <div className="m-[5px_20px]">
           <Collapse
             expandIconPosition="end"
-            defaultActiveKey={["1"]}
             ghost
             items={items}
           />

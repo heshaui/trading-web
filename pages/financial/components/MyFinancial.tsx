@@ -70,13 +70,14 @@ const MyFinancial = observer(
 
     useEffect(() => {
       // 确保只在客户端执行
-      if (typeof window !== "undefined") {
+      // if (typeof window !== "undefined") {
+      console.log(isLoggedIn);
         if (isLoggedIn) {
           initBackgroundImage();
           initMyPosition();
         }
-      }
-    }, []);
+      // }
+    }, [isLoggedIn]);
 
     return (
       <div

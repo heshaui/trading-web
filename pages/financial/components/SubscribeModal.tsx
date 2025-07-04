@@ -9,10 +9,21 @@ import {
   Tabs,
   Divider,
   Spin,
+  Form,
+  FormInstance,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createStyles } from "antd-style";
-import { set } from "lodash";
+import dayjs from "dayjs";
+import {
+  FinancialPageTokenItem,
+  FinancialPageTokenProductItem,
+  financialSubscribe,
+  FinancialType,
+  getEstimateDailyIncome,
+  PurchaseEnum,
+} from "@/services/financial";
+import { getUserBalance } from "@/services/assets";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -32,119 +43,270 @@ const useStyle = createStyles(() => ({
   },
 }));
 
-const suffix = (
-  <Flex align="center" gap={2}>
-    <div className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer">
-      最大
-    </div>
-    <Divider type="vertical" />
-    <div className="text-[14px] text-[var(--text-color5)] font-[400]">USDT</div>
-  </Flex>
-);
-const Subscription: React.FC = () => {
-  const [timerIndex, setTimerIndex] = useState(0); //申购时间选择
-  const [amount, setAmount] = useState(0); //申购数量
-  const [autoSubscribe, setAutoSubscribe] = useState(false); //自动申购
+const Subscription: React.FC<{
+  form: FormInstance<any>;
+  curRecord: {
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null;
+  myBalance: any;
+}> = ({ form, curRecord, myBalance }) => {
+  const [curSelectProduct, setCurSelectProduct] = useState(
+    curRecord?.curProduct
+  ); // 选中的申购产品
+  const [income, setIncome] = useState<number | string>("-"); //预估每日收益
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const financialAmount = Form.useWatch("financialAmount", form);
+  const projectId = Form.useWatch("projectId", form);
+
+  // 监听 curRecord 变化，更新选中的产品
+  useEffect(() => {
+    if (curRecord?.curProduct) {
+      setCurSelectProduct(curRecord.curProduct);
+      setIncome("-"); // 重置收益
+    }
+  }, [curRecord]);
+
+  // 获取预估收益的函数
+  const fetchIncome = useCallback(
+    async (projectId: string | number, amount: string | number) => {
+      if (!projectId || !amount || Number(amount) <= 0) {
+        setIncome("-");
+        return;
+      }
+
+      try {
+        const res = await getEstimateDailyIncome({
+          projectId: Number(projectId),
+          amount: Number(amount),
+        });
+        if (res.code === "0") {
+          setIncome(res.data);
+        }
+      } catch (error) {
+        console.error("获取预估收益失败:", error);
+      }
+    },
+    []
+  );
+
+  // 监听 financialAmount 变化，添加防抖处理
+  useEffect(() => {
+    if (curSelectProduct && projectId) {
+      // 清除之前的定时器
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      // 设置新的定时器，500ms后执行
+      debounceTimer.current = setTimeout(() => {
+        fetchIncome(projectId, financialAmount);
+      }, 500);
+    }
+
+    // 清理函数
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [financialAmount, projectId, curSelectProduct, fetchIncome]);
+
+  const maxAmount = () => {
+    form.setFieldValue(
+      "financialAmount",
+      curSelectProduct?.maxPurchaseAmount || 0
+    );
+  };
+
+  const suffix = (
+    <Flex align="center" gap={2}>
+      <div
+        className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
+        onClick={maxAmount}
+      >
+        最大
+      </div>
+      <Divider type="vertical" />
+      <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+        {curRecord?.token.coinName}
+      </div>
+    </Flex>
+  );
 
   return (
-    <div className="p-[0_20px_20px_20px]">
-      {/* 选择时间 7天 */}
-      <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
-        <div
-          style={{
-            border:
-              timerIndex === 0
-                ? "1px solid var(--theme-color)"
-                : "1px solid var(--border-color4)",
-          }}
-          className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
-            timerIndex === 0
-              ? "border-[var(--theme-color)]"
-              : "border-[var(--border-color4)]"
-          }`}
-          onClick={() => setTimerIndex(0)}
-        >
-          <div>7天</div>
-          <div className="text-[#00C788]">2.22%</div>
+    <Form form={form}>
+      <Form.Item name="projectId" hidden>
+        <Input />
+      </Form.Item>
+      <div className="p-[0_20px_20px_20px]">
+        {/* 选择时间 7天 */}
+        <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
+          {curRecord?.token.products?.map((item) => (
+            <div
+              onClick={() => {
+                form.resetFields();
+                setIncome("-");
+                setCurSelectProduct(item);
+                form.setFieldValue("projectId", item.id);
+                // 立即获取收益，不等待防抖
+                const currentAmount = form.getFieldValue("financialAmount");
+                if (currentAmount && Number(currentAmount) > 0 && item.id) {
+                  fetchIncome(item.id, currentAmount);
+                }
+              }}
+              key={item.id}
+              style={{
+                border:
+                  curSelectProduct?.id === item.id
+                    ? "1px solid var(--theme-color)"
+                    : "1px solid var(--border-color4)",
+              }}
+              className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
+                curSelectProduct?.id === item.id
+                  ? "border-[var(--theme-color)]"
+                  : "border-[var(--border-color4)]"
+              }`}
+            >
+              <div>
+                {item.type === FinancialType.CURRENT
+                  ? "活期"
+                  : `${item.term}天`}
+              </div>
+              <div className="text-[#00C788]">
+                {item.type === FinancialType.FIXED ? (
+                  <span>{item.maxAnnualInterestRate}%</span>
+                ) : (
+                  <>
+                    <span>{item.minAnnualInterestRate}%</span>~
+                    <span>{item.maxAnnualInterestRate}%</span>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex-1 rounded-[10px]  border border-[var(--border-color4)] py-[5px] px-[14px] cursor-pointer bg-[var(--background12)]">
-          <div>活期</div>
-          <div className="text-[#00C788]">2.22%</div>
-        </div>
-        <div className="flex-1 rounded-[10px]  border border-[var(--border-color4)] py-[5px] px-[14px] cursor-pointer bg-[var(--background12)]">
-          <div>14天</div>
-          <div className="text-[#00C788]">2.22%</div>
-        </div>
-      </div>
-      {/* 申购数量input */}
-      <div className="mb-[16px]">
-        <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-          申购数量
-        </div>
-        <Input
-          placeholder="请输入申购数量"
-          className="m-[10px_0] w-[100%] h-[50px]"
-          suffix={suffix}
-        />
-        <div className="mb-[2px]">
-          <span className="text-[#9E9E9E] font-[400] mr-[10px]">现货可用:</span>{" "}
-          10.30 BTC
-        </div>
-        <div>
-          <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span>{" "}
-          10,000 USDT
-        </div>
-      </div>
-      {/* 申购数量shownumber */}
-      <div className="flex flex-column gap-[10px] mb-[24px]">
-        <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-          概览
-        </div>
-        <div className="flex flex-ai-center flex-jc-between">
-          <div className="text-[var(--text-color6)] font-[400]">
-            预估每日收益
+        {/* 申购数量input */}
+        <div className="mb-[16px]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+            申购数量
           </div>
-          <div className="text-[var(--theme-color)] font-[400]">-- USDT</div>
-        </div>
-        <div className="flex flex-ai-center flex-jc-between">
-          <div className="text-[var(--text-color6)] font-[400]">自动申购</div>
+                      <Form.Item
+              name="financialAmount"
+              rules={[
+                {
+                  required: true,
+                  message: "请输入申购数量",
+                },
+                {
+                  validator: (_, value) => {
+                    // 如果没有输入值，不进行范围校验，让required规则单独处理
+                    if (!value || value === '') {
+                      return Promise.resolve();
+                    }
+                    
+                    if (
+                      curSelectProduct?.minPurchaseAmount &&
+                      value < curSelectProduct?.minPurchaseAmount
+                    ) {
+                      return Promise.reject(
+                        new Error(`最少 ${curSelectProduct?.minPurchaseAmount} ${curRecord?.token.coinName}`)
+                      );
+                    }
+                    if (
+                      curSelectProduct?.maxPurchaseAmount &&
+                      value > curSelectProduct?.maxPurchaseAmount
+                    ) {
+                      return Promise.reject(
+                        new Error(`最多 ${curSelectProduct?.maxPurchaseAmount} ${curRecord?.token.coinName}`)
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+            <Input
+              placeholder={`最少 ${curSelectProduct?.minPurchaseAmount} ${curRecord?.token.coinName}`}
+              className="m-[10px_0] w-[100%] h-[50px]"
+              suffix={suffix}
+            />
+          </Form.Item>
+          <div className="mb-[2px]">
+            <span className="text-[#9E9E9E] font-[400] mr-[10px]">
+              现货可用:
+            </span>
+            {myBalance?.balance} {curRecord?.token.coinName}
+          </div>
           <div>
-            <Switch />
+            <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span>
+            {(curSelectProduct?.maxPurchaseAmount || 0) -
+              (financialAmount || 0)}{" "}
+            {curRecord?.token.coinName}
           </div>
         </div>
+        {/* 申购数量shownumber */}
+        <div className="flex flex-column gap-[10px] mb-[24px]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+            概览
+          </div>
+          <div className="flex flex-ai-center flex-jc-between">
+            <div className="text-[var(--text-color6)] font-[400]">
+              预估每日收益
+            </div>
+            <div className="text-[var(--theme-color)] font-[400]">
+              {income} {curRecord?.token.coinName}
+            </div>
+          </div>
+          <div className="flex flex-ai-center flex-jc-between">
+            <div className="text-[var(--text-color6)] font-[400]">自动申购</div>
+            <Form.Item name="autoSubscribe" noStyle>
+              <Switch />
+            </Form.Item>
+          </div>
+        </div>
+        {/* 奖励规则 定期不显示 活期显示 */}
+        {curSelectProduct?.type === FinancialType.CURRENT && (
+          <div className="mb-[16px]">
+            <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
+              奖励规则
+            </div>
+            <>
+              <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
+                <div className="text-[var(--text-color6)] font-[400]">
+                  申请数量0 - {curSelectProduct?.assetBoundary}
+                  {curRecord?.token.coinName}
+                </div>
+                <div className="text-[var(--text-color6)] font-[400]">
+                  年化利率 {curSelectProduct?.minAnnualInterestRate}%
+                </div>
+              </div>
+              <div className="flex flex-ai-center flex-jc-between text-[14px]">
+                <div className="text-[var(--text-color6)] font-[400]">
+                  申请数量 &gt; {curSelectProduct?.assetBoundary}
+                  {curRecord?.token.coinName}
+                </div>
+                <div className="text-[var(--text-color6)] font-[400]">
+                  年化利率 {curSelectProduct?.maxAnnualInterestRate}%
+                </div>
+              </div>
+            </>
+          </div>
+        )}
+        {/* 提示 */}
+        {curSelectProduct?.isRedemption === PurchaseEnum.YES ? (
+          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
+            该产品支持提前赎回，查看规则
+          </div>
+        ) : null}
       </div>
-      {/* 奖励规则 */}
-      <div className="mb-[16px]">
-        <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-          奖励规则
-        </div>
-        <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
-          <div className="text-[var(--text-color6)] font-[400]">
-            申请数量0 - 1000 USDT
-          </div>
-          <div className="text-[var(--text-color6)] font-[400]">
-            年化利率 3.20%
-          </div>
-        </div>
-        <div className="flex flex-ai-center flex-jc-between text-[14px]">
-          <div className="text-[var(--text-color6)] font-[400]">
-            申请数量 &gt; 1000 USDT
-          </div>
-          <div className="text-[var(--text-color6)] font-[400]">
-            年化利率 1.20%
-          </div>
-        </div>
-      </div>
-      {/* 提示 */}
-      <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-        该产品支持提前赎回，查看规则
-      </div>
-    </div>
+    </Form>
   );
 };
 
 const ProductRule: React.FC = () => {
-  const [activeKey, setActiveKey] = useState("1");
+  const [activeKey, setActiveKey] = useState("1"); // 标签页
 
   // 定期
   const Regular = () => {
@@ -168,7 +330,8 @@ const ProductRule: React.FC = () => {
                 申购时间
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒 */}
+                {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -176,7 +339,8 @@ const ProductRule: React.FC = () => {
                 开始计息
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒+1天 */}
+                {dayjs().add(1, "day").format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -184,7 +348,8 @@ const ProductRule: React.FC = () => {
                 首次发息
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒+2天 */}
+                {dayjs().add(2, "day").format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -263,7 +428,8 @@ const ProductRule: React.FC = () => {
                 申购时间
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒 */}
+                {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -271,7 +437,8 @@ const ProductRule: React.FC = () => {
                 开始计息
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒+1天 */}
+                {dayjs().add(1, "day").format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -279,7 +446,8 @@ const ProductRule: React.FC = () => {
                 首次发放利息
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {/* 当前年月日 时分秒+2天 */}
+                {dayjs().add(2, "day").format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -343,23 +511,38 @@ const ProductRule: React.FC = () => {
 };
 
 const SubscribeModal = ({
+  curRecord,
   openSubscribe,
   setOpenSubscribe,
   setOpenConfirm,
 }: {
+  curRecord: {
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null;
   openSubscribe: boolean;
   setOpenSubscribe: (open: boolean) => void;
   setOpenConfirm: (open: boolean) => void;
 }) => {
-  const [tabsKey, setTabsKey] = useState("1");
-  const [loading, setLoading] = useState(false); //加载中
   const { styles } = useStyle();
+  const [form] = Form.useForm();
 
+  const [tabsKey, setTabsKey] = useState("1"); // 标签页
+  const [myBalance, setMyBalance] = useState<any>(null); //我的余额
+  const [loading, setLoading] = useState(false); //加载中
+  const [curProduct, setCurProduct] = useState<{
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null>(); // 当前产品
+
+  // 标签页
   const items = [
     {
       key: "1",
       label: "申购",
-      children: <Subscription/>,
+      children: (
+        <Subscription curRecord={curRecord} myBalance={myBalance} form={form} />
+      ),
     },
     {
       key: "2",
@@ -367,16 +550,49 @@ const SubscribeModal = ({
       children: <ProductRule />,
     },
   ];
-
-  const onSubmit = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOpenSubscribe(false);
-      setOpenConfirm(true);
-    }, 1000);
+  // 提交
+  const onSubmit = async () => {
+    form.validateFields().then(async (values) => {
+      try {
+        if (!values) return;
+        setLoading(true);
+        const formData = form.getFieldsValue();
+        const params = {
+          projectId: formData.projectId,
+          financialAmount: formData.financialAmount,
+          autoSubscribe: formData.autoSubscribe
+            ? PurchaseEnum.YES
+            : PurchaseEnum.NO,
+        };
+        const res = await financialSubscribe(params);
+        if (res.code === "0") {
+          console.log(res);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
+  // 监听 openSubscribe 变化，更新选中的产品
+  useEffect(() => {
+    if (openSubscribe && curRecord) {
+      setCurProduct(curRecord);
+      form.setFieldsValue({
+        projectId: curRecord?.curProduct.id,
+      });
+      // 获取余额
+      const fetchBalance = async () => {
+        const res = await getUserBalance(curRecord?.token.coinId || 0);
+        if (res.code === "0") {
+          setMyBalance(res.data);
+        }
+      };
+      fetchBalance();
+    }
+  }, [curRecord, openSubscribe, form]);
 
   return (
     <ConfigProvider
@@ -395,7 +611,7 @@ const SubscribeModal = ({
         }}
         open={openSubscribe}
         onCancel={() => setOpenSubscribe(false)}
-        title={<div>USDT</div>}
+        title={<div>{curProduct?.token.coinName}</div>}
         closable={{ "aria-label": "Custom Close Button" }}
         footer={
           tabsKey === "1" ? (

@@ -2,6 +2,7 @@ import { request } from "@/request/index";
 import { API_MODULE_NAME } from "@/config/apiConfig";
 
 const fixUrl2 = `/${API_MODULE_NAME.AMBIT_ASSETS_WEB}`;
+const fixUrl = `/${API_MODULE_NAME.AMBIT_HOME_WEB}`;
 
 // 请求返回参数
 interface RequestParams<T> {
@@ -9,6 +10,12 @@ interface RequestParams<T> {
   message: string;
   reqNo: string;
   data: T;
+}
+
+// 0否，1是
+export enum PurchaseEnum {
+  NO = 0, //否
+  YES = 1, //是
 }
 
 // 定期/活期
@@ -23,6 +30,7 @@ export enum StatusEnum {
   OPEN = "1",
   CLOSE = "2",
 }
+
 interface FinancialConfiItem {
   id: number; //功能配置id
   financialSwitch: StatusEnum; //理财开关：1开启，2关闭
@@ -123,11 +131,6 @@ export enum PurchaseStatusEnum {
   SUCCESS = 2, //成功赎回
 }
 
-// 0否，1是
-export enum AutoPurchaseEnum {
-  NO = 0, //否
-  YES = 1, //是
-}
 
 export interface UserFinancialAccountParams {
   coinId?: number | null; //币种ID
@@ -141,7 +144,7 @@ export interface UserFinancialAccountItem {
   type: FinancialType; // 1定期 2活期
   minAnnualInterestRate: number; //最小年化利率
   maxAnnualInterestRate: number; //最大年化利率
-  autoPurchase: AutoPurchaseEnum; //是否自动申购 0否，1是
+  autoPurchase: PurchaseEnum; //是否自动申购 0否，1是
   purchaseAmount: number; //申购金额
   usdPurchaseAmount: string; //USD申购金额
   accruedInterest: number; //累计收益
@@ -185,25 +188,107 @@ export function getFinancialBillDetails(
 }
 /*-----------------理财账单明细end--------------------*/
 
-
 /*-----------------理财页面tokenstart------------------*/
-export interface FinancialPageTokenParams {
-  coinId?: number | null; //币种ID
-  type: FinancialType; // 1定期 2活期
+
+//0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
+export enum FinancialPageTokenStatusEnum {
+  NOT_RELEASE = 0, 
+  IN_PROGRESS = 1,
+  WAIT_START = 2,
+  SUSPEND = 3,
+  OFF_SHELF = 4,
+  SOLD_OUT = 5,
+  END = 6,
 }
 
+// 1按日付息，2到期还本利息
+export enum SettlementInterestEnum {
+  DAILY = 1,
+  END = 2,
+}
+
+export interface FinancialPageTokenParams {
+  coinId?: number;
+  type: FinancialType;
+  status: string;
+}
+
+export interface FinancialPageTokenProductItem {
+  id?: number; //项目ID
+  projectName?: string; //项目名称
+  interestRate?: string; //年化利率
+  minAnnualInterestRate?: number; //最小年化利率
+  maxAnnualInterestRate?: number; //最大年化利率
+  type?: FinancialType; //类型
+  typeText?: string; //类型文本
+  term?: string; //期限
+  termText?: string; //期限文本
+  minPurchaseAmount?: number; //最小申购金额
+  maxPurchaseAmount?: number; //最大申购金额
+  totalQuota?: number; //总配额
+  redemptionAmount?: number; //赎回金额
+  isRedemption?: PurchaseEnum; //是否赎回
+  purchaseStartTime?: number; //申购开始时间
+  purchaseEndTime?: number; //申购结束时间
+  endCoinId?: number; //结束币种ID
+  endCoinName?: string; //结束币种名称
+  settlementInterest?: SettlementInterestEnum; //结算利息 1按日付息，2到期还本利息
+  status?: FinancialPageTokenStatusEnum; //状态 0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
+  statusText?: string; //状态文本
+  assetBoundary?: number; //资产边界
+}
 
 export interface FinancialPageTokenItem {
-  list: any[]; //token
-  count:number; //总数
+  coinId?: number; //币种ID
+  coinName?: string; //币种名称
+  iconUrl?: string; //币种图标
+  minInterestRate?: string; //最小年化利率
+  maxInterestRate?: string; //最大年化利率
+  termType?: string; //期限类型
+  products?: FinancialPageTokenProductItem[]; //产品列表
 }
 
 export function getFinancialPageToken(
-  params: FinancialPageTokenParams
-): Promise<RequestParams<FinancialPageTokenItem>> {
-  return request(`${fixUrl2}/assets-web/v1/user-project/financialPageToken`, {
+  params?: FinancialPageTokenParams
+): Promise<RequestParams<FinancialPageTokenItem[]>> {
+  return request(`${fixUrl}/home-web/v1/open/manageMoney/groupedProductList`, {
     method: "POST",
     body: JSON.stringify(params),
   });
 }
 /*-----------------理财页面tokenend--------------------*/
+
+
+/*-----------------预估每日收益start------------------*/
+export interface EstimateDailyIncomeParams {
+  projectId: number;
+  amount: number;
+}
+
+export function getEstimateDailyIncome(
+  params: EstimateDailyIncomeParams
+): Promise<RequestParams<number>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/estimatedInterest`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+/*-----------------预估每日收益end--------------------*/
+
+/*-----------------理财申购start------------------*/
+export interface FinancialSubscribeParams {
+  projectId: number;
+  financialAmount: number;
+  autoSubscribe: PurchaseEnum;
+}
+
+
+export function financialSubscribe(
+  params: FinancialSubscribeParams
+): Promise<RequestParams<boolean>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/purchaseProject`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+/*-----------------理财申购end--------------------*/

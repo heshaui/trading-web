@@ -12,154 +12,54 @@ import {
 import { useState, useEffect, use } from "react";
 import styles from "../../../styles/components/Financial.module.css";
 import { FinancialConfig } from "../index";
-import { getFinancialPageToken, StatusEnum } from "@/services/financial";
+import {
+  FinancialPageTokenItem,
+  FinancialPageTokenProductItem,
+  FinancialPageTokenStatusEnum,
+  FinancialType,
+  getFinancialPageToken,
+  StatusEnum,
+} from "@/services/financial";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { NoData } from "@/components/noData";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 
-// 定义数据项类型
-interface TokenItem {
-  key: string;
-  name: string;
-  age: string;
-  address: string;
-}
-
-// 定义数据源类型
-interface DataSource {
-  data: TokenItem[];
-  count: number;
-}
-
-// 模拟数据
-const mockData: TokenItem[] = [
-  {
-    key: "1",
-    name: "USDT",
-    age: "2.82 ~ 3.20%",
-    address: "定期",
-  },
-  {
-    key: "2",
-    name: "BTC",
-    age: "5.00 ~ 13.20%",
-    address: "活期",
-  },
-  {
-    key: "3",
-    name: "ETH",
-    age: "3.50 ~ 8.80%",
-    address: "定期",
-  },
-  {
-    key: "4",
-    name: "BNB",
-    age: "4.20 ~ 6.50%",
-    address: "活期",
-  },
-  {
-    key: "5",
-    name: "ADA",
-    age: "6.00 ~ 12.00%",
-    address: "定期",
-  },
-  {
-    key: "6",
-    name: "XRP",
-    age: "3.80 ~ 7.20%",
-    address: "活期",
-  },
-  {
-    key: "7",
-    name: "DOT",
-    age: "8.50 ~ 15.30%",
-    address: "定期",
-  },
-  {
-    key: "8",
-    name: "MATIC",
-    age: "7.20 ~ 11.80%",
-    address: "活期",
-  },
-  {
-    key: "9",
-    name: "SOL",
-    age: "9.00 ~ 16.50%",
-    address: "定期",
-  },
-  {
-    key: "10",
-    name: "AVAX",
-    age: "6.80 ~ 13.20%",
-    address: "活期",
-  },
-  {
-    key: "11",
-    name: "LINK",
-    age: "5.50 ~ 10.30%",
-    address: "定期",
-  },
-  {
-    key: "12",
-    name: "UNI",
-    age: "7.80 ~ 14.20%",
-    address: "活期",
-  },
-  {
-    key: "13",
-    name: "ALGO",
-    age: "8.20 ~ 12.80%",
-    address: "定期",
-  },
-  {
-    key: "14",
-    name: "ATOM",
-    age: "9.50 ~ 17.20%",
-    address: "活期",
-  },
-];
-
+const termTypeMap: Record<number, string> = {
+  [FinancialType.CURRENT]: "活期",
+  [FinancialType.FIXED]: "定期",
+};
 const TokenList = ({
   setOpenSubscribe,
   financialConfig,
   isLoggedIn,
+  setCurRecord,
 }: {
+  setCurRecord: (record: { token: FinancialPageTokenItem, curProduct: FinancialPageTokenProductItem }) => void;
   setOpenSubscribe: (open: boolean) => void;
   financialConfig: FinancialConfig;
   isLoggedIn: boolean;
 }) => {
   const router = useRouter();
 
-  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<any>({
-    data: [],
-    count: 0,
-  });
-  const [formData, setFormData] = useState({
-    coinId: '',
-    type: null,
-  });
-
-  const [currentPage, setCurrentPage] = useState({
-    pageNo: 1,
-    pageSize: 10,
-  });
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]); // 展开的行
+  const [loading, setLoading] = useState(false); // 加载中
+  const [dataSource, setDataSource] = useState<FinancialPageTokenItem[]>([]); // 数据源
+  const [formData, setFormData] = useState({ coinId: "", type: null }); // 表单数据
 
   // 模拟API请求
   const fetchData = async (params: any) => {
     try {
       setLoading(true);
-      // 模拟网络请求延迟
       const res = await getFinancialPageToken(params);
       if (res.code === "0") {
-        setDataSource({
-          data: res.data.list,
-          count: res.data.count,
-        });
+        setDataSource(res.data);
+        console.log(res.data);
+      } else {
+        setDataSource([]);
       }
+      return res;
     } catch (error) {
       console.error("获取数据失败:", error);
     } finally {
@@ -175,15 +75,19 @@ const TokenList = ({
     }
   };
 
-  const onSubscribe = (record: any) => {
+  const onSubscribe = (record: FinancialPageTokenItem, productRecord: FinancialPageTokenProductItem) => {
     const userInfo = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || "{}"
     );
     if (
+      // 判断是否需要实名认证
       financialConfig?.isRealname &&
-      financialConfig.isRealname === StatusEnum.OPEN &&
-      userInfo.authStatus === 1
+      financialConfig.isRealname === StatusEnum.CLOSE
     ) {
+      setCurRecord({
+        token: record,
+        curProduct: productRecord,
+      });
       setOpenSubscribe(true);
     } else {
       console.log(record);
@@ -215,68 +119,61 @@ const TokenList = ({
   };
 
   const more = async () => {
-    const nextPage = {
-      pageNo: currentPage.pageNo + 1,
-      pageSize: currentPage.pageSize,
-      ...formData,
-    };
-    await fetchData(nextPage)
+    console.log("more");
   };
 
-  // 检查是否还有更多数据
-
-  // 为每个币种生成子产品数据
-  const generateSubProducts = (record: TokenItem): TokenItem[] => {
-    const baseRates = record.age.split(" ~ ");
-    const minRate = parseFloat(baseRates[0].replace("%", ""));
-    const maxRate = parseFloat(baseRates[1].replace("%", ""));
-
-    const subProducts: TokenItem[] = [
-      {
-        key: `${record.key}_1`,
-        name: record.name,
-        age: `${minRate.toFixed(2)}% ~ ${maxRate.toFixed(2)}%`,
-        address: record.address === "定期" ? "定期-7天" : "活期",
-      },
-      {
-        key: `${record.key}_2`,
-        name: record.name,
-        age: `${(minRate + 1).toFixed(2)}% ~ ${(maxRate + 2).toFixed(2)}%`,
-        address: record.address === "定期" ? "定期-14天" : "定期-7天",
-      },
-      {
-        key: `${record.key}_3`,
-        name: record.name,
-        age: `${(minRate + 2).toFixed(2)}% ~ ${(maxRate + 3).toFixed(2)}%`,
-        address: "定期-30天",
-      },
-    ];
-    return subProducts;
-  };
-
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<FinancialPageTokenItem> = [
     {
       title: "币种",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "coinName",
+      key: "coinName",
       width: "30%",
+      render: (text: string, record: FinancialPageTokenItem) => (
+        <div className="flex items-center gap-[10px]">
+          {record.iconUrl ? (
+            <Image
+              src={record.iconUrl}
+              alt={record.coinName || ""}
+              width={24}
+              height={24}
+            />
+          ) : null}
+          <span>{record.coinName}</span>
+        </div>
+      ),
     },
     {
       title: "年利率",
-      dataIndex: "age",
-      key: "age",
+      dataIndex: "minInterestRate",
+      key: "minInterestRate",
       width: "30%",
+      render: (text: string, record: FinancialPageTokenItem) => (
+        <div className="flex items-center gap-[10px]">
+          <span>{record.minInterestRate}%</span>~
+          <span>{record.maxInterestRate}%</span>
+        </div>
+      ),
     },
     {
       title: "期限（天)",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "termType",
+      key: "termType",
       width: "30%",
+      render: (text: string, record: FinancialPageTokenItem) => (
+        <div className="flex items-center">
+          {record?.termType?.split(",").map((item: string, index: number) => (
+            <span key={item}>
+              {termTypeMap[Number(item)]}
+              {index === 0 && record?.termType?.includes(",") && "/"}
+            </span>
+          ))}
+        </div>
+      ),
     },
     {
       title: "操作",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "action",
+      key: "action",
       width: "10%",
       align: "right" as const,
       render: (text: any, record: any, index: number) => (
@@ -284,94 +181,19 @@ const TokenList = ({
           type="text"
           size="small"
           icon={
-            expandedRowKeys.includes(record.key) ? (
+            expandedRowKeys.includes(record.coinId) ? (
               <UpOutlined />
             ) : (
               <DownOutlined />
             )
           }
-          onClick={() => handleExpand(record.key)}
+          onClick={() => handleExpand(record.coinId)}
         />
       ),
     },
   ];
 
-  const expandedColumns: ColumnsType<any> = [
-    {
-      title: "",
-      dataIndex: "",
-      key: "",
-      width: "30%",
-    },
-    {
-      title: "年利率",
-      dataIndex: "age",
-      key: "age",
-      width: "30%",
-    },
-    {
-      title: "期限（天)",
-      dataIndex: "address",
-      key: "address",
-      width: "30%",
-    },
-    {
-      title: "操作",
-      dataIndex: "address",
-      key: "address",
-      width: "10%",
-      align: "right" as const,
-      render: (text: any, record: any, index: number) => (
-        <>
-          {!isLoggedIn ? (
-            <Button
-              onClick={() => router.push("/login")}
-              type="primary"
-              shape="round"
-            >
-              登录
-            </Button>
-          ) : (
-            <>
-              {index == 0 && (
-                <Button
-                  onClick={() => onSubscribe(record)}
-                  type="primary"
-                  shape="round"
-                >
-                  申购
-                </Button>
-              )}
-              {index == 1 && (
-                <Button
-                  disabled
-                  type="primary"
-                  shape="round"
-                  style={{
-                    backgroundColor: "var(--theme-05)",
-                  }}
-                >
-                  售罄
-                </Button>
-              )}
-              {index == 2 && (
-                <Button
-                  disabled
-                  type="primary"
-                  shape="round"
-                  style={{
-                    backgroundColor: "var(--theme-05)",
-                  }}
-                >
-                  暂停
-                </Button>
-              )}
-            </>
-          )}
-        </>
-      ),
-    },
-  ];
+
 
   useEffect(() => {
     fetchData(formData);
@@ -397,7 +219,9 @@ const TokenList = ({
         <Space size={30} className="mb-[14px]">
           <Input
             value={formData.coinId}
-            onChange={(e) => setFormData({ ...formData, coinId: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, coinId: e.target.value })
+            }
             className="w-[188px] h-[40px]"
             placeholder="搜索"
             prefix={<SearchOutlined className="text-[var(--text-color5)]" />}
@@ -407,10 +231,9 @@ const TokenList = ({
             className="w-[188px] h-[40px]"
             onChange={(value) => setFormData({ ...formData, type: value })}
             options={[
-              { value: "全部", label: "全部" },
-              { value: "活期", label: "活期" },
-              { value: "定期-7天", label: "定期-7天" },
-              { value: "定期-14天", label: "定期-14天" },
+              { value: null, label: "全部" },
+              { value: FinancialType.CURRENT, label: "活期" },
+              { value: FinancialType.FIXED, label: "定期" },
             ]}
           />
         </Space>
@@ -418,27 +241,127 @@ const TokenList = ({
           <Table
             className={styles.table}
             bordered={false}
+            rowKey="coinId"
             expandable={{
-              expandedRowRender: (record) => (
-                <Table
-                  showHeader={false}
-                  columns={expandedColumns}
-                  dataSource={generateSubProducts(record)}
-                  bordered={false}
-                  pagination={false}
-                />
-              ),
-              expandIconColumnIndex: 0, // 展开列的索引
+              expandedRowRender: (record: FinancialPageTokenItem) => {
+                const dynamicColumns: ColumnsType<FinancialPageTokenProductItem> = [
+                  {
+                    title: "",
+                    dataIndex: "",
+                    key: "",
+                    width: "30%",
+                  },
+                  {
+                    title: "年利率",
+                    dataIndex: "minAnnualInterestRate",
+                    key: "minAnnualInterestRate",
+                    width: "30%",
+                    render: (text: string, productRecord: FinancialPageTokenProductItem) => (
+                      <div className="flex items-center gap-[10px]">
+                        {productRecord.type === FinancialType.FIXED ? (
+                          <span>{productRecord.maxAnnualInterestRate}%</span>
+                        ) : (
+                          <>
+                            <span>{productRecord.minAnnualInterestRate}%</span>~
+                            <span>{productRecord.maxAnnualInterestRate}%</span>
+                          </>
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "期限（天)",
+                    dataIndex: "term",
+                    key: "term",
+                    width: "30%",
+                    render: (text: string, productRecord: FinancialPageTokenProductItem) => (
+                      <div className="flex items-center gap-[10px]">
+                        {productRecord.type === FinancialType.CURRENT ? "活期" : `定期 (${productRecord.term}天)`}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "操作",
+                    dataIndex: "action",
+                    key: "action",
+                    width: "10%",
+                    align: "right" as const,
+                    render: (text: any, productRecord: FinancialPageTokenProductItem) => (
+                      <>
+                        {!isLoggedIn ? (
+                          <Button
+                            onClick={() => router.push("/login")}
+                            type="primary"
+                            shape="round"
+                          >
+                            登录
+                          </Button>
+                        ) : (
+                          <>
+                            {Number(productRecord.status) ===
+                              FinancialPageTokenStatusEnum.IN_PROGRESS && (
+                              <Button
+                                onClick={() => onSubscribe(record, productRecord)}
+                                type="primary"
+                                shape="round"
+                              >
+                                申购
+                              </Button>
+                            )}
+                            {Number(productRecord.status) ===
+                              FinancialPageTokenStatusEnum.SOLD_OUT && (
+                              <Button
+                                disabled
+                                type="primary"
+                                shape="round"
+                                style={{
+                                  backgroundColor: "var(--theme-05)",
+                                }}
+                              >
+                                售罄
+                              </Button>
+                            )}
+                            {Number(productRecord.status) ===
+                              FinancialPageTokenStatusEnum.SUSPEND && (
+                              <Button
+                                disabled
+                                type="primary"
+                                shape="round"
+                                style={{
+                                  backgroundColor: "var(--theme-05)",
+                                }}
+                              >
+                                暂停
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ),
+                  },
+                ];
+                
+                return (
+                  <Table
+                    key={record.coinId}
+                    showHeader={false}
+                    columns={dynamicColumns}
+                    dataSource={record.products}
+                    rowKey="id"
+                    bordered={false}
+                    pagination={false}
+                  />
+                );
+              },
               showExpandColumn: false, // 隐藏默认的展开列
               expandedRowKeys, // 展开的行
-              onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]), // 展开的行
             }}
-            dataSource={dataSource.data}
+            dataSource={dataSource}
             locale={{ emptyText: <NoData /> }}
             columns={columns}
             pagination={false}
             footer={() =>
-              dataSource.count > dataSource.data.length ? (
+              dataSource.length > 7 ? (
                 <div className="flex justify-center">
                   <Image
                     src="/images/financial/more.svg"
