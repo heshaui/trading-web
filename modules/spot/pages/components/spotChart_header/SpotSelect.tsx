@@ -17,9 +17,10 @@ interface SpotSelectProps {
     currencyPairs: any[];
     onPairSelect?: (pair: any) => void;
     searchValue: string;
+    wsData?: any;
 }
 
-const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, searchValue }) => {
+const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, searchValue, wsData }) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
     const [sortField, setSortField] = useState<string>('');
@@ -130,6 +131,26 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
             
             return matchesSearch && matchesTab;
         }), [sortedPairList, searchValue, activeTab]);
+
+    // 合并WebSocket数据到币对数据中
+    const enrichedPairs = React.useMemo(() => 
+        filteredPairs.map(pair => {
+            const symbol = `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}`;
+            const wsKlineData = wsData?.[symbol];
+            
+            if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length > 0) {
+                const [timestamp, open_price, high_price, low_price, close_price, volume] = wsKlineData;
+                console.log('SpotSelect解析K线数据:', { symbol, timestamp, open_price, high_price, low_price, close_price, volume });
+                return {
+                    ...pair,
+                    realTimePrice: close_price,
+                    realTimeChange: close_price && open_price ? ((close_price - open_price) / open_price * 100).toFixed(2) : null,
+                    realTimeVolume: volume
+                };
+            }
+            
+            return pair;
+        }), [filteredPairs, wsData]);
 
 
 
@@ -265,7 +286,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
 
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
-                    {filteredPairs.map((pair:any, index:any) => (
+                    {enrichedPairs.map((pair:any, index:any) => (
                          <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)} style={{cursor:'pointer'}}>
                          {/* 币种名称 */}
                          <div className={`${styles.pair_name} flex-1`}>
@@ -287,14 +308,20 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                              <span className={`font-14 ${styles.title_color}`}>{pair.coinSymbol}/{pair.baseSymbol}</span>
                          </div>
                          {/* 最新价 */}
-                         <div className={`font-14 ${styles.title_color} flex-1`}>
-                             {pair.yesterdayPrice}
+                         <div className={`font-14 ${styles.title_color} flex-1 flex-x align-center`}>
+                             <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : pair.yesterdayPrice}</span>
+                             {pair.realTimePrice && (
+                                 <span className="ml-1" style={{ color: '#52c41a', fontSize: '8px' }}>●</span>
+                             )}
                          </div>
                          {/* 24h涨跌/24h成交量 */}
                          <div
-                             className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
+                             className={`${styles.pair_change} ${!showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) > 0 : pair.priceChangePercent > 0) ? styles.success_icon : !showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) < 0 : pair.priceChangePercent < 0) ? styles.error_icon : ''} flex-1`}
                          >
-                             {showVolume ? pair.quantity: `${pair.priceChangePercent.toFixed(2)}%`}
+                             {showVolume 
+                                 ? (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity).toFixed(2))
+                                 : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${pair.priceChangePercent.toFixed(2)}%`)
+                             }
                          </div>
                      </div>
                     ))}
