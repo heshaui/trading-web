@@ -1,81 +1,114 @@
 import { NoData } from "@/components/noData";
 import { withAssetsLayout } from "@/components/sidebarLayout/AssetsLayout/userAssetsLayout";
-import { Button, ConfigProvider, Select, Space, Switch, Table, Tabs } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  Flex,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Tabs,
+} from "antd";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RedemptionModal from "./components/RedemptionModal";
 import ConfirmModal from "./components/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
+import {
+  AutoPurchaseEnum,
+  FinancialType,
+  getUserFinancialAccount,
+  UserFinancialAccountItem,
+  UserFinancialAccountParams,
+} from "@/services/financial";
+import { getCoinAll } from "@/services/assets";
+import Image from "next/image";
+import { ColumnsType } from "antd/es/table";
+import MaskableAmount from "@/components/MaskableAmount";
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { useRouter } from "next/router";
 
-const tableData = [
-  {
-    tokenName: "USDT",
-    autoSubscribe: 1,
-    subscribeAmount: "1000",
-    annualRate: "10%",
-    totalIncome: "1000",
-  },
-];
-
-const Financial = () => {
-  const [tabsKey, setTabsKey] = useState("1");
-  const [tableLoading, setTableLoading] = useState(false);
-  const [openRedemption, setOpenRedemption] = useState(false);
-  const [openConfirm, setOpenConfirm] = useState(false);
-
+const TabsItem = ({
+  tableLoading,
+  tableData,
+  setOpenRedemption,
+  setOpenConfirm,
+}: {
+  tableLoading: boolean;
+  tableData: UserFinancialAccountItem[];
+  setOpenRedemption: (open: boolean) => void;
+  setOpenConfirm: (open: boolean) => void;
+}) => {
   // 表格列
-  const columns = [
+  const columns: ColumnsType<UserFinancialAccountItem> = [
     {
       title: "币种",
-      dataIndex: "tokenName",
-      width: "190px",
+      dataIndex: "coinName",
+      key: "coinName",
+      render: (_: any, record: any) => {
+        return (
+          <Flex gap="8px">
+            {record.iconUrl && (
+              <Image width={24} height={24} src={record.iconUrl} alt="" />
+            )}
+            <div>{record.coinName}</div>
+          </Flex>
+        );
+      },
     },
     {
       title: "自动申购",
-      dataIndex: "autoSubscribe",
-      render: (text: number) => {
-        return <Switch size="small" checked={text === 1} />;
+      dataIndex: "autoPurchase",
+      key: "autoPurchase",
+      render: (_: any, record: any) => {
+        return (
+          <Switch
+            size="small"
+            checked={record.autoPurchase === AutoPurchaseEnum.YES}
+          />
+        );
       },
-      width: "190px",
     },
     {
       title: "申购金额",
-      dataIndex: "subscribeAmount",
+      dataIndex: "purchaseAmount",
+      key: "purchaseAmount",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div> {record.subscribeAmount} USDT</div>
+            <div> {record.purchaseAmount} USDT</div>
             <div>≈$20.10</div>
           </div>
         );
       },
-      width: "190px",
     },
     {
       title: "年利率",
-      dataIndex: "annualRate",
+      dataIndex: "minAnnualInterestRate",
+      key: "minAnnualInterestRate",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            5.00%~3.20%
+            {record.minAnnualInterestRate}%~
+            {record.maxAnnualInterestRate}%
           </div>
         );
       },
-      width: "190px",
     },
     {
       title: "累计收益",
-      dataIndex: "totalIncome",
+      dataIndex: "accruedInterest",
+      key: "accruedInterest",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div>0.00000000 BTC</div>
-            <div>≈$20.10</div>
+            <div>{record.accruedInterest} USDT</div>
+            <div>≈${record.usdAccruedInterest}</div>
           </div>
         );
       },
-      width: "190px",
     },
     {
       title: "操作",
@@ -102,29 +135,108 @@ const Financial = () => {
     },
   ];
 
+  return (
+    <Table
+      className={styles.table}
+      columns={columns}
+      dataSource={tableData}
+      pagination={false}
+      loading={tableLoading}
+      locale={{ emptyText: <NoData /> }}
+    />
+  );
+};
+
+const Financial = () => {
+
+  const router = useRouter();
+
+  const [tableLoading, setTableLoading] = useState(false);
+  //打开赎回弹窗
+  const [openRedemption, setOpenRedemption] = useState(false);
+  //打开确认弹窗
+  const [openConfirm, setOpenConfirm] = useState(false);
+
+  // 表格数据
+  const [formData, setFormData] = useState<UserFinancialAccountParams>({
+    type: FinancialType.FIXED,
+    coinId: null,
+  });
+  const [tableData, setTableData] = useState<UserFinancialAccountItem[]>([]);
+
+  // 币种列表
+  const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
+    []
+  );
+
+  // 是否显示金额
+  const [showAmount, setShowAmount] = useState(false);
+
   // 切换tabs
   const items = [
     {
-      key: "1",
+      key: String(FinancialType.FIXED),
       label: "定期",
       children: (
-        <Table
-          className={styles.table}
-          columns={columns}
-          // dataSource={tableData}
-          pagination={false}
-          loading={tableLoading}
-          locale={{ emptyText: <NoData /> }}
-          showSorterTooltip={false}
+        <TabsItem
+          tableLoading={tableLoading}
+          tableData={tableData}
+          setOpenRedemption={setOpenRedemption}
+          setOpenConfirm={setOpenConfirm}
         />
       ),
     },
     {
-      key: "2",
+      key: String(FinancialType.CURRENT),
       label: "活期",
-      children: <div>活期</div>,
+      children: (
+        <TabsItem
+          tableLoading={tableLoading}
+          tableData={tableData}
+          setOpenRedemption={setOpenRedemption}
+          setOpenConfirm={setOpenConfirm}
+        />
+      ),
     },
   ];
+
+  const fetchData = async (params: UserFinancialAccountParams) => {
+    try {
+      setTableLoading(true);
+      const res = await getUserFinancialAccount(params);
+      if (res.code === "0") {
+        setTableData(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setTableLoading(false);
+    }
+  };
+  const fetchCoinList = async () => {
+    try {
+      const response = await getCoinAll();
+      if (response.code === "0" && Array.isArray(response.data)) {
+        setCoinList(
+          response.data.map((item: any) => ({
+            coinName: item.coinName,
+            id: item.coinId,
+          }))
+        );
+      } else {
+      }
+    } catch (error) {
+      console.error("获取币种列表失败:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoinList();
+  }, []);
+
+  useEffect(() => {
+    fetchData(formData);
+  }, [formData]);
 
   return (
     <>
@@ -166,17 +278,34 @@ const Financial = () => {
               {/* 顶部 */}
               <div className="p-[30px] flex justify-between items-end">
                 <div>
-                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    总资产
+                  <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
+                    <div>总资产</div>
+                    <div>
+                    {!showAmount ? (
+                      <EyeOutlined
+                        size={18}
+                        className="cursor-pointer"
+                        onClick={() => setShowAmount(!showAmount)}
+                      />
+                    ) : (
+                      <EyeInvisibleOutlined
+                        size={18}
+                        className="cursor-pointer"
+                        onClick={() => setShowAmount(!showAmount)}
+                      />
+                    )}
+                  </div>
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    0.15 USD
+                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" /> 
                   </div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    ≈ 1.12 CNY
+                    <MaskableAmount prefix="≈" show={showAmount} amount={1.12} unit="CNY" />
                   </div>
                 </div>
-                <Button type="primary">理财产品</Button>
+                <Button type="primary" onClick={() => {
+                  router.push("/financial");
+                }}>理财产品</Button>
               </div>
               <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
               {/* 底部 */}
@@ -186,7 +315,7 @@ const Financial = () => {
                     昨日收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    0.15 USD
+                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
                   </div>
                 </div>
                 <div>
@@ -194,7 +323,7 @@ const Financial = () => {
                     30日累计收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    0.15 USD
+                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
                   </div>
                 </div>
               </div>
@@ -203,10 +332,28 @@ const Financial = () => {
             <Tabs
               className={styles.tabs}
               items={items}
-              activeKey={tabsKey}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
-              tabBarExtraContent={{ right: <Select className="w-[170px] h-[30px]" options={[]} /> }}
-              onChange={(key) => setTabsKey(key)}
+              tabBarExtraContent={{
+                right: (
+                  <Select
+                    className="w-[170px] h-[30px]"
+                    value={formData.coinId}
+                    onChange={(value) =>
+                      setFormData({ ...formData, coinId: value })
+                    }
+                    options={[
+                      { label: "全部", value: null },
+                      ...coinList.map((item) => ({
+                        label: item.coinName,
+                        value: item.id,
+                      })),
+                    ]}
+                  />
+                ),
+              }}
+              onChange={(key) =>
+                setFormData({ type: Number(key), coinId: null })
+              }
             />
           </div>
         </div>

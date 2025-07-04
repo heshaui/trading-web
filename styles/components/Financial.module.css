@@ -3,9 +3,19 @@
   border-top: 0.5px solid var(--border-color);
   border-bottom: 0.5px solid var(--border-color);
 }
+
+.table :global(.ant-table-footer) {
+  padding: 0 !important;
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .table :global(.ant-table-thead) :global(.ant-table-cell) {
   font-size: 12px !important;
 }
+
 .table :global(.ant-table-expanded-row) > :global(.ant-table-cell) {
   padding: 0 !important;
 }
@@ -22,7 +32,15 @@
   border-bottom: none !important;
 }
 
-
 .modal :global(.ant-modal-close-icon) {
   color: var(--text-color5) !important;
+}
+
+.moreIcon {
+  filter: invert(0) sepia(0) saturate(0) hue-rotate(0deg) brightness(1) contrast(1);
+  transition: filter 0.3s ease;
+}
+
+.moreIcon:hover {
+  filter: invert(47%) sepia(82%) saturate(1600%) hue-rotate(342deg) brightness(95%) contrast(95%);
 }
