@@ -131,7 +131,6 @@ export enum PurchaseStatusEnum {
   SUCCESS = 2, //成功赎回
 }
 
-
 export interface UserFinancialAccountParams {
   coinId?: number | null; //币种ID
   type: FinancialType; // 1定期 2活期
@@ -192,7 +191,7 @@ export function getFinancialBillDetails(
 
 //0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
 export enum FinancialPageTokenStatusEnum {
-  NOT_RELEASE = 0, 
+  NOT_RELEASE = 0,
   IN_PROGRESS = 1,
   WAIT_START = 2,
   SUSPEND = 3,
@@ -209,8 +208,9 @@ export enum SettlementInterestEnum {
 
 export interface FinancialPageTokenParams {
   coinId?: number;
-  type: FinancialType;
-  status: string;
+  type?: FinancialType;
+  status?: string;
+  term?: string;
 }
 
 export interface FinancialPageTokenProductItem {
@@ -258,7 +258,6 @@ export function getFinancialPageToken(
 }
 /*-----------------理财页面tokenend--------------------*/
 
-
 /*-----------------预估每日收益start------------------*/
 export interface EstimateDailyIncomeParams {
   projectId: number;
@@ -282,7 +281,6 @@ export interface FinancialSubscribeParams {
   autoSubscribe: PurchaseEnum;
 }
 
-
 export function financialSubscribe(
   params: FinancialSubscribeParams
 ): Promise<RequestParams<boolean>> {
@@ -292,3 +290,21 @@ export function financialSubscribe(
   });
 }
 /*-----------------理财申购end--------------------*/
+
+/*-----------------理财页面-筛选下拉框start--------------------*/
+
+export interface ProductFilterOptionsItem {
+  term: string;
+  type: number;
+}
+export function getProductFilterOptions(): Promise<
+  RequestParams<ProductFilterOptionsItem[]>
+> {
+  return request(
+    `${fixUrl}/home-web/v1/open/manageMoney/getProductFilterOptions`,
+    {
+      method: "POST",
+    }
+  );
+}
+/*-----------------理财页面-筛选下拉框end--------------------*/

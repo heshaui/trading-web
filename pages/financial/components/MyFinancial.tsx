@@ -70,13 +70,13 @@ const MyFinancial = observer(
 
     useEffect(() => {
       // 确保只在客户端执行
-      // if (typeof window !== "undefined") {
+      if (typeof window !== "undefined") {
       console.log(isLoggedIn);
         if (isLoggedIn) {
           initBackgroundImage();
           initMyPosition();
         }
-      // }
+      }
     }, [isLoggedIn]);
 
     return (
@@ -92,9 +92,6 @@ const MyFinancial = observer(
           <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
             {bgContent.mainTitle}
           </div>
-          {/* <div className="font-w-400 text-[20px] mb-[12px] leading-[normal] text-[var(--text-color6)]">
-            门槛低 | 安全性高 | 收益率高
-          </div> */}
           <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)]">
             {bgContent.subTitle}
           </div>

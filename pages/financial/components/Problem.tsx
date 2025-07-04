@@ -40,7 +40,6 @@ const Problem = () => {
       theme={{
         components: {
           Collapse: {
-            /* 这里是你的组件 token */
             headerPadding: "20px 0",
           },
         },

@@ -53,9 +53,9 @@ export default observer(function FinancialPage() {
 
   useEffect(() => {
     // 确保只在客户端执行
-    // if (typeof window !== 'undefined') {
-    initFinancialConfig();
-    // }
+    if (typeof window !== "undefined") {
+      initFinancialConfig();
+    }
   }, []);
   return (
     <>

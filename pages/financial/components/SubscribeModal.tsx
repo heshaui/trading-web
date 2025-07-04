@@ -45,15 +45,11 @@ const useStyle = createStyles(() => ({
 
 const Subscription: React.FC<{
   form: FormInstance<any>;
-  curRecord: {
-    token: FinancialPageTokenItem;
-    curProduct: FinancialPageTokenProductItem;
-  } | null;
   myBalance: any;
-}> = ({ form, curRecord, myBalance }) => {
-  const [curSelectProduct, setCurSelectProduct] = useState(
-    curRecord?.curProduct
-  ); // 选中的申购产品
+  tokenInfo: FinancialPageTokenItem | undefined;
+  productInfo: FinancialPageTokenProductItem | undefined;
+  setProductInfo: (product: FinancialPageTokenProductItem) => void;
+}> = ({ form, myBalance, tokenInfo, productInfo, setProductInfo }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -62,11 +58,10 @@ const Subscription: React.FC<{
 
   // 监听 curRecord 变化，更新选中的产品
   useEffect(() => {
-    if (curRecord?.curProduct) {
-      setCurSelectProduct(curRecord.curProduct);
+    if (productInfo) {
       setIncome("-"); // 重置收益
     }
-  }, [curRecord]);
+  }, [productInfo]);
 
   // 获取预估收益的函数
   const fetchIncome = useCallback(
@@ -93,7 +88,7 @@ const Subscription: React.FC<{
 
   // 监听 financialAmount 变化，添加防抖处理
   useEffect(() => {
-    if (curSelectProduct && projectId) {
+    if (productInfo && projectId) {
       // 清除之前的定时器
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
@@ -111,26 +106,25 @@ const Subscription: React.FC<{
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [financialAmount, projectId, curSelectProduct, fetchIncome]);
+  }, [financialAmount, projectId, productInfo, fetchIncome]);
 
-  const maxAmount = () => {
-    form.setFieldValue(
-      "financialAmount",
-      curSelectProduct?.maxPurchaseAmount || 0
-    );
-  };
-
+  // 最大金额
   const suffix = (
     <Flex align="center" gap={2}>
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
-        onClick={maxAmount}
+        onClick={() => {
+          form.setFieldValue(
+            "financialAmount",
+            productInfo?.maxPurchaseAmount || 0
+          );
+        }}
       >
         最大
       </div>
       <Divider type="vertical" />
       <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-        {curRecord?.token.coinName}
+        {tokenInfo?.coinName}
       </div>
     </Flex>
   );
@@ -143,12 +137,12 @@ const Subscription: React.FC<{
       <div className="p-[0_20px_20px_20px]">
         {/* 选择时间 7天 */}
         <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
-          {curRecord?.token.products?.map((item) => (
+          {tokenInfo?.products?.map((item) => (
             <div
               onClick={() => {
                 form.resetFields();
                 setIncome("-");
-                setCurSelectProduct(item);
+                setProductInfo(item);
                 form.setFieldValue("projectId", item.id);
                 // 立即获取收益，不等待防抖
                 const currentAmount = form.getFieldValue("financialAmount");
@@ -159,12 +153,12 @@ const Subscription: React.FC<{
               key={item.id}
               style={{
                 border:
-                  curSelectProduct?.id === item.id
+                  productInfo?.id === item.id
                     ? "1px solid var(--theme-color)"
                     : "1px solid var(--border-color4)",
               }}
               className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
-                curSelectProduct?.id === item.id
+                productInfo?.id === item.id
                   ? "border-[var(--theme-color)]"
                   : "border-[var(--border-color4)]"
               }`}
@@ -192,43 +186,47 @@ const Subscription: React.FC<{
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             申购数量
           </div>
-                      <Form.Item
-              name="financialAmount"
-              rules={[
-                {
-                  required: true,
-                  message: "请输入申购数量",
-                },
-                {
-                  validator: (_, value) => {
-                    // 如果没有输入值，不进行范围校验，让required规则单独处理
-                    if (!value || value === '') {
-                      return Promise.resolve();
-                    }
-                    
-                    if (
-                      curSelectProduct?.minPurchaseAmount &&
-                      value < curSelectProduct?.minPurchaseAmount
-                    ) {
-                      return Promise.reject(
-                        new Error(`最少 ${curSelectProduct?.minPurchaseAmount} ${curRecord?.token.coinName}`)
-                      );
-                    }
-                    if (
-                      curSelectProduct?.maxPurchaseAmount &&
-                      value > curSelectProduct?.maxPurchaseAmount
-                    ) {
-                      return Promise.reject(
-                        new Error(`最多 ${curSelectProduct?.maxPurchaseAmount} ${curRecord?.token.coinName}`)
-                      );
-                    }
+          <Form.Item
+            name="financialAmount"
+            rules={[
+              {
+                required: true,
+                message: "请输入申购数量",
+              },
+              {
+                validator: (_, value) => {
+                  // 如果没有输入值，不进行范围校验，让required规则单独处理
+                  if (!value || value === "") {
                     return Promise.resolve();
-                  },
+                  }
+
+                  if (
+                    productInfo?.minPurchaseAmount &&
+                    value < productInfo?.minPurchaseAmount
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        `最少 ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`
+                      )
+                    );
+                  }
+                  if (
+                    productInfo?.maxPurchaseAmount &&
+                    value > productInfo?.maxPurchaseAmount
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        `最多 ${productInfo?.maxPurchaseAmount} ${tokenInfo?.coinName}`
+                      )
+                    );
+                  }
+                  return Promise.resolve();
                 },
-              ]}
-            >
+              },
+            ]}
+          >
             <Input
-              placeholder={`最少 ${curSelectProduct?.minPurchaseAmount} ${curRecord?.token.coinName}`}
+              placeholder={`最少 ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`}
               className="m-[10px_0] w-[100%] h-[50px]"
               suffix={suffix}
             />
@@ -237,13 +235,13 @@ const Subscription: React.FC<{
             <span className="text-[#9E9E9E] font-[400] mr-[10px]">
               现货可用:
             </span>
-            {myBalance?.balance} {curRecord?.token.coinName}
+            {myBalance?.balance} {tokenInfo?.coinName}
           </div>
           <div>
             <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span>
-            {(curSelectProduct?.maxPurchaseAmount || 0) -
+            {(productInfo?.maxPurchaseAmount || 0) -
               (financialAmount || 0)}{" "}
-            {curRecord?.token.coinName}
+            {tokenInfo?.coinName}
           </div>
         </div>
         {/* 申购数量shownumber */}
@@ -256,7 +254,7 @@ const Subscription: React.FC<{
               预估每日收益
             </div>
             <div className="text-[var(--theme-color)] font-[400]">
-              {income} {curRecord?.token.coinName}
+              {income} {tokenInfo?.coinName}
             </div>
           </div>
           <div className="flex flex-ai-center flex-jc-between">
@@ -267,7 +265,7 @@ const Subscription: React.FC<{
           </div>
         </div>
         {/* 奖励规则 定期不显示 活期显示 */}
-        {curSelectProduct?.type === FinancialType.CURRENT && (
+        {productInfo?.type === FinancialType.CURRENT && (
           <div className="mb-[16px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
               奖励规则
@@ -275,27 +273,27 @@ const Subscription: React.FC<{
             <>
               <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
                 <div className="text-[var(--text-color6)] font-[400]">
-                  申请数量0 - {curSelectProduct?.assetBoundary}
-                  {curRecord?.token.coinName}
+                  申请数量0 - {productInfo?.assetBoundary}
+                  {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  年化利率 {curSelectProduct?.minAnnualInterestRate}%
+                  年化利率 {productInfo?.minAnnualInterestRate}%
                 </div>
               </div>
               <div className="flex flex-ai-center flex-jc-between text-[14px]">
                 <div className="text-[var(--text-color6)] font-[400]">
-                  申请数量 &gt; {curSelectProduct?.assetBoundary}
-                  {curRecord?.token.coinName}
+                  申请数量 &gt; {productInfo?.assetBoundary}
+                  {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  年化利率 {curSelectProduct?.maxAnnualInterestRate}%
+                  年化利率 {productInfo?.maxAnnualInterestRate}%
                 </div>
               </div>
             </>
           </div>
         )}
         {/* 提示 */}
-        {curSelectProduct?.isRedemption === PurchaseEnum.YES ? (
+        {productInfo?.isRedemption === PurchaseEnum.YES ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
             该产品支持提前赎回，查看规则
           </div>
@@ -305,9 +303,21 @@ const Subscription: React.FC<{
   );
 };
 
-const ProductRule: React.FC = () => {
+const ProductRule: React.FC<{
+  productInfo: FinancialPageTokenProductItem | undefined;
+}> = ({ productInfo }) => {
+  const [curSelectProduct, setCurSelectProduct] =
+    useState<FinancialPageTokenProductItem | null>(null);
+
   const [activeKey, setActiveKey] = useState("1"); // 标签页
 
+  // 监听 curRecord 变化，更新选中的产品
+  useEffect(() => {
+    if (productInfo) {
+      setCurSelectProduct(productInfo);
+      setActiveKey(productInfo.type === FinancialType.CURRENT ? "1" : "2");
+    }
+  }, [productInfo]);
   // 定期
   const Regular = () => {
     return (
@@ -357,7 +367,9 @@ const ProductRule: React.FC = () => {
                 最后发息
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {dayjs(curSelectProduct?.purchaseEndTime)
+                  .add(1, "day")
+                  .format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
             <div className="flex flex-ai-center flex-jc-between">
@@ -365,7 +377,9 @@ const ProductRule: React.FC = () => {
                 下次申购
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                2025-02-13 13:13:13
+                {dayjs(curSelectProduct?.purchaseEndTime)
+                  .add(1, "day")
+                  .format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
           </div>
@@ -530,10 +544,9 @@ const SubscribeModal = ({
   const [tabsKey, setTabsKey] = useState("1"); // 标签页
   const [myBalance, setMyBalance] = useState<any>(null); //我的余额
   const [loading, setLoading] = useState(false); //加载中
-  const [curProduct, setCurProduct] = useState<{
-    token: FinancialPageTokenItem;
-    curProduct: FinancialPageTokenProductItem;
-  } | null>(); // 当前产品
+
+  const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); // 币种信息
+  const [productInfo, setProductInfo] = useState<FinancialPageTokenProductItem>(); // 当前产品
 
   // 标签页
   const items = [
@@ -541,15 +554,22 @@ const SubscribeModal = ({
       key: "1",
       label: "申购",
       children: (
-        <Subscription curRecord={curRecord} myBalance={myBalance} form={form} />
+        <Subscription
+          myBalance={myBalance}
+          form={form}
+          tokenInfo={tokenInfo}
+          productInfo={productInfo}
+          setProductInfo={setProductInfo}
+        />
       ),
     },
     {
       key: "2",
       label: "产品规则",
-      children: <ProductRule />,
+      children: <ProductRule productInfo={productInfo} />,
     },
   ];
+
   // 提交
   const onSubmit = async () => {
     form.validateFields().then(async (values) => {
@@ -579,13 +599,16 @@ const SubscribeModal = ({
   // 监听 openSubscribe 变化，更新选中的产品
   useEffect(() => {
     if (openSubscribe && curRecord) {
-      setCurProduct(curRecord);
+      setTokenInfo(curRecord.token);
+      setProductInfo(curRecord.curProduct);
+      setTabsKey("1");
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
       });
       // 获取余额
       const fetchBalance = async () => {
-        const res = await getUserBalance(curRecord?.token.coinId || 0);
+        if (!curRecord?.token.coinId) return;
+        const res = await getUserBalance(curRecord?.token.coinId);
         if (res.code === "0") {
           setMyBalance(res.data);
         }
@@ -611,10 +634,10 @@ const SubscribeModal = ({
         }}
         open={openSubscribe}
         onCancel={() => setOpenSubscribe(false)}
-        title={<div>{curProduct?.token.coinName}</div>}
+        title={<div>{tokenInfo?.coinName}</div>}
         closable={{ "aria-label": "Custom Close Button" }}
         footer={
-          tabsKey === "1" ? (
+          tabsKey === "1" && (
             <div className="p-[30px_55px] flex justify-around gap-[20px]">
               <Button
                 className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
@@ -636,7 +659,7 @@ const SubscribeModal = ({
                 申购
               </Button>
             </div>
-          ) : null
+          )
         }
       >
         <Spin spinning={loading}>
