@@ -17,7 +17,7 @@ import RedemptionModal from "./components/RedemptionModal";
 import ConfirmModal from "./components/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
-  AutoPurchaseEnum,
+  PurchaseEnum,
   FinancialType,
   getUserFinancialAccount,
   UserFinancialAccountItem,
@@ -66,7 +66,7 @@ const TabsItem = ({
         return (
           <Switch
             size="small"
-            checked={record.autoPurchase === AutoPurchaseEnum.YES}
+            checked={record.autoPurchase === PurchaseEnum.YES}
           />
         );
       },
