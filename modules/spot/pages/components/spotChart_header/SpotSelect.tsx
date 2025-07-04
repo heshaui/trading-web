@@ -17,14 +17,26 @@ interface SpotSelectProps {
     currencyPairs: any[];
     onPairSelect?: (pair: any) => void;
     searchValue: string;
+    wsData?: any;
 }
 
-const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, searchValue }) => {
+const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, searchValue, wsData }) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all'); // 当前选中的tab
     const [sortField, setSortField] = useState<string>('');
     const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    
+    // 辅助函数：格式化大额数字
+    const formatAmount = (amount: number) => {
+        if (amount >= 100000000) {
+            return (amount / 100000000).toFixed(2) + t('spot.header.billion');
+        } else if (amount >= 10000) {
+            return (amount / 10000).toFixed(2) + t('spot.header.tenThousand');
+        } else {
+            return amount.toFixed(2);
+        }
+    };
     
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
@@ -52,7 +64,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
 
    
     const handlePairClick = async (pair: any) => {
-        console.log(pair);  
         await appStore.setCurrentPair(pair);
     };
 
@@ -64,7 +75,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     };
         // 处理排序
         const handleSort = (field: string) => {
-            console.log('排序字段:', field, '当前排序字段:', sortField, '当前排序方向:', sortDirection);
             if (sortField === field) {
                 // 相同字段，切换排序方向
                 setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -79,8 +89,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     // 获取排序后的数据
     const getSortedPairs = () => {
         if (!sortField) return currencyPairs;
-        
-        console.log('开始排序，字段:', sortField, '方向:', sortDirection);
         
         return [...currencyPairs].sort((a, b) => {
             try {
@@ -109,7 +117,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         : changeB - changeA;
                 }
             } catch (error) {
-                console.error('排序过程中出错:', error, '数据:', a, b);
+               
             }
             return 0;
         });
@@ -130,6 +138,30 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
             
             return matchesSearch && matchesTab;
         }), [sortedPairList, searchValue, activeTab]);
+
+    // 合并WebSocket数据到币对数据中
+    const enrichedPairs = React.useMemo(() => 
+        filteredPairs.map(pair => {
+            const symbol = `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}`;
+            const wsKlineData = wsData?.[symbol];
+            
+            if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length >= 8) {
+                // 根据实际数据格式：[timestamp, open, high, low, close, volume, changePercent, amount]
+                const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = wsKlineData;
+                
+         
+                
+                return {
+                    ...pair,
+                    realTimePrice: close_price,
+                    realTimeChange: changePercent ? changePercent.toFixed(2) : null, // 直接使用WebSocket返回的涨跌幅
+                    realTimeVolume: volume,
+                    realTimeAmount: amount
+                };
+            }
+            
+            return pair;
+        }), [filteredPairs, wsData]);
 
 
 
@@ -265,7 +297,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
 
                 {/* 交易对列表 */}
                 <div className={`${styles.pair_list}`}>
-                    {filteredPairs.map((pair:any, index:any) => (
+                    {enrichedPairs.map((pair:any, index:any) => (
                          <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)} style={{cursor:'pointer'}}>
                          {/* 币种名称 */}
                          <div className={`${styles.pair_name} flex-1`}>
@@ -287,14 +319,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                              <span className={`font-14 ${styles.title_color}`}>{pair.coinSymbol}/{pair.baseSymbol}</span>
                          </div>
                          {/* 最新价 */}
-                         <div className={`font-14 ${styles.title_color} flex-1`}>
-                             {pair.yesterdayPrice}
+                         <div className={`font-14 ${styles.title_color} flex-1 flex-x align-center`}>
+                             <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : (pair.yesterdayPrice || 0)}</span>
+                            
                          </div>
                          {/* 24h涨跌/24h成交量 */}
                          <div
-                             className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
+                             className={`${styles.pair_change} ${!showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) > 0 : pair.priceChangePercent > 0) ? styles.success_icon : !showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) < 0 : pair.priceChangePercent < 0) ? styles.error_icon : ''} flex-1`}
                          >
-                             {showVolume ? pair.quantity: `${pair.priceChangePercent.toFixed(2)}%`}
+                             {showVolume 
+                                 ? (pair.realTimeAmount ? formatAmount(pair.realTimeAmount) : (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity || 0).toFixed(2)))
+                                 : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${(pair.priceChangePercent || 0).toFixed(2)}%`)
+                             }
                          </div>
                      </div>
                     ))}
