@@ -473,7 +473,7 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
                             {close_price ? close_price.toFixed(2) : '--'}
                         </p>
                         {/* <p>¥{close_price ? (close_price * 7.2).toFixed(2) : '--'}</p> */}
-                        <p>¥ {!isClient ? '--' : getPairsRate(close_price, 'CNY').rate}</p>
+                        <p>¥ {!isClient ? '--' : getPairsRate(close_price, 'CNY').rate.toFixed(2)}</p>
                     </li>
                     <li className='mr-9'>
                         <p>{t('spot.header.change24h')}</p>
