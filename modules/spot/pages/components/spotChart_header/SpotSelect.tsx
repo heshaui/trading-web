@@ -27,6 +27,17 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     const [showVolume, setShowVolume] = useState<boolean>(false); // 控制显示24h涨跌或成交量
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     
+    // 辅助函数：格式化大额数字
+    const formatAmount = (amount: number) => {
+        if (amount >= 100000000) {
+            return (amount / 100000000).toFixed(2) + t('spot.header.billion');
+        } else if (amount >= 10000) {
+            return (amount / 10000).toFixed(2) + t('spot.header.tenThousand');
+        } else {
+            return amount.toFixed(2);
+        }
+    };
+    
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
         { key: '1', label: t('spot.header.mainArea') },
@@ -53,7 +64,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
 
    
     const handlePairClick = async (pair: any) => {
-        console.log(pair);  
         await appStore.setCurrentPair(pair);
     };
 
@@ -65,7 +75,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     };
         // 处理排序
         const handleSort = (field: string) => {
-            console.log('排序字段:', field, '当前排序字段:', sortField, '当前排序方向:', sortDirection);
             if (sortField === field) {
                 // 相同字段，切换排序方向
                 setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -80,8 +89,6 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
     // 获取排序后的数据
     const getSortedPairs = () => {
         if (!sortField) return currencyPairs;
-        
-        console.log('开始排序，字段:', sortField, '方向:', sortDirection);
         
         return [...currencyPairs].sort((a, b) => {
             try {
@@ -110,7 +117,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                         : changeB - changeA;
                 }
             } catch (error) {
-                console.error('排序过程中出错:', error, '数据:', a, b);
+               
             }
             return 0;
         });
@@ -138,14 +145,18 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
             const symbol = `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}`;
             const wsKlineData = wsData?.[symbol];
             
-            if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length > 0) {
-                const [timestamp, open_price, high_price, low_price, close_price, volume] = wsKlineData;
-                console.log('SpotSelect解析K线数据:', { symbol, timestamp, open_price, high_price, low_price, close_price, volume });
+            if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length >= 8) {
+                // 根据实际数据格式：[timestamp, open, high, low, close, volume, changePercent, amount]
+                const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = wsKlineData;
+                
+         
+                
                 return {
                     ...pair,
                     realTimePrice: close_price,
-                    realTimeChange: close_price && open_price ? ((close_price - open_price) / open_price * 100).toFixed(2) : null,
-                    realTimeVolume: volume
+                    realTimeChange: changePercent ? changePercent.toFixed(2) : null, // 直接使用WebSocket返回的涨跌幅
+                    realTimeVolume: volume,
+                    realTimeAmount: amount
                 };
             }
             
@@ -309,18 +320,16 @@ const SpotSelect: React.FC<SpotSelectProps> = ({ currencyPairs, onPairSelect, se
                          </div>
                          {/* 最新价 */}
                          <div className={`font-14 ${styles.title_color} flex-1 flex-x align-center`}>
-                             <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : pair.yesterdayPrice}</span>
-                             {pair.realTimePrice && (
-                                 <span className="ml-1" style={{ color: '#52c41a', fontSize: '8px' }}>●</span>
-                             )}
+                             <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : (pair.yesterdayPrice || 0)}</span>
+                            
                          </div>
                          {/* 24h涨跌/24h成交量 */}
                          <div
                              className={`${styles.pair_change} ${!showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) > 0 : pair.priceChangePercent > 0) ? styles.success_icon : !showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) < 0 : pair.priceChangePercent < 0) ? styles.error_icon : ''} flex-1`}
                          >
                              {showVolume 
-                                 ? (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity).toFixed(2))
-                                 : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${pair.priceChangePercent.toFixed(2)}%`)
+                                 ? (pair.realTimeAmount ? formatAmount(pair.realTimeAmount) : (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity || 0).toFixed(2)))
+                                 : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${(pair.priceChangePercent || 0).toFixed(2)}%`)
                              }
                          </div>
                      </div>

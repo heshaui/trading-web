@@ -32,8 +32,9 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
     const [dawerPopOpen, setDawerPopOpen] = useState(false); // 侧边抽屉
     const [wsData, setWsData] = useState<Record<string, any>>({});
     const [isClient, setIsClient] = useState(false); // 添加客户端渲染标记
+    const [wsConnected, setWsConnected] = useState(false); // WebSocket连接状态
     const websocketRef = useRef<WebSocketService | null>(null);
-    const coinList = appStore.getCurrentPairList;
+   
 
 
 
@@ -63,12 +64,18 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
     
     // 如果有实时数据就用实时数据，否则用props传入的数据
     const actualKlineData = realtimeKlineData || propsCoinData?.data?.[0] || [];
-    const [timestamp, open_price, high_price, low_price, close_price, volume] = actualKlineData;
+    
+    // 验证数据格式并安全解构
+    const isValidKlineData = Array.isArray(actualKlineData) && actualKlineData.length >= 8;
+    const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = isValidKlineData ? actualKlineData : [null, null, null, null, null, null, null, null];
+    
+  
 
-    // 计算涨跌幅
+    // 计算涨跌幅 - 优先使用WebSocket返回的涨跌幅
     const priceChange = close_price && open_price ? close_price - open_price : 0;
-    const priceChangePercent = open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00';
-    const isPriceUp = priceChange >= 0;
+    const priceChangePercent = changePercent !== null ? changePercent.toFixed(2) : 
+                              (open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00');
+    const isPriceUp = changePercent !== null ? changePercent >= 0 : priceChange >= 0;
 
     // 辅助函数：格式化大额数字
     const formatAmount = (amount: number) => {
@@ -233,12 +240,12 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
             } else {
                 // 如果API失败，恢复UI状态
                 setIsFavorite(!newFavoriteState);
-                console.error('更新收藏状态失败:', res);
+
             }
         } catch (error) {
             // 发生错误时恢复UI状态
             setIsFavorite(!newFavoriteState);
-            console.error('收藏操作发生错误:', error);
+
         }
     };
 
@@ -324,31 +331,98 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
 
     const getWsData = useCallback(() => {
         // 如果已经有连接，不要重复创建
-        const channels = coinList.map(pair => {
-            return `${ pair.coinSymbol }_${ pair.baseSymbol }_${ pair.groupStatus }@kline_1d_3s`;
+        if (websocketRef.current) {
+
+            return;
+        }
+
+        const coinList = appStore.getCurrentPairList();
+        if (!coinList || coinList.length === 0) {
+            return;
+        }
+
+        const channels = coinList.map((pair: any) => {
+            return `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}@kline_1d_3s`;
         });
 
         const subscribeMessage = JSON.stringify({
             action: "subscribe",
-            // channels: [`BTC_USDT_${ tenantId|| userInfo?.tenantId || 1002} @KLINE_1D`, `ETH_USDT_${ tenantId || userInfo?.tenantId || 1002 } @KLINE_1D`]
             channels: channels
-          });
-        const wsUrl = `${process.env.NEXT_PUBLIC_WS_API_BASE
-        }/ws/multi`;
-        if (websocketRef.current) return;
-      
+        });
+        
+        const wsUrl = `${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/multi`;
+
+        
         const websocket = new WebSocketService(wsUrl);
         websocketRef.current = websocket;
-        websocket.send(subscribeMessage);
-        websocket.connect((message: string) => {
-            console.log(message);
+        
+        // 设置连接成功后的回调，在连接建立后发送订阅消息
+        websocket.setOnConnectedCallback(() => {
+            setWsConnected(true);
+            const success = websocket.send(subscribeMessage);
+            
         });
-    
-      
-      }, []);
+        
+        websocket.connect(
+            (message: string) => {
+                try {
+                    const data = JSON.parse(message);
+                    
+                    // 处理接收到的数据
+                    if (data && data.symbol && data.data && data.type === 'kline') {
+                        // 验证数据格式：data应该是数组，且第一个元素是K线数据数组
+                        if (Array.isArray(data.data) && data.data.length > 0 && Array.isArray(data.data[0]) && data.data[0].length >= 6) {
+                            // 使用symbol作为key存储对应的K线数据（取第一个K线数据）
+                            setWsData(prevData => ({
+                                ...prevData,
+                                [data.symbol]: data.data[0]
+                            }));
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                } catch (error) {
+
+                }
+            },
+            (error: Event) => {
+
+                setWsConnected(false);
+            }
+        );
+    }, []);
       useEffect(() => {
-        // getWsData();
-      }, [coinList]);
+        // 延迟初始化WebSocket，确保store已经加载完成
+        const timer = setTimeout(() => {
+            getWsData();
+        }, 100);
+        
+        // 清理函数：组件卸载时关闭WebSocket连接
+        return () => {
+            clearTimeout(timer);
+            if (websocketRef.current) {
+
+                websocketRef.current.close();
+                websocketRef.current = null;
+                setWsConnected(false);
+            }
+        };
+      }, [getWsData]);
+
+      // 当币对列表变化时，重新建立WebSocket连接
+      useEffect(() => {
+        if (appStore.currencyPairs.length > 0 && websocketRef.current) {
+
+            websocketRef.current.close();
+            websocketRef.current = null;
+            
+            setTimeout(() => {
+                getWsData();
+            }, 100);
+        }
+      }, [appStore.currencyPairs.length, getWsData]);
 
     return (
         <div className={`flex-x align-center`}>
@@ -422,7 +496,7 @@ const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any })
                     <li className='mr-9'>
                         <p>{t('spot.header.amount24h')}({!isClient ? '--' : (currentPair?.baseSymbol || '--')})</p>
                         <p className={`${styles.title_color}`}>
-                            {volume && close_price ? formatAmount(volume * close_price) : '--'}
+                            {amount ? formatAmount(amount) : (volume && close_price ? formatAmount(volume * close_price) : '--')}
                         </p>
                     </li>
                 </ul>

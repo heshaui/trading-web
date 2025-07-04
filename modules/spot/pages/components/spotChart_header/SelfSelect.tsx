@@ -25,8 +25,18 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
     const [sortField, setSortField] = useState<string>('');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [showVolume, setShowVolume] = useState<boolean>(false);
-    console.log('wsData-SelfSelect', wsData);
-    console.log('wsData类型:', typeof wsData, 'wsData是否为空:', Object.keys(wsData).length === 0);
+    
+    // 辅助函数：格式化大额数字
+    const formatAmount = (amount: number) => {
+        if (amount >= 100000000) {
+            return (amount / 100000000).toFixed(2) + t('spot.header.billion');
+        } else if (amount >= 10000) {
+            return (amount / 10000).toFixed(2) + t('spot.header.tenThousand');
+        } else {
+            return amount.toFixed(2);
+        }
+    };
+ 
 
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
@@ -150,19 +160,19 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
     // 合并WebSocket数据到币对数据中
     const enrichedPairs = filteredPairs.map(pair => {
         const symbol = `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}`;
-        console.log('检查币对:', { symbol, pair: pair.coinSymbol + '/' + pair.baseSymbol });
-        console.log('wsData中的键:', Object.keys(wsData));
         const wsKlineData = wsData?.[symbol];
-        console.log('wsKlineData:', wsKlineData);
         
-        if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length > 0) {
-            const [timestamp, open_price, high_price, low_price, close_price, volume] = wsKlineData;
-            console.log('解析K线数据:', { symbol, timestamp, open_price, high_price, low_price, close_price, volume });
+        if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length >= 8) {
+            // 根据实际数据格式：[timestamp, open, high, low, close, volume, changePercent, amount]
+            const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = wsKlineData;
+            
+            
             return {
                 ...pair,
                 realTimePrice: close_price,
-                realTimeChange: close_price && open_price ? ((close_price - open_price) / open_price * 100).toFixed(2) : null,
-                realTimeVolume: volume
+                realTimeChange: changePercent ? changePercent.toFixed(2) : null, // 直接使用WebSocket返回的涨跌幅
+                realTimeVolume: volume,
+                realTimeAmount: amount
             };
         }
         
@@ -170,7 +180,6 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
     });
 
     const handlePairClick = async (pair: any) => {
-        console.log(pair);
         await appStore.setCurrentPair(pair);
     };
 
@@ -375,18 +384,15 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                             </div>
                             {/* 最新价 */}
                             <div className={`font-14 ${styles.title_color} flex-1 flex-x align-center`}>
-                                <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : pair.yesterdayPrice}</span>
-                                {pair.realTimePrice && (
-                                    <span className="ml-1" style={{ color: '#52c41a', fontSize: '8px' }}>●</span>
-                                )}
+                                <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : (pair.yesterdayPrice || 0)}</span>
                             </div>
                             {/* 24h涨跌/24h成交量 */}
                             <div
                                 className={`${styles.pair_change} ${!showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) > 0 : pair.priceChangePercent > 0) ? styles.success_icon : !showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) < 0 : pair.priceChangePercent < 0) ? styles.error_icon : ''} flex-1`}
                             >
                                 {showVolume 
-                                    ? (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity).toFixed(2))
-                                    : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${pair.priceChangePercent.toFixed(2)}%`)
+                                    ? (pair.realTimeAmount ? formatAmount(pair.realTimeAmount) : (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity || 0).toFixed(2)))
+                                    : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${(pair.priceChangePercent || 0).toFixed(2)}%`)
                                 }
                             </div>
                         </div>
