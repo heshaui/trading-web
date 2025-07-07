@@ -142,7 +142,7 @@ const Subscription: React.FC<{
             <div
               onClick={() => {
                 // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击
-                if (item.status !== FinancialPageTokenStatusEnum.IN_PROGRESS) {
+                if (Number(item.status) !== FinancialPageTokenStatusEnum.IN_PROGRESS) {
                   return;
                 }
                 form.resetFields();
@@ -161,7 +161,7 @@ const Subscription: React.FC<{
                   productInfo?.id === item.id
                     ? "1px solid var(--theme-color)"
                     : "1px solid var(--border-color4)",
-                cursor: item.status !== FinancialPageTokenStatusEnum.IN_PROGRESS ? "not-allowed" : "pointer",
+                cursor: Number(item.status) !== FinancialPageTokenStatusEnum.IN_PROGRESS ? "not-allowed" : "pointer",
               }}
               className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
                 productInfo?.id === item.id

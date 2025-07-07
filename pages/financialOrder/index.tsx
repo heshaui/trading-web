@@ -141,16 +141,18 @@ const TabsItem = ({
               },
               {
                 label: "申购",
-                value: FinancialOrderStatusEnum.PURCHASE,
+                // value: FinancialOrderStatusEnum.PURCHASE,
+                value: '申购',
               },
               {
                 label: "赎回",
-                value: FinancialOrderStatusEnum.REDEEM,
+                // value: FinancialOrderStatusEnum.REDEEM,
+                value: '赎回',
               },
-              {
-                label: "利息",
-                value: FinancialOrderStatusEnum.INTEREST,
-              },
+              // {
+              //   label: "利息",
+              //   value: FinancialOrderStatusEnum.INTEREST,
+              // },
             ]}
           />
           <RangePicker

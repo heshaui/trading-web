@@ -33,14 +33,12 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 
 const TabsItem = ({
-  curProduct,
   setCurProduct,
   tableLoading,
   tableData,
   setOpenRedemption,
   setConfirmModal,
 }: {
-  curProduct: UserFinancialAccountItem | null;
   setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
   tableData: UserFinancialAccountItem[];
@@ -91,7 +89,10 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div> {record.purchaseAmount} {record.coinName}</div>
+            <div>
+              {" "}
+              {record.purchaseAmount} {record.coinName}
+            </div>
             <div>≈${record.usdPurchaseAmount}</div>
           </div>
         );
@@ -104,7 +105,9 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            {record.type === FinancialType.CURRENT ? `${record.minAnnualInterestRate}%~` : null}
+            {record.type === FinancialType.CURRENT
+              ? `${record.minAnnualInterestRate}%~`
+              : null}
             {record.maxAnnualInterestRate}%
           </div>
         );
@@ -117,14 +120,16 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div>{record.accruedInterest} {record.coinName}</div>
+            <div>
+              {record.accruedInterest} {record.coinName}
+            </div>
             <div>≈${record.usdAccruedInterest}</div>
           </div>
         );
       },
     },
     {
-      title:"申购时间",
+      title: "申购时间",
       dataIndex: "purchaseTime",
       key: "purchaseTime",
       render: (_: any, record: any) => {
@@ -138,27 +143,54 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <Space>
-            <div
-              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => setConfirmModal({
-                open: true,
-                status: "success",
-                amount: record.purchaseAmount,
-                type: record.type,
-                unit: record.coinName,
-              })}
-            >
-              再次申购
-            </div>
-            <div
-              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => {
-                setCurProduct(record);
-                setOpenRedemption(true);
-              }}
-            >
-              赎回
-            </div>
+            {/* 判断是否活期 */}
+            {record.type === FinancialType.CURRENT && (
+              <div
+                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                onClick={() =>
+                  setConfirmModal({
+                    open: true,
+                    status: "success",
+                    amount: record.purchaseAmount,
+                    type: record.type,
+                    unit: record.coinName,
+                  })
+                }
+              >
+                再次申购
+              </div>
+            )}
+            {/* 定期 */}
+            {/* 判断是否允许提前赎回 */}
+            {record.type === FinancialType.FIXED ? (
+              record.isRedemption === PurchaseEnum.YES ? (
+                <div
+                  className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                  onClick={() => {
+                    setCurProduct(record);
+                    setOpenRedemption(true);
+                  }}
+                >
+                  赎回
+                </div>
+              ) : (
+                <div className="font-[400] text-[14px] text-[var(--text-color6)]">
+                  到期自动赎回
+                </div>
+              )
+            ) : null}
+            {/* 活期 */}
+            {record.type === FinancialType.CURRENT && (
+              <div
+                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                onClick={() => {
+                  setCurProduct(record);
+                  setOpenRedemption(true);
+                }}
+              >
+                赎回
+              </div>
+            )}
           </Space>
         );
       },
@@ -178,8 +210,9 @@ const TabsItem = ({
 };
 
 const Financial = () => {
-
   const router = useRouter();
+
+  const { type } = router.query;
 
   const [tableLoading, setTableLoading] = useState(false);
   //打开赎回弹窗
@@ -202,7 +235,9 @@ const Financial = () => {
   });
 
   // 当前选中的理财产品
-  const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(null);
+  const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(
+    null
+  );
 
   // 我的持仓
   const [myAmount, setMyAmount] = useState({
@@ -235,7 +270,6 @@ const Financial = () => {
       children: (
         <TabsItem
           setCurProduct={setCurProduct}
-          curProduct={curProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
@@ -249,7 +283,6 @@ const Financial = () => {
       children: (
         <TabsItem
           setCurProduct={setCurProduct}
-          curProduct={curProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
@@ -322,7 +355,10 @@ const Financial = () => {
         setOpenRedemption={setOpenRedemption}
         setConfirmModal={setConfirmModal}
       />
-      <ConfirmModal confirmModal={confirmModal} setConfirmModal={setConfirmModal} />
+      <ConfirmModal
+        confirmModal={confirmModal}
+        setConfirmModal={setConfirmModal}
+      />
       <ConfigProvider
         theme={{
           components: {
@@ -359,31 +395,45 @@ const Financial = () => {
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
                     <div>总资产</div>
                     <div>
-                    {!showAmount ? (
-                      <EyeOutlined
-                        size={18}
-                        className="cursor-pointer"
-                        onClick={() => setShowAmount(!showAmount)}
-                      />
-                    ) : (
-                      <EyeInvisibleOutlined
-                        size={18}
-                        className="cursor-pointer"
-                        onClick={() => setShowAmount(!showAmount)}
-                      />
-                    )}
-                  </div>
+                      {!showAmount ? (
+                        <EyeOutlined
+                          size={18}
+                          className="cursor-pointer"
+                          onClick={() => setShowAmount(!showAmount)}
+                        />
+                      ) : (
+                        <EyeInvisibleOutlined
+                          size={18}
+                          className="cursor-pointer"
+                          onClick={() => setShowAmount(!showAmount)}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={myAmount.holdings} unit="USD" /> 
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.holdings}
+                      unit="USD"
+                    />
                   </div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    <MaskableAmount prefix="≈" show={showAmount} amount={myAmount.holdings} unit="CNY" />
+                    <MaskableAmount
+                      prefix="≈"
+                      show={showAmount}
+                      amount={myAmount.holdings}
+                      unit="CNY"
+                    />
                   </div>
                 </div>
-                <Button type="primary" onClick={() => {
-                  router.push("/financial");
-                }}>理财产品</Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    router.push("/financial");
+                  }}
+                >
+                  理财产品
+                </Button>
               </div>
               <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
               {/* 底部 */}
@@ -393,7 +443,11 @@ const Financial = () => {
                     昨日收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={myAmount.lastRevenue} unit="USD" />
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.lastRevenue}
+                      unit="USD"
+                    />
                   </div>
                 </div>
                 <div>
@@ -401,7 +455,11 @@ const Financial = () => {
                     30日累计收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={myAmount.accumulateRevenue} unit="USD" />
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.accumulateRevenue}
+                      unit="USD"
+                    />
                   </div>
                 </div>
               </div>
@@ -410,6 +468,7 @@ const Financial = () => {
             <Tabs
               className={styles.tabs}
               items={items}
+              defaultActiveKey={type as string}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
               tabBarExtraContent={{
                 right: (

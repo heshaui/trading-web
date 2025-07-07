@@ -44,7 +44,7 @@ const ConfirmModal = ({
           </Button>
           <Button
             onClick={() => {
-              router.push("/assets/financial");
+              router.push(`/assets/financial?type=${confirmModal.type}`);
             }}
             type="primary"
             shape="round"
