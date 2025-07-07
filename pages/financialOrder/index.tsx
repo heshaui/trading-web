@@ -10,6 +10,7 @@ import {
   Space,
   Table,
   Tabs,
+  Tag,
 } from "antd";
 import NoData from "@/components/noData/noData";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ const { RangePicker } = DatePicker;
 import { FinancialType } from "@/services/financial";
 import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 
 const TabsItem = ({
   tableData,
@@ -60,6 +62,9 @@ const TabsItem = ({
       title: "日期",
       dataIndex: "createTime",
       key: "createTime",
+      render: (_: any, record: any) => {
+        return dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss");
+      },
     },
     {
       title: "类型",
@@ -68,9 +73,10 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <>
-            {record.type == FinancialType.FIXED && <div>定期</div>}
-            {record.type == FinancialType.CURRENT && <div>活期</div>}
-          </>
+          {record.status == FinancialOrderStatusEnum.PURCHASE && <div>申购</div>}
+          {record.status == FinancialOrderStatusEnum.REDEEM && <div>赎回</div>}
+          {record.status == FinancialOrderStatusEnum.INTEREST && <div>利息</div>}
+        </>
         );
       },
     },
@@ -82,7 +88,7 @@ const TabsItem = ({
         return (
           <div>
             <div>{record.amount} USDT</div>
-            <div>≈￥{record.usdAmount}</div>
+            <div>≈￥{record.usdtAmount}</div>
           </div>
         );
       },
@@ -92,20 +98,7 @@ const TabsItem = ({
       dataIndex: "status",
       key: "status",
       render: (_: any, record: any) => {
-        //1申购，2赎回，3利息
-        return (
-          <>
-            {record.status == FinancialOrderStatusEnum.PURCHASE && (
-              <div>申购</div>
-            )}
-            {record.status == FinancialOrderStatusEnum.REDEEM && (
-              <div>赎回</div>
-            )}
-            {record.status == FinancialOrderStatusEnum.INTEREST && (
-              <div>利息</div>
-            )}
-          </>
-        );
+        return <Tag color="success">成功</Tag>
       },
     },
   ];
@@ -140,6 +133,7 @@ const TabsItem = ({
             onChange={(value) =>
               setFormData({ ...formData, operationType: value })
             }
+            // 1申购，2赎回，3利息
             options={[
               {
                 label: "全部",
@@ -147,11 +141,15 @@ const TabsItem = ({
               },
               {
                 label: "申购",
-                value: "申购",
+                value: FinancialOrderStatusEnum.PURCHASE,
               },
               {
                 label: "赎回",
-                value: "赎回",
+                value: FinancialOrderStatusEnum.REDEEM,
+              },
+              {
+                label: "利息",
+                value: FinancialOrderStatusEnum.INTEREST,
               },
             ]}
           />
@@ -286,7 +284,7 @@ const FinancialOrder = () => {
         },
       }}
     >
-      <div className="w-[100%] h-[100%]">
+      <div>
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
           理财订单
         </div>

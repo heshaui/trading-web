@@ -22,6 +22,7 @@ import {
   getUserFinancialAccount,
   UserFinancialAccountItem,
   UserFinancialAccountParams,
+  getMyPosition,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
 import Image from "next/image";
@@ -29,17 +30,29 @@ import { ColumnsType } from "antd/es/table";
 import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
 
 const TabsItem = ({
+  curProduct,
+  setCurProduct,
   tableLoading,
   tableData,
   setOpenRedemption,
-  setOpenConfirm,
+  setConfirmModal,
 }: {
+  curProduct: UserFinancialAccountItem | null;
+  setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
   tableData: UserFinancialAccountItem[];
   setOpenRedemption: (open: boolean) => void;
-  setOpenConfirm: (open: boolean) => void;
+  setConfirmModal: (confirmModal: {
+    open: boolean;
+    status: "error" | "success" | null;
+    amount?: number;
+    type?: FinancialType;
+    unit?: string;
+    endTime?: number;
+  }) => void;
 }) => {
   // 表格列
   const columns: ColumnsType<UserFinancialAccountItem> = [
@@ -78,8 +91,8 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div> {record.purchaseAmount} USDT</div>
-            <div>≈$20.10</div>
+            <div> {record.purchaseAmount} {record.coinName}</div>
+            <div>≈${record.usdPurchaseAmount}</div>
           </div>
         );
       },
@@ -91,7 +104,7 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            {record.minAnnualInterestRate}%~
+            {record.type === FinancialType.CURRENT ? `${record.minAnnualInterestRate}%~` : null}
             {record.maxAnnualInterestRate}%
           </div>
         );
@@ -104,10 +117,18 @@ const TabsItem = ({
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div>{record.accruedInterest} USDT</div>
+            <div>{record.accruedInterest} {record.coinName}</div>
             <div>≈${record.usdAccruedInterest}</div>
           </div>
         );
+      },
+    },
+    {
+      title:"申购时间",
+      dataIndex: "purchaseTime",
+      key: "purchaseTime",
+      render: (_: any, record: any) => {
+        return dayjs(record.purchaseTime).format("YYYY-MM-DD HH:mm:ss");
       },
     },
     {
@@ -119,13 +140,22 @@ const TabsItem = ({
           <Space>
             <div
               className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => setOpenConfirm(true)}
+              onClick={() => setConfirmModal({
+                open: true,
+                status: "success",
+                amount: record.purchaseAmount,
+                type: record.type,
+                unit: record.coinName,
+              })}
             >
               再次申购
             </div>
             <div
               className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => setOpenRedemption(true)}
+              onClick={() => {
+                setCurProduct(record);
+                setOpenRedemption(true);
+              }}
             >
               赎回
             </div>
@@ -155,7 +185,32 @@ const Financial = () => {
   //打开赎回弹窗
   const [openRedemption, setOpenRedemption] = useState(false);
   //打开确认弹窗
-  const [openConfirm, setOpenConfirm] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    status: "error" | "success" | null;
+    amount?: number;
+    type?: FinancialType;
+    unit?: string;
+    endTime?: number;
+  }>({
+    open: false,
+    status: null,
+    amount: undefined,
+    type: undefined,
+    unit: undefined,
+    endTime: undefined,
+  });
+
+  // 当前选中的理财产品
+  const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(null);
+
+  // 我的持仓
+  const [myAmount, setMyAmount] = useState({
+    holdings: 0, // 持仓
+    totalRevenue: 0, // 总收益
+    lastRevenue: 0, // 昨日收益
+    accumulateRevenue: 0, // 30日累计收益
+  });
 
   // 表格数据
   const [formData, setFormData] = useState<UserFinancialAccountParams>({
@@ -179,10 +234,12 @@ const Financial = () => {
       label: "定期",
       children: (
         <TabsItem
+          setCurProduct={setCurProduct}
+          curProduct={curProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setOpenConfirm={setOpenConfirm}
+          setConfirmModal={setConfirmModal}
         />
       ),
     },
@@ -191,21 +248,25 @@ const Financial = () => {
       label: "活期",
       children: (
         <TabsItem
+          setCurProduct={setCurProduct}
+          curProduct={curProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setOpenConfirm={setOpenConfirm}
+          setConfirmModal={setConfirmModal}
         />
       ),
     },
   ];
 
+  // 获取理财产品列表
   const fetchData = async (params: UserFinancialAccountParams) => {
     try {
       setTableLoading(true);
       const res = await getUserFinancialAccount(params);
       if (res.code === "0") {
         setTableData(res.data);
+        console.log(res.data);
       }
     } catch (error) {
       console.log(error);
@@ -213,6 +274,8 @@ const Financial = () => {
       setTableLoading(false);
     }
   };
+
+  // 获取币种列表
   const fetchCoinList = async () => {
     try {
       const response = await getCoinAll();
@@ -230,8 +293,21 @@ const Financial = () => {
     }
   };
 
+  // 我的持仓
+  const fetchMyPosition = async () => {
+    try {
+      const res = await getMyPosition();
+      if (res.code === "0") {
+        setMyAmount(res.data);
+      }
+    } catch (error) {
+      console.error("Failed to load position data:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCoinList();
+    fetchMyPosition();
   }, []);
 
   useEffect(() => {
@@ -241,10 +317,12 @@ const Financial = () => {
   return (
     <>
       <RedemptionModal
+        curProduct={curProduct}
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
+        setConfirmModal={setConfirmModal}
       />
-      <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
+      <ConfirmModal confirmModal={confirmModal} setConfirmModal={setConfirmModal} />
       <ConfigProvider
         theme={{
           components: {
@@ -297,10 +375,10 @@ const Financial = () => {
                   </div>
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" /> 
+                    <MaskableAmount show={showAmount} amount={myAmount.holdings} unit="USD" /> 
                   </div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    <MaskableAmount prefix="≈" show={showAmount} amount={1.12} unit="CNY" />
+                    <MaskableAmount prefix="≈" show={showAmount} amount={myAmount.holdings} unit="CNY" />
                   </div>
                 </div>
                 <Button type="primary" onClick={() => {
@@ -315,7 +393,7 @@ const Financial = () => {
                     昨日收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
+                    <MaskableAmount show={showAmount} amount={myAmount.lastRevenue} unit="USD" />
                   </div>
                 </div>
                 <div>
@@ -323,7 +401,7 @@ const Financial = () => {
                     30日累计收益（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
+                    <MaskableAmount show={showAmount} amount={myAmount.accumulateRevenue} unit="USD" />
                   </div>
                 </div>
               </div>
@@ -336,6 +414,7 @@ const Financial = () => {
               tabBarExtraContent={{
                 right: (
                   <Select
+                    allowClear
                     className="w-[170px] h-[30px]"
                     value={formData.coinId}
                     onChange={(value) =>

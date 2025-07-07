@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import {
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
+  FinancialPageTokenStatusEnum,
   financialSubscribe,
   FinancialType,
   getEstimateDailyIncome,
@@ -140,6 +141,10 @@ const Subscription: React.FC<{
           {tokenInfo?.products?.map((item) => (
             <div
               onClick={() => {
+                // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击
+                if (item.status !== FinancialPageTokenStatusEnum.IN_PROGRESS) {
+                  return;
+                }
                 form.resetFields();
                 setIncome("-");
                 setProductInfo(item);
@@ -156,6 +161,7 @@ const Subscription: React.FC<{
                   productInfo?.id === item.id
                     ? "1px solid var(--theme-color)"
                     : "1px solid var(--border-color4)",
+                cursor: item.status !== FinancialPageTokenStatusEnum.IN_PROGRESS ? "not-allowed" : "pointer",
               }}
               className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
                 productInfo?.id === item.id
@@ -259,7 +265,7 @@ const Subscription: React.FC<{
           </div>
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400]">自动申购</div>
-            <Form.Item name="autoSubscribe" noStyle>
+            <Form.Item name="autoPurchase" noStyle>
               <Switch />
             </Form.Item>
           </div>
@@ -528,7 +534,7 @@ const SubscribeModal = ({
   curRecord,
   openSubscribe,
   setOpenSubscribe,
-  setOpenConfirm,
+  setConfirmModal,
 }: {
   curRecord: {
     token: FinancialPageTokenItem;
@@ -536,7 +542,14 @@ const SubscribeModal = ({
   } | null;
   openSubscribe: boolean;
   setOpenSubscribe: (open: boolean) => void;
-  setOpenConfirm: (open: boolean) => void;
+  setConfirmModal: (confirmModal: {
+    open: boolean;
+    status: "error" | "success" | null;
+    type?: FinancialType;
+    amount?: number;
+    unit?: string;
+    endTime?: number;
+  }) => void;
 }) => {
   const { styles } = useStyle();
   const [form] = Form.useForm();
@@ -580,16 +593,29 @@ const SubscribeModal = ({
         const params = {
           projectId: formData.projectId,
           financialAmount: formData.financialAmount,
-          autoSubscribe: formData.autoSubscribe
+          autoPurchase: formData.autoPurchase
             ? PurchaseEnum.YES
             : PurchaseEnum.NO,
         };
         const res = await financialSubscribe(params);
         if (res.code === "0") {
           console.log(res);
+          setOpenSubscribe(false);
+          setConfirmModal({
+            open: true,
+            status: "success",
+            type: productInfo?.type,
+            amount: formData.financialAmount,
+            unit: tokenInfo?.coinName,
+            endTime: curRecord?.curProduct.purchaseEndTime,
+          });
         }
       } catch (error) {
         console.log(error);
+        setConfirmModal({
+          open: true,
+          status: "error",
+        });
       } finally {
         setLoading(false);
       }
@@ -632,6 +658,7 @@ const SubscribeModal = ({
           footer: styles["my-modal-footer"],
           content: styles["my-modal-content"],
         }}
+        maskClosable={false}
         open={openSubscribe}
         onCancel={() => setOpenSubscribe(false)}
         title={<div>{tokenInfo?.coinName}</div>}

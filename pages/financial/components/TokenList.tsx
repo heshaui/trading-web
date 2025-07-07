@@ -1,6 +1,5 @@
-import { SearchOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import {
-  Input,
   Select,
   Space,
   Table,
@@ -9,14 +8,16 @@ import {
   Modal,
   Spin,
 } from "antd";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import styles from "../../../styles/components/Financial.module.css";
 import { FinancialConfig } from "../index";
 import {
+  CoinFilterOptionsItem,
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
   FinancialPageTokenStatusEnum,
   FinancialType,
+  getCoinFilterOptions,
   getFinancialPageToken,
   getProductFilterOptions,
   ProductFilterOptionsItem,
@@ -27,6 +28,7 @@ import { NoData } from "@/components/noData";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 
 const termTypeMap: Record<number, string> = {
   [FinancialType.CURRENT]: "活期",
@@ -58,11 +60,17 @@ const TokenList = ({
     selectedValue: null, // 用于 Select 回显的完整值
   }); // 表单数据
 
+  // 产品筛选选项
   const [productFilterOptions, setProductFilterOptions] = useState<
     {
       label: string;
       value: string | number | null;
     }[]
+  >([]);
+
+  // 币种筛选选项
+  const [coinFilterOptions, setCoinFilterOptions] = useState<
+    CoinFilterOptionsItem[]
   >([]);
 
   // 请求当前项目列表
@@ -88,6 +96,7 @@ const TokenList = ({
     }
   };
 
+  // 展开行
   const handleExpand = (key: number | undefined) => {
     if (!key) return;
     if (expandedRowKeys.includes(key)) {
@@ -97,6 +106,7 @@ const TokenList = ({
     }
   };
 
+  // 申购
   const onSubscribe = (
     record: FinancialPageTokenItem,
     productRecord: FinancialPageTokenProductItem
@@ -104,10 +114,13 @@ const TokenList = ({
     const userInfo = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || "{}"
     );
+
+    console.log(userInfo);
     if (
       // 判断是否需要实名认证
       financialConfig?.isRealname &&
-      financialConfig.isRealname === StatusEnum.CLOSE
+      financialConfig.isRealname === StatusEnum.CLOSE &&
+      userInfo.realnessStatus === 2
     ) {
       setCurRecord({
         token: record,
@@ -143,10 +156,12 @@ const TokenList = ({
     }
   };
 
+  // 更多
   const more = async () => {
     console.log("more");
   };
 
+  // 列配置
   const columns: ColumnsType<FinancialPageTokenItem> = [
     {
       title: "币种",
@@ -219,6 +234,7 @@ const TokenList = ({
     },
   ];
 
+  // 初始化产品筛选选项
   const initProductFilterOptions = async () => {
     const res = await getProductFilterOptions();
     if (res.code === "0") {
@@ -229,7 +245,10 @@ const TokenList = ({
               item.type === FinancialType.CURRENT
                 ? "活期"
                 : `定期 (${item.term}天)`,
-            value:item.type === FinancialType.FIXED ? `${item.type}-${item.term}` : item.type,
+            value:
+              item.type === FinancialType.FIXED
+                ? `${item.type}-${item.term}`
+                : item.type,
           };
         }
       );
@@ -237,8 +256,16 @@ const TokenList = ({
     }
   };
 
+  const initTokenList = async () => {
+    const res = await getCoinFilterOptions();
+    if (res.code === "0") {
+      setCoinFilterOptions(res.data);
+    }
+  };
+
   useEffect(() => {
     initProductFilterOptions();
+    initTokenList();
   }, []);
 
   useEffect(() => {
@@ -264,7 +291,8 @@ const TokenList = ({
       <div className="p-[30px_120px]">
         <Space size={30} className="mb-[14px]">
           {/* 币种筛选 */}
-          {/* <Select
+          <Select
+            allowClear
             showSearch
             value={formData.coinId}
             className="w-[188px] h-[40px]"
@@ -275,10 +303,17 @@ const TokenList = ({
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
-            options={[{ value: null, label: "全部" }]}
-          /> */}
+            options={[
+              { value: null, label: "全部" },
+              ...coinFilterOptions.map((item) => ({
+                value: item.coinId,
+                label: item.coinName,
+              })),
+            ]}
+          />
           {/* 类型筛选 */}
           <Select
+            allowClear
             value={formData.selectedValue}
             className="w-[188px] h-[40px]"
             onChange={(value: any) => {
@@ -286,8 +321,18 @@ const TokenList = ({
               setFormData({
                 ...formData,
                 selectedValue: value,
-                type: value === null ? null : (value === FinancialType.CURRENT ? value : value?.split("-")[0]),
-                term: value === null ? null : (value === FinancialType.CURRENT ? null : value?.split("-")[1]),
+                type:
+                  value === null
+                    ? null
+                    : value === FinancialType.CURRENT
+                    ? value
+                    : value?.split("-")[0],
+                term:
+                  value === null
+                    ? null
+                    : value === FinancialType.CURRENT
+                    ? null
+                    : value?.split("-")[1],
               });
               setExpandedRowKeys([]);
             }}
@@ -378,6 +423,7 @@ const TokenList = ({
                             </Button>
                           ) : (
                             <>
+                            {/* 进行中 可以点击 */}
                               {Number(productRecord.status) ===
                                 FinancialPageTokenStatusEnum.IN_PROGRESS && (
                                 <Button
@@ -390,6 +436,7 @@ const TokenList = ({
                                   申购
                                 </Button>
                               )}
+                              {/* 售罄 无法点击 */}
                               {Number(productRecord.status) ===
                                 FinancialPageTokenStatusEnum.SOLD_OUT && (
                                 <Button
@@ -403,6 +450,7 @@ const TokenList = ({
                                   售罄
                                 </Button>
                               )}
+                              {/* 暂停 无法点击 */}
                               {Number(productRecord.status) ===
                                 FinancialPageTokenStatusEnum.SUSPEND && (
                                 <Button
@@ -414,6 +462,17 @@ const TokenList = ({
                                   }}
                                 >
                                   暂停
+                                </Button>
+                              )}
+                              {/* 项目商户后台发布且未开启，显示当前时间距离开始时间的倒计时。需要按照用户的浏览器时间显示 */}
+                              {Number(productRecord.status) ===
+                                FinancialPageTokenStatusEnum.WAIT_START && (
+                                <Button
+                                  disabled
+                                  type="primary"
+                                  shape="round"
+                                >
+                                  {dayjs(productRecord.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")}
                                 </Button>
                               )}
                             </>

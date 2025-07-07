@@ -78,6 +78,7 @@ interface MyPositionItem {
   holdings: number; //持仓
   totalRevenue: number; //总收益
   lastRevenue: number; //昨日收益
+  accumulateRevenue: number; //30日累计收益
 }
 export function getMyPosition(): Promise<RequestParams<MyPositionItem>> {
   return request(`${fixUrl2}/assets-web/v1/user-project/holdAssets`, {
@@ -136,6 +137,7 @@ export interface UserFinancialAccountParams {
   type: FinancialType; // 1定期 2活期
 }
 export interface UserFinancialAccountItem {
+  id: number; //用户理财记录id
   projectId: number;
   coinId: number; //币种ID
   coinName: string; //币种名称
@@ -154,8 +156,8 @@ export function getUserFinancialAccount(
   params: UserFinancialAccountParams
 ): Promise<RequestParams<UserFinancialAccountItem[]>> {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/userFinancialProductList`,
-    { method: "POST", body: JSON.stringify(params) }
+    `${fixUrl2}/assets-web/v1/user-project/userFinancialProductList?type=${params.type}${params.coinId ? `&coinId=${params.coinId}` : ""}`,
+    { method: "POST" }
   );
 }
 
@@ -278,7 +280,7 @@ export function getEstimateDailyIncome(
 export interface FinancialSubscribeParams {
   projectId: number;
   financialAmount: number;
-  autoSubscribe: PurchaseEnum;
+  autoPurchase: PurchaseEnum;
 }
 
 export function financialSubscribe(
@@ -308,3 +310,90 @@ export function getProductFilterOptions(): Promise<
   );
 }
 /*-----------------理财页面-筛选下拉框end--------------------*/
+
+export interface CoinFilterOptionsItem {
+  id: number;
+  coinId: number;
+  coinName: string;
+  iconUrl: string;
+  canAutoWithdraw: number;
+  canRecharge: number;
+  canTransfer: number;
+  canWithdraw: number;
+  isPlatformCoin: number;
+  minWithdrawAmount: number;
+  nameDefault: string;
+  sort: number;
+  status: number;
+  unit: string;
+  unitScale: number;
+  tenantId: string;
+  createTime: number;
+  updateTime: number;
+  mianChain: number;
+  maxWithdrawAmount: number;
+  minTopUp: number;
+  memoTag: number;
+  issuingDate: string;
+  transactionNum: number;
+  maxSupplyQuantity: number;
+  introduction: string;
+  isTradeConvert: number;
+  introductionVoList: [
+    {
+      id: string;
+      languageCode: string;
+      content: string;
+    }
+  ];
+}
+export function getCoinFilterOptions(): Promise<
+  RequestParams<CoinFilterOptionsItem[]>
+> {
+  return request(`${fixUrl}/home-web/v1/exchange-coin/tenantCurrencyCoinList`, {
+    method: "POST",
+  });
+}
+
+
+/*-----------------理财账户-赎回显示start------------------*/
+export interface FinancialAccountRedemptionShowParams {
+  id: number; //用户理财记录id
+  projectId: number; // 项目id
+  coinId: number; // 币种id
+} 
+
+export interface FinancialAccountRedemptionShowItem {
+  totalAssets: number; // 今日资产
+  redeemLimit: number; // 今日赎回上限
+}
+export function getFinancialAccountRedemptionShow(
+  params: FinancialAccountRedemptionShowParams
+): Promise<RequestParams<FinancialAccountRedemptionShowItem>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/redeemDisplay`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+
+/*-----------------理财账户-赎回显示end--------------------*/
+
+
+/*-----------------理财账户-赎回start------------------*/
+
+export interface FinancialAccountRedemptionParams {
+  id: number; //用户理财记录id
+  projectId: number; // 项目id
+  coinId: number; // 币种id
+  redeemMoney: number; // 赎回金额
+}
+
+export function financialAccountRedemption(
+  params: FinancialAccountRedemptionParams
+): Promise<RequestParams<boolean>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/redeem`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+/*-----------------理财账户-赎回end--------------------*/

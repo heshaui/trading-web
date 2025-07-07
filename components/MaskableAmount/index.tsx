@@ -11,7 +11,7 @@ const MaskableAmount = ({
 }) => {
   return (
     <span>
-      {show ? `${prefix ? prefix : ""}${amount} ${unit ? unit : ""}` : "****"}
+      {show ? `${prefix ? prefix : ""}${amount || 0} ${unit ? unit : ""}` : "****"}
     </span>
   );
 };

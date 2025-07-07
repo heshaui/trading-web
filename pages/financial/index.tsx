@@ -10,6 +10,7 @@ import SubscribeModal from "./components/SubscribeModal";
 import {
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
+  FinancialType,
   getFinancialConfig,
 } from "@/services/financial";
 import { StatusEnum } from "@/services/financial";
@@ -24,7 +25,21 @@ export interface FinancialConfig {
 
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
-  const [openConfirm, setOpenConfirm] = useState(false); // 确认弹窗
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    status: "error" | "success" | null;
+    amount?: number;
+    type?: FinancialType;
+    unit?: string;
+    endTime?: number;
+  }>({
+    open: false,
+    status: null,
+    amount: undefined,
+    type: undefined,
+    unit: undefined,
+    endTime: undefined,
+  }); // 确认弹窗 0:申购 1:赎回
   const [openSubscribe, setOpenSubscribe] = useState(false); // 申购弹窗
 
   const [curRecord, setCurRecord] = useState<{
@@ -71,13 +86,13 @@ export default observer(function FinancialPage() {
       {/* 常见问题 */}
       <Problem />
       {/* 确认弹窗 */}
-      <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
+      <ConfirmModal confirmModal={confirmModal} setConfirmModal={setConfirmModal} />
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}
         openSubscribe={openSubscribe}
         setOpenSubscribe={setOpenSubscribe}
-        setOpenConfirm={setOpenConfirm}
+        setConfirmModal={setConfirmModal}
       />
     </>
   );
