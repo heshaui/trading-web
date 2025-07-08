@@ -22,9 +22,10 @@ import {
   financialSubscribe,
   FinancialType,
   getEstimateDailyIncome,
-  PurchaseEnum,
+  OpenStatusEnum,
 } from "@/services/financial";
 import { getUserBalance } from "@/services/assets";
+import { useTranslation } from "react-i18next";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -53,6 +54,7 @@ const Subscription: React.FC<{
 }> = ({ form, myBalance, tokenInfo, productInfo, setProductInfo }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const { t } = useTranslation(["financial"]);
 
   const financialAmount = Form.useWatch("financialAmount", form);
   const projectId = Form.useWatch("projectId", form);
@@ -115,13 +117,18 @@ const Subscription: React.FC<{
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
-          form.setFieldValue(
-            "financialAmount",
-            productInfo?.maxPurchaseAmount || 0
-          );
+          // 如果当前可用金额小于最大金额 则设置为 当前可用金额  如果当前可用金额大于最大金额 设置为最大金额
+          if (myBalance?.balance < (productInfo?.maxPurchaseAmount || 0)) {
+            form.setFieldValue("financialAmount", myBalance?.balance);
+          } else {
+            form.setFieldValue(
+              "financialAmount",
+              productInfo?.maxPurchaseAmount || 0
+            );
+          }
         }}
       >
-        最大
+        {t("common.max")}
       </div>
       <Divider type="vertical" />
       <div className="text-[14px] text-[var(--text-color5)] font-[400]">
@@ -171,8 +178,8 @@ const Subscription: React.FC<{
             >
               <div>
                 {item.type === FinancialType.CURRENT
-                  ? "活期"
-                  : `${item.term}天`}
+                  ? t("common.current")
+                  : `${item.term} ${t("common.day")}`}
               </div>
               <div className="text-[#00C788]">
                 {item.type === FinancialType.FIXED ? (
@@ -190,14 +197,14 @@ const Subscription: React.FC<{
         {/* 申购数量input */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            申购数量
+            {t("common.applyAmount")}
           </div>
           <Form.Item
             name="financialAmount"
             rules={[
               {
                 required: true,
-                message: "请输入申购数量",
+                message: t("common.pleaseEnterSubscribeAmount"),
               },
               {
                 validator: (_, value) => {
@@ -212,7 +219,7 @@ const Subscription: React.FC<{
                   ) {
                     return Promise.reject(
                       new Error(
-                        `最少 ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`
+                        `${t("common.min")} ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`
                       )
                     );
                   }
@@ -222,7 +229,7 @@ const Subscription: React.FC<{
                   ) {
                     return Promise.reject(
                       new Error(
-                        `最多 ${productInfo?.maxPurchaseAmount} ${tokenInfo?.coinName}`
+                        `${t("common.max")} ${productInfo?.maxPurchaseAmount} ${tokenInfo?.coinName}`
                       )
                     );
                   }
@@ -232,19 +239,19 @@ const Subscription: React.FC<{
             ]}
           >
             <Input
-              placeholder={`最少 ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`}
+              placeholder={`${t("common.min")} ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`}
               className="m-[10px_0] w-[100%] h-[50px]"
               suffix={suffix}
             />
           </Form.Item>
           <div className="mb-[2px]">
             <span className="text-[#9E9E9E] font-[400] mr-[10px]">
-              现货可用:
+              {t("common.spotAvailable")}:
             </span>
             {myBalance?.balance} {tokenInfo?.coinName}
           </div>
           <div>
-            <span className="text-[#9E9E9E] font-[400] mr-[10px]">可申购:</span>
+            <span className="text-[#9E9E9E] font-[400] mr-[10px]">{t("common.canSubscribe")}:</span>
             {(productInfo?.maxPurchaseAmount || 0) -
               (financialAmount || 0)}{" "}
             {tokenInfo?.coinName}
@@ -253,18 +260,18 @@ const Subscription: React.FC<{
         {/* 申购数量shownumber */}
         <div className="flex flex-column gap-[10px] mb-[24px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            概览
+            {t("common.overview")}
           </div>
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400]">
-              预估每日收益
+              {t("common.estimatedDailyIncome")}
             </div>
             <div className="text-[var(--theme-color)] font-[400]">
               {income} {tokenInfo?.coinName}
             </div>
           </div>
           <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400]">自动申购</div>
+            <div className="text-[var(--text-color6)] font-[400]">{t("common.autoSubscribe")}</div>
             <Form.Item name="autoPurchase" noStyle>
               <Switch />
             </Form.Item>
@@ -274,34 +281,34 @@ const Subscription: React.FC<{
         {productInfo?.type === FinancialType.CURRENT && (
           <div className="mb-[16px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-              奖励规则
+              {t("common.rewardRules")}
             </div>
             <>
               <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
                 <div className="text-[var(--text-color6)] font-[400]">
-                  申请数量0 - {productInfo?.assetBoundary}
+                  {t("common.applyAmount")}0 - {productInfo?.assetBoundary}
                   {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  年化利率 {productInfo?.minAnnualInterestRate}%
+                  {t("common.annualInterestRate")} {productInfo?.minAnnualInterestRate}%
                 </div>
               </div>
               <div className="flex flex-ai-center flex-jc-between text-[14px]">
                 <div className="text-[var(--text-color6)] font-[400]">
-                  申请数量 &gt; {productInfo?.assetBoundary}
+                  {t("common.applyAmount")} &gt; {productInfo?.assetBoundary}
                   {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  年化利率 {productInfo?.maxAnnualInterestRate}%
+                  {t("common.annualInterestRate")} {productInfo?.maxAnnualInterestRate}%
                 </div>
               </div>
             </>
           </div>
         )}
         {/* 提示 */}
-        {productInfo?.isRedemption === PurchaseEnum.YES ? (
+        {productInfo?.isRedemption === OpenStatusEnum.YES ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-            该产品支持提前赎回，查看规则
+            {t("common.thisProductSupportsEarlyRedemption")}
           </div>
         ) : null}
       </div>
@@ -312,6 +319,7 @@ const Subscription: React.FC<{
 const ProductRule: React.FC<{
   productInfo: FinancialPageTokenProductItem | undefined;
 }> = ({ productInfo }) => {
+  const { t } = useTranslation(["financial"]);
   const [curSelectProduct, setCurSelectProduct] =
     useState<FinancialPageTokenProductItem | null>(null);
 
@@ -333,17 +341,17 @@ const ProductRule: React.FC<{
           {/* label */}
           <div className="flex flex-ai-center flex-jc-between mb-[12px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              1.交易规则
+              {t("common.transactionRules")}
             </div>
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              定期
+              {t("common.fixed")}
             </div>
           </div>
           {/* 内容 */}
           <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                申购时间
+                {t("common.subscribeTime")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒 */}
@@ -352,7 +360,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                开始计息
+                {t("common.startInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+1天 */}
@@ -361,7 +369,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                首次发息
+                {t("common.firstInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+2天 */}
@@ -370,7 +378,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                最后发息
+                {t("common.lastDue")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs(curSelectProduct?.purchaseEndTime)
@@ -380,7 +388,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                下次申购
+                {t("common.nextSubscribe")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs(curSelectProduct?.purchaseEndTime)
@@ -393,34 +401,28 @@ const ProductRule: React.FC<{
         {/* 2.奖励规则 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            2.奖励规则
+            {t("common.rewardRules")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-            您申购的定期产品的年化收益率按照申购成功时年利率计算。
-            收益将于申购次日 08:00 (UTC+8)
-            开始计算。收益将于开始计算后次日（即申购后两天）的 08:00 (UTC+8)
-            开始发放至您的现货账户。 每日收益 = 已申购资产 * 年化收益率 /
-            365（精确到小数位，具体位数取决于币种）
+            {t("common.rewardRulesTips")}
           </div>
         </div>
         {/* 3.提前赎回 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            3.提前赎回
+            {t("common.earlyRedemption")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-            针对指定定期产品，您可以在到期前随时赎回资产，一经确认，赎回流程将不可逆。如果提前赎回，您将放弃该产品已计息的收益。您用于申购定期产品的本金将于72小时内返还至您的现货钱包。如遇极端市场波动、网络延迟或请求数量过多，赎回可能会延迟。
+            {t("common.earlyRedemptionTips")}
           </div>
         </div>
         {/* 4.取消申购 */}
         <div>
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            4.取消申购
+            {t("common.cancelSubscribe")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-            如果您在申购当天取消申购，且在次日07:59 (UTC+8)
-            之前确认取消,则可以成功取消申购，您的本金将退还至个人现货账户。在
-            07:59 (UTC+8) 之后，则无法取消申购，您将需要遵守提前赎回政策。
+            {t("common.cancelSubscribeTips")}
           </div>
         </div>
       </>
@@ -435,17 +437,17 @@ const ProductRule: React.FC<{
           {/* label */}
           <div className="flex flex-ai-center flex-jc-between mb-[12px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              1.交易规则
+              {t("common.transactionRules")}
             </div>
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              活期
+              {t("common.current")}
             </div>
           </div>
           {/* 内容 */}
           <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                申购时间
+                {t("common.subscribeTime")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒 */}
@@ -454,7 +456,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                开始计息
+                {t("common.startInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+1天 */}
@@ -463,7 +465,7 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                首次发放利息
+                {t("common.firstInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+2天 */}
@@ -472,40 +474,34 @@ const ProductRule: React.FC<{
             </div>
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                赎回
+                {t("common.redeem")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                立即赎回
+                {t("common.immediatelyRedeem")}
               </div>
             </div>
           </div>
         </div>
         {/* 交易规则补充 */}
         <div className="text-[14px] text-[var(--text-color6)] font-[400] mb-[16px]">
-          针对活期产品, 我们将提供阶梯年化收益,
-          该收益采用阶梯分級结构。该收益于申购隔日08:00（UTC+8）开始计算。在计算后隔日
-          (即申购日+两天) 的08:00 (UTC+8) 开始发放至您的现货钱包。
-          ​​阶梯年化收益率可能每天变化。
+          {t("common.currentRewardRules")}
         </div>
         {/* 2.赎回 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            2.赎回
+            {t("common.redeem")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-            一旦赎回操作完成, 活期产品资产将立即返还到您的现货钱包。 请注意,
-            每个活期产品都有每日赎回上限, 且赎回上限可能会进行调整。
-            若出现大量的赎回请求, 可能会暂时延迟赎回, 并在流动性恢复后完成
-            赎回操作。
+            {t("common.redeemTips")}
           </div>
         </div>
         {/* 3.收益币种 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            3.收益币种
+            {t("common.incomeCurrency")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-            持仓币种和收益币种并非同一币种，则以质押币种计算利息并且以结息当时的汇率换算收益币种。
+            {t("common.incomeCurrencyTips")}
           </div>
         </div>
       </>
@@ -518,8 +514,8 @@ const ProductRule: React.FC<{
       <div className="mb-[20px]">
         <Segmented
           options={[
-            { value: "1", label: "活期" },
-            { value: "2", label: "定期" },
+            { value: "1", label: t("common.current") },
+            { value: "2", label: t("common.fixed") },
           ]}
           value={activeKey}
           onChange={(value) => setActiveKey(value)}
@@ -535,6 +531,7 @@ const SubscribeModal = ({
   openSubscribe,
   setOpenSubscribe,
   setConfirmModal,
+  onRefresh,
 }: {
   curRecord: {
     token: FinancialPageTokenItem;
@@ -550,9 +547,11 @@ const SubscribeModal = ({
     unit?: string;
     endTime?: number;
   }) => void;
+  onRefresh?: () => void;
 }) => {
   const { styles } = useStyle();
   const [form] = Form.useForm();
+  const { t } = useTranslation(["financial"]);
 
   const [tabsKey, setTabsKey] = useState("1"); // 标签页
   const [myBalance, setMyBalance] = useState<any>(null); //我的余额
@@ -565,7 +564,7 @@ const SubscribeModal = ({
   const items = [
     {
       key: "1",
-      label: "申购",
+      label: t("common.subscribe"),
       children: (
         <Subscription
           myBalance={myBalance}
@@ -578,7 +577,7 @@ const SubscribeModal = ({
     },
     {
       key: "2",
-      label: "产品规则",
+      label: t("common.productRules"),
       children: <ProductRule productInfo={productInfo} />,
     },
   ];
@@ -594,8 +593,8 @@ const SubscribeModal = ({
           projectId: formData.projectId,
           financialAmount: formData.financialAmount,
           autoPurchase: formData.autoPurchase
-            ? PurchaseEnum.YES
-            : PurchaseEnum.NO,
+            ? OpenStatusEnum.YES
+            : OpenStatusEnum.NO,
         };
         const res = await financialSubscribe(params);
         if (res.code === "0") {
@@ -608,6 +607,13 @@ const SubscribeModal = ({
             amount: formData.financialAmount,
             unit: tokenInfo?.coinName,
             endTime: curRecord?.curProduct.purchaseEndTime,
+          });
+          // 刷新页面数据
+          onRefresh?.();
+        } else {
+          setConfirmModal({
+            open: true,
+            status: "error",
           });
         }
       } catch (error) {
@@ -630,6 +636,7 @@ const SubscribeModal = ({
       setTabsKey("1");
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
+        financialAmount: '',
       });
       // 获取余额
       const fetchBalance = async () => {
@@ -673,7 +680,7 @@ const SubscribeModal = ({
                 size="large"
                 disabled={loading}
               >
-                取消
+                {t("common.cancel")}
               </Button>
               <Button
                 loading={loading}
@@ -683,7 +690,7 @@ const SubscribeModal = ({
                 className="h-[50px] flex-1"
                 onClick={onSubmit}
               >
-                申购
+                {t("common.subscribe")}
               </Button>
             </div>
           )

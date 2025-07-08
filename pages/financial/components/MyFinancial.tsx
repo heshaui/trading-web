@@ -6,7 +6,7 @@ import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { Image, Modal, Tooltip } from "antd";
 import { FinancialConfig } from "../index";
-import { StatusEnum } from "@/services/financial";
+import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useRouter } from "next/router";
 
 const MyFinancial = observer(
@@ -96,7 +96,7 @@ const MyFinancial = observer(
             {bgContent.subTitle}
           </div>
           {financialConfig?.isDisplayBackground &&
-            financialConfig.isDisplayBackground === StatusEnum.OPEN && (
+            financialConfig.isDisplayBackground === FunctionEnabledStatusEnum.OPEN && (
               <div
                 className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
                 onClick={openProblem}
@@ -106,11 +106,11 @@ const MyFinancial = observer(
             )}
         </div>
         {financialConfig?.isDisplayAssets &&
-          financialConfig.isDisplayAssets === StatusEnum.OPEN && (
+          financialConfig.isDisplayAssets === FunctionEnabledStatusEnum.OPEN && (
             <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
               <div className={` flex flex-ai-center flex-jc-between mb-[40px]`}>
                 <div className="flex gap-[4px] align-center">
-                  <div className="font-w-400 text-[24px]">我的资产</div>
+                  <div className="font-w-400 text-[24px]">{t("financial.myProperty")}</div>
                   <div>
                     {!showAmount ? (
                       <EyeOutlined
@@ -134,7 +134,7 @@ const MyFinancial = observer(
                       router.push("/financialOrder");
                     }}
                   >
-                    <Tooltip title="理财订单">
+                    <Tooltip title={t("common.financialOrder")}>
                       <Image
                         preview={false}
                         src={`/images/financial/a.svg`}
@@ -148,7 +148,7 @@ const MyFinancial = observer(
                       router.push("/assets/financial");
                     }}
                   >
-                    <Tooltip title="理财账户">
+                    <Tooltip title={t("common.financialAccount")}>
                       <Image
                         preview={false}
                         src={`/images/financial/b.svg`}
@@ -160,14 +160,14 @@ const MyFinancial = observer(
               </div>
               <div className="flex flex-ai-center flex-jc-between">
                 <div className="text-[16px] flex flex-column gap-[18px]">
-                  <div>我的持仓</div>
+                  <div>{t("financial.myPosition")}</div>
                   <MaskableAmount
                     show={showAmount}
                     amount={myAmount.holdings}
                   />
                 </div>
                 <div className="text-[16px] flex flex-column gap-[18px]">
-                  <div>总收益</div>
+                  <div>{t("financial.totalIncome")}</div>
                   <div className="text-center">
                     <MaskableAmount
                       show={showAmount}
@@ -176,7 +176,7 @@ const MyFinancial = observer(
                   </div>
                 </div>
                 <div className="text-[16px] flex flex-column gap-[18px]">
-                  <div>昨日收益</div>
+                  <div>{t("financial.yesterdayIncome")}</div>
                   <div className="text-right">
                     <MaskableAmount
                       show={showAmount}

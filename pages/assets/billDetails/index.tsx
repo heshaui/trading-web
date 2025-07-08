@@ -5,7 +5,9 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import NumberToken from "./numberToken";
 import Financial from "./financial";
 import styles from "../../../styles/components/Financial.module.css";
+import { useTranslation } from "react-i18next";
 const BillDetails = () => {
+  const { t } = useTranslation(["financial"]);
   return (
     <ConfigProvider
       theme={{
@@ -22,7 +24,7 @@ const BillDetails = () => {
     >
       <div>
         <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
-          账单明细
+          {t("common.billDetails")}
         </div>
         <div className="rounded-[8px] bg-[var(--btncolor7)]">
           <Tabs
@@ -35,12 +37,12 @@ const BillDetails = () => {
             items={[
               {
                 key: "1",
-                label: "数字货币",
+                label: t("common.digitalCurrency"),
                 children: <NumberToken />,
               },
               {
                 key: "2",
-                label: "理财",
+                label: t("common.financial"),
                 children: <Financial />,
               },
             ]}
@@ -54,7 +56,7 @@ const BillDetails = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["assets", "common"])),
+      ...(await serverSideTranslations(locale || "en", ["assets", "common", "financial"])),
     },
   };
 };

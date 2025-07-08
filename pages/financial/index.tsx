@@ -13,26 +13,29 @@ import {
   FinancialType,
   getFinancialConfig,
 } from "@/services/financial";
-import { StatusEnum } from "@/services/financial";
+import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useAuth } from "@/context/AuthContext";
 
 export interface FinancialConfig {
-  financialSwitch: StatusEnum | null;
-  isRealname: StatusEnum | null;
-  isDisplayAssets: StatusEnum | null;
-  isDisplayBackground: StatusEnum | null;
+  financialSwitch: FunctionEnabledStatusEnum | null;
+  isRealname: FunctionEnabledStatusEnum | null;
+  isDisplayAssets: FunctionEnabledStatusEnum | null;
+  isDisplayBackground: FunctionEnabledStatusEnum | null;
+}
+
+interface ConfirmModalType {
+  open: boolean;
+  status: "error" | "success" | null;
+  amount?: number;
+  type?: FinancialType;
+  unit?: string;
+  endTime?: number;
 }
 
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
-  const [confirmModal, setConfirmModal] = useState<{
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: number;
-  }>({
+  
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
     open: false,
     status: null,
     amount: undefined,
@@ -46,6 +49,7 @@ export default observer(function FinancialPage() {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
   } | null>(null); // 当前记录
+
   const [financialConfig, setFinancialConfig] = useState<FinancialConfig>({
     financialSwitch: null, //是否开启
     isRealname: null, //是否实名
@@ -86,7 +90,10 @@ export default observer(function FinancialPage() {
       {/* 常见问题 */}
       <Problem />
       {/* 确认弹窗 */}
-      <ConfirmModal confirmModal={confirmModal} setConfirmModal={setConfirmModal} />
+      <ConfirmModal
+        confirmModal={confirmModal}
+        setConfirmModal={setConfirmModal}
+      />
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}

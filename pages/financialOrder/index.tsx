@@ -19,6 +19,7 @@ import {
   FinancialOrderItem,
   FinancialOrderListParams,
   FinancialOrderStatusEnum,
+  FinancialOrderTypeEnum,
   getFinancialOrderList,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
@@ -27,6 +28,25 @@ import { FinancialType } from "@/services/financial";
 import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
+
+const resultStatusMap: Record<
+  FinancialOrderStatusEnum,
+  { type: string; text: string }
+> = {
+  [FinancialOrderStatusEnum.SUCCESS]: {
+    type: "success",
+    text: "common.success",
+  },
+  [FinancialOrderStatusEnum.FAIL]: {
+    type: "error",
+    text: "common.fail",
+  },
+  [FinancialOrderStatusEnum.PROCESSING]: {
+    type: "processing",
+    text: "common.processing",
+  },
+};
 
 const TabsItem = ({
   tableData,
@@ -41,10 +61,11 @@ const TabsItem = ({
   setFormData: (data: FinancialOrderListParams) => void;
   formData: FinancialOrderListParams;
 }) => {
+  const { t } = useTranslation(["financial"]);
   // 表格列
   const columns: ColumnsType<FinancialOrderItem> = [
     {
-      title: "币种",
+      title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
       render: (_: any, record: any) => {
@@ -59,7 +80,7 @@ const TabsItem = ({
       },
     },
     {
-      title: "日期",
+      title: t("common.date"),
       dataIndex: "createTime",
       key: "createTime",
       render: (_: any, record: any) => {
@@ -67,21 +88,24 @@ const TabsItem = ({
       },
     },
     {
-      title: "类型",
+      title: t("common.type"),
       dataIndex: "type",
       key: "type",
       render: (_: any, record: any) => {
         return (
           <>
-          {record.status == FinancialOrderStatusEnum.PURCHASE && <div>申购</div>}
-          {record.status == FinancialOrderStatusEnum.REDEEM && <div>赎回</div>}
-          {record.status == FinancialOrderStatusEnum.INTEREST && <div>利息</div>}
-        </>
+            {record.type == FinancialOrderTypeEnum.PURCHASE && (
+              <div>{t("common.subscribe")}</div>
+            )}
+            {record.type == FinancialOrderTypeEnum.REDEEM && (
+              <div>{t("common.redeem")}</div>
+            )}
+          </>
         );
       },
     },
     {
-      title: "金额",
+      title: t("common.amount"),
       dataIndex: "amount",
       key: "amount",
       render: (_: any, record: any) => {
@@ -94,11 +118,19 @@ const TabsItem = ({
       },
     },
     {
-      title: "状态",
+      title: t("common.status"),
       dataIndex: "status",
       key: "status",
-      render: (_: any, record: any) => {
-        return <Tag color="success">成功</Tag>
+      render: (_: any, record: FinancialOrderItem) => {
+        return (
+          record.resultStatusMap ? (
+            <Tag color={resultStatusMap[record.resultStatusMap].type}>
+              {t(resultStatusMap[record.resultStatusMap].text)}
+            </Tag>
+          ) : (
+            "-"
+          )
+        );
       },
     },
   ];
@@ -109,13 +141,14 @@ const TabsItem = ({
       <div className="p-[24px_20px]  border-t-[1px] border-t-[var(--border-color)]">
         <Space>
           <Select
+            allowClear
             value={formData.coinId}
-            prefix="币种"
+            prefix={t("common.token")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
             options={[
               {
-                label: "全部",
+                label: t("common.all"),
                 value: null,
               },
               ...coinList.map((item) => ({
@@ -126,7 +159,8 @@ const TabsItem = ({
             onChange={(value) => setFormData({ ...formData, coinId: value })}
           />
           <Select
-            prefix="类型"
+            allowClear
+            prefix={t("common.type")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
             value={formData.operationType}
@@ -136,23 +170,17 @@ const TabsItem = ({
             // 1申购，2赎回，3利息
             options={[
               {
-                label: "全部",
+                label: t("common.all"),
                 value: null,
               },
               {
-                label: "申购",
-                // value: FinancialOrderStatusEnum.PURCHASE,
-                value: '申购',
+                label: t("common.subscribe"),
+                value: FinancialOrderTypeEnum.PURCHASE,
               },
               {
-                label: "赎回",
-                // value: FinancialOrderStatusEnum.REDEEM,
-                value: '赎回',
+                label: t("common.redeem"),
+                value: FinancialOrderTypeEnum.REDEEM,
               },
-              // {
-              //   label: "利息",
-              //   value: FinancialOrderStatusEnum.INTEREST,
-              // },
             ]}
           />
           <RangePicker
@@ -191,12 +219,13 @@ const FinancialOrder = () => {
   const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
     []
   );
+  const { t } = useTranslation(["financial"]);
 
   // 切换tabs
   const items = [
     {
       key: String(FinancialType.FIXED),
-      label: "定期",
+      label: t("common.fixed"),
       children: (
         <TabsItem
           tableData={tableData}
@@ -209,7 +238,7 @@ const FinancialOrder = () => {
     },
     {
       key: String(FinancialType.CURRENT),
-      label: "活期",
+      label: t("common.current"),
       children: (
         <TabsItem
           tableData={tableData}
@@ -288,7 +317,7 @@ const FinancialOrder = () => {
     >
       <div>
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
-          理财订单
+          { t("common.financialOrder")}
         </div>
         <div className="bg-[var(--btncolor7)] rounded-[10px]">
           <Tabs
@@ -320,6 +349,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
         "flash",
         "spot",
         "common",
+        "financial",
       ])),
     },
   };

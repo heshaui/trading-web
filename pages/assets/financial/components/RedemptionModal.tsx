@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { createStyles } from "antd-style";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -41,6 +42,7 @@ const RedemptionModal = ({
   openRedemption,
   setOpenRedemption,
   setRedeemConfirmModal,
+  onRefresh,
 }: {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
@@ -53,9 +55,10 @@ const RedemptionModal = ({
     unit?: string;
     endTime?: number;
   }) => void;
+  onRefresh?: () => void;
 }) => {
   const { styles } = useStyle();
-
+  const { t } = useTranslation(["financial"]);
   const [form] = Form.useForm();
   const redeemMoney = Form.useWatch("redeemMoney", form);
 
@@ -90,7 +93,10 @@ const RedemptionModal = ({
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
           });
+          // 刷新页面数据
+          onRefresh?.();
         } else {
+          setOpenRedemption(false);
           setRedeemConfirmModal({
             open: true,
             status: "error",
@@ -168,7 +174,7 @@ const RedemptionModal = ({
         }}
         title={
           <div className="text-[16px] text-[var(--text-color5)] font-[500]">
-            赎回{curProductInfo?.coinName}
+            {t("common.redeem")} {curProductInfo?.coinName}
           </div>
         }
         open={openRedemption}
@@ -181,7 +187,7 @@ const RedemptionModal = ({
               shape="round"
               size="large"
             >
-              取消
+              {t("common.cancel")}
             </Button>
             <Button
               type="primary"
@@ -191,7 +197,7 @@ const RedemptionModal = ({
               onClick={onSubmit}
               loading={loading}
             >
-              确认
+              {t("common.confirm")}
             </Button>
           </div>
         }
@@ -199,17 +205,17 @@ const RedemptionModal = ({
         <Spin spinning={loading}>
           <Form form={form}>
             <div className="p-[30px_20px_10px_20px]">
-              {true ? (
+              {curProductInfo?.type === FinancialType.CURRENT ? (
                 <>
                   {/* label */}
                   <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-                    赎回金额
+                    {t("common.redeemAmount")}
                   </div>
                   {/* 输入框 */}
                   <Form.Item
                     name="redeemMoney"
                     rules={[
-                      { required: true, message: "请输入赎回金额" },
+                      { required: true, message: t("common.pleaseEnterTheRedeemAmount") },
                       {
                         validator: (_, value) => {
                           // 如果没有输入值，不进行范围校验，让required规则单独处理
@@ -219,13 +225,13 @@ const RedemptionModal = ({
 
                           // 只能输入数字
                           if (isNaN(Number(value))) {
-                            return Promise.reject(new Error("请输入数字"));
+                            return Promise.reject(new Error(t("common.pleaseEnterTheNumber")));
                           }
 
                           // 不能小于0
                           if (value <= 0) {
                             return Promise.reject(
-                              new Error("赎回金额不能小于0")
+                              new Error(t("common.redeemAmountCannotBeLessThanOrEqualTo0"))
                             );
                           }
 
@@ -236,7 +242,7 @@ const RedemptionModal = ({
                           ) {
                             return Promise.reject(
                               new Error(
-                                `最多 ${redeemInfo.redeemLimit} ${curProductInfo?.coinName}`
+                                `${t("common.redeemAmountCannotBeGreaterThan")} ${redeemInfo.redeemLimit} ${curProductInfo?.coinName}`
                               )
                             );
                           }
@@ -246,7 +252,7 @@ const RedemptionModal = ({
                     ]}
                   >
                     <Input
-                      placeholder="请输入"
+                      placeholder={t("common.pleaseEnterTheRedeemAmount")}
                       className="m-[10px_0] w-[100%] h-[50px]"
                       suffix={suffix}
                     />
@@ -255,7 +261,7 @@ const RedemptionModal = ({
                   <div>
                     <div className="mb-[4px]">
                       <span className="text-[12px] text-[var(--text-color6)] font-[400] mr-[10px]">
-                        今日资产
+                        {t("common.todayAssets")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
                         {redeemInfo.totalAssets || "--"}{" "}
@@ -264,7 +270,7 @@ const RedemptionModal = ({
                     </div>
                     <div>
                       <span className="text-[12px] text-[var(--text-color6)] font-[400] mr-[10px]">
-                        今日赎回上限
+                        {t("common.todayRedeemLimit")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
                         {redeemInfo.redeemLimit || "-"}{" "}
@@ -275,8 +281,8 @@ const RedemptionModal = ({
                   {/* 提示 */}
                   <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
                     <div>
-                      今日赎回金额上限：{redeemInfo.redeemLimit || "-"}
-                      {curProductInfo?.coinName}，请于明日重新操作！
+                      {t("common.todayRedeemLimit")}：{redeemInfo.redeemLimit || "-"}
+                      {curProductInfo?.coinName}，{t("common.pleaseOperateTomorrow")}！
                     </div>
                   </div>
                 </>
@@ -284,43 +290,47 @@ const RedemptionModal = ({
                 <>
                   {/* 金额 */}
                   <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center">
-                    5 USDT
+                    {redeemMoney} {curProductInfo?.coinName}
                   </div>
                   {/* subTitle */}
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] mb-[37px] text-center">
-                    赎回数量
+                    {t("common.redeemAmount")}
                   </div>
                   {/* 内容显示 */}
                   <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                        申购金额
+                        {t("common.purchaseAmount")}
                       </div>
                       <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        5 {curProductInfo?.coinName}
+                        {curProductInfo?.purchaseAmount}{" "}
+                        {curProductInfo?.coinName}
                       </div>
                     </div>
                     <div className="flex justify-between">
                       <div className="text-[#676867] font-[400] text-[14px]">
-                        已获得利息
+                        {t("common.accruedInterest")}
                       </div>
                       <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        0.12 {curProductInfo?.coinName}
+                        {curProductInfo?.accruedInterest}{" "}
+                        {curProductInfo?.coinName}
                       </div>
                     </div>
                     <div className="flex justify-between">
                       <div className="text-[#676867] font-[400] text-[14px]">
-                        赎回金额
+                        {t("common.redeemAmount")}
                       </div>
                       <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        4.88 {curProductInfo?.coinName}
+                        {(Number(curProductInfo?.purchaseAmount) || 0) -
+                          (Number(curProductInfo?.accruedInterest) || 0)}{" "}
+                        {curProductInfo?.coinName}
                       </div>
                     </div>
                   </div>
                   {/* 提示 */}
                   <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-                    <div>1.提前赎回将失去已获得利息。</div>
-                    <div>2.所有资产将在72小时内退回至您的现货账户。</div>
+                    <div>{t("common.redeemTips1")}</div>
+                    <div>{t("common.redeemTips2")}</div>
                   </div>
                 </>
               )}

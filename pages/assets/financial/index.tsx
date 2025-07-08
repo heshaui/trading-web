@@ -4,6 +4,7 @@ import {
   Button,
   ConfigProvider,
   Flex,
+  message,
   Select,
   Space,
   Switch,
@@ -17,7 +18,7 @@ import RedemptionModal from "./components/RedemptionModal";
 import ConfirmModal from "@/components/Financial/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
-  PurchaseEnum,
+  OpenStatusEnum,
   FinancialType,
   getUserFinancialAccount,
   UserFinancialAccountItem,
@@ -26,6 +27,7 @@ import {
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
   getFinancialPageToken,
+  financialAccountAutoPurchase,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
 import Image from "next/image";
@@ -36,6 +38,7 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
 import RedeemConfirmModal from "./components/RedeemConfirmModal";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmModalType {
   open: boolean;
@@ -69,9 +72,10 @@ const TabsItem = ({
   setOpenSubscribe,
 }: TabsItemProps) => {
   // 表格列
+  const { t } = useTranslation(["financial"]);
   const columns: ColumnsType<UserFinancialAccountItem> = [
     {
-      title: "币种",
+      title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
       render: (_: any, record: any) => {
@@ -86,20 +90,32 @@ const TabsItem = ({
       },
     },
     {
-      title: "自动申购",
+      title: t("common.autoPurchase"),
       dataIndex: "autoPurchase",
       key: "autoPurchase",
       render: (_: any, record: any) => {
         return (
           <Switch
+            defaultChecked={Number(record.autoPurchase) === OpenStatusEnum.YES}
+            onChange={async (checked) => {
+              const res = await financialAccountAutoPurchase({
+                id: record.id,
+                autoPurchase: checked ? OpenStatusEnum.YES : OpenStatusEnum.NO,
+              });
+              if (res.code === "0") {
+                message.success("操作成功");
+              } else {
+                message.error(res.message);
+                record.autoPurchase = checked ? OpenStatusEnum.NO : OpenStatusEnum.YES;
+              }
+            }}
             size="small"
-            checked={record.autoPurchase === PurchaseEnum.YES}
           />
         );
       },
     },
     {
-      title: "申购金额",
+      title: t("common.purchaseAmount"),
       dataIndex: "purchaseAmount",
       key: "purchaseAmount",
       render: (_: any, record: any) => {
@@ -114,7 +130,7 @@ const TabsItem = ({
       },
     },
     {
-      title: "年利率",
+      title: t("common.annualRate"),
       dataIndex: "minAnnualInterestRate",
       key: "minAnnualInterestRate",
       render: (_: any, record: any) => {
@@ -129,7 +145,7 @@ const TabsItem = ({
       },
     },
     {
-      title: "累计收益",
+      title: t("common.totalIncome"),
       dataIndex: "accruedInterest",
       key: "accruedInterest",
       render: (_: any, record: any) => {
@@ -144,7 +160,7 @@ const TabsItem = ({
       },
     },
     {
-      title: "操作",
+      title: t("common.operation"),
       dataIndex: "action",
       align: "right" as const,
       render: (_: any, record: any) => {
@@ -179,13 +195,13 @@ const TabsItem = ({
                   }
                 }}
               >
-                再次申购
+                {t("common.subscribeAgain")}
               </div>
             )}
             {/* 定期 */}
             {/* 判断是否允许提前赎回 */}
             {record.type === FinancialType.FIXED ? (
-              record.isRedemption === PurchaseEnum.YES ? (
+              record.isRedemption === OpenStatusEnum.YES ? (
                 <div
                   className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
                   onClick={() => {
@@ -193,11 +209,11 @@ const TabsItem = ({
                     setOpenRedemption(true);
                   }}
                 >
-                  赎回
+                  {t("common.redeem")}
                 </div>
               ) : (
                 <div className="font-[400] text-[14px] text-[var(--text-color6)]">
-                  到期自动赎回
+                  {t("common.autoRedeem")}
                 </div>
               )
             ) : null}
@@ -210,7 +226,7 @@ const TabsItem = ({
                   setOpenRedemption(true);
                 }}
               >
-                赎回
+                {t("common.redeem")}
               </div>
             )}
           </Space>
@@ -233,8 +249,19 @@ const TabsItem = ({
 
 const Financial = () => {
   const router = useRouter();
+  const { t } = useTranslation(["financial"]);
 
   const { type } = router.query;
+
+  // 根据URL中的type参数确定默认的标签页类型，如果没有type参数则默认为定期
+  const getDefaultType = () => {
+    if (type === String(FinancialType.CURRENT)) {
+      return FinancialType.CURRENT;
+    }
+    return FinancialType.FIXED; // 默认为定期
+  };
+
+  const defaultActiveKey = getDefaultType();
 
   const [tableLoading, setTableLoading] = useState(false);
   //打开赎回弹窗
@@ -281,7 +308,7 @@ const Financial = () => {
 
   // 表格数据
   const [formData, setFormData] = useState<UserFinancialAccountParams>({
-    type: FinancialType.FIXED,
+    type: defaultActiveKey, // 根据URL参数设置默认类型
     coinId: null,
   });
   const [tableData, setTableData] = useState<UserFinancialAccountItem[]>([]);
@@ -298,7 +325,7 @@ const Financial = () => {
   const items = [
     {
       key: String(FinancialType.FIXED),
-      label: "定期",
+      label: t("common.fixed"),
       children: (
         <TabsItem
           setCurProduct={setCurProduct}
@@ -310,7 +337,7 @@ const Financial = () => {
     },
     {
       key: String(FinancialType.CURRENT),
-      label: "活期",
+      label: t("common.current"),
       children: (
         <TabsItem
           setOpenSubscribe={setOpenSubscribe}
@@ -370,6 +397,12 @@ const Financial = () => {
     }
   };
 
+  // 添加刷新函数
+  const handleRefresh = () => {
+    fetchData(formData);
+    fetchMyPosition();
+  };
+
   useEffect(() => {
     fetchCoinList();
     fetchMyPosition();
@@ -387,6 +420,7 @@ const Financial = () => {
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
         setRedeemConfirmModal={setRedeemConfirmModal}
+        onRefresh={handleRefresh}
       />
 
       {/* 确认弹窗 */}
@@ -401,6 +435,7 @@ const Financial = () => {
         openSubscribe={openSubscribe}
         setOpenSubscribe={setOpenSubscribe}
         setConfirmModal={setConfirmModal}
+        onRefresh={handleRefresh}
       />
 
       {/* 赎回确认弹窗 */}
@@ -408,7 +443,7 @@ const Financial = () => {
         confirmModal={redeemConfirmModal}
         setConfirmModal={setRedeemConfirmModal}
       />
-      
+
       {/* 基础页面 */}
       <ConfigProvider
         theme={{
@@ -434,7 +469,7 @@ const Financial = () => {
         <div>
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
-            理财账户
+            {t("common.financialAccount")}
           </div>
           {/* content */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
@@ -483,7 +518,7 @@ const Financial = () => {
                     router.push("/financial");
                   }}
                 >
-                  理财产品
+                  {t("common.financialProduct")}
                 </Button>
               </div>
               <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
@@ -491,7 +526,7 @@ const Financial = () => {
               <div className="flex gap-[229px] p-[30px]">
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    昨日收益（USDT）
+                    {t("common.yesterdayIncome")}（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
@@ -503,7 +538,7 @@ const Financial = () => {
                 </div>
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    30日累计收益（USDT）
+                    {t("common.thirtyDaysIncome")}（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
@@ -519,7 +554,7 @@ const Financial = () => {
             <Tabs
               className={styles.tabs}
               items={items}
-              defaultActiveKey={type as string}
+              defaultActiveKey={String(defaultActiveKey)}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
               tabBarExtraContent={{
                 right: (
@@ -531,7 +566,7 @@ const Financial = () => {
                       setFormData({ ...formData, coinId: value })
                     }
                     options={[
-                      { label: "全部", value: null },
+                      { label: t("common.all"), value: null },
                       ...coinList.map((item) => ({
                         label: item.coinName,
                         value: item.id,
@@ -554,7 +589,7 @@ const Financial = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["assets", "common"])),
+      ...(await serverSideTranslations(locale || "en", ["assets", "common", "financial"])),
     },
   };
 };

@@ -2,6 +2,7 @@ import { FinancialType } from "@/services/financial";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 
 const ConfirmModal = ({
   confirmModal,
@@ -25,6 +26,7 @@ const ConfirmModal = ({
   }) => void;
 }) => {
   const router = useRouter()
+  const { t } = useTranslation(["financial"]);
   return (
     <Modal
       open={confirmModal.open}
@@ -40,7 +42,7 @@ const ConfirmModal = ({
             shape="round"
             size="large"
           >
-            前往理财
+            {t("common.goToFinancial")}
           </Button>
           <Button
             type="primary"
@@ -51,7 +53,7 @@ const ConfirmModal = ({
               router.push('/financialOrder')
             }}
           >
-            查看持仓
+            {t("common.viewPosition")}
           </Button>
         </div>
       }
@@ -61,11 +63,11 @@ const ConfirmModal = ({
         <div className="w-[105px] h-[96px] bg-[red] mb-[15px] m-[30px_180px_15px_180px]"></div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
-          {confirmModal.status === "success" ? `${confirmModal.amount} ${confirmModal.unit}` : "申购失败"}
+          {confirmModal.status === "success" ? `${confirmModal.amount} ${confirmModal.unit}` : t("common.redeemFailed")}
         </div>
         {/* 副标题 */}
         <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
-          {confirmModal.status === "success" ? "赎回成功" : "赎回失败，订单取消！"}
+          {confirmModal.status === "success" ? t("common.redeemSuccess") : t("common.redeemFailed")}
         </div>
         {/* 时间 */}
         {confirmModal.status === "success" ? (
@@ -74,7 +76,7 @@ const ConfirmModal = ({
               <>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    赎回成功
+                    {t("common.redeemSuccess")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {confirmModal.amount} {confirmModal.unit}
@@ -82,7 +84,7 @@ const ConfirmModal = ({
                 </div>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    已获得利息
+                    {t("common.accruedInterest")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {confirmModal.amount} {confirmModal.unit}
@@ -90,7 +92,7 @@ const ConfirmModal = ({
                 </div>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    赎回金额
+                    {t("common.redeemAmount")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {confirmModal.amount} {confirmModal.unit}
@@ -98,7 +100,7 @@ const ConfirmModal = ({
                 </div>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    提交时间
+                    {t("common.submitTime")}
                   </div>
                   {/* 当前时间 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
@@ -110,7 +112,7 @@ const ConfirmModal = ({
               <>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    赎回时间
+                    {t("common.redeemTime")}
                   </div>
                   {/* 当前时间 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
@@ -119,7 +121,7 @@ const ConfirmModal = ({
                 </div>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    到账时间
+                    {t("common.arrivalTime")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {dayjs(confirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
