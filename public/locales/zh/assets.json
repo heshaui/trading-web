@@ -6,7 +6,7 @@
     "withdraw": "提现",
     "deposit": "充值",
     "address": "地址管理",
-    "financial": "理财账户"
+    "financialAccount": "理财账户"
   },
   "assetsAccount": {
     "title": "现货账户",

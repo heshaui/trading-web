@@ -149,7 +149,7 @@ const RedemptionModal = ({
           form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
         }}
       >
-        最大
+        {t("common.max")}
       </div>
       <Divider type="vertical" />
       <div className="text-[14px] text-[var(--text-color5)] font-[400]">

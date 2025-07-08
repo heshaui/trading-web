@@ -479,7 +479,7 @@ const Financial = () => {
               <div className="p-[30px] flex justify-between items-end">
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
-                    <div>总资产</div>
+                    <div>{t("common.totalAssets")}</div>
                     <div>
                       {!showAmount ? (
                         <EyeOutlined
