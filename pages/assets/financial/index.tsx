@@ -14,7 +14,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState } from "react";
 import RedemptionModal from "./components/RedemptionModal";
-import ConfirmModal from "./components/ConfirmModal";
+import ConfirmModal from "@/components/Financial/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
   PurchaseEnum,
@@ -23,6 +23,9 @@ import {
   UserFinancialAccountItem,
   UserFinancialAccountParams,
   getMyPosition,
+  FinancialPageTokenItem,
+  FinancialPageTokenProductItem,
+  getFinancialPageToken,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
 import Image from "next/image";
@@ -31,27 +34,40 @@ import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
+import SubscribeModal from "@/components/Financial/SubscribeModal";
+import RedeemConfirmModal from "./components/RedeemConfirmModal";
+
+interface ConfirmModalType {
+  open: boolean;
+  status: "error" | "success" | null;
+  amount?: number;
+  type?: FinancialType;
+  unit?: string;
+  endTime?: number;
+}
+
+interface TabsItemProps {
+  setCurProduct: (product: UserFinancialAccountItem | null) => void;
+  tableLoading: boolean;
+  tableData: UserFinancialAccountItem[];
+  setOpenRedemption: (open: boolean) => void;
+  setCurRecord?: (
+    record: {
+      token: FinancialPageTokenItem;
+      curProduct: FinancialPageTokenProductItem;
+    } | null
+  ) => void;
+  setOpenSubscribe?: (open: boolean) => void;
+}
 
 const TabsItem = ({
   setCurProduct,
   tableLoading,
   tableData,
   setOpenRedemption,
-  setConfirmModal,
-}: {
-  setCurProduct: (product: UserFinancialAccountItem | null) => void;
-  tableLoading: boolean;
-  tableData: UserFinancialAccountItem[];
-  setOpenRedemption: (open: boolean) => void;
-  setConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: number;
-  }) => void;
-}) => {
+  setCurRecord,
+  setOpenSubscribe,
+}: TabsItemProps) => {
   // 表格列
   const columns: ColumnsType<UserFinancialAccountItem> = [
     {
@@ -90,7 +106,6 @@ const TabsItem = ({
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             <div>
-              {" "}
               {record.purchaseAmount} {record.coinName}
             </div>
             <div>≈${record.usdPurchaseAmount}</div>
@@ -129,14 +144,6 @@ const TabsItem = ({
       },
     },
     {
-      title: "申购时间",
-      dataIndex: "purchaseTime",
-      key: "purchaseTime",
-      render: (_: any, record: any) => {
-        return dayjs(record.purchaseTime).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
       title: "操作",
       dataIndex: "action",
       align: "right" as const,
@@ -147,15 +154,30 @@ const TabsItem = ({
             {record.type === FinancialType.CURRENT && (
               <div
                 className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-                onClick={() =>
-                  setConfirmModal({
-                    open: true,
-                    status: "success",
-                    amount: record.purchaseAmount,
-                    type: record.type,
-                    unit: record.coinName,
-                  })
-                }
+                onClick={async () => {
+                  try {
+                    const res = await getFinancialPageToken({
+                      coinId: record.coinId,
+                    });
+                    if (res.code === "0") {
+                      const curProduct = res.data[0].products?.filter(
+                        (item) => item.id === record.projectId
+                      )[0];
+                      if (curProduct) {
+                        setCurRecord?.({
+                          token: res.data[0],
+                          curProduct,
+                        });
+                      }
+                      setOpenSubscribe?.(true);
+                    } else {
+                      setCurRecord?.(null);
+                    }
+                    return res;
+                  } catch (error) {
+                    console.error("获取数据失败:", error);
+                  }
+                }}
               >
                 再次申购
               </div>
@@ -218,14 +240,7 @@ const Financial = () => {
   //打开赎回弹窗
   const [openRedemption, setOpenRedemption] = useState(false);
   //打开确认弹窗
-  const [confirmModal, setConfirmModal] = useState<{
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: number;
-  }>({
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
     open: false,
     status: null,
     amount: undefined,
@@ -234,10 +249,27 @@ const Financial = () => {
     endTime: undefined,
   });
 
+  const [redeemConfirmModal, setRedeemConfirmModal] =
+    useState<ConfirmModalType>({
+      open: false,
+      status: null,
+      amount: undefined,
+      type: undefined,
+      unit: undefined,
+      endTime: undefined,
+    });
+
   // 当前选中的理财产品
   const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(
     null
   );
+
+  const [curRecord, setCurRecord] = useState<{
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null>(null); // 当前记录
+
+  const [openSubscribe, setOpenSubscribe] = useState(false);
 
   // 我的持仓
   const [myAmount, setMyAmount] = useState({
@@ -273,7 +305,6 @@ const Financial = () => {
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setConfirmModal={setConfirmModal}
         />
       ),
     },
@@ -282,11 +313,12 @@ const Financial = () => {
       label: "活期",
       children: (
         <TabsItem
+          setOpenSubscribe={setOpenSubscribe}
+          setCurRecord={setCurRecord}
           setCurProduct={setCurProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setConfirmModal={setConfirmModal}
         />
       ),
     },
@@ -349,16 +381,35 @@ const Financial = () => {
 
   return (
     <>
+      {/* 赎回弹窗 */}
       <RedemptionModal
         curProduct={curProduct}
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
-        setConfirmModal={setConfirmModal}
+        setRedeemConfirmModal={setRedeemConfirmModal}
       />
+
+      {/* 确认弹窗 */}
       <ConfirmModal
         confirmModal={confirmModal}
         setConfirmModal={setConfirmModal}
       />
+
+      {/* 申购弹窗 */}
+      <SubscribeModal
+        curRecord={curRecord}
+        openSubscribe={openSubscribe}
+        setOpenSubscribe={setOpenSubscribe}
+        setConfirmModal={setConfirmModal}
+      />
+
+      {/* 赎回确认弹窗 */}
+      <RedeemConfirmModal
+        confirmModal={redeemConfirmModal}
+        setConfirmModal={setRedeemConfirmModal}
+      />
+      
+      {/* 基础页面 */}
       <ConfigProvider
         theme={{
           components: {

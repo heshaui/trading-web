@@ -40,12 +40,12 @@ const RedemptionModal = ({
   curProduct,
   openRedemption,
   setOpenRedemption,
-  setConfirmModal,
+  setRedeemConfirmModal,
 }: {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
   setOpenRedemption: (open: boolean) => void;
-  setConfirmModal: (confirmModal: {
+  setRedeemConfirmModal: (confirmModal: {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
@@ -71,12 +71,10 @@ const RedemptionModal = ({
 
   const onSubmit = async () => {
     form.validateFields().then(async (values) => {
-      if (!values) setLoading(true);
+      if (!values) return;
       try {
         setLoading(true);
-        console.log(curProductInfo);
         if (!curProductInfo) return;
-        const valuer = form.getFieldsValue();
         const res = await financialAccountRedemption({
           id: curProductInfo?.id,
           projectId: curProductInfo?.projectId,
@@ -85,12 +83,17 @@ const RedemptionModal = ({
         });
         if (res.code === "0") {
           setOpenRedemption(false);
-          setConfirmModal({
+          setRedeemConfirmModal({
             open: true,
             status: "success",
             amount: redeemMoney,
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
+          });
+        } else {
+          setRedeemConfirmModal({
+            open: true,
+            status: "error",
           });
         }
       } catch (error) {

@@ -5,8 +5,8 @@ import MyFinancial from "./components/MyFinancial";
 import TokenList from "./components/TokenList";
 import Problem from "./components/Problem";
 import { useEffect, useState } from "react";
-import ConfirmModal from "./components/ConfirmModal";
-import SubscribeModal from "./components/SubscribeModal";
+import ConfirmModal from "@/components/Financial/ConfirmModal";
+import SubscribeModal from "@/components/Financial/SubscribeModal";
 import {
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,

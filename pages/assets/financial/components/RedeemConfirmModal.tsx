@@ -65,7 +65,7 @@ const ConfirmModal = ({
         </div>
         {/* 副标题 */}
         <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
-          {confirmModal.status === "success" ? "申购成功" : "申购失败，订单取消！"}
+          {confirmModal.status === "success" ? "赎回成功" : "赎回失败，订单取消！"}
         </div>
         {/* 时间 */}
         {confirmModal.status === "success" ? (
