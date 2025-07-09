@@ -352,25 +352,25 @@ const RedemptionModal = ({
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.purchaseAmount")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                         {curProductInfo?.purchaseAmount}{" "}
                         {curProductInfo?.coinName}
                       </div>
                     </div>
                     <div className="flex justify-between">
-                      <div className="text-[#676867] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.accruedInterest")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                         {curProductInfo?.accruedInterest}{" "}
                         {curProductInfo?.coinName}
                       </div>
                     </div>
                     <div className="flex justify-between">
-                      <div className="text-[#676867] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.redeemAmount")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                         {redeemMoneyFixed || "--"} {curProductInfo?.coinName}
                       </div>
                     </div>
