@@ -46,7 +46,7 @@ const useStyle = createStyles(() => ({
   },
 }));
 
-interface SubscribeModalProps {
+interface SubscriptionProps {
   form: FormInstance<any>;
   myBalance: any;
   tokenInfo: FinancialPageTokenItem | undefined;
@@ -54,7 +54,8 @@ interface SubscribeModalProps {
   setProductInfo: (product: FinancialPageTokenProductItem) => void;
 }
 
-const Subscription: React.FC<SubscribeModalProps> = ({
+// 申购弹窗
+const Subscription: React.FC<SubscriptionProps> = ({
   form,
   myBalance,
   tokenInfo,
@@ -373,6 +374,7 @@ const Subscription: React.FC<SubscribeModalProps> = ({
   );
 };
 
+// 产品规则
 const ProductRule: React.FC<{
   productInfo: FinancialPageTokenProductItem | undefined;
 }> = ({ productInfo }) => {
@@ -583,13 +585,7 @@ const ProductRule: React.FC<{
   );
 };
 
-const SubscribeModal = ({
-  curRecord,
-  openSubscribe,
-  setOpenSubscribe,
-  setConfirmModal,
-  onRefresh,
-}: {
+interface SubscribeModalProps {
   curRecord: {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
@@ -605,7 +601,15 @@ const SubscribeModal = ({
     endTime?: number;
   }) => void;
   onRefresh?: () => void;
-}) => {
+}
+// 申购弹窗
+const SubscribeModal = ({
+  curRecord,
+  openSubscribe,
+  setOpenSubscribe,
+  setConfirmModal,
+  onRefresh,
+}: SubscribeModalProps) => {
   const { styles } = useStyle();
   const [form] = Form.useForm();
   const { t } = useTranslation(["financial"]);
@@ -620,6 +624,7 @@ const SubscribeModal = ({
 
   // 标签页
   const items = [
+    // 申购
     {
       key: "1",
       label: t("common.subscribe"),
@@ -633,6 +638,8 @@ const SubscribeModal = ({
         />
       ),
     },
+    
+    // 产品规则
     {
       key: "2",
       label: t("common.productRules"),

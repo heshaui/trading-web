@@ -29,7 +29,7 @@ interface ConfirmModalType {
   amount?: number;
   type?: FinancialType;
   unit?: string;
-  endTime?: number;
+  endTime?: string | number;
 }
 
 export default observer(function FinancialPage() {
