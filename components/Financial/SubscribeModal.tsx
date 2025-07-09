@@ -12,7 +12,7 @@ import {
   Form,
   FormInstance,
 } from "antd";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { createStyles } from "antd-style";
 import dayjs from "dayjs";
 import {
@@ -26,6 +26,7 @@ import {
 } from "@/services/financial";
 import { getUserBalance } from "@/services/assets";
 import { useTranslation } from "react-i18next";
+import { debounce } from "lodash";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -61,7 +62,6 @@ const Subscription: React.FC<SubscribeModalProps> = ({
   setProductInfo,
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const { t } = useTranslation(["financial"]);
 
   const financialAmount = Form.useWatch("financialAmount", form);
@@ -83,6 +83,7 @@ const Subscription: React.FC<SubscribeModalProps> = ({
       }
 
       try {
+        // 获取预估收益
         const res = await getEstimateDailyIncome({
           projectId: Number(projectId),
           amount: Number(amount),
@@ -97,27 +98,15 @@ const Subscription: React.FC<SubscribeModalProps> = ({
     []
   );
 
-  // 监听 financialAmount 变化，添加防抖处理
+  // 获取预估收益的函数
+  const debounceFetchIncome = useMemo(
+    () => debounce(fetchIncome, 500),
+    [fetchIncome]
+  );
+
   useEffect(() => {
-    if (productInfo && projectId) {
-      // 清除之前的定时器
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-
-      // 设置新的定时器，500ms后执行
-      debounceTimer.current = setTimeout(() => {
-        fetchIncome(projectId, financialAmount);
-      }, 500);
-    }
-
-    // 清理函数
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, [financialAmount, projectId, productInfo, fetchIncome]);
+    return () => debounceFetchIncome.cancel();
+  }, [debounceFetchIncome]);
 
   // 最大金额
   const suffix = (
@@ -125,14 +114,19 @@ const Subscription: React.FC<SubscribeModalProps> = ({
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
+          if (!projectId || !productInfo) return;
           // 如果当前可用金额小于最大金额 则设置为 当前可用金额  如果当前可用金额大于最大金额 设置为最大金额
-          if (myBalance?.balance < (productInfo?.maxPurchaseAmount || 0)) {
-            form.setFieldValue("financialAmount", myBalance?.balance);
+          if (
+            Number(myBalance?.balance) < Number(productInfo.maxPurchaseAmount)
+          ) {
+            form.setFieldValue("financialAmount", myBalance.balance);
+            fetchIncome(projectId, myBalance?.balance);
           } else {
             form.setFieldValue(
               "financialAmount",
-              productInfo?.maxPurchaseAmount || 0
+              productInfo.maxPurchaseAmount
             );
+            fetchIncome(projectId, productInfo.maxPurchaseAmount || 0);
           }
         }}
       >
@@ -167,11 +161,6 @@ const Subscription: React.FC<SubscribeModalProps> = ({
                 setIncome("-");
                 setProductInfo(item);
                 form.setFieldValue("projectId", item.id);
-                // 立即获取收益，不等待防抖
-                const currentAmount = form.getFieldValue("financialAmount");
-                if (currentAmount && Number(currentAmount) > 0 && item.id) {
-                  fetchIncome(item.id, currentAmount);
-                }
               }}
               key={item.id}
               style={{
@@ -228,9 +217,17 @@ const Subscription: React.FC<SubscribeModalProps> = ({
                     return Promise.resolve();
                   }
 
+                  // 如果不是数字 则返回错误
+                  if (isNaN(Number(value))) {
+                    return Promise.reject(
+                      new Error(t("common.pleaseEnterTheNumber"))
+                    );
+                  }
+
+                  // 输入的金额小于最小金额 则返回错误
                   if (
                     productInfo?.minPurchaseAmount &&
-                    value < productInfo?.minPurchaseAmount
+                    Number(value) < Number(productInfo?.minPurchaseAmount)
                   ) {
                     return Promise.reject(
                       new Error(
@@ -240,9 +237,11 @@ const Subscription: React.FC<SubscribeModalProps> = ({
                       )
                     );
                   }
+
+                  // 输入的金额大于最大金额 则返回错误
                   if (
                     productInfo?.maxPurchaseAmount &&
-                    value > productInfo?.maxPurchaseAmount
+                    Number(value) > Number(productInfo?.maxPurchaseAmount)
                   ) {
                     return Promise.reject(
                       new Error(
@@ -263,6 +262,33 @@ const Subscription: React.FC<SubscribeModalProps> = ({
               } ${tokenInfo?.coinName}`}
               className="m-[10px_0] w-[100%] h-[50px]"
               suffix={suffix}
+              onChange={(e) => {
+                // 如果输入的金额不是数字 则返回错误
+                if (isNaN(Number(e.target.value))) {
+                  setIncome("-");
+                  return;
+                }
+                // 输入的值小于最小金额
+                if (
+                  Number(e.target.value) <
+                  Number(productInfo?.minPurchaseAmount)
+                ) {
+                  setIncome("-");
+                  return;
+                }
+                // 输入的值大于最大金额
+                if (
+                  Number(e.target.value) >
+                  Number(productInfo?.maxPurchaseAmount)
+                ) {
+                  setIncome("-");
+                  return;
+                }
+                // 取消之前的防抖调用，重新开始计算
+                debounceFetchIncome.cancel();
+                // 重新开始防抖计算
+                debounceFetchIncome(projectId, e.target.value);
+              }}
             />
           </Form.Item>
           <div className="mb-[2px]">
@@ -275,7 +301,12 @@ const Subscription: React.FC<SubscribeModalProps> = ({
             <span className="text-[#9E9E9E] font-[400] mr-[10px]">
               {t("common.canSubscribe")}:
             </span>
-            {(productInfo?.maxPurchaseAmount || 0) - (financialAmount || 0)}{" "}
+            {/* 如果不是数组 或者 超过最大值 则显示最大值 */}
+            {isNaN(Number(financialAmount)) ||
+            Number(financialAmount) > Number(productInfo?.maxPurchaseAmount)
+              ? Number(productInfo?.maxPurchaseAmount)
+              : Number(productInfo?.maxPurchaseAmount) -
+                Number(financialAmount)}{" "}
             {tokenInfo?.coinName}
           </div>
         </div>

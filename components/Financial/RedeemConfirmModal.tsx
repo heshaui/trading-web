@@ -10,17 +10,19 @@ interface RedeemConfirmModalProps {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
+    interest?: number;
     type?: FinancialType;
     unit?: string;
-    endTime?: number;
+    endTime?: string | number;
   };
   setRedeemConfirmModal: (confirmModal: {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
+    interest?: number;
     type?: FinancialType;
     unit?: string;
-    endTime?: number;
+    endTime?: string | number;
   }) => void;
 }
 const RedeemConfirmModal = ({
@@ -29,7 +31,7 @@ const RedeemConfirmModal = ({
 }: RedeemConfirmModalProps) => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  
+  console.log(redeemConfirmModal);
   return (
     <Modal
       open={redeemConfirmModal.open}
@@ -81,6 +83,7 @@ const RedeemConfirmModal = ({
           <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
             {redeemConfirmModal.type === FinancialType.FIXED ? (
               <>
+                {/* 申购金额 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.redeemSuccess")}
@@ -89,14 +92,16 @@ const RedeemConfirmModal = ({
                     {redeemConfirmModal.amount} {redeemConfirmModal.unit}
                   </div>
                 </div>
+                {/* 已获得利息 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.accruedInterest")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
+                    {redeemConfirmModal.interest} {redeemConfirmModal.unit}
                   </div>
                 </div>
+                {/* 赎回金额 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.redeemAmount")}
@@ -105,11 +110,11 @@ const RedeemConfirmModal = ({
                     {redeemConfirmModal.amount} {redeemConfirmModal.unit}
                   </div>
                 </div>
+                {/* 提交时间 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.submitTime")}
                   </div>
-                  {/* 当前时间 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {dayjs().format("YYYY-MM-DD HH:mm:ss")}
                   </div>
@@ -118,15 +123,16 @@ const RedeemConfirmModal = ({
             ) : (
               <>
                 <div className="flex justify-between">
+                  {/* 赎回时间 */}
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.redeemTime")}
                   </div>
-                  {/* 当前时间 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {dayjs().format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 </div>
                 <div className="flex justify-between">
+                  {/* 到账时间 */}
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.arrivalTime")}
                   </div>

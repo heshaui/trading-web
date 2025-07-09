@@ -17,6 +17,7 @@ import {
   Spin,
 } from "antd";
 import { createStyles } from "antd-style";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -46,6 +47,7 @@ interface RedemptionModalProps {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
+    interest?: number;
     type?: FinancialType;
     unit?: string;
     endTime?: number;
@@ -102,7 +104,11 @@ const RedemptionModal = ({
           setRedeemConfirmModal({
             open: true,
             status: "success",
-            amount: redeemMoney,
+            amount:
+              curProductInfo?.type === FinancialType.CURRENT
+                ? Number(redeemMoney)
+                : Number(redeemMoneyFixed),
+            interest: curProductInfo?.accruedInterest,
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
           });
@@ -365,8 +371,7 @@ const RedemptionModal = ({
                         {t("common.redeemAmount")}
                       </div>
                       <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        {redeemMoneyFixed || "--"}{" "}
-                        {curProductInfo?.coinName}
+                        {redeemMoneyFixed || "--"} {curProductInfo?.coinName}
                       </div>
                     </div>
                   </div>

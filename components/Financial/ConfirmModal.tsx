@@ -11,7 +11,7 @@ interface ConfirmModalProps {
     type?: FinancialType;
     amount?: number;
     unit?: string;
-    endTime?: number;
+    endTime?: string | number;
   };
   setConfirmModal: (confirmModal: {
     open: boolean;
@@ -19,14 +19,13 @@ interface ConfirmModalProps {
     type?: FinancialType;
     amount?: number;
     unit?: string;
-    endTime?: number;
+    endTime?: string | number;
   }) => void;
 }
 
 const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  
   return (
     <Modal
       open={confirmModal.open}

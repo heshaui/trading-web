@@ -43,9 +43,10 @@ interface ConfirmModalType {
   open: boolean;
   status: "error" | "success" | null;
   amount?: number;
+  interest?: number;
   type?: FinancialType;
   unit?: string;
-  endTime?: number;
+  endTime?: string | number;
 }
 
 interface TabsItemProps {
@@ -201,6 +202,7 @@ const TabsItem = ({
             {/* 判断是否允许提前赎回 */}
             {record.type === FinancialType.FIXED ? (
               record.isRedemption === OpenStatusEnum.YES ? (
+                // 赎回按钮
                 <div
                   className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
                   onClick={() => {
@@ -211,6 +213,7 @@ const TabsItem = ({
                   {t("common.redeem")}
                 </div>
               ) : (
+                // 自动赎回
                 <div className="font-[400] text-[14px] text-[var(--text-color6)]">
                   {t("common.autoRedeem")}
                 </div>
@@ -280,6 +283,7 @@ const Financial = () => {
       open: false,
       status: null,
       amount: undefined,
+      interest: undefined,
       type: undefined,
       unit: undefined,
       endTime: undefined,
@@ -358,8 +362,12 @@ const Financial = () => {
       if (res.code === "0") {
         setTableData(res.data);
         console.log(res.data);
+      } else {
+        setTableData([]);
+        message.error(res.message);
       }
     } catch (error) {
+      setTableData([]);
       console.log(error);
     } finally {
       setTableLoading(false);

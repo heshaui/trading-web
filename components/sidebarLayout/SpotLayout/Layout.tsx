@@ -52,7 +52,7 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
           size={24}
         />
       ),
-      label: t("financial.financialOrder", { ns: "financial" }), // 理财订单,
+      label: t("common.financialOrder", { ns: "financial" }), // 理财订单,
     },
   ];
 

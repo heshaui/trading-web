@@ -90,15 +90,15 @@ const TabsItem = ({
     },
     {
       title: t("common.type"),
-      dataIndex: "type",
-      key: "type",
+      dataIndex: "status",
+      key: "status",
       render: (_: any, record: any) => {
         return (
           <>
-            {record.type == FinancialOrderTypeEnum.PURCHASE && (
+            {record.status == FinancialOrderTypeEnum.PURCHASE && (
               <div>{t("common.subscribe")}</div>
             )}
-            {record.type == FinancialOrderTypeEnum.REDEEM && (
+            {record.status == FinancialOrderTypeEnum.REDEEM && (
               <div>{t("common.redeem")}</div>
             )}
           </>
