@@ -202,7 +202,7 @@ export default function BulletinCenter() {
             const lang = localStorage.getItem('lang') || 'en_US';
             const response: any = await getInformUserMessageList({
                 languageCode: lang,
-                pageNum: pagesParam.current.page,
+                pageNo: pagesParam.current.page,
                 pageSize: pagesParam.current.pageSize,
                 bizType
             });
