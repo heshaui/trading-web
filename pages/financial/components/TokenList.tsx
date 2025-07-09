@@ -64,7 +64,12 @@ const TokenList = ({
   const [dataSource, setDataSource] = useState<FinancialPageTokenItem[]>([]);
 
   // 表单数据
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    coinId: number | null;
+    type: string | null;
+    term: string | null;
+    selectedValue: string | null;
+  }>({
     coinId: null,
     type: null,
     term: null,
@@ -250,41 +255,53 @@ const TokenList = ({
     },
   ];
 
-  // 初始化产品筛选选项
-  const initProductFilterOptions = async () => {
-    const res = await getProductFilterOptions();
-    if (res.code === "0") {
-      const options = res.data.map(
-        (item: ProductFilterOptionsItem, index: number) => {
-          return {
-            label:
-              item.type === FinancialType.CURRENT
-                ? t("common.current")
-                : `${t("common.fixed")} (${item.term}${t("common.day")})`,
-            value:
-              item.type === FinancialType.FIXED
-                ? `${item.type}-${item.term}`
-                : item.type,
-          };
-        }
-      );
-      setProductFilterOptions(options);
-    }
-  };
-
-  // 初始化币种筛选选项
-  const initTokenList = async () => {
-    const res = await getCoinFilterOptions();
-    if (res.code === "0") {
-      setCoinFilterOptions(res.data);
-    }
-  };
-
-  // 初始化
+  // 进入页面一开始 获取产品筛选选项 跟 币种筛选选项
   useEffect(() => {
+    // 初始化产品筛选选项
+    const initProductFilterOptions = async () => {
+      const res = await getProductFilterOptions();
+      if (res.code === "0") {
+        const options = res.data.map(
+          (item: ProductFilterOptionsItem, index: number) => {
+            return {
+              label:
+                item.type === FinancialType.CURRENT
+                  ? t("common.current")
+                  : `${t("common.fixed")} (${item.term}${t("common.day")})`,
+              value:
+                item.type === FinancialType.FIXED
+                  ? `${item.type}-${item.term}`
+                  : item.type,
+            };
+          }
+        );
+        setProductFilterOptions(options);
+      }
+    };
+    // 初始化币种筛选选项
+    const initTokenList = async () => {
+      const res = await getCoinFilterOptions();
+      if (res.code === "0") {
+        setCoinFilterOptions(res.data);
+      }
+    };
     initProductFilterOptions();
     initTokenList();
-  }, []);
+
+  }, [t]);
+
+  // 处理路由参数
+  useEffect(() => {
+    const { coinName } = router.query;
+    if (coinName) {
+      const coin = coinFilterOptions.find(  
+        (item) => item.coinName === coinName
+      );
+      if (coin) {
+        setFormData(prev => ({ ...prev, coinId: coin.coinId }));
+      }
+    }
+  }, [router.query, coinFilterOptions]);
 
   // 获取数据
   useEffect(() => {

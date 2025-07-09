@@ -83,6 +83,7 @@ export default observer(function FinancialPage() {
     }
   }, []);
 
+
   return (
     <>
       {/* 我的理财 */}

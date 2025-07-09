@@ -208,7 +208,7 @@ const AssetsMainPage = observer(() => {
                   } font-12 font-w-500`}
                   onClick={() => goFlash(record.coinName)}
                 >
-                  闪兑
+                  {t("assetsAccount.button.flash")}
                 </button>
               )}
               {/* 理财 */}
@@ -217,9 +217,9 @@ const AssetsMainPage = observer(() => {
                   className={`${
                     coinPairData ? styles.theme_color : styles.tip_color2
                   } font-12 font-w-500`}
-                  onClick={() => goFlash(record.coinName)}
+                  onClick={() => goFinancial(record.coinName)}
                 >
-                  理财
+                  {t("assetsAccount.button.financial")}
                 </button>
               )}
 
@@ -310,6 +310,9 @@ const AssetsMainPage = observer(() => {
 
   const goFlash = async (coinName: string) => {
     router.push(`/flash?${coinName}`);
+  };
+  const goFinancial = async (coinName: string) => {
+    router.push(`/financial?coinName=${coinName}`);
   };
 
   const getCoinList = async (
