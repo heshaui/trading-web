@@ -2,13 +2,11 @@ import { FinancialType } from "@/services/financial";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const ConfirmModal = ({
-  confirmModal,
-  setConfirmModal,
-}: {
-  confirmModal: {
+interface RedeemConfirmModalProps {
+  redeemConfirmModal: {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
@@ -16,7 +14,7 @@ const ConfirmModal = ({
     unit?: string;
     endTime?: number;
   };
-  setConfirmModal: (confirmModal: {
+  setRedeemConfirmModal: (confirmModal: {
     open: boolean;
     status: "error" | "success" | null;
     amount?: number;
@@ -24,20 +22,25 @@ const ConfirmModal = ({
     unit?: string;
     endTime?: number;
   }) => void;
-}) => {
-  const router = useRouter()
+}
+const RedeemConfirmModal = ({
+  redeemConfirmModal,
+  setRedeemConfirmModal,
+}: RedeemConfirmModalProps) => {
+  const router = useRouter();
   const { t } = useTranslation(["financial"]);
+  
   return (
     <Modal
-      open={confirmModal.open}
-      onCancel={() => setConfirmModal({ ...confirmModal, open: false })}
+      open={redeemConfirmModal.open}
+      onCancel={() => setRedeemConfirmModal({ ...redeemConfirmModal, open: false })}
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
         <div className="p-[30px_55px] flex justify-around gap-[20px]">
           <Button
             className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
-            onClick={() =>{
-              router.push('/financial')
+            onClick={() => {
+              router.push("/financial");
             }}
             shape="round"
             size="large"
@@ -49,8 +52,8 @@ const ConfirmModal = ({
             shape="round"
             size="large"
             className="h-[50px] flex-1"
-            onClick={() =>{
-              router.push('/financialOrder')
+            onClick={() => {
+              router.push("/financialOrder");
             }}
           >
             {t("common.viewPosition")}
@@ -63,23 +66,27 @@ const ConfirmModal = ({
         <div className="w-[105px] h-[96px] bg-[red] mb-[15px] m-[30px_180px_15px_180px]"></div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
-          {confirmModal.status === "success" ? `${confirmModal.amount} ${confirmModal.unit}` : t("common.redeemFailed")}
+          {redeemConfirmModal.status === "success"
+            ? `${redeemConfirmModal.amount} ${redeemConfirmModal.unit}`
+            : t("common.redeemFailed")}
         </div>
         {/* 副标题 */}
         <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
-          {confirmModal.status === "success" ? t("common.redeemSuccess") : t("common.redeemFailed")}
+          {redeemConfirmModal.status === "success"
+            ? t("common.redeemSuccess")
+            : t("common.redeemFailed")}
         </div>
         {/* 时间 */}
-        {confirmModal.status === "success" ? (
+        {redeemConfirmModal.status === "success" ? (
           <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
-            {confirmModal.type === FinancialType.FIXED ? (
+            {redeemConfirmModal.type === FinancialType.FIXED ? (
               <>
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.redeemSuccess")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {confirmModal.amount} {confirmModal.unit}
+                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -87,7 +94,7 @@ const ConfirmModal = ({
                     {t("common.accruedInterest")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {confirmModal.amount} {confirmModal.unit}
+                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -95,7 +102,7 @@ const ConfirmModal = ({
                     {t("common.redeemAmount")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {confirmModal.amount} {confirmModal.unit}
+                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -124,7 +131,7 @@ const ConfirmModal = ({
                     {t("common.arrivalTime")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(confirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
+                    {dayjs(redeemConfirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 </div>
               </>
@@ -136,4 +143,4 @@ const ConfirmModal = ({
   );
 };
 
-export default ConfirmModal;
+export default RedeemConfirmModal;

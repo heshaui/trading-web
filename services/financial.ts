@@ -164,7 +164,9 @@ export function getUserFinancialAccount(
   params: UserFinancialAccountParams
 ): Promise<RequestParams<UserFinancialAccountItem[]>> {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/userFinancialProductList?type=${params.type}${params.coinId ? `&coinId=${params.coinId}` : ""}`,
+    `${fixUrl2}/assets-web/v1/user-project/userFinancialProductList?type=${
+      params.type
+    }${params.coinId ? `&coinId=${params.coinId}` : ""}`,
     { method: "POST" }
   );
 }
@@ -363,13 +365,13 @@ export function getCoinFilterOptions(): Promise<
   });
 }
 
-
-/*-----------------理财账户-赎回显示start------------------*/
+/*-----------------理财账户-赎回显示start 活期------------------*/
 export interface FinancialAccountRedemptionShowParams {
   id: number; //用户理财记录id
   projectId: number; // 项目id
   coinId: number; // 币种id
-} 
+  type: FinancialType; // 1定期 2活期
+}
 
 export interface FinancialAccountRedemptionShowItem {
   totalAssets: number; // 今日资产
@@ -378,14 +380,20 @@ export interface FinancialAccountRedemptionShowItem {
 export function getFinancialAccountRedemptionShow(
   params: FinancialAccountRedemptionShowParams
 ): Promise<RequestParams<FinancialAccountRedemptionShowItem>> {
-  return request(`${fixUrl2}/assets-web/v1/user-project/redeemDisplay`, {
-    method: "POST",
-    body: JSON.stringify(params),
-  });
+  return request(
+    `${
+      params.type === FinancialType.CURRENT
+        ? `${fixUrl2}/assets-web/v1/user-project/redeemDisplay`
+        : `${fixUrl2}/assets-web/v1/user-project/regularRedeemDisplay`
+    }`,
+    {
+      method: "POST",
+      body: JSON.stringify(params),
+    }
+  );
 }
 
-/*-----------------理财账户-赎回显示end--------------------*/
-
+/*-----------------理财账户-赎回显示end 定期--------------------*/
 
 /*-----------------理财账户-赎回start------------------*/
 
@@ -405,7 +413,6 @@ export function financialAccountRedemption(
   });
 }
 /*-----------------理财账户-赎回end--------------------*/
-
 
 /*-----------------账单明细-start------------------*/
 
@@ -445,14 +452,16 @@ export interface FinancialAccountBillDetailsItem {
 export function getFinancialAccountBillDetails(
   params: FinancialAccountBillDetailsParams
 ): Promise<RequestParams<FinancialAccountBillDetailsItem[]>> {
-  return request(`${fixUrl2}/assets-web/v1/user-project/accountBillDetailList`, {
-    method: "POST",
-    body: JSON.stringify(params),
-  });
+  return request(
+    `${fixUrl2}/assets-web/v1/user-project/accountBillDetailList`,
+    {
+      method: "POST",
+      body: JSON.stringify(params),
+    }
+  );
 }
 
 /*-----------------账单明细-end--------------------*/
-
 
 /*-----------------开启自动申购start------------------*/
 

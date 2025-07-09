@@ -45,13 +45,21 @@ const useStyle = createStyles(() => ({
   },
 }));
 
-const Subscription: React.FC<{
+interface SubscribeModalProps {
   form: FormInstance<any>;
   myBalance: any;
   tokenInfo: FinancialPageTokenItem | undefined;
   productInfo: FinancialPageTokenProductItem | undefined;
   setProductInfo: (product: FinancialPageTokenProductItem) => void;
-}> = ({ form, myBalance, tokenInfo, productInfo, setProductInfo }) => {
+}
+
+const Subscription: React.FC<SubscribeModalProps> = ({
+  form,
+  myBalance,
+  tokenInfo,
+  productInfo,
+  setProductInfo,
+}) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const { t } = useTranslation(["financial"]);
@@ -149,7 +157,10 @@ const Subscription: React.FC<{
             <div
               onClick={() => {
                 // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击
-                if (Number(item.status) !== FinancialPageTokenStatusEnum.IN_PROGRESS) {
+                if (
+                  Number(item.status) !==
+                  FinancialPageTokenStatusEnum.IN_PROGRESS
+                ) {
                   return;
                 }
                 form.resetFields();
@@ -168,7 +179,11 @@ const Subscription: React.FC<{
                   productInfo?.id === item.id
                     ? "1px solid var(--theme-color)"
                     : "1px solid var(--border-color4)",
-                cursor: Number(item.status) !== FinancialPageTokenStatusEnum.IN_PROGRESS ? "not-allowed" : "pointer",
+                cursor:
+                  Number(item.status) !==
+                  FinancialPageTokenStatusEnum.IN_PROGRESS
+                    ? "not-allowed"
+                    : "pointer",
               }}
               className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
                 productInfo?.id === item.id
@@ -219,7 +234,9 @@ const Subscription: React.FC<{
                   ) {
                     return Promise.reject(
                       new Error(
-                        `${t("common.min")} ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`
+                        `${t("common.min")} ${productInfo?.minPurchaseAmount} ${
+                          tokenInfo?.coinName
+                        }`
                       )
                     );
                   }
@@ -229,7 +246,9 @@ const Subscription: React.FC<{
                   ) {
                     return Promise.reject(
                       new Error(
-                        `${t("common.max")} ${productInfo?.maxPurchaseAmount} ${tokenInfo?.coinName}`
+                        `${t("common.max")} ${productInfo?.maxPurchaseAmount} ${
+                          tokenInfo?.coinName
+                        }`
                       )
                     );
                   }
@@ -239,7 +258,9 @@ const Subscription: React.FC<{
             ]}
           >
             <Input
-              placeholder={`${t("common.min")} ${productInfo?.minPurchaseAmount} ${tokenInfo?.coinName}`}
+              placeholder={`${t("common.min")} ${
+                productInfo?.minPurchaseAmount
+              } ${tokenInfo?.coinName}`}
               className="m-[10px_0] w-[100%] h-[50px]"
               suffix={suffix}
             />
@@ -251,9 +272,10 @@ const Subscription: React.FC<{
             {myBalance?.balance} {tokenInfo?.coinName}
           </div>
           <div>
-            <span className="text-[#9E9E9E] font-[400] mr-[10px]">{t("common.canSubscribe")}:</span>
-            {(productInfo?.maxPurchaseAmount || 0) -
-              (financialAmount || 0)}{" "}
+            <span className="text-[#9E9E9E] font-[400] mr-[10px]">
+              {t("common.canSubscribe")}:
+            </span>
+            {(productInfo?.maxPurchaseAmount || 0) - (financialAmount || 0)}{" "}
             {tokenInfo?.coinName}
           </div>
         </div>
@@ -271,7 +293,9 @@ const Subscription: React.FC<{
             </div>
           </div>
           <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400]">{t("common.autoSubscribe")}</div>
+            <div className="text-[var(--text-color6)] font-[400]">
+              {t("common.autoSubscribe")}
+            </div>
             <Form.Item name="autoPurchase" noStyle>
               <Switch />
             </Form.Item>
@@ -290,7 +314,8 @@ const Subscription: React.FC<{
                   {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.annualInterestRate")} {productInfo?.minAnnualInterestRate}%
+                  {t("common.annualInterestRate")}{" "}
+                  {productInfo?.minAnnualInterestRate}%
                 </div>
               </div>
               <div className="flex flex-ai-center flex-jc-between text-[14px]">
@@ -299,7 +324,8 @@ const Subscription: React.FC<{
                   {tokenInfo?.coinName}
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.annualInterestRate")} {productInfo?.maxAnnualInterestRate}%
+                  {t("common.annualInterestRate")}{" "}
+                  {productInfo?.maxAnnualInterestRate}%
                 </div>
               </div>
             </>
@@ -558,7 +584,8 @@ const SubscribeModal = ({
   const [loading, setLoading] = useState(false); //加载中
 
   const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); // 币种信息
-  const [productInfo, setProductInfo] = useState<FinancialPageTokenProductItem>(); // 当前产品
+  const [productInfo, setProductInfo] =
+    useState<FinancialPageTokenProductItem>(); // 当前产品
 
   // 标签页
   const items = [
@@ -636,7 +663,7 @@ const SubscribeModal = ({
       setTabsKey("1");
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
-        financialAmount: '',
+        financialAmount: "",
       });
       // 获取余额
       const fetchBalance = async () => {

@@ -48,19 +48,20 @@ const resultStatusMap: Record<
   },
 };
 
+interface TabsItemProps {
+  tableData: FinancialOrderItem[];
+  coinList: { coinName: string; id: string }[];
+  tableLoading: boolean;
+  setFormData: (data: FinancialOrderListParams) => void;
+  formData: FinancialOrderListParams;
+}
 const TabsItem = ({
   tableData,
   coinList,
   tableLoading,
   setFormData,
   formData,
-}: {
-  tableData: FinancialOrderItem[];
-  coinList: { coinName: string; id: string }[];
-  tableLoading: boolean;
-  setFormData: (data: FinancialOrderListParams) => void;
-  formData: FinancialOrderListParams;
-}) => {
+}: TabsItemProps) => {
   const { t } = useTranslation(["financial"]);
   // 表格列
   const columns: ColumnsType<FinancialOrderItem> = [
@@ -122,14 +123,12 @@ const TabsItem = ({
       dataIndex: "status",
       key: "status",
       render: (_: any, record: FinancialOrderItem) => {
-        return (
-          record.resultStatusMap ? (
-            <Tag color={resultStatusMap[record.resultStatusMap].type}>
-              {t(resultStatusMap[record.resultStatusMap].text)}
-            </Tag>
-          ) : (
-            "-"
-          )
+        return record.resultStatusMap ? (
+          <Tag color={resultStatusMap[record.resultStatusMap].type}>
+            {t(resultStatusMap[record.resultStatusMap].text)}
+          </Tag>
+        ) : (
+          "-"
         );
       },
     },
@@ -207,7 +206,10 @@ const TabsItem = ({
   );
 };
 const FinancialOrder = () => {
+  const { t } = useTranslation(["financial"]);
+
   const [tableLoading, setTableLoading] = useState(false);
+  // 表单数据
   const [formData, setFormData] = useState<FinancialOrderListParams>({
     type: FinancialType.FIXED,
     coinId: null,
@@ -215,11 +217,12 @@ const FinancialOrder = () => {
     startTime: null,
     endTime: null,
   });
+  // 表格数据
   const [tableData, setTableData] = useState<FinancialOrderItem[]>([]);
+  // 币种列表
   const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
     []
   );
-  const { t } = useTranslation(["financial"]);
 
   // 切换tabs
   const items = [
@@ -251,6 +254,7 @@ const FinancialOrder = () => {
     },
   ];
 
+  // 获取数据
   const fetchData = async (params: FinancialOrderListParams) => {
     try {
       setTableLoading(true);
@@ -265,6 +269,7 @@ const FinancialOrder = () => {
     }
   };
 
+  // 获取币种列表
   const fetchCoinList = async () => {
     try {
       const response = await getCoinAll();
@@ -282,10 +287,12 @@ const FinancialOrder = () => {
     }
   };
 
+  // 获取币种列表
   useEffect(() => {
     fetchCoinList();
   }, []);
 
+  // 获取数据
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
@@ -317,7 +324,7 @@ const FinancialOrder = () => {
     >
       <div>
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
-          { t("common.financialOrder")}
+          {t("common.financialOrder")}
         </div>
         <div className="bg-[var(--btncolor7)] rounded-[10px]">
           <Tabs

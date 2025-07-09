@@ -8,6 +8,7 @@ import styles from "../../../styles/components/Financial.module.css";
 import { useTranslation } from "react-i18next";
 const BillDetails = () => {
   const { t } = useTranslation(["financial"]);
+  
   return (
     <ConfigProvider
       theme={{
@@ -56,7 +57,11 @@ const BillDetails = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["assets", "common", "financial"])),
+      ...(await serverSideTranslations(locale || "en", [
+        "assets",
+        "common",
+        "financial",
+      ])),
     },
   };
 };

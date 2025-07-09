@@ -35,6 +35,7 @@ interface ConfirmModalType {
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
   
+  // 确认弹窗
   const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
     open: false,
     status: null,
@@ -42,14 +43,18 @@ export default observer(function FinancialPage() {
     type: undefined,
     unit: undefined,
     endTime: undefined,
-  }); // 确认弹窗 0:申购 1:赎回
-  const [openSubscribe, setOpenSubscribe] = useState(false); // 申购弹窗
+  });
 
+  // 申购弹窗
+  const [openSubscribe, setOpenSubscribe] = useState(false);
+
+  // 当前记录
   const [curRecord, setCurRecord] = useState<{
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
-  } | null>(null); // 当前记录
+  } | null>(null);
 
+  // 功能配置
   const [financialConfig, setFinancialConfig] = useState<FinancialConfig>({
     financialSwitch: null, //是否开启
     isRealname: null, //是否实名
@@ -70,12 +75,14 @@ export default observer(function FinancialPage() {
     }
   };
 
+  // 初始化功能配置
   useEffect(() => {
     // 确保只在客户端执行
     if (typeof window !== "undefined") {
       initFinancialConfig();
     }
   }, []);
+
   return (
     <>
       {/* 我的理财 */}

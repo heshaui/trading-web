@@ -37,13 +37,7 @@ const useStyle = createStyles(() => ({
   },
 }));
 
-const RedemptionModal = ({
-  curProduct,
-  openRedemption,
-  setOpenRedemption,
-  setRedeemConfirmModal,
-  onRefresh,
-}: {
+interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
   setOpenRedemption: (open: boolean) => void;
@@ -56,7 +50,15 @@ const RedemptionModal = ({
     endTime?: number;
   }) => void;
   onRefresh?: () => void;
-}) => {
+}
+
+const RedemptionModal = ({
+  curProduct,
+  openRedemption,
+  setOpenRedemption,
+  setRedeemConfirmModal,
+  onRefresh,
+}: RedemptionModalProps) => {
   const { styles } = useStyle();
   const { t } = useTranslation(["financial"]);
   const [form] = Form.useForm();
@@ -64,14 +66,18 @@ const RedemptionModal = ({
 
   const [loading, setLoading] = useState(false);
 
+  // 当前产品信息
   const [curProductInfo, setCurProductInfo] =
     useState<UserFinancialAccountItem | null>(null);
+
+  // 赎回信息
   const [redeemInfo, setRedeemInfo] =
     useState<FinancialAccountRedemptionShowItem>({
       totalAssets: 0,
       redeemLimit: 0,
     });
 
+  // 提交赎回
   const onSubmit = async () => {
     form.validateFields().then(async (values) => {
       if (!values) return;
@@ -110,6 +116,7 @@ const RedemptionModal = ({
     });
   };
 
+  // 获取赎回数据
   useEffect(() => {
     if (curProduct && openRedemption) {
       setCurProductInfo(curProduct);
@@ -121,6 +128,7 @@ const RedemptionModal = ({
             id: curProduct?.id,
             projectId: curProduct?.projectId,
             coinId: curProduct?.coinId,
+            type: curProduct?.type,
           });
           if (res.code === "0") {
             console.log(res.data);
@@ -215,7 +223,10 @@ const RedemptionModal = ({
                   <Form.Item
                     name="redeemMoney"
                     rules={[
-                      { required: true, message: t("common.pleaseEnterTheRedeemAmount") },
+                      {
+                        required: true,
+                        message: t("common.pleaseEnterTheRedeemAmount"),
+                      },
                       {
                         validator: (_, value) => {
                           // 如果没有输入值，不进行范围校验，让required规则单独处理
@@ -225,13 +236,19 @@ const RedemptionModal = ({
 
                           // 只能输入数字
                           if (isNaN(Number(value))) {
-                            return Promise.reject(new Error(t("common.pleaseEnterTheNumber")));
+                            return Promise.reject(
+                              new Error(t("common.pleaseEnterTheNumber"))
+                            );
                           }
 
                           // 不能小于0
                           if (value <= 0) {
                             return Promise.reject(
-                              new Error(t("common.redeemAmountCannotBeLessThanOrEqualTo0"))
+                              new Error(
+                                t(
+                                  "common.redeemAmountCannotBeLessThanOrEqualTo0"
+                                )
+                              )
                             );
                           }
 
@@ -242,7 +259,11 @@ const RedemptionModal = ({
                           ) {
                             return Promise.reject(
                               new Error(
-                                `${t("common.redeemAmountCannotBeGreaterThan")} ${redeemInfo.redeemLimit} ${curProductInfo?.coinName}`
+                                `${t(
+                                  "common.redeemAmountCannotBeGreaterThan"
+                                )} ${redeemInfo.redeemLimit} ${
+                                  curProductInfo?.coinName
+                                }`
                               )
                             );
                           }
@@ -281,8 +302,10 @@ const RedemptionModal = ({
                   {/* 提示 */}
                   <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
                     <div>
-                      {t("common.todayRedeemLimit")}：{redeemInfo.redeemLimit || "-"}
-                      {curProductInfo?.coinName}，{t("common.pleaseOperateTomorrow")}！
+                      {t("common.todayRedeemLimit")}：
+                      {redeemInfo.redeemLimit || "-"}
+                      {curProductInfo?.coinName}，
+                      {t("common.pleaseOperateTomorrow")}！
                     </div>
                   </div>
                 </>

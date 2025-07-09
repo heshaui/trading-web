@@ -31,6 +31,7 @@ const Problem = () => {
       style: textStyle,
     },
   ];
+  
   return (
     <ConfigProvider
       theme={{

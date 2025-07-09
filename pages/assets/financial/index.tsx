@@ -14,7 +14,7 @@ import {
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState } from "react";
-import RedemptionModal from "./components/RedemptionModal";
+import RedemptionModal from "../../../components/Financial/RedemptionModal";
 import ConfirmModal from "@/components/Financial/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
@@ -35,9 +35,8 @@ import { ColumnsType } from "antd/es/table";
 import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
-import dayjs from "dayjs";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
-import RedeemConfirmModal from "./components/RedeemConfirmModal";
+import RedeemConfirmModal from "../../../components/Financial/RedeemConfirmModal";
 import { useTranslation } from "react-i18next";
 
 interface ConfirmModalType {
@@ -440,8 +439,8 @@ const Financial = () => {
 
       {/* 赎回确认弹窗 */}
       <RedeemConfirmModal
-        confirmModal={redeemConfirmModal}
-        setConfirmModal={setRedeemConfirmModal}
+        redeemConfirmModal={redeemConfirmModal}
+        setRedeemConfirmModal={setRedeemConfirmModal}
       />
 
       {/* 基础页面 */}

@@ -34,6 +34,7 @@ const Financial = () => {
     []
   );
 
+  // 表格列
   const columns: ColumnsType<FinancialAccountBillDetailsItem> = [
     {
       title: t("common.date"),
@@ -53,7 +54,9 @@ const Financial = () => {
       dataIndex: "type",
       key: "type",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
-        return record.type === FinancialType.CURRENT ? t("common.current") : t("common.fixed");
+        return record.type === FinancialType.CURRENT
+          ? t("common.current")
+          : t("common.fixed");
       },
     },
     {
@@ -90,6 +93,8 @@ const Financial = () => {
       },
     },
   ];
+
+  // 获取币种列表
   const fetchCoinList = async () => {
     try {
       const response = await getCoinAll();
@@ -107,6 +112,7 @@ const Financial = () => {
     }
   };
 
+  // 获取数据
   const fetchData = async (params: any) => {
     try {
       setTableLoading(true);
@@ -122,10 +128,12 @@ const Financial = () => {
     }
   };
 
+  // 获取币种列表
   useEffect(() => {
     fetchCoinList();
   }, []);
 
+  // 获取数据
   useEffect(() => {
     fetchData(formData);
   }, [formData]);

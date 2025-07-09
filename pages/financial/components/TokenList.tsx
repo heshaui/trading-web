@@ -35,12 +35,8 @@ const termTypeMap: Record<number, string> = {
   [FinancialType.CURRENT]: "common.current",
   [FinancialType.FIXED]: "common.fixed",
 };
-const TokenList = ({
-  setOpenSubscribe,
-  financialConfig,
-  isLoggedIn,
-  setCurRecord,
-}: {
+
+interface TokenListProps {
   setCurRecord: (record: {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
@@ -48,13 +44,26 @@ const TokenList = ({
   setOpenSubscribe: (open: boolean) => void;
   financialConfig: FinancialConfig;
   isLoggedIn: boolean;
-}) => {
+}
+const TokenList = ({
+  setOpenSubscribe,
+  financialConfig,
+  isLoggedIn,
+  setCurRecord,
+}: TokenListProps) => {
   const router = useRouter();
-
   const { t } = useTranslation(["financial"]);
-  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]); // 展开的行
-  const [loading, setLoading] = useState(false); // 加载中
-  const [dataSource, setDataSource] = useState<FinancialPageTokenItem[]>([]); // 数据源
+
+  // 展开的行
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+
+  // 加载中
+  const [loading, setLoading] = useState(false);
+
+  // 数据源
+  const [dataSource, setDataSource] = useState<FinancialPageTokenItem[]>([]);
+
+  // 表单数据
   const [formData, setFormData] = useState({
     coinId: null,
     type: null,
@@ -263,6 +272,7 @@ const TokenList = ({
     }
   };
 
+  // 初始化币种筛选选项
   const initTokenList = async () => {
     const res = await getCoinFilterOptions();
     if (res.code === "0") {
@@ -270,11 +280,13 @@ const TokenList = ({
     }
   };
 
+  // 初始化
   useEffect(() => {
     initProductFilterOptions();
     initTokenList();
   }, []);
 
+  // 获取数据
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
@@ -296,6 +308,7 @@ const TokenList = ({
       }}
     >
       <div className="p-[30px_120px]">
+        {/* 筛选 */}
         <Space size={30} className="mb-[14px]">
           {/* 币种筛选 */}
           <Select
@@ -355,6 +368,8 @@ const TokenList = ({
             ]}
           />
         </Space>
+
+        {/* 表格 */}
         <Spin spinning={loading}>
           <Table
             className={styles.table}
@@ -408,7 +423,9 @@ const TokenList = ({
                         <div className="flex items-center gap-[10px]">
                           {productRecord.type === FinancialType.CURRENT
                             ? t("common.current")
-                            : `${t("common.fixed")} (${productRecord.term}${t("common.day")})`}
+                            : `${t("common.fixed")} (${productRecord.term}${t(
+                                "common.day"
+                              )})`}
                         </div>
                       ),
                     },
