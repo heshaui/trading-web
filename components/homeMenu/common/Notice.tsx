@@ -59,7 +59,7 @@ const Notice: React.FC<NoticeProps> = ({
                 const lang = localStorage.getItem('lang') || 'en_US';
                 const response: any = await getInformUserMessageList({
                     languageCode: lang,
-                    pageNum: 1,
+                    pageNo: 1,
                     pageSize: 2,
                     bizType
                 });
