@@ -5,7 +5,8 @@
         "billDetails": "Bill Details",
         "withdraw": "Withdraw",
         "deposit": "Deposit",
-        "address": "Address Management"
+        "address": "Address Management",
+        "financialAccount": "Financial Account"
     },
     "assetsAccount": {
         "title": "Spot Account",

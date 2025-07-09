@@ -60,7 +60,7 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
           size={24}
         />
       ),
-      label: t("assets.financial"), //'理财账户',
+      label: t("assets.financialAccount"), //'理财账户',
     },
   ];
 

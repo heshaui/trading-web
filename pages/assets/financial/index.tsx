@@ -4,6 +4,7 @@ import {
   Button,
   ConfigProvider,
   Flex,
+  message,
   Select,
   Space,
   Switch,
@@ -13,15 +14,20 @@ import {
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState } from "react";
-import RedemptionModal from "./components/RedemptionModal";
-import ConfirmModal from "./components/ConfirmModal";
+import RedemptionModal from "../../../components/Financial/RedemptionModal";
+import ConfirmModal from "@/components/Financial/ConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
-  PurchaseEnum,
+  OpenStatusEnum,
   FinancialType,
   getUserFinancialAccount,
   UserFinancialAccountItem,
   UserFinancialAccountParams,
+  getMyPosition,
+  FinancialPageTokenItem,
+  FinancialPageTokenProductItem,
+  getFinancialPageToken,
+  financialAccountAutoPurchase,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
 import Image from "next/image";
@@ -29,22 +35,46 @@ import { ColumnsType } from "antd/es/table";
 import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
+import SubscribeModal from "@/components/Financial/SubscribeModal";
+import RedeemConfirmModal from "@/components/Financial/RedeemConfirmModal";
+import { useTranslation } from "react-i18next";
 
-const TabsItem = ({
-  tableLoading,
-  tableData,
-  setOpenRedemption,
-  setOpenConfirm,
-}: {
+interface ConfirmModalType {
+  open: boolean;
+  status: "error" | "success" | null;
+  amount?: number;
+  type?: FinancialType;
+  unit?: string;
+  endTime?: number;
+}
+
+interface TabsItemProps {
+  setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
   tableData: UserFinancialAccountItem[];
   setOpenRedemption: (open: boolean) => void;
-  setOpenConfirm: (open: boolean) => void;
-}) => {
+  setCurRecord?: (
+    record: {
+      token: FinancialPageTokenItem;
+      curProduct: FinancialPageTokenProductItem;
+    } | null
+  ) => void;
+  setOpenSubscribe?: (open: boolean) => void;
+}
+
+const TabsItem = ({
+  setCurProduct,
+  tableLoading,
+  tableData,
+  setOpenRedemption,
+  setCurRecord,
+  setOpenSubscribe,
+}: TabsItemProps) => {
   // 表格列
+  const { t } = useTranslation(["financial"]);
   const columns: ColumnsType<UserFinancialAccountItem> = [
     {
-      title: "币种",
+      title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
       render: (_: any, record: any) => {
@@ -59,76 +89,145 @@ const TabsItem = ({
       },
     },
     {
-      title: "自动申购",
+      title: t("common.autoPurchase"),
       dataIndex: "autoPurchase",
       key: "autoPurchase",
       render: (_: any, record: any) => {
         return (
           <Switch
+            defaultChecked={Number(record.autoPurchase) === OpenStatusEnum.YES}
+            onChange={async (checked) => {
+              const res = await financialAccountAutoPurchase({
+                id: record.id,
+                autoPurchase: checked ? OpenStatusEnum.YES : OpenStatusEnum.NO,
+              });
+              if (res.code === "0") {
+                message.success("操作成功");
+              } else {
+                message.error(res.message);
+                record.autoPurchase = checked ? OpenStatusEnum.NO : OpenStatusEnum.YES;
+              }
+            }}
             size="small"
-            checked={record.autoPurchase === PurchaseEnum.YES}
           />
         );
       },
     },
     {
-      title: "申购金额",
+      title: t("common.purchaseAmount"),
       dataIndex: "purchaseAmount",
       key: "purchaseAmount",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div> {record.purchaseAmount} USDT</div>
-            <div>≈$20.10</div>
+            <div>
+              {record.purchaseAmount} {record.coinName}
+            </div>
+            <div>≈${record.usdPurchaseAmount}</div>
           </div>
         );
       },
     },
     {
-      title: "年利率",
+      title: t("common.annualRate"),
       dataIndex: "minAnnualInterestRate",
       key: "minAnnualInterestRate",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            {record.minAnnualInterestRate}%~
+            {record.type === FinancialType.CURRENT
+              ? `${record.minAnnualInterestRate}%~`
+              : null}
             {record.maxAnnualInterestRate}%
           </div>
         );
       },
     },
     {
-      title: "累计收益",
+      title: t("common.totalIncome"),
       dataIndex: "accruedInterest",
       key: "accruedInterest",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            <div>{record.accruedInterest} USDT</div>
+            <div>
+              {record.accruedInterest} {record.coinName}
+            </div>
             <div>≈${record.usdAccruedInterest}</div>
           </div>
         );
       },
     },
     {
-      title: "操作",
+      title: t("common.operation"),
       dataIndex: "action",
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
           <Space>
-            <div
-              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => setOpenConfirm(true)}
-            >
-              再次申购
-            </div>
-            <div
-              className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
-              onClick={() => setOpenRedemption(true)}
-            >
-              赎回
-            </div>
+            {/* 判断是否活期 */}
+            {record.type === FinancialType.CURRENT && (
+              <div
+                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                onClick={async () => {
+                  try {
+                    const res = await getFinancialPageToken({
+                      coinId: record.coinId,
+                    });
+                    if (res.code === "0") {
+                      const curProduct = res.data[0].products?.filter(
+                        (item) => item.id === record.projectId
+                      )[0];
+                      if (curProduct) {
+                        setCurRecord?.({
+                          token: res.data[0],
+                          curProduct,
+                        });
+                      }
+                      setOpenSubscribe?.(true);
+                    } else {
+                      setCurRecord?.(null);
+                    }
+                    return res;
+                  } catch (error) {
+                    console.error("获取数据失败:", error);
+                  }
+                }}
+              >
+                {t("common.subscribeAgain")}
+              </div>
+            )}
+            {/* 定期 */}
+            {/* 判断是否允许提前赎回 */}
+            {record.type === FinancialType.FIXED ? (
+              record.isRedemption === OpenStatusEnum.YES ? (
+                <div
+                  className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                  onClick={() => {
+                    setCurProduct(record);
+                    setOpenRedemption(true);
+                  }}
+                >
+                  {t("common.redeem")}
+                </div>
+              ) : (
+                <div className="font-[400] text-[14px] text-[var(--text-color6)]">
+                  {t("common.autoRedeem")}
+                </div>
+              )
+            ) : null}
+            {/* 活期 */}
+            {record.type === FinancialType.CURRENT && (
+              <div
+                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                onClick={() => {
+                  setCurProduct(record);
+                  setOpenRedemption(true);
+                }}
+              >
+                {t("common.redeem")}
+              </div>
+            )}
           </Space>
         );
       },
@@ -148,18 +247,67 @@ const TabsItem = ({
 };
 
 const Financial = () => {
-
   const router = useRouter();
+  const { t } = useTranslation(["financial"]);
+
+  const { type } = router.query;
+
+  // 根据URL中的type参数确定默认的标签页类型，如果没有type参数则默认为定期
+  const getDefaultType = () => {
+    if (type === String(FinancialType.CURRENT)) {
+      return FinancialType.CURRENT;
+    }
+    return FinancialType.FIXED; // 默认为定期
+  };
+
+  const defaultActiveKey = getDefaultType();
 
   const [tableLoading, setTableLoading] = useState(false);
   //打开赎回弹窗
   const [openRedemption, setOpenRedemption] = useState(false);
   //打开确认弹窗
-  const [openConfirm, setOpenConfirm] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
+    open: false,
+    status: null,
+    amount: undefined,
+    type: undefined,
+    unit: undefined,
+    endTime: undefined,
+  });
+
+  const [redeemConfirmModal, setRedeemConfirmModal] =
+    useState<ConfirmModalType>({
+      open: false,
+      status: null,
+      amount: undefined,
+      type: undefined,
+      unit: undefined,
+      endTime: undefined,
+    });
+
+  // 当前选中的理财产品
+  const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(
+    null
+  );
+
+  const [curRecord, setCurRecord] = useState<{
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null>(null); // 当前记录
+
+  const [openSubscribe, setOpenSubscribe] = useState(false);
+
+  // 我的持仓
+  const [myAmount, setMyAmount] = useState({
+    holdings: 0, // 持仓
+    totalRevenue: 0, // 总收益
+    lastRevenue: 0, // 昨日收益
+    accumulateRevenue: 0, // 30日累计收益
+  });
 
   // 表格数据
   const [formData, setFormData] = useState<UserFinancialAccountParams>({
-    type: FinancialType.FIXED,
+    type: defaultActiveKey, // 根据URL参数设置默认类型
     coinId: null,
   });
   const [tableData, setTableData] = useState<UserFinancialAccountItem[]>([]);
@@ -176,36 +324,40 @@ const Financial = () => {
   const items = [
     {
       key: String(FinancialType.FIXED),
-      label: "定期",
+      label: t("common.fixed"),
       children: (
         <TabsItem
+          setCurProduct={setCurProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setOpenConfirm={setOpenConfirm}
         />
       ),
     },
     {
       key: String(FinancialType.CURRENT),
-      label: "活期",
+      label: t("common.current"),
       children: (
         <TabsItem
+          setOpenSubscribe={setOpenSubscribe}
+          setCurRecord={setCurRecord}
+          setCurProduct={setCurProduct}
           tableLoading={tableLoading}
           tableData={tableData}
           setOpenRedemption={setOpenRedemption}
-          setOpenConfirm={setOpenConfirm}
         />
       ),
     },
   ];
 
+  // 获取理财产品列表
   const fetchData = async (params: UserFinancialAccountParams) => {
     try {
       setTableLoading(true);
       const res = await getUserFinancialAccount(params);
       if (res.code === "0") {
         setTableData(res.data);
+        console.log(res.data);
       }
     } catch (error) {
       console.log(error);
@@ -213,6 +365,8 @@ const Financial = () => {
       setTableLoading(false);
     }
   };
+
+  // 获取币种列表
   const fetchCoinList = async () => {
     try {
       const response = await getCoinAll();
@@ -230,8 +384,27 @@ const Financial = () => {
     }
   };
 
+  // 我的持仓
+  const fetchMyPosition = async () => {
+    try {
+      const res = await getMyPosition();
+      if (res.code === "0") {
+        setMyAmount(res.data);
+      }
+    } catch (error) {
+      console.error("Failed to load position data:", error);
+    }
+  };
+
+  // 添加刷新函数
+  const handleRefresh = () => {
+    fetchData(formData);
+    fetchMyPosition();
+  };
+
   useEffect(() => {
     fetchCoinList();
+    fetchMyPosition();
   }, []);
 
   useEffect(() => {
@@ -240,11 +413,37 @@ const Financial = () => {
 
   return (
     <>
+      {/* 赎回弹窗 */}
       <RedemptionModal
+        curProduct={curProduct}
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
+        setRedeemConfirmModal={setRedeemConfirmModal}
+        onRefresh={handleRefresh}
       />
-      <ConfirmModal openConfirm={openConfirm} setOpenConfirm={setOpenConfirm} />
+
+      {/* 确认弹窗 */}
+      <ConfirmModal
+        confirmModal={confirmModal}
+        setConfirmModal={setConfirmModal}
+      />
+
+      {/* 申购弹窗 */}
+      <SubscribeModal
+        curRecord={curRecord}
+        openSubscribe={openSubscribe}
+        setOpenSubscribe={setOpenSubscribe}
+        setConfirmModal={setConfirmModal}
+        onRefresh={handleRefresh}
+      />
+
+      {/* 赎回确认弹窗 */}
+      <RedeemConfirmModal
+        redeemConfirmModal={redeemConfirmModal}
+        setRedeemConfirmModal={setRedeemConfirmModal}
+      />
+
+      {/* 基础页面 */}
       <ConfigProvider
         theme={{
           components: {
@@ -269,7 +468,7 @@ const Financial = () => {
         <div>
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
-            理财账户
+            {t("common.financialAccount")}
           </div>
           {/* content */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
@@ -279,51 +478,73 @@ const Financial = () => {
               <div className="p-[30px] flex justify-between items-end">
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
-                    <div>总资产</div>
+                    <div>{t("common.totalAssets")}</div>
                     <div>
-                    {!showAmount ? (
-                      <EyeOutlined
-                        size={18}
-                        className="cursor-pointer"
-                        onClick={() => setShowAmount(!showAmount)}
-                      />
-                    ) : (
-                      <EyeInvisibleOutlined
-                        size={18}
-                        className="cursor-pointer"
-                        onClick={() => setShowAmount(!showAmount)}
-                      />
-                    )}
-                  </div>
+                      {!showAmount ? (
+                        <EyeOutlined
+                          size={18}
+                          className="cursor-pointer"
+                          onClick={() => setShowAmount(!showAmount)}
+                        />
+                      ) : (
+                        <EyeInvisibleOutlined
+                          size={18}
+                          className="cursor-pointer"
+                          onClick={() => setShowAmount(!showAmount)}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" /> 
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.holdings}
+                      unit="USD"
+                    />
                   </div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    <MaskableAmount prefix="≈" show={showAmount} amount={1.12} unit="CNY" />
+                    <MaskableAmount
+                      prefix="≈"
+                      show={showAmount}
+                      amount={myAmount.holdings}
+                      unit="CNY"
+                    />
                   </div>
                 </div>
-                <Button type="primary" onClick={() => {
-                  router.push("/financial");
-                }}>理财产品</Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    router.push("/financial");
+                  }}
+                >
+                  {t("common.financialProduct")}
+                </Button>
               </div>
               <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
               {/* 底部 */}
               <div className="flex gap-[229px] p-[30px]">
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    昨日收益（USDT）
+                    {t("common.yesterdayIncome")}（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.lastRevenue}
+                      unit="USD"
+                    />
                   </div>
                 </div>
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    30日累计收益（USDT）
+                    {t("common.thirtyDaysIncome")}（USDT）
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount show={showAmount} amount={0.15} unit="USD" />
+                    <MaskableAmount
+                      show={showAmount}
+                      amount={myAmount.accumulateRevenue}
+                      unit="USD"
+                    />
                   </div>
                 </div>
               </div>
@@ -332,17 +553,19 @@ const Financial = () => {
             <Tabs
               className={styles.tabs}
               items={items}
+              defaultActiveKey={String(defaultActiveKey)}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
               tabBarExtraContent={{
                 right: (
                   <Select
+                    allowClear
                     className="w-[170px] h-[30px]"
                     value={formData.coinId}
                     onChange={(value) =>
                       setFormData({ ...formData, coinId: value })
                     }
                     options={[
-                      { label: "全部", value: null },
+                      { label: t("common.all"), value: null },
                       ...coinList.map((item) => ({
                         label: item.coinName,
                         value: item.id,
@@ -365,7 +588,7 @@ const Financial = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["assets", "common"])),
+      ...(await serverSideTranslations(locale || "en", ["assets", "common", "financial"])),
     },
   };
 };
