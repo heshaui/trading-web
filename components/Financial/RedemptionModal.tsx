@@ -3,6 +3,7 @@ import {
   FinancialAccountRedemptionShowItem,
   FinancialType,
   getFinancialAccountRedemptionShow,
+  getFinancialAccountRedemptionShowFixed,
   UserFinancialAccountItem,
 } from "@/services/financial";
 import {
@@ -70,12 +71,15 @@ const RedemptionModal = ({
   const [curProductInfo, setCurProductInfo] =
     useState<UserFinancialAccountItem | null>(null);
 
-  // 赎回信息
+  // 赎回信息-活期
   const [redeemInfo, setRedeemInfo] =
     useState<FinancialAccountRedemptionShowItem>({
       totalAssets: 0,
       redeemLimit: 0,
     });
+
+  //赎回金额-定期
+  const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<string>("");
 
   // 提交赎回
   const onSubmit = async () => {
@@ -88,7 +92,10 @@ const RedemptionModal = ({
           id: curProductInfo?.id,
           projectId: curProductInfo?.projectId,
           coinId: curProductInfo?.coinId,
-          redeemMoney: redeemMoney,
+          redeemMoney:
+            curProductInfo?.type === FinancialType.CURRENT
+              ? Number(redeemMoney)
+              : Number(redeemMoneyFixed),
         });
         if (res.code === "0") {
           setOpenRedemption(false);
@@ -124,22 +131,34 @@ const RedemptionModal = ({
       const fetchRedemptionData = async () => {
         try {
           if (!curProduct) return;
-          const res = await getFinancialAccountRedemptionShow({
+          setLoading(true);
+          const params = {
             id: curProduct?.id,
             projectId: curProduct?.projectId,
             coinId: curProduct?.coinId,
-            type: curProduct?.type,
-          });
+          };
+          const res =
+            curProduct?.type === FinancialType.CURRENT
+              ? await getFinancialAccountRedemptionShow(params)
+              : await getFinancialAccountRedemptionShowFixed(params);
           if (res.code === "0") {
-            console.log(res.data);
-            setRedeemInfo(res.data);
+            if (curProduct?.type === FinancialType.CURRENT) {
+              setRedeemInfo(res.data as FinancialAccountRedemptionShowItem);
+            } else {
+              setRedeemMoneyFixed(res.data as string);
+            }
           }
-        } catch (error) {}
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
       };
       fetchRedemptionData();
     }
     if (!openRedemption) {
       form.resetFields();
+      setRedeemMoneyFixed("");
       setCurProductInfo(null);
       setRedeemInfo({
         totalAssets: 0,
@@ -214,6 +233,7 @@ const RedemptionModal = ({
           <Form form={form}>
             <div className="p-[30px_20px_10px_20px]">
               {curProductInfo?.type === FinancialType.CURRENT ? (
+                // 活期赎回
                 <>
                   {/* label */}
                   <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
@@ -310,10 +330,11 @@ const RedemptionModal = ({
                   </div>
                 </>
               ) : (
+                // 定期赎回
                 <>
                   {/* 金额 */}
                   <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center">
-                    {redeemMoney} {curProductInfo?.coinName}
+                    {curProductInfo?.purchaseAmount} {curProductInfo?.coinName}
                   </div>
                   {/* subTitle */}
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] mb-[37px] text-center">
@@ -344,8 +365,7 @@ const RedemptionModal = ({
                         {t("common.redeemAmount")}
                       </div>
                       <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        {(Number(curProductInfo?.purchaseAmount) || 0) -
-                          (Number(curProductInfo?.accruedInterest) || 0)}{" "}
+                        {redeemMoneyFixed || "--"}{" "}
                         {curProductInfo?.coinName}
                       </div>
                     </div>

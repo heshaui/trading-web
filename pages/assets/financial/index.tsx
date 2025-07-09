@@ -36,7 +36,7 @@ import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
-import RedeemConfirmModal from "../../../components/Financial/RedeemConfirmModal";
+import RedeemConfirmModal from "@/components/Financial/RedeemConfirmModal";
 import { useTranslation } from "react-i18next";
 
 interface ConfirmModalType {

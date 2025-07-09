@@ -314,9 +314,7 @@ export function getProductFilterOptions(): Promise<
 > {
   return request(
     `${fixUrl}/home-web/v1/open/manageMoney/getProductFilterOptions`,
-    {
-      method: "POST",
-    }
+    { method: "POST" }
   );
 }
 /*-----------------理财页面-筛选下拉框end--------------------*/
@@ -370,7 +368,6 @@ export interface FinancialAccountRedemptionShowParams {
   id: number; //用户理财记录id
   projectId: number; // 项目id
   coinId: number; // 币种id
-  type: FinancialType; // 1定期 2活期
 }
 
 export interface FinancialAccountRedemptionShowItem {
@@ -380,20 +377,22 @@ export interface FinancialAccountRedemptionShowItem {
 export function getFinancialAccountRedemptionShow(
   params: FinancialAccountRedemptionShowParams
 ): Promise<RequestParams<FinancialAccountRedemptionShowItem>> {
-  return request(
-    `${
-      params.type === FinancialType.CURRENT
-        ? `${fixUrl2}/assets-web/v1/user-project/redeemDisplay`
-        : `${fixUrl2}/assets-web/v1/user-project/regularRedeemDisplay`
-    }`,
-    {
-      method: "POST",
-      body: JSON.stringify(params),
-    }
-  );
+  return request(`${fixUrl2}/assets-web/v1/user-project/redeemDisplay`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
 }
 
 /*-----------------理财账户-赎回显示end 定期--------------------*/
+
+export function getFinancialAccountRedemptionShowFixed(
+  params: FinancialAccountRedemptionShowParams
+): Promise<RequestParams<string>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/regularRedeemDisplay`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
 
 /*-----------------理财账户-赎回start------------------*/
 
