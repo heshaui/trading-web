@@ -3,6 +3,7 @@ import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
+import Image from "next/image";
 
 interface ConfirmModalProps {
   confirmModal: {
@@ -57,7 +58,18 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
     >
       <div>
         {/* 图标 成功/失败*/}
-        <div className="w-[105px] h-[96px] bg-[red] mb-[15px] m-[30px_180px_15px_180px]"></div>
+        <div className="mb-[15px] m-[30px_180px_15px_180px]">
+          <Image
+            src={
+              confirmModal.status === "success"
+                ? "/images/financial/success.png"
+                : "/images/financial/error.png"
+            }
+            alt=""
+            width={126}
+            height={126}
+          />
+        </div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
           {confirmModal.status === "success"

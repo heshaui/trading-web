@@ -30,6 +30,18 @@ const Problem = () => {
       children: <p>{t("financial.question3.answer")}</p>,
       style: textStyle,
     },
+    {
+      key: "4",
+      label: t("financial.question4.title"),
+      children: <p>{t("financial.question4.answer")}</p>,
+      style: textStyle,
+    },
+    {
+      key: "5",
+      label: t("financial.question5.title"),
+      children: <p>{t("financial.question5.answer")}</p>,
+      style: textStyle,
+    },
   ];
   
   return (
@@ -42,7 +54,7 @@ const Problem = () => {
         },
       }}
     >
-      <div className="p-[30px_120px]">
+      <div id="problem" className="p-[30px_120px]">
         <div className="text-[32px] font-w-500 mb-[40px] text-[var(--text-color5)]">
           {t("financial.question")}
         </div>

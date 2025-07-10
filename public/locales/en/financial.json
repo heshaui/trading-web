@@ -103,28 +103,28 @@
 
     "question": "Question",
     "question1": {
-      "title": "Are financial products safe?",
-      "answer": "Financial products are safe because they are provided by professional financial institutions and have strict risk control measures."
+      "title": "What is financial?",
+      "answer": "Financial is a one-stop asset management platform under our company, focusing on providing professional and high-quality asset management services. Based on high returns and high security, it fully meets the diverse investment needs of users. Users can choose products with different return and risk levels according to their needs and make their assets grow."
     },
     "question2": {
-      "title": "Can financial products be redeemed at any time?",
-      "answer": "Financial products can be redeemed at any time, but a certain handling fee is required."
+      "title": "What are the types of financial products?",
+      "answer": "We provide a variety of financial products for users to choose from, such as current financial products and fixed-term financial products. In the future, we will launch more financial products to meet the investment preferences, investment vision, and risk preferences of more users."
     },
     "question3": {
-      "title": "Can financial products be redeemed at any time?",
-      "answer": "Financial products can be redeemed at any time, but a certain handling fee is required."
+      "title": "Where can I view the financial products I have subscribed to?",
+      "answer": "You can view the products you have subscribed to in the asset-financial account."
     },
     "question4": {
-      "title": "Can financial products be redeemed at any time?",
-      "answer": "Financial products can be redeemed at any time, but a certain handling fee is required."
+      "title": "What will happen if I redeem my fixed-term product early?",
+      "answer": "For designated fixed-term products, you can redeem your assets at any time before maturity. Once confirmed, the redemption process will be irreversible. If you redeem early, you will give up the accrued interest income of the product. The principal you used to subscribe to the fixed-term product will be returned to your spot wallet within 72 hours. In case of extreme market volatility, network delays, or excessive requests, redemption may be delayed."
     },
     "question5": {
-      "title": "Can financial products be redeemed at any time?",
-      "answer": "Financial products can be redeemed at any time, but a certain handling fee is required."
+      "title": "What will happen if I have selected automatic subscription to financial products?",
+      "answer": "After enabling automatic subscription to current products, your assets in the spot wallet will be automatically subscribed to this current product at 02:00 and 18:00 (UTC+8) every day. After enabling automatic subscription to fixed-term products, the fixed-term product will be automatically renewed with the same fixed-term product when it matures. If not enabled, your assets will be redeemed after maturity."
     },
-    "question7": {
-      "title": "Can financial products be redeemed at any time?",
-      "answer": "Financial products can be redeemed at any time, but a certain handling fee is required."
+    "questionStaking": {
+      "title": "What is Staking?",
+      "answer": "Staking is a digital asset financial product, and you can obtain interest income after the holding period or lock-in period of the product ends. It mainly includes &ldquo;current financial products and fixed-term financial products&rdquo;. We will select high-quality projects to provide rich staking income for global staking users. Currently, the first-issue projects will provide multiple return methods, such as &ldquo;staking and holding&rdquo;. Holding financial products: users only need to hold the asset to obtain income. Fixed-term financial products: according to different projects, you can choose different lock-in periods for different projects. After the lock-in period, you will receive all rewards and interest income. If you redeem the asset in the lock-in period, you will lose the interest income that has been generated."
     }
   }
 }

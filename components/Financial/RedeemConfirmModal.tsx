@@ -2,8 +2,8 @@ import { FinancialType } from "@/services/financial";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Image from "next/image";
 
 interface RedeemConfirmModalProps {
   redeemConfirmModal: {
@@ -31,11 +31,13 @@ const RedeemConfirmModal = ({
 }: RedeemConfirmModalProps) => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  console.log(redeemConfirmModal);
+
   return (
     <Modal
       open={redeemConfirmModal.open}
-      onCancel={() => setRedeemConfirmModal({ ...redeemConfirmModal, open: false })}
+      onCancel={() =>
+        setRedeemConfirmModal({ ...redeemConfirmModal, open: false })
+      }
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
         <div className="p-[30px_55px] flex justify-around gap-[20px]">
@@ -65,7 +67,18 @@ const RedeemConfirmModal = ({
     >
       <div>
         {/* 图标 成功/失败*/}
-        <div className="w-[105px] h-[96px] bg-[red] mb-[15px] m-[30px_180px_15px_180px]"></div>
+        <div className="mb-[15px] m-[30px_180px_15px_180px]">
+          <Image
+            src={
+              redeemConfirmModal.status === "success"
+                ? "/images/financial/success.png"
+                : "/images/financial/error.png"
+            }
+            alt=""
+            width={126}
+            height={126}
+          />
+        </div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
           {redeemConfirmModal.status === "success"
@@ -137,7 +150,9 @@ const RedeemConfirmModal = ({
                     {t("common.arrivalTime")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(redeemConfirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
+                    {dayjs(redeemConfirmModal.endTime).format(
+                      "YYYY-MM-DD HH:mm:ss"
+                    )}
                   </div>
                 </div>
               </>

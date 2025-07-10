@@ -30,6 +30,7 @@ import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { SvgIcon } from "@/components/icon";
 
 const termTypeMap: Record<number, string> = {
   [FinancialType.CURRENT]: "common.current",
@@ -131,19 +132,17 @@ const TokenList = ({
       localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || "{}"
     );
 
-    console.log(userInfo);
+    console.log("userInfo", userInfo);
+    console.log("financialConfig?.isRealname", financialConfig?.isRealname);
+    console.log(
+      "financialConfig?.isRealname === 1 开启实名认证,并且 user.realnessStatus === 2 为未实名,进入实名弹框"
+    );
     if (
-      // 判断是否需要实名认证
+      // 判断是否需要实名认证 isRealname 为 2 不需要实名 为 1 需要实名   / realnessStatus为2未实名 为1已实名
       financialConfig?.isRealname &&
-      financialConfig.isRealname === FunctionEnabledStatusEnum.CLOSE &&
+      financialConfig.isRealname === FunctionEnabledStatusEnum.OPEN &&
       userInfo.realnessStatus === 2
     ) {
-      setCurRecord({
-        token: record,
-        curProduct: productRecord,
-      });
-      setOpenSubscribe(true);
-    } else {
       console.log(record);
       Modal.confirm({
         className: styles.modal,
@@ -160,20 +159,27 @@ const TokenList = ({
           },
         },
         content: (
-          <div className="flex gap-[10px] p-[32px_20px_73px_20px]">
-            <div className="font-w-400 text-[14px] text-[var(--text-color5)]">
-              {t("financial.bindIdentity")}
+          <div className="flex gap-[10px] p-[32px_0_73px_0]">
+            <div className="font-w-400 text-[14px] text-[var(--text-color5)] flex gap-[4px]">
+              <SvgIcon path="M4 4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H20C20.5304 20 21.0391 19.7893 21.4142 19.4142C21.7893 19.0391 22 18.5304 22 18V6C22 5.46957 21.7893 4.96086 21.4142 4.58579C21.0391 4.21071 20.5304 4 20 4H4ZM4 6H20V18H4V6ZM10.25 9.75C10.25 10.2141 10.0656 10.6592 9.73744 10.9874C9.40925 11.3156 8.96413 11.5 8.5 11.5C8.03587 11.5 7.59075 11.3156 7.26256 10.9874C6.93437 10.6592 6.75 10.2141 6.75 9.75C6.75 9.28587 6.93437 8.84075 7.26256 8.51256C7.59075 8.18437 8.03587 8 8.5 8C8.96413 8 9.40925 8.18437 9.73744 8.51256C10.0656 8.84075 10.25 9.28587 10.25 9.75ZM5 14.5C5 13.837 5.26339 13.2011 5.73223 12.7322C6.20107 12.2634 6.83696 12 7.5 12H9.5C9.8283 12 10.1534 12.0647 10.4567 12.1903C10.76 12.3159 11.0356 12.5001 11.2678 12.7322C11.4999 12.9644 11.6841 13.24 11.8097 13.5433C11.9353 13.8466 12 14.1717 12 14.5V15C12 15.2652 11.8946 15.5196 11.7071 15.7071C11.5196 15.8946 11.2652 16 11 16C10.7348 16 10.4804 15.8946 10.2929 15.7071C10.1054 15.5196 10 15.2652 10 15V14.5C10 14.3674 9.94732 14.2402 9.85355 14.1464C9.75979 14.0527 9.63261 14 9.5 14H7.5C7.36739 14 7.24021 14.0527 7.14645 14.1464C7.05268 14.2402 7 14.3674 7 14.5V15C7 15.2652 6.89464 15.5196 6.70711 15.7071C6.51957 15.8946 6.26522 16 6 16C5.73478 16 5.48043 15.8946 5.29289 15.7071C5.10536 15.5196 5 15.2652 5 15V14.5ZM13 11C13 10.7348 13.1054 10.4804 13.2929 10.2929C13.4804 10.1054 13.7348 10 14 10H16C16.2652 10 16.5196 10.1054 16.7071 10.2929C16.8946 10.4804 17 10.7348 17 11C17 11.2652 16.8946 11.5196 16.7071 11.7071C16.5196 11.8946 16.2652 12 16 12H14C13.7348 12 13.4804 11.8946 13.2929 11.7071C13.1054 11.5196 13 11.2652 13 11ZM14 13C13.7348 13 13.4804 13.1054 13.2929 13.2929C13.1054 13.4804 13 13.7348 13 14C13 14.2652 13.1054 14.5196 13.2929 14.7071C13.4804 14.8946 13.7348 15 14 15H18C18.2652 15 18.5196 14.8946 18.7071 14.7071C18.8946 14.5196 19 14.2652 19 14C19 13.7348 18.8946 13.4804 18.7071 13.2929C18.5196 13.1054 18.2652 13 18 13H14Z" />{" "}
+              <div>{t("financial.bindIdentity")}</div>
             </div>
             <div
               className="text-[var(--theme-color)] cursor-pointer"
               onClick={() => router.push("/user/identity")}
             >
-              {t("financial.goTo")}
+              <div>{t("financial.goTo")}</div>
             </div>
           </div>
         ),
         footer: null,
       });
+    } else {
+      setCurRecord({
+        token: record,
+        curProduct: productRecord,
+      });
+      setOpenSubscribe(true);
     }
   };
 
@@ -209,7 +215,10 @@ const TokenList = ({
       key: "minInterestRate",
       width: "30%",
       render: (_: any, record: FinancialPageTokenItem) => (
-        <div className="flex items-center gap-[10px]" style={{color: "#00C788"}}>
+        <div
+          className="flex items-center gap-[10px]"
+          style={{ color: "#00C788" }}
+        >
           <span>{record.minInterestRate}%</span>~
           <span>{record.maxInterestRate}%</span>
         </div>
@@ -287,18 +296,15 @@ const TokenList = ({
     };
     initProductFilterOptions();
     initTokenList();
-
   }, [t]);
 
   // 处理路由参数
   useEffect(() => {
     const { coinName } = router.query;
     if (coinName) {
-      const coin = coinFilterOptions.find(  
-        (item) => item.coinName === coinName
-      );
+      const coin = coinFilterOptions.find((item) => item.coinName === coinName);
       if (coin) {
-        setFormData(prev => ({ ...prev, coinId: coin.coinId }));
+        setFormData((prev) => ({ ...prev, coinId: coin.coinId }));
       }
     }
   }, [router.query, coinFilterOptions]);
@@ -411,7 +417,10 @@ const TokenList = ({
                         text: string,
                         productRecord: FinancialPageTokenProductItem
                       ) => (
-                        <div className="flex items-center gap-[10px]" style={{color: "#00C788"}}>
+                        <div
+                          className="flex items-center gap-[10px]"
+                          style={{ color: "#00C788" }}
+                        >
                           {productRecord.type === FinancialType.FIXED ? (
                             <span>{productRecord.maxAnnualInterestRate}%</span>
                           ) : (
