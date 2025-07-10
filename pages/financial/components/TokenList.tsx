@@ -209,7 +209,7 @@ const TokenList = ({
       key: "minInterestRate",
       width: "30%",
       render: (_: any, record: FinancialPageTokenItem) => (
-        <div className="flex items-center gap-[10px]">
+        <div className="flex items-center gap-[10px]" style={{color: "#00C788"}}>
           <span>{record.minInterestRate}%</span>~
           <span>{record.maxInterestRate}%</span>
         </div>
@@ -411,7 +411,7 @@ const TokenList = ({
                         text: string,
                         productRecord: FinancialPageTokenProductItem
                       ) => (
-                        <div className="flex items-center gap-[10px]">
+                        <div className="flex items-center gap-[10px]" style={{color: "#00C788"}}>
                           {productRecord.type === FinancialType.FIXED ? (
                             <span>{productRecord.maxAnnualInterestRate}%</span>
                           ) : (

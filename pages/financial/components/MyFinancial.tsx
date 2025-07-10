@@ -90,7 +90,7 @@ const MyFinancial = observer(
       <div
         className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px] flex-wrap min-h-[412px]"
         style={{
-          backgroundImage: `url(${bgContent.backgroundImage})`,
+          backgroundImage: `url(${bgContent.backgroundImage || "/images/financial/bg.png"})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
