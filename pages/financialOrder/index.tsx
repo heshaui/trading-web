@@ -30,6 +30,8 @@ import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
+const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
+
 const resultStatusMap: Record<
   FinancialOrderStatusEnum,
   { type: string; text: string }
@@ -141,44 +143,44 @@ const TabsItem = ({
         <Space>
           <Select
             allowClear
-            value={formData.coinId}
+            value={formData.coinId === null ? NULL_PLACEHOLDER : formData.coinId}
             prefix={t("common.token")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
             options={[
               {
                 label: t("common.all"),
-                value: null,
+                value: NULL_PLACEHOLDER,
               },
               ...coinList.map((item) => ({
                 label: item.coinName,
                 value: item.id,
               })),
             ]}
-            onChange={(value) => setFormData({ ...formData, coinId: value })}
+            onChange={(value) => setFormData({ ...formData, coinId: value === NULL_PLACEHOLDER ? null : Number(value) })}
           />
           <Select
             allowClear
             prefix={t("common.type")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
-            value={formData.operationType}
+            value={formData.operationType === null ? NULL_PLACEHOLDER : formData.operationType}
             onChange={(value) =>
-              setFormData({ ...formData, operationType: value })
+              setFormData({ ...formData, operationType: value === NULL_PLACEHOLDER ? null : String(value)})
             }
             // 1申购，2赎回，3利息
             options={[
               {
                 label: t("common.all"),
-                value: null,
+                value: NULL_PLACEHOLDER,
               },
               {
                 label: t("common.subscribe"),
-                value: FinancialOrderTypeEnum.PURCHASE,
+                value: String(FinancialOrderTypeEnum.PURCHASE),
               },
               {
                 label: t("common.redeem"),
-                value: FinancialOrderTypeEnum.REDEEM,
+                value: String(FinancialOrderTypeEnum.REDEEM),
               },
             ]}
           />
@@ -195,6 +197,7 @@ const TabsItem = ({
         </Space>
       </div>
       <Table
+        rowKey={(record) => record.createTime}
         className={styles.table}
         columns={columns}
         dataSource={tableData}
@@ -223,6 +226,7 @@ const FinancialOrder = () => {
   const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
     []
   );
+
 
   // 切换tabs
   const items = [
@@ -296,6 +300,13 @@ const FinancialOrder = () => {
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
 
   return (
     <ConfigProvider

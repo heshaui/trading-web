@@ -31,7 +31,7 @@ const NoData = ({ title, textColor, height, position = 'center', button, buttonT
     >
         <Image
             src={isDayMode ? "/images/pubic_icon/iocn_nodata_day.png" : "/images/pubic_icon/iocn_nodata_night.png"}
-            alt="empty" width={100} height={100} />
+            alt="empty" width={100} height={100} priority />
         <p className={`font-14 font-w-400 tip-color`}
             style={{ color: textColor ? textColor : '' }}
         >{title ? title : t('nodata')} {url && urlText ? <span className={`font-14 font-w-400 ${styles.url_color}`}

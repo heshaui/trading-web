@@ -157,7 +157,7 @@ function InvitationReward({onReturn}:InviteProps) {
                     locale={{ emptyText: <div className='flex-y-cc'>
                         <Image 
                         src={isDayMode?"/images/pubic_icon/iocn_nodata_day.png":"/images/pubic_icon/iocn_nodata_night.png"} 
-                        alt="empty" width={100} height={100} />
+                        alt="empty" width={100} height={100} priority />
                         <p className={`font-14 font-w-400 ${styles.tip_color}`}>{t('invite.inviteRewards.noData')}</p>
                         <button type='submit' className={`default_btn w-full mt-10 ${styles.invite_btn}`} 
                         onClick={onReturn}>{t('invite.inviteRewards.inviteBtn')}</button>

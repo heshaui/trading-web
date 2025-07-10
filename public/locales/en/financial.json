@@ -90,7 +90,9 @@
     "cancelSubscribeTips": "If you cancel your subscription on the day of subscription and confirm the cancellation before 07:59 (UTC+8) the next day, you can successfully cancel the subscription, and your principal will be refunded to your personal spot account. After 07:59 (UTC+8), you cannot cancel the subscription, and you will need to comply with the early redemption policy.",
     "spotAvailable": "Spot Available",
     "totalAssets": "Total Assets",
-    "estimatedTotalIncome": "Estimated Total Income"
+    "estimatedTotalIncome": "Estimated Total Income",
+    "startTime": "Start Time",
+    "endTime": "End Time"
   },
   "financial": {
     "myProperty": "My Property",
@@ -125,7 +127,7 @@
     },
     "questionStaking": {
       "title": "What is Staking?",
-      "answer": "Staking is a digital asset financial product, and you can obtain interest income after the holding period or lock-in period of the product ends. It mainly includes &ldquo;current financial products and fixed-term financial products&rdquo;. We will select high-quality projects to provide rich staking income for global staking users. Currently, the first-issue projects will provide multiple return methods, such as &ldquo;staking and holding&rdquo;. Holding financial products: users only need to hold the asset to obtain income. Fixed-term financial products: according to different projects, you can choose different lock-in periods for different projects. After the lock-in period, you will receive all rewards and interest income. If you redeem the asset in the lock-in period, you will lose the interest income that has been generated."
+      "answer": "Staking is a financial management based on digital assets. The products you purchase can earn principal and interest returns after the holding or lock up period ends. It mainly includes \"current financial management\" and \"fixed-term financial management\". We will select high-quality projects to provide rich coin holding income and support global coin holding users to participate. At present, the first launch project will provide various rebate methods such as \"lock up\" and \"open position\". Position management: Users only need to hold the asset to receive returns. Regular financial management: Based on different projects, you can choose the lock up period for different projects. After expiration, you will receive all rewards and returns. If you transfer assets out in advance during the lock up period, you will lose the rewards already generated."
     }
   }
 }
