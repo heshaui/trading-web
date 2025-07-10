@@ -89,7 +89,8 @@
     "cancelSubscribe": "取消申购",
     "cancelSubscribeTips": "如果您在申购当天取消申购，且在次日07:59 (UTC+8) 之前确认取消,则可以成功取消申购，您的本金将退还至个人现货账户。在 07:59 (UTC+8) 之后，则无法取消申购，您将需要遵守提前赎回政策。",
     "spotAvailable": "现货可用",
-    "totalAssets": "总资产"
+    "totalAssets": "总资产",
+    "estimatedTotalIncome": "预估总收益"
   },
   "financial": {
     "myProperty": "我的资产",

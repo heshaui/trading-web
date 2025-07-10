@@ -89,7 +89,8 @@
     "cancelSubscribe": "Cancel Subscribe",
     "cancelSubscribeTips": "If you cancel your subscription on the day of subscription and confirm the cancellation before 07:59 (UTC+8) the next day, you can successfully cancel the subscription, and your principal will be refunded to your personal spot account. After 07:59 (UTC+8), you cannot cancel the subscription, and you will need to comply with the early redemption policy.",
     "spotAvailable": "Spot Available",
-    "totalAssets": "Total Assets"
+    "totalAssets": "Total Assets",
+    "estimatedTotalIncome": "Estimated Total Income"
   },
   "financial": {
     "myProperty": "My Property",

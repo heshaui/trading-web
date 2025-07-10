@@ -17,9 +17,9 @@ import {
   Spin,
 } from "antd";
 import { createStyles } from "antd-style";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SvgIcon } from "@/components/icon";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -327,11 +327,19 @@ const RedemptionModal = ({
                   </div>
                   {/* 提示 */}
                   <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-                    <div>
-                      {t("common.todayRedeemLimit")}：
-                      {redeemInfo.redeemLimit || "-"}
-                      {curProductInfo?.coinName}，
-                      {t("common.pleaseOperateTomorrow")}！
+                    <div className="flex flex-ai-center gap-[4px]">
+                      <SvgIcon
+                        width={16}
+                        height={16}
+                        path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                      />
+                      <div>
+                        {" "}
+                        {t("common.todayRedeemLimit")}：
+                        {redeemInfo.redeemLimit || "-"}
+                        {curProductInfo?.coinName}，
+                        {t("common.pleaseOperateTomorrow")}！
+                      </div>
                     </div>
                   </div>
                 </>
@@ -377,8 +385,15 @@ const RedemptionModal = ({
                   </div>
                   {/* 提示 */}
                   <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-                    <div>{t("common.redeemTips1")}</div>
-                    <div>{t("common.redeemTips2")}</div>
+                    <div className="flex flex-ai-center gap-[4px]">
+                      <SvgIcon
+                        width={16}
+                        height={16}
+                        path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                      />
+                      {t("common.redeemTips1")}
+                    </div>
+                    <div className="ml-[20px]">{t("common.redeemTips2")}</div>
                   </div>
                 </>
               )}

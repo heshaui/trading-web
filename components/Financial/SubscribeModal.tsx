@@ -27,6 +27,7 @@ import {
 import { getUserBalance } from "@/services/assets";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
+import { SvgIcon } from "@/components/icon";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -311,19 +312,24 @@ const Subscription: React.FC<SubscriptionProps> = ({
             {tokenInfo?.coinName}
           </div>
         </div>
-        {/* 申购数量shownumber */}
+        {/* 概览 */}
         <div className="flex flex-column gap-[10px] mb-[24px]">
+          {/* 标题 */}
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             {t("common.overview")}
           </div>
+          {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400]">
-              {t("common.estimatedDailyIncome")}
+              {productInfo?.type === FinancialType.CURRENT
+                ? t("common.estimatedDailyIncome")
+                : t("common.estimatedTotalIncome")}
             </div>
             <div className="text-[var(--theme-color)] font-[400]">
               {income} {tokenInfo?.coinName}
             </div>
           </div>
+          {/* 自动申购开关 */}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400]">
               {t("common.autoSubscribe")}
@@ -365,8 +371,9 @@ const Subscription: React.FC<SubscriptionProps> = ({
         )}
         {/* 提示 */}
         {productInfo?.isRedemption === OpenStatusEnum.YES ? (
-          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-            {t("common.thisProductSupportsEarlyRedemption")}
+          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)] flex flex-ai-center gap-[4px]">
+            <SvgIcon width={16} height={16} path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            <div>{t("common.thisProductSupportsEarlyRedemption")}</div>
           </div>
         ) : null}
       </div>
@@ -638,7 +645,7 @@ const SubscribeModal = ({
         />
       ),
     },
-    
+
     // 产品规则
     {
       key: "2",
