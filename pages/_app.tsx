@@ -55,6 +55,12 @@ function App({ Component, pageProps }: AppProps) {
     setIsAuthChecking,
   });
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      appStore.loadGetUserInfo("init");
+    }
+  }, [isLoggedIn]);
+
 
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
   const excludePaths = ["/resetPassword"];
