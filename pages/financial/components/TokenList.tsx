@@ -32,6 +32,8 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
 
+const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
+
 const termTypeMap: Record<number, string> = {
   [FinancialType.CURRENT]: "common.current",
   [FinancialType.FIXED]: "common.fixed",
@@ -338,17 +340,20 @@ const TokenList = ({
             placeholder={t("common.pleaseEnterTheCoin")}
             allowClear
             showSearch
-            value={formData.coinId}
+            value={!formData.coinId ? NULL_PLACEHOLDER : formData.coinId}
             className="w-[188px] h-[40px]"
             onChange={(value) => {
-              setFormData({ ...formData, coinId: value });
+              setFormData({
+                ...formData,
+                coinId: value === NULL_PLACEHOLDER ? null : Number(value),
+              });
               setExpandedRowKeys([]);
             }}
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
             options={[
-              { value: null, label: t("common.all") },
+              { value: NULL_PLACEHOLDER, label: t("common.all") },
               ...coinFilterOptions.map((item) => ({
                 value: item.coinId,
                 label: item.coinName,
@@ -359,22 +364,21 @@ const TokenList = ({
           <Select
             placeholder={t("common.pleaseEnterTheType")}
             allowClear
-            defaultValue={null}
-            value={formData.selectedValue}
+            value={!formData.selectedValue ? NULL_PLACEHOLDER : formData.selectedValue}
             className="w-[188px] h-[40px]"
             onChange={(value: any) => {
               console.log(value);
               setFormData({
                 ...formData,
-                selectedValue: value,
+                selectedValue: value === NULL_PLACEHOLDER ? null : value,
                 type:
-                  value === null
+                  value === NULL_PLACEHOLDER
                     ? null
                     : value === FinancialType.CURRENT
                     ? value
                     : value?.split("-")[0],
                 term:
-                  value === null
+                  value === NULL_PLACEHOLDER
                     ? null
                     : value === FinancialType.CURRENT
                     ? null
@@ -383,7 +387,7 @@ const TokenList = ({
               setExpandedRowKeys([]);
             }}
             options={[
-              { value: null, label: t("common.all") },
+              { value: NULL_PLACEHOLDER, label: t("common.all") },
               ...productFilterOptions.map((item) => ({
                 value: item.value,
                 label: item.label,

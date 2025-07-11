@@ -6,9 +6,17 @@ import NumberToken from "./numberToken";
 import Financial from "./financial";
 import styles from "../../../styles/components/Financial.module.css";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 const BillDetails = () => {
   const { t } = useTranslation(["financial"]);
+
+  const [isClient, setIsClient] = useState(false);
   
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
   return (
     <ConfigProvider
       theme={{

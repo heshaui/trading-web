@@ -39,6 +39,8 @@ import SubscribeModal from "@/components/Financial/SubscribeModal";
 import RedeemConfirmModal from "@/components/Financial/RedeemConfirmModal";
 import { useTranslation } from "react-i18next";
 
+const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
+
 interface ConfirmModalType {
   open: boolean;
   status: "error" | "success" | null;
@@ -106,7 +108,9 @@ const TabsItem = ({
                 message.success("操作成功");
               } else {
                 message.error(res.message);
-                record.autoPurchase = checked ? OpenStatusEnum.NO : OpenStatusEnum.YES;
+                record.autoPurchase = checked
+                  ? OpenStatusEnum.NO
+                  : OpenStatusEnum.YES;
               }
             }}
             size="small"
@@ -239,6 +243,7 @@ const TabsItem = ({
 
   return (
     <Table
+      rowKey="id"
       className={styles.table}
       columns={columns}
       dataSource={tableData}
@@ -253,17 +258,26 @@ const Financial = () => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
 
-  const { type } = router.query;
+  // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
+  const [activeKey, setActiveKey] = useState<FinancialType>(
+    FinancialType.FIXED
+  );
+  const [isRouterReady, setIsRouterReady] = useState(false);
 
-  // 根据URL中的type参数确定默认的标签页类型，如果没有type参数则默认为定期
-  const getDefaultType = () => {
-    if (type === String(FinancialType.CURRENT)) {
-      return FinancialType.CURRENT;
+  // 当路由准备就绪时，根据URL参数设置激活的标签页
+  useEffect(() => {
+    if (router.isReady) {
+      const { type } = router.query;
+      const newActiveKey =
+        type === String(FinancialType.CURRENT)
+          ? FinancialType.CURRENT
+          : FinancialType.FIXED;
+
+      setActiveKey(newActiveKey);
+      setFormData((prev) => ({ ...prev, type: newActiveKey }));
+      setIsRouterReady(true);
     }
-    return FinancialType.FIXED; // 默认为定期
-  };
-
-  const defaultActiveKey = getDefaultType();
+  }, [router.isReady, router.query]);
 
   const [tableLoading, setTableLoading] = useState(false);
   //打开赎回弹窗
@@ -311,7 +325,7 @@ const Financial = () => {
 
   // 表格数据
   const [formData, setFormData] = useState<UserFinancialAccountParams>({
-    type: defaultActiveKey, // 根据URL参数设置默认类型
+    type: FinancialType.FIXED, // 默认为定期，路由准备就绪后会更新
     coinId: null,
   });
   const [tableData, setTableData] = useState<UserFinancialAccountItem[]>([]);
@@ -323,6 +337,8 @@ const Financial = () => {
 
   // 是否显示金额
   const [showAmount, setShowAmount] = useState(false);
+
+  const [isClient, setIsClient] = useState(false);
 
   // 切换tabs
   const items = [
@@ -418,6 +434,12 @@ const Financial = () => {
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
+
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
 
   return (
     <>
@@ -561,19 +583,25 @@ const Financial = () => {
             <Tabs
               className={styles.tabs}
               items={items}
-              defaultActiveKey={String(defaultActiveKey)}
+              activeKey={String(activeKey)}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
               tabBarExtraContent={{
                 right: (
                   <Select
                     allowClear
                     className="w-[170px] h-[30px]"
-                    value={formData.coinId}
+                    value={
+                      !formData.coinId ? NULL_PLACEHOLDER : formData.coinId
+                    }
                     onChange={(value) =>
-                      setFormData({ ...formData, coinId: value })
+                      setFormData({
+                        ...formData,
+                        coinId:
+                          value === NULL_PLACEHOLDER ? null : Number(value),
+                      })
                     }
                     options={[
-                      { label: t("common.all"), value: null },
+                      { label: t("common.all"), value: NULL_PLACEHOLDER },
                       ...coinList.map((item) => ({
                         label: item.coinName,
                         value: item.id,
@@ -582,9 +610,11 @@ const Financial = () => {
                   />
                 ),
               }}
-              onChange={(key) =>
-                setFormData({ type: Number(key), coinId: null })
-              }
+              onChange={(key) => {
+                const newType = Number(key);
+                setActiveKey(newType);
+                setFormData({ type: newType, coinId: null });
+              }}
             />
           </div>
         </div>
@@ -596,7 +626,11 @@ const Financial = () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["assets", "common", "financial"])),
+      ...(await serverSideTranslations(locale || "en", [
+        "assets",
+        "common",
+        "financial",
+      ])),
     },
   };
 };

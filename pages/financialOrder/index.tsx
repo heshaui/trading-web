@@ -141,9 +141,10 @@ const TabsItem = ({
     <>
       <div className="p-[24px_20px]  border-t-[1px] border-t-[var(--border-color)]">
         <Space>
+          {/* 币种 */}
           <Select
             allowClear
-            value={formData.coinId === null ? NULL_PLACEHOLDER : formData.coinId}
+            value={!formData.coinId ? NULL_PLACEHOLDER : formData.coinId}
             prefix={t("common.token")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
@@ -157,16 +158,30 @@ const TabsItem = ({
                 value: item.id,
               })),
             ]}
-            onChange={(value) => setFormData({ ...formData, coinId: value === NULL_PLACEHOLDER ? null : Number(value) })}
+            onChange={(value) =>
+              setFormData({
+                ...formData,
+                coinId: value === NULL_PLACEHOLDER ? null : Number(value),
+              })
+            }
           />
+
+          {/* 类型 */}
           <Select
             allowClear
             prefix={t("common.type")}
             className="w-[200px] h-[50px]"
             style={{ textAlign: "end" }}
-            value={formData.operationType === null ? NULL_PLACEHOLDER : formData.operationType}
+            value={
+              !formData.operationType
+                ? NULL_PLACEHOLDER
+                : formData.operationType
+            }
             onChange={(value) =>
-              setFormData({ ...formData, operationType: value === NULL_PLACEHOLDER ? null : String(value)})
+              setFormData({
+                ...formData,
+                operationType: value === NULL_PLACEHOLDER ? null : value,
+              })
             }
             // 1申购，2赎回，3利息
             options={[
@@ -184,6 +199,8 @@ const TabsItem = ({
               },
             ]}
           />
+
+          {/* 时间 */}
           <RangePicker
             className="w-[278px] h-[50px]"
             onChange={(value) =>
@@ -226,7 +243,6 @@ const FinancialOrder = () => {
   const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
     []
   );
-
 
   // 切换tabs
   const items = [

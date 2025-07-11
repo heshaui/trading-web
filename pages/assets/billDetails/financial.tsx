@@ -15,6 +15,8 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
+const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
+
 const Financial = () => {
   const { t } = useTranslation(["financial"]);
   const [tableLoading, setTableLoading] = useState(false);
@@ -165,43 +167,59 @@ const Financial = () => {
       <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
         <Select
           allowClear
-          value={formData.coinId}
+          value={!formData.coinId ? NULL_PLACEHOLDER : formData.coinId}
           prefix={t("common.token")}
           className="w-[200px] h-[50px]"
           style={{ textAlign: "end" }}
           options={[
             {
               label: t("common.all"),
-              value: null,
+              value: NULL_PLACEHOLDER,
             },
             ...coinList.map((item) => ({
               label: item.coinName,
               value: item.id,
             })),
           ]}
-          onChange={(value) => setFormData({ ...formData, coinId: value })}
+          onChange={(value) =>
+            setFormData({
+              ...formData,
+              coinId: value === NULL_PLACEHOLDER ? null : Number(value),
+            })
+          }
         />
         <Select
-          value={formData.type}
+          value={!formData.type ? NULL_PLACEHOLDER : formData.type}
           allowClear
           prefix={t("common.type")}
           className="w-[200px] h-[50px]"
           style={{ textAlign: "end" }}
           options={[
-            { label: t("common.all"), value: null },
+            { label: t("common.all"), value: NULL_PLACEHOLDER },
             { label: t("common.current"), value: FinancialType.CURRENT },
             { label: t("common.fixed"), value: FinancialType.FIXED },
           ]}
-          onChange={(value) => setFormData({ ...formData, type: value })}
+          onChange={(value) =>
+            setFormData({
+              ...formData,
+              type: value === NULL_PLACEHOLDER ? null : Number(value),
+            })
+          }
         />
         <Select
-          value={formData.status}
+          value={!formData.status ? NULL_PLACEHOLDER : formData.status}
+          onChange={(value) =>
+            setFormData({
+              ...formData,
+              status: value === NULL_PLACEHOLDER ? null : Number(value),
+            })
+          }
           allowClear
           prefix={t("common.operationType")}
           className="w-[200px] h-[50px]"
           style={{ textAlign: "end" }}
           options={[
-            { label: t("common.all"), value: null },
+            { label: t("common.all"), value: NULL_PLACEHOLDER },
             {
               label: t("common.redeem"),
               value: FinancialAccountBillDetailsStatusEnum.REDEEM,
@@ -215,7 +233,6 @@ const Financial = () => {
               value: FinancialAccountBillDetailsStatusEnum.INTEREST,
             },
           ]}
-          onChange={(value) => setFormData({ ...formData, status: value })}
         />
         <RangePicker
           allowClear
@@ -230,6 +247,7 @@ const Financial = () => {
         />
       </div>
       <Table
+        rowKey="id"
         className={styles.table}
         columns={columns}
         dataSource={tableData}

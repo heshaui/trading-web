@@ -94,13 +94,9 @@ const MyFinancial = observer(
 
     // 初始化
     useEffect(() => {
-      // 确保只在客户端执行
-      if (typeof window !== "undefined") {
-        console.log(isLoggedIn);
-        if (isLoggedIn) {
-          initBackgroundImage();
-          initMyPosition();
-        }
+      if (isLoggedIn) {
+        initBackgroundImage();
+        initMyPosition();
       }
     }, [isLoggedIn]);
 
@@ -165,34 +161,34 @@ const MyFinancial = observer(
                     </div>
                   </div>
                   <div className="flex flex-ai-center flex-jc-between gap-[8px]">
-                    <div
-                      className="w-[24px] h-[24px] cursor-pointer"
-                      onClick={() => {
-                        router.push("/financialOrder");
-                      }}
-                    >
-                      <Tooltip title={t("common.financialOrder")}>
+                    <Tooltip title={t("common.financialOrder")}>
+                      <div
+                        className="w-[24px] h-[24px] cursor-pointer"
+                        onClick={() => {
+                          router.push("/financialOrder");
+                        }}
+                      >
                         <Image
                           preview={false}
                           src={`/images/financial/a.svg`}
                           alt=""
                         />
-                      </Tooltip>
-                    </div>
-                    <div
-                      className="w-[24px] h-[24px] cursor-pointer"
-                      onClick={() => {
-                        router.push("/assets/financial");
-                      }}
-                    >
-                      <Tooltip title={t("common.financialAccount")}>
+                      </div>
+                    </Tooltip>
+                    <Tooltip title={t("common.financialAccount")}>
+                      <div
+                        className="w-[24px] h-[24px] cursor-pointer"
+                        onClick={() => {
+                          router.push("/assets/financial");
+                        }}
+                      >
                         <Image
                           preview={false}
                           src={`/images/financial/b.svg`}
                           alt=""
                         />
-                      </Tooltip>
-                    </div>
+                      </div>
+                    </Tooltip>
                   </div>
                 </div>
                 <div className="flex flex-ai-center flex-jc-between">
@@ -251,9 +247,7 @@ const MyFinancial = observer(
             content: styles["my-modal-content"],
           }}
         >
-          <div
-            className="text-[var(--text-color5)] text-[16px] font-bold p-[19px_20px_16px_20px]"
-          >
+          <div className="text-[var(--text-color5)] text-[16px] font-bold p-[19px_20px_16px_20px]">
             {t("financial.questionStaking.title")}
           </div>
           <div className="text-[var(--text-color6] text-[14px] p-[0_20px_20px_20px]">

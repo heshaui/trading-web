@@ -34,7 +34,7 @@ interface ConfirmModalType {
 
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
-  
+
   // 确认弹窗
   const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
     open: false,
@@ -62,6 +62,8 @@ export default observer(function FinancialPage() {
     isDisplayBackground: null, //是否显示背景图片
   });
 
+  const [isClient, setIsClient] = useState(false);
+
   // 初始化功能配置
   const initFinancialConfig = async () => {
     try {
@@ -77,12 +79,16 @@ export default observer(function FinancialPage() {
 
   // 初始化功能配置
   useEffect(() => {
-    // 确保只在客户端执行
-    if (typeof window !== "undefined") {
+    if (isClient) {
       initFinancialConfig();
     }
+  }, [isClient]);
+
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
   }, []);
 
+  if (!isClient) return null; // SSR 阶段不渲染
 
   return (
     <>
