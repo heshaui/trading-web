@@ -45,19 +45,23 @@ import WebSocketService from "@/utils/websocket";
 import { getToken } from "@/request";
 
 const AssetsMainPage = observer(() => {
-    const { t } = useTranslation(['assets','flash']);
-    const [initTableData, setInitTableData] = useState<DataType[]>([])
-    const [tableData, setTableData] = useState<DataType[]>([]);
-    const [tableLoading, setTableLoading] = useState(false);
-    const router = useRouter();
-    const [total, setTotal] = useState(0);
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10
-    })
-    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
-    const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
-    const [rateKeyName, setRateKeyName] = useState('');
+  const { t } = useTranslation(["assets", "flash"]);
+  const [initTableData, setInitTableData] = useState<DataType[]>([]);
+  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [tableLoading, setTableLoading] = useState(false);
+  const router = useRouter();
+  const [total, setTotal] = useState(0);
+  const [pageParam, setPageParam] = useState({
+    page: 1,
+    pageSize: 10,
+  });
+  const [balanceAll, setBalanceAll] = useState<BalanceAllType>(
+    {} as BalanceAllType
+  );
+  const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>(
+    {} as YesterdayBalanceType
+  );
+  const [rateKeyName, setRateKeyName] = useState("");
 
   const paramdataRef = useRef(pageParam);
   // 获取币种列表
@@ -200,82 +204,58 @@ const AssetsMainPage = observer(() => {
           <Space size={4}>
             <Space size={12}>
               {/* 闪兑 */}
-              {coinList.find((item) => item.coinName === record.coinName)
-                ?.isTradeConvert === 1 && (
-                <button
-                  className={`${
-                    coinPairData ? styles.theme_color : styles.tip_color2
-                  } font-12 font-w-500`}
-                  onClick={() => goFlash(record.coinName)}
-                >
-                  {t("assetsAccount.button.flash")}
-                </button>
-              )}
-              {/* 理财 */}
-              {true && (
-                <button
-                  className={`${
-                    coinPairData ? styles.theme_color : styles.tip_color2
-                  } font-12 font-w-500`}
-                  onClick={() => goFinancial(record.coinName)}
-                >
-                  {t("assetsAccount.button.financial")}
-                </button>
-              )}
+              <button
+                disabled={coin?.isTradeConvert === 0}
+                key={record.coinName}
+                className={`${
+                  coin?.isTradeConvert === 1
+                    ? styles.theme_color
+                    : styles.tip_color2
+                } font-12 font-w-500`}
+                onClick={() => goFlash(record.coinName)}
+              >
+                {t("assetsAccount.button.flash")}
+              </button>
 
-              {/* 提现 */}
-              {/* <button
-              className={`${
-                coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() => getCoinList("1", record.coinId, coin?.canWithdraw)}
-            >
-              {t("assetsAccount.button.withdraw")}
-            </button> */}
-              {/* 充值 */}
-              {/* <button
-              className={`${
-                coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() => getCoinList("2", record.coinId, coin?.canRecharge)}
-            >
-              {t("assetsAccount.button.deposit")}
-            </button> */}
-              {/* 交易 */}
-              {/* <button
-              className={`${
-                coinPairData ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() =>
-                getCoinList(
-                  "3",
-                  record.coinId,
-                  coinPairData ? 1 : 0,
-                  coinPairData ? true : false
-                )
-              }
-            >
-              {t("assetsAccount.button.trade")}
-            </button> */}
+              {/* 理财 */}
+              <button
+                disabled={record.isFinancialCoin === 0}
+                className={`${
+                  record.isFinancialCoin === 1
+                    ? styles.theme_color
+                    : styles.tip_color2
+                } font-12 font-w-500`}
+                onClick={() => goFinancial(record.coinName)}
+              >
+                {t("assetsAccount.button.financial")}
+              </button>
             </Space>
             <Dropdown
               placement="bottomRight"
               trigger={["click"]}
               menu={{
                 items: [
+                  // 提现
                   {
+                    disabled:  coin?.canWithdraw === 0,
                     label: t("assetsAccount.button.withdraw"),
                     key: "withdraw",
                     onClick: () =>
                       getCoinList("1", record.coinId, coin?.canWithdraw),
                   },
+
+                  // 充值
                   {
+                    disabled: coin?.canRecharge === 0,
                     label: t("assetsAccount.button.deposit"),
                     key: "deposit",
                     onClick: () =>
                       getCoinList("2", record.coinId, coin?.canRecharge),
                   },
+
+                  // 交易
                   {
+                    disabled: !coinPairData,
                     label: t("assetsAccount.button.trade"),
                     key: "trade",
                     onClick: () =>
