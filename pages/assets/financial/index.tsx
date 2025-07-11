@@ -84,7 +84,7 @@ const TabsItem = ({
         return (
           <Flex gap="8px">
             {record.iconUrl && (
-              <Image width={24} height={24} src={record.iconUrl} alt="" />
+              <Image width={24} height={24} src={record.iconUrl} alt="" style={{borderRadius: "50%"}}/>
             )}
             <div>{record.coinName}</div>
           </Flex>

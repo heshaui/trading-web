@@ -135,17 +135,17 @@ const TokenList = ({
     );
 
     console.log("userInfo", userInfo);
+    console.log("userInfo.realnessStatus", userInfo.realnessStatus);
     console.log("financialConfig?.isRealname", financialConfig?.isRealname);
     console.log(
-      "financialConfig?.isRealname === 1 开启实名认证,并且 user.realnessStatus === 2 为未实名,进入实名弹框"
+      "financialConfig?.isRealname === 1 开启实名认证,并且 user.realnessStatus !== 1 都为未实名,进入实名弹框"
     );
     if (
       // 判断是否需要实名认证 isRealname 为 2 不需要实名 为 1 需要实名   / realnessStatus为2未实名 为1已实名
       financialConfig?.isRealname &&
       financialConfig.isRealname === FunctionEnabledStatusEnum.OPEN &&
-      userInfo.realnessStatus === 2
+      userInfo.realnessStatus !== 1
     ) {
-      console.log(record);
       Modal.confirm({
         className: styles.modal,
         title: (
@@ -168,7 +168,12 @@ const TokenList = ({
             </div>
             <div
               className="text-[var(--theme-color)] cursor-pointer"
-              onClick={() => router.push("/user/identity")}
+              onClick={() => {
+                // 跳转实名认证
+                router.push("/userCenter/identity")
+                // 关闭弹框
+                Modal.destroyAll()
+              }}
             >
               <div>{t("financial.goTo")}</div>
             </div>
@@ -201,6 +206,7 @@ const TokenList = ({
         <div className="flex items-center gap-[10px]">
           {record.iconUrl ? (
             <Image
+              style={{borderRadius: "50%"}}
               src={record.iconUrl}
               alt={record.coinName || ""}
               width={24}
