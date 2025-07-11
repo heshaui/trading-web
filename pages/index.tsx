@@ -20,8 +20,6 @@ import Try from '@/components/home/try_3/try';
 import Assistant from '@/components/home/assistant_4/assistant';
 import ComeUp from '@/components/home/comeUp_5/comeUp';
 import Questions from '@/components/home/questions_6/questions';
-import { useEffect } from 'react';
-import appStore from '@/store';
 
 // import HomeMenu from '@/components/homeMenu/HomeMenu';
 // import Footer from '@/components/footer/Footer';
@@ -32,11 +30,6 @@ import appStore from '@/store';
 // }
 
 export default function Home() {
-  useEffect(() => {
-    // appStore.loadGetUserInfo();
-    console.log("appStore.userInfo", appStore.userInfo);
-  }, []);
-
   return (
     <div>
       {/* <HomeMenu t={t} /> */}
