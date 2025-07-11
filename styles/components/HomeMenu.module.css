@@ -7,7 +7,7 @@
   align-items: center;
   background-color: #0c0d0c;
   border-bottom: 0.5px solid #37373a;
-  min-width: 1200px;
+  /* min-width: 1200px; */
 }
 
 .logo {
