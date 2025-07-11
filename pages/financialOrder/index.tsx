@@ -206,8 +206,8 @@ const TabsItem = ({
             onChange={(value) =>
               setFormData({
                 ...formData,
-                startTime: value?.[0]?.unix(),
-                endTime: value?.[1]?.unix(),
+                startTime: dayjs(value?.[0]).valueOf(),
+                endTime: dayjs(value?.[1]).valueOf(),
               })
             }
           />
