@@ -358,7 +358,7 @@ const TokenList = ({
         // 进行中 但是 申购时间 与当前时间对比 小于0 则显示倒计时  否则显示申购
         const curTime = dayjs().valueOf();
         const purchaseStartTime = productRecord.purchaseStartTime;
-        const time = purchaseStartTime && curTime - purchaseStartTime;
+        const time = purchaseStartTime && purchaseStartTime - curTime;
 
         return (
           time && (
