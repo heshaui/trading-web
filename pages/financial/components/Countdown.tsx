@@ -15,9 +15,16 @@ const Countdown: React.FC<CountdownProps> = ({ value, onEnd, btn }) => {
   const [remaining, setRemaining] = useState(value);
 
   useEffect(() => {
+    // 如果传入进来是小于0 则直接返回
+    if (value <= 0) {
+      onEnd?.(true);
+      return;
+    }
+
     // 重置剩余时间
     setRemaining(value);
 
+    // 如果传入进来是大于0 则开始倒计时
     const timer = setInterval(() => {
       setRemaining((prev) => {
         const newRemaining = prev - 1000;
@@ -31,6 +38,7 @@ const Countdown: React.FC<CountdownProps> = ({ value, onEnd, btn }) => {
       });
     }, 1000);
 
+    // 清除定时器
     return () => clearInterval(timer);
   }, [value, onEnd]);
 
