@@ -31,6 +31,7 @@ import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
+import Countdown from "./Countdown";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -170,9 +171,9 @@ const TokenList = ({
               className="text-[var(--theme-color)] cursor-pointer"
               onClick={() => {
                 // 跳转实名认证
-                router.push("/userCenter/identity")
+                router.push("/userCenter/identity");
                 // 关闭弹框
-                Modal.destroyAll()
+                Modal.destroyAll();
               }}
             >
               <div>{t("financial.goTo")}</div>
@@ -201,12 +202,12 @@ const TokenList = ({
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
-      width: "30%",
+      width: "25%",
       render: (_: any, record: FinancialPageTokenItem) => (
         <div className="flex items-center gap-[10px]">
           {record.iconUrl ? (
             <Image
-              style={{borderRadius: "50%"}}
+              style={{ borderRadius: "50%" }}
               src={record.iconUrl}
               alt={record.coinName || ""}
               width={24}
@@ -221,7 +222,7 @@ const TokenList = ({
       title: t("common.annualRate"),
       dataIndex: "minInterestRate",
       key: "minInterestRate",
-      width: "30%",
+      width: "25%",
       render: (_: any, record: FinancialPageTokenItem) => (
         <div
           className="flex items-center gap-[10px]"
@@ -236,7 +237,7 @@ const TokenList = ({
       title: t("common.period"),
       dataIndex: "termType",
       key: "termType",
-      width: "30%",
+      width: "25%",
       render: (_: any, record: FinancialPageTokenItem) => (
         <div className="flex items-center">
           {record?.termType?.split(",").map((item: string, index: number) => (
@@ -252,7 +253,7 @@ const TokenList = ({
       title: t("common.operation"),
       dataIndex: "action",
       key: "action",
-      width: "10%",
+      width: "25%",
       align: "right" as const,
       render: (_: any, record: FinancialPageTokenItem) =>
         record.coinId && (
@@ -322,6 +323,62 @@ const TokenList = ({
     fetchData(formData);
   }, [formData]);
 
+  const btnMap = (
+    record: FinancialPageTokenItem,
+    productRecord: FinancialPageTokenProductItem
+  ) => {
+    switch (Number(productRecord.status)) {
+      //0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
+      // 5售罄
+      case FinancialPageTokenStatusEnum.SOLD_OUT:
+        return (
+          <Button disabled type="primary" shape="round">
+            {t("common.sellout")}
+          </Button>
+        );
+
+      // 3暂停
+      case FinancialPageTokenStatusEnum.SUSPEND:
+        return (
+          <Button disabled type="primary" shape="round">
+            {t("common.pause")}
+          </Button>
+        );
+
+      // 6结束
+      case FinancialPageTokenStatusEnum.END:
+        return (
+          <Button disabled type="primary" shape="round">
+            {t("common.end")}
+          </Button>
+        );
+
+      // 1进行中
+      case FinancialPageTokenStatusEnum.IN_PROGRESS:
+        // 进行中 但是 申购时间 与当前时间对比 小于0 则显示倒计时  否则显示申购
+        const curTime = dayjs().valueOf();
+        const purchaseStartTime = productRecord.purchaseStartTime;
+        const time = purchaseStartTime && curTime - purchaseStartTime;
+
+        return (
+          time && (
+            <Countdown
+              value={time}
+              btn={
+                <Button
+                  type="primary"
+                  shape="round"
+                  onClick={() => onSubscribe(record, productRecord)}
+                >
+                  {t("common.subscribe")}
+                </Button>
+              }
+            />
+          )
+        );
+    }
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -370,7 +427,11 @@ const TokenList = ({
           <Select
             placeholder={t("common.pleaseEnterTheType")}
             allowClear
-            value={!formData.selectedValue ? NULL_PLACEHOLDER : formData.selectedValue}
+            value={
+              !formData.selectedValue
+                ? NULL_PLACEHOLDER
+                : formData.selectedValue
+            }
             className="w-[188px] h-[40px]"
             onChange={(value: any) => {
               console.log(value);
@@ -416,13 +477,13 @@ const TokenList = ({
                       title: "",
                       dataIndex: "",
                       key: "",
-                      width: "30%",
+                      width: "25%",
                     },
                     {
                       title: t("common.annualRate"),
                       dataIndex: "minAnnualInterestRate",
                       key: "minAnnualInterestRate",
-                      width: "30%",
+                      width: "25%",
                       render: (
                         text: string,
                         productRecord: FinancialPageTokenProductItem
@@ -451,7 +512,7 @@ const TokenList = ({
                       title: t("common.period"),
                       dataIndex: "term",
                       key: "term",
-                      width: "30%",
+                      width: "25%",
                       render: (
                         text: string,
                         productRecord: FinancialPageTokenProductItem
@@ -469,7 +530,7 @@ const TokenList = ({
                       title: t("common.operation"),
                       dataIndex: "action",
                       key: "action",
-                      width: "10%",
+                      width: "25%",
                       align: "right" as const,
                       render: (
                         text: any,
@@ -485,58 +546,7 @@ const TokenList = ({
                               {t("common.login")}
                             </Button>
                           ) : (
-                            <>
-                              {/* 进行中 可以点击 */}
-                              {Number(productRecord.status) ===
-                                FinancialPageTokenStatusEnum.IN_PROGRESS && (
-                                <Button
-                                  onClick={() =>
-                                    onSubscribe(record, productRecord)
-                                  }
-                                  type="primary"
-                                  shape="round"
-                                >
-                                  {t("common.subscribe")}
-                                </Button>
-                              )}
-                              {/* 售罄 无法点击 */}
-                              {Number(productRecord.status) ===
-                                FinancialPageTokenStatusEnum.SOLD_OUT && (
-                                <Button
-                                  disabled
-                                  type="primary"
-                                  shape="round"
-                                  style={{
-                                    backgroundColor: "var(--theme-05)",
-                                  }}
-                                >
-                                  {t("common.sellout")}
-                                </Button>
-                              )}
-                              {/* 暂停 无法点击 */}
-                              {Number(productRecord.status) ===
-                                FinancialPageTokenStatusEnum.SUSPEND && (
-                                <Button
-                                  disabled
-                                  type="primary"
-                                  shape="round"
-                                  style={{
-                                    backgroundColor: "var(--theme-05)",
-                                  }}
-                                >
-                                  {t("common.pause")}
-                                </Button>
-                              )}
-                              {/* 项目商户后台发布且未开启，显示当前时间距离开始时间的倒计时。需要按照用户的浏览器时间显示 */}
-                              {Number(productRecord.status) ===
-                                FinancialPageTokenStatusEnum.WAIT_START && (
-                                <Button disabled type="primary" shape="round">
-                                  {dayjs(
-                                    productRecord.purchaseStartTime
-                                  ).format("YYYY-MM-DD HH:mm:ss")}
-                                </Button>
-                              )}
-                            </>
+                            btnMap(record, productRecord)
                           )}
                         </>
                       ),

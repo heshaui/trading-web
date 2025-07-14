@@ -31,6 +31,7 @@ import { SvgIcon } from "@/components/icon";
 import SubscribeConfirmModal, {
   SubscribeConfirmModalType,
 } from "./SubscribeConfirmModal";
+import Image from "next/image";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -56,6 +57,10 @@ interface SubscriptionProps {
   tokenInfo: FinancialPageTokenItem | undefined;
   productInfo: FinancialPageTokenProductItem | undefined;
   setProductInfo: (product: FinancialPageTokenProductItem) => void;
+  curRecord: {
+    token: FinancialPageTokenItem;
+    curProduct: FinancialPageTokenProductItem;
+  } | null;
 }
 
 // 申购弹窗
@@ -65,6 +70,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
   tokenInfo,
   productInfo,
   setProductInfo,
+  curRecord,
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const { t } = useTranslation(["financial"]);
@@ -137,12 +143,35 @@ const Subscription: React.FC<SubscriptionProps> = ({
       >
         {t("common.max")}
       </div>
-      <Divider type="vertical" />
-      <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+      <Divider type="vertical" style={{ background: "var(--border-color4)" }} />
+      <div className="text-[14px] text-[var(--text-color5)] font-[400] flex flex-ai-center gap-[10px]">
+        {tokenInfo?.iconUrl && (
+          <Image
+            src={tokenInfo?.iconUrl}
+            alt={""}
+            width={20}
+            height={20}
+            className="mr-[4px]"
+          />
+        )}
         {tokenInfo?.coinName}
       </div>
     </Flex>
   );
+
+  // 只在初始化时排序，将当前选中的产品放在第一位，避免点击时位置跳跃
+  const sortedData = useMemo(() => {
+    if (!tokenInfo?.products) return [];
+    
+    // 找到初始选中的产品（来自 curRecord.curProduct）
+    const initialSelectedId = curRecord?.curProduct?.id;
+    if (!initialSelectedId) return tokenInfo.products;
+    
+    const targetItem = tokenInfo.products.find(item => item.id === initialSelectedId);
+    const otherItems = tokenInfo.products.filter(item => item.id !== initialSelectedId);
+    
+    return targetItem ? [targetItem, ...otherItems] : tokenInfo.products;
+  }, [tokenInfo?.products, curRecord?.curProduct?.id]);
 
   return (
     <Form form={form}>
@@ -150,9 +179,10 @@ const Subscription: React.FC<SubscriptionProps> = ({
         <Input />
       </Form.Item>
       <div className="p-[0_20px_20px_20px]">
-        {/* 选择时间 7天 */}
+        {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
         <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
-          {tokenInfo?.products?.map((item) => (
+          {
+          sortedData.map((item) => (
             <div
               onClick={() => {
                 // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击
@@ -222,40 +252,44 @@ const Subscription: React.FC<SubscriptionProps> = ({
                     return Promise.resolve();
                   }
 
-                  // 如果不是数字 则返回错误
+                  // 如果不是数字 则返回错误(请输入数字)
                   if (isNaN(Number(value))) {
                     return Promise.reject(
                       new Error(t("common.pleaseEnterTheNumber"))
                     );
                   }
 
-                  // 输入的金额小于最小金额 则返回错误
+                  // 输入的金额小于最小金额 则返回错误(输入金额小于最小申购金额)
                   if (
                     productInfo?.minPurchaseAmount &&
                     Number(value) < Number(productInfo?.minPurchaseAmount)
                   ) {
                     return Promise.reject(
                       new Error(
-                        `${t("common.min")} ${productInfo?.minPurchaseAmount} ${
+                        `${productInfo?.minPurchaseAmount} ${
                           tokenInfo?.coinName
-                        }`
+                        } ${t("common.startInvestment")}`
                       )
                     );
                   }
 
-                  // 输入的金额大于最大金额 则返回错误
+                  // 输入的金额大于最大金额 则返回错误(输入金额大于最大申购金额)
                   if (
                     productInfo?.maxPurchaseAmount &&
                     Number(value) > Number(productInfo?.maxPurchaseAmount)
                   ) {
                     return Promise.reject(
-                      new Error(
-                        `${t("common.max")} ${productInfo?.maxPurchaseAmount} ${
-                          tokenInfo?.coinName
-                        }`
-                      )
+                      new Error(`${t("common.exceedSubscribeAmount")}`)
                     );
                   }
+
+                  // 输入金额大于余额 则返回错误(账户余额不足)
+                  if (Number(value) > Number(myBalance?.balance)) {
+                    return Promise.reject(
+                      new Error(t("common.insufficientBalance"))
+                    );
+                  }
+
                   return Promise.resolve();
                 },
               },
@@ -646,6 +680,7 @@ const SubscribeModal = ({
           tokenInfo={tokenInfo}
           productInfo={productInfo}
           setProductInfo={setProductInfo}
+          curRecord={curRecord}
         />
       ),
     },

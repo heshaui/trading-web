@@ -96,7 +96,11 @@
     "totalAssets": "Total Assets",
     "estimatedTotalIncome": "Estimated Total Income",
     "startTime": "Start Time",
-    "endTime": "End Time"
+    "endTime": "End Time",
+    "startInvestment": "Start Investment",
+    "exceedSubscribeAmount": "Input amount exceeds the amount of subscription",
+    "insufficientBalance": "Insufficient account balance",
+    "end": "End"
   },
   "financial": {
     "myProperty": "My Property",

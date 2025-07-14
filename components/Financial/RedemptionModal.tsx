@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
 import RedeemConfirmModal, { RedeemConfirmModalType } from "./RedeemConfirmModal";
+import Image from "next/image";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -183,8 +184,17 @@ const RedemptionModal = ({
       >
         {t("common.max")}
       </div>
-      <Divider type="vertical" />
+      <Divider type="vertical" style={{ background: "var(--border-color4)" }} />
       <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+      {curProductInfo?.iconUrl && (
+          <Image
+            src={curProductInfo?.iconUrl}
+            alt={""}
+            width={20}
+            height={20}
+            className="mr-[4px]"
+          />
+        )}
         {curProductInfo?.coinName}
       </div>
     </Flex>

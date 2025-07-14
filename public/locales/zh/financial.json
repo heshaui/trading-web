@@ -96,7 +96,11 @@
     "totalAssets": "总资产",
     "estimatedTotalIncome": "预估总收益",
     "startTime": "开始时间",
-    "endTime": "结束时间"
+    "endTime": "结束时间",
+    "startInvestment": "起投",
+    "exceedSubscribeAmount": "输入金额大于可申购金额",
+    "insufficientBalance": "账户余额不足",
+    "end": "结束"
   },
   "financial": {
     "myProperty": "我的资产",
