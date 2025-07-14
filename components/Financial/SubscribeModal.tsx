@@ -61,6 +61,7 @@ interface SubscriptionProps {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
   } | null;
+  setTabsKey: (key: string) => void;
 }
 
 // 申购弹窗
@@ -71,6 +72,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
   productInfo,
   setProductInfo,
   curRecord,
+  setTabsKey,
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const { t } = useTranslation(["financial"]);
@@ -162,14 +164,18 @@ const Subscription: React.FC<SubscriptionProps> = ({
   // 只在初始化时排序，将当前选中的产品放在第一位，避免点击时位置跳跃
   const sortedData = useMemo(() => {
     if (!tokenInfo?.products) return [];
-    
+
     // 找到初始选中的产品（来自 curRecord.curProduct）
     const initialSelectedId = curRecord?.curProduct?.id;
     if (!initialSelectedId) return tokenInfo.products;
-    
-    const targetItem = tokenInfo.products.find(item => item.id === initialSelectedId);
-    const otherItems = tokenInfo.products.filter(item => item.id !== initialSelectedId);
-    
+
+    const targetItem = tokenInfo.products.find(
+      (item) => item.id === initialSelectedId
+    );
+    const otherItems = tokenInfo.products.filter(
+      (item) => item.id !== initialSelectedId
+    );
+
     return targetItem ? [targetItem, ...otherItems] : tokenInfo.products;
   }, [tokenInfo?.products, curRecord?.curProduct?.id]);
 
@@ -181,8 +187,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
       <div className="p-[0_20px_20px_20px]">
         {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
         <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
-          {
-          sortedData.map((item) => (
+          {sortedData.map((item) => (
             <div
               onClick={() => {
                 // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击
@@ -414,7 +419,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
               height={16}
               path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
             />
-            <div>{t("common.thisProductSupportsEarlyRedemption")}</div>
+            <div>
+              {t("common.thisProductSupportsEarlyRedemption")}{" "}
+              <span className="cursor-pointer" onClick={() => setTabsKey("2")}>
+                {t("common.viewRules")}
+              </span>
+            </div>
           </div>
         ) : null}
       </div>
@@ -456,6 +466,7 @@ const ProductRule: React.FC<{
           </div>
           {/* 内容 */}
           <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
+            {/* 申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.subscribeTime")}
@@ -465,24 +476,27 @@ const ProductRule: React.FC<{
                 {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
+            {/* 起息时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.startInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+1天 */}
-                {dayjs().add(1, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(1, "day").format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
+            {/* 首次收益 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.firstInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+2天 */}
-                {dayjs().add(2, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(2, "day").format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
+            {/* 到期时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.lastDue")}
@@ -490,9 +504,10 @@ const ProductRule: React.FC<{
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs(curSelectProduct?.purchaseEndTime)
                   .add(1, "day")
-                  .format("YYYY-MM-DD HH:mm:ss")}
+                  .format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
+            {/* 下次申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.nextSubscribe")}
@@ -500,7 +515,7 @@ const ProductRule: React.FC<{
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs(curSelectProduct?.purchaseEndTime)
                   .add(1, "day")
-                  .format("YYYY-MM-DD HH:mm:ss")}
+                  .format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
           </div>
@@ -552,6 +567,7 @@ const ProductRule: React.FC<{
           </div>
           {/* 内容 */}
           <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
+            {/* 申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.subscribeTime")}
@@ -561,24 +577,27 @@ const ProductRule: React.FC<{
                 {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
+            {/* 起息时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.startInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+1天 */}
-                {dayjs().add(1, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(1, "day").format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
+            {/* 首次收益 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.firstInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+2天 */}
-                {dayjs().add(2, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(2, "day").format("YYYY-MM-DD") + " 08:00:00"}
               </div>
             </div>
+            {/* 赎回 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.redeem")}
@@ -675,6 +694,7 @@ const SubscribeModal = ({
       label: t("common.subscribe"),
       children: (
         <Subscription
+          setTabsKey={setTabsKey}
           myBalance={myBalance}
           form={form}
           tokenInfo={tokenInfo}
