@@ -5,12 +5,11 @@ import MyFinancial from "./components/MyFinancial";
 import TokenList from "./components/TokenList";
 import Problem from "./components/Problem";
 import { useEffect, useState } from "react";
-import ConfirmModal from "@/components/Financial/ConfirmModal";
+import ConfirmModal from "@/components/Financial/SubscribeConfirmModal";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
 import {
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
-  FinancialType,
   getFinancialConfig,
 } from "@/services/financial";
 import { FunctionEnabledStatusEnum } from "@/services/financial";
@@ -23,30 +22,13 @@ export interface FinancialConfig {
   isDisplayBackground: FunctionEnabledStatusEnum | null;
 }
 
-interface ConfirmModalType {
-  open: boolean;
-  status: "error" | "success" | null;
-  amount?: number;
-  type?: FinancialType;
-  unit?: string;
-  endTime?: string | number;
-}
 
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
 
-  // 确认弹窗
-  const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
-    open: false,
-    status: null,
-    amount: undefined,
-    type: undefined,
-    unit: undefined,
-    endTime: undefined,
-  });
 
   // 申购弹窗
-  const [openSubscribe, setOpenSubscribe] = useState(false);
+  const [openSubscribeModal, setOpenSubscribeModal] = useState(false);
 
   // 当前记录
   const [curRecord, setCurRecord] = useState<{
@@ -94,26 +76,22 @@ export default observer(function FinancialPage() {
     <>
       {/* 我的理财 */}
       <MyFinancial financialConfig={financialConfig} isLoggedIn={isLoggedIn} />
+
       {/* 理财产品列表 */}
       <TokenList
         setCurRecord={setCurRecord}
-        setOpenSubscribe={setOpenSubscribe}
+        setOpenSubscribeModal={setOpenSubscribeModal}
         financialConfig={financialConfig}
         isLoggedIn={isLoggedIn}
       />
       {/* 常见问题 */}
       <Problem />
-      {/* 确认弹窗 */}
-      <ConfirmModal
-        confirmModal={confirmModal}
-        setConfirmModal={setConfirmModal}
-      />
+      
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}
-        openSubscribe={openSubscribe}
-        setOpenSubscribe={setOpenSubscribe}
-        setConfirmModal={setConfirmModal}
+        openSubscribeModal={openSubscribeModal}
+        setOpenSubscribeModal={setOpenSubscribeModal}
       />
     </>
   );

@@ -28,6 +28,9 @@ import { getUserBalance } from "@/services/assets";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
 import { SvgIcon } from "@/components/icon";
+import SubscribeConfirmModal, {
+  SubscribeConfirmModalType,
+} from "./SubscribeConfirmModal";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -372,7 +375,11 @@ const Subscription: React.FC<SubscriptionProps> = ({
         {/* 提示 */}
         {productInfo?.isRedemption === OpenStatusEnum.YES ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)] flex flex-ai-center gap-[4px]">
-            <SvgIcon width={16} height={16} path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            <SvgIcon
+              width={16}
+              height={16}
+              path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+            />
             <div>{t("common.thisProductSupportsEarlyRedemption")}</div>
           </div>
         ) : null}
@@ -597,24 +604,15 @@ interface SubscribeModalProps {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
   } | null;
-  openSubscribe: boolean;
-  setOpenSubscribe: (open: boolean) => void;
-  setConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    type?: FinancialType;
-    amount?: number;
-    unit?: string;
-    endTime?: number;
-  }) => void;
+  openSubscribeModal: boolean;
+  setOpenSubscribeModal: (open: boolean) => void;
   onRefresh?: () => void;
 }
 // 申购弹窗
 const SubscribeModal = ({
   curRecord,
-  openSubscribe,
-  setOpenSubscribe,
-  setConfirmModal,
+  openSubscribeModal,
+  setOpenSubscribeModal,
   onRefresh,
 }: SubscribeModalProps) => {
   const { styles } = useStyle();
@@ -628,6 +626,12 @@ const SubscribeModal = ({
   const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); // 币种信息
   const [productInfo, setProductInfo] =
     useState<FinancialPageTokenProductItem>(); // 当前产品
+
+  const [subscribeConfirmModal, setSubscribeConfirmModal] =
+    useState<SubscribeConfirmModalType>({
+      open: false,
+      status: null,
+    });
 
   // 标签页
   const items = [
@@ -671,26 +675,28 @@ const SubscribeModal = ({
         const res = await financialSubscribe(params);
         if (res.code === "0") {
           console.log(res);
-          setOpenSubscribe(false);
-          setConfirmModal({
+          setOpenSubscribeModal(false);
+          setSubscribeConfirmModal({
             open: true,
             status: "success",
             type: productInfo?.type,
             amount: formData.financialAmount,
             unit: tokenInfo?.coinName,
             endTime: curRecord?.curProduct.purchaseEndTime,
+            autoSubscribe: formData.autoPurchase,
+            fixedDays: curRecord?.curProduct.term,
           });
           // 刷新页面数据
           onRefresh?.();
         } else {
-          setConfirmModal({
+          setSubscribeConfirmModal({
             open: true,
             status: "error",
           });
         }
       } catch (error) {
         console.log(error);
-        setConfirmModal({
+        setSubscribeConfirmModal({
           open: true,
           status: "error",
         });
@@ -702,7 +708,7 @@ const SubscribeModal = ({
 
   // 监听 openSubscribe 变化，更新选中的产品
   useEffect(() => {
-    if (openSubscribe && curRecord) {
+    if (openSubscribeModal && curRecord) {
       setTokenInfo(curRecord.token);
       setProductInfo(curRecord.curProduct);
       setTabsKey("1");
@@ -720,7 +726,7 @@ const SubscribeModal = ({
       };
       fetchBalance();
     }
-  }, [curRecord, openSubscribe, form]);
+  }, [curRecord, openSubscribeModal, form]);
 
   return (
     <ConfigProvider
@@ -738,8 +744,8 @@ const SubscribeModal = ({
           content: styles["my-modal-content"],
         }}
         maskClosable={false}
-        open={openSubscribe}
-        onCancel={() => setOpenSubscribe(false)}
+        open={openSubscribeModal}
+        onCancel={() => setOpenSubscribeModal(false)}
         title={<div>{tokenInfo?.coinName}</div>}
         closable={{ "aria-label": "Custom Close Button" }}
         footer={
@@ -747,7 +753,7 @@ const SubscribeModal = ({
             <div className="p-[30px_55px] flex justify-around gap-[20px]">
               <Button
                 className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
-                onClick={() => setOpenSubscribe(false)}
+                onClick={() => setOpenSubscribeModal(false)}
                 shape="round"
                 size="large"
                 disabled={loading}
@@ -778,6 +784,10 @@ const SubscribeModal = ({
           />
         </Spin>
       </Modal>
+      <SubscribeConfirmModal
+        subscribeConfirmModal={subscribeConfirmModal}
+        setSubscribeConfirmModal={setSubscribeConfirmModal}
+      />
     </ConfigProvider>
   );
 };

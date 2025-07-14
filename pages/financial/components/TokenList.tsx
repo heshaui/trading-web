@@ -44,12 +44,12 @@ interface TokenListProps {
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
   }) => void;
-  setOpenSubscribe: (open: boolean) => void;
+  setOpenSubscribeModal: (open: boolean) => void;
   financialConfig: FinancialConfig;
   isLoggedIn: boolean;
 }
 const TokenList = ({
-  setOpenSubscribe,
+  setOpenSubscribeModal,
   financialConfig,
   isLoggedIn,
   setCurRecord,
@@ -186,7 +186,7 @@ const TokenList = ({
         token: record,
         curProduct: productRecord,
       });
-      setOpenSubscribe(true);
+      setOpenSubscribeModal(true);
     }
   };
 

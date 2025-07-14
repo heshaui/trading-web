@@ -5,38 +5,43 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 
-interface ConfirmModalProps {
-  confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    type?: FinancialType;
-    amount?: number;
-    unit?: string;
-    endTime?: string | number;
-  };
-  setConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    type?: FinancialType;
-    amount?: number;
-    unit?: string;
-    endTime?: string | number;
-  }) => void;
+export interface SubscribeConfirmModalType {
+  open: boolean; // 是否打开
+  status: "error" | "success" | null; // 状态
+  type?: FinancialType; // 类型
+  amount?: number; // 金额
+  unit?: string; // 单位
+  endTime?: string | number; // 结束时间
+  autoSubscribe?: boolean; // 是否自动申购
+  fixedDays?: string | number; // 定期几天
 }
 
-const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
+interface SubscribeConfirmModalProps {
+  subscribeConfirmModal: SubscribeConfirmModalType;
+  setSubscribeConfirmModal: (
+    subscribeConfirmModal: SubscribeConfirmModalType
+  ) => void;
+}
+
+const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
+  subscribeConfirmModal,
+  setSubscribeConfirmModal,
+}: SubscribeConfirmModalProps) => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
+
   return (
     <Modal
-      open={confirmModal.open}
-      onCancel={() => setConfirmModal({ open: false, status: null })}
+      open={subscribeConfirmModal.open}
+      onCancel={() => setSubscribeConfirmModal({ open: false, status: null })}
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
         <div className="p-[30px_55px] flex justify-around gap-[20px]">
           <Button
             className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
-            onClick={() => setConfirmModal({ open: false, status: null })}
+            onClick={() =>
+              setSubscribeConfirmModal({ open: false, status: null })
+            }
             shape="round"
             size="large"
           >
@@ -44,7 +49,9 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
           </Button>
           <Button
             onClick={() => {
-              router.push(`/assets/financial?type=${confirmModal.type}`);
+              router.push(
+                `/assets/financial?type=${subscribeConfirmModal.type}`
+              );
             }}
             type="primary"
             shape="round"
@@ -61,7 +68,7 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
         <div className="mb-[15px] m-[30px_180px_15px_180px]">
           <Image
             src={
-              confirmModal.status === "success"
+              subscribeConfirmModal.status === "success"
                 ? "/images/financial/success.png"
                 : "/images/financial/error.png"
             }
@@ -72,27 +79,30 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
         </div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
-          {confirmModal.status === "success"
-            ? `${confirmModal.amount} ${confirmModal.unit}`
+          {subscribeConfirmModal.status === "success"
+            ? `${subscribeConfirmModal.amount} ${subscribeConfirmModal.unit}`
             : t("common.subscribeFailed")}
         </div>
         {/* 副标题 */}
         <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
-          {confirmModal.status === "success"
+          {subscribeConfirmModal.status === "success"
             ? t("common.subscribeSuccess")
             : t("common.subscribeFailed")}
         </div>
         {/* 时间 */}
-        {confirmModal.status === "success" ? (
+        {subscribeConfirmModal.status === "success" ? (
           <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
+            {/* 期限 */}
             <div className="flex justify-between">
               <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                 {t("common.term")}
               </div>
               <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                {confirmModal.type === FinancialType.CURRENT
+                {subscribeConfirmModal.type === FinancialType.CURRENT
                   ? t("common.current")
-                  : t("common.fixed")}
+                  : `${t("common.fixed")} (${
+                      subscribeConfirmModal.fixedDays
+                    } ${t("common.day")})`}
               </div>
             </div>
             {/* 申购时间 */}
@@ -126,7 +136,7 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
               </div>
             </div>
             {/* 定期 */}
-            {confirmModal.type === FinancialType.FIXED ? null : (
+            {subscribeConfirmModal.type === FinancialType.FIXED ? (
               <>
                 {/* 最后发息 */}
                 <div className="flex justify-between">
@@ -135,24 +145,26 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
                   </div>
                   {/* 当前年月日 时分秒+3天 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(confirmModal.endTime)
+                    {dayjs(subscribeConfirmModal.endTime)
                       .add(1, "day")
                       .format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 </div>
-                {/* 下次申购 */}
-                <div className="flex justify-between">
-                  <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    {t("common.nextSubscribe")}
+                {/* 下次申购 没选择自动申购,就不显示 */}
+                {subscribeConfirmModal.autoSubscribe ? (
+                  <div className="flex justify-between">
+                    <div className="text-[var(--text-color6)] font-[400] text-[14px]">
+                      {t("common.nextSubscribe")}
+                    </div>
+                    <div className="text-[var(--text-color5)] font-[400] text-[14px]">
+                      {dayjs(subscribeConfirmModal.endTime)
+                        .add(1, "day")
+                        .format("YYYY-MM-DD HH:mm:ss")}
+                    </div>
                   </div>
-                  <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(confirmModal.endTime)
-                      .add(1, "day")
-                      .format("YYYY-MM-DD HH:mm:ss")}
-                  </div>
-                </div>
+                ) : null}
               </>
-            )}
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -160,4 +172,4 @@ const ConfirmModal = ({ confirmModal, setConfirmModal }: ConfirmModalProps) => {
   );
 };
 
-export default ConfirmModal;
+export default SubscribeConfirmModal;

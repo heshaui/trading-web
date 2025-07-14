@@ -5,25 +5,19 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 
+export interface RedeemConfirmModalType {
+  open: boolean;
+  status: "error" | "success" | null;
+  amount?: number;
+  interest?: number;
+  type?: FinancialType;
+  unit?: string;
+  endTime?: string | number;
+}
+
 interface RedeemConfirmModalProps {
-  redeemConfirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    interest?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: string | number;
-  };
-  setRedeemConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    interest?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: string | number;
-  }) => void;
+  redeemConfirmModal: RedeemConfirmModalType;
+  setRedeemConfirmModal: (redeemConfirmModal: RedeemConfirmModalType) => void;
 }
 const RedeemConfirmModal = ({
   redeemConfirmModal,
@@ -94,6 +88,7 @@ const RedeemConfirmModal = ({
         {/* 时间 */}
         {redeemConfirmModal.status === "success" ? (
           <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
+            {/* 定期赎回 */}
             {redeemConfirmModal.type === FinancialType.FIXED ? (
               <>
                 {/* 申购金额 */}
@@ -134,6 +129,7 @@ const RedeemConfirmModal = ({
                 </div>
               </>
             ) : (
+              // 活期赎回
               <>
                 <div className="flex justify-between">
                   {/* 赎回时间 */}

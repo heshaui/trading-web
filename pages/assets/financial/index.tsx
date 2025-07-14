@@ -15,7 +15,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState } from "react";
 import RedemptionModal from "../../../components/Financial/RedemptionModal";
-import ConfirmModal from "@/components/Financial/ConfirmModal";
+import ConfirmModal from "@/components/Financial/SubscribeConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
   OpenStatusEnum,
@@ -36,21 +36,9 @@ import MaskableAmount from "@/components/MaskableAmount";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
-import RedeemConfirmModal from "@/components/Financial/RedeemConfirmModal";
 import { useTranslation } from "react-i18next";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
-
-interface ConfirmModalType {
-  open: boolean;
-  status: "error" | "success" | null;
-  amount?: number;
-  interest?: number;
-  type?: FinancialType;
-  unit?: string;
-  endTime?: string | number;
-}
-
 interface TabsItemProps {
   setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
@@ -62,7 +50,7 @@ interface TabsItemProps {
       curProduct: FinancialPageTokenProductItem;
     } | null
   ) => void;
-  setOpenSubscribe?: (open: boolean) => void;
+  setOpenSubscribeModal?: (open: boolean) => void;
 }
 
 const TabsItem = ({
@@ -71,7 +59,7 @@ const TabsItem = ({
   tableData,
   setOpenRedemption,
   setCurRecord,
-  setOpenSubscribe,
+  setOpenSubscribeModal,
 }: TabsItemProps) => {
   // 表格列
   const { t } = useTranslation(["financial"]);
@@ -189,7 +177,7 @@ const TabsItem = ({
                           curProduct,
                         });
                       }
-                      setOpenSubscribe?.(true);
+                      setOpenSubscribeModal?.(true);
                     } else {
                       setCurRecord?.(null);
                     }
@@ -262,7 +250,6 @@ const Financial = () => {
   const [activeKey, setActiveKey] = useState<FinancialType>(
     FinancialType.FIXED
   );
-  const [isRouterReady, setIsRouterReady] = useState(false);
 
   // 当路由准备就绪时，根据URL参数设置激活的标签页
   useEffect(() => {
@@ -275,45 +262,26 @@ const Financial = () => {
 
       setActiveKey(newActiveKey);
       setFormData((prev) => ({ ...prev, type: newActiveKey }));
-      setIsRouterReady(true);
     }
   }, [router.isReady, router.query]);
 
   const [tableLoading, setTableLoading] = useState(false);
   //打开赎回弹窗
   const [openRedemption, setOpenRedemption] = useState(false);
-  //打开确认弹窗
-  const [confirmModal, setConfirmModal] = useState<ConfirmModalType>({
-    open: false,
-    status: null,
-    amount: undefined,
-    type: undefined,
-    unit: undefined,
-    endTime: undefined,
-  });
-
-  const [redeemConfirmModal, setRedeemConfirmModal] =
-    useState<ConfirmModalType>({
-      open: false,
-      status: null,
-      amount: undefined,
-      interest: undefined,
-      type: undefined,
-      unit: undefined,
-      endTime: undefined,
-    });
 
   // 当前选中的理财产品
   const [curProduct, setCurProduct] = useState<UserFinancialAccountItem | null>(
     null
   );
 
+  // 当前选中的申购产品
   const [curRecord, setCurRecord] = useState<{
     token: FinancialPageTokenItem;
     curProduct: FinancialPageTokenProductItem;
   } | null>(null); // 当前记录
 
-  const [openSubscribe, setOpenSubscribe] = useState(false);
+  // 打开申购弹窗
+  const [openSubscribeModal, setOpenSubscribeModal] = useState(false);
 
   // 我的持仓
   const [myAmount, setMyAmount] = useState({
@@ -359,7 +327,7 @@ const Financial = () => {
       label: t("common.current"),
       children: (
         <TabsItem
-          setOpenSubscribe={setOpenSubscribe}
+          setOpenSubscribeModal={setOpenSubscribeModal}
           setCurRecord={setCurRecord}
           setCurProduct={setCurProduct}
           tableLoading={tableLoading}
@@ -448,30 +416,18 @@ const Financial = () => {
         curProduct={curProduct}
         openRedemption={openRedemption}
         setOpenRedemption={setOpenRedemption}
-        setRedeemConfirmModal={setRedeemConfirmModal}
         onRefresh={handleRefresh}
       />
 
-      {/* 确认弹窗 */}
-      <ConfirmModal
-        confirmModal={confirmModal}
-        setConfirmModal={setConfirmModal}
-      />
 
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}
-        openSubscribe={openSubscribe}
-        setOpenSubscribe={setOpenSubscribe}
-        setConfirmModal={setConfirmModal}
+        openSubscribeModal={openSubscribeModal}
+        setOpenSubscribeModal={setOpenSubscribeModal}
         onRefresh={handleRefresh}
       />
 
-      {/* 赎回确认弹窗 */}
-      <RedeemConfirmModal
-        redeemConfirmModal={redeemConfirmModal}
-        setRedeemConfirmModal={setRedeemConfirmModal}
-      />
 
       {/* 基础页面 */}
       <ConfigProvider

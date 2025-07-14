@@ -4,6 +4,7 @@ import {
   FinancialType,
   getFinancialAccountRedemptionShow,
   getFinancialAccountRedemptionShowFixed,
+  SettlementInterest,
   UserFinancialAccountItem,
 } from "@/services/financial";
 import {
@@ -20,6 +21,7 @@ import { createStyles } from "antd-style";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
+import RedeemConfirmModal, { RedeemConfirmModalType } from "./RedeemConfirmModal";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -43,15 +45,6 @@ interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
   setOpenRedemption: (open: boolean) => void;
-  setRedeemConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    interest?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: number;
-  }) => void;
   onRefresh?: () => void;
 }
 
@@ -59,7 +52,6 @@ const RedemptionModal = ({
   curProduct,
   openRedemption,
   setOpenRedemption,
-  setRedeemConfirmModal,
   onRefresh,
 }: RedemptionModalProps) => {
   const { styles } = useStyle();
@@ -82,6 +74,13 @@ const RedemptionModal = ({
 
   //赎回金额-定期
   const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<string>("");
+
+  // 赎回确认弹窗
+  const [redeemConfirmModal, setRedeemConfirmModal] =
+    useState<RedeemConfirmModalType>({
+      open: false,
+      status: null,
+    });
 
   // 提交赎回
   const onSubmit = async () => {
@@ -199,6 +198,7 @@ const RedemptionModal = ({
         },
       }}
     >
+      {/* 赎回弹窗 */}
       <Modal
         classNames={{
           header: styles["my-modal-header"],
@@ -391,9 +391,20 @@ const RedemptionModal = ({
                         height={16}
                         path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
                       />
-                      {t("common.redeemTips1")}
+                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                        ? t("common.redeemTips1")
+                        : t("common.expirationRedeemTips1")}
                     </div>
-                    <div className="ml-[20px]">{t("common.redeemTips2")}</div>
+                    <div className="ml-[20px]">
+                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                        ? t("common.redeemTips2")
+                        : t("common.expirationRedeemTips2")}
+                    </div>
+                    <div className="ml-[20px]">
+                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                        ? t("common.redeemTips3")
+                        : t("common.expirationRedeemTips3")}
+                    </div>
                   </div>
                 </>
               )}
@@ -401,6 +412,12 @@ const RedemptionModal = ({
           </Form>
         </Spin>
       </Modal>
+
+      {/* 赎回确认弹窗 */}
+      <RedeemConfirmModal
+        redeemConfirmModal={redeemConfirmModal}
+        setRedeemConfirmModal={setRedeemConfirmModal}
+      />
     </ConfigProvider>
   );
 };

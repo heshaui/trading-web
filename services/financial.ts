@@ -144,9 +144,14 @@ export interface UserFinancialAccountParams {
   coinId?: number | null; //币种ID
   type: FinancialType; // 1定期 2活期
 }
+
+export enum SettlementInterest {
+  DAILY = 1, //按日付息
+  END = 2, //到期还本利息
+}
 export interface UserFinancialAccountItem {
   id: number; //用户理财记录id
-  projectId: number;
+  projectId: number; //项目id
   coinId: number; //币种ID
   coinName: string; //币种名称
   iconUrl: string; //币种图标
@@ -159,6 +164,7 @@ export interface UserFinancialAccountItem {
   accruedInterest: number; //累计收益
   usdAccruedInterest: string; //USD累计收益
   purchaseStatus: RedemptionStatusEnum; // 0失败，1持仓中，2成功赎回
+  settlementInterest: SettlementInterest; //结算利息 1按日付息，2到期还本利息
 }
 export function getUserFinancialAccount(
   params: UserFinancialAccountParams

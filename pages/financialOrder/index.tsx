@@ -75,7 +75,13 @@ const TabsItem = ({
         return (
           <Flex gap="8px">
             {record.iconUrl && (
-              <Image width={24} height={24} src={record.iconUrl} alt="" style={{borderRadius: "50%"}}/>
+              <Image
+                width={24}
+                height={24}
+                src={record.iconUrl}
+                alt=""
+                style={{ borderRadius: "50%" }}
+              />
             )}
             <div>{record.coinName}</div>
           </Flex>
@@ -203,13 +209,20 @@ const TabsItem = ({
           {/* 时间 */}
           <RangePicker
             className="w-[278px] h-[50px]"
-            onChange={(value) =>
+            onChange={(value) => {
+              if (!value) {
+                return setFormData({
+                  ...formData,
+                  startTime: null,
+                  endTime: null,
+                });
+              }
               setFormData({
                 ...formData,
-                startTime: dayjs(value?.[0]).valueOf(),
-                endTime: dayjs(value?.[1]).valueOf(),
-              })
-            }
+                startTime: dayjs(value?.[0]).startOf("day").valueOf(), // 开始时间 00.00.00
+                endTime: dayjs(value?.[1]).endOf("day").valueOf(), // 结束时间 23.59.59
+              });
+            }}
           />
         </Space>
       </div>

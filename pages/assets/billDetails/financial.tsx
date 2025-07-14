@@ -237,15 +237,21 @@ const Financial = () => {
         <RangePicker
           allowClear
           className="w-[278px] h-[50px]"
-          onChange={(value) =>{
-            console.log("value", value)
+          onChange={(value) => {
+            console.log("value", value);
+            if (!value) {
+              return setFormData({
+                ...formData,
+                startTime: null,
+                endTime: null,
+              });
+            }
             setFormData({
               ...formData,
-              startTime: dayjs(value?.[0]).valueOf(),
-              endTime: dayjs(value?.[1]).valueOf(),
-            })
-          }
-          }
+              startTime: dayjs(value?.[0]).startOf("day").valueOf(),
+              endTime: dayjs(value?.[1]).endOf("day").valueOf(),
+            });
+          }}
         />
       </div>
       <Table
