@@ -41,6 +41,7 @@ interface MyFinancialProps {
 const MyFinancial = observer(
   ({ financialConfig, isLoggedIn }: MyFinancialProps) => {
     const { t } = useTranslation(["financial"]);
+
     const router = useRouter();
     const { styles } = useStyle();
     const [problemModalVisible, setProblemModalVisible] = useState(false);
@@ -133,7 +134,7 @@ const MyFinancial = observer(
           </div>
 
           {/* 右侧内容-我的资产 */}
-          {financialConfig?.isDisplayAssets &&
+          {financialConfig?.isDisplayAssets && isLoggedIn &&
             financialConfig.isDisplayAssets ===
               FunctionEnabledStatusEnum.OPEN && (
               <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
