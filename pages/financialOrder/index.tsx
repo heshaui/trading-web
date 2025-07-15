@@ -47,6 +47,7 @@ const resultStatusMap: Record<
 };
 
 interface TabsItemProps {
+  type: FinancialType;
   tableData: FinancialOrderItem[];
   coinList: { coinName: string; id: string }[];
   tableLoading: boolean;
@@ -54,6 +55,7 @@ interface TabsItemProps {
   formData: FinancialOrderListParams;
 }
 const TabsItem = ({
+  type,
   tableData,
   coinList,
   tableLoading,
@@ -62,7 +64,10 @@ const TabsItem = ({
 }: TabsItemProps) => {
   const { t } = useTranslation(["financial"]);
   // 表格列
+  // 定期: 币种 日期 类型 金额 期限(天) 状态
+  // 活期: 币种 日期 类型 金额         状态
   const columns: ColumnsType<FinancialOrderItem> = [
+    // 币种
     {
       title: t("common.token"),
       dataIndex: "coinName",
@@ -84,6 +89,8 @@ const TabsItem = ({
         );
       },
     },
+
+    // 日期
     {
       title: t("common.date"),
       dataIndex: "createTime",
@@ -92,6 +99,8 @@ const TabsItem = ({
         return dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss");
       },
     },
+
+    // 类型
     {
       title: t("common.type"),
       dataIndex: "status",
@@ -109,6 +118,8 @@ const TabsItem = ({
         );
       },
     },
+
+    // 金额
     {
       title: t("common.amount"),
       dataIndex: "amount",
@@ -122,6 +133,15 @@ const TabsItem = ({
         );
       },
     },
+
+    // 期限(天) 定期显示
+    ...(type === FinancialType.FIXED ? [{
+      title: `${t("common.term")}(${t("common.day")})`,
+      dataIndex: "term",
+      key: "term",
+    }] : []),
+
+    // 状态
     {
       title: t("common.status"),
       dataIndex: "resultStatus",
@@ -261,6 +281,7 @@ const FinancialOrder = () => {
       label: t("common.fixed"),
       children: (
         <TabsItem
+          type={FinancialType.FIXED}
           tableData={tableData}
           coinList={coinList}
           tableLoading={tableLoading}
@@ -274,6 +295,7 @@ const FinancialOrder = () => {
       label: t("common.current"),
       children: (
         <TabsItem
+          type={FinancialType.CURRENT}
           tableData={tableData}
           coinList={coinList}
           tableLoading={tableLoading}

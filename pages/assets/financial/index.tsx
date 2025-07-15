@@ -37,9 +37,12 @@ import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
 import { useTranslation } from "react-i18next";
+import { observer } from "mobx-react-lite";
+import appStore from '@/store';
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
+  type: FinancialType;
   setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
   tableData: UserFinancialAccountItem[];
@@ -54,6 +57,7 @@ interface TabsItemProps {
 }
 
 const TabsItem = ({
+  type,
   setCurProduct,
   tableLoading,
   tableData,
@@ -63,7 +67,10 @@ const TabsItem = ({
 }: TabsItemProps) => {
   // 表格列
   const { t } = useTranslation(["financial"]);
+  // 定期 币种 自动申购 申购日期 期限(天) 申购金额 年利率 累计收益 赎回日期 操作
+  // 活期 币种 自动申购                 申购金额 年利率 累计收益        操作
   const columns: ColumnsType<UserFinancialAccountItem> = [
+    // 币种
     {
       title: t("common.token"),
       dataIndex: "coinName",
@@ -79,6 +86,8 @@ const TabsItem = ({
         );
       },
     },
+
+    // 自动申购
     {
       title: t("common.autoPurchase"),
       dataIndex: "autoPurchase",
@@ -106,6 +115,22 @@ const TabsItem = ({
         );
       },
     },
+
+    // 申购日期 定期显示
+    ...(type === FinancialType.FIXED ? [{
+      title: t("common.subscribeTime"),
+      dataIndex: "purchaseTime",
+      key: "purchaseTime",
+    }] : []),
+
+    // 期限(天) 定期显示
+    ...(type === FinancialType.FIXED ? [{
+      title: `${t("common.term")}(${t("common.day")})`,
+      dataIndex: "term",
+      key: "term",
+    }] : []),
+
+    // 申购金额
     {
       title: t("common.purchaseAmount"),
       dataIndex: "purchaseAmount",
@@ -121,6 +146,8 @@ const TabsItem = ({
         );
       },
     },
+
+    // 年利率
     {
       title: t("common.annualRate"),
       dataIndex: "minAnnualInterestRate",
@@ -136,6 +163,8 @@ const TabsItem = ({
         );
       },
     },
+
+    // 累计收益
     {
       title: t("common.totalIncome"),
       dataIndex: "accruedInterest",
@@ -151,6 +180,15 @@ const TabsItem = ({
         );
       },
     },
+
+    // 赎回日期 定期显示
+    ...(type === FinancialType.FIXED ? [{
+      title: t("common.redeemTime"),
+      dataIndex: "redeemTime",
+      key: "redeemTime",
+    }] : []),
+
+    // 操作
     {
       title: t("common.operation"),
       dataIndex: "action",
@@ -242,14 +280,20 @@ const TabsItem = ({
   );
 };
 
-const Financial = () => {
+const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, '');// 汇率key
+  const rateData = appStore.getRateData();
+  
+  // 计算当前汇率比例
+  const currentRate = rateData.find((item: any) => item.span === rateKey)?.price || 1;
 
   // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
   const [activeKey, setActiveKey] = useState<FinancialType>(
     FinancialType.FIXED
   );
+
 
   // 当路由准备就绪时，根据URL参数设置激活的标签页
   useEffect(() => {
@@ -315,6 +359,7 @@ const Financial = () => {
       label: t("common.fixed"),
       children: (
         <TabsItem
+          type={FinancialType.FIXED}
           setCurProduct={setCurProduct}
           tableLoading={tableLoading}
           tableData={tableData}
@@ -327,6 +372,7 @@ const Financial = () => {
       label: t("common.current"),
       children: (
         <TabsItem
+          type={FinancialType.CURRENT}
           setOpenSubscribeModal={setOpenSubscribeModal}
           setCurRecord={setCurRecord}
           setCurProduct={setCurProduct}
@@ -492,8 +538,8 @@ const Financial = () => {
                     <MaskableAmount
                       prefix="≈"
                       show={showAmount}
-                      amount={myAmount.holdings}
-                      unit="CNY"
+                      amount={myAmount.holdings * currentRate}
+                      unit={rateKey}
                     />
                   </div>
                 </div>
@@ -577,7 +623,7 @@ const Financial = () => {
       </ConfigProvider>
     </>
   );
-};
+});
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
