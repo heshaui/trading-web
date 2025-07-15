@@ -45,7 +45,7 @@ export function getFinancialConfig(): Promise<
   RequestParams<FinancialConfiItem>
 > {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/getFunctionalConfiguration`,
+    `${fixUrl}/home-web/v1/open/manageMoney/getFunctionalConfiguration`,
     { method: "POST" }
   );
 }
@@ -67,7 +67,7 @@ export function getBackgroundImageConfig(): Promise<
   RequestParams<BackgroundImageConfigItem>
 > {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/getBackgroundImageConfiguration`,
+    `${fixUrl}/home-web/v1/open/manageMoney/getBackgroundImageConfiguration`,
     { method: "POST" }
   );
 }
