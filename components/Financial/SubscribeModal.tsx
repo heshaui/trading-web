@@ -32,6 +32,7 @@ import SubscribeConfirmModal, {
   SubscribeConfirmModalType,
 } from "./SubscribeConfirmModal";
 import Image from "next/image";
+import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -458,10 +459,12 @@ const ProductRule: React.FC<{
           {/* label */}
           <div className="flex flex-ai-center flex-jc-between mb-[12px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              {t("common.transactionRules")}
+              1.{t("common.transactionRules")}
             </div>
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              {t("common.fixed")}
+              {`${t("common.fixed")} ${curSelectProduct?.term} ${t(
+                "common.day"
+              )}`}
             </div>
           </div>
           {/* 内容 */}
@@ -472,50 +475,57 @@ const ProductRule: React.FC<{
                 {t("common.subscribeTime")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {/* 当前年月日 时分秒 */}
                 {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
-            {/* 起息时间 */}
+            {/* 开始计息 购买后1天 当前时区(08):00:00 开始计息 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.startInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {/* 当前年月日 时分秒+1天 */}
-                {dayjs().add(1, "day").format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs().add(1, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 首次收益 */}
+            {/* 首次收益 购买后2天 当前时区(08):00:00 首次收益 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.firstInterest")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {/* 当前年月日 时分秒+2天 */}
-                {dayjs().add(2, "day").format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs().add(2, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 到期时间 */}
+            {/* 最后发息 购买后 定期天数 + 2天 当前时区(08):00:00 最后发息 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.lastDue")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {dayjs(curSelectProduct?.purchaseEndTime)
-                  .add(1, "day")
-                  .format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs()
+                  .add(Number(curSelectProduct?.term), "day")
+                  .add(2, "day")
+                  .format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 下次申购时间 */}
+            {/* 下次申购 购买后 定期 天数+1 当前时区(08):00:00 下次申购 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.nextSubscribe")}
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {dayjs(curSelectProduct?.purchaseEndTime)
-                  .add(1, "day")
-                  .format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs()
+                  .add(Number(curSelectProduct?.term), "day")
+                  .add(2, "day")
+                  .format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
           </div>
@@ -523,7 +533,7 @@ const ProductRule: React.FC<{
         {/* 2.奖励规则 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            {t("common.rewardRules")}
+            2.{t("common.rewardRules")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
             {t("common.rewardRulesTips")}
@@ -532,7 +542,7 @@ const ProductRule: React.FC<{
         {/* 3.提前赎回 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            {t("common.earlyRedemption")}
+            3.{t("common.earlyRedemption")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
             {t("common.earlyRedemptionTips")}
@@ -541,7 +551,7 @@ const ProductRule: React.FC<{
         {/* 4.取消申购 */}
         <div>
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            {t("common.cancelSubscribe")}
+            4.{t("common.cancelSubscribe")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
             {t("common.cancelSubscribeTips")}
@@ -559,7 +569,7 @@ const ProductRule: React.FC<{
           {/* label */}
           <div className="flex flex-ai-center flex-jc-between mb-[12px]">
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-              {t("common.transactionRules")}
+              1.{t("common.transactionRules")}
             </div>
             <div className="text-[14px] text-[var(--text-color5)] font-[400]">
               {t("common.current")}
@@ -584,7 +594,9 @@ const ProductRule: React.FC<{
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+1天 */}
-                {dayjs().add(1, "day").format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs().add(1, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
             {/* 首次收益 */}
@@ -594,7 +606,9 @@ const ProductRule: React.FC<{
               </div>
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {/* 当前年月日 时分秒+2天 */}
-                {dayjs().add(2, "day").format("YYYY-MM-DD") + " 08:00:00"}
+                {dayjs().add(2, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
             {/* 赎回 */}
@@ -615,7 +629,7 @@ const ProductRule: React.FC<{
         {/* 2.赎回 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            {t("common.redeem")}
+            2.{t("common.redeem")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
             {t("common.redeemTips")}
@@ -624,7 +638,7 @@ const ProductRule: React.FC<{
         {/* 3.收益币种 */}
         <div className="mb-[16px]">
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-            {t("common.incomeCurrency")}
+            3.{t("common.incomeCurrency")}
           </div>
           <div className="text-[14px] text-[var(--text-color6)] font-[400]">
             {t("common.incomeCurrencyTips")}
@@ -640,8 +654,16 @@ const ProductRule: React.FC<{
       <div className="mb-[20px]">
         <Segmented
           options={[
-            { value: "1", label: t("common.current") },
-            { value: "2", label: t("common.fixed") },
+            {
+              value: "1",
+              label: t("common.current"),
+              disabled: productInfo?.type !== FinancialType.CURRENT,
+            },
+            {
+              value: "2",
+              label: t("common.fixed"),
+              disabled: productInfo?.type !== FinancialType.FIXED,
+            },
           ]}
           value={activeKey}
           onChange={(value) => setActiveKey(value)}
@@ -737,7 +759,6 @@ const SubscribeModal = ({
             type: productInfo?.type,
             amount: formData.financialAmount,
             unit: tokenInfo?.coinName,
-            endTime: curRecord?.curProduct.purchaseEndTime,
             autoSubscribe: formData.autoPurchase,
             fixedDays: curRecord?.curProduct.term,
           });

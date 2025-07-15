@@ -146,9 +146,7 @@ const RedeemConfirmModal = ({
                     {t("common.arrivalTime")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(redeemConfirmModal.endTime).format(
-                      "YYYY-MM-DD HH:mm:ss"
-                    )}
+                    {dayjs(redeemConfirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 </div>
               </>

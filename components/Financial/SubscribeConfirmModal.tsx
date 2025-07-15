@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
+import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 
 export interface SubscribeConfirmModalType {
   open: boolean; // 是否打开
@@ -11,7 +12,6 @@ export interface SubscribeConfirmModalType {
   type?: FinancialType; // 类型
   amount?: number; // 金额
   unit?: string; // 单位
-  endTime?: string | number; // 结束时间
   autoSubscribe?: boolean; // 是否自动申购
   fixedDays?: string | number; // 定期几天
 }
@@ -115,51 +115,59 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
                 {dayjs().format("YYYY-MM-DD HH:mm:ss")}
               </div>
             </div>
-            {/* 开始计息 */}
+            {/* 开始计息 申购时间+1天 当前时区(08):00:00 开始计息 */}
             <div className="flex justify-between">
               <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                 {t("common.startInterest")}
               </div>
-              {/* 当前年月日 时分秒+1天 */}
               <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                {dayjs().add(1, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(1, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 首次发息 */}
+            {/* 首次发息 申购时间+2天 当前时区(08):00:00 首次发息 */}
             <div className="flex justify-between">
               <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                 {t("common.firstInterest")}
               </div>
-              {/* 当前年月日 时分秒+2天 */}
               <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                {dayjs().add(2, "day").format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs().add(2, "day").format("YYYY-MM-DD") +
+                  " " +
+                  `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
             {/* 定期 */}
             {subscribeConfirmModal.type === FinancialType.FIXED ? (
               <>
-                {/* 最后发息 */}
+                {/* 最后发息 申购时间+定期天数+2天 当前时区(08):00:00 最后发息 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.lastDue")}
                   </div>
-                  {/* 当前年月日 时分秒+3天 */}
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(subscribeConfirmModal.endTime)
-                      .add(1, "day")
-                      .format("YYYY-MM-DD HH:mm:ss")}
+                    {dayjs()
+                      .add(Number(subscribeConfirmModal.fixedDays), "day")
+                      .add(2, "day")
+                      .format("YYYY-MM-DD") +
+                      " " +
+                      `${getCurrentTimeZone()}:00:00`}
                   </div>
                 </div>
                 {/* 下次申购 没选择自动申购,就不显示 */}
+                {/* 下次申购 申购时间+定期天数+2天 当前时区(08):00:00 下次申购 */}
                 {subscribeConfirmModal.autoSubscribe ? (
                   <div className="flex justify-between">
                     <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                       {t("common.nextSubscribe")}
                     </div>
                     <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                      {dayjs(subscribeConfirmModal.endTime)
-                        .add(1, "day")
-                        .format("YYYY-MM-DD HH:mm:ss")}
+                      {dayjs()
+                        .add(Number(subscribeConfirmModal.fixedDays), "day")
+                        .add(2, "day")
+                        .format("YYYY-MM-DD") +
+                        " " +
+                        `${getCurrentTimeZone()}:00:00`}
                     </div>
                   </div>
                 ) : null}

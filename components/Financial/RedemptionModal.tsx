@@ -366,6 +366,7 @@ const RedemptionModal = ({
                   </div>
                   {/* 内容显示 */}
                   <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
+                    {/* 购买金额 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.purchaseAmount")}
@@ -375,6 +376,7 @@ const RedemptionModal = ({
                         {curProductInfo?.coinName}
                       </div>
                     </div>
+                    {/* 累计收益 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.accruedInterest")}
@@ -384,6 +386,7 @@ const RedemptionModal = ({
                         {curProductInfo?.coinName}
                       </div>
                     </div>
+                    {/* 赎回金额 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.redeemAmount")}

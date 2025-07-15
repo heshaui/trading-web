@@ -15,31 +15,30 @@ const Countdown: React.FC<CountdownProps> = ({ value, onEnd, btn }) => {
   const [remaining, setRemaining] = useState(value);
 
   useEffect(() => {
-    // 如果传入进来是小于0 则直接返回
-    if (value <= 0) {
+    // 如果传入进来是大于0 
+    if (value > 0) {
+      // 设置剩余时间
+      setRemaining(value);
+
+      // 则开始倒计时
+      const timer = setInterval(() => {
+        setRemaining((prev) => {
+          const newRemaining = prev - 1000;
+
+          if (newRemaining <= 0) {
+            onEnd?.(true);
+            return 0;
+          }
+
+          return newRemaining;
+        });
+      }, 1000);
+
+      // 清除定时器
+      return () => clearInterval(timer);
+    } else {
       onEnd?.(true);
-      return;
     }
-
-    // 重置剩余时间
-    setRemaining(value);
-
-    // 如果传入进来是大于0 则开始倒计时
-    const timer = setInterval(() => {
-      setRemaining((prev) => {
-        const newRemaining = prev - 1000;
-
-        if (newRemaining <= 0) {
-          onEnd?.(true);
-          return 0;
-        }
-
-        return newRemaining;
-      });
-    }, 1000);
-
-    // 清除定时器
-    return () => clearInterval(timer);
   }, [value, onEnd]);
 
   // 格式化显示时间
