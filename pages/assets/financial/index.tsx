@@ -38,7 +38,8 @@ import { useRouter } from "next/router";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
 import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
-import appStore from '@/store';
+import appStore from "@/store";
+import dayjs from "dayjs";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
@@ -79,7 +80,13 @@ const TabsItem = ({
         return (
           <Flex gap="8px">
             {record.iconUrl && (
-              <Image width={24} height={24} src={record.iconUrl} alt="" style={{borderRadius: "50%"}}/>
+              <Image
+                width={24}
+                height={24}
+                src={record.iconUrl}
+                alt=""
+                style={{ borderRadius: "50%" }}
+              />
             )}
             <div>{record.coinName}</div>
           </Flex>
@@ -117,18 +124,31 @@ const TabsItem = ({
     },
 
     // 申购日期 定期显示
-    ...(type === FinancialType.FIXED ? [{
-      title: t("common.subscribeTime"),
-      dataIndex: "purchaseTime",
-      key: "purchaseTime",
-    }] : []),
+    ...(type === FinancialType.FIXED
+      ? [
+          {
+            title: t("common.subscribeTime"),
+            dataIndex: "purchaseStartTime",
+            key: "purchaseStartTime",
+            render: (_: any, record: any) => {
+              return record.purchaseStartTime
+                ? dayjs(record.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")
+                : "--";
+            },
+          },
+        ]
+      : []),
 
     // 期限(天) 定期显示
-    ...(type === FinancialType.FIXED ? [{
-      title: `${t("common.term")}(${t("common.day")})`,
-      dataIndex: "term",
-      key: "term",
-    }] : []),
+    ...(type === FinancialType.FIXED
+      ? [
+          {
+            title: `${t("common.term")}(${t("common.day")})`,
+            dataIndex: "term",
+            key: "term",
+          },
+        ]
+      : []),
 
     // 申购金额
     {
@@ -182,11 +202,20 @@ const TabsItem = ({
     },
 
     // 赎回日期 定期显示
-    ...(type === FinancialType.FIXED ? [{
-      title: t("common.redeemTime"),
-      dataIndex: "redeemTime",
-      key: "redeemTime",
-    }] : []),
+    ...(type === FinancialType.FIXED
+      ? [
+          {
+            title: t("common.redeemTime"),
+            dataIndex: "purchaseEndTime",
+            key: "purchaseEndTime",
+            render: (_: any, record: any) => {
+              return record.purchaseEndTime
+                ? dayjs(record.purchaseEndTime).format("YYYY-MM-DD HH:mm:ss")
+                : "--";
+            },
+          },
+        ]
+      : []),
 
     // 操作
     {
@@ -283,17 +312,17 @@ const TabsItem = ({
 const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  const rateKey = appStore.getRateKey()?.replace(/\s+/g, '');// 汇率key
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const rateData = appStore.getRateData();
-  
+
   // 计算当前汇率比例
-  const currentRate = rateData.find((item: any) => item.span === rateKey)?.price || 1;
+  const currentRate =
+    rateData.find((item: any) => item.span === rateKey)?.price || 1;
 
   // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
   const [activeKey, setActiveKey] = useState<FinancialType>(
     FinancialType.FIXED
   );
-
 
   // 当路由准备就绪时，根据URL参数设置激活的标签页
   useEffect(() => {
@@ -465,7 +494,6 @@ const Financial = observer(() => {
         onRefresh={handleRefresh}
       />
 
-
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}
@@ -473,7 +501,6 @@ const Financial = observer(() => {
         setOpenSubscribeModal={setOpenSubscribeModal}
         onRefresh={handleRefresh}
       />
-
 
       {/* 基础页面 */}
       <ConfigProvider
