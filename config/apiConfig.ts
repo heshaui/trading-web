@@ -23,7 +23,9 @@ export const LOCAL_STORAGE_KEY = {
     LANGUAGE_LIST:'cachedLanguageList', //语言列表
     KV_CONFIG:'kv_config', // kv配置
     FLASH_CONFIG: 'flash_config', // 闪兑配置
-    USDT_RATE:'usdt_rate' // USDT汇率
+    USDT_RATE:'usdt_rate', // USDT汇率
+    PUBLIC_INFO: 'public_info', // 公共信息
+    USER_CONFIG: 'user_config' // 用户合约配置
 };
 
 export const KV_KEYS = [

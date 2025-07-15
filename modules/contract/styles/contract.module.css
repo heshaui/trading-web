@@ -1,0 +1,189 @@
+/* 合约交易页面全局样式 */
+.contractPage {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--background5);
+  color: var(--text-color5);
+}
+
+/* 交易页面容器 */
+.tradeContainer {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 主要内容区域 */
+.mainContent {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* 左侧图表区域 */
+.leftSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background-color: var(--background5);
+}
+
+/* 右侧面板 */
+.rightSection {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background5);
+  border-left: 1px solid var(--border-color);
+}
+
+/* 订单簿容器 */
+.orderBookContainer {
+  flex: 1;
+  min-height: 400px;
+  background-color: var(--background5);
+}
+
+/* 交易面板容器 */
+.tradePanelContainer {
+  height: 600px;
+  background-color: var(--background5);
+  border-top: 1px solid var(--border-color);
+}
+
+/* 底部表格区域 */
+.bottomTableSection {
+  height: 350px;
+  background-color: var(--background5);
+  border-top: 1px solid var(--border-color);
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+  .rightSection {
+    width: 350px;
+  }
+  
+  .tradePanelContainer {
+    height: 500px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .rightSection {
+    width: 300px;
+  }
+  
+  .tradePanelContainer {
+    height: 450px;
+  }
+  
+  .bottomTableSection {
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    flex-direction: column;
+  }
+  
+  .leftSection {
+    height: 400px;
+  }
+  
+  .rightSection {
+    width: 100%;
+    flex-direction: row;
+    height: 300px;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .orderBookContainer {
+    flex: 1;
+    min-height: 300px;
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .tradePanelContainer {
+    flex: 1;
+    height: 300px;
+    border-top: none;
+  }
+  
+  .bottomTableSection {
+    height: 250px;
+  }
+}
+
+/* 深色主题适配 */
+[data-theme="dark"] .contractPage {
+  background-color: var(--background-dark, #1a1a1a);
+  color: var(--text-color-dark, #ffffff);
+}
+
+[data-theme="dark"] .leftSection,
+[data-theme="dark"] .rightSection,
+[data-theme="dark"] .orderBookContainer,
+[data-theme="dark"] .tradePanelContainer,
+[data-theme="dark"] .bottomTableSection {
+  background-color: var(--background-dark, #1a1a1a);
+  border-color: var(--border-color-dark, #333333);
+}
+
+/* 滚动条样式 */
+.contractPage ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.contractPage ::-webkit-scrollbar-track {
+  background: var(--background7);
+  border-radius: 3px;
+}
+
+.contractPage ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.contractPage ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color4);
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--text-color6);
+}
+
+/* 错误状态 */
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--error-color);
+  flex-direction: column;
+  gap: 10px;
+}
+
+.error button {
+  background-color: var(--theme-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error button:hover {
+  opacity: 0.8;
+}

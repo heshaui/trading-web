@@ -1,0 +1,847 @@
+/* 交易页面主容器 */
+.tradePage {
+  width: 100%;
+  background-color: #f5f5f5;
+  color: var(--text-color5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 主要内容区域 - 三栏布局 */
+.mainContent {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  background-color: #ffffff;
+}
+
+/* 左侧面板 - K线图区域 */
+.leftPanel {
+  flex: 1;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 价格信息栏 */
+.priceBar {
+  height: 63px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 0;
+  font-size: 12px;
+}
+
+.symbolSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.symbolSection .ant-select {
+  background-color: transparent;
+}
+
+.symbolSection .ant-select .ant-select-selector {
+  background-color: transparent;
+  color: var(--text-color5);
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 0;
+  height: 32px;
+  line-height: 32px;
+}
+
+.symbolSection .ant-select-arrow {
+  color: var(--text-color6);
+}
+
+.priceInfo {
+  margin-right: 24px;
+}
+
+.statsSection {
+  display: flex;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  margin-right: 24px;
+
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-color6);
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.statValue {
+
+  color: var(--text-color5);
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.actionSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.klineControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.klineTypes {
+  display: flex;
+  gap: 8px;
+}
+
+.klineType {
+  padding: 4px 8px;
+  font-size: 12px;
+
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.klineType:hover {
+  background-color: var(--background6);
+  color: var(--text-color5);
+}
+
+.chartIcons {
+  display: flex;
+  gap: 8px;
+}
+
+.chartIcons svg {
+  width: 16px;
+  height: 16px;
+
+  cursor: pointer;
+}
+
+.chartIcons svg:hover {
+  color: var(--text-color5);
+}
+
+.leverageSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+
+  border-radius: 4px;
+}
+
+.leverageLabel {
+  font-size: 12px;
+
+}
+
+.leverageValue {
+  font-size: 14px;
+  color: var(--text-color5);
+  font-weight: 600;
+}
+
+.topActions {
+  display: flex;
+  gap: 8px;
+}
+
+.topActions .ant-btn {
+  background-color: transparent;
+
+
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.topActions .ant-btn:hover {
+  border-color: var(--tip-color);
+  color: var(--tip-color);
+}
+
+/* 中间面板 - 订单簿 */
+.centerPanel {
+  width: 280px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 右侧面板 - 交易 */
+.rightPanel {
+  width: 320px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 面板头部 */
+.panelHeader {
+  height: 44px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #ffffff;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color5);
+  line-height: 20px;
+}
+
+/* 价格相关样式 */
+.currentPrice {
+  font-weight: 600;
+}
+
+.priceChange {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.priceChangePercent {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.priceUp {
+  color: var(--success-color);
+}
+
+.priceDown {
+  color: var(--error-color);
+}
+
+.priceUsd {
+  font-size: 12px;
+  color: var(--text-color6);
+  font-weight: 400;
+  line-height: 16px;
+  margin-left: 4px;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.actionBtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color6);
+  border: none;
+}
+
+.actionBtn:hover {
+  color: var(--text-color5);
+  background-color: #f5f5f5;
+}
+
+/* 容器 */
+.orderBookContainer {
+  flex: 1;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.chartContainer {
+  flex: 1;
+  min-height: 0;
+  background-color: #ffffff;
+}
+
+.tradingContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+/* 底部面板 */
+.bottomPanel {
+  height: 320px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e5e5;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* 自定义滚动条 */
+.tradePage *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tradePage *::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.tradePage *::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 3px;
+}
+
+.tradePage *::-webkit-scrollbar-thumb:hover {
+  background: #b0b0b0;
+}
+
+/* 深色主题组件样式 */
+.tradePage .ant-select-dropdown {
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+}
+
+.tradePage .ant-select-item {
+  color: var(--text-color5);
+}
+
+.tradePage .ant-select-item:hover {
+  background-color: #f5f5f5;
+}
+
+.tradePage .ant-select-item-option-selected {
+  background-color: #f0f0f0;
+  color: var(--text-color5);
+  font-weight: 500;
+}
+
+.tradePage .ant-btn-primary {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: #FFFFFF;
+  font-weight: 500;
+  height: 40px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.tradePage .ant-btn-primary:hover:not(:disabled) {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  opacity: 0.9;
+}
+
+.tradePage .ant-btn-danger {
+  background-color: var(--error-color);
+  border-color: var(--error-color);
+  color: #FFFFFF;
+  font-weight: 500;
+  height: 40px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.tradePage .ant-btn-danger:hover:not(:disabled) {
+  background-color: var(--error-color);
+  border-color: var(--error-color);
+  opacity: 0.9;
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+  .centerPanel {
+    width: 260px;
+  }
+  
+  .rightPanel {
+    width: 300px;
+  }
+  
+  .priceBar {
+    padding: 0 12px;
+  }
+  
+  .statsSection {
+
+  }
+  
+  .tradingContainer {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .centerPanel {
+    width: 240px;
+  }
+  
+  .rightPanel {
+    width: 280px;
+  }
+  
+  .statsSection {
+
+  }
+  
+  .bottomPanel {
+    height: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .priceBar {
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .symbolSection {
+    width: 100%;
+    min-width: auto;
+    justify-content: space-between;
+  }
+  
+  .statsSection {
+    width: 100%;
+    flex-wrap: wrap;
+
+    margin-left: 0;
+  }
+  
+  .statItem {
+    min-width: calc(50% - 8px);
+  }
+  
+  .currentPrice {
+    font-size: 24px;
+  }
+  
+  .priceChangePercent {
+    font-size: 14px;
+  }
+  
+  .statValue {
+    font-size: 13px;
+  }
+  
+  .mainContent {
+    flex-direction: column;
+  }
+  
+  .leftPanel {
+    width: 100%;
+    height: 350px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color4);
+  }
+  
+  .centerPanel {
+    width: 100%;
+    height: 300px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color4);
+  }
+  
+  .rightPanel {
+    width: 100%;
+    height: 250px;
+  }
+  
+  .bottomPanel {
+    height: 200px;
+  }
+} 
+
+.orderBookActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headerActionBtn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color6);
+  border: none;
+}
+
+.headerActionBtn:hover {
+  color: var(--text-color5);
+  background-color: #f5f5f5;
+}
+
+.fundingCountdown {
+  color: var(--text-color6);
+  font-weight: 400;
+}
+
+/* 底部标签页样式 */
+.bottomTabs {
+  padding: 0 16px;
+}
+
+.bottomTabs .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+.bottomTabs .ant-tabs-tab {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-color6);
+}
+
+.bottomTabs .ant-tabs-tab-active {
+  color: var(--text-color5);
+  font-weight: 500;
+}
+
+.bottomTabs .ant-tabs-ink-bar {
+  background-color: var(--theme-color);
+}
+
+.bottomContent {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 16px 16px;
+}
+
+/* Dropdown 组件样式 */
+.dropdown_trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color5);
+  transition: all 0.2s ease;
+}
+
+.dropdown_trigger:hover {
+  color: var(--theme-color);
+}
+
+.dropdown_trigger span {
+  line-height: 1;
+}
+.dropdown_container {
+  width: 480px;
+  max-height: 600px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+  padding: 0;
+}
+
+.search_container {
+  padding: 16px 16px 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #ffffff;
+}
+
+.input_box {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.input_box:hover {
+  border-color: var(--theme-color);
+}
+
+.input_box:focus,
+.input_box.ant-input-focused {
+  border-color: var(--theme-color);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.input_box .ant-input {
+  border: none;
+  box-shadow: none;
+  font-size: 14px;
+  color: var(--text-color5);
+}
+
+.input_box .ant-input::placeholder {
+  color: var(--text-color6);
+}
+
+.tabs_container {
+  background: #ffffff;
+}
+
+.tabs_list {
+  padding: 0 16px;
+}
+
+.tabs_list .ant-tabs {
+  margin: 0;
+}
+
+.tabs_list .ant-tabs-nav {
+  margin-bottom: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tabs_list .ant-tabs-nav::before {
+  border: none;
+}
+
+.tabs_list .ant-tabs-tab {
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color6);
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.tabs_list .ant-tabs-tab:hover {
+  color: var(--theme-color);
+}
+
+.tabs_list .ant-tabs-tab-active {
+  color: var(--theme-color);
+  font-weight: 600;
+}
+
+.tabs_list .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--theme-color);
+}
+
+.tabs_list .ant-tabs-ink-bar {
+  background: var(--theme-color);
+  height: 2px;
+}
+
+.tabs_list .ant-tabs-content-holder {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* 币种列表样式 */
+.symbol_list {
+  padding: 8px 0;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.symbol_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.symbol_item:hover {
+  background-color: #f5f7fa;
+}
+
+.symbol_item:last-child {
+  border-bottom: none;
+}
+
+.symbol_info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.symbol_name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color5);
+  line-height: 1.2;
+}
+
+.symbol_type {
+  font-size: 12px;
+  color: var(--text-color6);
+  line-height: 1.2;
+}
+
+.symbol_price_info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.symbol_price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color5);
+  line-height: 1.2;
+}
+
+.symbol_change {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.symbol_change.positive {
+  color: var(--success-color);
+  background-color: rgba(0, 170, 0, 0.1);
+}
+
+.symbol_change.negative {
+  color: var(--error-color);
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.symbol_change.neutral {
+  color: var(--text-color6);
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+/* 收藏按钮样式 */
+.favorite_btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-color6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 8px;
+}
+
+.favorite_btn:hover {
+  color: #ffb800;
+}
+
+.favorite_btn.favorited {
+  color: #ffb800;
+}
+
+/* 空状态样式 */
+.empty_state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-color6);
+}
+
+.empty_icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.empty_text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 加载状态样式 */
+.loading_state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* 自定义滚动条样式 */
+.dropdown_container *::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown_container *::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 3px;
+}
+
+.dropdown_container *::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 3px;
+}
+
+.dropdown_container *::-webkit-scrollbar-thumb:hover {
+  background: #b0b0b0;
+}
+
+/* 移动端响应式样式 */
+@media (max-width: 768px) {
+  .dropdown_container {
+    width: 100vw;
+    max-width: 320px;
+    max-height: 80vh;
+  }
+  
+  .search_container {
+    padding: 12px 12px 8px 12px;
+  }
+  
+  .tabs_list {
+    padding: 0 12px;
+  }
+  
+  .symbol_item {
+    padding: 10px 12px;
+  }
+  
+  .symbol_name {
+    font-size: 13px;
+  }
+  
+  .symbol_price {
+    font-size: 13px;
+  }
+  
+  .symbol_change {
+    font-size: 11px;
+    min-width: 50px;
+  }
+}

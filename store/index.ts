@@ -16,6 +16,8 @@ import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } fr
 import { inviteInfoType,usdtRateType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
 import { getConfig } from '@/services/flash';
+import { getPublicInfo, getUserConfig } from '@/services/contract';
+import { UserConfigType } from '@/type/contract/userConfig';
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== 'undefined';
@@ -61,6 +63,14 @@ class AppStore {
     flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
     isLoadingFlashConfig: boolean = false;
     usdtRate: usdtRateType={} as usdtRateType
+    
+    // 添加公共数据状态
+    publicInfo: any = {};
+    isLoadingPublicInfo: boolean = false;
+    
+    // 添加用户合约配置状态
+    userConfig: UserConfigType = {};
+    isLoadingUserConfig: boolean = false;
 
     constructor() {
         // 使状态响应式
@@ -80,6 +90,8 @@ class AppStore {
             this.initBanlanceShow(); //初始化资产显示状态
             this.initFlashConfigFromStorage(); // 初始化闪兑配置
             this.initUsdtRateFromStorage(); //初始化USDT和USD汇率
+            this.initPublicInfoFromStorage(); // 初始化公共数据
+            this.initUserConfigFromStorage(); // 初始化用户合约配置
         }
     }
 
@@ -808,6 +820,110 @@ class AppStore {
     }
     getUsdtRate(): usdtRateType {
         return this.usdtRate;
+    }
+
+    // 公共数据相关方法
+    initPublicInfoFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const publicInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
+            if (publicInfoJson) {
+                this.publicInfo = JSON.parse(publicInfoJson);
+            }
+        } catch (error) {
+            console.error('Failed to load public info from storage:', error);
+        }
+    }
+
+    async loadPublicInfo() {
+        try {
+            this.isLoadingPublicInfo = true;
+            const result = await getPublicInfo({});
+            
+            if (result.code === '0') {
+                this.setPublicInfo(result.data);
+                return result.data;
+            } else {
+                throw new Error('Failed to load public info');
+            }
+        } catch (error) {
+            console.error('Error loading public info:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingPublicInfo = false;
+            });
+        }
+    }
+
+    setPublicInfo(info: any) {
+        this.publicInfo = info;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.PUBLIC_INFO, JSON.stringify(info));
+        }
+    }
+
+    getPublicInfo() {
+        return this.publicInfo;
+    }
+
+    clearPublicInfo() {
+        this.publicInfo = {};
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
+        }
+    }
+
+    // 用户合约配置相关方法
+    initUserConfigFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const userConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.USER_CONFIG);
+            if (userConfigJson) {
+                this.userConfig = JSON.parse(userConfigJson);
+            }
+        } catch (error) {
+            console.error('Failed to load user config from storage:', error);
+        }
+    }
+
+    async loadUserConfig(params: any = {}) {
+        try {
+            this.isLoadingUserConfig = true;
+            const result = await getUserConfig(params);
+            
+            if (result.code === '0') {
+                this.setUserConfig(result.data);
+                return result.data;
+            } else {
+                throw new Error('Failed to load user config');
+            }
+        } catch (error) {
+            console.error('Error loading user config:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingUserConfig = false;
+            });
+        }
+    }
+
+    setUserConfig(config: UserConfigType) {
+        this.userConfig = config;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.USER_CONFIG, JSON.stringify(config));
+        }
+    }
+
+    getUserConfig() {
+        return this.userConfig;
+    }
+
+    clearUserConfig() {
+        this.userConfig = {} as UserConfigType;
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_CONFIG);
+        }
     }
 }
 

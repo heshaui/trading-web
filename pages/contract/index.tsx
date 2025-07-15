@@ -1,1 +1,1 @@
-export { default } from '../../modules/contract/pages';
+export { default } from '../../modules/contract/pages/trade';

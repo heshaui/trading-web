@@ -1,0 +1,554 @@
+.tradingPanel {
+  background-color: #ffffff;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 顶部工具栏 */
+.topToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.marginLeverageGroup {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  border-radius: 20px;
+  padding: 2px;
+}
+
+.marginBtn,
+.leverageBtn {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: none;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.marginBtn {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.leverageBtn:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.toolbarIcons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  color: #666;
+  background-color: #f5f5f5;
+}
+
+.iconBtn span {
+  font-size: 20px;
+}
+
+/* 开仓/平仓切换 */
+.positionToggle {
+  margin-bottom: 16px;
+}
+
+.toggleWrapper {
+  position: relative;
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 25px;
+  padding: 4px;
+  height: 48px;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: 40px;
+  background-color: #FF5722;
+  border-radius: 21px;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.toggleSliderRight {
+  transform: translateX(100%);
+}
+
+.toggleBtn {
+  flex: 1;
+  height: 40px;
+  border: none;
+  background-color: transparent;
+  color: #666;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 21px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.toggleBtnActive {
+  color: #ffffff;
+}
+
+/* 订单类型标签 */
+.orderTypeTabs {
+  margin-bottom: 16px;
+}
+
+.tabsWrapper {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.tabItem {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  color: #999;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tabItem:hover {
+  color: #666;
+}
+
+.tabItemActive {
+  color: #333;
+  font-weight: 500;
+}
+
+.tabItemActive::after {
+  content: '';
+  position: absolute;
+  bottom: -13px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #FF5722;
+}
+
+/* 可用余额 */
+.balanceSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.balanceLabel {
+  color: #666;
+}
+
+.balanceValue {
+  color: #FF5722;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.swapIcon {
+  font-size: 16px;
+  color: #FF5722;
+  cursor: pointer;
+}
+
+/* 表单样式 */
+.orderForm {
+  margin: 0;
+}
+
+.formItem {
+  margin-bottom: 16px;
+}
+
+.formItem .ant-form-item {
+  margin-bottom: 0;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.priceInput,
+.quantityInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  padding-right: 60px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.priceInput:hover,
+.quantityInput:hover {
+  border-color: #ddd;
+}
+
+.priceInput:focus,
+.quantityInput:focus {
+  border-color: #FF5722;
+  background-color: #fff;
+  outline: none;
+}
+
+.priceInput .ant-input-suffix,
+.quantityInput .ant-input-suffix {
+  color: #666;
+  font-size: 13px;
+}
+
+.inputSuffixGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 13px;
+}
+
+.dropdownIcon {
+  font-size: 16px;
+  color: #999;
+  cursor: pointer;
+}
+
+/* 百分比滑块 */
+.percentageSection {
+  margin-bottom: 20px;
+  padding: 0 4px;
+}
+
+.percentageSlider {
+  width: 100%;
+}
+
+.percentageSlider .ant-slider-rail {
+
+  height: 4px;
+}
+
+.percentageSlider .ant-slider-track {
+  background-color: #FF5722;
+  height: 4px;
+}
+
+.percentageSlider .ant-slider-handle {
+  border: 2px solid #FF5722;
+  background-color: #ffffff;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.percentageSlider .ant-slider-handle:focus {
+  box-shadow: 0 0 0 5px rgba(255, 87, 34, 0.12);
+}
+
+.percentageSlider .ant-slider-dot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #e0e0e0;
+  background-color: #ffffff;
+  margin-top: -2px;
+}
+
+.percentageSlider .ant-slider-dot-active {
+  border-color: #FF5722;
+}
+
+.percentageMarks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 2px;
+}
+
+.percentageMarks span {
+  font-size: 11px;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.percentageMarks .activeMark {
+  color: #FF5722;
+  font-weight: 500;
+}
+
+/* 可买/可卖数量 */
+.quantityInfo {
+  margin-bottom: 16px;
+}
+
+.quantityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.buyLabel,
+.sellLabel {
+  color: #666;
+}
+
+.buyLabel {
+  color: #4CAF50;
+}
+
+.sellLabel {
+  color: #F44336;
+}
+
+.buyValue,
+.sellValue {
+  font-weight: 500;
+  color: #333;
+}
+
+/* 止盈止损 */
+.tpslSection {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.tpslHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tpslSwitch .ant-switch {
+
+}
+
+.tpslSwitch .ant-switch-checked {
+  background-color: #FF5722;
+}
+
+.tpslLabel {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+}
+
+.tpslInputs {
+  margin-top: 12px;
+}
+
+.tpslInputRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tpslInputRow:last-child {
+  margin-bottom: 0;
+}
+
+.tpslInputLabel {
+  font-size: 12px;
+  color: #666;
+  width: 80px;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.tpslInput {
+  flex: 1;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  font-size: 14px;
+}
+
+.tpslInput:hover {
+  border-color: #40a9ff;
+}
+
+.tpslInput:focus,
+.tpslInput.ant-input-focused {
+  border-color: #FFD700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+
+.tpslInput .ant-input-suffix {
+  color: #999;
+  font-size: 12px;
+}
+
+/* 高级设置 */
+.advancedSettings {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.advancedLabel {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.advancedRight {
+  display: flex;
+  align-items: center;
+}
+
+.advancedSelect {
+  width: 80px;
+}
+
+.advancedSelect .ant-select-selector {
+  border: 1px solid #e9ecef;
+  background-color: #fff;
+  height: 32px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.advancedSelect .ant-select-arrow {
+  color: #999;
+}
+
+/* 提交按钮 */
+.submitSection {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.submitBtn {
+  height: 48px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.buyBtn {
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+  color: #ffffff;
+}
+
+
+
+.sellBtn {
+  background: linear-gradient(135deg, #F44336 0%, #EF5350 100%);
+  color: #ffffff;
+}
+
+
+
+/* 成本显示 */
+.costSection {
+  font-size: 12px;
+}
+
+.costRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.costLabel {
+  color: #999;
+}
+
+.costValue {
+  color: #333;
+  font-weight: 500;
+  margin-right: 16px;
+}
+
+.costRow .costLabel:nth-child(3) {
+  margin-left: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tradingPanel {
+    padding: 12px;
+  }
+  
+  .topToolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .marginLeverageGroup {
+    justify-content: center;
+  }
+  
+  .toolbarIcons {
+    justify-content: center;
+  }
+  
+  .quantityRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .costRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+} 

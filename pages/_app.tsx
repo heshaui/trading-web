@@ -42,6 +42,7 @@ function App({ Component, pageProps }: AppProps) {
   // 在客户端同步暗色模式状态并应用主题变量
   useEffect(() => {
     appStore.loadCurrencyPairs();
+    appStore.loadPublicInfo();
     initTheme();
   }, []);
 

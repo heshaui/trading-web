@@ -153,3 +153,4 @@ class WebSocketService {
 }
 
 export default WebSocketService;
+export { ConnectionState };
