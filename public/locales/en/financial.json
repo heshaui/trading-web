@@ -99,7 +99,7 @@
     "startTime": "Start Time",
     "endTime": "End Time",
     "startInvestment": "Start Investment",
-    "exceedSubscribeAmount": "Input amount exceeds the amount of subscription",
+    "exceedSubscribeAmount": "Subscription limit",
     "insufficientBalance": "Insufficient account balance",
     "end": "End"
   },

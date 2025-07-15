@@ -96,10 +96,13 @@ const MyFinancial = observer(
     // 初始化
     useEffect(() => {
       if (isLoggedIn) {
-        initBackgroundImage();
         initMyPosition();
       }
     }, [isLoggedIn]);
+
+    useEffect(() => {
+      initBackgroundImage();
+    }, []);
 
     return (
       <>
@@ -134,7 +137,7 @@ const MyFinancial = observer(
           </div>
 
           {/* 右侧内容-我的资产 */}
-          {financialConfig?.isDisplayAssets && isLoggedIn &&
+          {financialConfig?.isDisplayAssets &&
             financialConfig.isDisplayAssets ===
               FunctionEnabledStatusEnum.OPEN && (
               <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
@@ -150,13 +153,17 @@ const MyFinancial = observer(
                         <EyeOutlined
                           size={18}
                           className="cursor-pointer"
-                          onClick={() => setShowAmount(!showAmount)}
+                          onClick={() =>
+                            isLoggedIn && setShowAmount(!showAmount)
+                          }
                         />
                       ) : (
                         <EyeInvisibleOutlined
                           size={18}
                           className="cursor-pointer"
-                          onClick={() => setShowAmount(!showAmount)}
+                          onClick={() =>
+                            isLoggedIn && setShowAmount(!showAmount)
+                          }
                         />
                       )}
                     </div>
@@ -166,7 +173,11 @@ const MyFinancial = observer(
                       <div
                         className="w-[24px] h-[24px] cursor-pointer"
                         onClick={() => {
-                          router.push("/financialOrder");
+                          if (!isLoggedIn) {
+                            router.push("/login");
+                          } else {
+                            router.push("/financialOrder");
+                          }
                         }}
                       >
                         <Image
@@ -180,7 +191,11 @@ const MyFinancial = observer(
                       <div
                         className="w-[24px] h-[24px] cursor-pointer"
                         onClick={() => {
-                          router.push("/assets/financial");
+                          if (!isLoggedIn) {
+                            router.push("/login");
+                          } else {
+                            router.push("/assets/financial");
+                          }
                         }}
                       >
                         <Image

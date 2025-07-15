@@ -285,7 +285,11 @@ const Subscription: React.FC<SubscriptionProps> = ({
                     Number(value) > Number(productInfo?.maxPurchaseAmount)
                   ) {
                     return Promise.reject(
-                      new Error(`${t("common.exceedSubscribeAmount")}`)
+                      new Error(
+                        `${t("common.exceedSubscribeAmount")} ${
+                          productInfo?.maxPurchaseAmount
+                        } ${tokenInfo?.coinName}`
+                      )
                     );
                   }
 
