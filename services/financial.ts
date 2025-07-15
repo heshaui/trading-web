@@ -91,8 +91,7 @@ export function getMyPosition(): Promise<RequestParams<MyPositionItem>> {
 // 1.成功 2.失败 3.进行中
 export enum FinancialOrderStatusEnum {
   SUCCESS = 1, //成功
-  FAIL = 2, //失败
-  PROCESSING = 3, //进行中
+  FAIL = 0, //失败
 }
 
 // 1.申购 2.赎回 3.利息
@@ -117,9 +116,10 @@ export interface FinancialOrderItem {
   iconUrl: string; //币种图标
   createTime: number; //日期
   type: FinancialOrderTypeEnum; // 1.申购 2.赎回
-  resultStatusMap: FinancialOrderStatusEnum; // 1成功，2失败，3进行中
+  resultStatus: FinancialOrderStatusEnum; // 1成功，2失败，3进行中
   amount: number; //金额
   usdAmount: number; //usd折算价格
+
 }
 
 export function getFinancialOrderList(

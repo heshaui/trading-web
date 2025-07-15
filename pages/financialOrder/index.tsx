@@ -44,10 +44,6 @@ const resultStatusMap: Record<
     type: "error",
     text: "common.fail",
   },
-  [FinancialOrderStatusEnum.PROCESSING]: {
-    type: "processing",
-    text: "common.processing",
-  },
 };
 
 interface TabsItemProps {
@@ -128,12 +124,13 @@ const TabsItem = ({
     },
     {
       title: t("common.status"),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "resultStatus",
+      key: "resultStatus",
       render: (_: any, record: FinancialOrderItem) => {
-        return record.resultStatusMap ? (
-          <Tag color={resultStatusMap[record.resultStatusMap].type}>
-            {t(resultStatusMap[record.resultStatusMap].text)}
+        const resultStatus = record.resultStatus;
+        return resultStatus !== null && resultStatus !== undefined ? (
+          <Tag color={resultStatusMap[resultStatus].type}>
+            {t(resultStatusMap[resultStatus].text)}
           </Tag>
         ) : (
           "-"
