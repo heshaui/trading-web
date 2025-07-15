@@ -391,9 +391,13 @@ export function getFinancialAccountRedemptionShow(
 
 /*-----------------理财账户-赎回显示end 定期--------------------*/
 
+export interface FinancialAccountRedemptionShowFixedItem {
+  earnInterest: number;
+  redeemMoney: number;
+}
 export function getFinancialAccountRedemptionShowFixed(
   params: FinancialAccountRedemptionShowParams
-): Promise<RequestParams<string>> {
+  ): Promise<RequestParams<FinancialAccountRedemptionShowFixedItem>> {
   return request(`${fixUrl2}/assets-web/v1/user-project/regularRedeemDisplay`, {
     method: "POST",
     body: JSON.stringify(params),

@@ -44,6 +44,7 @@
     "expirationRedeemTips3": "3.If the purchase currency is not the reward currency, the exchange rate at the time of interest settlement will be updated.",
     "redeemAmount": "Redeem Amount",
     "accruedInterest": "Accrued Interest",
+    "totalInterest": "Total Interest",
     "redeemAmountCannotBeLessThanOrEqualTo0": "Redeem amount cannot be less than or equal to 0",
     "redeemAmountCannotBeGreaterThan": "Maximum",
     "pleaseEnterTheRedeemAmount": "Please enter the redeem amount",
@@ -101,7 +102,10 @@
     "startInvestment": "Start Investment",
     "exceedSubscribeAmount": "Subscription limit",
     "insufficientBalance": "Insufficient account balance",
-    "end": "End"
+    "end": "End",
+    "estimatedIncomeTips1": "Rewards start accumulating on the day after subscription and are distributed to your spot wallet at 08:00 (UTC+8) the day after calculation (i.e., two days after subscription).",
+    "estimatedIncomeTips2": "The tiered annual return and rewards vary depending on the subscription amount and may change daily.",
+    "autoSubscribeTips": "After enabling automatic subscription to current products, your assets in the spot wallet will be automatically subscribed to this current product at 02:00 and 18:00 (UTC+8) every day."
   },
   "financial": {
     "myProperty": "My Property",

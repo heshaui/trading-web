@@ -44,6 +44,7 @@
     "expirationRedeemTips3": "3.如果申购币种不是奖励币种，会根据发息时实时汇率更新。",
     "redeemAmount": "赎回金额",
     "accruedInterest": "已获得利息",
+    "totalInterest": "累计利息",
     "redeemAmountCannotBeLessThanOrEqualTo0": "赎回金额不能小于等于0",
     "redeemAmountCannotBeGreaterThan": "最多",
     "pleaseEnterTheRedeemAmount": "请输入赎回金额",
@@ -101,7 +102,10 @@
     "startInvestment": "起投",
     "exceedSubscribeAmount": "可申购额度",
     "insufficientBalance": "账户余额不足",
-    "end": "结束"
+    "end": "结束",
+    "estimatedIncomeTips1": "奖励在申购次日开始累积，并在申购两天后的 08：00 (UTC+8) 发放到您的现货账户；",
+    "estimatedIncomeTips2":"阶梯年化收益和奖励视申购金额而定，并且可能每天变化。",
+    "autoSubscribeTips": "开启自动申购后，您现货钱包中的资产将于每日02:00和18:00(UTC+8)自动申购此活期产品。"
   },
   "financial": {
     "myProperty": "我的资产",

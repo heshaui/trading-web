@@ -1,5 +1,6 @@
 import {
   financialAccountRedemption,
+  FinancialAccountRedemptionShowFixedItem,
   FinancialAccountRedemptionShowItem,
   FinancialType,
   getFinancialAccountRedemptionShow,
@@ -21,7 +22,9 @@ import { createStyles } from "antd-style";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
-import RedeemConfirmModal, { RedeemConfirmModalType } from "./RedeemConfirmModal";
+import RedeemConfirmModal, {
+  RedeemConfirmModalType,
+} from "./RedeemConfirmModal";
 import Image from "next/image";
 
 const useStyle = createStyles(() => ({
@@ -74,7 +77,10 @@ const RedemptionModal = ({
     });
 
   //赎回金额-定期
-  const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<string>("");
+  const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<FinancialAccountRedemptionShowFixedItem>({
+    earnInterest: 0,
+    redeemMoney: 0,
+  });
 
   // 赎回确认弹窗
   const [redeemConfirmModal, setRedeemConfirmModal] =
@@ -111,6 +117,7 @@ const RedemptionModal = ({
             interest: curProductInfo?.accruedInterest,
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
+            settlementInterest: curProductInfo?.settlementInterest,
           });
           // 刷新页面数据
           onRefresh?.();
@@ -151,7 +158,7 @@ const RedemptionModal = ({
             if (curProduct?.type === FinancialType.CURRENT) {
               setRedeemInfo(res.data as FinancialAccountRedemptionShowItem);
             } else {
-              setRedeemMoneyFixed(res.data as string);
+              setRedeemMoneyFixed(res.data as FinancialAccountRedemptionShowFixedItem);
             }
           }
         } catch (error) {
@@ -164,7 +171,10 @@ const RedemptionModal = ({
     }
     if (!openRedemption) {
       form.resetFields();
-      setRedeemMoneyFixed("");
+      setRedeemMoneyFixed({
+        earnInterest: 0,
+        redeemMoney: 0,
+      });
       setCurProductInfo(null);
       setRedeemInfo({
         totalAssets: 0,
@@ -179,14 +189,20 @@ const RedemptionModal = ({
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
-          form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
+          // 最大：1.当前用户总资产≤今日赎回限制，点击最大， 输入框数量显示用户全部总资产
+          // 2.当前用户总资产≥今日赎回上限， 点击最大，输入框数量显示今日赎回上限
+          if (Number(redeemInfo.totalAssets) <= Number(redeemInfo.redeemLimit)) {
+            form.setFieldValue("redeemMoney", redeemInfo.totalAssets);
+          } else {
+            form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
+          }
         }}
       >
         {t("common.max")}
       </div>
       <Divider type="vertical" style={{ background: "var(--border-color4)" }} />
       <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-      {curProductInfo?.iconUrl && (
+        {curProductInfo?.iconUrl && (
           <Image
             src={curProductInfo?.iconUrl}
             alt={""}
@@ -379,10 +395,12 @@ const RedemptionModal = ({
                     {/* 累计收益 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                        {t("common.accruedInterest")}
+                        {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                          ? t("common.accruedInterest")
+                          : t("common.totalInterest")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {curProductInfo?.accruedInterest}{" "}
+                        {redeemMoneyFixed.earnInterest || "--"}{" "}
                         {curProductInfo?.coinName}
                       </div>
                     </div>
@@ -392,7 +410,7 @@ const RedemptionModal = ({
                         {t("common.redeemAmount")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {redeemMoneyFixed || "--"} {curProductInfo?.coinName}
+                        {redeemMoneyFixed.redeemMoney || "--"} {curProductInfo?.coinName}
                       </div>
                     </div>
                   </div>
@@ -404,17 +422,20 @@ const RedemptionModal = ({
                         height={16}
                         path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
                       />
-                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                      {curProductInfo?.settlementInterest ===
+                      SettlementInterest.DAILY
                         ? t("common.redeemTips1")
                         : t("common.expirationRedeemTips1")}
                     </div>
                     <div className="ml-[20px]">
-                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                      {curProductInfo?.settlementInterest ===
+                      SettlementInterest.DAILY
                         ? t("common.redeemTips2")
                         : t("common.expirationRedeemTips2")}
                     </div>
                     <div className="ml-[20px]">
-                      {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                      {curProductInfo?.settlementInterest ===
+                      SettlementInterest.DAILY
                         ? t("common.redeemTips3")
                         : t("common.expirationRedeemTips3")}
                     </div>

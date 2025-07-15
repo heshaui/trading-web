@@ -49,7 +49,7 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
       key: "billType",
       align: "center",
       width: 128,
-      render: (_text) => <span>{t('assetsAccount.cashout')}</span>,
+      render: (_text) => <span>{t("billDetails.recharge")}</span>,
     },
     {
       title: t('assetsAccount.currency'), //"币种",

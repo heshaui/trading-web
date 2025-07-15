@@ -11,6 +11,7 @@ import {
   Spin,
   Form,
   FormInstance,
+  Tooltip,
 } from "antd";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { createStyles } from "antd-style";
@@ -367,20 +368,31 @@ const Subscription: React.FC<SubscriptionProps> = ({
           </div>
           {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
           <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400]">
-              {productInfo?.type === FinancialType.CURRENT
-                ? t("common.estimatedDailyIncome")
-                : t("common.estimatedTotalIncome")}
-            </div>
+            <Tooltip
+              title={
+                <>
+                  <div>·{t("common.estimatedIncomeTips1")}</div>
+                  <div>{t("common.estimatedIncomeTips2")}</div>
+                </>
+              }
+            >
+              <div className="text-[var(--text-color6)] font-[400] cursor-pointer">
+                {productInfo?.type === FinancialType.CURRENT
+                  ? t("common.estimatedDailyIncome")
+                  : t("common.estimatedTotalIncome")}
+              </div>
+            </Tooltip>
             <div className="text-[var(--theme-color)] font-[400]">
               {income} {tokenInfo?.coinName}
             </div>
           </div>
           {/* 自动申购开关 */}
           <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400]">
-              {t("common.autoSubscribe")}
-            </div>
+            <Tooltip title={t("common.autoSubscribeTips")}>
+              <div className="text-[var(--text-color6)] font-[400] cursor-pointer">
+                {t("common.autoSubscribe")}
+              </div>
+            </Tooltip>
             <Form.Item name="autoPurchase" noStyle>
               <Switch />
             </Form.Item>

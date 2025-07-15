@@ -1,4 +1,4 @@
-import { FinancialType } from "@/services/financial";
+import { FinancialType, SettlementInterest } from "@/services/financial";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
@@ -12,7 +12,7 @@ export interface RedeemConfirmModalType {
   interest?: number;
   type?: FinancialType;
   unit?: string;
-  endTime?: string | number;
+  settlementInterest?: SettlementInterest;
 }
 
 interface RedeemConfirmModalProps {
@@ -103,7 +103,9 @@ const RedeemConfirmModal = ({
                 {/* 已获得利息 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    {t("common.accruedInterest")}
+                    {redeemConfirmModal.settlementInterest === SettlementInterest.DAILY
+                      ? t("common.accruedInterest")
+                      : t("common.totalInterest")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
                     {redeemConfirmModal.interest} {redeemConfirmModal.unit}
@@ -146,7 +148,7 @@ const RedeemConfirmModal = ({
                     {t("common.arrivalTime")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {dayjs(redeemConfirmModal.endTime).format("YYYY-MM-DD HH:mm:ss")}
+                    {dayjs().format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 </div>
               </>
