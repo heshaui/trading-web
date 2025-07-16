@@ -61,6 +61,7 @@
     "operationType": "操作类型",
     "interest": "利息",
     "subscribeFailed": "申购失败",
+    "subscribeFailedSubtitle": "申购失败,订单取消!",
     "subscribeSuccess": "申购成功",
     "term": "期限",
     "subscribeTime": "申购时间",

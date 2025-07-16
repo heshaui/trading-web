@@ -32,6 +32,7 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
 
   return (
     <Modal
+      width={subscribeConfirmModal.status === "success" ? 470 : 400}
       open={subscribeConfirmModal.open}
       onCancel={() => setSubscribeConfirmModal({ open: false, status: null })}
       closable={{ "aria-label": "Custom Close Button" }}
@@ -87,7 +88,7 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
         <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
           {subscribeConfirmModal.status === "success"
             ? t("common.subscribeSuccess")
-            : t("common.subscribeFailed")}
+            : t("common.subscribeFailedSubtitle")}
         </div>
         {/* 时间 */}
         {subscribeConfirmModal.status === "success" ? (

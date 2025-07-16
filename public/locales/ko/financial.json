@@ -61,6 +61,7 @@
     "operationType": "작업 유형",
     "interest": "이자",
     "subscribeFailed": "구독 실패",
+    "subscribeFailedSubtitle": "구매 신청 실패, 주문 취소!",
     "subscribeSuccess": "구독 성공",
     "term": "기간",
     "subscribeTime": "구독 시간",

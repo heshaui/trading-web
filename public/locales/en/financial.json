@@ -61,6 +61,7 @@
     "operationType": "Operation Type",
     "interest": "Interest",
     "subscribeFailed": "Subscribe Failed",
+    "subscribeFailedSubtitle": "Subscription failed, order cancelled!",
     "subscribeSuccess": "Subscribe Success",
     "term": "Term",
     "subscribeTime": "Subscribe Time",

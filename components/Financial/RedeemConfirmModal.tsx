@@ -28,6 +28,7 @@ const RedeemConfirmModal = ({
 
   return (
     <Modal
+      width={redeemConfirmModal.status === "success" ? 470 : 400}
       open={redeemConfirmModal.open}
       onCancel={() =>
         setRedeemConfirmModal({ ...redeemConfirmModal, open: false })
