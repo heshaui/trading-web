@@ -37,7 +37,7 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
       onCancel={() => setSubscribeConfirmModal({ open: false, status: null })}
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
-        <div className="p-[30px_55px] flex justify-around gap-[20px]">
+        <div className="flex justify-around gap-[20px]">
           <Button
             className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
             onClick={() =>
@@ -66,17 +66,22 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
     >
       <div>
         {/* 图标 成功/失败*/}
-        <div className="mb-[15px] m-[30px_180px_15px_180px]">
-          <Image
-            src={
-              subscribeConfirmModal.status === "success"
-                ? "/images/financial/success.png"
-                : "/images/financial/error.png"
-            }
-            alt=""
-            width={126}
-            height={126}
-          />
+        <div className="w-[126px] h-[126px] mx-auto mt-[48px]">
+          {subscribeConfirmModal.status === "success" ? (
+            <Image
+              src="/images/financial/success.png"
+              alt=""
+              width={126}
+              height={126}
+            />
+          ) : (
+            <Image
+              src="/images/financial/error.png"
+              alt=""
+              width={126}
+              height={126}
+            />
+          )}
         </div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">

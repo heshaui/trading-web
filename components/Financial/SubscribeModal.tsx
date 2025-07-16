@@ -34,7 +34,7 @@ import SubscribeConfirmModal, {
 } from "./SubscribeConfirmModal";
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
-import { InfoCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -76,17 +76,19 @@ const Subscription: React.FC<SubscriptionProps> = ({
   setProductInfo,
   curRecord,
   setTabsKey,
+  
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const { t } = useTranslation(["financial"]);
 
+  // 监听表单字段变化
   const financialAmount = Form.useWatch("financialAmount", form);
   const projectId = Form.useWatch("projectId", form);
 
   // 监听 curRecord 变化，更新选中的产品
   useEffect(() => {
     if (productInfo) {
-      setIncome("-"); // 重置收益
+      setIncome(() => "-"); // 重置收益
     }
   }, [productInfo]);
 
@@ -94,7 +96,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
   const fetchIncome = useCallback(
     async (projectId: string | number, amount: string | number) => {
       if (!projectId || !amount || Number(amount) <= 0) {
-        setIncome("-");
+        setIncome(() => "-");
         return;
       }
 
@@ -105,7 +107,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
           amount: Number(amount),
         });
         if (res.code === "0") {
-          setIncome(res.data);
+          setIncome(() => res.data);
         }
       } catch (error) {
         console.error("获取预估收益失败:", error);
@@ -201,7 +203,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   return;
                 }
                 form.resetFields();
-                setIncome("-");
+                setIncome(() => "-");
                 setProductInfo(item);
                 form.setFieldValue("projectId", item.id);
               }}
@@ -316,7 +318,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
               onChange={(e) => {
                 // 如果输入的金额不是数字 则返回错误
                 if (isNaN(Number(e.target.value))) {
-                  setIncome("-");
+                  setIncome(() => "-");
                   return;
                 }
                 // 输入的值小于最小金额
@@ -324,7 +326,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   Number(e.target.value) <
                   Number(productInfo?.minPurchaseAmount)
                 ) {
-                  setIncome("-");
+                  setIncome(() => "-");
                   return;
                 }
                 // 输入的值大于最大金额
@@ -332,7 +334,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   Number(e.target.value) >
                   Number(productInfo?.maxPurchaseAmount)
                 ) {
-                  setIncome("-");
+                  setIncome(() => "-");
                   return;
                 }
                 // 取消之前的防抖调用，重新开始计算
@@ -728,6 +730,10 @@ const SubscribeModal = ({
       status: null,
     });
 
+  // 监听表单字段变化
+  
+  const financialAmount = Form.useWatch("financialAmount", form);
+
   // 标签页
   const items = [
     // 申购
@@ -857,6 +863,7 @@ const SubscribeModal = ({
                 {t("common.cancel")}
               </Button>
               <Button
+                disabled={!financialAmount}
                 loading={loading}
                 type="primary"
                 shape="round"
