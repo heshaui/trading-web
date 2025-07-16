@@ -145,12 +145,14 @@ const Financial = () => {
       theme={{
         components: {
           Table: {
-            headerBg: "transparent",
-            headerColor: "var(--text-color6)",
+            headerBg: "transparent", // 表头背景色
+            headerColor: "var(--text-color6)", // 表头文本颜色
             headerSplitColor: "transparent", // 表头分割线颜色
             rowExpandedBg: "var(--background10)", // 表格行展开背景色
-            borderColor: "transparent",
+            borderColor: "transparent", // 表格边框颜色
             headerBorderRadius: 0, // 表头圆角
+            // 悬停背景色
+            rowHoverBg: "var(--bgc-color)",
           },
           Pagination: {
             itemActiveBg: "transparent",
