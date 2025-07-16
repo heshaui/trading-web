@@ -387,7 +387,7 @@ const TokenList = ({
             headerBg: "transparent",
             headerSplitColor: "transparent",
             borderColor: "transparent",
-            rowExpandedBg: "var(--bgc-color)",
+            rowExpandedBg: "var(--background10)",
             headerColor: "var(--text-color6)",
             fontWeightStrong: 400,
             headerBorderRadius: 0,

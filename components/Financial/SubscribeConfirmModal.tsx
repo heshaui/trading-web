@@ -85,7 +85,7 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
             : t("common.subscribeFailed")}
         </div>
         {/* 副标题 */}
-        <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
+        <div className="text-[var(--text-color6)] font-[400] text-center mb-[30px]  text-[14px]">
           {subscribeConfirmModal.status === "success"
             ? t("common.subscribeSuccess")
             : t("common.subscribeFailedSubtitle")}
