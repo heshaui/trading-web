@@ -15,31 +15,31 @@ const Problem = () => {
     {
       key: "1",
       label: t("financial.question1.title"),
-      children: <p>{t("financial.question1.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question1.answer")}</p>,
       style: textStyle,
     },
     {
       key: "2",
       label: t("financial.question2.title"),
-      children: <p>{t("financial.question2.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question2.answer")}</p>,
       style: textStyle,
     },
     {
       key: "3",
       label: t("financial.question3.title"),
-      children: <p>{t("financial.question3.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question3.answer")}</p>,
       style: textStyle,
     },
     {
       key: "4",
       label: t("financial.question4.title"),
-      children: <p>{t("financial.question4.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question4.answer")}</p>,
       style: textStyle,
     },
     {
       key: "5",
       label: t("financial.question5.title"),
-      children: <p>{t("financial.question5.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question5.answer")}</p>,
       style: textStyle,
     },
   ];
