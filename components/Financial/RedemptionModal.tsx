@@ -228,6 +228,7 @@ const RedemptionModal = ({
     >
       {/* 赎回弹窗 */}
       <Modal
+        width={470}
         classNames={{
           header: styles["my-modal-header"],
           footer: styles["my-modal-footer"],
