@@ -27,7 +27,7 @@ const useStyle = createStyles(() => ({
     marginTop: "0 !important",
     borderRadius: "0 0 10px 10px !important",
     padding: "20px !important",
-    borderTop: "0.5px solid var(--border-color2) !important",
+    borderTop: "1px solid var(--border-color) !important",
   },
   "my-modal-content": {
     padding: "0 !important",
@@ -266,7 +266,7 @@ const MyFinancial = observer(
           <div className="text-[var(--text-color5)] text-[16px] font-bold p-[19px_20px_16px_20px]">
             {t("financial.questionStaking.title")}
           </div>
-          <div className="text-[var(--text-color6] text-[14px] p-[0_20px_20px_20px]">
+          <div className="text-[var(--text-color6)] text-[14px] p-[0_20px_20px_20px]">
             {t("financial.questionStaking.answer")}
           </div>
         </Modal>
