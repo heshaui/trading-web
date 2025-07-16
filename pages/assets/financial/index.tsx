@@ -584,6 +584,7 @@ const Financial = observer(() => {
                 </div>
                 <Button
                   type="primary"
+                  shape="round"
                   onClick={() => {
                     router.push("/financial");
                   }}

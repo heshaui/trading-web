@@ -10,9 +10,20 @@ const MaskableAmount = ({
   prefix?: string;
 }) => {
   return (
-    <span>
-      {show ? `${prefix ? prefix : ""}${amount || 0} ${unit ? unit : ""}` : "****"}
-    </span>
+    <div>
+      <span>
+        {show ? (
+          <>
+            <span style={{ fontFamily: "DIN", marginRight: "4px" }}>
+              {amount || 0}
+            </span>
+            <span>{unit ? unit : ""}</span>
+          </>
+        ) : (
+          "****"
+        )}
+      </span>
+    </div>
   );
 };
 
