@@ -313,11 +313,8 @@ const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
+  const [currentRate, setCurrentRate] = useState(1);
   const rateData = appStore.getRateData();
-
-  // 计算当前汇率比例
-  const currentRate =
-    rateData.find((item: any) => item.span === rateKey)?.price || 1;
 
   // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
   const [activeKey, setActiveKey] = useState<FinancialType>(
@@ -364,11 +361,13 @@ const Financial = observer(() => {
     accumulateRevenue: 0, // 30日累计收益
   });
 
-  // 表格数据
+  // 表单数据
   const [formData, setFormData] = useState<UserFinancialAccountParams>({
     type: FinancialType.FIXED, // 默认为定期，路由准备就绪后会更新
     coinId: null,
   });
+
+  // 表格数据
   const [tableData, setTableData] = useState<UserFinancialAccountItem[]>([]);
 
   // 币种列表
@@ -379,6 +378,7 @@ const Financial = observer(() => {
   // 是否显示金额
   const [showAmount, setShowAmount] = useState(false);
 
+  // 是否是客户端渲染
   const [isClient, setIsClient] = useState(false);
 
   // 切换tabs
@@ -469,15 +469,25 @@ const Financial = observer(() => {
     fetchMyPosition();
   };
 
+  // 获取汇率
+  useEffect(() => {
+    const rate =
+      rateData.find((item: any) => item.shortName === rateKey)?.exchangeRate || 1;
+    setCurrentRate(rate);
+  }, [rateKey, rateData]);
+
+  // 获取币种列表 我的持仓
   useEffect(() => {
     fetchCoinList();
     fetchMyPosition();
   }, []);
 
+  // 获取表格数据
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
 
+  // 是否是客户端渲染
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
   }, []);
@@ -590,7 +600,6 @@ const Financial = observer(() => {
                     <MaskableAmount
                       show={showAmount}
                       amount={myAmount.lastRevenue}
-                      unit="USD"
                     />
                   </div>
                 </div>
@@ -602,7 +611,6 @@ const Financial = observer(() => {
                     <MaskableAmount
                       show={showAmount}
                       amount={myAmount.accumulateRevenue}
-                      unit="USD"
                     />
                   </div>
                 </div>
