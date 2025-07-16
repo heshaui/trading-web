@@ -112,6 +112,11 @@
     "myPosition": "我的持仓",
     "totalIncome": "总收益",
     "yesterdayIncome": "昨日收益",
+    "default": {
+      "mainTitle": "Staking",
+      "subTitle": "门槛低 | 安全性高 | 收益率高\n一站式综合理财服务中心，拥有活期、定期理财方案，为用户提供多个种类上百种数字货币金融产品",
+      "whatIs": "什么是S"
+    },
 
     "needToCompleteTheFollowingOperations": "您需要完成以下操作后申购",
     "bindIdentity": "绑定身份认证",

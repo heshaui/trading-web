@@ -59,8 +59,8 @@ const MyFinancial = observer(
     // 背景图片内容
     const [bgContent, setBgContent] = useState<any>({
       languageCode: "",
-      mainTitle: "",
-      subTitle: "",
+      mainTitle:t("financial.default.mainTitle"),
+      subTitle:t("financial.default.subTitle"),
       backgroundImage: "",
     });
 
@@ -121,7 +121,7 @@ const MyFinancial = observer(
             <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
               {bgContent.mainTitle}
             </div>
-            <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)]">
+            <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)] whitespace-pre-wrap">
               {bgContent.subTitle}
             </div>
             {financialConfig?.isDisplayBackground &&
@@ -131,7 +131,7 @@ const MyFinancial = observer(
                   className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
                   onClick={openProblem}
                 >
-                  什么是{bgContent.mainTitle}？
+                  {t("financial.default.whatIs")} {bgContent.mainTitle}？
                 </div>
               )}
           </div>

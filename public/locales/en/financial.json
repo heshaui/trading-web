@@ -112,6 +112,11 @@
     "myPosition": "My Position",
     "totalIncome": "Total Income",
     "yesterdayIncome": "Yesterday Income",
+    "default": {
+      "mainTitle": "Staking",
+      "subTitle": "Low threshold | High security | High return\nA one-stop comprehensive financial management service center, offering a variety of digital currency financial products, including current and fixed-term financial products, to meet the diverse investment needs of users.",
+      "whatIs": "What is"
+    },
 
     "needToCompleteTheFollowingOperations": "You need to complete the following operations before subscribing",
     "bindIdentity": "Bind Identity",
