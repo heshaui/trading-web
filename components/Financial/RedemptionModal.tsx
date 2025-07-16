@@ -336,7 +336,7 @@ const RedemptionModal = ({
                   <div>
                     <div className="mb-[4px]">
                       <span className="text-[12px] text-[var(--text-color6)] font-[400] mr-[10px]">
-                        {t("common.todayAssets")}
+                        {t("common.totalAssets")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
                         {redeemInfo.totalAssets || "--"}{" "}
