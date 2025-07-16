@@ -836,6 +836,13 @@ const SubscribeModal = ({
         components: {
           Tabs: { cardPadding: "20px" },
           Modal: { titleLineHeight: "60px" },
+          Button: {
+            borderColorDisabled: "transparent",
+            defaultHoverBg: "var(--cancel-btn)",
+          },
+        },
+        token: {
+          colorBgContainerDisabled: "var(--theme-05)",
         },
       }}
     >
@@ -863,11 +870,16 @@ const SubscribeModal = ({
                 {t("common.cancel")}
               </Button>
               <Button
-                disabled={!financialAmount}
+
+                disabled={!financialAmount || loading}
                 loading={loading}
                 type="primary"
                 shape="round"
                 size="large"
+                style={{
+                  color: "var(--hometext)",
+                  border: "none",
+                }}
                 className="h-[50px] flex-1"
                 onClick={onSubmit}
               >
