@@ -206,7 +206,7 @@ const TabsItem = ({
                 operationType: value === NULL_PLACEHOLDER ? null : value,
               })
             }
-            // 1申购，2赎回，3利息
+            // 全部 申购 赎回
             options={[
               {
                 label: t("common.all"),

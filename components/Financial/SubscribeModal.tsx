@@ -34,6 +34,7 @@ import SubscribeConfirmModal, {
 } from "./SubscribeConfirmModal";
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
+import { InfoCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -368,31 +369,34 @@ const Subscription: React.FC<SubscriptionProps> = ({
           </div>
           {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
           <div className="flex flex-ai-center flex-jc-between">
-            <Tooltip
-              title={
-                <>
-                  <div>·{t("common.estimatedIncomeTips1")}</div>
-                  <div>{t("common.estimatedIncomeTips2")}</div>
-                </>
-              }
-            >
-              <div className="text-[var(--text-color6)] font-[400] cursor-pointer">
-                {productInfo?.type === FinancialType.CURRENT
-                  ? t("common.estimatedDailyIncome")
-                  : t("common.estimatedTotalIncome")}
-              </div>
-            </Tooltip>
+            <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
+              {productInfo?.type === FinancialType.CURRENT
+                ? t("common.estimatedDailyIncome")
+                : t("common.estimatedTotalIncome")}
+              <Tooltip
+                title={
+                  <>
+                    <div>·{t("common.estimatedIncomeTips1")}</div>
+                    <div>{t("common.estimatedIncomeTips2")}</div>
+                  </>
+                }
+              >
+                <InfoCircleOutlined />
+              </Tooltip>
+            </div>
+
             <div className="text-[var(--theme-color)] font-[400]">
               {income} {tokenInfo?.coinName}
             </div>
           </div>
           {/* 自动申购开关 */}
           <div className="flex flex-ai-center flex-jc-between">
-            <Tooltip title={t("common.autoSubscribeTips")}>
-              <div className="text-[var(--text-color6)] font-[400] cursor-pointer">
-                {t("common.autoSubscribe")}
-              </div>
-            </Tooltip>
+            <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
+              <div> {t("common.autoSubscribe")}</div>
+              <Tooltip title={t("common.autoSubscribeTips")}>
+                <InfoCircleOutlined />
+              </Tooltip>
+            </div>
             <Form.Item name="autoPurchase" noStyle>
               <Switch />
             </Form.Item>
@@ -551,7 +555,7 @@ const ProductRule: React.FC<{
           <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
             2.{t("common.rewardRules")}
           </div>
-          <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+          <div className="text-[14px] text-[var(--text-color6)] font-[400] whitespace-pre-wrap">
             {t("common.rewardRulesTips")}
           </div>
         </div>
