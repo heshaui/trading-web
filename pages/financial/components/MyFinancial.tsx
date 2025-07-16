@@ -59,8 +59,8 @@ const MyFinancial = observer(
     // 背景图片内容
     const [bgContent, setBgContent] = useState<any>({
       languageCode: "",
-      mainTitle:t("financial.default.mainTitle"),
-      subTitle:t("financial.default.subTitle"),
+      mainTitle: t("financial.default.mainTitle"),
+      subTitle: t("financial.default.subTitle"),
       backgroundImage: "",
     });
 
@@ -107,7 +107,7 @@ const MyFinancial = observer(
     return (
       <>
         <div
-          className="flex flex-ai-center flex-jc-between p-[94px_120px] gap-[40px] flex-wrap min-h-[412px]"
+          className="flex flex-ai-center flex-jc-between py-[94px] gap-[40px] flex-wrap min-h-[412px]"
           style={{
             backgroundImage: `url(${
               bgContent.backgroundImage || "/images/financial/bg.png"
@@ -116,126 +116,128 @@ const MyFinancial = observer(
             backgroundPosition: "center",
           }}
         >
-          {/* 左侧内容 */}
-          <div className="flex-1">
-            <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
-              {bgContent.mainTitle}
+          <div className="max-w-[1200px] mx-auto flex gap-[60px]">
+            {/* 左侧内容 */}
+            <div className="flex-1 max-w-[calc(100%-471px)]">
+              <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
+                {bgContent.mainTitle}
+              </div>
+              <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)] whitespace-pre-wrap">
+                {bgContent.subTitle}
+              </div>
+              {financialConfig?.isDisplayBackground &&
+                financialConfig.isDisplayBackground ===
+                  FunctionEnabledStatusEnum.OPEN && (
+                  <div
+                    className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
+                    onClick={openProblem}
+                  >
+                    {t("financial.default.whatIs")} {bgContent.mainTitle}？
+                  </div>
+                )}
             </div>
-            <div className="font-w-400 text-[18px] mb-[20px] leading-[normal] text-[var(--text-color6)] whitespace-pre-wrap">
-              {bgContent.subTitle}
-            </div>
-            {financialConfig?.isDisplayBackground &&
-              financialConfig.isDisplayBackground ===
+
+            {/* 右侧内容-我的资产 */}
+            {financialConfig?.isDisplayAssets &&
+              financialConfig.isDisplayAssets ===
                 FunctionEnabledStatusEnum.OPEN && (
-                <div
-                  className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
-                  onClick={openProblem}
-                >
-                  {t("financial.default.whatIs")} {bgContent.mainTitle}？
+                <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
+                  <div
+                    className={` flex flex-ai-center flex-jc-between mb-[40px]`}
+                  >
+                    <div className="flex gap-[4px] align-center">
+                      <div className="font-w-400 text-[24px]">
+                        {t("financial.myProperty")}
+                      </div>
+                      <div>
+                        {!showAmount ? (
+                          <EyeOutlined
+                            size={18}
+                            className="cursor-pointer"
+                            onClick={() =>
+                              isLoggedIn && setShowAmount(!showAmount)
+                            }
+                          />
+                        ) : (
+                          <EyeInvisibleOutlined
+                            size={18}
+                            className="cursor-pointer"
+                            onClick={() =>
+                              isLoggedIn && setShowAmount(!showAmount)
+                            }
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-ai-center flex-jc-between gap-[8px]">
+                      <Tooltip title={t("common.financialOrder")}>
+                        <div
+                          className="w-[24px] h-[24px] cursor-pointer"
+                          onClick={() => {
+                            if (!isLoggedIn) {
+                              router.push("/login");
+                            } else {
+                              router.push("/financialOrder");
+                            }
+                          }}
+                        >
+                          <Image
+                            preview={false}
+                            src={`/images/financial/a.svg`}
+                            alt=""
+                          />
+                        </div>
+                      </Tooltip>
+                      <Tooltip title={t("common.financialAccount")}>
+                        <div
+                          className="w-[24px] h-[24px] cursor-pointer"
+                          onClick={() => {
+                            if (!isLoggedIn) {
+                              router.push("/login");
+                            } else {
+                              router.push("/assets/financial");
+                            }
+                          }}
+                        >
+                          <Image
+                            preview={false}
+                            src={`/images/financial/b.svg`}
+                            alt=""
+                          />
+                        </div>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <div className="flex flex-ai-center flex-jc-between">
+                    <div className="text-[16px] flex flex-column gap-[18px]">
+                      <div>{t("financial.myPosition")}</div>
+                      <MaskableAmount
+                        show={showAmount}
+                        amount={myAmount.holdings}
+                      />
+                    </div>
+                    <div className="text-[16px] flex flex-column gap-[18px]">
+                      <div>{t("financial.totalIncome")}</div>
+                      <div className="text-center">
+                        <MaskableAmount
+                          show={showAmount}
+                          amount={myAmount.totalRevenue}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-[16px] flex flex-column gap-[18px]">
+                      <div>{t("financial.yesterdayIncome")}</div>
+                      <div className="text-right">
+                        <MaskableAmount
+                          show={showAmount}
+                          amount={myAmount.lastRevenue}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
           </div>
-
-          {/* 右侧内容-我的资产 */}
-          {financialConfig?.isDisplayAssets &&
-            financialConfig.isDisplayAssets ===
-              FunctionEnabledStatusEnum.OPEN && (
-              <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
-                <div
-                  className={` flex flex-ai-center flex-jc-between mb-[40px]`}
-                >
-                  <div className="flex gap-[4px] align-center">
-                    <div className="font-w-400 text-[24px]">
-                      {t("financial.myProperty")}
-                    </div>
-                    <div>
-                      {!showAmount ? (
-                        <EyeOutlined
-                          size={18}
-                          className="cursor-pointer"
-                          onClick={() =>
-                            isLoggedIn && setShowAmount(!showAmount)
-                          }
-                        />
-                      ) : (
-                        <EyeInvisibleOutlined
-                          size={18}
-                          className="cursor-pointer"
-                          onClick={() =>
-                            isLoggedIn && setShowAmount(!showAmount)
-                          }
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-ai-center flex-jc-between gap-[8px]">
-                    <Tooltip title={t("common.financialOrder")}>
-                      <div
-                        className="w-[24px] h-[24px] cursor-pointer"
-                        onClick={() => {
-                          if (!isLoggedIn) {
-                            router.push("/login");
-                          } else {
-                            router.push("/financialOrder");
-                          }
-                        }}
-                      >
-                        <Image
-                          preview={false}
-                          src={`/images/financial/a.svg`}
-                          alt=""
-                        />
-                      </div>
-                    </Tooltip>
-                    <Tooltip title={t("common.financialAccount")}>
-                      <div
-                        className="w-[24px] h-[24px] cursor-pointer"
-                        onClick={() => {
-                          if (!isLoggedIn) {
-                            router.push("/login");
-                          } else {
-                            router.push("/assets/financial");
-                          }
-                        }}
-                      >
-                        <Image
-                          preview={false}
-                          src={`/images/financial/b.svg`}
-                          alt=""
-                        />
-                      </div>
-                    </Tooltip>
-                  </div>
-                </div>
-                <div className="flex flex-ai-center flex-jc-between">
-                  <div className="text-[16px] flex flex-column gap-[18px]">
-                    <div>{t("financial.myPosition")}</div>
-                    <MaskableAmount
-                      show={showAmount}
-                      amount={myAmount.holdings}
-                    />
-                  </div>
-                  <div className="text-[16px] flex flex-column gap-[18px]">
-                    <div>{t("financial.totalIncome")}</div>
-                    <div className="text-center">
-                      <MaskableAmount
-                        show={showAmount}
-                        amount={myAmount.totalRevenue}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-[16px] flex flex-column gap-[18px]">
-                    <div>{t("financial.yesterdayIncome")}</div>
-                    <div className="text-right">
-                      <MaskableAmount
-                        show={showAmount}
-                        amount={myAmount.lastRevenue}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
         </div>
         <Modal
           open={problemModalVisible}

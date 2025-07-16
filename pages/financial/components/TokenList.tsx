@@ -395,7 +395,7 @@ const TokenList = ({
         },
       }}
     >
-      <div className="p-[30px_120px]">
+      <div className="py-[30px] max-w-[1200px] mx-auto">
         {/* 筛选 */}
         <Space size={30} className="mb-[14px]">
           {/* 币种筛选 */}

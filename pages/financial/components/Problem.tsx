@@ -54,7 +54,7 @@ const Problem = () => {
         },
       }}
     >
-      <div id="problem" className="p-[30px_120px]">
+      <div id="problem" className="py-[30px] max-w-[1200px] mx-auto">
         <div className="text-[32px] font-w-500 mb-[40px] text-[var(--text-color5)]">
           {t("financial.question")}
         </div>
