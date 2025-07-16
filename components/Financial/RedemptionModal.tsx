@@ -103,7 +103,7 @@ const RedemptionModal = ({
           redeemMoney:
             curProductInfo?.type === FinancialType.CURRENT
               ? Number(redeemMoney)
-              : Number(redeemMoneyFixed),
+              : Number(redeemMoneyFixed.redeemMoney),
         });
         if (res.code === "0") {
           setOpenRedemption(false);
@@ -138,6 +138,7 @@ const RedemptionModal = ({
 
   // 获取赎回数据
   useEffect(() => {
+    // 打开弹窗
     if (curProduct && openRedemption) {
       setCurProductInfo(curProduct);
       // 获取赎回数据
@@ -169,6 +170,7 @@ const RedemptionModal = ({
       };
       fetchRedemptionData();
     }
+    // 关闭弹窗
     if (!openRedemption) {
       form.resetFields();
       setRedeemMoneyFixed({
