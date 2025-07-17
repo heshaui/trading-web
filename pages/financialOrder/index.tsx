@@ -271,7 +271,7 @@ const TabsItem = ({
         dataSource={tableData}
         pagination={false}
         loading={tableLoading}
-        locale={{ emptyText: <NoData  height='45vh' position='top' /> }}
+        locale={{ emptyText: <NoData/> }}
       />
     </>
   );
@@ -404,11 +404,11 @@ const FinancialOrder = () => {
         },
       }}
     >
-      <div>
+      <div className="min-h-[100%]">
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
           {t("common.financialOrder")}
         </div>
-        <div className="bg-[var(--btncolor7)] rounded-[10px]">
+        <div className="bg-[var(--btncolor7)] rounded-[10px] min-h-[calc(100%-30px-16px)]">
           <Tabs
             className={styles.tabs}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
