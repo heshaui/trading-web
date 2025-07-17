@@ -391,6 +391,7 @@ const TokenList = ({
             headerColor: "var(--text-color6)",
             fontWeightStrong: 400,
             headerBorderRadius: 0,
+            rowSelectedBg: "transparent",
           },
         },
       }}

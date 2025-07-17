@@ -20,6 +20,11 @@
   padding: 0 !important;
 }
 
+.table :global(.ant-table-expanded-row)
+  > :global(.ant-table-cell) {
+  border-radius: 8px;
+}
+
 .table
   :global(.ant-table-expanded-row)
   > :global(.ant-table-cell)
