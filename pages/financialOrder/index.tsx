@@ -96,7 +96,7 @@ const TabsItem = ({
                 style={{ borderRadius: "50%" }}
               />
             )}
-            <div>{record.coinName}</div>
+            <div className="text-[14px]">{record.coinName}</div>
           </Flex>
         );
       },
@@ -110,7 +110,11 @@ const TabsItem = ({
       align: "right",
       width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
-        return dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss");
+        return (
+          <div className="text-[14px]">
+            {dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss")}
+          </div>
+        );
       },
     },
 
@@ -125,10 +129,10 @@ const TabsItem = ({
         return (
           <>
             {record.status == FinancialOrderTypeEnum.PURCHASE && (
-              <div>{t("common.subscribe")}</div>
+              <div className="text-[14px]">{t("common.subscribe")}</div>
             )}
             {record.status == FinancialOrderTypeEnum.REDEEM && (
-              <div>{t("common.redeem")}</div>
+              <div className="text-[14px]">{t("common.redeem")}</div>
             )}
           </>
         );
@@ -144,7 +148,7 @@ const TabsItem = ({
       width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return (
-          <div>
+          <div className="text-[14px]">
             <div>
               {record.amount} {current.shortName}
             </div>
@@ -171,7 +175,7 @@ const TabsItem = ({
             key: "term",
             align: "right" as const,
             render: (_: any, record: FinancialOrderItem) => {
-              return <div>{record.term ? record.term : "-"}</div>;
+              return <div className="text-[14px]">{record.term ? record.term : "-"}</div>;
             },
           },
         ]
@@ -187,7 +191,7 @@ const TabsItem = ({
       render: (_: any, record: FinancialOrderItem) => {
         const resultStatus = record.resultStatus;
         return resultStatus !== null && resultStatus !== undefined ? (
-          <div className="text-[var(--text-color5)] font-[400] text-[16px]">
+          <div className="text-[var(--text-color5)] font-[400] text-[14px]">
             {t(resultStatusMap[resultStatus].text)}
           </div>
         ) : (
@@ -465,7 +469,7 @@ const FinancialOrder = observer(() => {
           //   optionSelectedColor: "var(--text-color5)",
           // },
           DatePicker: {
-            activeShadow: 'none'
+            activeShadow: "none",
           },
         },
       }}
