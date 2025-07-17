@@ -119,7 +119,7 @@ export interface FinancialOrderItem {
   resultStatus: FinancialOrderStatusEnum; // 1成功，2失败，3进行中
   amount: number; //金额
   usdAmount: number; //usd折算价格
-
+  term: number; //期限
 }
 
 export function getFinancialOrderList(

@@ -29,19 +29,15 @@ import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { Iconify } from "@/components/icon";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-const resultStatusMap: Record<
-  FinancialOrderStatusEnum,
-  { type: string; text: string }
-> = {
+const resultStatusMap: Record<FinancialOrderStatusEnum, { text: string }> = {
   [FinancialOrderStatusEnum.SUCCESS]: {
-    type: "success",
     text: "common.success",
   },
   [FinancialOrderStatusEnum.FAIL]: {
-    type: "error",
     text: "common.fail",
   },
 };
@@ -72,6 +68,7 @@ const TabsItem = ({
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
+      width: type === FinancialType.FIXED ? 180 : '20%',
       render: (_: any, record: any) => {
         return (
           <Flex gap="8px">
@@ -95,6 +92,8 @@ const TabsItem = ({
       title: t("common.date"),
       dataIndex: "createTime",
       key: "createTime",
+      align: "right",
+      width: type === FinancialType.FIXED ? 180 : '20%',
       render: (_: any, record: any) => {
         return dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss");
       },
@@ -105,6 +104,8 @@ const TabsItem = ({
       title: t("common.type"),
       dataIndex: "status",
       key: "status",
+      width: type === FinancialType.FIXED ? 180 : '20%',
+      align: "center" as const,
       render: (_: any, record: any) => {
         return (
           <>
@@ -124,6 +125,8 @@ const TabsItem = ({
       title: t("common.amount"),
       dataIndex: "amount",
       key: "amount",
+      align: "right",
+      width: type === FinancialType.FIXED ? 180 : '20%',
       render: (_: any, record: any) => {
         return (
           <div>
@@ -141,6 +144,10 @@ const TabsItem = ({
             title: `${t("common.term")}(${t("common.day")})`,
             dataIndex: "term",
             key: "term",
+            align: "right" as const,
+            render: (_: any, record: FinancialOrderItem) => {
+              return <div>{record.term ? record.term : "-"}</div>;
+            },
           },
         ]
       : []),
@@ -150,12 +157,14 @@ const TabsItem = ({
       title: t("common.status"),
       dataIndex: "resultStatus",
       key: "resultStatus",
+      width: type === FinancialType.FIXED ? 180 : '20%',
+      align: "right" as const,
       render: (_: any, record: FinancialOrderItem) => {
         const resultStatus = record.resultStatus;
         return resultStatus !== null && resultStatus !== undefined ? (
-          <Tag color={resultStatusMap[resultStatus].type}>
+          <div className="text-[var(--text-color5)] font-[400] text-[16px]">
             {t(resultStatusMap[resultStatus].text)}
-          </Tag>
+          </div>
         ) : (
           "-"
         );
@@ -230,6 +239,14 @@ const TabsItem = ({
           {/* 时间 */}
           <RangePicker
             className="w-[278px] h-[50px]"
+            suffixIcon={
+              <Iconify
+                icon="cuida:calendar-outline"
+                className={`${styles.title_color}`}
+                size={20}
+              />
+            }
+            placeholder={[t("common.startTime"), t("common.endTime")]}
             onChange={(value) => {
               if (!value) {
                 return setFormData({
@@ -254,7 +271,7 @@ const TabsItem = ({
         dataSource={tableData}
         pagination={false}
         loading={tableLoading}
-        locale={{ emptyText: <NoData /> }}
+        locale={{ emptyText: <NoData  height='45vh' position='top' /> }}
       />
     </>
   );
