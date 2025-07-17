@@ -637,7 +637,8 @@ const Financial = observer(() => {
                   {t("common.financialProduct")}
                 </Button>
               </div>
-              <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
+              {/* 分割线 */}
+              <div className="m-[0px_30px] border-t border-[var(--divider-color)]" />
               {/* 底部 */}
               <div className="flex gap-[229px] p-[30px]">
                 {/* 昨日收益  lastRevenue*/}

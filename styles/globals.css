@@ -79,6 +79,7 @@
   --card-shadow: #A5A5A533;
   --border-color-disable: #F0F0F0;
   --dropdown-menu-hover: #F4F4F4;
+  --divider-color: #DCDCDC;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -159,6 +160,7 @@
     --card-shadow: #01367433;
     --border-color-disable: #363638;
     --dropdown-menu-hover: #454545;
+    --divider-color: #454545;
   }
 }
 

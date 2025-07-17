@@ -168,7 +168,8 @@ export const getThemeVariables = () => {
             '--background-menu': '#FFFFFF',
             '--background-menu-item': '#F4F4F4',
             '--card-shadow': '#A5A5A533',
-            '--dropdown-menu-hover': '#F4F4F4'
+            '--dropdown-menu-hover': '#F4F4F4',
+            '--divider-color': '#DCDCDC'
         },
         dark: {
             '--background': '#0a0a0a',
@@ -249,7 +250,8 @@ export const getThemeVariables = () => {
             '--background-menu': '#232328',
             '--background-menu-item': '#0C0D0C',
             '--card-shadow': '#01367433',
-            '--dropdown-menu-hover': '#454545'
+            '--dropdown-menu-hover': '#454545',
+            '--divider-color': '#454545'
         }
     };
 }
