@@ -590,12 +590,14 @@ const Financial = observer(() => {
                     <div>
                       {showAmount ? (
                         <EyeOutlined
+                          style={{ color: "var(--text-color6)" }}
                           size={18}
                           className="cursor-pointer"
                           onClick={() => setShowAmount(!showAmount)}
                         />
                       ) : (
                         <EyeInvisibleOutlined
+                          style={{ color: "var(--text-color6)" }} 
                           size={18}
                           className="cursor-pointer"
                           onClick={() => setShowAmount(!showAmount)}
