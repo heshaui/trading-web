@@ -191,7 +191,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
       </Form.Item>
       <div className="p-[0_20px_20px_20px]">
         {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
-        <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px]">
+        <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px] flex-wrap">
           {sortedData.map((item) => (
             <div
               onClick={() => {
@@ -219,7 +219,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                     ? "not-allowed"
                     : "pointer",
               }}
-              className={`flex-1 rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
+              className={`rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] w-[132px] ${
                 productInfo?.id === item.id
                   ? "border-[var(--theme-color)]"
                   : "border-[var(--border-color4)]"
@@ -852,6 +852,7 @@ const SubscribeModal = ({
           footer: styles["my-modal-footer"],
           content: styles["my-modal-content"],
         }}
+        width={470}
         maskClosable={false}
         open={openSubscribeModal}
         onCancel={() => setOpenSubscribeModal(false)}
