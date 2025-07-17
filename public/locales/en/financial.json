@@ -106,7 +106,9 @@
     "end": "End",
     "estimatedIncomeTips1": "Rewards start accumulating on the day after subscription and are distributed to your spot wallet at 08:00 (UTC+8) the day after calculation (i.e., two days after subscription).",
     "estimatedIncomeTips2": "The tiered annual return and rewards vary depending on the subscription amount and may change daily.",
-    "autoSubscribeTips": "After enabling automatic subscription to current products, your assets in the spot wallet will be automatically subscribed to this current product at 02:00 and 18:00 (UTC+8) every day."
+    "autoSubscribeTips": "After enabling automatic subscription to current products, your assets in the spot wallet will be automatically subscribed to this current product at 02:00 and 18:00 (UTC+8) every day.",
+    "redeemDate": "Redeem Date",
+    "subscribeDate": "Subscribe Date"
   },
   "financial": {
     "myProperty": "My Property",

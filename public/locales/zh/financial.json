@@ -106,7 +106,9 @@
     "end": "结束",
     "estimatedIncomeTips1": "奖励在申购次日开始累积，并在申购两天后的 08：00 (UTC+8) 发放到您的现货账户；",
     "estimatedIncomeTips2":"阶梯年化收益和奖励视申购金额而定，并且可能每天变化。",
-    "autoSubscribeTips": "开启自动申购后，您现货钱包中的资产将于每日02:00和18:00(UTC+8)自动申购此活期产品。"
+    "autoSubscribeTips": "开启自动申购后，您现货钱包中的资产将于每日02:00和18:00(UTC+8)自动申购此活期产品。",
+    "redeemDate": "赎回日期",
+    "subscribeDate": "申购日期"
   },
   "financial": {
     "myProperty": "我的资产",

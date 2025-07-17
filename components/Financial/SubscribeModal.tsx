@@ -191,7 +191,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
       </Form.Item>
       <div className="p-[0_20px_20px_20px]">
         {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
-        <div className="flex flex-ai-center flex-jc-between gap-[17px] mb-[16px] flex-wrap">
+        <div className="flex flex-ai-center gap-[17px] mb-[16px] flex-wrap">
           {sortedData.map((item) => (
             <div
               onClick={() => {

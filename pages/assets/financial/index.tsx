@@ -129,7 +129,7 @@ const TabsItem = ({
     ...(type === FinancialType.FIXED
       ? [
           {
-            title: t("common.subscribeTime"),
+            title: t("common.subscribeDate"),
             dataIndex: "purchaseStartTime",
             key: "purchaseStartTime",
             render: (_: any, record: any) => {
@@ -207,7 +207,7 @@ const TabsItem = ({
     ...(type === FinancialType.FIXED
       ? [
           {
-            title: t("common.redeemTime"),
+            title: t("common.redeemDate"),
             dataIndex: "purchaseEndTime",
             key: "purchaseEndTime",
             render: (_: any, record: any) => {
