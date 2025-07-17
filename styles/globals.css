@@ -81,6 +81,7 @@
   --dropdown-menu-hover: #F4F4F4;
   --divider-color: #DCDCDC;
   --switch-color: #E6E6E6;
+  --segmented-item-active-bg2: #F3F3F3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -163,6 +164,7 @@
     --dropdown-menu-hover: #454545;
     --divider-color: #454545;
     --switch-color: #3B3B3B;
+    --segmented-item-active-bg2: #333333;
   }
 }
 

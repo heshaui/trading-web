@@ -34,7 +34,6 @@ import SubscribeConfirmModal, {
 } from "./SubscribeConfirmModal";
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
-import { InfoCircleOutlined } from "@ant-design/icons";
 import financialStyles from "@/styles/components/Financial.module.css";
 
 const useStyle = createStyles(() => ({
@@ -507,7 +506,7 @@ const ProductRule: React.FC<{
             </div>
           </div>
           {/* 内容 */}
-          <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
+          <div className="p-[16px_20px] rounded-[10px] border-[var(--border-color4)] border-[1px] flex flex-column gap-[20px]">
             {/* 申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
@@ -615,7 +614,7 @@ const ProductRule: React.FC<{
             </div>
           </div>
           {/* 内容 */}
-          <div className="p-[16px_20px] rounded-[10px] border-[#DCDCDC] border-[1px] flex flex-column gap-[20px]">
+          <div className="p-[16px_20px] rounded-[10px] border-[var(--border-color4)] border-[1px] flex flex-column gap-[20px]">
             {/* 申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
@@ -692,6 +691,7 @@ const ProductRule: React.FC<{
       {/* 活期 定期 */}
       <div className="mb-[20px]">
         <Segmented
+          className="border-[var(--border-color4)] border-[1px]"
           options={[
             {
               value: "1",
@@ -862,6 +862,12 @@ const SubscribeModal = ({
           Switch: {
             colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
             colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
+          },
+          Segmented: {
+            borderRadius: 50,
+            borderRadiusSM: 50,
+            itemSelectedBg: "var(--segmented-item-active-bg2)",
+            trackBg:"var(--background12)"
           },
         },
         token: {
