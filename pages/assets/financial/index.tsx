@@ -28,6 +28,8 @@ import {
   FinancialPageTokenProductItem,
   getFinancialPageToken,
   financialAccountAutoPurchase,
+  getFinancialAccount,
+  FinancialAccountItem,
 } from "@/services/financial";
 import { getCoinAll } from "@/services/assets";
 import Image from "next/image";
@@ -354,9 +356,9 @@ const Financial = observer(() => {
   const [openSubscribeModal, setOpenSubscribeModal] = useState(false);
 
   // 我的持仓
-  const [myAmount, setMyAmount] = useState({
-    holdings: 0, // 持仓
-    totalRevenue: 0, // 总收益
+  const [myAmount, setMyAmount] = useState<FinancialAccountItem>({
+    totalAssets: 0, // 总资产
+    usdTotalAssets: 0, // usd总资产
     lastRevenue: 0, // 昨日收益
     accumulateRevenue: 0, // 30日累计收益
   });
@@ -454,7 +456,7 @@ const Financial = observer(() => {
   // 我的持仓
   const fetchMyPosition = async () => {
     try {
-      const res = await getMyPosition();
+      const res = await getFinancialAccount();
       if (res.code === "0") {
         setMyAmount(res.data);
       }
@@ -547,6 +549,7 @@ const Financial = observer(() => {
             <div className="h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
               {/* 顶部 */}
               <div className="p-[30px] flex justify-between items-end">
+                {/* 左侧 总资产 */}
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
                     <div>{t("common.totalAssets")}</div>
@@ -566,22 +569,25 @@ const Financial = observer(() => {
                       )}
                     </div>
                   </div>
+                  {/* 总资产 totalAssets*/}
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
                       show={showAmount}
-                      amount={myAmount.holdings}
-                      unit="USD"
+                      amount={myAmount.totalAssets}
+                      unit="USDT"
                     />
                   </div>
+                  {/* 总资产 兑换当前汇率 */}
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     <MaskableAmount
                       prefix="≈"
                       show={showAmount}
-                      amount={myAmount.holdings * currentRate}
+                      amount={myAmount.usdTotalAssets * currentRate}
                       unit={rateKey}
                     />
                   </div>
                 </div>
+                {/* 跳转理财页面 */}
                 <Button
                   type="primary"
                   shape="round"
@@ -595,6 +601,7 @@ const Financial = observer(() => {
               <div className="m-[0px_30px] border-t border-[var(--border-color4)]" />
               {/* 底部 */}
               <div className="flex gap-[229px] p-[30px]">
+                {/* 昨日收益  lastRevenue*/}
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     {t("common.yesterdayIncome")}（USDT）
@@ -606,6 +613,7 @@ const Financial = observer(() => {
                     />
                   </div>
                 </div>
+                {/* 三十天收益（USDT）  accumulateRevenue*/}
                 <div>
                   <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                     {t("common.thirtyDaysIncome")}（USDT）

@@ -24,7 +24,7 @@ export enum FinancialType {
   CURRENT = 2, //活期
 }
 
-/*-----------------功能配置start------------------*/
+/*-----------------理财页面-功能配置start------------------*/
 // 1开启，2关闭
 export enum FunctionEnabledStatusEnum {
   OPEN = "1",
@@ -49,9 +49,9 @@ export function getFinancialConfig(): Promise<
     { method: "POST" }
   );
 }
-/*-----------------功能配置end------------------*/
+/*-----------------理财页面-功能配置end------------------*/
 
-/*-----------------背景图片配置start------------------*/
+/*-----------------理财页面-背景图片配置start------------------*/
 interface BackgroundImageConfigItem {
   id: number; //背景图片id
   languageCode: string; //语言代码
@@ -71,9 +71,9 @@ export function getBackgroundImageConfig(): Promise<
     { method: "POST" }
   );
 }
-/*-----------------背景图片配置end------------------*/
+/*-----------------理财页面-背景图片配置end------------------*/
 
-/*-----------------我的持仓start------------------*/
+/*-----------------理财账户-我的持仓start------------------*/
 interface MyPositionItem {
   holdings: number; //持仓
   totalRevenue: number; //总收益
@@ -85,7 +85,22 @@ export function getMyPosition(): Promise<RequestParams<MyPositionItem>> {
     method: "POST",
   });
 }
-/*-----------------我的持仓end--------------------*/
+/*-----------------理财账户-我的持仓end--------------------*/
+
+/*-----------------理财账户-总资产start------------------*/
+export interface FinancialAccountItem {
+  totalAssets: number; //总资产
+  usdTotalAssets: number; //usd总资产
+  lastRevenue: number; //昨日收益
+  accumulateRevenue: number; //30日累计收益
+}
+export function getFinancialAccount(): Promise<RequestParams<FinancialAccountItem>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/financialAssets`, {
+    method: "POST",
+  });
+}
+/*-----------------理财账户-总资产end--------------------*/
+
 
 /*-----------------理财订单start------------------*/
 // 1.成功 2.失败 3.进行中
