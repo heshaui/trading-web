@@ -64,8 +64,18 @@ const TokenList = ({
   // 加载中
   const [loading, setLoading] = useState(false);
 
+  const pageSize = 7;
+
   // 数据源
-  const [dataSource, setDataSource] = useState<FinancialPageTokenItem[]>([]);
+  const [dataSource, setDataSource] = useState<{
+    list: FinancialPageTokenItem[];
+    total: number;
+    showList: FinancialPageTokenItem[];
+  }>({
+    showList: [],
+    list: [],
+    total: 0,
+  });
 
   // 表单数据
   const [formData, setFormData] = useState<{
@@ -103,10 +113,19 @@ const TokenList = ({
         coinId: params.coinId,
       });
       if (res.code === "0") {
-        setDataSource(res.data);
+        // showList 只截取 7条
+        setDataSource({
+          list: res.data,
+          total: res.data.length,
+          showList: res.data.slice(0, pageSize),
+        });
         console.log(res.data);
       } else {
-        setDataSource([]);
+        setDataSource({
+          list: [],
+          total: 0,
+          showList: [],
+        });
       }
       return res;
     } catch (error) {
@@ -193,7 +212,17 @@ const TokenList = ({
 
   // 更多
   const more = async () => {
-    console.log("more");
+    // 每次追加7条进showlist
+    setDataSource({
+      ...dataSource,
+      showList: [
+        ...dataSource.showList,
+        ...dataSource.list.slice(
+          dataSource.showList.length,
+          dataSource.showList.length + pageSize
+        ),
+      ],
+    });
   };
 
   // 列配置
@@ -569,12 +598,12 @@ const TokenList = ({
               showExpandColumn: false, // 隐藏默认的展开列
               expandedRowKeys, // 展开的行
             }}
-            dataSource={dataSource}
+            dataSource={dataSource.showList}
             locale={{ emptyText: <NoData /> }}
             columns={columns}
             pagination={false}
             footer={() =>
-              dataSource.length > 7 ? (
+              dataSource.total && dataSource.showList.length < dataSource.total ? (
                 <div className="flex justify-center">
                   <Image
                     src="/images/financial/more.svg"
