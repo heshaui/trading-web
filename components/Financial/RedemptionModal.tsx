@@ -33,7 +33,7 @@ const useStyle = createStyles(() => ({
     padding: "0 20px !important",
     borderRadius: "10px 10px 0px 0px",
     background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px #dcdcdc inset",
+    boxShadow: "0px -0.5px 0px 0px var(--border-color4) inset",
   },
   "my-modal-footer": {
     width: "100%",
@@ -202,8 +202,8 @@ const RedemptionModal = ({
       >
         {t("common.max")}
       </div>
-      <Divider type="vertical" style={{ background: "var(--border-color4)" }} />
-      <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+      <div className="w-[1px] h-[14px] bg-[var(--border-color4)] mx-[6.5px]"></div>
+      <div className="text-[14px] text-[var(--text-color5)] font-[400] flex flex-ai-center gap-[10px]">
         {curProductInfo?.iconUrl && (
           <Image
             src={curProductInfo?.iconUrl}
@@ -223,6 +223,13 @@ const RedemptionModal = ({
       theme={{
         components: {
           Modal: { titleLineHeight: "60px" },
+          Button: {
+            borderColorDisabled: "transparent",
+            defaultHoverBg: "var(--cancel-btn)",
+          },
+        },
+        token: {
+          colorBgContainerDisabled: "var(--theme-05)",
         },
       }}
     >
@@ -252,6 +259,7 @@ const RedemptionModal = ({
               {t("common.cancel")}
             </Button>
             <Button
+              disabled={!redeemMoney}
               type="primary"
               shape="round"
               size="large"
