@@ -263,7 +263,7 @@ const Financial = () => {
         dataSource={tableData}
         pagination={false}
         loading={tableLoading}
-        locale={{ emptyText: <NoData /> }}
+        locale={{ emptyText: <NoData height="45vh" /> }}
         showSorterTooltip={false}
       />
     </ConfigProvider>

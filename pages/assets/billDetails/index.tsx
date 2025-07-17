@@ -31,11 +31,11 @@ const BillDetails = () => {
         },
       }}
     >
-      <div>
+      <div className="flex flex-col h-full">
         <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
           {t("common.billDetails")}
         </div>
-        <div className="rounded-[8px] bg-[var(--btncolor7)]">
+        <div className="rounded-[8px] bg-[var(--btncolor7)] flex-1">
           <Tabs
             className={styles.tabs}
             defaultActiveKey="1"

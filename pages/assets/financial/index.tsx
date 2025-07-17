@@ -304,7 +304,7 @@ const TabsItem = ({
       dataSource={tableData}
       pagination={false}
       loading={tableLoading}
-      locale={{ emptyText: <NoData /> }}
+      locale={{ emptyText: <NoData height="35vh" /> }}
     />
   );
 };
@@ -536,13 +536,13 @@ const Financial = observer(() => {
           },
         }}
       >
-        <div>
+        <div className="flex flex-col h-full">
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
             {t("common.financialAccount")}
           </div>
           {/* content */}
-          <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px]">
+          <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
             {/* 头部 */}
             <div className="h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
               {/* 顶部 */}
