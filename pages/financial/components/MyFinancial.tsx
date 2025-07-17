@@ -14,6 +14,8 @@ import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useRouter } from "next/router";
 import { createStyles } from "antd-style";
 import appStore from "@/store";
+import { getCoinRound } from "@/utils/getUseRate";
+import BigNumber from "bignumber.js";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -47,8 +49,9 @@ const MyFinancial = observer(
     const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
     const rateData = appStore.getRateData();
     const [current, setCurrent] = useState({
-      symbol: "", // 币种符号",
+      symbol: "$", // 币种符号",
       rate: 1,
+      shortName: "USD",
     });
 
     const [problemModalVisible, setProblemModalVisible] = useState(false);
@@ -117,6 +120,7 @@ const MyFinancial = observer(
         (item: any) => item.shortName === rateKey
       );
       setCurrent({
+        shortName: currentInfo?.shortName || "USD",
         symbol: currentInfo?.symbol || "$",
         rate: currentInfo?.exchangeRate || 1,
       });
@@ -228,35 +232,50 @@ const MyFinancial = observer(
                   </div>
                   <div className="flex flex-ai-center flex-jc-between">
                     {/* 我的持仓 */}
-                    <div className="text-[16px] flex flex-column gap-[18px]">
-                      <div>{t("financial.myPosition")}</div>
-                      <MaskableAmount
+                    <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
+                      <div className="text-left">{t("financial.myPosition")}</div>
+                        <div className="text-left">  <MaskableAmount
                         prefix={`≈ ${current.symbol} `}
                         show={showAmount && isLoggedIn}
-                        amount={myAmount.holdings * current.rate}
-                      />
+                        amount={getCoinRound(
+                          current.shortName,
+                          new BigNumber(myAmount.holdings)
+                            .times(new BigNumber(current.rate))
+                            .toString()
+                        )}
+                      /></div>
                     </div>
 
                     {/* 总收益 */}
-                    <div className="text-[16px] flex flex-column gap-[18px]">
-                      <div>{t("financial.totalIncome")}</div>
+                    <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
+                      <div className="text-center">{t("financial.totalIncome")}</div>
                       <div className="text-center">
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={myAmount.totalRevenue}
+                          amount={getCoinRound(
+                            current.shortName,
+                            new BigNumber(myAmount.totalRevenue)
+                              .times(new BigNumber(current.rate))
+                              .toString()
+                          )}
                         />
                       </div>
                     </div>
 
                     {/* 昨日收益 */}
-                    <div className="text-[16px] flex flex-column gap-[18px]">
-                      <div>{t("financial.yesterdayIncome")}</div>
+                    <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
+                      <div className="text-right">{t("financial.yesterdayIncome")}</div>
                       <div className="text-right">
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={myAmount.lastRevenue}
+                          amount={getCoinRound(
+                            current.shortName,
+                            new BigNumber(myAmount.lastRevenue)
+                              .times(new BigNumber(current.rate))
+                              .toString()
+                          )}
                         />
                       </div>
                     </div>

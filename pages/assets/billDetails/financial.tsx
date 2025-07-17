@@ -7,28 +7,44 @@ import { getCoinAll } from "@/services/assets";
 import { ColumnsType } from "antd/es/table";
 import {
   FinancialAccountBillDetailsItem,
-  FinancialAccountBillDetailsParams,
   FinancialAccountBillDetailsStatusEnum,
   FinancialType,
   getFinancialAccountBillDetails,
 } from "@/services/financial";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { Iconify } from "@/components/icon";
+import appStore from "@/store";
+import { observer } from "mobx-react-lite";
+import BigNumber from "bignumber.js";
+import { getCoinRound } from "@/utils/getUseRate";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-const Financial = () => {
+interface FormDataType {
+  coinId: number | null;
+  type: FinancialType | null;
+  status: FinancialAccountBillDetailsStatusEnum | null;
+  timer: [dayjs.Dayjs | null, dayjs.Dayjs | null];
+}
+
+const Financial = observer(() => {
   const { t } = useTranslation(["financial"]);
   const [tableLoading, setTableLoading] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
+  const rateData = appStore.getRateData();
+  const [current, setCurrent] = useState({
+    shortName: "USD", // 币种符号",
+    rate: 1,
+  });
 
   // 表单数据
-  const [formData, setFormData] = useState<FinancialAccountBillDetailsParams>({
+  const [formData, setFormData] = useState<FormDataType>({
     coinId: null, //币种ID
     type: null, //1定期 2活期
     status: null, //1申购 2赎回 3利息
-    startTime: null, //开始时间
-    endTime: null, //结束时间
+    timer: [dayjs().subtract(7, "day"), dayjs()],
   });
 
   // 币种列表
@@ -38,33 +54,44 @@ const Financial = () => {
 
   // 表格列
   const columns: ColumnsType<FinancialAccountBillDetailsItem> = [
+    // 日期
     {
       title: t("common.date"),
       dataIndex: "createTime",
       key: "createTime",
+      width: "20%",
       render: (text: number) => {
         return text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "--";
       },
     },
+
+    // 币种
     {
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
+      width: "20%",
     },
+
+    // 类型
     {
       title: t("common.type"),
       dataIndex: "type",
       key: "type",
+      width: "20%",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
         return record.type === FinancialType.CURRENT
           ? t("common.current")
           : t("common.fixed");
       },
     },
+
+    // 操作类型
     {
       title: t("common.operationType"),
       dataIndex: "status",
       key: "status",
+      width: "20%",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
         return (
           <div>
@@ -78,10 +105,12 @@ const Financial = () => {
         );
       },
     },
+
+    // 金额
     {
       title: t("common.amount"),
       dataIndex: "amount",
-      width: 200,
+      width: "20%",
       align: "right" as const,
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
         return (
@@ -89,7 +118,16 @@ const Financial = () => {
             <div>
               {record.amount} {record.coinName}
             </div>
-            <div>≈ {record.usdtAmount || 0} USDT</div>
+            <div>
+              ≈{" "}
+              {getCoinRound(
+                current.shortName,
+                new BigNumber(record.amount)
+                  .times(new BigNumber(current.rate))
+                  .toString()
+              )}{" "}
+              {current.shortName}
+            </div>
           </div>
         );
       },
@@ -115,10 +153,17 @@ const Financial = () => {
   };
 
   // 获取数据
-  const fetchData = async (params: any) => {
+  const fetchData = async (params: FormDataType) => {
     try {
       setTableLoading(true);
-      const response = await getFinancialAccountBillDetails(params);
+      const data = {
+        coinId: params.coinId,
+        type: params.type,
+        status: params.status,
+        startTime: params.timer?.[0]?.valueOf(),
+        endTime: params.timer?.[1]?.valueOf(),
+      };
+      const response = await getFinancialAccountBillDetails(data);
       if (response.code === "0") {
         setTableData(response.data);
       } else {
@@ -139,6 +184,17 @@ const Financial = () => {
   useEffect(() => {
     fetchData(formData);
   }, [formData]);
+
+  // 获取汇率
+  useEffect(() => {
+    const currentInfo = rateData.find(
+      (item: any) => item.shortName === rateKey
+    );
+    setCurrent({
+      shortName: currentInfo?.shortName || "USD",
+      rate: currentInfo?.exchangeRate || 1,
+    });
+  }, [rateKey, rateData]);
 
   return (
     <ConfigProvider
@@ -238,22 +294,42 @@ const Financial = () => {
         />
         <RangePicker
           allowClear
+          format="YYYY-MM-DD"
           className="w-[278px] h-[50px]"
           onChange={(value) => {
             console.log("value", value);
             if (!value) {
               return setFormData({
                 ...formData,
-                startTime: null,
-                endTime: null,
+                timer: [null, null],
               });
             }
             setFormData({
               ...formData,
-              startTime: dayjs(value?.[0]).startOf("day").valueOf(),
-              endTime: dayjs(value?.[1]).endOf("day").valueOf(),
+              timer: [
+                dayjs(value?.[0]).startOf("day"),
+                dayjs(value?.[1]).endOf("day"),
+              ],
             });
           }}
+          disabledDate={(current) => {
+            // 禁用6个月之前的日期和未来日期
+            const sixMonthsAgo = dayjs().subtract(6, "month").startOf("day");
+            const today = dayjs().endOf("day");
+            return (
+              current &&
+              (current.isBefore(sixMonthsAgo) || current.isAfter(today))
+            );
+          }}
+          value={formData.timer}
+          placeholder={[t("common.startTime"), t("common.endTime")]}
+          suffixIcon={
+            <Iconify
+              icon="cuida:calendar-outline"
+              className={`${styles.title_color}`}
+              size={20}
+            />
+          }
         />
       </div>
       <Table
@@ -268,6 +344,6 @@ const Financial = () => {
       />
     </ConfigProvider>
   );
-};
+});
 
 export default Financial;

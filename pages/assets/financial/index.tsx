@@ -15,7 +15,6 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState } from "react";
 import RedemptionModal from "../../../components/Financial/RedemptionModal";
-import ConfirmModal from "@/components/Financial/SubscribeConfirmModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
   OpenStatusEnum,
@@ -23,7 +22,6 @@ import {
   getUserFinancialAccount,
   UserFinancialAccountItem,
   UserFinancialAccountParams,
-  getMyPosition,
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
   getFinancialPageToken,
@@ -42,9 +40,16 @@ import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import appStore from "@/store";
 import dayjs from "dayjs";
+import BigNumber from "bignumber.js";
+import { getCoinRound } from "@/utils/getUseRate";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
+  current: {
+    symbol: string;
+    rate: number;
+    shortName: string;
+  };
   type: FinancialType;
   setCurProduct: (product: UserFinancialAccountItem | null) => void;
   tableLoading: boolean;
@@ -60,6 +65,7 @@ interface TabsItemProps {
 }
 
 const TabsItem = ({
+  current,
   type,
   setCurProduct,
   tableLoading,
@@ -70,6 +76,7 @@ const TabsItem = ({
 }: TabsItemProps) => {
   // 表格列
   const { t } = useTranslation(["financial"]);
+
   // 定期 币种 自动申购 申购日期 期限(天) 申购金额 年利率 累计收益 赎回日期 操作
   // 活期 币种 自动申购                 申购金额 年利率 累计收益        操作
   const columns: ColumnsType<UserFinancialAccountItem> = [
@@ -163,7 +170,15 @@ const TabsItem = ({
             <div>
               {record.purchaseAmount} {record.coinName}
             </div>
-            <div>≈${record.usdPurchaseAmount}</div>
+            <div>
+              ≈{current.symbol}{" "}
+              {getCoinRound(
+                current.shortName,
+                new BigNumber(record.usdPurchaseAmount)
+                  .times(new BigNumber(current.rate))
+                  .toString()
+              )}
+            </div>
           </div>
         );
       },
@@ -197,7 +212,15 @@ const TabsItem = ({
             <div>
               {record.accruedInterest} {record.coinName}
             </div>
-            <div>≈${record.usdAccruedInterest}</div>
+            <div>
+              ≈{current.symbol}{" "}
+              {getCoinRound(
+                current.shortName,
+                new BigNumber(record.usdAccruedInterest)
+                  .times(new BigNumber(current.rate))
+                  .toString()
+              )}
+            </div>
           </div>
         );
       },
@@ -314,8 +337,12 @@ const TabsItem = ({
 const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
-  const [currentRate, setCurrentRate] = useState(1);
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, "") || "USD"; // 汇率key
+  const [current, setCurrent] = useState({
+    rate: 1,
+    symbol: "$",
+    shortName: "USD",
+  });
   const rateData = appStore.getRateData();
 
   // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
@@ -390,6 +417,7 @@ const Financial = observer(() => {
       label: t("common.fixed"),
       children: (
         <TabsItem
+          current={current}
           type={FinancialType.FIXED}
           setCurProduct={setCurProduct}
           tableLoading={tableLoading}
@@ -403,6 +431,7 @@ const Financial = observer(() => {
       label: t("common.current"),
       children: (
         <TabsItem
+          current={current}
           type={FinancialType.CURRENT}
           setOpenSubscribeModal={setOpenSubscribeModal}
           setCurRecord={setCurRecord}
@@ -473,9 +502,14 @@ const Financial = observer(() => {
 
   // 获取汇率
   useEffect(() => {
-    const rate =
-      rateData.find((item: any) => item.shortName === rateKey)?.exchangeRate || 1;
-    setCurrentRate(rate);
+    const currentInfo = rateData.find(
+      (item: any) => item.shortName === rateKey
+    );
+    setCurrent({
+      shortName: currentInfo?.shortName || "USD",
+      rate: currentInfo?.exchangeRate || 1,
+      symbol: currentInfo?.symbol || "$",
+    });
   }, [rateKey, rateData]);
 
   // 获取币种列表 我的持仓
@@ -582,8 +616,13 @@ const Financial = observer(() => {
                     <MaskableAmount
                       prefix="≈"
                       show={showAmount}
-                      amount={myAmount.usdTotalAssets * currentRate}
-                      unit={rateKey}
+                      amount={getCoinRound(
+                        current.shortName,
+                        new BigNumber(myAmount.usdTotalAssets)
+                          .times(new BigNumber(current.rate))
+                          .toString()
+                      )}
+                      unit={current.shortName}
                     />
                   </div>
                 </div>

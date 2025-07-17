@@ -10,14 +10,12 @@ import {
   Space,
   Table,
   Tabs,
-  Tag,
 } from "antd";
 import NoData from "@/components/noData/noData";
 import { useEffect, useState } from "react";
 import styles from "../../styles/components/Financial.module.css";
 import {
   FinancialOrderItem,
-  FinancialOrderListParams,
   FinancialOrderStatusEnum,
   FinancialOrderTypeEnum,
   getFinancialOrderList,
@@ -30,6 +28,10 @@ import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Iconify } from "@/components/icon";
+import appStore from "@/store";
+import { observer } from "mobx-react-lite";
+import { getCoinRound } from "@/utils/getUseRate";
+import BigNumber from "bignumber.js";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -42,15 +44,28 @@ const resultStatusMap: Record<FinancialOrderStatusEnum, { text: string }> = {
   },
 };
 
+interface FormDataType {
+  type: FinancialType;
+  coinId: number | null;
+  operationType: string | null;
+  timer: [dayjs.Dayjs | null, dayjs.Dayjs | null];
+}
+
 interface TabsItemProps {
+  current: {
+    symbol: string;
+    rate: number;
+    shortName: string;
+  };
   type: FinancialType;
   tableData: FinancialOrderItem[];
   coinList: { coinName: string; id: string }[];
   tableLoading: boolean;
-  setFormData: (data: FinancialOrderListParams) => void;
-  formData: FinancialOrderListParams;
+  setFormData: (data: FormDataType) => void;
+  formData: FormDataType;
 }
 const TabsItem = ({
+  current,
   type,
   tableData,
   coinList,
@@ -68,7 +83,7 @@ const TabsItem = ({
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
-      width: type === FinancialType.FIXED ? 180 : '20%',
+      width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return (
           <Flex gap="8px">
@@ -93,7 +108,7 @@ const TabsItem = ({
       dataIndex: "createTime",
       key: "createTime",
       align: "right",
-      width: type === FinancialType.FIXED ? 180 : '20%',
+      width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss");
       },
@@ -104,7 +119,7 @@ const TabsItem = ({
       title: t("common.type"),
       dataIndex: "status",
       key: "status",
-      width: type === FinancialType.FIXED ? 180 : '20%',
+      width: type === FinancialType.FIXED ? 180 : "20%",
       align: "center" as const,
       render: (_: any, record: any) => {
         return (
@@ -126,12 +141,22 @@ const TabsItem = ({
       dataIndex: "amount",
       key: "amount",
       align: "right",
-      width: type === FinancialType.FIXED ? 180 : '20%',
+      width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.amount} USDT</div>
-            <div>≈￥{record.usdtAmount}</div>
+            <div>
+              {record.amount} {current.shortName}
+            </div>
+            <div>
+              ≈ {current.symbol}{" "}
+              {getCoinRound(
+                current.shortName,
+                new BigNumber(record.amount)
+                  .times(new BigNumber(current.rate))
+                  .toString()
+              )}
+            </div>
           </div>
         );
       },
@@ -157,7 +182,7 @@ const TabsItem = ({
       title: t("common.status"),
       dataIndex: "resultStatus",
       key: "resultStatus",
-      width: type === FinancialType.FIXED ? 180 : '20%',
+      width: type === FinancialType.FIXED ? 180 : "20%",
       align: "right" as const,
       render: (_: any, record: FinancialOrderItem) => {
         const resultStatus = record.resultStatus;
@@ -236,9 +261,20 @@ const TabsItem = ({
             ]}
           />
 
-          {/* 时间 */}
+          {/* 时间  默认显示七天 ,超过六个月不可点击*/}
           <RangePicker
             className="w-[278px] h-[50px]"
+            format="YYYY-MM-DD"
+            disabledDate={(current) => {
+              // 禁用6个月之前的日期和未来日期
+              const sixMonthsAgo = dayjs().subtract(6, "month").startOf("day");
+              const today = dayjs().endOf("day");
+              return (
+                current &&
+                (current.isBefore(sixMonthsAgo) || current.isAfter(today))
+              );
+            }}
+            value={formData.timer}
             suffixIcon={
               <Iconify
                 icon="cuida:calendar-outline"
@@ -251,14 +287,12 @@ const TabsItem = ({
               if (!value) {
                 return setFormData({
                   ...formData,
-                  startTime: null,
-                  endTime: null,
+                  timer: [null, null],
                 });
               }
               setFormData({
                 ...formData,
-                startTime: dayjs(value?.[0]).startOf("day").valueOf(), // 开始时间 00.00.00
-                endTime: dayjs(value?.[1]).endOf("day").valueOf(), // 结束时间 23.59.59
+                timer: [value[0], value[1]],
               });
             }}
           />
@@ -276,17 +310,23 @@ const TabsItem = ({
     </>
   );
 };
-const FinancialOrder = () => {
+const FinancialOrder = observer(() => {
   const { t } = useTranslation(["financial"]);
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, "") || "USD"; // 汇率key
+  const [current, setCurrent] = useState({
+    rate: 1,
+    symbol: "$",
+    shortName: "USD",
+  });
+  const rateData = appStore.getRateData();
 
   const [tableLoading, setTableLoading] = useState(false);
   // 表单数据
-  const [formData, setFormData] = useState<FinancialOrderListParams>({
+  const [formData, setFormData] = useState<FormDataType>({
     type: FinancialType.FIXED,
     coinId: null,
     operationType: null,
-    startTime: null,
-    endTime: null,
+    timer: [dayjs().subtract(7, "day"), dayjs()],
   });
   // 表格数据
   const [tableData, setTableData] = useState<FinancialOrderItem[]>([]);
@@ -302,6 +342,7 @@ const FinancialOrder = () => {
       label: t("common.fixed"),
       children: (
         <TabsItem
+          current={current}
           type={FinancialType.FIXED}
           tableData={tableData}
           coinList={coinList}
@@ -316,6 +357,7 @@ const FinancialOrder = () => {
       label: t("common.current"),
       children: (
         <TabsItem
+          current={current}
           type={FinancialType.CURRENT}
           tableData={tableData}
           coinList={coinList}
@@ -328,10 +370,18 @@ const FinancialOrder = () => {
   ];
 
   // 获取数据
-  const fetchData = async (params: FinancialOrderListParams) => {
+  const fetchData = async (params: FormDataType) => {
     try {
       setTableLoading(true);
-      const res = await getFinancialOrderList(params);
+      const data = {
+        coinId: params.coinId,
+        type: params.type,
+        operationType: params.operationType,
+        startTime: params.timer?.[0]?.valueOf(),
+        endTime: params.timer?.[1]?.valueOf(),
+      };
+
+      const res = await getFinancialOrderList(data);
       if (res.code === "0") {
         setTableData(res.data);
       }
@@ -370,6 +420,18 @@ const FinancialOrder = () => {
     fetchData(formData);
   }, [formData]);
   const [isClient, setIsClient] = useState(false);
+
+  // 获取汇率
+  useEffect(() => {
+    const currentInfo = rateData.find(
+      (item: any) => item.shortName === rateKey
+    );
+    setCurrent({
+      shortName: currentInfo?.shortName || "USD",
+      rate: currentInfo?.exchangeRate || 1,
+      symbol: currentInfo?.symbol || "$",
+    });
+  }, [rateKey, rateData]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -418,8 +480,7 @@ const FinancialOrder = () => {
                 type: Number(key),
                 coinId: null,
                 operationType: null,
-                startTime: null,
-                endTime: null,
+                timer: [dayjs().subtract(7, "day"), dayjs()],
               })
             }
           />
@@ -427,7 +488,7 @@ const FinancialOrder = () => {
       </div>
     </ConfigProvider>
   );
-};
+});
 
 export default withSpotLayout(FinancialOrder);
 

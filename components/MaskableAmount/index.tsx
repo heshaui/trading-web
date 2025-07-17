@@ -5,7 +5,7 @@ const MaskableAmount = ({
   prefix,
 }: {
   show: boolean;
-  amount: number;
+  amount: number | string;
   unit?: string;
   prefix?: string;
 }) => {
@@ -14,7 +14,7 @@ const MaskableAmount = ({
       <span>
         {show ? (
           <>
-            {prefix ? <span>{prefix}</span> : null}
+            {prefix ? <span style={{ marginRight: "4px" }}>{prefix}</span> : null}
             <span style={{ fontFamily: "DIN", marginRight: "4px" }}>
               {amount || 0}
             </span>
