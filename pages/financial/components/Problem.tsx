@@ -59,7 +59,7 @@ const Problem = () => {
           {t("financial.question")}
         </div>
 
-        <div className="m-[5px_20px]">
+        <div>
           <Collapse expandIconPosition="end" ghost items={items} />
         </div>
       </div>
