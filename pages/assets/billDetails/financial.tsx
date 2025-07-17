@@ -215,9 +215,12 @@ const Financial = observer(() => {
             itemBg: "transparent",
           },
           Select: {
-            activeBorderColor: "var(--border-color4)",
-            optionActiveBg: "transparent",
-            selectorBg: "transparent", //选框背景色
+            // activeBorderColor: "var(--border-color4)",
+            // optionActiveBg: "transparent",
+            // selectorBg: "transparent", //选框背景色
+          },
+          DatePicker: {
+            activeShadow: 'none'
           },
         },
       }}

@@ -460,8 +460,12 @@ const FinancialOrder = observer(() => {
             itemColor: "var(--text-color6)", // 文本颜色
             itemHoverColor: "var(--text-color5)", // 悬停文本颜色
           },
-          Select: {
-            optionSelectedBg: "var(--background10)",
+          // Select: {
+          //   optionSelectedBg: "var(--background-menu-item)",
+          //   optionSelectedColor: "var(--text-color5)",
+          // },
+          DatePicker: {
+            activeShadow: 'none'
           },
         },
       }}
