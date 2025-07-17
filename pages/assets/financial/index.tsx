@@ -378,7 +378,7 @@ const Financial = observer(() => {
   );
 
   // 是否显示金额
-  const [showAmount, setShowAmount] = useState(false);
+  const [showAmount, setShowAmount] = useState(true);
 
   // 是否是客户端渲染
   const [isClient, setIsClient] = useState(false);
@@ -554,7 +554,7 @@ const Financial = observer(() => {
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
                     <div>{t("common.totalAssets")}</div>
                     <div>
-                      {!showAmount ? (
+                      {showAmount ? (
                         <EyeOutlined
                           size={18}
                           className="cursor-pointer"

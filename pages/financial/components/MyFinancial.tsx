@@ -13,6 +13,7 @@ import { FinancialConfig } from "../index";
 import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useRouter } from "next/router";
 import { createStyles } from "antd-style";
+import appStore from "@/store";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -41,13 +42,19 @@ interface MyFinancialProps {
 const MyFinancial = observer(
   ({ financialConfig, isLoggedIn }: MyFinancialProps) => {
     const { t } = useTranslation(["financial"]);
-
     const router = useRouter();
     const { styles } = useStyle();
+    const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
+    const rateData = appStore.getRateData();
+    const [current, setCurrent] = useState({
+      symbol: "",
+      rate: 1,
+    });
+
     const [problemModalVisible, setProblemModalVisible] = useState(false);
 
     // 是否显示金额
-    const [showAmount, setShowAmount] = useState(false);
+    const [showAmount, setShowAmount] = useState(true);
 
     // 我的持仓
     const [myAmount, setMyAmount] = useState({
@@ -104,6 +111,17 @@ const MyFinancial = observer(
       initBackgroundImage();
     }, []);
 
+    // 获取汇率
+    useEffect(() => {
+      const currentInfo = rateData.find(
+        (item: any) => item.shortName === rateKey
+      );
+      setCurrent({
+        symbol: currentInfo?.symbol || "",
+        rate: currentInfo?.exchangeRate || 1,
+      });
+    }, [rateKey, rateData]);
+
     return (
       <>
         <div
@@ -150,7 +168,7 @@ const MyFinancial = observer(
                         {t("financial.myProperty")}
                       </div>
                       <div>
-                        {!showAmount ? (
+                        {showAmount ? (
                           <EyeOutlined
                             size={18}
                             className="cursor-pointer"
@@ -209,27 +227,33 @@ const MyFinancial = observer(
                     </div>
                   </div>
                   <div className="flex flex-ai-center flex-jc-between">
+                    {/* 我的持仓 */}
                     <div className="text-[16px] flex flex-column gap-[18px]">
                       <div>{t("financial.myPosition")}</div>
                       <MaskableAmount
-                        show={showAmount}
-                        amount={myAmount.holdings}
+                        prefix={`≈ ${current.symbol} `}
+                        show={showAmount && isLoggedIn}
+                        amount={myAmount.holdings * current.rate}
                       />
                     </div>
+
+                    {/* 总收益 */}
                     <div className="text-[16px] flex flex-column gap-[18px]">
                       <div>{t("financial.totalIncome")}</div>
                       <div className="text-center">
                         <MaskableAmount
-                          show={showAmount}
+                          show={showAmount && isLoggedIn}
                           amount={myAmount.totalRevenue}
                         />
                       </div>
                     </div>
+
+                    {/* 昨日收益 */}
                     <div className="text-[16px] flex flex-column gap-[18px]">
                       <div>{t("financial.yesterdayIncome")}</div>
                       <div className="text-right">
                         <MaskableAmount
-                          show={showAmount}
+                          show={showAmount && isLoggedIn}
                           amount={myAmount.lastRevenue}
                         />
                       </div>

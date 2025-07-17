@@ -14,6 +14,7 @@ const MaskableAmount = ({
       <span>
         {show ? (
           <>
+            {prefix ? <span>{prefix}</span> : null}
             <span style={{ fontFamily: "DIN", marginRight: "4px" }}>
               {amount || 0}
             </span>
