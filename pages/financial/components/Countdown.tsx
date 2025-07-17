@@ -44,14 +44,14 @@ const Countdown: React.FC<CountdownProps> = ({ value, onEnd, btn }) => {
   // 格式化显示时间
   const formatTime = (ms: number) => {
     if (ms <= 0) {
-      return "0D 00H 00M 00S";
+      return "0d 00h 00m 00s";
     }
 
     const d = dayjs.duration(ms);
-    return `${d.days()}D ${d.hours().toString().padStart(2, "0")}H ${d
+    return `${d.days()}d ${d.hours().toString().padStart(2, "0")}h ${d
       .minutes()
       .toString()
-      .padStart(2, "0")}M ${d.seconds().toString().padStart(2, "0")}S`;
+      .padStart(2, "0")}m ${d.seconds().toString().padStart(2, "0")}s`;
   };
 
   return (
