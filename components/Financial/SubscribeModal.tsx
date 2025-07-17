@@ -35,6 +35,7 @@ import SubscribeConfirmModal, {
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 import { InfoCircleOutlined } from "@ant-design/icons";
+import financialStyles from "@/styles/components/Financial.module.css";
 
 const useStyle = createStyles(() => ({
   "my-modal-header": {
@@ -42,7 +43,7 @@ const useStyle = createStyles(() => ({
     padding: "0 20px !important",
     borderRadius: "10px 10px 0px 0px",
     background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px #dcdcdc inset",
+    boxShadow: "0px -0.5px 0px 0px var(--border-color4) inset",
   },
   "my-modal-footer": {
     width: "100%",
@@ -76,7 +77,6 @@ const Subscription: React.FC<SubscriptionProps> = ({
   setProductInfo,
   curRecord,
   setTabsKey,
-  
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const { t } = useTranslation(["financial"]);
@@ -128,7 +128,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
 
   // 最大金额
   const suffix = (
-    <Flex align="center" gap={2}>
+    <Flex align="center" gap={2} className="flex-ai-center">
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
@@ -150,12 +150,20 @@ const Subscription: React.FC<SubscriptionProps> = ({
       >
         {t("common.max")}
       </div>
-      <Divider type="vertical" style={{ background: "var(--border-color4)" }} />
+      <div
+        style={{
+          background: "var(--border-color4)",
+          margin: "0 6.5px",
+          width: "1px",
+          height: "14px",
+        }}
+      />
       <div className="text-[14px] text-[var(--text-color5)] font-[400] flex flex-ai-center gap-[10px]">
         {tokenInfo?.iconUrl && (
           <Image
             src={tokenInfo?.iconUrl}
             alt={""}
+            style={{ borderRadius: "50%" }}
             width={20}
             height={20}
             className="mr-[4px]"
@@ -373,9 +381,6 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              {productInfo?.type === FinancialType.CURRENT
-                ? t("common.estimatedDailyIncome")
-                : t("common.estimatedTotalIncome")}
               <Tooltip
                 title={
                   <>
@@ -384,7 +389,11 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   </>
                 }
               >
-                <InfoCircleOutlined />
+                <div className="underline decoration-[var(--text-color6)]">
+                  {productInfo?.type === FinancialType.CURRENT
+                    ? t("common.estimatedDailyIncome")
+                    : t("common.estimatedTotalIncome")}
+                </div>
               </Tooltip>
             </div>
 
@@ -395,13 +404,14 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 自动申购开关 */}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              <div> {t("common.autoSubscribe")}</div>
               <Tooltip title={t("common.autoSubscribeTips")}>
-                <InfoCircleOutlined />
+                <div className="underline decoration-[var(--text-color6)]">
+                  {t("common.autoSubscribe")}
+                </div>
               </Tooltip>
             </div>
             <Form.Item name="autoPurchase" noStyle>
-              <Switch />
+              <Switch size="small" />
             </Form.Item>
           </div>
         </div>
@@ -413,9 +423,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
             </div>
             <>
               <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
-                <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.applyAmount")}0 - {productInfo?.assetBoundary}
-                  {tokenInfo?.coinName}
+                <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
+                  <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
+                  <div>
+                    {t("common.applyAmount")}0 - {productInfo?.assetBoundary}
+                    {tokenInfo?.coinName}
+                  </div>
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
                   {t("common.annualInterestRate")}{" "}
@@ -423,9 +436,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
                 </div>
               </div>
               <div className="flex flex-ai-center flex-jc-between text-[14px]">
-                <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.applyAmount")} &gt; {productInfo?.assetBoundary}
-                  {tokenInfo?.coinName}
+                <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
+                  <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
+                  <div>
+                    {t("common.applyAmount")} &gt; {productInfo?.assetBoundary}
+                    {tokenInfo?.coinName}
+                  </div>
                 </div>
                 <div className="text-[var(--text-color6)] font-[400]">
                   {t("common.annualInterestRate")}{" "}
@@ -732,7 +748,7 @@ const SubscribeModal = ({
     });
 
   // 监听表单字段变化
-  
+
   const financialAmount = Form.useWatch("financialAmount", form);
 
   // 标签页
@@ -835,11 +851,17 @@ const SubscribeModal = ({
     <ConfigProvider
       theme={{
         components: {
-          Tabs: { cardPadding: "20px" },
+          Tabs: {
+            cardPadding: "20px",
+          },
           Modal: { titleLineHeight: "60px" },
           Button: {
             borderColorDisabled: "transparent",
             defaultHoverBg: "var(--cancel-btn)",
+          },
+          Switch: {
+            colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
+            colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
           },
         },
         token: {
@@ -856,6 +878,7 @@ const SubscribeModal = ({
         width={470}
         maskClosable={false}
         open={openSubscribeModal}
+        // open={true}
         onCancel={() => setOpenSubscribeModal(false)}
         title={<div>{tokenInfo?.coinName}</div>}
         closable={{ "aria-label": "Custom Close Button" }}
@@ -872,7 +895,6 @@ const SubscribeModal = ({
                 {t("common.cancel")}
               </Button>
               <Button
-
                 disabled={!financialAmount || loading}
                 loading={loading}
                 type="primary"
@@ -893,6 +915,7 @@ const SubscribeModal = ({
       >
         <Spin spinning={loading}>
           <Tabs
+            className={financialStyles.tabs2}
             activeKey={tabsKey}
             defaultActiveKey="1"
             tabBarStyle={{ padding: "0 28px" }}

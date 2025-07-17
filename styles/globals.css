@@ -80,6 +80,7 @@
   --border-color-disable: #F0F0F0;
   --dropdown-menu-hover: #F4F4F4;
   --divider-color: #DCDCDC;
+  --switch-color: #E6E6E6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -161,6 +162,7 @@
     --border-color-disable: #363638;
     --dropdown-menu-hover: #454545;
     --divider-color: #454545;
+    --switch-color: #3B3B3B;
   }
 }
 
