@@ -47,7 +47,7 @@ const MyFinancial = observer(
     const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
     const rateData = appStore.getRateData();
     const [current, setCurrent] = useState({
-      symbol: "",
+      symbol: "", // 币种符号",
       rate: 1,
     });
 
@@ -117,7 +117,7 @@ const MyFinancial = observer(
         (item: any) => item.shortName === rateKey
       );
       setCurrent({
-        symbol: currentInfo?.symbol || "",
+        symbol: currentInfo?.symbol || "$",
         rate: currentInfo?.exchangeRate || 1,
       });
     }, [rateKey, rateData]);
@@ -242,6 +242,7 @@ const MyFinancial = observer(
                       <div>{t("financial.totalIncome")}</div>
                       <div className="text-center">
                         <MaskableAmount
+                          prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
                           amount={myAmount.totalRevenue}
                         />
@@ -253,6 +254,7 @@ const MyFinancial = observer(
                       <div>{t("financial.yesterdayIncome")}</div>
                       <div className="text-right">
                         <MaskableAmount
+                          prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
                           amount={myAmount.lastRevenue}
                         />
