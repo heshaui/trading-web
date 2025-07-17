@@ -328,6 +328,7 @@ const RedemptionModal = ({
                     ]}
                   >
                     <Input
+                      autoComplete="off"
                       placeholder={t("common.pleaseEnterTheRedeemAmount")}
                       className="m-[10px_0] w-[100%] h-[50px]"
                       suffix={suffix}

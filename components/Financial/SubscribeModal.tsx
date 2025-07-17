@@ -310,6 +310,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
             ]}
           >
             <Input
+              autoComplete="off"
               placeholder={`${t("common.min")} ${
                 productInfo?.minPurchaseAmount
               } ${tokenInfo?.coinName}`}
