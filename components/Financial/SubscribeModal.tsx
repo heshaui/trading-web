@@ -434,7 +434,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
         )}
         {/* 提示 */}
         {productInfo?.isRedemption === OpenStatusEnum.YES ? (
-          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[var(--theme-color)] bg-[var(--bgc-color)] flex flex-ai-center gap-[4px]">
+          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
             <SvgIcon
               width={16}
               height={16}
