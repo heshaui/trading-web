@@ -30,7 +30,7 @@ const useStyle = createStyles(() => ({
     marginTop: "0 !important",
     borderRadius: "0 0 10px 10px !important",
     padding: "20px !important",
-    borderTop: "1px solid var(--border-color) !important",
+    borderTop: "1px solid var(--border-color4) !important",
   },
   "my-modal-content": {
     padding: "0 !important",
@@ -235,23 +235,29 @@ const MyFinancial = observer(
                   <div className="flex flex-ai-center flex-jc-between">
                     {/* 我的持仓 */}
                     <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
-                      <div className="text-left">{t("financial.myPosition")}</div>
-                        <div className="text-left">  <MaskableAmount
-                        prefix={`≈ ${current.symbol} `}
-                        show={showAmount && isLoggedIn}
-                        amount={getCoinRound(
-                          current.shortName,
-                          new BigNumber(myAmount.holdings)
-                            .times(new BigNumber(current.rate))
-                            .toString()
-                        )}
-                      /></div>
+                      <div className="text-left">
+                        {t("financial.myPosition")}
+                      </div>
+                      <div className="text-left font-[700]">
+                        <MaskableAmount
+                          prefix={`≈ ${current.symbol} `}
+                          show={showAmount && isLoggedIn}
+                          amount={getCoinRound(
+                            current.shortName,
+                            new BigNumber(myAmount.holdings)
+                              .times(new BigNumber(current.rate))
+                              .toString()
+                          )}
+                        />
+                      </div>
                     </div>
 
                     {/* 总收益 */}
                     <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
-                      <div className="text-center">{t("financial.totalIncome")}</div>
                       <div className="text-center">
+                        {t("financial.totalIncome")}
+                      </div>
+                      <div className="text-center font-[700]">
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
@@ -267,8 +273,10 @@ const MyFinancial = observer(
 
                     {/* 昨日收益 */}
                     <div className="text-[16px] flex flex-column gap-[18px] w-[33%]">
-                      <div className="text-right">{t("financial.yesterdayIncome")}</div>
                       <div className="text-right">
+                        {t("financial.yesterdayIncome")}
+                      </div>
+                      <div className="text-right font-[700]">
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
