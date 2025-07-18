@@ -197,12 +197,13 @@ const RedemptionModal = ({
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
-          // 最大：1.当前用户总资产≤今日赎回限制，点击最大， 输入框数量显示用户全部总资产
-          // 2.当前用户总资产≥今日赎回上限， 点击最大，输入框数量显示今日赎回上限
+          // 最大：1.当前用户申购金额≤今日赎回限制，点击最大， 输入框数量显示用户全部申购金额
+          // 2.当前用户申购金额≥今日赎回上限， 点击最大，输入框数量显示今日赎回上限
           if (
-            Number(redeemInfo.totalAssets) <= Number(redeemInfo.redeemLimit)
+            Number(curProductInfo?.purchaseAmount) <=
+            Number(redeemInfo.redeemLimit)
           ) {
-            form.setFieldValue("redeemMoney", redeemInfo.totalAssets);
+            form.setFieldValue("redeemMoney", curProductInfo?.purchaseAmount);
           } else {
             form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
           }

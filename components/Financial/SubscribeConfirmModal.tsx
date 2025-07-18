@@ -51,9 +51,12 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
           </Button>
           <Button
             onClick={() => {
-              router.push(
-                `/assets/financial?type=${subscribeConfirmModal.type}`
-              );
+              router.push({
+                pathname: "/assets/financial",
+                query: {
+                  type: subscribeConfirmModal.type,
+                },
+              });
             }}
             type="primary"
             shape="round"
