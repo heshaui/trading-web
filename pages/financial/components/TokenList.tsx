@@ -365,7 +365,7 @@ const TokenList = ({
             disabled
             type="primary"
             shape="round"
-            style={{ borderColor: "transparent" }}
+            style={{ borderColor: "transparent", color: "#fff" }}
           >
             {t("common.sellout")}
           </Button>
@@ -378,7 +378,7 @@ const TokenList = ({
             disabled
             type="primary"
             shape="round"
-            style={{ borderColor: "transparent" }}
+            style={{ borderColor: "transparent", color: "#fff" }}
           >
             {t("common.pause")}
           </Button>
@@ -391,7 +391,7 @@ const TokenList = ({
             disabled
             type="primary"
             shape="round"
-            style={{ borderColor: "transparent" }}
+            style={{ borderColor: "transparent", color: "#fff" }}
           >
             {t("common.end")}
           </Button>
@@ -410,7 +410,7 @@ const TokenList = ({
               value={time}
               btn={
                 <Button
-                  style={{ borderColor: "transparent" }}
+                  style={{ borderColor: "transparent", color: "#fff" }}
                   type="primary"
                   shape="round"
                   onClick={() => onSubscribe(record, productRecord)}
