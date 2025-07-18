@@ -7,30 +7,19 @@ import Financial from "./financial";
 import styles from "../../../styles/components/Financial.module.css";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 const BillDetails = () => {
   const { t } = useTranslation(["financial"]);
 
   const [isClient, setIsClient] = useState(false);
-  
+
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
   }, []);
 
   if (!isClient) return null; // SSR 阶段不渲染
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Tabs: {
-            horizontalMargin: "0px",
-            inkBarColor: "var(--text-color5)", // 指示条颜色
-            itemSelectedColor: "var(--text-color5)", // 选中文本颜色
-            itemColor: "var(--text-color6)", // 文本颜色
-            itemHoverColor: "var(--text-color5)", // 悬停文本颜色
-          },
-        },
-      }}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
       <div className="flex flex-col h-full">
         <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
           {t("common.billDetails")}

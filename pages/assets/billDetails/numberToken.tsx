@@ -19,6 +19,7 @@ import {
   coinSelectType,
   GiftDataType,
 } from "@/type/assets/billDetails/table";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 
 interface DataType {
   id: number;
@@ -165,32 +166,7 @@ const NumberToken = () => {
 
   return (
     <>
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              // bodySortBg: "pink",
-              headerBg: "transparent",
-              headerColor: "var(--text-color6)",
-              headerSplitColor: "transparent", // 表头分割线颜色
-              rowExpandedBg: "var(--background10)", // 表格行展开背景色
-              borderColor: "transparent",
-              // stickyScrollBarBg:"transparent",
-              headerBorderRadius: 0, // 表头圆角
-            },
-            Pagination: {
-              itemActiveBg: "transparent",
-              itemBg: "transparent",
-            },
-
-            Select: {
-              activeBorderColor: "var(--border-color4)",
-              optionActiveBg: "transparent",
-              selectorBg: "transparent", //选框背景色
-            },
-          },
-        }}
-      >
+      <ConfigProvider theme={financialThemeConfig}>
         <div>
           <div
             className={`${styles.table_header} w-full flex align-center p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]`}

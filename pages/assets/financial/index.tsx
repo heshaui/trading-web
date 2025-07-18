@@ -6,6 +6,7 @@ import {
   Flex,
   message,
   Select,
+  Skeleton,
   Space,
   Switch,
   Table,
@@ -362,6 +363,7 @@ const Financial = observer(() => {
   }, [router.isReady, router.query]);
 
   const [tableLoading, setTableLoading] = useState(false);
+  const [myAmountLoading, setMyAmountLoading] = useState(false);
   //打开赎回弹窗
   const [openRedemption, setOpenRedemption] = useState(false);
 
@@ -481,6 +483,7 @@ const Financial = observer(() => {
 
   // 我的持仓
   const fetchMyPosition = async () => {
+    setMyAmountLoading(true);
     try {
       const res = await getFinancialAccount();
       if (res.code === "0") {
@@ -488,6 +491,8 @@ const Financial = observer(() => {
       }
     } catch (error) {
       console.error("Failed to load position data:", error);
+    } finally {
+      setMyAmountLoading(false);
     }
   };
 
@@ -555,51 +560,61 @@ const Financial = observer(() => {
           {/* content */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
             {/* 头部 */}
+
             <div className="h-[274px] bg-[var(--background14)] rounded-[8px] mb-[30px]">
               {/* 顶部 */}
               <div className="p-[30px] flex justify-between items-end">
                 {/* 左侧 总资产 */}
-                <div>
-                  <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
-                    <div>{t("common.totalAssets")}</div>
-                    <div>
-                      {showAmount ? (
-                        <EyeOutlined
-                          style={{ color: "var(--text-color6)" }}
-                          size={18}
-                          className="cursor-pointer"
-                          onClick={() => setShowAmount(!showAmount)}
-                        />
-                      ) : (
-                        <EyeInvisibleOutlined
-                          style={{ color: "var(--text-color6)" }}
-                          size={18}
-                          className="cursor-pointer"
-                          onClick={() => setShowAmount(!showAmount)}
-                        />
-                      )}
+                <Skeleton
+                  active
+                  title={true}
+                  loading={myAmountLoading}
+                  // loading={true}
+                  paragraph={{ rows: 2 }}
+                  className="px-1"
+                >
+                  <div>
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400] flex items-center gap-[4px]">
+                      <div>{t("common.totalAssets")}</div>
+                      <div>
+                        {showAmount ? (
+                          <EyeOutlined
+                            style={{ color: "var(--text-color6)" }}
+                            size={18}
+                            className="cursor-pointer"
+                            onClick={() => setShowAmount(!showAmount)}
+                          />
+                        ) : (
+                          <EyeInvisibleOutlined
+                            style={{ color: "var(--text-color6)" }}
+                            size={18}
+                            className="cursor-pointer"
+                            onClick={() => setShowAmount(!showAmount)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    {/* 总资产 totalAssets*/}
+                    <div className="text-[32px] text-[var(--text-color5)] font-[700]">
+                      <MaskableAmount
+                        show={showAmount}
+                        amount={getCoinRound("USDT", myAmount.totalAssets)}
+                        unit="USDT"
+                      />
+                    </div>
+                    {/* 总资产 兑换当前汇率 */}
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      <MaskableAmount
+                        prefix="≈"
+                        show={showAmount}
+                        amount={new BigNumber(myAmount.usdTotalAssets)
+                          .times(new BigNumber(current.rate))
+                          .toString()}
+                        unit={current.shortName}
+                      />
                     </div>
                   </div>
-                  {/* 总资产 totalAssets*/}
-                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount
-                      show={showAmount}
-                      amount={getCoinRound("USDT", myAmount.totalAssets)}
-                      unit="USDT"
-                    />
-                  </div>
-                  {/* 总资产 兑换当前汇率 */}
-                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    <MaskableAmount
-                      prefix="≈"
-                      show={showAmount}
-                      amount={new BigNumber(myAmount.usdTotalAssets)
-                        .times(new BigNumber(current.rate))
-                        .toString()}
-                      unit={current.shortName}
-                    />
-                  </div>
-                </div>
+                </Skeleton>
                 {/* 跳转理财页面 */}
                 <Button
                   type="primary"
@@ -611,34 +626,56 @@ const Financial = observer(() => {
                   {t("common.financialProduct")}
                 </Button>
               </div>
+
               {/* 分割线 */}
               <div className="m-[0px_30px] border-t border-[var(--divider-color)]" />
               {/* 底部 */}
               <div className="flex gap-[229px] p-[30px]">
                 {/* 昨日收益  lastRevenue*/}
-                <div>
-                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    {t("common.yesterdayIncome")}（USDT）
+                <Skeleton
+                  active
+                  title={true}
+                  loading={myAmountLoading}
+                  // loading={true}
+                  paragraph={{ rows: 2 }}
+                  className="px-1"
+                >
+                  <div>
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      {t("common.yesterdayIncome")}（USDT）
+                    </div>
+                    <div className="text-[32px] text-[var(--text-color5)] font-[700]">
+                      <MaskableAmount
+                        show={showAmount}
+                        amount={getCoinRound("USDT", myAmount.lastRevenue)}
+                      />
+                    </div>
                   </div>
-                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount
-                      show={showAmount}
-                      amount={getCoinRound("USDT", myAmount.lastRevenue)}
-                    />
-                  </div>
-                </div>
+                </Skeleton>
                 {/* 三十天收益（USDT）  accumulateRevenue*/}
-                <div>
-                  <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                    {t("common.thirtyDaysIncome")}（USDT）
+                <Skeleton
+                  active
+                  title={true}
+                  loading={myAmountLoading}
+                  // loading={true}
+                  paragraph={{ rows: 2 }}
+                  className="px-1"
+                >
+                  <div>
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      {t("common.thirtyDaysIncome")}（USDT）
+                    </div>
+                    <div className="text-[32px] text-[var(--text-color5)] font-[700]">
+                      <MaskableAmount
+                        show={showAmount}
+                        amount={getCoinRound(
+                          "USDT",
+                          myAmount.accumulateRevenue
+                        )}
+                      />
+                    </div>
                   </div>
-                  <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                    <MaskableAmount
-                      show={showAmount}
-                      amount={getCoinRound("USDT", myAmount.accumulateRevenue)}
-                    />
-                  </div>
-                </div>
+                </Skeleton>
               </div>
             </div>
             {/* 表格 */}
