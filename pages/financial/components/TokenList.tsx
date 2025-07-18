@@ -1,4 +1,3 @@
-import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import {
   Select,
   Space,
@@ -64,7 +63,7 @@ const TokenList = ({
   // 加载中
   const [loading, setLoading] = useState(false);
 
-  const pageSize = 7;
+  const pageSize = 1;
 
   // 数据源
   const [dataSource, setDataSource] = useState<{
@@ -634,7 +633,7 @@ const TokenList = ({
             footer={() =>
               dataSource.total &&
               dataSource.showList.length < dataSource.total ? (
-                <div className="flex justify-center">
+                <div className="flex justify-center p-[20px]">
                   <SvgIcon
                     className="cursor-pointer text-[#A4A5AC] hover:text-[var(--theme-color)]"
                     onClick={more}
