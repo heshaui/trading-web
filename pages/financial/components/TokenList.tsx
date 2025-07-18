@@ -422,10 +422,15 @@ const TokenList = ({
             headerBorderRadius: 0,
             rowSelectedBg: "transparent",
           },
+          Select: {
+            optionSelectedBg: "var(--background-menu-item)", // 选中背景色
+            optionSelectedColor: "var(--text-color5)", // 选中文本颜色
+          },
         },
         token: {
           colorBgContainerDisabled: "var(--theme-05)",
         },
+        
       }}
     >
       <div className="py-[30px] max-w-[1200px] mx-auto">
