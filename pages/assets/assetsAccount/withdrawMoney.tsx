@@ -854,19 +854,25 @@ const WithdrawMoneyPage = observer(() => {
     }
   };
   // 提现最小值获取，提现最大值获取
+  // 提现最小值获取，提现最大值获取
   const getMinWithdraw = (type: "min" | "max") => {
-    const max = getCoinRateData(coninInfo.coinName, userAllLimit.max);
-    const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix);
+    const max = getCoinRateData(coninInfo.coinName, userAllLimit.max || 0);
+    const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix || 0);
 
+    // if (type === 'min') {
+    //     return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)))
+    // } else {
+    //     return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)), Number(coninInfo.balance || 0))
+    // }
     if (type === "min") {
       return Math.max(
         Number(coninInfo.minWithdraw),
-        getCoinRateData(coninInfo.coinName, cut(max, min))
+        Number(cut(max, min) || 0)
       );
     } else {
       return Math.min(
         Number(coninInfo.maxWithdraw),
-        getCoinRateData(coninInfo.coinName, cut(max, min)),
+        Number(cut(max, min) || 0),
         Number(coninInfo.balance || 0)
       );
     }

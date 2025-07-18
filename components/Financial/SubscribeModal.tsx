@@ -11,9 +11,9 @@ import {
   Form,
   FormInstance,
   Tooltip,
+  Popover,
 } from "antd";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { createStyles } from "antd-style";
 import dayjs from "dayjs";
 import {
   FinancialPageTokenItem,
@@ -334,12 +334,23 @@ const Subscription: React.FC<SubscriptionProps> = ({
               }}
             />
           </Form.Item>
-          <div className="mb-[2px]">
-            <span className="text-[#9E9E9E] font-[400] mr-[10px]">
+          {/* 现货可用 */}
+          <div className="mb-[2px] flex flex-ai-center">
+            <div className="text-[#9E9E9E] font-[400] mr-[10px]">
               {t("common.spotAvailable")}:
-            </span>
-            {myBalance?.balance} {tokenInfo?.coinName}
+            </div>
+            <div className="ml-[10px] mr-[4px]">
+              {myBalance?.balance} {tokenInfo?.coinName}
+            </div>
+
+            <SvgIcon
+              viewBox="0 0 16 16"
+              width={16}
+              height={16}
+              path="M8.00016 1.33334C11.6822 1.33334 14.6668 4.31801 14.6668 8.00001C14.6668 11.682 11.6822 14.6667 8.00016 14.6667C4.31816 14.6667 1.3335 11.682 1.3335 8.00001C1.3335 4.31801 4.31816 1.33334 8.00016 1.33334ZM8.00016 2.66668C6.58567 2.66668 5.22912 3.22858 4.22893 4.22877C3.22873 5.22897 2.66683 6.58552 2.66683 8.00001C2.66683 9.4145 3.22873 10.7711 4.22893 11.7712C5.22912 12.7714 6.58567 13.3333 8.00016 13.3333C9.41465 13.3333 10.7712 12.7714 11.7714 11.7712C12.7716 10.7711 13.3335 9.4145 13.3335 8.00001C13.3335 6.58552 12.7716 5.22897 11.7714 4.22877C10.7712 3.22858 9.41465 2.66668 8.00016 2.66668ZM8.00016 4.66668C8.17697 4.66668 8.34654 4.73691 8.47157 4.86194C8.59659 4.98696 8.66683 5.15653 8.66683 5.33334V7.33334H10.6668C10.8436 7.33334 11.0132 7.40358 11.1382 7.52861C11.2633 7.65363 11.3335 7.8232 11.3335 8.00001C11.3335 8.17682 11.2633 8.34639 11.1382 8.47141C11.0132 8.59644 10.8436 8.66668 10.6668 8.66668H8.66683V10.6667C8.66683 10.8435 8.59659 11.0131 8.47157 11.1381C8.34654 11.2631 8.17697 11.3333 8.00016 11.3333C7.82335 11.3333 7.65378 11.2631 7.52876 11.1381C7.40373 11.0131 7.3335 10.8435 7.3335 10.6667V8.66668H5.3335C5.15668 8.66668 4.98712 8.59644 4.86209 8.47141C4.73707 8.34639 4.66683 8.17682 4.66683 8.00001C4.66683 7.8232 4.73707 7.65363 4.86209 7.52861C4.98712 7.40358 5.15668 7.33334 5.3335 7.33334H7.3335V5.33334C7.3335 5.15653 7.40373 4.98696 7.52876 4.86194C7.65378 4.73691 7.82335 4.66668 8.00016 4.66668Z"
+            />
           </div>
+          {/* 可申购金额 */}
           <div>
             <span className="text-[#9E9E9E] font-[400] mr-[10px]">
               {t("common.canSubscribe")}:
@@ -362,12 +373,16 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              <Tooltip
-                title={
-                  <>
+              <Popover
+                color="var(--background12)"
+                overlayStyle={{
+                  filter: "drop-shadow(0px 5px 30px var(--background))",
+                }}
+                content={
+                  <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
                     <div>·{t("common.estimatedIncomeTips1")}</div>
                     <div>{t("common.estimatedIncomeTips2")}</div>
-                  </>
+                  </div>
                 }
               >
                 <div className="underline decoration-[var(--text-color6)]">
@@ -375,7 +390,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                     ? t("common.estimatedDailyIncome")
                     : t("common.estimatedTotalIncome")}
                 </div>
-              </Tooltip>
+              </Popover>
             </div>
 
             <div className="text-[var(--theme-color)] font-[400]">
@@ -385,11 +400,21 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 自动申购开关 */}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              <Tooltip title={t("common.autoSubscribeTips")}>
+              <Popover
+                overlayStyle={{
+                  filter: "drop-shadow(0px 5px 30px var(--background))",
+                }}
+                color="var(--background12)"
+                content={
+                  <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
+                    {t("common.autoSubscribeTips")}
+                  </div>
+                }
+              >
                 <div className="underline decoration-[var(--text-color6)]">
                   {t("common.autoSubscribe")}
                 </div>
-              </Tooltip>
+              </Popover>
             </div>
             <Form.Item name="autoPurchase" noStyle>
               <Switch size="small" />
