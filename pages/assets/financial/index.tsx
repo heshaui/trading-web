@@ -169,16 +169,14 @@ const TabsItem = ({
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             <div>
-              {record.purchaseAmount} {record.coinName}
+              {getCoinRound(record.coinName, record.purchaseAmount)}{" "}
+              {record.coinName}
             </div>
             <div>
               ≈{current.symbol}{" "}
-              {getCoinRound(
-                current.shortName,
-                new BigNumber(record.usdPurchaseAmount)
-                  .times(new BigNumber(current.rate))
-                  .toString()
-              )}
+              {new BigNumber(record.usdPurchaseAmount)
+                .times(new BigNumber(current.rate))
+                .toString()}
             </div>
           </div>
         );
@@ -211,16 +209,14 @@ const TabsItem = ({
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
             <div>
-              {record.accruedInterest} {record.coinName}
+              {getCoinRound(record.coinName, record.accruedInterest)}{" "}
+              {record.coinName}
             </div>
             <div>
               ≈{current.symbol}{" "}
-              {getCoinRound(
-                current.shortName,
-                new BigNumber(record.usdAccruedInterest)
-                  .times(new BigNumber(current.rate))
-                  .toString()
-              )}
+              {new BigNumber(record.usdAccruedInterest)
+                .times(new BigNumber(current.rate))
+                .toString()}
             </div>
           </div>
         );
@@ -588,7 +584,7 @@ const Financial = observer(() => {
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
                       show={showAmount}
-                      amount={myAmount.totalAssets}
+                      amount={getCoinRound("USDT", myAmount.totalAssets)}
                       unit="USDT"
                     />
                   </div>
@@ -597,12 +593,9 @@ const Financial = observer(() => {
                     <MaskableAmount
                       prefix="≈"
                       show={showAmount}
-                      amount={getCoinRound(
-                        current.shortName,
-                        new BigNumber(myAmount.usdTotalAssets)
-                          .times(new BigNumber(current.rate))
-                          .toString()
-                      )}
+                      amount={new BigNumber(myAmount.usdTotalAssets)
+                        .times(new BigNumber(current.rate))
+                        .toString()}
                       unit={current.shortName}
                     />
                   </div>
@@ -630,7 +623,7 @@ const Financial = observer(() => {
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
                       show={showAmount}
-                      amount={myAmount.lastRevenue}
+                      amount={getCoinRound("USDT", myAmount.lastRevenue)}
                     />
                   </div>
                 </div>
@@ -642,7 +635,7 @@ const Financial = observer(() => {
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
                       show={showAmount}
-                      amount={myAmount.accumulateRevenue}
+                      amount={getCoinRound("USDT", myAmount.accumulateRevenue)}
                     />
                   </div>
                 </div>

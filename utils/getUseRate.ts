@@ -295,6 +295,7 @@ export const getCoinRound = (coinName: string, num: string | number) => {
     try {
         const coinList = appStore.getCoinList(); // 货币对列表
         const coin = coinList.find((item: any) => item.coinName === coinName);
+        console.log(coinList, coinName);
         const scaleResult = roundDown(num, coin?.unitScale || 0);
         return scaleResult
     } catch (error) {

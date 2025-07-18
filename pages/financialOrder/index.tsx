@@ -151,16 +151,13 @@ const TabsItem = ({
         return (
           <div className="text-[14px]">
             <div>
-              {record.amount} {record.coinName}
+              {getCoinRound(record.coinName, record.amount)} {record.coinName}
             </div>
             <div>
               ≈ {current.symbol}{" "}
-              {getCoinRound(
-                current.shortName,
-                new BigNumber(record.amount)
-                  .times(new BigNumber(current.rate))
-                  .toString()
-              )}
+              {new BigNumber(record.amount)
+                .times(new BigNumber(current.rate))
+                .toString()}
             </div>
           </div>
         );

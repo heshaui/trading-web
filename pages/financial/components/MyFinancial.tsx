@@ -242,12 +242,9 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={getCoinRound(
-                            current.shortName,
-                            new BigNumber(myAmount.holdings)
-                              .times(new BigNumber(current.rate))
-                              .toString()
-                          )}
+                          amount={new BigNumber(myAmount.holdings)
+                            .times(new BigNumber(current.rate))
+                            .toString()}
                         />
                       </div>
                     </div>
@@ -261,12 +258,9 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={getCoinRound(
-                            current.shortName,
-                            new BigNumber(myAmount.totalRevenue)
-                              .times(new BigNumber(current.rate))
-                              .toString()
-                          )}
+                          amount={new BigNumber(myAmount.totalRevenue)
+                            .times(new BigNumber(current.rate))
+                            .toString()}
                         />
                       </div>
                     </div>
@@ -280,12 +274,9 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={getCoinRound(
-                            current.shortName,
-                            new BigNumber(myAmount.lastRevenue)
-                              .times(new BigNumber(current.rate))
-                              .toString()
-                          )}
+                          amount={new BigNumber(myAmount.lastRevenue)
+                            .times(new BigNumber(current.rate))
+                            .toString()}
                         />
                       </div>
                     </div>
