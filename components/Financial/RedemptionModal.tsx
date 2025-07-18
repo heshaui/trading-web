@@ -320,7 +320,7 @@ const RedemptionModal = ({
                     </div>
                   </div>
                   {/* 提示 */}
-                  <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
+                  <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[#FF8A26] bg-[#FF8A2614]">
                     <div className="flex flex-ai-center gap-[4px]">
                       <SvgIcon
                         width={16}
@@ -385,7 +385,7 @@ const RedemptionModal = ({
                     </div>
                   </div>
                   {/* 提示 */}
-                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[400] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
+                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[400] mt-[10px] text-[#FF8A26] bg-[#FF8A2614]">
                     <div className="flex flex-ai-center gap-[4px]">
                       <SvgIcon
                         width={16}

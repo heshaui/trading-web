@@ -421,6 +421,7 @@ const TokenList = ({
             fontWeightStrong: 400,
             headerBorderRadius: 0,
             rowSelectedBg: "transparent",
+            rowHoverBg: "var(--bgc-color)", // 悬停背景色
           },
           Select: {
             optionSelectedBg: "var(--background-menu-item)", // 选中背景色
