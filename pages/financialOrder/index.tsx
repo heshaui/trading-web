@@ -32,6 +32,7 @@ import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import { getCoinRound } from "@/utils/getUseRate";
 import BigNumber from "bignumber.js";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -445,34 +446,7 @@ const FinancialOrder = observer(() => {
 
   return (
     <ConfigProvider
-      theme={{
-        components: {
-          Table: {
-            headerBg: "transparent", // 表头背景色
-            headerColor: "var(--text-color6)", // 表头文本颜色
-            headerSplitColor: "transparent", // 表头分割线颜色
-            rowExpandedBg: "var(--background10)", // 表格行展开背景色
-            borderColor: "transparent", // 表格边框颜色
-            headerBorderRadius: 0, // 表头圆角
-            // 悬停背景色
-            rowHoverBg: "var(--bgc-color)",
-          },
-          Tabs: {
-            horizontalMargin: "0px",
-            inkBarColor: "var(--text-color5)", // 指示条颜色
-            itemSelectedColor: "var(--text-color5)", // 选中文本颜色
-            itemColor: "var(--text-color6)", // 文本颜色
-            itemHoverColor: "var(--text-color5)", // 悬停文本颜色
-          },
-          // Select: {
-          //   optionSelectedBg: "var(--background-menu-item)",
-          //   optionSelectedColor: "var(--text-color5)",
-          // },
-          DatePicker: {
-            activeShadow: "none",
-          },
-        },
-      }}
+      theme={financialThemeConfig}
     >
       <div className="flex flex-col h-full">
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">

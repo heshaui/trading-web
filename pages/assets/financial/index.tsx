@@ -42,6 +42,7 @@ import appStore from "@/store";
 import dayjs from "dayjs";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
@@ -549,33 +550,7 @@ const Financial = observer(() => {
       />
 
       {/* 基础页面 */}
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              headerBg: "transparent", // 表头背景色
-              headerColor: "var(--text-color6)", // 表头文本颜色
-              headerSplitColor: "transparent", // 表头分割线颜色
-              rowExpandedBg: "var(--background10)", // 表格行展开背景色
-              borderColor: "transparent", // 表格边框颜色
-              headerBorderRadius: 0, // 表头圆角
-              // 悬停背景色
-              rowHoverBg: "var(--bgc-color)",
-            },
-            Tabs: {
-              horizontalMargin: "0px",
-              inkBarColor: "var(--text-color5)", // 指示条颜色
-              itemSelectedColor: "var(--text-color5)", // 选中文本颜色
-              itemColor: "var(--text-color6)", // 文本颜色
-              itemHoverColor: "var(--text-color5)", // 悬停文本颜色
-            },
-            Switch: {
-              colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
-              colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
-            },
-          },
-        }}
-      >
+      <ConfigProvider theme={financialThemeConfig}>
         <div className="flex flex-col h-full">
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
@@ -601,7 +576,7 @@ const Financial = observer(() => {
                         />
                       ) : (
                         <EyeInvisibleOutlined
-                          style={{ color: "var(--text-color6)" }} 
+                          style={{ color: "var(--text-color6)" }}
                           size={18}
                           className="cursor-pointer"
                           onClick={() => setShowAmount(!showAmount)}

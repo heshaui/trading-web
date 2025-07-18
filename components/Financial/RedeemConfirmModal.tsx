@@ -28,6 +28,7 @@ const RedeemConfirmModal = ({
 
   return (
     <Modal
+      centered
       width={redeemConfirmModal.status === "success" ? 470 : 400}
       open={redeemConfirmModal.open}
       onCancel={() =>
@@ -86,7 +87,11 @@ const RedeemConfirmModal = ({
             : t("common.redeemFailed")}
         </div>
         {/* 副标题 */}
-        <div className="text-[var(--text-color5)] font-[400] text-center mb-[40px]">
+        <div
+          className={`text-[var(--text-color5)] font-[400] text-center mb-[${
+            redeemConfirmModal.status === "success" ? "30px" : "40px"
+          }]`}
+        >
           {redeemConfirmModal.status === "success"
             ? t("common.redeemSuccess")
             : t("common.redeemFailed")}
@@ -97,13 +102,13 @@ const RedeemConfirmModal = ({
             {/* 定期赎回 */}
             {redeemConfirmModal.type === FinancialType.FIXED ? (
               <>
-                {/* 申购金额 */}
+                {/* 赎回成功 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                     {t("common.redeemSuccess")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
+                    {t("common.fixed")}
                   </div>
                 </div>
                 {/* 已获得利息 */}

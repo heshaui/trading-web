@@ -18,6 +18,7 @@ import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -197,34 +198,7 @@ const Financial = observer(() => {
   }, [rateKey, rateData]);
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Table: {
-            headerBg: "transparent", // 表头背景色
-            headerColor: "var(--text-color6)", // 表头文本颜色
-            headerSplitColor: "transparent", // 表头分割线颜色
-            rowExpandedBg: "var(--background10)", // 表格行展开背景色
-            borderColor: "transparent", // 表格边框颜色
-            headerBorderRadius: 0, // 表头圆角
-            // 悬停背景色
-            rowHoverBg: "var(--bgc-color)",
-          },
-          Pagination: {
-            itemActiveBg: "transparent",
-            itemBg: "transparent",
-          },
-          Select: {
-            // activeBorderColor: "var(--border-color4)",
-            // optionActiveBg: "transparent",
-            // selectorBg: "transparent", //选框背景色
-          },
-          DatePicker: {
-            activeShadow: 'none'
-          },
-        },
-      }}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
       <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
         <Select
           allowClear

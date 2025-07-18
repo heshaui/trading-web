@@ -34,24 +34,7 @@ import SubscribeConfirmModal, {
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 import financialStyles from "@/styles/components/Financial.module.css";
-
-const useStyle = createStyles(() => ({
-  "my-modal-header": {
-    height: "60px !important",
-    padding: "0 20px !important",
-    borderRadius: "10px 10px 0px 0px",
-    background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px var(--border-color4) inset",
-  },
-  "my-modal-footer": {
-    width: "100%",
-    marginTop: "0 !important",
-    borderRadius: "0 0 10px 10px !important",
-  },
-  "my-modal-content": {
-    padding: "0 !important",
-  },
-}));
+import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
 
 interface SubscriptionProps {
   form: FormInstance<any>;
@@ -195,9 +178,9 @@ const Subscription: React.FC<SubscriptionProps> = ({
       <Form.Item name="projectId" hidden>
         <Input />
       </Form.Item>
-      <div className="p-[0_20px_20px_20px]">
+      <div className="px-[20px]">
         {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
-        <div className="flex flex-ai-center gap-[17px] mb-[16px] flex-wrap">
+        <div className="flex flex-ai-center gap-[17px] my-[16px] flex-wrap">
           {sortedData.map((item) => (
             <div
               onClick={() => {
@@ -686,7 +669,7 @@ const ProductRule: React.FC<{
   };
 
   return (
-    <div className="p-[0_20px_20px_20px]">
+    <div className="p-[12px_20px_20px_20px]">
       {/* 活期 定期 */}
       <div className="mb-[20px]">
         <Segmented
@@ -773,7 +756,11 @@ const SubscribeModal = ({
     {
       key: "2",
       label: t("common.productRules"),
-      children: <ProductRule productInfo={productInfo} />,
+      children: (
+        <div className="h-[514px] overflow-y-auto">
+          <ProductRule productInfo={productInfo} />
+        </div>
+      ),
     },
   ];
 
@@ -847,34 +834,9 @@ const SubscribeModal = ({
   }, [curRecord, openSubscribeModal, form]);
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Tabs: {
-            cardPadding: "20px",
-          },
-          Modal: { titleLineHeight: "60px" },
-          Button: {
-            borderColorDisabled: "transparent",
-            defaultHoverBg: "var(--cancel-btn)",
-          },
-          Switch: {
-            colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
-            colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
-          },
-          Segmented: {
-            borderRadius: 50,
-            borderRadiusSM: 50,
-            itemSelectedBg: "var(--segmented-item-active-bg2)",
-            trackBg:"var(--background12)"
-          },
-        },
-        token: {
-          colorBgContainerDisabled: "var(--theme-05)",
-        },
-      }}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
       <Modal
+        centered
         classNames={{
           header: styles["my-modal-header"],
           footer: styles["my-modal-footer"],
@@ -923,7 +885,7 @@ const SubscribeModal = ({
             className={financialStyles.tabs2}
             activeKey={tabsKey}
             defaultActiveKey="1"
-            tabBarStyle={{ padding: "0 28px" }}
+            tabBarStyle={{ padding: "0 28px", height: "60px" }}
             items={items}
             onChange={(key) => setTabsKey(key)}
           />

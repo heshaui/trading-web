@@ -32,6 +32,7 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
 
   return (
     <Modal
+      centered
       width={subscribeConfirmModal.status === "success" ? 470 : 400}
       open={subscribeConfirmModal.open}
       onCancel={() => setSubscribeConfirmModal({ open: false, status: null })}

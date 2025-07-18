@@ -11,14 +11,13 @@ import {
 import {
   Button,
   ConfigProvider,
-  Divider,
   Flex,
   Form,
   Input,
+  message,
   Modal,
   Spin,
 } from "antd";
-import { createStyles } from "antd-style";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SvgIcon } from "@/components/icon";
@@ -26,25 +25,7 @@ import RedeemConfirmModal, {
   RedeemConfirmModalType,
 } from "./RedeemConfirmModal";
 import Image from "next/image";
-
-const useStyle = createStyles(() => ({
-  "my-modal-header": {
-    height: "60px !important",
-    padding: "0 20px !important",
-    borderRadius: "10px 10px 0px 0px",
-    background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px var(--border-color4) inset",
-  },
-  "my-modal-footer": {
-    width: "100%",
-    marginTop: "0 !important",
-    borderRadius: "0 0 10px 10px !important",
-  },
-  "my-modal-content": {
-    padding: "0 !important",
-  },
-}));
-
+import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
 interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
@@ -77,10 +58,11 @@ const RedemptionModal = ({
     });
 
   //赎回金额-定期
-  const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<FinancialAccountRedemptionShowFixedItem>({
-    earnInterest: 0,
-    redeemMoney: 0,
-  });
+  const [redeemMoneyFixed, setRedeemMoneyFixed] =
+    useState<FinancialAccountRedemptionShowFixedItem>({
+      earnInterest: 0,
+      redeemMoney: 0,
+    });
 
   // 赎回确认弹窗
   const [redeemConfirmModal, setRedeemConfirmModal] =
@@ -94,6 +76,28 @@ const RedemptionModal = ({
     form.validateFields().then(async (values) => {
       if (!values) return;
       try {
+        if (curProductInfo?.type === FinancialType.CURRENT) {
+          // 不是数字报错
+          if (isNaN(Number(redeemMoney))) {
+            return message.error(t("common.pleaseEnterTheRedeemAmount"));
+          }
+
+          // 小于0报错
+          if (Number(redeemMoney) <= 0) {
+            return message.error(t("common.pleaseEnterTheRedeemAmount"));
+          }
+
+          // 大于总资产报错
+          if (Number(redeemMoney) > Number(redeemInfo.totalAssets)) {
+            return message.error(t("common.pleaseEnterTheRedeemAmount"));
+          }
+
+          // 大于今日赎回上限报错
+          if (Number(redeemMoney) > Number(redeemInfo.redeemLimit)) {
+            return message.error(t("common.pleaseEnterTheRedeemAmount"));
+          }
+        }
+
         setLoading(true);
         if (!curProductInfo) return;
         const res = await financialAccountRedemption({
@@ -113,7 +117,7 @@ const RedemptionModal = ({
             amount:
               curProductInfo?.type === FinancialType.CURRENT
                 ? Number(redeemMoney)
-                : Number(redeemMoneyFixed),
+                : Number(redeemMoneyFixed.redeemMoney),
             interest: curProductInfo?.accruedInterest,
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
@@ -159,7 +163,9 @@ const RedemptionModal = ({
             if (curProduct?.type === FinancialType.CURRENT) {
               setRedeemInfo(res.data as FinancialAccountRedemptionShowItem);
             } else {
-              setRedeemMoneyFixed(res.data as FinancialAccountRedemptionShowFixedItem);
+              setRedeemMoneyFixed(
+                res.data as FinancialAccountRedemptionShowFixedItem
+              );
             }
           }
         } catch (error) {
@@ -193,7 +199,9 @@ const RedemptionModal = ({
         onClick={() => {
           // 最大：1.当前用户总资产≤今日赎回限制，点击最大， 输入框数量显示用户全部总资产
           // 2.当前用户总资产≥今日赎回上限， 点击最大，输入框数量显示今日赎回上限
-          if (Number(redeemInfo.totalAssets) <= Number(redeemInfo.redeemLimit)) {
+          if (
+            Number(redeemInfo.totalAssets) <= Number(redeemInfo.redeemLimit)
+          ) {
             form.setFieldValue("redeemMoney", redeemInfo.totalAssets);
           } else {
             form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
@@ -219,22 +227,10 @@ const RedemptionModal = ({
   );
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Modal: { titleLineHeight: "60px" },
-          Button: {
-            borderColorDisabled: "transparent",
-            defaultHoverBg: "var(--cancel-btn)",
-          },
-        },
-        token: {
-          colorBgContainerDisabled: "var(--theme-05)",
-        },
-      }}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
       {/* 赎回弹窗 */}
       <Modal
+        centered
         width={470}
         classNames={{
           header: styles["my-modal-header"],
@@ -259,7 +255,9 @@ const RedemptionModal = ({
               {t("common.cancel")}
             </Button>
             <Button
-              disabled={!redeemMoney && curProductInfo?.type === FinancialType.CURRENT}
+              disabled={
+                !redeemMoney && curProductInfo?.type === FinancialType.CURRENT
+              }
               type="primary"
               shape="round"
               size="large"
@@ -274,64 +272,22 @@ const RedemptionModal = ({
       >
         <Spin spinning={loading}>
           <Form form={form}>
-            <div className="p-[30px_20px_10px_20px]">
+            <div className="px-[20px]">
               {curProductInfo?.type === FinancialType.CURRENT ? (
                 // 活期赎回
                 <>
                   {/* label */}
-                  <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
+                  <div className="text-[14px] text-[var(--text-color5)] font-[400] mt-[30px]">
                     {t("common.redeemAmount")}
                   </div>
                   {/* 输入框 */}
                   <Form.Item
+                    noStyle
                     name="redeemMoney"
                     rules={[
                       {
                         required: true,
                         message: t("common.pleaseEnterTheRedeemAmount"),
-                      },
-                      {
-                        validator: (_, value) => {
-                          // 如果没有输入值，不进行范围校验，让required规则单独处理
-                          if (!value || value === "") {
-                            return Promise.resolve();
-                          }
-
-                          // 只能输入数字
-                          if (isNaN(Number(value))) {
-                            return Promise.reject(
-                              new Error(t("common.pleaseEnterTheNumber"))
-                            );
-                          }
-
-                          // 不能小于0
-                          if (value <= 0) {
-                            return Promise.reject(
-                              new Error(
-                                t(
-                                  "common.redeemAmountCannotBeLessThanOrEqualTo0"
-                                )
-                              )
-                            );
-                          }
-
-                          // 不能大于赎回上限
-                          if (
-                            redeemInfo.redeemLimit &&
-                            Number(value) > Number(redeemInfo.redeemLimit)
-                          ) {
-                            return Promise.reject(
-                              new Error(
-                                `${t(
-                                  "common.redeemAmountCannotBeGreaterThan"
-                                )} ${redeemInfo.redeemLimit} ${
-                                  curProductInfo?.coinName
-                                }`
-                              )
-                            );
-                          }
-                          return Promise.resolve();
-                        },
                       },
                     ]}
                   >
@@ -385,7 +341,7 @@ const RedemptionModal = ({
                 // 定期赎回
                 <>
                   {/* 金额 */}
-                  <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center">
+                  <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center mt-[28px]">
                     {curProductInfo?.purchaseAmount} {curProductInfo?.coinName}
                   </div>
                   {/* subTitle */}
@@ -407,7 +363,8 @@ const RedemptionModal = ({
                     {/* 累计收益 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                        {curProductInfo?.settlementInterest === SettlementInterest.DAILY
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
                           ? t("common.accruedInterest")
                           : t("common.totalInterest")}
                       </div>
@@ -422,7 +379,8 @@ const RedemptionModal = ({
                         {t("common.redeemAmount")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {redeemMoneyFixed.redeemMoney || "--"} {curProductInfo?.coinName}
+                        {redeemMoneyFixed.redeemMoney || "--"}{" "}
+                        {curProductInfo?.coinName}
                       </div>
                     </div>
                   </div>
