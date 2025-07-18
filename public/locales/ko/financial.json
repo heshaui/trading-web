@@ -108,7 +108,8 @@
     "estimatedIncomeTips2":"단계별 연간 수익률과 보상은 구독 금액에 따라 달라지며, 매일 변동될 수 있습니다.",
     "autoSubscribeTips": "자동 구독을 활성화하면 현물 지갑의 자산이 매일 02:00과 18:00(UTC+8)에 이 수시 상품을 자동으로 구독합니다.",
     "redeemDate": "상환 날짜",
-    "subscribeDate": "구독 날짜"
+    "subscribeDate": "구독 날짜",
+    "comingSoon": "준비 중입니다. 잠시 후 다시 시도해주세요!"
   },
   "financial": {
     "myProperty": "내 자산",

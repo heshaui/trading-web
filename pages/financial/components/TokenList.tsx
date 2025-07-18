@@ -624,7 +624,11 @@ const TokenList = ({
               expandedRowKeys, // 展开的行
             }}
             dataSource={dataSource.showList}
-            locale={{ emptyText: <NoData /> }}
+            locale={{
+              emptyText: (
+                <NoData isTimerNoData={true} title={t("common.comingSoon")} />
+              ),
+            }}
             columns={columns}
             pagination={false}
             footer={() =>
