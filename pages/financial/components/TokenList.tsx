@@ -361,7 +361,12 @@ const TokenList = ({
       // 5售罄
       case FinancialPageTokenStatusEnum.SOLD_OUT:
         return (
-          <Button disabled type="primary" shape="round">
+          <Button
+            disabled
+            type="primary"
+            shape="round"
+            style={{ borderColor: "transparent" }}
+          >
             {t("common.sellout")}
           </Button>
         );
@@ -369,7 +374,12 @@ const TokenList = ({
       // 3暂停
       case FinancialPageTokenStatusEnum.SUSPEND:
         return (
-          <Button disabled type="primary" shape="round">
+          <Button
+            disabled
+            type="primary"
+            shape="round"
+            style={{ borderColor: "transparent" }}
+          >
             {t("common.pause")}
           </Button>
         );
@@ -377,7 +387,12 @@ const TokenList = ({
       // 6结束
       case FinancialPageTokenStatusEnum.END:
         return (
-          <Button disabled type="primary" shape="round">
+          <Button
+            disabled
+            type="primary"
+            shape="round"
+            style={{ borderColor: "transparent" }}
+          >
             {t("common.end")}
           </Button>
         );
@@ -395,6 +410,7 @@ const TokenList = ({
               value={time}
               btn={
                 <Button
+                  style={{ borderColor: "transparent" }}
                   type="primary"
                   shape="round"
                   onClick={() => onSubscribe(record, productRecord)}
@@ -431,7 +447,6 @@ const TokenList = ({
         token: {
           colorBgContainerDisabled: "var(--theme-05)",
         },
-        
       }}
     >
       <div className="py-[30px] max-w-[1200px] mx-auto">
@@ -578,6 +593,7 @@ const TokenList = ({
                         <>
                           {!isLoggedIn ? (
                             <Button
+                              style={{ borderColor: "transparent" }}
                               onClick={() => router.push("/login")}
                               type="primary"
                               shape="round"
@@ -616,12 +632,18 @@ const TokenList = ({
               dataSource.showList.length < dataSource.total ? (
                 <div className="flex justify-center">
                   <SvgIcon
-                    className="cursor-pointer text-[#A4A5AC] hover:text-[var(--theme-color)]" 
+                    className="cursor-pointer text-[#A4A5AC] hover:text-[var(--theme-color)]"
                     onClick={more}
                     fill="var(--theme-color)"
                   >
-                    <path fill="currentColor" d="M12.436 18.8946L3.92691 10.8655C3.64236 10.6256 3.27805 10.5015 2.90625 10.5176C2.53444 10.5338 2.18229 10.6891 1.91963 10.9528C1.09054 11.8691 1.48327 12.96 1.96327 13.3964L11.6069 22.3855C12.0869 22.8218 12.8287 22.8218 13.3087 22.3855L22.9087 13.3964C23.3887 12.96 23.7378 12 22.996 11.1273C22.4287 10.4728 21.3378 10.6037 20.9015 11.04L12.436 18.8946Z" />
-                    <path fill="currentColor" d="M12.436 9.6436L3.92691 1.61451C3.64236 1.37465 3.27805 1.25049 2.90625 1.26666C2.53444 1.28283 2.18229 1.43813 1.91963 1.70178C1.09054 2.61815 1.48327 3.70905 1.96327 4.14542L11.6069 13.1345C12.0869 13.5709 12.8287 13.5709 13.3087 13.1345L22.9087 4.14542C23.3887 3.70905 23.7378 2.74905 22.996 1.87633C22.4287 1.22178 21.3378 1.35269 20.9015 1.78905L12.436 9.6436Z" />
+                    <path
+                      fill="currentColor"
+                      d="M12.436 18.8946L3.92691 10.8655C3.64236 10.6256 3.27805 10.5015 2.90625 10.5176C2.53444 10.5338 2.18229 10.6891 1.91963 10.9528C1.09054 11.8691 1.48327 12.96 1.96327 13.3964L11.6069 22.3855C12.0869 22.8218 12.8287 22.8218 13.3087 22.3855L22.9087 13.3964C23.3887 12.96 23.7378 12 22.996 11.1273C22.4287 10.4728 21.3378 10.6037 20.9015 11.04L12.436 18.8946Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12.436 9.6436L3.92691 1.61451C3.64236 1.37465 3.27805 1.25049 2.90625 1.26666C2.53444 1.28283 2.18229 1.43813 1.91963 1.70178C1.09054 2.61815 1.48327 3.70905 1.96327 4.14542L11.6069 13.1345C12.0869 13.5709 12.8287 13.5709 13.3087 13.1345L22.9087 4.14542C23.3887 3.70905 23.7378 2.74905 22.996 1.87633C22.4287 1.22178 21.3378 1.35269 20.9015 1.78905L12.436 9.6436Z"
+                    />
                   </SvgIcon>
                 </div>
               ) : null
