@@ -386,29 +386,33 @@ const RedemptionModal = ({
                     </div>
                   </div>
                   {/* 提示 */}
-                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[400] mt-[10px] text-[#FF8A26] bg-[#FF8A2614]">
-                    <div className="flex flex-ai-center gap-[4px]">
+                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[400] mt-[10px] text-[#FF8A26] bg-[#FF8A2614] flex gap-[4px]">
+                    <div className="mt-[2px]">
                       <SvgIcon
                         width={16}
                         height={16}
                         path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
                       />
-                      {curProductInfo?.settlementInterest ===
-                      SettlementInterest.DAILY
-                        ? t("common.redeemTips1")
-                        : t("common.expirationRedeemTips1")}
                     </div>
-                    <div className="ml-[20px]">
-                      {curProductInfo?.settlementInterest ===
-                      SettlementInterest.DAILY
-                        ? t("common.redeemTips2")
-                        : t("common.expirationRedeemTips2")}
-                    </div>
-                    <div className="ml-[20px]">
-                      {curProductInfo?.settlementInterest ===
-                      SettlementInterest.DAILY
-                        ? t("common.redeemTips3")
-                        : t("common.expirationRedeemTips3")}
+                    <div className="flex-1">
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips1")
+                          : t("common.expirationRedeemTips1")}
+                      </div>
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips2")
+                          : t("common.expirationRedeemTips2")}
+                      </div>
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips3")
+                          : t("common.expirationRedeemTips3")}
+                      </div>
                     </div>
                   </div>
                 </>

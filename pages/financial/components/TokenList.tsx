@@ -63,7 +63,7 @@ const TokenList = ({
   // 加载中
   const [loading, setLoading] = useState(false);
 
-  const pageSize = 1;
+  const pageSize = 7;
 
   // 数据源
   const [dataSource, setDataSource] = useState<{
