@@ -569,6 +569,10 @@ const Financial = observer(() => {
               itemColor: "var(--text-color6)", // 文本颜色
               itemHoverColor: "var(--text-color5)", // 悬停文本颜色
             },
+            Switch: {
+              colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
+              colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
+            },
           },
         }}
       >

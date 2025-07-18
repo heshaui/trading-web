@@ -35,7 +35,7 @@ const RedeemConfirmModal = ({
       }
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
-        <div className="p-[30px_55px] flex justify-around gap-[20px]">
+        <div className="flex justify-around gap-[20px]">
           <Button
             className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
             onClick={() => {
@@ -62,17 +62,22 @@ const RedeemConfirmModal = ({
     >
       <div>
         {/* 图标 成功/失败*/}
-        <div className="mb-[15px] m-[30px_180px_15px_180px]">
-          <Image
-            src={
-              redeemConfirmModal.status === "success"
-                ? "/images/financial/success.png"
-                : "/images/financial/error.png"
-            }
-            alt=""
-            width={126}
-            height={126}
-          />
+        <div className="w-[126px] h-[126px] mx-auto mt-[48px]">
+          {redeemConfirmModal.status === "success" ? (
+            <Image
+              src="/images/financial/success.png"
+              alt=""
+              width={126}
+              height={126}
+            />
+          ) : (
+            <Image
+              src="/images/financial/error.png"
+              alt=""
+              width={126}
+              height={126}
+            />
+          )}
         </div>
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
@@ -81,7 +86,7 @@ const RedeemConfirmModal = ({
             : t("common.redeemFailed")}
         </div>
         {/* 副标题 */}
-        <div className="text-[var(--text-color5)] font-[400] text-center mb-[30px]">
+        <div className="text-[var(--text-color5)] font-[400] text-center mb-[40px]">
           {redeemConfirmModal.status === "success"
             ? t("common.redeemSuccess")
             : t("common.redeemFailed")}
@@ -104,7 +109,8 @@ const RedeemConfirmModal = ({
                 {/* 已获得利息 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    {redeemConfirmModal.settlementInterest === SettlementInterest.DAILY
+                    {redeemConfirmModal.settlementInterest ===
+                    SettlementInterest.DAILY
                       ? t("common.accruedInterest")
                       : t("common.totalInterest")}
                   </div>

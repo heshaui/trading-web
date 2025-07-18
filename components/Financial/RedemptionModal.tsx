@@ -259,7 +259,7 @@ const RedemptionModal = ({
               {t("common.cancel")}
             </Button>
             <Button
-              disabled={!redeemMoney}
+              disabled={!redeemMoney && curProductInfo?.type === FinancialType.CURRENT}
               type="primary"
               shape="round"
               size="large"
