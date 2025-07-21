@@ -152,23 +152,24 @@ const TabsItem = ({
         return (
           <div className="text-[14px]">
             <div>
-              {getCoinRound(record.endCoinName, record.amount)} {record.endCoinName}
+              {getCoinRound(record.endCoinName, record.amount)}{" "}
+              {record.endCoinName}
             </div>
             <div>
               ≈ {current.symbol}{" "}
               {
                 // 有汇率的存在
                 current.rate
-                  // 有精度存在
-                  ? current.accuracy
+                  ? // 有精度存在
+                    current.accuracy
                     ? new BigNumber(record.amount)
                         .times(new BigNumber(current.rate))
                         .toFixed(Number(current.accuracy))
                     : new BigNumber(record.amount)
                         .times(new BigNumber(current.rate))
                         .toString()
-                  // 没有汇率的存在
-                  : record.amount
+                  : // 没有汇率的存在
+                    record.amount
               }
             </div>
           </div>
@@ -185,7 +186,11 @@ const TabsItem = ({
             key: "term",
             align: "right" as const,
             render: (_: any, record: FinancialOrderItem) => {
-              return <div className="text-[14px]">{record.term ? record.term : "-"}</div>;
+              return (
+                <div className="text-[14px]">
+                  {record.term ? record.term : "-"}
+                </div>
+              );
             },
           },
         ]
@@ -327,7 +332,12 @@ const TabsItem = ({
 const FinancialOrder = observer(() => {
   const { t } = useTranslation(["financial"]);
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
-  const [current, setCurrent] = useState({
+  const [current, setCurrent] = useState<{
+    accuracy: number | null;
+    symbol: string;
+    rate: number | undefined;
+    shortName: string;
+  }>({
     accuracy: null, // 精度
     rate: undefined, // 汇率
     symbol: "", // 币种符号
@@ -441,12 +451,21 @@ const FinancialOrder = observer(() => {
     const currentInfo = rateData.find(
       (item: any) => item.shortName === rateKey
     );
-    setCurrent({
-      accuracy: currentInfo?.accuracy,
-      shortName: currentInfo?.shortName,
-      symbol: currentInfo?.symbol,
-      rate: currentInfo?.exchangeRate,
-    });
+    if (currentInfo) {
+      setCurrent({
+        accuracy: currentInfo?.accuracy,
+        shortName: currentInfo?.shortName,
+        symbol: currentInfo?.symbol,
+        rate: currentInfo?.exchangeRate,
+      });
+    } else {
+      setCurrent({
+        accuracy: null,
+        shortName: "USD",
+        symbol: "$",
+        rate: 1,
+      });
+    }
   }, [rateKey, rateData]);
 
   useEffect(() => {
@@ -456,9 +475,7 @@ const FinancialOrder = observer(() => {
   if (!isClient) return null; // SSR 阶段不渲染
 
   return (
-    <ConfigProvider
-      theme={financialThemeConfig}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
       <div className="flex flex-col h-full">
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
           {t("common.financialOrder")}

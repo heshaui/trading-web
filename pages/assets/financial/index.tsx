@@ -176,17 +176,15 @@ const TabsItem = ({
             </div>
             <div>
               ≈{current.symbol}{" "}
-              {
-                current.rate
-                  ? current.accuracy
-                    ? new BigNumber(record.usdPurchaseAmount)
-                        .times(new BigNumber(current.rate))
-                        .toFixed(Number(current.accuracy))
-                    : new BigNumber(record.usdPurchaseAmount)
-                        .times(new BigNumber(current.rate))
-                        .toString()
-                  : record.usdPurchaseAmount
-              }
+              {current.rate
+                ? current.accuracy
+                  ? new BigNumber(record.usdPurchaseAmount)
+                      .times(new BigNumber(current.rate))
+                      .toFixed(Number(current.accuracy))
+                  : new BigNumber(record.usdPurchaseAmount)
+                      .times(new BigNumber(current.rate))
+                      .toString()
+                : record.usdPurchaseAmount}
             </div>
           </div>
         );
@@ -235,8 +233,8 @@ const TabsItem = ({
                     : new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toString()
-                  // 没有汇率的存在
-                  : record.usdAccruedInterest
+                  : // 没有汇率的存在
+                    record.usdAccruedInterest
               }
             </div>
           </div>
@@ -356,7 +354,12 @@ const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
-  const [current, setCurrent] = useState({
+  const [current, setCurrent] = useState<{
+    accuracy: number | null;
+    symbol: string;
+    rate: number | undefined;
+    shortName: string;
+  }>({
     accuracy: null, // 精度
     rate: undefined, // 汇率
     symbol: "", // 币种符号
@@ -528,12 +531,21 @@ const Financial = observer(() => {
     const currentInfo = rateData.find(
       (item: any) => item.shortName === rateKey
     );
-    setCurrent({
-      accuracy: currentInfo?.accuracy,
-      shortName: currentInfo?.shortName,
-      symbol: currentInfo?.symbol,
-      rate: currentInfo?.exchangeRate,
-    });
+    if (currentInfo) {
+      setCurrent({
+        accuracy: currentInfo?.accuracy,
+        shortName: currentInfo?.shortName,
+        symbol: currentInfo?.symbol,
+        rate: currentInfo?.exchangeRate,
+      });
+    } else {
+      setCurrent({
+        accuracy: null,
+        shortName: "USD",
+        symbol: "$",
+        rate: 1,
+      });
+    }
   }, [rateKey, rateData]);
 
   // 获取币种列表 我的持仓
@@ -632,16 +644,16 @@ const Financial = observer(() => {
                         amount={
                           // 有汇率的存在
                           current.rate
-                            // 有精度存在
-                            ? current.accuracy
+                            ? // 有精度存在
+                              current.accuracy
                               ? new BigNumber(myAmount.usdTotalAssets)
                                   .times(new BigNumber(current.rate))
                                   .toFixed(Number(current.accuracy))
                               : new BigNumber(myAmount.usdTotalAssets)
                                   .times(new BigNumber(current.rate))
                                   .toString()
-                            // 没有汇率的存在
-                            : myAmount.usdTotalAssets
+                            : // 没有汇率的存在
+                              myAmount.usdTotalAssets
                         }
                         unit={current.shortName}
                       />

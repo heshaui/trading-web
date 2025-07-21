@@ -48,7 +48,12 @@ const MyFinancial = observer(
     const { styles } = useStyle();
     const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
     const rateData = appStore.getRateData();
-    const [current, setCurrent] = useState({
+    const [current, setCurrent] = useState<{
+      accuracy: number | null;
+      symbol: string;
+      rate: number | undefined;
+      shortName: string;
+    }>({
       accuracy: null, // 精度
       symbol: "", // 币种符号",
       rate: undefined, // 汇率
@@ -120,12 +125,21 @@ const MyFinancial = observer(
       const currentInfo = rateData.find(
         (item: any) => item.shortName === rateKey
       );
-      setCurrent({
-        accuracy: currentInfo?.accuracy,
-        shortName: currentInfo?.shortName,
-        symbol: currentInfo?.symbol,
-        rate: currentInfo?.exchangeRate,
-      });
+      if (currentInfo) {
+        setCurrent({
+          accuracy: currentInfo?.accuracy,
+          shortName: currentInfo?.shortName,
+          symbol: currentInfo?.symbol,
+          rate: currentInfo?.exchangeRate,
+        });
+      } else {
+        setCurrent({
+          accuracy: null,
+          shortName: "USD",
+          symbol: "$",
+          rate: 1,
+        });
+      }
     }, [rateKey, rateData]);
 
     return (
