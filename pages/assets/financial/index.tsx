@@ -49,8 +49,9 @@ const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
   current: {
     symbol: string;
-    rate: number;
+    rate: number | undefined;
     shortName: string;
+    accuracy: number | null;
   };
   type: FinancialType;
   setCurProduct: (product: UserFinancialAccountItem | null) => void;
@@ -175,9 +176,17 @@ const TabsItem = ({
             </div>
             <div>
               ≈{current.symbol}{" "}
-              {new BigNumber(record.usdPurchaseAmount)
-                .times(new BigNumber(current.rate))
-                .toString()}
+              {
+                current.rate
+                  ? current.accuracy
+                    ? new BigNumber(record.usdPurchaseAmount)
+                        .times(new BigNumber(current.rate))
+                        .toFixed(Number(current.accuracy))
+                    : new BigNumber(record.usdPurchaseAmount)
+                        .times(new BigNumber(current.rate))
+                        .toString()
+                  : record.usdPurchaseAmount
+              }
             </div>
           </div>
         );
@@ -215,9 +224,20 @@ const TabsItem = ({
             </div>
             <div>
               ≈{current.symbol}{" "}
-              {new BigNumber(record.usdAccruedInterest)
-                .times(new BigNumber(current.rate))
-                .toString()}
+              {
+                // 有汇率的存在
+                current.rate
+                  ? // 有精度存在
+                    current.accuracy
+                    ? new BigNumber(record.usdAccruedInterest)
+                        .times(new BigNumber(current.rate))
+                        .toFixed(Number(current.accuracy))
+                    : new BigNumber(record.usdAccruedInterest)
+                        .times(new BigNumber(current.rate))
+                        .toString()
+                  // 没有汇率的存在
+                  : record.usdAccruedInterest
+              }
             </div>
           </div>
         );
@@ -335,11 +355,12 @@ const TabsItem = ({
 const Financial = observer(() => {
   const router = useRouter();
   const { t } = useTranslation(["financial"]);
-  const rateKey = appStore.getRateKey()?.replace(/\s+/g, "") || "USD"; // 汇率key
+  const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const [current, setCurrent] = useState({
-    rate: 1,
-    symbol: "$",
-    shortName: "USD",
+    accuracy: null, // 精度
+    rate: undefined, // 汇率
+    symbol: "", // 币种符号
+    shortName: "", // 币种名称
   });
   const rateData = appStore.getRateData();
 
@@ -508,9 +529,10 @@ const Financial = observer(() => {
       (item: any) => item.shortName === rateKey
     );
     setCurrent({
-      shortName: currentInfo?.shortName || "USD",
-      rate: currentInfo?.exchangeRate || 1,
-      symbol: currentInfo?.symbol || "$",
+      accuracy: currentInfo?.accuracy,
+      shortName: currentInfo?.shortName,
+      symbol: currentInfo?.symbol,
+      rate: currentInfo?.exchangeRate,
     });
   }, [rateKey, rateData]);
 
@@ -607,9 +629,20 @@ const Financial = observer(() => {
                       <MaskableAmount
                         prefix="≈"
                         show={showAmount}
-                        amount={new BigNumber(myAmount.usdTotalAssets)
-                          .times(new BigNumber(current.rate))
-                          .toString()}
+                        amount={
+                          // 有汇率的存在
+                          current.rate
+                            // 有精度存在
+                            ? current.accuracy
+                              ? new BigNumber(myAmount.usdTotalAssets)
+                                  .times(new BigNumber(current.rate))
+                                  .toFixed(Number(current.accuracy))
+                              : new BigNumber(myAmount.usdTotalAssets)
+                                  .times(new BigNumber(current.rate))
+                                  .toString()
+                            // 没有汇率的存在
+                            : myAmount.usdTotalAssets
+                        }
                         unit={current.shortName}
                       />
                     </div>
