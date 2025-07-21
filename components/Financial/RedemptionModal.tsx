@@ -26,6 +26,7 @@ import RedeemConfirmModal, {
 } from "./RedeemConfirmModal";
 import Image from "next/image";
 import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
+import { getCoinRound } from "@/utils/getUseRate";
 interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
@@ -306,8 +307,20 @@ const RedemptionModal = ({
                         {t("common.totalAssets")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
-                        {redeemInfo.totalAssets || "--"}{" "}
-                        {curProductInfo?.coinName}
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemInfo.totalAssets
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemInfo.totalAssets || "--"}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </span>
                     </div>
                     <div>
@@ -370,8 +383,20 @@ const RedemptionModal = ({
                           : t("common.totalInterest")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {redeemMoneyFixed.earnInterest || "--"}{" "}
-                        {curProductInfo?.coinName}
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemMoneyFixed.earnInterest
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemMoneyFixed.earnInterest || "--"}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </div>
                     </div>
                     {/* 赎回金额 */}
@@ -380,8 +405,20 @@ const RedemptionModal = ({
                         {t("common.redeemAmount")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {redeemMoneyFixed.redeemMoney || "--"}{" "}
-                        {curProductInfo?.coinName}
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemMoneyFixed.redeemMoney
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemMoneyFixed.redeemMoney || "--"}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

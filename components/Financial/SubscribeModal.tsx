@@ -35,6 +35,7 @@ import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 import financialStyles from "@/styles/components/Financial.module.css";
 import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
+import { getCoinRound } from "@/utils/getUseRate";
 
 interface SubscriptionProps {
   form: FormInstance<any>;
@@ -340,7 +341,11 @@ const Subscription: React.FC<SubscriptionProps> = ({
               {t("common.spotAvailable")}:
             </div>
             <div className="ml-[10px] mr-[4px]">
-              {myBalance?.balance} {tokenInfo?.coinName}
+              {tokenInfo?.coinName ? (
+                <>{getCoinRound(tokenInfo?.coinName, myBalance?.balance)} {tokenInfo?.coinName}</>
+              ) : (
+                <>{myBalance?.balance} {tokenInfo?.coinName}</>
+              )}
             </div>
 
             <SvgIcon
