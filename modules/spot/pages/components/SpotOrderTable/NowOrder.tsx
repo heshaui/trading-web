@@ -388,10 +388,10 @@ const SpotMainPage = observer(() => {
   const getCoinList = async () => {
     const res = await getExchangeCoinList();
     if (res.code === '0') {
-      const selectData = res.data.map((item: any) => {
+      const selectData = res.data.map((item: any, index: number) => {
         return {
           label: `${item.coinSymbol}/${item.baseSymbol}`,
-          value: `${item.coinSymbol}/${item.baseSymbol}`,
+          value: index,
           baseSymbol: item.baseSymbol,
           coinSymbol: item.coinSymbol,
           tenantId: item.tenantId

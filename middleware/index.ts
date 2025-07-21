@@ -14,6 +14,7 @@ export const publicPaths = [
     '/helpCenter',
     '/helpCenter/*',
     '/marketData',
+    '/financial',
 ];
 
 // 检查路径是否匹配公开路径

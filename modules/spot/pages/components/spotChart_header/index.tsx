@@ -1,9 +1,8 @@
 'use client'
-import React from 'react';
+import React, { useCallback, useState, useEffect, useRef  } from 'react';
 import styles from '../styles/spotHeader.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs, Spin, Button, Space, Tooltip, Dropdown } from 'antd';
 import { Iconify } from "@/components/icon"
-import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
 import type { DropdownProps, MenuProps } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
@@ -16,9 +15,10 @@ import { addUserExchangeCoinType, canalUserExchangeCoinType } from '@/services/s
 import DrawerPop from '../DrawerPop';
 import { useRouter } from 'next/router';
 import { getPairsRate } from "@/utils/getUseRate";
+import WebSocketService from "@/utils/websocket";
 
 
-const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
+const SpotHeaderPage = observer(({ coinData: propsCoinData }: { coinData: any }) => {
     const { t } = useTranslation(['spot']);
 
 
@@ -30,15 +30,13 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false); // 添加收藏状态
     const [dawerPopOpen, setDawerPopOpen] = useState(false); // 侧边抽屉
+    const [wsData, setWsData] = useState<Record<string, any>>({});
+    const [isClient, setIsClient] = useState(false); // 添加客户端渲染标记
+    const [wsConnected, setWsConnected] = useState(false); // WebSocket连接状态
+    const websocketRef = useRef<WebSocketService | null>(null);
+   
 
-    // 解析K线数据
-    const klineData = coinData?.data?.[0] || [];
-    const [timestamp, open_price, high_price, low_price, close_price, volume] = klineData;
 
-    // 计算涨跌幅
-    const priceChange = close_price && open_price ? close_price - open_price : 0;
-    const priceChangePercent = open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00';
-    const isPriceUp = priceChange >= 0;
 
 
     // useEffect(() => {
@@ -59,6 +57,26 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
     // 获取当前选中的货币对，如果没有则使用币对列表的第一个数据
     const currentPair = appStore.getCurrentPair() || appStore.currencyPairs[0];
     const currencyPairsArray = appStore.currencyPairs || [];
+
+    // 解析K线数据 - 优先使用WebSocket实时数据
+    const currentSymbol = currentPair ? `${currentPair.coinSymbol}_${currentPair.baseSymbol}_${currentPair.groupStatus}` : null;
+    const realtimeKlineData = currentSymbol ? wsData[currentSymbol] : null;
+    
+    // 如果有实时数据就用实时数据，否则用props传入的数据
+    const actualKlineData = realtimeKlineData || propsCoinData?.data?.[0] || [];
+    
+    // 验证数据格式并安全解构
+    const isValidKlineData = Array.isArray(actualKlineData) && actualKlineData.length >= 8;
+    const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = isValidKlineData ? actualKlineData : [null, null, null, null, null, null, null, null];
+    
+  
+
+    // 计算涨跌幅 - 优先使用WebSocket返回的涨跌幅
+    const priceChange = close_price && open_price ? close_price - open_price : 0;
+    const priceChangePercent = changePercent !== null ? changePercent.toFixed(2) : 
+                              (open_price && open_price !== 0 ? (priceChange / open_price * 100).toFixed(2) : '0.00');
+    const isPriceUp = changePercent !== null ? changePercent >= 0 : priceChange >= 0;
+
     // 辅助函数：格式化大额数字
     const formatAmount = (amount: number) => {
         if (amount >= 100000000) {
@@ -69,6 +87,11 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
             return amount.toFixed(2);
         }
     };
+    // 设置客户端渲染标记
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     // 当currentPair变化时同步收藏状态
     useEffect(() => {
         if (currentPair) {
@@ -109,6 +132,8 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
         }
     }, [router.isReady, router.query]); // 监听路由准备状态和查询参数变化
 
+
+    
     // // 当币对改变时更新URL
     // useEffect(() => {
     //     if (currentPair && router.isReady) {
@@ -124,6 +149,14 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
     //         }
     //     }
     // }, [currentPair, router.isReady]);
+
+
+
+
+
+
+
+
 
     const handleTabClick = (key: string) => {
         setActiveTab(key);
@@ -153,6 +186,7 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                 currencyPairs={currencyPairsArray}
                 onPairSelect={handlePairSelect}
                 searchValue={searchValue}
+                wsData={wsData}
             />
         },
         {
@@ -162,6 +196,7 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                 currencyPairs={currencyPairsArray}
                 onPairSelect={handlePairSelect}
                 searchValue={searchValue}
+                wsData={wsData}
             />
         },
     ];
@@ -205,12 +240,12 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
             } else {
                 // 如果API失败，恢复UI状态
                 setIsFavorite(!newFavoriteState);
-                console.error('更新收藏状态失败:', res);
+
             }
         } catch (error) {
             // 发生错误时恢复UI状态
             setIsFavorite(!newFavoriteState);
-            console.error('收藏操作发生错误:', error);
+
         }
     };
 
@@ -268,7 +303,9 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                         {isLoading ? (
                             <Spin size="small" />
                         ) : (
-                            <span>{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</span>
+                            <span>
+                                {!isClient ? '--' : (currentPair?.coinSymbol && currentPair?.baseSymbol ? `${currentPair.coinSymbol}/${currentPair.baseSymbol}` : '--')}
+                            </span>
                         )}
                         <Iconify icon="prime:sort-down-fill" size={16} className={styles.dropdown_icon} />
 
@@ -276,18 +313,116 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                     </Space>
                 </Dropdown>
 
-                <Tooltip title={currentPair?.isFavorite ? t('spot.header.removeFromFavorites') : t('spot.header.addToFavorites')}>
-                    <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`} style={{width:'20px'}}>
-                        <Iconify
-                            icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"}
-                            size={20}
-                            color={currentPair?.isFavorite ? "#FFD700" : "var(--text-color6)"}
-                        />
-                    </div>
-                </Tooltip>
+                {isClient && currentPair && (
+                    <Tooltip title={currentPair?.isFavorite ? t('spot.header.removeFromFavorites') : t('spot.header.addToFavorites')}>
+                        <div onClick={handleToggleFavorite} className={`ml-2 cursor-pointer`} style={{width:'20px'}}>
+                            <Iconify
+                                icon={currentPair?.isFavorite ? "ic:round-star" : "ic:round-star-outline"}
+                                size={20}
+                                color={currentPair?.isFavorite ? "#FFD700" : "var(--text-color6)"}
+                            />
+                        </div>
+                    </Tooltip>
+                )}
             </div>
         );
     };
+
+
+    const getWsData = useCallback(() => {
+        // 如果已经有连接，不要重复创建
+        if (websocketRef.current) {
+
+            return;
+        }
+
+        const coinList = appStore.getCurrentPairList();
+        if (!coinList || coinList.length === 0) {
+            return;
+        }
+
+        const channels = coinList.map((pair: any) => {
+            return `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}@kline_1d_3s`;
+        });
+
+        const subscribeMessage = JSON.stringify({
+            action: "subscribe",
+            channels: channels
+        });
+        
+        const wsUrl = `${process.env.NEXT_PUBLIC_WS_API_BASE}/ws/multi`;
+
+        
+        const websocket = new WebSocketService(wsUrl);
+        websocketRef.current = websocket;
+        
+        // 设置连接成功后的回调，在连接建立后发送订阅消息
+        websocket.setOnConnectedCallback(() => {
+            setWsConnected(true);
+            const success = websocket.send(subscribeMessage);
+            
+        });
+        
+        websocket.connect(
+            (message: string) => {
+                try {
+                    const data = JSON.parse(message);
+                    
+                    // 处理接收到的数据
+                    if (data && data.symbol && data.data && data.type === 'kline') {
+                        // 验证数据格式：data应该是数组，且第一个元素是K线数据数组
+                        if (Array.isArray(data.data) && data.data.length > 0 && Array.isArray(data.data[0]) && data.data[0].length >= 6) {
+                            // 使用symbol作为key存储对应的K线数据（取第一个K线数据）
+                            setWsData(prevData => ({
+                                ...prevData,
+                                [data.symbol]: data.data[0]
+                            }));
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                } catch (error) {
+
+                }
+            },
+            (error: Event) => {
+
+                setWsConnected(false);
+            }
+        );
+    }, []);
+      useEffect(() => {
+        // 延迟初始化WebSocket，确保store已经加载完成
+        const timer = setTimeout(() => {
+            getWsData();
+        }, 100);
+        
+        // 清理函数：组件卸载时关闭WebSocket连接
+        return () => {
+            clearTimeout(timer);
+            if (websocketRef.current) {
+
+                websocketRef.current.close();
+                websocketRef.current = null;
+                setWsConnected(false);
+            }
+        };
+      }, [getWsData]);
+
+      // 当币对列表变化时，重新建立WebSocket连接
+      useEffect(() => {
+        if (appStore.currencyPairs.length > 0 && websocketRef.current) {
+
+            websocketRef.current.close();
+            websocketRef.current = null;
+            
+            setTimeout(() => {
+                getWsData();
+            }, 100);
+        }
+      }, [appStore.currencyPairs.length, getWsData]);
 
     return (
         <div className={`flex-x align-center`}>
@@ -338,7 +473,7 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                             {close_price ? close_price.toFixed(2) : '--'}
                         </p>
                         {/* <p>¥{close_price ? (close_price * 7.2).toFixed(2) : '--'}</p> */}
-                        <p>¥ {getPairsRate(close_price, 'CNY').rate}</p>
+                        <p>¥ {!isClient ? '--' : getPairsRate(close_price, 'CNY').rate.toFixed(2)}</p>
                     </li>
                     <li className='mr-9'>
                         <p>{t('spot.header.change24h')}</p>
@@ -355,16 +490,17 @@ const SpotHeaderPage = observer(({ coinData }: { coinData: any }) => {
                         <p className={`${styles.title_color}`}>{low_price ? low_price.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>{t('spot.header.volume24h')}({currentPair?.coinSymbol})</p>
+                        <p>{t('spot.header.volume24h')}({!isClient ? '--' : (currentPair?.coinSymbol || '--')})</p>
                         <p className={`${styles.title_color}`}>{volume ? volume.toFixed(2) : '--'}</p>
                     </li>
                     <li className='mr-9'>
-                        <p>{t('spot.header.amount24h')}({currentPair?.baseSymbol})</p>
+                        <p>{t('spot.header.amount24h')}({!isClient ? '--' : (currentPair?.baseSymbol || '--')})</p>
                         <p className={`${styles.title_color}`}>
-                            {volume && close_price ? formatAmount(volume * close_price) : '--'}
+                            {amount ? formatAmount(amount) : (volume && close_price ? formatAmount(volume * close_price) : '--')}
                         </p>
                     </li>
                 </ul>
+                
                 <button type='button' className='flex-cc' onClick={() => setDawerPopOpen(true)}>
                     <Iconify icon="mingcute:settings-5-line" size={26} className={`${styles.tip_color}`} />
                 </button>

@@ -1,55 +1,142 @@
 import { NoData } from "@/components/noData";
 import { ConfigProvider, DatePicker, Select, Table } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
 import styles from "../../../styles/components/Financial.module.css";
-
-const tableData = [
-  {
-    id: 1,
-    date: "2021-01-01",
-    coin: "BTC",
-    productType: "活期",
-    operationType: "购买",
-    amount: "100 BTC",
-  },
-];
+import { getCoinAll } from "@/services/assets";
+import { ColumnsType } from "antd/es/table";
+import {
+  FinancialAccountBillDetailsItem,
+  FinancialAccountBillDetailsParams,
+  FinancialAccountBillDetailsStatusEnum,
+  FinancialType,
+  getFinancialAccountBillDetails,
+} from "@/services/financial";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 const Financial = () => {
+  const { t } = useTranslation(["financial"]);
   const [tableLoading, setTableLoading] = useState(false);
+  const [tableData, setTableData] = useState<any[]>([]);
 
-  const columns = [
+  // 表单数据
+  const [formData, setFormData] = useState<FinancialAccountBillDetailsParams>({
+    coinId: null, //币种ID
+    type: null, //1定期 2活期
+    status: null, //1申购 2赎回 3利息
+    startTime: null, //开始时间
+    endTime: null, //结束时间
+  });
+
+  // 币种列表
+  const [coinList, setCoinList] = useState<{ coinName: string; id: string }[]>(
+    []
+  );
+
+  // 表格列
+  const columns: ColumnsType<FinancialAccountBillDetailsItem> = [
     {
-      title: "日期",
-      dataIndex: "date",
+      title: t("common.date"),
+      dataIndex: "createTime",
+      key: "createTime",
+      render: (text: number) => {
+        return text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "--";
+      },
     },
     {
-      title: "币种",
-      dataIndex: "coin",
+      title: t("common.token"),
+      dataIndex: "coinName",
+      key: "coinName",
     },
     {
-      title: "产品类型",
-      dataIndex: "productType",
+      title: t("common.type"),
+      dataIndex: "type",
+      key: "type",
+      render: (_: any, record: FinancialAccountBillDetailsItem) => {
+        return record.type === FinancialType.CURRENT
+          ? t("common.current")
+          : t("common.fixed");
+      },
     },
     {
-      title: "操作类型",
-      dataIndex: "operationType",
+      title: t("common.operationType"),
+      dataIndex: "status",
+      key: "status",
+      render: (_: any, record: FinancialAccountBillDetailsItem) => {
+        return (
+          <div>
+            {record.status === FinancialAccountBillDetailsStatusEnum.PURCHASE &&
+              t("common.subscribe")}
+            {record.status === FinancialAccountBillDetailsStatusEnum.REDEEM &&
+              t("common.redeem")}
+            {record.status === FinancialAccountBillDetailsStatusEnum.INTEREST &&
+              t("common.interest")}
+          </div>
+        );
+      },
     },
     {
-      title: "金额",
+      title: t("common.amount"),
       dataIndex: "amount",
       width: 200,
       align: "right" as const,
-      render: (_: any, record: any) => {
+      render: (_: any, record: FinancialAccountBillDetailsItem) => {
         return (
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-            <div>100 BTC</div>
-            <div>≈￥700.23</div>
+            <div>
+              {record.amount} {record.coinName}
+            </div>
+            <div>≈ {record.usdtAmount || 0} USDT</div>
           </div>
         );
       },
     },
   ];
+
+  // 获取币种列表
+  const fetchCoinList = async () => {
+    try {
+      const response = await getCoinAll();
+      if (response.code === "0" && Array.isArray(response.data)) {
+        setCoinList(
+          response.data.map((item: any) => ({
+            coinName: item.coinName,
+            id: item.coinId,
+          }))
+        );
+      } else {
+      }
+    } catch (error) {
+      console.error("获取币种列表失败:", error);
+    }
+  };
+
+  // 获取数据
+  const fetchData = async (params: any) => {
+    try {
+      setTableLoading(true);
+      const response = await getFinancialAccountBillDetails(params);
+      if (response.code === "0") {
+        setTableData(response.data);
+      } else {
+      }
+    } catch (error) {
+      console.error("获取数据失败:", error);
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  // 获取币种列表
+  useEffect(() => {
+    fetchCoinList();
+  }, []);
+
+  // 获取数据
+  useEffect(() => {
+    fetchData(formData);
+  }, [formData]);
 
   return (
     <ConfigProvider
@@ -76,10 +163,71 @@ const Financial = () => {
       }}
     >
       <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <Select options={[]} className={`w-[200px] h-[50px]`} />
-        <RangePicker className="w-[278px] h-[50px]" />
+        <Select
+          allowClear
+          value={formData.coinId}
+          prefix={t("common.token")}
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            {
+              label: t("common.all"),
+              value: null,
+            },
+            ...coinList.map((item) => ({
+              label: item.coinName,
+              value: item.id,
+            })),
+          ]}
+          onChange={(value) => setFormData({ ...formData, coinId: value })}
+        />
+        <Select
+          value={formData.type}
+          allowClear
+          prefix={t("common.type")}
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            { label: t("common.all"), value: null },
+            { label: t("common.current"), value: FinancialType.CURRENT },
+            { label: t("common.fixed"), value: FinancialType.FIXED },
+          ]}
+          onChange={(value) => setFormData({ ...formData, type: value })}
+        />
+        <Select
+          value={formData.status}
+          allowClear
+          prefix={t("common.operationType")}
+          className="w-[200px] h-[50px]"
+          style={{ textAlign: "end" }}
+          options={[
+            { label: t("common.all"), value: null },
+            {
+              label: t("common.redeem"),
+              value: FinancialAccountBillDetailsStatusEnum.REDEEM,
+            },
+            {
+              label: t("common.subscribe"),
+              value: FinancialAccountBillDetailsStatusEnum.PURCHASE,
+            },
+            {
+              label: t("common.interest"),
+              value: FinancialAccountBillDetailsStatusEnum.INTEREST,
+            },
+          ]}
+          onChange={(value) => setFormData({ ...formData, status: value })}
+        />
+        <RangePicker
+          allowClear
+          className="w-[278px] h-[50px]"
+          onChange={(value) =>
+            setFormData({
+              ...formData,
+              startTime: value?.[0]?.unix(),
+              endTime: value?.[1]?.unix(),
+            })
+          }
+        />
       </div>
       <Table
         className={styles.table}
