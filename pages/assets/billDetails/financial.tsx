@@ -36,8 +36,10 @@ const Financial = observer(() => {
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const rateData = appStore.getRateData();
   const [current, setCurrent] = useState({
-    shortName: "USD", // 币种符号",
-    rate: 1,
+    accuracy: null, // 精度
+    rate: undefined, // 汇率
+    symbol: "", // 币种符号
+    shortName: "", // 币种名称
   });
 
   // 表单数据
@@ -121,9 +123,20 @@ const Financial = observer(() => {
             </div>
             <div>
               ≈{" "}
-              {new BigNumber(record.amount)
-                .times(new BigNumber(current.rate))
-                .toString()}{" "}
+              {
+                // 有汇率的存在
+                current.rate
+                  ? // 有精度存在
+                    current.accuracy
+                    ? new BigNumber(record.amount)
+                        .times(new BigNumber(current.rate))
+                        .toFixed(Number(current.accuracy))
+                    : new BigNumber(record.amount)
+                        .times(new BigNumber(current.rate))
+                        .toString()
+                  // 没有汇率的存在
+                  : record.amount
+              }{" "}
               {current.shortName}
             </div>
           </div>
@@ -189,8 +202,10 @@ const Financial = observer(() => {
       (item: any) => item.shortName === rateKey
     );
     setCurrent({
-      shortName: currentInfo?.shortName || "USD",
-      rate: currentInfo?.exchangeRate || 1,
+      accuracy: currentInfo?.accuracy,
+      shortName: currentInfo?.shortName,
+      symbol: currentInfo?.symbol,
+      rate: currentInfo?.exchangeRate,
     });
   }, [rateKey, rateData]);
 

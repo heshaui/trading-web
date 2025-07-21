@@ -471,6 +471,7 @@ export interface FinancialAccountBillDetailsItem {
   type: FinancialType; //1定期 2活期
   usdtAmount: number; //usdt金额
   resultStatus: RedemptionStatusEnum; //1申购，2赎回，3利息
+  endCoinName: string; //结束币种名称
 }
 
 export function getFinancialAccountBillDetails(
