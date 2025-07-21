@@ -361,7 +361,7 @@ const MyFinancial = observer(
           }}
         >
           <div className="text-[var(--text-color5)] text-[16px] font-bold p-[19px_20px_16px_20px]">
-            {t("financial.questionStaking.title")}
+            {t("financial.default.whatIs")} {bgContent.mainTitle}？
           </div>
           <div className="text-[var(--text-color6)] text-[14px] p-[0_20px_20px_20px]">
             {t("financial.questionStaking.answer")}
