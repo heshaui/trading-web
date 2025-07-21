@@ -8,9 +8,13 @@ import styles from "../../../styles/components/Financial.module.css";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { financialThemeConfig } from "@/theme/financialThemeConfig";
-const BillDetails = () => {
-  const { t } = useTranslation(["financial"]);
+import { FunctionSwitchStatusEnum } from "@/services/financial";
+import appStore from "@/store";
+import { observer } from "mobx-react-lite";
 
+const BillDetails = observer(() => {
+  const { t } = useTranslation(["financial"]);
+  const financialConfig = appStore.financialConfig;
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -38,18 +42,23 @@ const BillDetails = () => {
                 label: t("common.digitalCurrency"),
                 children: <NumberToken />,
               },
-              {
-                key: "2",
-                label: t("common.financial"),
-                children: <Financial />,
-              },
+              ...(financialConfig.financialSwitch ===
+              FunctionSwitchStatusEnum.OPEN
+                ? [
+                    {
+                      key: "2",
+                      label: t("common.financial"),
+                      children: <Financial />,
+                    },
+                  ]
+                : []),
             ]}
           />
         </div>
       </div>
     </ConfigProvider>
   );
-};
+});
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {

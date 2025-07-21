@@ -43,6 +43,7 @@ import {
 import { NoData } from "@/components/noData";
 import WebSocketService from "@/utils/websocket";
 import { getToken } from "@/request";
+import { FunctionSwitchStatusEnum } from "@/services/financial";
 
 const AssetsMainPage = observer(() => {
   const { t } = useTranslation(["assets", "flash"]);
@@ -74,6 +75,7 @@ const AssetsMainPage = observer(() => {
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const userInfo = appStore.getUserInfo();
   const balanceDataRef = useRef<WebSocketService | null>(null);
+  const financialConfig = appStore.financialConfig;
   const columns: ColumnsType<DataType> = [
     {
       title: t("assetsAccount.currency"), //"币种",
@@ -218,17 +220,20 @@ const AssetsMainPage = observer(() => {
               </button>
 
               {/* 理财 */}
-              <button
-                disabled={record.isFinancialCoin === 0}
-                className={`${
-                  record.isFinancialCoin === 1
-                    ? styles.theme_color
-                    : styles.tip_color2
-                } font-12 font-w-500`}
-                onClick={() => goFinancial(record.coinName)}
-              >
-                {t("assetsAccount.button.financial")}
-              </button>
+              {financialConfig.financialSwitch ===
+                FunctionSwitchStatusEnum.OPEN && (
+                <button
+                  disabled={record.isFinancialCoin === 0}
+                  className={`${
+                    record.isFinancialCoin === 1
+                      ? styles.theme_color
+                      : styles.tip_color2
+                  } font-12 font-w-500`}
+                  onClick={() => goFinancial(record.coinName)}
+                >
+                  {t("assetsAccount.button.financial")}
+                </button>
+              )}
             </Space>
             <Dropdown
               placement="bottomRight"
@@ -237,7 +242,7 @@ const AssetsMainPage = observer(() => {
                 items: [
                   // 提现
                   {
-                    disabled:  coin?.canWithdraw === 0,
+                    disabled: coin?.canWithdraw === 0,
                     label: t("assetsAccount.button.withdraw"),
                     key: "withdraw",
                     onClick: () =>

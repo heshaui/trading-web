@@ -30,6 +30,10 @@ export enum FunctionEnabledStatusEnum {
   OPEN = "1",
   CLOSE = "2",
 }
+export enum FunctionSwitchStatusEnum {
+  OPEN = 1,
+  CLOSE = 2,
+}
 
 interface FinancialConfiItem {
   id: number; //功能配置id

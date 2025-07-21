@@ -18,6 +18,7 @@ import { useAuthGuard } from "@/middleware";
 import { initTheme } from "@/hooks/dayModeChange";
 import { useFavicon } from "@/hooks/useFavicon";
 import appStore from "@/store";
+import { getFinancialConfig } from "@/services/financial";
 
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
@@ -54,6 +55,16 @@ function App({ Component, pageProps }: AppProps) {
     isAuthChecking,
     setIsAuthChecking,
   });
+
+  useEffect(() => {
+    const getFinancialConfigInfo = async () => {
+      const res = await getFinancialConfig();
+      if (res.code === "0") {
+        appStore.setFinancialConfig(res.data);
+      }
+    };
+    getFinancialConfigInfo();
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn) {

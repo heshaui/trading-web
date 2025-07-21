@@ -14,6 +14,7 @@ import {
 } from "@/services/financial";
 import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useAuth } from "@/context/AuthContext";
+import appStore from "@/store";
 
 export interface FinancialConfig {
   financialSwitch: FunctionEnabledStatusEnum | null;
@@ -22,10 +23,8 @@ export interface FinancialConfig {
   isDisplayBackground: FunctionEnabledStatusEnum | null;
 }
 
-
 export default observer(function FinancialPage() {
   const { isLoggedIn } = useAuth();
-
 
   // 申购弹窗
   const [openSubscribeModal, setOpenSubscribeModal] = useState(false);
@@ -47,22 +46,9 @@ export default observer(function FinancialPage() {
   const [isClient, setIsClient] = useState(false);
 
   // 初始化功能配置
-  const initFinancialConfig = async () => {
-    try {
-      const res = await getFinancialConfig();
-      if (res.code === "0") {
-        setFinancialConfig(res.data);
-        console.log("financialConfig", res.data);
-      }
-    } catch (error) {
-      console.error("Failed to load financial config:", error);
-    }
-  };
-
-  // 初始化功能配置
   useEffect(() => {
     if (isClient) {
-      initFinancialConfig();
+      setFinancialConfig(appStore.financialConfig);
     }
   }, [isClient]);
 
@@ -75,18 +61,16 @@ export default observer(function FinancialPage() {
   return (
     <>
       {/* 我的理财 */}
-      <MyFinancial financialConfig={financialConfig} isLoggedIn={isLoggedIn} />
+      <MyFinancial />
 
       {/* 理财产品列表 */}
       <TokenList
         setCurRecord={setCurRecord}
         setOpenSubscribeModal={setOpenSubscribeModal}
-        financialConfig={financialConfig}
-        isLoggedIn={isLoggedIn}
       />
       {/* 常见问题 */}
       <Problem />
-      
+
       {/* 申购弹窗 */}
       <SubscribeModal
         curRecord={curRecord}

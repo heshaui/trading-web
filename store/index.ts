@@ -70,6 +70,14 @@ class AppStore {
   isLoadingFlashConfig: boolean = false;
   usdtRate: usdtRateType = {} as usdtRateType;
 
+  // 理财配置状态
+  financialConfig: any = {
+    financialSwitch: null, //是否开启
+    isRealname: null, //是否实名
+    isDisplayAssets: null, //是否显示资产
+    isDisplayBackground: null, //是否显示背景图片
+  };
+
   constructor() {
     // 使状态响应式
     makeAutoObservable(this);
@@ -882,6 +890,23 @@ class AppStore {
   getUsdtRate(): usdtRateType {
     return this.usdtRate;
   }
+
+  // 理财配置相关方法
+  initFinancialConfigFromStorage() {
+    if (!isBrowser()) return;
+    const financialConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.FINANCIAL_CONFIG);
+    if (financialConfigJson) {
+      this.financialConfig = JSON.parse(financialConfigJson);
+    }
+  }
+
+  setFinancialConfig(config: any) {
+    this.financialConfig = config;
+    if (isBrowser()) {
+      localStorage.setItem(LOCAL_STORAGE_KEY.FINANCIAL_CONFIG, JSON.stringify(config));
+    }
+  }
+  
 }
 
 const appStore = new AppStore();

@@ -8,6 +8,8 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { ROUTER_KEY_ASSETS } from "@/config/apiConfig";
+import appStore from "@/store";
+import { FunctionSwitchStatusEnum } from "@/services/financial";
 // 定义 UserCenterLayout 组件的属性类型
 interface UserCenterLayoutProps {
   children: React.ReactNode; // children 属性表示组件包裹的子元素，类型为 React.ReactNode
@@ -18,6 +20,7 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
   // 使用 useRouter 钩子获取路由对象，并指定其类型为 NextRouter
   const router: NextRouter = useRouter();
   const { t } = useTranslation("assets");
+  const financialConfig = appStore.financialConfig;
   // console.log(router);
   // 菜单项定义
   const items: MenuItem[] = [
@@ -51,17 +54,21 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
 
       label: t("assets.billDetails"), //'账单明细',
     },
-    {
-      key: ROUTER_KEY_ASSETS.FINANCIAL, //'/assets/financial'
-      icon: (
-        <SvgIcon
-          path="M12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4ZM10.586 7.757C10.94 7.40319 11.4139 7.195 11.9139 7.17352C12.414 7.15205 12.9039 7.31885 13.287 7.641L13.414 7.757L16.243 10.586C16.5968 10.94 16.805 11.4139 16.8265 11.9139C16.848 12.414 16.6811 12.9039 16.359 13.287L16.243 13.414L13.414 16.243C13.06 16.5968 12.5861 16.805 12.0861 16.8265C11.586 16.848 11.0961 16.6811 10.713 16.359L10.586 16.243L7.757 13.414C7.40319 13.06 7.195 12.5861 7.17352 12.0861C7.15205 11.586 7.31885 11.0961 7.641 10.713L7.757 10.586L10.586 7.757ZM12 9.172L9.172 12L12 14.828L14.828 12L12 9.172Z"
-          className={`mr-2`}
-          size={24}
-        />
-      ),
-      label: t("assets.financialAccount"), //'理财账户',
-    },
+    ...(financialConfig.financialSwitch === FunctionSwitchStatusEnum.OPEN
+      ? [
+          {
+            key: ROUTER_KEY_ASSETS.FINANCIAL, //'/assets/financial'
+            icon: (
+              <SvgIcon
+                path="M12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4ZM10.586 7.757C10.94 7.40319 11.4139 7.195 11.9139 7.17352C12.414 7.15205 12.9039 7.31885 13.287 7.641L13.414 7.757L16.243 10.586C16.5968 10.94 16.805 11.4139 16.8265 11.9139C16.848 12.414 16.6811 12.9039 16.359 13.287L16.243 13.414L13.414 16.243C13.06 16.5968 12.5861 16.805 12.0861 16.8265C11.586 16.848 11.0961 16.6811 10.713 16.359L10.586 16.243L7.757 13.414C7.40319 13.06 7.195 12.5861 7.17352 12.0861C7.15205 11.586 7.31885 11.0961 7.641 10.713L7.757 10.586L10.586 7.757ZM12 9.172L9.172 12L12 14.828L14.828 12L12 9.172Z"
+                className={`mr-2`}
+                size={24}
+              />
+            ),
+            label: t("assets.financialAccount"), //'理财账户',
+          },
+        ]
+      : []),
   ];
 
   return (
