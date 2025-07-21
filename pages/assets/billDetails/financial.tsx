@@ -124,7 +124,7 @@ const Financial = observer(() => {
         return (
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>
-              {getCoinRound(record.coinName, record.amount)} {record.coinName}
+              {getCoinRound(record.endCoinName, record.amount)} {record.endCoinName}
             </div>
             <div>
               ≈{" "}
