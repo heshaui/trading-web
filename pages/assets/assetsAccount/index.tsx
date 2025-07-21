@@ -221,19 +221,15 @@ const AssetsMainPage = observer(() => {
 
               {/* 理财 */}
               {financialConfig.financialSwitch ===
-                FunctionSwitchStatusEnum.OPEN && (
-                <button
-                  disabled={record.isFinancialCoin === 0}
-                  className={`${
-                    record.isFinancialCoin === 1
-                      ? styles.theme_color
-                      : styles.tip_color2
-                  } font-12 font-w-500`}
-                  onClick={() => goFinancial(record.coinName)}
-                >
-                  {t("assetsAccount.button.financial")}
-                </button>
-              )}
+                FunctionSwitchStatusEnum.OPEN &&
+                record.isFinancialCoin === 1 && (
+                  <button
+                    className={`${styles.theme_color} font-12 font-w-500`}
+                    onClick={() => goFinancial(record.coinName)}
+                  >
+                    {t("assetsAccount.button.financial")}
+                  </button>
+                )}
             </Space>
             <Dropdown
               placement="bottomRight"

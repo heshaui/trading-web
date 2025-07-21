@@ -152,8 +152,8 @@ const TabsItem = ({
         return (
           <div className="text-[14px]">
             <div>
-              {getCoinRound(record.endCoinName, record.amount)}{" "}
-              {record.endCoinName}
+              {getCoinRound(record.coinName, record.amount)}{" "}
+              {record.coinName}
             </div>
             <div>
               ≈ {current.symbol}{" "}
