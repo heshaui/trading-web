@@ -49,9 +49,10 @@ const MyFinancial = observer(
     const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
     const rateData = appStore.getRateData();
     const [current, setCurrent] = useState({
-      symbol: "$", // 币种符号",
-      rate: 1,
-      shortName: "USD",
+      accuracy: null, // 精度
+      symbol: "", // 币种符号",
+      rate: undefined, // 汇率
+      shortName: "", // 币种名称
     });
 
     const [problemModalVisible, setProblemModalVisible] = useState(false);
@@ -120,9 +121,10 @@ const MyFinancial = observer(
         (item: any) => item.shortName === rateKey
       );
       setCurrent({
-        shortName: currentInfo?.shortName || "USD",
-        symbol: currentInfo?.symbol || "$",
-        rate: currentInfo?.exchangeRate || 1,
+        accuracy: currentInfo?.accuracy,
+        shortName: currentInfo?.shortName,
+        symbol: currentInfo?.symbol,
+        rate: currentInfo?.exchangeRate,
       });
     }, [rateKey, rateData]);
 
@@ -242,9 +244,20 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={new BigNumber(myAmount.holdings)
-                            .times(new BigNumber(current.rate))
-                            .toString()}
+                          amount={
+                            // 有汇率的存在
+                            current.rate
+                              ? // 有精度存在
+                                current.accuracy
+                                ? new BigNumber(myAmount.holdings)
+                                    .times(new BigNumber(current.rate))
+                                    .toFixed(Number(current.accuracy))
+                                : new BigNumber(myAmount.holdings)
+                                    .times(new BigNumber(current.rate))
+                                    .toString()
+                              : // 有汇率的存在
+                                myAmount.holdings
+                          }
                         />
                       </div>
                     </div>
@@ -258,9 +271,20 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={new BigNumber(myAmount.totalRevenue)
-                            .times(new BigNumber(current.rate))
-                            .toString()}
+                          amount={
+                            // 有汇率的存在
+                            current.rate
+                              ? // 有精度存在
+                                current.accuracy
+                                ? new BigNumber(myAmount.totalRevenue)
+                                    .times(new BigNumber(current.rate))
+                                    .toFixed(Number(current.accuracy))
+                                : new BigNumber(myAmount.totalRevenue)
+                                    .times(new BigNumber(current.rate))
+                                    .toString()
+                              : // 没有汇率的存在
+                                myAmount.totalRevenue
+                          }
                         />
                       </div>
                     </div>
@@ -274,9 +298,20 @@ const MyFinancial = observer(
                         <MaskableAmount
                           prefix={`≈ ${current.symbol} `}
                           show={showAmount && isLoggedIn}
-                          amount={new BigNumber(myAmount.lastRevenue)
-                            .times(new BigNumber(current.rate))
-                            .toString()}
+                          amount={
+                            // 有汇率的存在
+                            current.rate
+                              ? // 有精度存在
+                                current.accuracy
+                                ? new BigNumber(myAmount.lastRevenue)
+                                    .times(new BigNumber(current.rate))
+                                    .toFixed(Number(current.accuracy))
+                                : new BigNumber(myAmount.lastRevenue)
+                                    .times(new BigNumber(current.rate))
+                                    .toString()
+                              : // 没有汇率的存在
+                                myAmount.lastRevenue
+                          }
                         />
                       </div>
                     </div>

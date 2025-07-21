@@ -308,7 +308,8 @@ class AppStore {
                     const parsedData = JSON.parse(rateData);
 
                     if (parsedData && parsedData.length > 0) {
-                        this.rateKey = parsedData[0].span;
+                        this.rateKey = parsedData[0].key;
+                        localStorage.setItem(LOCAL_STORAGE_KEY.RATE_KEY, this.rateKey);
                         // return parsedData[0].span;
                     }
                 }
