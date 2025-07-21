@@ -16,7 +16,7 @@ import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } fr
 import { inviteInfoType,usdtRateType } from "@/type/userCenter/overview"
 import { registerInfoType } from "@/type/store"
 import { getConfig } from '@/services/flash';
-import { getPublicInfo, getUserConfig } from '@/services/contract';
+import { getPublicInfo, getUserConfig, getAssetsList } from '@/services/contract';
 import { UserConfigType } from '@/type/contract/userConfig';
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
@@ -71,6 +71,10 @@ class AppStore {
     // 添加用户合约配置状态
     userConfig: UserConfigType = {};
     isLoadingUserConfig: boolean = false;
+    
+    // 添加合约资产状态
+    contractAssets: any[] = [];
+    isLoadingContractAssets: boolean = false;
 
     constructor() {
         // 使状态响应式
@@ -92,6 +96,7 @@ class AppStore {
             this.initUsdtRateFromStorage(); //初始化USDT和USD汇率
             this.initPublicInfoFromStorage(); // 初始化公共数据
             this.initUserConfigFromStorage(); // 初始化用户合约配置
+            this.initContractAssetsFromStorage(); // 初始化合约资产
         }
     }
 
@@ -923,6 +928,60 @@ class AppStore {
         this.userConfig = {} as UserConfigType;
         if (isBrowser()) {
             localStorage.removeItem(LOCAL_STORAGE_KEY.USER_CONFIG);
+        }
+    }
+
+    // 合约资产相关方法
+    initContractAssetsFromStorage() {
+        if (!isBrowser()) return;
+        try {
+            const contractAssetsJson = localStorage.getItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS);
+            if (contractAssetsJson) {
+                this.contractAssets = JSON.parse(contractAssetsJson);
+            }
+        } catch (error) {
+            console.error('Failed to load contract assets from storage:', error);
+        }
+    }
+
+    async loadContractAssets() {
+        try {
+            this.isLoadingContractAssets = true;
+            const result = await getAssetsList();
+            
+            if (result.code === '0') {
+                // 只保存accountList部分
+                const accountList = result.data?.accountList || [];
+                this.setContractAssets(accountList);
+                return accountList;
+            } else {
+                throw new Error('Failed to load contract assets');
+            }
+        } catch (error) {
+            console.error('Error loading contract assets:', error);
+            throw error;
+        } finally {
+            runInAction(() => {
+                this.isLoadingContractAssets = false;
+            });
+        }
+    }
+
+    setContractAssets(assets: any) {
+        this.contractAssets = assets;
+        if (isBrowser()) {
+            localStorage.setItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS, JSON.stringify(assets));
+        }
+    }
+
+    getContractAssets() {
+        return this.contractAssets;
+    }
+
+    clearContractAssets() {
+        this.contractAssets = [];
+        if (isBrowser()) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS);
         }
     }
 }

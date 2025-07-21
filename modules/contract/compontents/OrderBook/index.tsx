@@ -120,9 +120,9 @@ const OrderBook: React.FC = () => {
         </div>
       </div>
       <div className={styles.tableHeader}>
-        <div className={styles.priceColumn}>{t('price')}</div>
-        <div className={styles.amountColumn}>{t('amount')}</div>
-        <div className={styles.totalColumn}>{t('total')}</div>
+        <div className={styles.priceColumn}>价格</div>
+        <div className={styles.amountColumn}>数量</div>
+        <div className={styles.totalColumn}>时间</div>
       </div>
       <div className={styles.content}>
         <div className={styles.sellSection}>

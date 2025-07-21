@@ -4,13 +4,36 @@ import { SearchOutlined } from '@ant-design/icons';
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";
 import styles from "./styles.module.css";
+import appStore from "@/store";
 
 interface SymbolData {
+  id: number;
+  contractName: string;
   symbol: string;
-  price: string;
-  changePercent: string;
-  isFavorite: boolean;
-  type: 'USD' | 'COIN';
+  contractType: string;
+  coType: string;
+  contractShowType: string;
+  deliveryKind: string;
+  contractSide: number;
+  multiplier: number;
+  multiplierCoin: string;
+  marginCoin: string;
+  marginRate: number;
+  capitalStartTime: number;
+  capitalFrequency: number;
+  settlementFrequency: number;
+  brokerId: number;
+  base: string;
+  quote: string;
+  coinResultVo: any;
+  sort: number;
+  maxLever: number;
+  minLever: number;
+  // 可选的UI相关字段
+  price?: string;
+  changePercent?: string;
+  isFavorite?: boolean;
+  type?: 'USD' | 'COIN';
 }
 
 interface SymbolSelectorProps {
@@ -30,7 +53,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [activeTab, setActiveTab] = useState('usd-contract');
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
+  console.log('symbolList:', symbolList);
   const handleTabClick = (key: string) => {
     setActiveTab(key);
   };
@@ -42,12 +65,36 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
   const filteredSymbols = (type: 'USD' | 'COIN') => {
     return symbolList
-      .filter(item => item.type === type)
+      .filter(item => {
+        // 使用函数判断合约类型
+        return type === 'USD' ? isUSDTMargined(item) : isCoinMargined(item);
+      })
       .filter(item =>
         searchValue === '' ||
+        item.base.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.quote.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.symbol.toLowerCase().includes(searchValue.toLowerCase())
       );
   };
+
+  // 合约数据接口定义
+  interface ContractData {
+    contractType: string;
+    marginCoin: string;
+    symbol: string;
+  }
+
+  // 判断是否为U本位合约
+  function isUSDTMargined(contract: ContractData) {
+    return contract.contractType === "E" && 
+           contract.marginCoin === "USDT";
+  }
+
+  // 判断是否为币本位合约
+  function isCoinMargined(contract: ContractData) {
+    return contract.contractType !== "E" && 
+           contract.marginCoin !== "USDT";
+  }
 
   const dropdownContent = (
     <div className={styles.dropdown_container}>
@@ -73,7 +120,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
               <div className={styles.symbol_list}>
                 {filteredSymbols('USD').map(item => (
                   <div
-                    key={item.symbol}
+                    key={item.id}
                     className={styles.symbol_item}
                     onClick={() => handleSymbolClick(item)}
                   >
@@ -82,24 +129,24 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                         className={`${styles.favorite_btn} ${item.isFavorite ? styles.favorited : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleFavorite(item.symbol);
+                          onToggleFavorite(item.contractName);
                         }}
                       >
                         <Iconify icon={item.isFavorite ? "mdi:star" : "mdi:star-outline"} />
                       </button>
                       <div className={styles.symbol_info}>
-                        <div className={styles.symbol_name}>{item.symbol}</div>
-                        <div className={styles.symbol_type}>U本位永续</div>
+                        <div className={styles.symbol_name}>{item.base}/{item.quote}</div>
+                        <div className={styles.symbol_type}>{item.contractShowType}</div>
                       </div>
                     </div>
                     <div className={styles.symbol_price_info}>
-                      <div className={styles.symbol_price}>{item.price}</div>
+                      <div className={styles.symbol_price}>{item.price || '--'}</div>
                     </div>
                     <div className={styles.symbol_price_info}>
-                      <div className={`${styles.symbol_change} ${item.changePercent.startsWith('+') ? 'positive' :
-                          item.changePercent.startsWith('-') ? 'negative' : 'neutral'
+                      <div className={`${styles.symbol_change} ${item.changePercent?.startsWith('+') ? 'positive' :
+                          item.changePercent?.startsWith('-') ? 'negative' : 'neutral'
                         }`}>
-                        {item.changePercent}
+                        {item.changePercent || '0.00%'}
                       </div>
                     </div>
                   </div>
@@ -111,7 +158,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
               <div className={styles.symbol_list}>
                 {filteredSymbols('COIN').map(item => (
                   <div
-                    key={item.symbol}
+                    key={item.id}
                     className={styles.symbol_item}
                     onClick={() => handleSymbolClick(item)}
                   >
@@ -120,24 +167,24 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                         className={`${styles.favorite_btn} ${item.isFavorite ? styles.favorited : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleFavorite(item.symbol);
+                          onToggleFavorite(item.contractName);
                         }}
                       >
                         <Iconify icon={item.isFavorite ? "mdi:star" : "mdi:star-outline"} />
                       </button>
                       <div className={styles.symbol_info}>
-                        <div className={styles.symbol_name}>{item.symbol}</div>
-                        <div className={styles.symbol_type}>币本位永续</div>
+                        <div className={styles.symbol_name}>{item.base}/{item.quote}</div>
+                        <div className={styles.symbol_type}>{item.contractShowType}</div>
                       </div>
                     </div>
                     <div className={styles.symbol_price_info}>
-                      <div className={styles.symbol_price}>{item.price}</div>
+                      <div className={styles.symbol_price}>{item.price || '--'}</div>
                     </div>
                     <div className={styles.symbol_price_info}>
-                      <div className={`${styles.symbol_change} ${item.changePercent.startsWith('+') ? 'positive' :
-                          item.changePercent.startsWith('-') ? 'negative' : 'neutral'
+                      <div className={`${styles.symbol_change} ${item.changePercent?.startsWith('+') ? 'positive' :
+                          item.changePercent?.startsWith('-') ? 'negative' : 'neutral'
                         }`}>
-                        {item.changePercent}
+                        {item.changePercent || '0.00%'}
                       </div>
                     </div>
                   </div>

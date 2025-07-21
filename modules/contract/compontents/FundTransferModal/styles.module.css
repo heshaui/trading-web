@@ -1,0 +1,205 @@
+.transferModal {
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.modalTitle {
+  color: var(--text-color5);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.closeButton {
+  color: var(--text-color6);
+  padding: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  color: var(--text-color5);
+}
+
+.modalContent {
+  padding: 20px 0;
+}
+
+/* 划转方向 */
+.transferDirection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.directionSection {
+  flex: 1;
+  text-align: center;
+}
+
+.directionLabel {
+  display: block;
+  color: var(--text-color6);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.accountBox {
+
+  border: 1px solid var(--border-color4);
+  border-radius: 8px;
+  padding: 16px 12px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.accountName {
+  color: var(--text-color5);
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.balanceInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.balanceLabel {
+  color: var(--text-color6);
+  font-size: 12px;
+}
+
+.balanceValue {
+  color: var(--text-color5);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 交换按钮 */
+.swapContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 16px;
+}
+
+.swapButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--theme-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.swapButton:hover {
+  transform: scale(1.1);
+}
+
+.swapIcon {
+  color: white;
+  font-size: 20px;
+}
+
+/* 币种选择 */
+.coinSection {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  color: var(--text-color5);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.coinSelect {
+  width: 100%;
+}
+
+.coinSelect .ant-select-selector {
+  background: var(--background5) !important;
+  border-color: var(--border-color4) !important;
+  color: var(--text-color5) !important;
+}
+
+.coinSelect .ant-select-selection-item {
+  color: var(--text-color5) !important;
+}
+
+/* 数量输入 */
+.amountSection {
+  margin-bottom: 24px;
+}
+
+.amountInputWrapper {
+  position: relative;
+}
+
+.amountInput {
+  width: 100%;
+}
+
+.amountInput .ant-input {
+  background: var(--background5) !important;
+  border-color: var(--border-color4) !important;
+  color: var(--text-color5) !important;
+}
+
+.inputSuffix {
+  display: flex;
+  align-items: center;
+}
+
+.allButton {
+  color: var(--theme-color) !important;
+  font-size: 12px;
+  padding: 0 8px;
+  height: 24px;
+  border: none;
+  background: none;
+}
+
+.allButton:hover {
+  background: var(--background6) !important;
+}
+
+/* 底部按钮 */
+.footerButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancelBtn {
+  flex: 1;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+
+.confirmBtn {
+  flex: 1;
+  height: 50px;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+}
+

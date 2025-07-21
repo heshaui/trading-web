@@ -49,6 +49,8 @@ class WebSocketService {
     try {
       // 直接创建 WebSocket 连接，请求头将由服务端代理处理
       this.socket = new WebSocket(this.url);
+      // 设置二进制数据类型为arraybuffer，这样便于处理
+      this.socket.binaryType = 'arraybuffer';
     } catch (error) {
       console.error('WebSocket connection error:', error);/*  */
       this.state = ConnectionState.CLOSED;
@@ -86,7 +88,79 @@ class WebSocketService {
     };
 
     this.socket.onmessage = (event: MessageEvent) => {
-      if (this.messageCallback) this.messageCallback(event.data);
+      if (this.messageCallback) {
+        let messageData = event.data;
+        
+        // 如果是ArrayBuffer，需要检查是否为压缩数据
+        if (messageData instanceof ArrayBuffer) {
+          try {
+            // 首先检查是否为gzip压缩数据（前两个字节是0x1f, 0x8b）
+            const uint8Array = new Uint8Array(messageData);
+            console.log('接收到二进制数据，前8字节:', Array.from(uint8Array.slice(0, 8)).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' '));
+            
+            if (uint8Array.length >= 2 && uint8Array[0] === 0x1f && uint8Array[1] === 0x8b) {
+              // 这是gzip压缩数据，需要解压
+              console.log('检测到gzip压缩数据，需要解压缩');
+              this.decompressData(uint8Array, 'gzip').then(decompressed => {
+                this.messageCallback(decompressed);
+              }).catch(error => {
+                console.error('gzip解压失败:', error);
+                // 尝试直接解码
+                const decoder = new TextDecoder('utf-8');
+                messageData = decoder.decode(messageData);
+                this.messageCallback(messageData);
+              });
+              return;
+            } else if (uint8Array.length >= 2 && uint8Array[0] === 0x78) {
+              // 可能是deflate压缩数据 (zlib header: 0x78)
+              console.log('检测到可能的deflate压缩数据');
+              this.decompressData(uint8Array, 'deflate').then(decompressed => {
+                this.messageCallback(decompressed);
+              }).catch(error => {
+                console.error('deflate解压失败:', error);
+                // 尝试直接解码
+                const decoder = new TextDecoder('utf-8');
+                messageData = decoder.decode(messageData);
+                this.messageCallback(messageData);
+              });
+              return;
+            } else {
+              // 尝试不同的编码方式
+              console.log('尝试不同编码方式...');
+              const encodings = ['utf-8', 'latin1', 'ascii'];
+              let decoded = false;
+              
+              for (const encoding of encodings) {
+                try {
+                  const decoder = new TextDecoder(encoding);
+                  const testDecode = decoder.decode(messageData);
+                  // 简单检查是否包含JSON字符
+                  if (testDecode.includes('{') || testDecode.includes('[')) {
+                    console.log(`使用 ${encoding} 编码成功`);
+                    messageData = testDecode;
+                    decoded = true;
+                    break;
+                  }
+                } catch (e) {
+                  console.log(`${encoding} 编码失败:`, e.message);
+                }
+              }
+              
+              if (!decoded) {
+                console.log('所有编码方式都失败，使用默认UTF-8');
+                const decoder = new TextDecoder('utf-8');
+                messageData = decoder.decode(messageData);
+              }
+            }
+          } catch (error) {
+            console.error('处理ArrayBuffer失败:', error);
+            // 如果解码失败，直接传递原始数据
+            messageData = event.data;
+          }
+        }
+        
+        this.messageCallback(messageData);
+      }
     };
 
     this.socket.onerror = (event: Event) => {
@@ -145,6 +219,26 @@ class WebSocketService {
 
   private clearTimers(): void {
     clearTimeout(this.reconnectTimer);
+  }
+
+  private async decompressData(data: Uint8Array, format: 'gzip' | 'deflate'): Promise<string> {
+    try {
+      // 使用浏览器的压缩流API进行解压
+      const stream = new Response(data).body;
+      if (!stream) {
+        throw new Error('无法创建流');
+      }
+      
+      const decompressed = stream.pipeThrough(new DecompressionStream(format));
+      const response = new Response(decompressed);
+      const text = await response.text();
+      return text;
+    } catch (error) {
+      console.error(`使用DecompressionStream (${format}) 失败:`, error);
+      
+      // 如果浏览器不支持DecompressionStream，尝试使用pako库或其他方法
+      throw new Error(`${format}解压失败，浏览器可能不支持DecompressionStream API`);
+    }
   }
 
   get connectionState(): ConnectionState {

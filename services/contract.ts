@@ -220,65 +220,7 @@ export const createOrder = async (params: any) => {
   }
 };
 
-// 
-export const registerMobile = async (params: any) => {
-  try {
-    const formattedParams = await formatParams(params);
-    const response = await request<any>('/fe-ex-api/user/reg_mobile_chk_info', {
-      method: 'POST',
-      headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
-    });
-  } catch (error) {
-    console.error('创建订单失败:', error);
-    throw error;
-  }
-};
 
-// 登录
-export const login = async (params: any) => {
-  try {
-    const formattedParams = await formatParams(params);
-    const response = await request<any>('/fe-ex-api/user/login_in', {
-      method: 'POST',
-      headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
-    });
-  } catch (error) {
-    console.error('登录失败:', error);
-    throw error;
-  }
-};
-
-// 注册邮箱
-export const registerEmail = async (params: any) => {
-  try {
-    const formattedParams = await formatParams(params);
-    const response = await request<any>('/fe-ex-api/user/reg_email_chk_info', {
-      method: 'POST',
-      headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
-    });
-  } catch (error) {
-    console.error('注册邮箱失败:', error);
-    throw error;
-  }
-};
-
-// 注册邮箱确认
-export const registerEmailConfirm = async (params: any) => {
-  try {
-    const formattedParams = await formatParams(params);
-    const response = await request<any>('/fe-ex-api/user/reg_email_confirm', {
-      method: 'POST',
-      headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
-    });
-  } catch (error) {
-    console.error('注册邮箱确认失败:', error);
-    throw error;
-  }
-};
 
 // user/create_co_id
 export const createCoId = async (params: any) => {
@@ -310,6 +252,55 @@ export const getUserConfig = async (params: any) => {
     return response;
   } catch (error) {
     console.error('获取用户合约配置失败:', error);
+    throw error;
+  }
+};
+
+
+
+export const getAccountBalance = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/account/account_balance', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取账户余额失败:', error);
+    throw error;
+  }
+};
+
+
+export const getAssetsList = async () => {
+  try {
+    const formattedParams = await formatParams();
+    const response = await request<any>('/fe-co-api/position/get_assets_list', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取账户余额失败:', error);
+    throw error;
+  }
+};
+
+
+// user/edit_user_page_config
+export const editUserPageConfig = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/user/edit_user_page_config', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+  } catch (error) {
+    console.error('编辑用户页面配置失败:', error);
     throw error;
   }
 };

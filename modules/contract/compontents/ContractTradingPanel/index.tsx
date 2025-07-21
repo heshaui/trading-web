@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, InputNumber, Slider, Select, Switch, Tabs, Form, Space, Tooltip } from 'antd';
+import { Button, Input, InputNumber, Slider, Select, Switch, Tabs, Form, Space, Tooltip,Checkbox } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
 import MarginModeModal from '../MarginModeModal/index';
 import LeverageModal from '../LeverageModal/index';
 import OrderSettingsModal from '../OrderSettingsModal/index';
 import TradingSettingsDrawer from '../TradingSettingsDrawer/index';
+import FundTransferModal from '../FundTransferModal/index';
+import { transferAll } from "@/services/assets";
+import { toast } from "sonner";
+import { encryptData } from "@/utils/encrypt";
 import styles from './styles.module.css';
 
 const { Option } = Select;
@@ -15,40 +19,57 @@ interface ContractTradingPanelProps {
   lastPrice?: number;
   availableBalance?: number;
   onOrderSubmit?: (orderData: any) => void;
+  onBalanceUpdate?: () => void; // 新增余额更新回调
 }
 
 const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   symbol = 'BTCUSDT',
-  lastPrice = 108330.8,
+  lastPrice = '',
   availableBalance = 0,
-  onOrderSubmit
+  onOrderSubmit,
+  onBalanceUpdate // 解构新增的回调
 }) => {
   const { t } = useTranslation(['contract']);
   const [form] = Form.useForm();
-  
+
   // 状态管理
-  const [orderType, setOrderType] = useState<'limit' | 'market' | 'condition'>('limit');
-  const [positionSide, setPositionSide] = useState<'long' | 'short'>('long');
-  const [leverage, setLeverage] = useState(5);
+  const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
+  const [transactionType, setTransactionType] = useState<1 | 2>(1);
+  const [leverageLevel, setLeverageLevel] = useState(5);
   const [price, setPrice] = useState(lastPrice);
   const [quantity, setQuantity] = useState(0);
   const [percentage, setPercentage] = useState(0);
   const [enableTPSL, setEnableTPSL] = useState(false);
-  const [takeProfitPrice, setTakeProfitPrice] = useState(0);
-  const [stopLossPrice, setStopLossPrice] = useState(0);
-  const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
+  const [takeProfitPrice, setTakeProfitPrice] = useState();
+  const [stopLossPrice, setStopLossPrice] = useState();
+  const [marginModel, setMarginModel] = useState<1 | 2>(1);
   const [showMarginModeModal, setShowMarginModeModal] = useState(false);
   const [showLeverageModal, setShowLeverageModal] = useState(false);
   const [showOrderSettingsModal, setShowOrderSettingsModal] = useState(false);
   const [showTradingSettingsDrawer, setShowTradingSettingsDrawer] = useState(false);
+  const [showFundTransferModal, setShowFundTransferModal] = useState(false);
   const [orderUnit, setOrderUnit] = useState<'BTC' | 'USDT' | '张'>('BTC');
+  // 新增触发价状态
+  const [triggerPrice, setTriggerPrice] = useState();
+  const [submitData, setSubmitData] = useState({}); //下单提交数据
+  const [confirmData, setConfirmData] = useState({}); //二次确认数据
+
+  // 获取当前订单类型
+  const getOrderType = () => {
+    if (currentCategory === 1) return 'limit';
+    if (currentCategory === 2) return 'market';
+    if (currentCategory === 3) return 'conditional';
+    return 'limit';
+  };
+
+  const orderType = getOrderType();
 
   // 计算可买/可卖数量
   const calculateMaxQuantity = () => {
     if (orderType === 'market') {
-      return availableBalance * leverage / lastPrice;
+      return availableBalance * leverageLevel / lastPrice;
     }
-    return availableBalance * leverage / price;
+    return availableBalance * leverageLevel / price;
   };
 
   // 处理百分比滑块变化
@@ -65,29 +86,51 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   // 处理订单提交
   const handleSubmit = () => {
-    const orderData = {
-      symbol,
-      side: positionSide,
-      type: orderType,
-      quantity,
-      price: orderType === 'market' ? undefined : price,
-      leverage,
-      marginMode,
-      takeProfit: enableTPSL ? takeProfitPrice : undefined,
-      stopLoss: enableTPSL ? stopLossPrice : undefined,
-    };
-    
-    onOrderSubmit?.(orderData);
+    // const orderData = {
+    //   symbol,
+    //   transactionType: transactionType,
+    //   type: orderType,
+    //   quantity,
+    //   price: orderType === 'market' ? undefined : price,
+    //   triggerPrice: orderType === 'conditional' ? triggerPrice : undefined,
+    //   leverageLevel,
+    //   marginModel,
+    //   takeProfit: enableTPSL ? takeProfitPrice : undefined,
+    //   stopLoss: enableTPSL ? stopLossPrice : undefined,
+    // };
+
+    // onOrderSubmit?.(orderData);
+
+    setSubmitData({
+      contractId: 1, // 合约ID
+      positionType: 1, // 持仓类型(1 全仓，2 仓逐)
+      side: transactionType === 1 ? 'buy' : 'sell', // 买卖方向（buy 买入，sell 卖出）
+      leverageLevel: leverageLevel, // 杠杆倍数
+      price: price, // 下单价格(市价单传0)
+      volume: quantity, // 下单数量(开仓 市价单：开仓价值)
+      triggerPrice: triggerPrice, // 触发价格
+      open: transactionType === 1 ? 'open' : 'close', // 开平仓方向(open 开仓，close 平仓)
+      type: currentCategory === 1 ? 1 : currentCategory === 2 ? 2 : 3, // 订单类型 (1 limit， 2 market，3 IOC，4 FOK，5 POST_ONLY)
+      isConditionOrder: currentCategory === 3, // 是否是条件单
+      // expireTime: this.expireTime, // 到期时间
+      isOto: enableTPSL, // 是否止盈止损单
+      takerProfitTrigger: takeProfitPrice, // 止盈触发价
+      takerProfitPrice: 0, // 止盈委托价格（0为市价）
+      takerProfitType: 2, // 止盈类型
+      stopLossTrigger: stopLossPrice, // 止损触发价格
+      stopLossPrice: 0, // 止损委托价格（0为市价）
+      stopLossType: 2, // 止损类型
+    });
   };
 
   // 处理保证金模式变更
-  const handleMarginModeChange = (mode: 'cross' | 'isolated') => {
-    setMarginMode(mode);
+  const handleMarginModeChange = (mode: 1 | 2) => {
+    setMarginModel(mode);
   };
 
   // 处理杠杆变更
   const handleLeverageChange = (newLeverage: number) => {
-    setLeverage(newLeverage);
+    setLeverageLevel(newLeverage);
   };
 
   // 处理下单单位变更
@@ -95,11 +138,31 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
     setOrderUnit(unit);
   };
 
+  const goTransfer = () => {
+    setShowFundTransferModal(true);
+  };
+
+  // 处理资金划转确认
+  const handleFundTransferConfirm = async (transferData: any) => {
+
+    const dataEncrypt = await encryptData(transferData);
+    const res = await transferAll(dataEncrypt);
+    console.log('res:', res);
+    if (res.code === '0' && res.data) {
+      toast.success('划转成功');
+      // 通知父组件更新余额
+
+    } else {
+      toast.error('划转失败');
+    }
+    onBalanceUpdate?.();
+  };
+
   // 订单类型标签
   const orderTypeTabs = [
-    { key: 'limit', label: '限价' },
-    { key: 'market', label: '市价' },
-    { key: 'condition', label: '条件' },
+    { key: 1, label: '限价' },
+    { key: 2, label: '市价' },
+    { key: 3, label: '条件' },
   ];
 
   return (
@@ -113,7 +176,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             className={styles.marginBtn}
             onClick={() => setShowMarginModeModal(true)}
           >
-            {marginMode === 'cross' ? '全仓' : '逐仓'}
+            {marginModel === 1 ? '全仓' : '逐仓'}
           </Button>
           <Button
             type="text"
@@ -121,10 +184,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             className={styles.leverageBtn}
             onClick={() => setShowLeverageModal(true)}
           >
-            {leverage}x
+            {leverageLevel}x
           </Button>
         </div>
-        
+
         <div className={styles.toolbarIcons}>
           <Button
             type="text"
@@ -145,18 +208,18 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       {/* 开仓/平仓切换 */}
       <div className={styles.positionToggle}>
         <div className={styles.toggleWrapper}>
-          <div className={`${styles.toggleSlider} ${positionSide === 'short' ? styles.toggleSliderRight : ''}`} />
+          <div className={`${styles.toggleSlider} ${transactionType === 2 ? styles.toggleSliderRight : ''}`} />
           <Button
             type="text"
-            onClick={() => setPositionSide('long')}
-            className={`${styles.toggleBtn} ${positionSide === 'long' ? styles.toggleBtnActive : ''}`}
+            onClick={() => setTransactionType(1)}
+            className={`${styles.toggleBtn} ${transactionType === 1 ? styles.toggleBtnActive : ''}`}
           >
             开仓
           </Button>
           <Button
             type="text"
-            onClick={() => setPositionSide('short')}
-            className={`${styles.toggleBtn} ${positionSide === 'short' ? styles.toggleBtnActive : ''}`}
+            onClick={() => setTransactionType(2)}
+            className={`${styles.toggleBtn} ${transactionType === 2 ? styles.toggleBtnActive : ''}`}
           >
             平仓
           </Button>
@@ -169,8 +232,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           {orderTypeTabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => setOrderType(tab.key as any)}
-              className={`${styles.tabItem} ${orderType === tab.key ? styles.tabItemActive : ''}`}
+              onClick={() => setCurrentCategory(tab.key as any)}
+              className={`${styles.tabItem} ${currentCategory === tab.key ? styles.tabItemActive : ''}`}
             >
               {tab.label}
             </button>
@@ -183,21 +246,37 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         <span className={styles.balanceLabel}>可用：</span>
         <span className={styles.balanceValue}>
           {availableBalance.toFixed(2)} USDT
-          <Iconify icon="mdi:swap-horizontal" className={styles.swapIcon} />
+          <Iconify icon="mdi:swap-horizontal" className={styles.swapIcon} onClick={() => goTransfer()} />
         </span>
       </div>
 
       <Form form={form} layout="vertical" className={styles.orderForm}>
-        {/* 委托价格 (限价单显示) */}
-        {orderType === 'limit' && (
+        {/* 触发价格 (条件单显示) */}
+        {currentCategory === 3 && (
           <Form.Item className={styles.formItem}>
             <div className={styles.inputWrapper}>
-              <span className={styles.inputLabel}>委托价格</span>
+              <div className={styles.inputGroup}>
+                <Input
+                  value={triggerPrice}
+                  onChange={(e) => setTriggerPrice(e.target.value)}
+                  placeholder="触发价格"
+                  className={styles.priceInput}
+                  suffix="USDT"
+                />
+              </div>
+            </div>
+          </Form.Item>
+        )}
+
+        {/* 委托价格 (限价单和条件单显示) */}
+        {(currentCategory === 1 || currentCategory === 3) && (
+          <Form.Item className={styles.formItem}>
+            <div className={styles.inputWrapper}>
               <div className={styles.inputGroup}>
                 <Input
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  placeholder="价格"
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="委托价格"
                   className={styles.priceInput}
                   suffix="USDT"
                 />
@@ -209,18 +288,17 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         {/* 委托数量 */}
         <Form.Item className={styles.formItem}>
           <div className={styles.inputWrapper}>
-            <span className={styles.inputLabel}>委托数量</span>
             <div className={styles.inputGroup}>
               <Input
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value) || 0)}
-                placeholder="数量"
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="委托数量"
                 className={styles.quantityInput}
                 suffix={
                   <div className={styles.inputSuffixGroup}>
                     <span>{orderUnit}</span>
-                    <Iconify 
-                      icon="mdi:chevron-down" 
+                    <Iconify
+                      icon="mdi:chevron-down"
                       className={styles.dropdownIcon}
                       onClick={() => setShowOrderSettingsModal(true)}
                     />
@@ -261,30 +339,35 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         {/* 可买/可卖数量显示 */}
         <div className={styles.quantityInfo}>
           <div className={styles.quantityRow}>
-            <span className={styles.buyLabel}>可买</span>
-            <span className={styles.buyValue}>0 USDT</span>
-            <span className={styles.sellLabel}>可卖</span>
-            <span className={styles.sellValue}>0 USDT</span>
+            <div>
+              <span className={styles.buyLabel}>可买</span>
+              <span className={styles.buyValue}>0 USDT</span>
+            </div>
+            <div>
+              <span className={styles.sellLabel}>可卖</span>
+              <span className={styles.sellValue}>0 USDT</span>
+            </div>
+
           </div>
         </div>
 
         {/* 止盈止损 */}
         <div className={styles.tpslSection}>
           <div className={styles.tpslHeader}>
-            <Switch
+            <Checkbox
               checked={enableTPSL}
-              onChange={setEnableTPSL}
+              onChange={(e) => setEnableTPSL(e.target.checked)}
               size="small"
               className={styles.tpslSwitch}
+
             />
-            <span className={styles.tpslLabel}>止盈止损</span>
+             <span className={styles.tpslLabel}>止盈止损</span> 
           </div>
-          
+
           {/* 止盈止损输入框 */}
           {enableTPSL && (
             <div className={styles.tpslInputs}>
               <div className={styles.tpslInputRow}>
-                <span className={styles.tpslInputLabel}>止盈触发价</span>
                 <Input
                   value={takeProfitPrice}
                   onChange={(e) => setTakeProfitPrice(Number(e.target.value) || 0)}
@@ -294,7 +377,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                 />
               </div>
               <div className={styles.tpslInputRow}>
-                <span className={styles.tpslInputLabel}>止损触发价</span>
                 <Input
                   value={stopLossPrice}
                   onChange={(e) => setStopLossPrice(Number(e.target.value) || 0)}
@@ -312,14 +394,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           <span className={styles.advancedLabel}>高级设置</span>
           <div className={styles.advancedRight}>
             <Select
-              defaultValue="GTC"
+              defaultValue="5"
               size="small"
               className={styles.advancedSelect}
               suffixIcon={<Iconify icon="mdi:chevron-down" />}
             >
-              <Option value="GTC">GTC</Option>
-              <Option value="IOC">IOC</Option>
-              <Option value="FOK">FOK</Option>
+              <Option value="5">P/O</Option>
+              <Option value="3">IOC</Option>
+              <Option value="4">FOK</Option>
             </Select>
           </div>
         </div>
@@ -333,7 +415,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             className={styles.buyBtn}
             block
           >
-            {positionSide === 'long' ? '买入开多' : '买入平空'}
+            {transactionType === 1 ? '买入开多' : '买入平空'}
           </Button>
           <Button
             type="primary"
@@ -342,7 +424,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             className={styles.sellBtn}
             block
           >
-            {positionSide === 'long' ? '卖出开空' : '卖出平多'}
+            {transactionType === 2 ? '卖出开空' : '卖出平多'}
           </Button>
         </div>
 
@@ -361,7 +443,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       <MarginModeModal
         visible={showMarginModeModal}
         onClose={() => setShowMarginModeModal(false)}
-        currentMode={marginMode}
+        currentMode={marginModel}
         onModeChange={handleMarginModeChange}
         symbol={symbol}
       />
@@ -370,7 +452,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       <LeverageModal
         visible={showLeverageModal}
         onClose={() => setShowLeverageModal(false)}
-        currentLeverage={leverage}
+        currentLeverage={leverageLevel}
         onLeverageChange={handleLeverageChange}
         symbol={symbol}
         maxLeverage={125}
@@ -383,6 +465,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         onClose={() => setShowOrderSettingsModal(false)}
         currentUnit={orderUnit}
         onUnitChange={handleOrderUnitChange}
+      />
+
+      {/* 交易设置抽屉 */}
+      <TradingSettingsDrawer
+        visible={showTradingSettingsDrawer}
+        onClose={() => setShowTradingSettingsDrawer(false)}
+      />
+
+      {/* 资金划转弹框 */}
+      <FundTransferModal
+        visible={showFundTransferModal}
+        onClose={() => setShowFundTransferModal(false)}
+        onConfirm={handleFundTransferConfirm}
       />
     </div>
   );

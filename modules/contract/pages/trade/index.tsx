@@ -5,7 +5,7 @@ import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 import appStore from "@/store";
 import { useAuth } from "@/context/AuthContext";
-import { registerMobile, login, registerEmail, registerEmailConfirm, createCoId, getUserConfig } from "@/services/contract";
+import { createCoId, createOrder } from "@/services/contract";
 import TradingView from "@/components/Tradingview";
 import { SearchOutlined } from '@ant-design/icons';
 import OrderBook from "../../compontents/OrderBook";
@@ -13,8 +13,10 @@ import ContractTradingPanel from "@/modules/contract/compontents/ContractTrading
 import RiskDisclosureModal from "../../compontents/RiskDisclosureModal";
 import SpotTablePage from "../../../spot/pages/compontents/spotChart_table";
 import SymbolSelector from "../../compontents/SymbolSelector";
-import { Iconify } from "@/components/icon";
 import styles from "./trade.module.css";
+import WebSocketService from "@/utils/websocket";
+import { transferAll } from "@/services/assets";
+
 
 const TradePage = () => {
   const { t } = useTranslation(["spot", "contract"]);
@@ -24,32 +26,85 @@ const TradePage = () => {
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [currentSymbol, setCurrentSymbol] = useState("BTC/USDT 永续");
 
-  // 币种数据类型
+  // 币种数据类型 - 与SymbolSelector组件保持一致
   interface SymbolData {
+    id: number;
+    contractName: string;
     symbol: string;
-    price: string;
-    changePercent: string;
-    isFavorite: boolean;
-    type: 'USD' | 'COIN';
+    contractType: string;
+    coType: string;
+    contractShowType: string;
+    deliveryKind: string;
+    contractSide: number;
+    multiplier: number;
+    multiplierCoin: string;
+    marginCoin: string;
+    marginRate: number;
+    capitalStartTime: number;
+    capitalFrequency: number;
+    settlementFrequency: number;
+    brokerId: number;
+    base: string;
+    quote: string;
+    coinResultVo: any;
+    sort: number;
+    maxLever: number;
+    minLever: number;
+    // 可选的UI相关字段
+    price?: string;
+    changePercent?: string;
+    isFavorite?: boolean;
+    type?: 'USD' | 'COIN';
   }
-
-  // 模拟币种列表数据
-  const [mockSymbolList, setMockSymbolList] = useState<SymbolData[]>([
-    { symbol: 'BTC/USDT', price: '108,330.8', changePercent: '+0.07%', isFavorite: false, type: 'USD' },
-    { symbol: 'ETH/USDT', price: '3,892.45', changePercent: '+1.23%', isFavorite: true, type: 'USD' },
-    { symbol: 'BNB/USDT', price: '692.18', changePercent: '-0.45%', isFavorite: false, type: 'USD' },
-    { symbol: 'SOL/USDT', price: '238.76', changePercent: '+2.15%', isFavorite: true, type: 'USD' },
-    { symbol: 'ADA/USDT', price: '1.234', changePercent: '-1.87%', isFavorite: false, type: 'USD' },
-    { symbol: 'DOT/USDT', price: '8.456', changePercent: '+0.92%', isFavorite: false, type: 'USD' },
-    { symbol: 'BTCUSD', price: '108,285.2', changePercent: '+0.12%', isFavorite: false, type: 'COIN' },
-    { symbol: 'ETHUSD', price: '3,887.12', changePercent: '+0.89%', isFavorite: true, type: 'COIN' },
-    { symbol: 'BNBUSD', price: '691.45', changePercent: '-0.23%', isFavorite: false, type: 'COIN' },
-    { symbol: 'SOLUSD', price: '237.98', changePercent: '+1.87%', isFavorite: false, type: 'COIN' },
-  ]);
 
   // 获取公共数据
   const publicInfo = appStore.getPublicInfo();
+  const [symbolList, setSymbolList] = useState<SymbolData[]>([]);
+  useEffect(() => {
+    if (publicInfo.contractList) {
+      setSymbolList(publicInfo.contractList);
+    }
+  }, [publicInfo]);
+  // 合约账户数据类型
+  interface ContractAsset {
+    symbol: string;
+    totalAmount: string;
+    canUseAmount: string;
+    isolateMargin: string;
+    lockAmount: string;
+    unRealizedAmount: string;
+    realizedAmount: string;
+    totalMargin: string;
+    totalMarginRate: string;
+  }
 
+  const [contractAssets, setContractAssets] = useState<ContractAsset[]>([]);
+
+  const getContractBalance = async () => {
+    try {
+      const accountList = await appStore.loadContractAssets();
+      setContractAssets(accountList);
+      console.log('Contract assets accountList:', accountList);
+    } catch (error) {
+      console.error('Failed to load contract assets:', error);
+    }
+  };
+
+  // 获取特定币种的资产信息
+  const getAssetBySymbol = (symbol: string): ContractAsset | undefined => {
+    return contractAssets.find(asset => asset.symbol === symbol);
+  };
+
+  // 获取USDT资产可用余额，用于交易面板
+  const getAvailableUSDTBalance = (): number => {
+    const usdtAsset = getAssetBySymbol('USDT');
+    return parseFloat(usdtAsset?.canUseAmount || '0');
+  };
+ 
+
+  useEffect(() => {
+    getContractBalance();
+  }, []);
   // 获取用户合约配置
   useEffect(() => {
     const loadUserConfig = async () => {
@@ -64,6 +119,69 @@ const TradePage = () => {
     loadUserConfig();
   }, [publicInfo]);
 
+  useEffect(() => {
+    if (!publicInfo.wsUrl) return;
+
+    const ws = new WebSocketService(publicInfo.wsUrl.replace(';', ''));
+    const event = {
+      "event": "req",
+      "params": {
+        "channel": "market_S-BTC-USDT_kline_1min",
+        "cb_id": "S-BTC-USDT",
+        "pageSize": 50
+      }
+    };
+
+    // 消息处理回调 
+    const handleMessage = (message: string) => {
+      try {
+        console.log('收到原始消息长度:', message.length);
+        console.log('消息前100字符:', message.substring(0, 100));
+        
+        // 如果消息看起来像是乱码，尝试打印十六进制
+        if (message.includes('�') || message.length < 10) {
+          console.log('消息可能是二进制数据，十六进制表示:');
+          const encoder = new TextEncoder();
+          const bytes = encoder.encode(message);
+          console.log(Array.from(bytes.slice(0, 20)).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' '));
+        }
+        
+        const data = JSON.parse(message);
+        console.log('解析后的WebSocket消息:', data);
+        
+        // 这里可以处理接收到的数据，比如更新价格数据
+        if (data.channel === 'market_btcusdt_kline_1min') {
+          // 处理K线数据
+          setPriceData(data);
+        }
+      } catch (error) {
+        console.error('解析WebSocket消息失败:', error);
+        console.log('原始消息:', message);
+        console.log('消息类型:', typeof message);
+        console.log('消息长度:', message.length);
+      }
+    };
+
+    // 错误处理回调
+    const handleError = (error: Event) => {
+      console.error('WebSocket连接错误:', error);
+    };
+
+    // 连接成功后发送订阅消息
+    ws.setOnConnectedCallback(() => {
+      console.log('WebSocket连接成功，发送订阅请求');
+      ws.send(JSON.stringify(event));
+    });
+
+    // 建立连接
+    ws.connect(handleMessage, handleError);
+
+    // 清理函数
+    return () => {
+      ws.close();
+    };
+  }, [publicInfo]);
+
   // 处理订单簿价格点击
   const handlePriceClick = (price: number) => {
     console.log('Price clicked:', price);
@@ -71,10 +189,24 @@ const TradePage = () => {
   };
 
   // 处理订单提交
-  const handleOrderSubmit = (orderData: any) => {
+  const handleOrderSubmit = async (orderData: any) => {
     console.log('Order submitted:', orderData);
     // 这里处理订单提交逻辑
-    toast.success('订单提交成功');
+
+ const res = await createOrder({
+
+      contractId: "btc_usdt_perpetual",
+      side: orderData.side,
+      orderType: 1,
+      price: orderData.price,
+      volume: orderData.quantity, 
+      transactionType: orderData.type,
+      leverageLevel: orderData.leverage,
+      marginModel: orderData.marginMode,
+      onlyClose: false,
+    });
+    console.log('res:', res);
+
   };
 
   // 处理风险确认书
@@ -107,10 +239,10 @@ const TradePage = () => {
   };
 
   // 处理收藏/取消收藏
-  const handleToggleFavorite = (symbol: string) => {
-    setMockSymbolList(prev => 
+  const handleToggleFavorite = (contractName: string) => {
+    setSymbolList(prev => 
       prev.map(item => 
-        item.symbol === symbol 
+        item.contractName === contractName 
           ? { ...item, isFavorite: !item.isFavorite }
           : item
       )
@@ -172,7 +304,7 @@ const TradePage = () => {
               <SymbolSelector
                 currentSymbol={currentSymbol}
                 onSymbolSelect={handleSymbolSelect}
-                symbolList={mockSymbolList}
+                symbolList={symbolList}
                 onToggleFavorite={handleToggleFavorite}
               />
             </div>
@@ -243,8 +375,9 @@ const TradePage = () => {
             <ContractTradingPanel
               symbol={mockPriceData.symbol}
               lastPrice={parseFloat(mockPriceData.price.replace(/,/g, ''))}
-              availableBalance={1000} // 模拟可用余额
+              availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
               onOrderSubmit={handleOrderSubmit}
+              onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
             />
           </div>
         </div>

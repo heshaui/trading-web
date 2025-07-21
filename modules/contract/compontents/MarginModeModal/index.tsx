@@ -6,8 +6,8 @@ import styles from './styles.module.css';
 interface MarginModeModalProps {
   visible: boolean;
   onClose: () => void;
-  currentMode: 'cross' | 'isolated';
-  onModeChange: (mode: 'cross' | 'isolated') => void;
+  currentMode: 1 | 2;
+  onModeChange: (mode: 1 | 2) => void;
   symbol?: string;
 }
 
@@ -18,7 +18,7 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
   onModeChange,
   symbol = 'BTCUSDT'
 }) => {
-  const handleModeSelect = (mode: 'cross' | 'isolated') => {
+  const handleModeSelect = (mode: 1 | 2) => {
     onModeChange(mode);
     onClose();
   };
@@ -40,12 +40,12 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
         <div className={styles.modeOptions}>
           {/* 全仓模式 */}
           <div 
-            className={`${styles.modeOption} ${currentMode === 'cross' ? styles.selectedMode : ''}`}
-            onClick={() => handleModeSelect('cross')}
+            className={`${styles.modeOption} ${currentMode === 1 ? styles.selectedMode : ''}`}
+            onClick={() => handleModeSelect(1)}
           >
             <div className={styles.modeHeader}>
               <span className={styles.modeTitle}>全仓</span>
-              {currentMode === 'cross' && (
+              {currentMode === 1 && (
                 <div className={styles.selectedIndicator}>
                   <Iconify icon="mdi:check" />
                 </div>
@@ -58,12 +58,12 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
 
           {/* 逐仓模式 */}
           <div 
-            className={`${styles.modeOption} ${currentMode === 'isolated' ? styles.selectedMode : ''}`}
-            onClick={() => handleModeSelect('isolated')}
+            className={`${styles.modeOption} ${currentMode === 2 ? styles.selectedMode : ''}`}
+            onClick={() => handleModeSelect(2)}
           >
             <div className={styles.modeHeader}>
               <span className={styles.modeTitle}>逐仓</span>
-              {currentMode === 'isolated' && (
+              {currentMode === 2 && (
                 <div className={styles.selectedIndicator}>
                   <Iconify icon="mdi:check" />
                 </div>
@@ -79,11 +79,11 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
           <Button
             type="primary"
             size="large"
-            onClick={() => handleModeSelect(currentMode)}
+            onClick={() => handleModeSelect(currentMode === 1 ? 1 : 2)}
             className={styles.confirmBtn}
             block
           >
-            设置为{currentMode === 'cross' ? '全仓' : '逐仓'}模式
+            设置为{currentMode === 1 ? '全仓' : '逐仓'}模式
           </Button>
         </div>
       </div>
