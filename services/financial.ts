@@ -526,7 +526,7 @@ export interface FinancialSubscribeShowItem {
 export function getFinancialSubscribeShow(
   params: FinancialSubscribeShowParams
 ): Promise<RequestParams<FinancialSubscribeShowItem>> {
-  return request(`${fixUrl2}/assets-web/v1/user-project/purchaseProject`, {
+  return request(`${fixUrl2}/assets-web/v1/user-project/purchaseDisplay`, {
     method: "POST",
     body: JSON.stringify(params),
   });

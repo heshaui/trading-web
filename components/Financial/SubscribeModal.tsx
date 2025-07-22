@@ -48,6 +48,7 @@ interface SubscriptionProps {
     curProduct: FinancialPageTokenProductItem;
   } | null;
   setTabsKey: (key: string) => void;
+  onProductChange: (product: FinancialPageTokenProductItem) => void;
 }
 
 // 申购弹窗
@@ -59,6 +60,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
   setProductInfo,
   curRecord,
   setTabsKey,
+  onProductChange,
 }) => {
   const [income, setIncome] = useState<number | string>("-"); //预估每日收益
   const { t } = useTranslation(["financial"]);
@@ -184,7 +186,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
         <Input />
       </Form.Item>
       <div className="px-[20px]">
-        {/* 选择时间 7天 第一个为 productInfo?.id === item.id  */}
+        {/* 选择产品 第一个为 productInfo?.id === item.id  */}
         <div className="flex flex-ai-center gap-[17px] my-[16px] flex-wrap">
           {sortedData.map((item) => (
             <div
@@ -200,6 +202,8 @@ const Subscription: React.FC<SubscriptionProps> = ({
                 setIncome(() => "-");
                 setProductInfo(item);
                 form.setFieldValue("projectId", item.id);
+                // 调用父组件的产品变更处理函数
+                onProductChange(item);
               }}
               key={item.id}
               style={{
@@ -770,25 +774,48 @@ const SubscribeModal = ({
   const [tabsKey, setTabsKey] = useState("1"); // 标签页
   const [loading, setLoading] = useState(false); //加载中
 
-  const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); // 币种信息
-  const [productInfo, setProductInfo] =
-    useState<FinancialPageTokenProductItem>(); // 当前产品
+  // 币种信息
+  const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); 
 
+  // 当前产品
+  const [productInfo, setProductInfo] =
+    useState<FinancialPageTokenProductItem>();
+
+  // 申购确认弹窗
   const [subscribeConfirmModal, setSubscribeConfirmModal] =
     useState<SubscribeConfirmModalType>({
       open: false,
       status: null,
     });
 
+  // 申购展示
   const [financialSubscribeShow, setFinancialSubscribeShow] =
     useState<FinancialSubscribeShowItem>({
-      availableAmount: 0,
-      allowPurchaseAmount: 0,
+      availableAmount: 0, // 可用余额
+      allowPurchaseAmount: 0, // 可申购金额
     }); // 申购展示
 
   // 监听表单字段变化
-
   const financialAmount = Form.useWatch("financialAmount", form);
+
+  // 获取申购展示
+  const getFinancialSubscribeShowInfo = useCallback(async (product: FinancialPageTokenProductItem) => {
+    const projectId = product.id;
+    const coinIdParam = curRecord?.token.coinId;
+    const maxPurchaseAmountParam = product.maxPurchaseAmount;
+    
+    if (!projectId || !coinIdParam || !maxPurchaseAmountParam) return;
+    
+    const params = {
+      projectId: Number(projectId),
+      coinId: Number(coinIdParam),
+      maxPurchaseAmount: Number(maxPurchaseAmountParam),
+    };
+    const res = await getFinancialSubscribeShow(params);
+    if (res.code === "0") {
+      setFinancialSubscribeShow(res.data);
+    }
+  }, [curRecord?.token.coinId]);
 
   // 标签页
   const items = [
@@ -805,6 +832,7 @@ const SubscribeModal = ({
           productInfo={productInfo}
           setProductInfo={setProductInfo}
           curRecord={curRecord}
+          onProductChange={getFinancialSubscribeShowInfo}
         />
       ),
     },
@@ -868,38 +896,19 @@ const SubscribeModal = ({
     });
   };
 
-  // 获取申购展示
-  const getFinancialSubscribeShowInfo = async () => {
-    if (
-      !curRecord?.curProduct.id ||
-      !curRecord?.token.coinId ||
-      !curRecord?.curProduct.maxPurchaseAmount
-    )
-      return;
-    const params = {
-      projectId: curRecord?.curProduct.id,
-      coinId: curRecord?.token.coinId,
-      maxPurchaseAmount: curRecord?.curProduct.maxPurchaseAmount,
-    };
-    const res = await getFinancialSubscribeShow(params);
-    if (res.code === "0") {
-      setFinancialSubscribeShow(res.data);
-    }
-  };
-
   // 监听 openSubscribe 变化，更新选中的产品
   useEffect(() => {
     if (openSubscribeModal && curRecord) {
       setTokenInfo(curRecord.token);
       setProductInfo(curRecord.curProduct);
-      getFinancialSubscribeShowInfo();
+      getFinancialSubscribeShowInfo(curRecord.curProduct);
       setTabsKey("1");
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
         financialAmount: "",
       });
     }
-  }, [curRecord, openSubscribeModal, form]);
+  }, [curRecord, openSubscribeModal, form, getFinancialSubscribeShowInfo]);
 
   return (
     <ConfigProvider

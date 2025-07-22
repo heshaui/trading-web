@@ -175,7 +175,7 @@ const TabsItem = ({
               {record.coinName}
             </div>
             <div>
-              ≈{current.symbol}{" "}
+              ≈{current.symbol}
               {current.rate
                 ? current.accuracy
                   ? new BigNumber(record.usdPurchaseAmount)
@@ -221,7 +221,7 @@ const TabsItem = ({
               {record.endCoinName}
             </div>
             <div>
-              ≈{current.symbol}{" "}
+              ≈{current.symbol}
               {
                 // 有汇率的存在
                 current.rate
