@@ -247,11 +247,11 @@ const TabsItem = ({
       ? [
           {
             title: t("common.redeemDate"),
-            dataIndex: "purchaseEndTime",
-            key: "purchaseEndTime",
+            dataIndex: "expirationTime",
+            key: "expirationTime",
             render: (_: any, record: any) => {
-              return record.purchaseEndTime
-                ? dayjs(record.purchaseEndTime).format("YYYY-MM-DD HH:mm:ss")
+              return record.expirationTime
+                ? dayjs(record.expirationTime).format("YYYY-MM-DD HH:mm:ss")
                 : "--";
             },
           },
