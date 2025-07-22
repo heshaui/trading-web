@@ -348,7 +348,7 @@ const FinancialOrder = observer(() => {
   const [tableLoading, setTableLoading] = useState(false);
   // 表单数据
   const [formData, setFormData] = useState<FormDataType>({
-    type: FinancialType.FIXED,
+    type: FinancialType.CURRENT,
     coinId: null,
     operationType: null,
     timer: [dayjs().subtract(7, "day"), dayjs()],
@@ -363,12 +363,12 @@ const FinancialOrder = observer(() => {
   // 切换tabs
   const items = [
     {
-      key: String(FinancialType.FIXED),
-      label: t("common.fixed"),
+      key: String(FinancialType.CURRENT),
+      label: t("common.current"),
       children: (
         <TabsItem
           current={current}
-          type={FinancialType.FIXED}
+          type={FinancialType.CURRENT}
           tableData={tableData}
           coinList={coinList}
           tableLoading={tableLoading}
@@ -378,12 +378,12 @@ const FinancialOrder = observer(() => {
       ),
     },
     {
-      key: String(FinancialType.CURRENT),
-      label: t("common.current"),
+      key: String(FinancialType.FIXED),
+      label: t("common.fixed"),
       children: (
         <TabsItem
           current={current}
-          type={FinancialType.CURRENT}
+          type={FinancialType.FIXED}
           tableData={tableData}
           coinList={coinList}
           tableLoading={tableLoading}

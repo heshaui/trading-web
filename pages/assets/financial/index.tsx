@@ -369,7 +369,7 @@ const Financial = observer(() => {
 
   // 使用 state 来管理当前激活的标签页，避免 hydration 不匹配
   const [activeKey, setActiveKey] = useState<FinancialType>(
-    FinancialType.FIXED
+    FinancialType.CURRENT
   );
 
   // 当路由准备就绪时，根据URL参数设置激活的标签页
@@ -377,9 +377,9 @@ const Financial = observer(() => {
     if (router.isReady) {
       const { type } = router.query;
       const newActiveKey =
-        type === String(FinancialType.CURRENT)
-          ? FinancialType.CURRENT
-          : FinancialType.FIXED;
+        type === String(FinancialType.FIXED)
+          ? FinancialType.FIXED
+          : FinancialType.CURRENT;
 
       setActiveKey(newActiveKey);
       setFormData((prev) => ({ ...prev, type: newActiveKey }));
@@ -436,20 +436,6 @@ const Financial = observer(() => {
   // 切换tabs
   const items = [
     {
-      key: String(FinancialType.FIXED),
-      label: t("common.fixed"),
-      children: (
-        <TabsItem
-          current={current}
-          type={FinancialType.FIXED}
-          setCurProduct={setCurProduct}
-          tableLoading={tableLoading}
-          tableData={tableData}
-          setOpenRedemption={setOpenRedemption}
-        />
-      ),
-    },
-    {
       key: String(FinancialType.CURRENT),
       label: t("common.current"),
       children: (
@@ -458,6 +444,20 @@ const Financial = observer(() => {
           type={FinancialType.CURRENT}
           setOpenSubscribeModal={setOpenSubscribeModal}
           setCurRecord={setCurRecord}
+          setCurProduct={setCurProduct}
+          tableLoading={tableLoading}
+          tableData={tableData}
+          setOpenRedemption={setOpenRedemption}
+        />
+      ),
+    },
+    {
+      key: String(FinancialType.FIXED),
+      label: t("common.fixed"),
+      children: (
+        <TabsItem
+          current={current}
+          type={FinancialType.FIXED}
           setCurProduct={setCurProduct}
           tableLoading={tableLoading}
           tableData={tableData}
@@ -697,7 +697,7 @@ const Financial = observer(() => {
                     </div>
                   </div>
                 </Skeleton>
-                {/* 三十天收益（USDT）  accumulateRevenue*/}
+                {/* 30日累计收益  accumulateRevenue*/}
                 <Skeleton
                   active
                   title={true}
