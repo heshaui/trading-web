@@ -121,9 +121,9 @@ const TabsItem = ({
                 autoPurchase: checked ? OpenStatusEnum.YES : OpenStatusEnum.NO,
               });
               if (res.code === "0") {
-                message.success("操作成功");
+                message.success(t("common.success"));
               } else {
-                message.error(res.message);
+                message.error(t("common.fail"));
                 record.autoPurchase = checked
                   ? OpenStatusEnum.NO
                   : OpenStatusEnum.YES;
