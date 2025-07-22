@@ -45,7 +45,7 @@ const MyFinancial = observer(() => {
   const rateData = appStore.getRateData();
   const { isLoggedIn } = useAuth();
   const financialConfig = appStore.financialConfig;
-  
+
   const [current, setCurrent] = useState<{
     accuracy: number | null;
     symbol: string;
@@ -116,6 +116,8 @@ const MyFinancial = observer(() => {
 
   useEffect(() => {
     initBackgroundImage();
+    const amountShow = appStore.getBanlanceShow();
+    setShowAmount(amountShow);
   }, []);
 
   // 获取汇率
@@ -191,9 +193,12 @@ const MyFinancial = observer(() => {
                           style={{ color: "var(--text-color6)" }}
                           size={18}
                           className="cursor-pointer"
-                          onClick={() =>
-                            isLoggedIn && setShowAmount(!showAmount)
-                          }
+                          onClick={() => {
+                            if (isLoggedIn) {
+                              setShowAmount(!showAmount);
+                              appStore.setBanlanceShow(!showAmount);
+                            }
+                          }}
                         />
                       ) : (
                         <EyeInvisibleOutlined

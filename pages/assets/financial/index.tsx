@@ -552,6 +552,8 @@ const Financial = observer(() => {
   useEffect(() => {
     fetchCoinList();
     fetchMyPosition();
+    const amountShow = appStore.getBanlanceShow();
+    setShowAmount(amountShow);
   }, []);
 
   // 获取表格数据
