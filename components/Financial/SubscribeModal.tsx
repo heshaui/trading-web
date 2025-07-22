@@ -365,13 +365,9 @@ const Subscription: React.FC<SubscriptionProps> = ({
             <span className="text-[#9E9E9E] font-[400]">
               {t("common.canSubscribe")}:
             </span>
-            {/* 如果不是数组 或者 超过最大值 则显示最大值 */}
-            {isNaN(Number(financialAmount)) ||
-            Number(financialAmount) > Number(productInfo?.maxPurchaseAmount)
-              ? Number(productInfo?.maxPurchaseAmount)
-              : Number(productInfo?.maxPurchaseAmount) -
-                Number(financialAmount)}{" "}
-            {tokenInfo?.coinName}
+            <span>
+              {productInfo?.maxPurchaseAmount} {tokenInfo?.coinName}
+            </span>
           </div>
         </div>
         {/* 概览 */}
