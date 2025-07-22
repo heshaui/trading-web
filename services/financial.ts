@@ -509,3 +509,26 @@ export function financialAccountAutoPurchase(
 }
 
 /*-----------------开启自动申购end--------------------*/
+
+
+/*-----------------申购展示页面start----------------------*/
+
+interface FinancialSubscribeShowParams {
+  projectId: number;
+  coinId: number;
+  maxPurchaseAmount: number;
+}
+
+export interface FinancialSubscribeShowItem {
+  availableAmount: number;
+  allowPurchaseAmount: number;
+}
+export function getFinancialSubscribeShow(
+  params: FinancialSubscribeShowParams
+): Promise<RequestParams<FinancialSubscribeShowItem>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/purchaseProject`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+/*-----------------申购展示页面end--------------------*/

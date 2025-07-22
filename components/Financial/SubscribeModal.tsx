@@ -19,11 +19,12 @@ import {
   FinancialPageTokenProductItem,
   FinancialPageTokenStatusEnum,
   financialSubscribe,
+  FinancialSubscribeShowItem,
   FinancialType,
   getEstimateDailyIncome,
+  getFinancialSubscribeShow,
   OpenStatusEnum,
 } from "@/services/financial";
-import { getUserBalance } from "@/services/assets";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
 import { SvgIcon } from "@/components/icon";
@@ -38,7 +39,7 @@ import { getCoinRound } from "@/utils/getUseRate";
 
 interface SubscriptionProps {
   form: FormInstance<any>;
-  myBalance: any;
+  financialSubscribeShow: FinancialSubscribeShowItem;
   tokenInfo: FinancialPageTokenItem | undefined;
   productInfo: FinancialPageTokenProductItem | undefined;
   setProductInfo: (product: FinancialPageTokenProductItem) => void;
@@ -52,7 +53,7 @@ interface SubscriptionProps {
 // 申购弹窗
 const Subscription: React.FC<SubscriptionProps> = ({
   form,
-  myBalance,
+  financialSubscribeShow,
   tokenInfo,
   productInfo,
   setProductInfo,
@@ -116,10 +117,10 @@ const Subscription: React.FC<SubscriptionProps> = ({
           if (!projectId || !productInfo) return;
           // 如果当前可用金额小于最大金额 则设置为 当前可用金额  如果当前可用金额大于最大金额 设置为最大金额
           if (
-            Number(myBalance?.balance) < Number(productInfo.maxPurchaseAmount)
+            Number(financialSubscribeShow.availableAmount) < Number(productInfo.maxPurchaseAmount)
           ) {
-            form.setFieldValue("financialAmount", myBalance.balance);
-            fetchIncome(projectId, myBalance?.balance);
+            form.setFieldValue("financialAmount", financialSubscribeShow.availableAmount);
+            fetchIncome(projectId, financialSubscribeShow.availableAmount);
           } else {
             form.setFieldValue(
               "financialAmount",
@@ -287,7 +288,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   }
 
                   // 输入金额大于余额 则返回错误(账户余额不足)
-                  if (Number(value) > Number(myBalance?.balance)) {
+                  if (Number(value) > Number(financialSubscribeShow.availableAmount)) {
                     return Promise.reject(
                       new Error(t("common.insufficientBalance"))
                     );
@@ -343,12 +344,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
               <div>
                 {tokenInfo?.coinName ? (
                   <>
-                    {getCoinRound(tokenInfo?.coinName, myBalance?.balance)}{" "}
+                    {getCoinRound(tokenInfo?.coinName, financialSubscribeShow.availableAmount)}{" "}
                     {tokenInfo?.coinName}
                   </>
                 ) : (
                   <>
-                    {myBalance?.balance} {tokenInfo?.coinName}
+                    {financialSubscribeShow.availableAmount} {tokenInfo?.coinName}
                   </>
                 )}
               </div>
@@ -366,7 +367,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
               {t("common.canSubscribe")}:
             </span>
             <span>
-              {productInfo?.maxPurchaseAmount} {tokenInfo?.coinName}
+              {financialSubscribeShow.allowPurchaseAmount} {tokenInfo?.coinName}
             </span>
           </div>
         </div>
@@ -747,7 +748,6 @@ const SubscribeModal = ({
   const { t } = useTranslation(["financial"]);
 
   const [tabsKey, setTabsKey] = useState("1"); // 标签页
-  const [myBalance, setMyBalance] = useState<any>(null); //我的余额
   const [loading, setLoading] = useState(false); //加载中
 
   const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); // 币种信息
@@ -759,6 +759,12 @@ const SubscribeModal = ({
       open: false,
       status: null,
     });
+
+  const [financialSubscribeShow, setFinancialSubscribeShow] =
+    useState<FinancialSubscribeShowItem>({
+      availableAmount: 0,
+      allowPurchaseAmount: 0,
+    }); // 申购展示
 
   // 监听表单字段变化
 
@@ -773,7 +779,7 @@ const SubscribeModal = ({
       children: (
         <Subscription
           setTabsKey={setTabsKey}
-          myBalance={myBalance}
+          financialSubscribeShow={financialSubscribeShow}
           form={form}
           tokenInfo={tokenInfo}
           productInfo={productInfo}
@@ -842,25 +848,31 @@ const SubscribeModal = ({
     });
   };
 
+  // 获取申购展示
+  const getFinancialSubscribeShowInfo = async () => {
+    if (!curRecord?.curProduct.id || !curRecord?.token.coinId || !curRecord?.curProduct.maxPurchaseAmount) return;
+    const params = {
+      projectId: curRecord?.curProduct.id,
+      coinId: curRecord?.token.coinId,
+      maxPurchaseAmount: curRecord?.curProduct.maxPurchaseAmount,
+    };
+    const res = await getFinancialSubscribeShow(params);
+    if (res.code === "0") {
+      setFinancialSubscribeShow(res.data);
+    }
+  };
+
   // 监听 openSubscribe 变化，更新选中的产品
   useEffect(() => {
     if (openSubscribeModal && curRecord) {
       setTokenInfo(curRecord.token);
       setProductInfo(curRecord.curProduct);
+      getFinancialSubscribeShowInfo();
       setTabsKey("1");
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
         financialAmount: "",
       });
-      // 获取余额
-      const fetchBalance = async () => {
-        if (!curRecord?.token.coinId) return;
-        const res = await getUserBalance(curRecord?.token.coinId);
-        if (res.code === "0") {
-          setMyBalance(res.data);
-        }
-      };
-      fetchBalance();
     }
   }, [curRecord, openSubscribeModal, form]);
 
