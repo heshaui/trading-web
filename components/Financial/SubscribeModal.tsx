@@ -800,6 +800,12 @@ const SubscribeModal = ({
 
   // 获取申购展示
   const getFinancialSubscribeShowInfo = useCallback(async (product: FinancialPageTokenProductItem) => {
+
+    setFinancialSubscribeShow({
+      availableAmount: 0,
+      allowPurchaseAmount: 0,
+    }
+  )
     const projectId = product.id;
     const coinIdParam = curRecord?.token.coinId;
     const maxPurchaseAmountParam = product.maxPurchaseAmount;

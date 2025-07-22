@@ -256,21 +256,27 @@ const MyFinancial = observer(() => {
                     <div className="text-left">{t("financial.myPosition")}</div>
                     <div className="text-left font-[700]">
                       <MaskableAmount
-                        prefix={`≈ ${current.symbol} `}
                         show={showAmount && isLoggedIn}
-                        amount={
-                          // 有汇率的存在
-                          current.rate
-                            ? // 有精度存在
-                              current.accuracy
-                              ? new BigNumber(myAmount.holdings)
-                                  .times(new BigNumber(current.rate))
-                                  .toFixed(Number(current.accuracy))
-                              : new BigNumber(myAmount.holdings)
-                                  .times(new BigNumber(current.rate))
-                                  .toString()
-                            : // 有汇率的存在
-                              myAmount.holdings
+                        content={
+                          <div className="flex flex-wrap">
+                            <div>≈ {current.symbol}</div>
+                            <div style={{ fontFamily: "DIN" }}>
+                              {
+                                // 有汇率的存在
+                                current.rate
+                                  ? // 有精度存在
+                                    current.accuracy
+                                    ? new BigNumber(myAmount.holdings)
+                                        .times(new BigNumber(current.rate))
+                                        .toFixed(Number(current.accuracy))
+                                    : new BigNumber(myAmount.holdings)
+                                        .times(new BigNumber(current.rate))
+                                        .toString()
+                                  : // 有汇率的存在
+                                    myAmount.holdings
+                              }
+                            </div>
+                          </div>
                         }
                       />
                     </div>
@@ -283,21 +289,27 @@ const MyFinancial = observer(() => {
                     </div>
                     <div className="text-center font-[700]">
                       <MaskableAmount
-                        prefix={`≈ ${current.symbol} `}
                         show={showAmount && isLoggedIn}
-                        amount={
-                          // 有汇率的存在
-                          current.rate
-                            ? // 有精度存在
-                              current.accuracy
-                              ? new BigNumber(myAmount.totalRevenue)
-                                  .times(new BigNumber(current.rate))
-                                  .toFixed(Number(current.accuracy))
-                              : new BigNumber(myAmount.totalRevenue)
-                                  .times(new BigNumber(current.rate))
-                                  .toString()
-                            : // 没有汇率的存在
-                              myAmount.totalRevenue
+                        content={
+                          <div className="flex flex-wrap">
+                            <div>≈ {current.symbol}</div>
+                            <div style={{ fontFamily: "DIN" }}>
+                              {
+                                // 有汇率的存在
+                                current.rate
+                                  ? // 有精度存在
+                                    current.accuracy
+                                    ? new BigNumber(myAmount.totalRevenue)
+                                        .times(new BigNumber(current.rate))
+                                        .toFixed(Number(current.accuracy))
+                                    : new BigNumber(myAmount.totalRevenue)
+                                        .times(new BigNumber(current.rate))
+                                        .toString()
+                                  : // 没有汇率的存在
+                                    myAmount.totalRevenue
+                              }
+                            </div>
+                          </div>
                         }
                       />
                     </div>
@@ -310,21 +322,27 @@ const MyFinancial = observer(() => {
                     </div>
                     <div className="text-right font-[700]">
                       <MaskableAmount
-                        prefix={`≈ ${current.symbol} `}
                         show={showAmount && isLoggedIn}
-                        amount={
-                          // 有汇率的存在
-                          current.rate
-                            ? // 有精度存在
-                              current.accuracy
-                              ? new BigNumber(myAmount.lastRevenue)
-                                  .times(new BigNumber(current.rate))
-                                  .toFixed(Number(current.accuracy))
-                              : new BigNumber(myAmount.lastRevenue)
-                                  .times(new BigNumber(current.rate))
-                                  .toString()
-                            : // 没有汇率的存在
-                              myAmount.lastRevenue
+                        content={
+                          <div className="flex flex-wrap">
+                            <div>≈ {current.symbol}</div>
+                            <div style={{ fontFamily: "DIN" }}>
+                              {
+                                // 有汇率的存在
+                                current.rate
+                                  ? // 有精度存在
+                                    current.accuracy
+                                    ? new BigNumber(myAmount.lastRevenue)
+                                        .times(new BigNumber(current.rate))
+                                        .toFixed(Number(current.accuracy))
+                                    : new BigNumber(myAmount.lastRevenue)
+                                        .times(new BigNumber(current.rate))
+                                        .toString()
+                                  : // 没有汇率的存在
+                                    myAmount.lastRevenue
+                              }
+                            </div>
+                          </div>
                         }
                       />
                     </div>

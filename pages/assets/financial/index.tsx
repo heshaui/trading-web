@@ -618,14 +618,20 @@ const Financial = observer(() => {
                             style={{ color: "var(--text-color6)" }}
                             size={18}
                             className="cursor-pointer"
-                            onClick={() => setShowAmount(!showAmount)}
+                            onClick={() => {
+                              setShowAmount(!showAmount);
+                              appStore.setBanlanceShow(!showAmount);
+                            }}
                           />
                         ) : (
                           <EyeInvisibleOutlined
                             style={{ color: "var(--text-color6)" }}
                             size={18}
                             className="cursor-pointer"
-                            onClick={() => setShowAmount(!showAmount)}
+                            onClick={() => {
+                              setShowAmount(!showAmount);
+                              appStore.setBanlanceShow(!showAmount);
+                            }}
                           />
                         )}
                       </div>
@@ -634,30 +640,42 @@ const Financial = observer(() => {
                     <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                       <MaskableAmount
                         show={showAmount}
-                        amount={getCoinRound("USDT", myAmount.totalAssets)}
-                        unit="USDT"
+                        content={
+                          <div className="flex gap-[4px]">
+                            <div style={{ fontFamily: "DIN" }}>
+                              {getCoinRound("USDT", myAmount.totalAssets)}
+                            </div>
+                            <div>USDT</div>
+                          </div>
+                        }
                       />
                     </div>
                     {/* 总资产 兑换当前汇率 */}
                     <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                       <MaskableAmount
-                        prefix="≈"
                         show={showAmount}
-                        amount={
-                          // 有汇率的存在
-                          current.rate
-                            ? // 有精度存在
-                              current.accuracy
-                              ? new BigNumber(myAmount.usdTotalAssets)
-                                  .times(new BigNumber(current.rate))
-                                  .toFixed(Number(current.accuracy))
-                              : new BigNumber(myAmount.usdTotalAssets)
-                                  .times(new BigNumber(current.rate))
-                                  .toString()
-                            : // 没有汇率的存在
-                              myAmount.usdTotalAssets
+                        content={
+                          <div className="flex gap-[4px]">
+                            <div>≈</div>
+                            <div>
+                              {
+                                // 有汇率的存在
+                                current.rate
+                                  ? // 有精度存在
+                                    current.accuracy
+                                    ? new BigNumber(myAmount.usdTotalAssets)
+                                        .times(new BigNumber(current.rate))
+                                        .toFixed(Number(current.accuracy))
+                                    : new BigNumber(myAmount.usdTotalAssets)
+                                        .times(new BigNumber(current.rate))
+                                        .toString()
+                                  : // 没有汇率的存在
+                                    myAmount.usdTotalAssets
+                              }
+                            </div>
+                            <div>{current.shortName}</div>
+                          </div>
                         }
-                        unit={current.shortName}
                       />
                     </div>
                   </div>
@@ -694,7 +712,11 @@ const Financial = observer(() => {
                     <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                       <MaskableAmount
                         show={showAmount}
-                        amount={getCoinRound("USDT", myAmount.lastRevenue)}
+                        content={
+                          <div style={{ fontFamily: "DIN" }}>
+                            {getCoinRound("USDT", myAmount.lastRevenue)}
+                          </div>
+                        }
                       />
                     </div>
                   </div>
@@ -715,10 +737,11 @@ const Financial = observer(() => {
                     <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                       <MaskableAmount
                         show={showAmount}
-                        amount={getCoinRound(
-                          "USDT",
-                          myAmount.accumulateRevenue
-                        )}
+                        content={
+                          <div style={{ fontFamily: "DIN" }}>
+                            {getCoinRound("USDT", myAmount.accumulateRevenue)}
+                          </div>
+                        }
                       />
                     </div>
                   </div>
