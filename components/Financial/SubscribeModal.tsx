@@ -35,10 +35,12 @@ import SubscribeConfirmModal, {
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
 import financialStyles from "@/styles/components/Financial.module.css";
-import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
+import { useStyle } from "@/theme/financialThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
+import SpotBuyModal from "../spotModal/placeOrder_modal";
 
 interface SubscriptionProps {
+  setSpotModal: (open: boolean) => void;
   form: FormInstance<any>;
   financialSubscribeShow: FinancialSubscribeShowItem;
   tokenInfo: FinancialPageTokenItem | undefined;
@@ -54,6 +56,7 @@ interface SubscriptionProps {
 
 // 申购弹窗
 const Subscription: React.FC<SubscriptionProps> = ({
+  setSpotModal,
   form,
   financialSubscribeShow,
   tokenInfo,
@@ -135,7 +138,10 @@ const Subscription: React.FC<SubscriptionProps> = ({
               "financialAmount",
               financialSubscribeShow.allowPurchaseAmount
             );
-            fetchIncome(projectId, financialSubscribeShow.allowPurchaseAmount || 0);
+            fetchIncome(
+              projectId,
+              financialSubscribeShow.allowPurchaseAmount || 0
+            );
           }
         }}
       >
@@ -375,6 +381,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                 )}
               </div>
               <SvgIcon
+                onClick={() => setSpotModal(true)}
                 viewBox="0 0 16 16"
                 width={16}
                 height={16}
@@ -492,7 +499,8 @@ const Subscription: React.FC<SubscriptionProps> = ({
           </div>
         )}
         {/* 提示 isRedemption === 1 支持提前赎回 并且为定期产品*/}
-        {productInfo?.isRedemption === OpenStatusEnum.YES && productInfo?.type === FinancialType.FIXED ? (
+        {productInfo?.isRedemption === OpenStatusEnum.YES &&
+        productInfo?.type === FinancialType.FIXED ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
             <SvgIcon
               width={16}
@@ -804,6 +812,7 @@ const SubscribeModal = ({
 
   const [tabsKey, setTabsKey] = useState("1"); // 标签页
   const [loading, setLoading] = useState(false); //加载中
+  const [spotModal, setSpotModal] = useState(false); // 现货弹窗
 
   // 币种信息
   const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>();
@@ -863,6 +872,7 @@ const SubscribeModal = ({
       label: t("common.subscribe"),
       children: (
         <Subscription
+          setSpotModal={setSpotModal}
           setTabsKey={setTabsKey}
           financialSubscribeShow={financialSubscribeShow}
           form={form}
@@ -1054,6 +1064,15 @@ const SubscribeModal = ({
       <SubscribeConfirmModal
         subscribeConfirmModal={subscribeConfirmModal}
         setSubscribeConfirmModal={setSubscribeConfirmModal}
+      />
+      <SpotBuyModal
+        open={spotModal}
+        onCancel={() => {
+          setSpotModal(false);
+        }}
+        onOk={() => {
+          setSpotModal(false);
+        }}
       />
     </ConfigProvider>
   );
