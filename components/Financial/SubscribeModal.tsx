@@ -577,6 +577,7 @@ const ProductRule: React.FC<{
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs()
                   .add(Number(curSelectProduct?.term), "day")
+                  .add(1, "day")
                   .format("YYYY-MM-DD") +
                   " " +
                   `${getCurrentTimeZone()}:00:00`}
@@ -868,37 +869,39 @@ const SubscribeModal = ({
   }, [curRecord, openSubscribeModal, form]);
 
   return (
-    <ConfigProvider theme={{
-      components:{
-        Switch: {
-          colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
-          colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
+    <ConfigProvider
+      theme={{
+        components: {
+          Switch: {
+            colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
+            colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
+          },
+          Tabs: {
+            fontSize: 16, // 标签字体大小
+            horizontalMargin: "0px",
+            inkBarColor: "var(--theme-color)",
+            itemActiveColor: "var(--theme-color)",
+            itemColor: "var(--text-color6)",
+          },
+          Modal: { titleLineHeight: "60px", margin: 0 },
+          Button: {
+            borderColorDisabled: "transparent", // 禁用状态边框颜色
+            defaultHoverBg: "var(--cancel-btn)", // 默认按钮悬停背景色
+          },
+          Segmented: {
+            fontSize: 12, // 分段器字体大小
+            borderRadius: 50, // 分段器圆角
+            borderRadiusSM: 50, // 分段器圆角
+            itemSelectedBg: "var(--segmented-item-active-bg2)", // 选中背景色
+            trackBg: "var(--background12)", // 轨道背景色
+          },
         },
-        Tabs:{
-          fontSize: 16, // 标签字体大小
-          horizontalMargin: "0px", 
-          inkBarColor:"var(--theme-color)",
-          itemActiveColor:"var(--theme-color)",
-          itemColor:"var(--text-color6)"
+        token: {
+          colorSplit: "var(--border-color4)", // 分割线颜色
+          colorBgContainerDisabled: "var(--theme-05)", // 禁用状态背景色
         },
-        Modal: { titleLineHeight: "60px", margin: 0 },
-        Button: {
-          borderColorDisabled: "transparent", // 禁用状态边框颜色
-          defaultHoverBg: "var(--cancel-btn)", // 默认按钮悬停背景色
-        },
-        Segmented: {
-          fontSize: 12, // 分段器字体大小 
-          borderRadius: 50, // 分段器圆角
-          borderRadiusSM: 50, // 分段器圆角
-          itemSelectedBg: "var(--segmented-item-active-bg2)", // 选中背景色
-          trackBg: "var(--background12)", // 轨道背景色
-        },
-      },
-      token: {
-        colorSplit: "var(--border-color4)", // 分割线颜色
-        colorBgContainerDisabled: "var(--theme-05)", // 禁用状态背景色
-      },
-    }}>
+      }}
+    >
       <Modal
         centered
         classNames={{
