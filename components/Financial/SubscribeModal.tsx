@@ -489,8 +489,8 @@ const Subscription: React.FC<SubscriptionProps> = ({
             </>
           </div>
         )}
-        {/* 提示 */}
-        {productInfo?.isRedemption === OpenStatusEnum.YES ? (
+        {/* 提示 isRedemption === 1 支持提前赎回 并且为定期产品*/}
+        {productInfo?.isRedemption === OpenStatusEnum.YES && productInfo?.type === FinancialType.FIXED ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
             <SvgIcon
               width={16}
