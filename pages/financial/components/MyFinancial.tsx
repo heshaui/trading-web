@@ -12,6 +12,7 @@ import { Image, Modal, Tooltip } from "antd";
 import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useRouter } from "next/router";
 import { createStyles } from "antd-style";
+import { useThemeMode } from "@/hooks/useThemeMode";
 import appStore from "@/store";
 import BigNumber from "bignumber.js";
 import { useAuth } from "@/context/AuthContext";
@@ -43,6 +44,7 @@ const MyFinancial = observer(() => {
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const rateData = appStore.getRateData();
   const { isLoggedIn } = useAuth();
+  const { isDayMode } = useThemeMode(); // 使用 hook
   const financialConfig = appStore.financialConfig;
 
   const [current, setCurrent] = useState<{
@@ -141,13 +143,19 @@ const MyFinancial = observer(() => {
     }
   }, [rateKey, rateData]);
 
+  useEffect(() => {
+    console.log("isDayMode", isDayMode);
+  }, [isDayMode]);
   return (
     <>
       <div
         className="flex flex-ai-center flex-jc-between py-[94px] gap-[40px] flex-wrap min-h-[412px]"
         style={{
           backgroundImage: `url(${
-            bgContent.backgroundImage || "/images/financial/bg.png"
+            bgContent.backgroundImage ||
+            (isDayMode
+              ? "/images/financial/bg.png"
+              : "/images/financial/bg-dark.png")
           })`,
           backgroundSize: "cover",
           backgroundPosition: "center",

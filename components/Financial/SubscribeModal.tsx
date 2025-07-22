@@ -24,6 +24,7 @@ import {
   getEstimateDailyIncome,
   getFinancialSubscribeShow,
   OpenStatusEnum,
+  SettlementInterestEnum,
 } from "@/services/financial";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
@@ -545,6 +546,9 @@ const ProductRule: React.FC<{
           </div>
           {/* 内容 */}
           <div className="p-[16px_20px] rounded-[10px] border-[var(--border-color4)] border-[1px] flex flex-column gap-[20px]">
+            {/* 按日付息 申购时间 开始计息          首次收益 最后发息 下次申购 */}
+            {/* 到本还息 申购时间 开始计息 发息时间                  下次申购 */}
+
             {/* 申购时间 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
@@ -565,31 +569,56 @@ const ProductRule: React.FC<{
                   `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 首次收益 购买后2天 当前时区(08):00:00 首次收益 */}
-            <div className="flex flex-ai-center flex-jc-between">
-              <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                {t("common.firstInterest")}
-              </div>
-              <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {dayjs().add(2, "day").format("YYYY-MM-DD") +
-                  " " +
-                  `${getCurrentTimeZone()}:00:00`}
-              </div>
-            </div>
-            {/* 最后发息 购买后 定期天数 + 1天 当前时区(08):00:00 最后发息 */}
-            <div className="flex flex-ai-center flex-jc-between">
-              <div className="text-[14px] text-[var(--text-color6)] font-[400]">
-                {t("common.lastDue")}
-              </div>
-              <div className="text-[14px] text-[var(--hometext3)] font-[400]">
-                {dayjs()
-                  .add(Number(curSelectProduct?.term), "day")
-                  .add(1, "day")
-                  .format("YYYY-MM-DD") +
-                  " " +
-                  `${getCurrentTimeZone()}:00:00`}
-              </div>
-            </div>
+            {
+              // 1按日付息，2到期还本利息
+              curSelectProduct?.settlementInterest ===
+              SettlementInterestEnum.DAILY ? (
+                <>
+                  {/* 首次收益 购买后2天 当前时区(08):00:00 首次收益 */}
+                  <div className="flex flex-ai-center flex-jc-between">
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      {t("common.firstInterest")}
+                    </div>
+                    <div className="text-[14px] text-[var(--hometext3)] font-[400]">
+                      {dayjs().add(2, "day").format("YYYY-MM-DD") +
+                        " " +
+                        `${getCurrentTimeZone()}:00:00`}
+                    </div>
+                  </div>
+                  {/* 最后发息 购买后 定期天数 + 1天 当前时区(08):00:00 最后发息 */}
+                  <div className="flex flex-ai-center flex-jc-between">
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      {t("common.lastDue")}
+                    </div>
+                    <div className="text-[14px] text-[var(--hometext3)] font-[400]">
+                      {dayjs()
+                        .add(Number(curSelectProduct?.term), "day")
+                        .add(1, "day")
+                        .format("YYYY-MM-DD") +
+                        " " +
+                        `${getCurrentTimeZone()}:00:00`}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* 发息时间 购买后 定期天数 + 1天 当前时区(08):00:00 发息时间 */}
+                  <div className="flex flex-ai-center flex-jc-between">
+                    <div className="text-[14px] text-[var(--text-color6)] font-[400]">
+                      {t("common.interestTime")}
+                    </div>
+                    <div className="text-[14px] text-[var(--hometext3)] font-[400]">
+                      {dayjs()
+                        .add(Number(curSelectProduct?.term), "day")
+                        .add(1, "day")
+                        .format("YYYY-MM-DD") +
+                        " " +
+                        `${getCurrentTimeZone()}:00:00`}
+                    </div>
+                  </div>
+                </>
+              )
+            }
             {/* 下次申购 购买后 定期 当前时区(08):00:00 下次申购 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
@@ -775,7 +804,7 @@ const SubscribeModal = ({
   const [loading, setLoading] = useState(false); //加载中
 
   // 币种信息
-  const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>(); 
+  const [tokenInfo, setTokenInfo] = useState<FinancialPageTokenItem>();
 
   // 当前产品
   const [productInfo, setProductInfo] =
@@ -799,29 +828,30 @@ const SubscribeModal = ({
   const financialAmount = Form.useWatch("financialAmount", form);
 
   // 获取申购展示
-  const getFinancialSubscribeShowInfo = useCallback(async (product: FinancialPageTokenProductItem) => {
+  const getFinancialSubscribeShowInfo = useCallback(
+    async (product: FinancialPageTokenProductItem) => {
+      setFinancialSubscribeShow({
+        availableAmount: 0,
+        allowPurchaseAmount: 0,
+      });
+      const projectId = product.id;
+      const coinIdParam = curRecord?.token.coinId;
+      const maxPurchaseAmountParam = product.maxPurchaseAmount;
 
-    setFinancialSubscribeShow({
-      availableAmount: 0,
-      allowPurchaseAmount: 0,
-    }
-  )
-    const projectId = product.id;
-    const coinIdParam = curRecord?.token.coinId;
-    const maxPurchaseAmountParam = product.maxPurchaseAmount;
-    
-    if (!projectId || !coinIdParam || !maxPurchaseAmountParam) return;
-    
-    const params = {
-      projectId: Number(projectId),
-      coinId: Number(coinIdParam),
-      maxPurchaseAmount: Number(maxPurchaseAmountParam),
-    };
-    const res = await getFinancialSubscribeShow(params);
-    if (res.code === "0") {
-      setFinancialSubscribeShow(res.data);
-    }
-  }, [curRecord?.token.coinId]);
+      if (!projectId || !coinIdParam || !maxPurchaseAmountParam) return;
+
+      const params = {
+        projectId: Number(projectId),
+        coinId: Number(coinIdParam),
+        maxPurchaseAmount: Number(maxPurchaseAmountParam),
+      };
+      const res = await getFinancialSubscribeShow(params);
+      if (res.code === "0") {
+        setFinancialSubscribeShow(res.data);
+      }
+    },
+    [curRecord?.token.coinId]
+  );
 
   // 标签页
   const items = [

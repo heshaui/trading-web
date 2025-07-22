@@ -109,7 +109,8 @@
     "autoSubscribeTips": "After enabling automatic subscription to current products, your assets in the spot wallet will be automatically subscribed to this current product at 02:00 and 18:00 (UTC+8) every day.",
     "redeemDate": "Redeem Date",
     "subscribeDate": "Subscribe Date",
-    "comingSoon": "Coming soon, stay tuned!"
+    "comingSoon": "Coming soon, stay tuned!",
+    "interestTime": "Interest Time"
   },
   "financial": {
     "myProperty": "My Property",
