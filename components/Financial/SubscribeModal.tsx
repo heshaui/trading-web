@@ -117,9 +117,13 @@ const Subscription: React.FC<SubscriptionProps> = ({
           if (!projectId || !productInfo) return;
           // 如果当前可用金额小于最大金额 则设置为 当前可用金额  如果当前可用金额大于最大金额 设置为最大金额
           if (
-            Number(financialSubscribeShow.availableAmount) < Number(productInfo.maxPurchaseAmount)
+            Number(financialSubscribeShow.availableAmount) <
+            Number(productInfo.maxPurchaseAmount)
           ) {
-            form.setFieldValue("financialAmount", financialSubscribeShow.availableAmount);
+            form.setFieldValue(
+              "financialAmount",
+              financialSubscribeShow.availableAmount
+            );
             fetchIncome(projectId, financialSubscribeShow.availableAmount);
           } else {
             form.setFieldValue(
@@ -239,6 +243,9 @@ const Subscription: React.FC<SubscriptionProps> = ({
             {t("common.applyAmount")}
           </div>
           <Form.Item
+            style={{
+              marginBottom: "0px",
+            }}
             name="financialAmount"
             rules={[
               {
@@ -288,7 +295,10 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   }
 
                   // 输入金额大于余额 则返回错误(账户余额不足)
-                  if (Number(value) > Number(financialSubscribeShow.availableAmount)) {
+                  if (
+                    Number(value) >
+                    Number(financialSubscribeShow.availableAmount)
+                  ) {
                     return Promise.reject(
                       new Error(t("common.insufficientBalance"))
                     );
@@ -338,18 +348,22 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 现货可用 */}
           <div className="flex flex-ai-center flex-jc-between">
             <div className="text-[#9E9E9E] font-[400]">
-              {t("common.spotAvailable")}:
+              {t("common.spotAvailable")}
             </div>
             <div className="flex flex-ai-center gap-[4px]">
               <div>
                 {tokenInfo?.coinName ? (
                   <>
-                    {getCoinRound(tokenInfo?.coinName, financialSubscribeShow.availableAmount)}{" "}
+                    {getCoinRound(
+                      tokenInfo?.coinName,
+                      financialSubscribeShow.availableAmount
+                    )}{" "}
                     {tokenInfo?.coinName}
                   </>
                 ) : (
                   <>
-                    {financialSubscribeShow.availableAmount} {tokenInfo?.coinName}
+                    {financialSubscribeShow.availableAmount}{" "}
+                    {tokenInfo?.coinName}
                   </>
                 )}
               </div>
@@ -387,8 +401,14 @@ const Subscription: React.FC<SubscriptionProps> = ({
                 }}
                 content={
                   <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
-                    <div>·{t("common.estimatedIncomeTips1")}</div>
-                    <div>{t("common.estimatedIncomeTips2")}</div>
+                    <div className="flex gap-[3px]">
+                      <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
+                      <div>{t("common.estimatedIncomeTips1")}</div>
+                    </div>
+                    <div className="flex gap-[3px]">
+                      <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
+                      <div>{t("common.estimatedIncomeTips2")}</div>
+                    </div>
                   </div>
                 }
               >
@@ -850,7 +870,12 @@ const SubscribeModal = ({
 
   // 获取申购展示
   const getFinancialSubscribeShowInfo = async () => {
-    if (!curRecord?.curProduct.id || !curRecord?.token.coinId || !curRecord?.curProduct.maxPurchaseAmount) return;
+    if (
+      !curRecord?.curProduct.id ||
+      !curRecord?.token.coinId ||
+      !curRecord?.curProduct.maxPurchaseAmount
+    )
+      return;
     const params = {
       projectId: curRecord?.curProduct.id,
       coinId: curRecord?.token.coinId,
