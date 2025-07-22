@@ -282,7 +282,10 @@ const TabsItem = ({
                       if (curProduct) {
                         setCurRecord?.({
                           token: res.data[0],
-                          curProduct,
+                          curProduct: {
+                            ...curProduct,
+                            autoPurchase: record.autoPurchase,
+                          },
                         });
                       }
                       setOpenSubscribeModal?.(true);

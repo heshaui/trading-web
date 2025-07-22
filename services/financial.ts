@@ -273,6 +273,7 @@ export interface FinancialPageTokenProductItem {
   status?: FinancialPageTokenStatusEnum; //状态 0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
   statusText?: string; //状态文本
   assetBoundary?: number; //资产边界
+  autoPurchase?: OpenStatusEnum; //是否自动申购 0否，1是
 }
 
 export interface FinancialPageTokenItem {

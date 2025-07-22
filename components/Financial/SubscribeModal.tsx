@@ -216,6 +216,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                     setIncome(() => "-");
                     setProductInfo(item);
                     form.setFieldValue("projectId", item.id);
+                    form.setFieldValue("autoPurchase", curRecord?.curProduct.autoPurchase);
                     // 调用父组件的产品变更处理函数
                     onProductChange(item);
                   }
@@ -963,6 +964,7 @@ const SubscribeModal = ({
       form.setFieldsValue({
         projectId: curRecord?.curProduct.id,
         financialAmount: "",
+        autoPurchase: Number(curRecord?.curProduct.autoPurchase),
       });
     }
   }, [curRecord, openSubscribeModal, form, getFinancialSubscribeShowInfo]);
