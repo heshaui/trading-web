@@ -143,9 +143,6 @@ const MyFinancial = observer(() => {
     }
   }, [rateKey, rateData]);
 
-  useEffect(() => {
-    console.log("isDayMode", isDayMode);
-  }, [isDayMode]);
   return (
     <>
       <div
@@ -299,9 +296,9 @@ const MyFinancial = observer(() => {
                       <MaskableAmount
                         show={showAmount && isLoggedIn}
                         content={
-                          <div className="flex flex-wrap">
+                          <div className="flex flex-wrap justify-center">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }}>
+                            <div style={{ fontFamily: "DIN" }} className="text-content">
                               {
                                 // 有汇率的存在
                                 current.rate
@@ -332,7 +329,7 @@ const MyFinancial = observer(() => {
                       <MaskableAmount
                         show={showAmount && isLoggedIn}
                         content={
-                          <div className="flex flex-wrap">
+                          <div className="flex flex-wrap justify-end">
                             <div>≈ {current.symbol}</div>
                             <div style={{ fontFamily: "DIN" }}>
                               {
