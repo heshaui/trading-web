@@ -260,6 +260,10 @@ const RedemptionModal = ({
               disabled={
                 !redeemMoney && curProductInfo?.type === FinancialType.CURRENT
               }
+              style={{
+                color: "var(--hometext)",
+                border: "none",
+              }}
               type="primary"
               shape="round"
               size="large"

@@ -118,10 +118,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
           if (!projectId || !productInfo) return;
-          // 如果当前可用金额小于最大金额 则设置为 当前可用金额  如果当前可用金额大于最大金额 设置为最大金额
+          // 可用余额 小于 可申购金额 则设置为 可用余额 如果大于 设置为可申购金额
+          // availableAmount // 可用余额
+          // allowPurchaseAmount // 可申购金额
           if (
             Number(financialSubscribeShow.availableAmount) <
-            Number(productInfo.maxPurchaseAmount)
+            Number(financialSubscribeShow.allowPurchaseAmount)
           ) {
             form.setFieldValue(
               "financialAmount",
@@ -131,9 +133,9 @@ const Subscription: React.FC<SubscriptionProps> = ({
           } else {
             form.setFieldValue(
               "financialAmount",
-              productInfo.maxPurchaseAmount
+              financialSubscribeShow.allowPurchaseAmount
             );
-            fetchIncome(projectId, productInfo.maxPurchaseAmount || 0);
+            fetchIncome(projectId, financialSubscribeShow.allowPurchaseAmount || 0);
           }
         }}
       >
@@ -383,7 +385,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
           {/* 可申购金额 */}
           <div className="flex flex-ai-center flex-jc-between">
             <span className="text-[#9E9E9E] font-[400]">
-              {t("common.canSubscribe")}:
+              {t("common.canSubscribe")}
             </span>
             <span>
               {financialSubscribeShow.allowPurchaseAmount} {tokenInfo?.coinName}
