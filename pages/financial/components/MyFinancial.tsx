@@ -9,7 +9,6 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import { Image, Modal, Tooltip } from "antd";
-import { FinancialConfig } from "../index";
 import { FunctionEnabledStatusEnum } from "@/services/financial";
 import { useRouter } from "next/router";
 import { createStyles } from "antd-style";
