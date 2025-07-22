@@ -10,7 +10,6 @@ import {
   Spin,
   Form,
   FormInstance,
-  Tooltip,
   Popover,
 } from "antd";
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -336,28 +335,34 @@ const Subscription: React.FC<SubscriptionProps> = ({
             />
           </Form.Item>
           {/* 现货可用 */}
-          <div className="mb-[2px] flex flex-ai-center">
-            <div className="text-[#9E9E9E] font-[400] mr-[10px]">
+          <div className="flex flex-ai-center flex-jc-between">
+            <div className="text-[#9E9E9E] font-[400]">
               {t("common.spotAvailable")}:
             </div>
-            <div className="ml-[10px] mr-[4px]">
-              {tokenInfo?.coinName ? (
-                <>{getCoinRound(tokenInfo?.coinName, myBalance?.balance)} {tokenInfo?.coinName}</>
-              ) : (
-                <>{myBalance?.balance} {tokenInfo?.coinName}</>
-              )}
+            <div className="flex flex-ai-center gap-[4px]">
+              <div>
+                {tokenInfo?.coinName ? (
+                  <>
+                    {getCoinRound(tokenInfo?.coinName, myBalance?.balance)}{" "}
+                    {tokenInfo?.coinName}
+                  </>
+                ) : (
+                  <>
+                    {myBalance?.balance} {tokenInfo?.coinName}
+                  </>
+                )}
+              </div>
+              <SvgIcon
+                viewBox="0 0 16 16"
+                width={16}
+                height={16}
+                path="M8.00016 1.33334C11.6822 1.33334 14.6668 4.31801 14.6668 8.00001C14.6668 11.682 11.6822 14.6667 8.00016 14.6667C4.31816 14.6667 1.3335 11.682 1.3335 8.00001C1.3335 4.31801 4.31816 1.33334 8.00016 1.33334ZM8.00016 2.66668C6.58567 2.66668 5.22912 3.22858 4.22893 4.22877C3.22873 5.22897 2.66683 6.58552 2.66683 8.00001C2.66683 9.4145 3.22873 10.7711 4.22893 11.7712C5.22912 12.7714 6.58567 13.3333 8.00016 13.3333C9.41465 13.3333 10.7712 12.7714 11.7714 11.7712C12.7716 10.7711 13.3335 9.4145 13.3335 8.00001C13.3335 6.58552 12.7716 5.22897 11.7714 4.22877C10.7712 3.22858 9.41465 2.66668 8.00016 2.66668ZM8.00016 4.66668C8.17697 4.66668 8.34654 4.73691 8.47157 4.86194C8.59659 4.98696 8.66683 5.15653 8.66683 5.33334V7.33334H10.6668C10.8436 7.33334 11.0132 7.40358 11.1382 7.52861C11.2633 7.65363 11.3335 7.8232 11.3335 8.00001C11.3335 8.17682 11.2633 8.34639 11.1382 8.47141C11.0132 8.59644 10.8436 8.66668 10.6668 8.66668H8.66683V10.6667C8.66683 10.8435 8.59659 11.0131 8.47157 11.1381C8.34654 11.2631 8.17697 11.3333 8.00016 11.3333C7.82335 11.3333 7.65378 11.2631 7.52876 11.1381C7.40373 11.0131 7.3335 10.8435 7.3335 10.6667V8.66668H5.3335C5.15668 8.66668 4.98712 8.59644 4.86209 8.47141C4.73707 8.34639 4.66683 8.17682 4.66683 8.00001C4.66683 7.8232 4.73707 7.65363 4.86209 7.52861C4.98712 7.40358 5.15668 7.33334 5.3335 7.33334H7.3335V5.33334C7.3335 5.15653 7.40373 4.98696 7.52876 4.86194C7.65378 4.73691 7.82335 4.66668 8.00016 4.66668Z"
+              />
             </div>
-
-            <SvgIcon
-              viewBox="0 0 16 16"
-              width={16}
-              height={16}
-              path="M8.00016 1.33334C11.6822 1.33334 14.6668 4.31801 14.6668 8.00001C14.6668 11.682 11.6822 14.6667 8.00016 14.6667C4.31816 14.6667 1.3335 11.682 1.3335 8.00001C1.3335 4.31801 4.31816 1.33334 8.00016 1.33334ZM8.00016 2.66668C6.58567 2.66668 5.22912 3.22858 4.22893 4.22877C3.22873 5.22897 2.66683 6.58552 2.66683 8.00001C2.66683 9.4145 3.22873 10.7711 4.22893 11.7712C5.22912 12.7714 6.58567 13.3333 8.00016 13.3333C9.41465 13.3333 10.7712 12.7714 11.7714 11.7712C12.7716 10.7711 13.3335 9.4145 13.3335 8.00001C13.3335 6.58552 12.7716 5.22897 11.7714 4.22877C10.7712 3.22858 9.41465 2.66668 8.00016 2.66668ZM8.00016 4.66668C8.17697 4.66668 8.34654 4.73691 8.47157 4.86194C8.59659 4.98696 8.66683 5.15653 8.66683 5.33334V7.33334H10.6668C10.8436 7.33334 11.0132 7.40358 11.1382 7.52861C11.2633 7.65363 11.3335 7.8232 11.3335 8.00001C11.3335 8.17682 11.2633 8.34639 11.1382 8.47141C11.0132 8.59644 10.8436 8.66668 10.6668 8.66668H8.66683V10.6667C8.66683 10.8435 8.59659 11.0131 8.47157 11.1381C8.34654 11.2631 8.17697 11.3333 8.00016 11.3333C7.82335 11.3333 7.65378 11.2631 7.52876 11.1381C7.40373 11.0131 7.3335 10.8435 7.3335 10.6667V8.66668H5.3335C5.15668 8.66668 4.98712 8.59644 4.86209 8.47141C4.73707 8.34639 4.66683 8.17682 4.66683 8.00001C4.66683 7.8232 4.73707 7.65363 4.86209 7.52861C4.98712 7.40358 5.15668 7.33334 5.3335 7.33334H7.3335V5.33334C7.3335 5.15653 7.40373 4.98696 7.52876 4.86194C7.65378 4.73691 7.82335 4.66668 8.00016 4.66668Z"
-            />
           </div>
           {/* 可申购金额 */}
-          <div>
-            <span className="text-[#9E9E9E] font-[400] mr-[10px]">
+          <div className="flex flex-ai-center flex-jc-between">
+            <span className="text-[#9E9E9E] font-[400]">
               {t("common.canSubscribe")}:
             </span>
             {/* 如果不是数组 或者 超过最大值 则显示最大值 */}
@@ -390,7 +395,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   </div>
                 }
               >
-                <div className="underline decoration-[var(--text-color6)]">
+                <div className="border-b border-dashed border-[var(--text-color6)]">
                   {productInfo?.type === FinancialType.CURRENT
                     ? t("common.estimatedDailyIncome")
                     : t("common.estimatedTotalIncome")}
@@ -416,7 +421,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                   </div>
                 }
               >
-                <div className="underline decoration-[var(--text-color6)]">
+                <div className="border-b border-dashed border-[var(--text-color6)]">
                   {t("common.autoSubscribe")}
                 </div>
               </Popover>
@@ -550,7 +555,7 @@ const ProductRule: React.FC<{
                   `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 最后发息 购买后 定期天数 + 2天 当前时区(08):00:00 最后发息 */}
+            {/* 最后发息 购买后 定期天数 + 1天 当前时区(08):00:00 最后发息 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.lastDue")}
@@ -558,13 +563,13 @@ const ProductRule: React.FC<{
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs()
                   .add(Number(curSelectProduct?.term), "day")
-                  .add(2, "day")
+                  .add(1, "day")
                   .format("YYYY-MM-DD") +
                   " " +
                   `${getCurrentTimeZone()}:00:00`}
               </div>
             </div>
-            {/* 下次申购 购买后 定期 天数+1 当前时区(08):00:00 下次申购 */}
+            {/* 下次申购 购买后 定期 当前时区(08):00:00 下次申购 */}
             <div className="flex flex-ai-center flex-jc-between">
               <div className="text-[14px] text-[var(--text-color6)] font-[400]">
                 {t("common.nextSubscribe")}
@@ -572,7 +577,6 @@ const ProductRule: React.FC<{
               <div className="text-[14px] text-[var(--hometext3)] font-[400]">
                 {dayjs()
                   .add(Number(curSelectProduct?.term), "day")
-                  .add(2, "day")
                   .format("YYYY-MM-DD") +
                   " " +
                   `${getCurrentTimeZone()}:00:00`}
@@ -864,7 +868,37 @@ const SubscribeModal = ({
   }, [curRecord, openSubscribeModal, form]);
 
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider theme={{
+      components:{
+        Switch: {
+          colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
+          colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
+        },
+        Tabs:{
+          fontSize: 16, // 标签字体大小
+          horizontalMargin: "0px", 
+          inkBarColor:"var(--theme-color)",
+          itemActiveColor:"var(--theme-color)",
+          itemColor:"var(--text-color6)"
+        },
+        Modal: { titleLineHeight: "60px", margin: 0 },
+        Button: {
+          borderColorDisabled: "transparent", // 禁用状态边框颜色
+          defaultHoverBg: "var(--cancel-btn)", // 默认按钮悬停背景色
+        },
+        Segmented: {
+          fontSize: 12, // 分段器字体大小 
+          borderRadius: 50, // 分段器圆角
+          borderRadiusSM: 50, // 分段器圆角
+          itemSelectedBg: "var(--segmented-item-active-bg2)", // 选中背景色
+          trackBg: "var(--background12)", // 轨道背景色
+        },
+      },
+      token: {
+        colorSplit: "var(--border-color4)", // 分割线颜色
+        colorBgContainerDisabled: "var(--theme-05)", // 禁用状态背景色
+      },
+    }}>
       <Modal
         centered
         classNames={{
@@ -877,7 +911,20 @@ const SubscribeModal = ({
         open={openSubscribeModal}
         // open={true}
         onCancel={() => setOpenSubscribeModal(false)}
-        title={<div>{tokenInfo?.coinName}</div>}
+        title={
+          <div className="flex flex-ai-center gap-[4px]">
+            {tokenInfo?.iconUrl && (
+              <Image
+                src={tokenInfo?.iconUrl}
+                alt={""}
+                style={{ borderRadius: "50%" }}
+                width={18}
+                height={18}
+              />
+            )}
+            <div>{tokenInfo?.coinName}</div>
+          </div>
+        }
         closable={{ "aria-label": "Custom Close Button" }}
         footer={
           tabsKey === "1" && (
