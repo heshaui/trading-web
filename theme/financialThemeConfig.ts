@@ -11,7 +11,7 @@ const financialThemeConfig: ThemeConfig = {
       fontWeightStrong: 400, // 表头字体粗细
       headerBorderRadius: 0, // 表头圆角
       rowSelectedBg: "transparent", // 表格行选中背景色
-      rowHoverBg: "var(--bgc-color)", // 悬停背景色
+      rowHoverBg: "var(--theme-005)", // 悬停背景色
     },
     Tabs: {
       fontSize: 16, // 标签字体大小
