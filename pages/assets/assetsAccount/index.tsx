@@ -202,72 +202,100 @@ const AssetsMainPage = observer(() => {
             record.coinId === item.baseSymbol ||
             record.coinId === item.coinSymbol
         );
+        const btnList = [
+          {
+            label: t("assetsAccount.button.flash"),
+            key: "flash",
+            className: `${
+              coin?.isTradeConvert === 0
+                ? styles.tip_color2
+                : styles.theme_color
+            } font-12 font-w-500`,
+            disabled: coin?.isTradeConvert === 0,
+            onClick: () => goFlash(record.coinName),
+          },
+          // 理财
+          ...(financialConfig.financialSwitch ===
+            FunctionSwitchStatusEnum.OPEN && record.isFinancialCoin === 1
+            ? [
+                {
+                  label: t("assetsAccount.button.financial"),
+                  key: "financial",
+                  className: `${styles.theme_color} font-12 font-w-500`,
+                  onClick: () => goFinancial(record.coinName),
+                },
+              ]
+            : []),
+          // 提现
+          {
+            label: t("assetsAccount.button.withdraw"),
+            key: "withdraw",
+            disabled: coin?.canWithdraw === 0,
+            className: `${
+              coin?.canWithdraw === 0 ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () => getCoinList("1", record.coinId, coin?.canWithdraw),
+          },
+          // 充值
+          {
+            label: t("assetsAccount.button.deposit"),
+            key: "deposit",
+            disabled: coin?.canRecharge === 0,
+            className: `${
+              coin?.canRecharge === 0 ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () => getCoinList("2", record.coinId, coin?.canRecharge),
+          },
+          // 交易
+          {
+            label: t("assetsAccount.button.trade"),
+            key: "trade",
+            disabled: !coinPairData,
+            className: `${
+              !coinPairData ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () =>
+              getCoinList(
+                "3",
+                record.coinId,
+                coinPairData ? 1 : 0,
+                coinPairData ? true : false
+              ),
+          },
+        ];
+        const [item1, item2, ...rest] = btnList;
         return (
           <Space size={4}>
             <Space size={12}>
-              {/* 闪兑 */}
               <button
-                disabled={coin?.isTradeConvert === 0}
-                key={record.coinName}
-                className={`${
-                  coin?.isTradeConvert === 1
-                    ? styles.theme_color
-                    : styles.tip_color2
-                } font-12 font-w-500`}
-                onClick={() => goFlash(record.coinName)}
+                key={item1.key}
+                className={item1.className}
+                disabled={item1.disabled}
+                onClick={item1.onClick}
               >
-                {t("assetsAccount.button.flash")}
+                {item1.label}
               </button>
-
-              {/* 理财 */}
-              {financialConfig.financialSwitch ===
-                FunctionSwitchStatusEnum.OPEN &&
-                record.isFinancialCoin === 1 && (
-                  <button
-                    className={`${styles.theme_color} font-12 font-w-500`}
-                    onClick={() => goFinancial(record.coinName)}
-                  >
-                    {t("assetsAccount.button.financial")}
-                  </button>
-                )}
+              <button
+                key={item2.key}
+                className={item2.className}
+                disabled={item2.disabled}
+                onClick={item2.onClick}
+              >
+                {item2.label}
+              </button>
             </Space>
             <Dropdown
               placement="bottomRight"
               trigger={["click"]}
               menu={{
-                items: [
-                  // 提现
-                  {
-                    disabled: coin?.canWithdraw === 0,
-                    label: t("assetsAccount.button.withdraw"),
-                    key: "withdraw",
-                    onClick: () =>
-                      getCoinList("1", record.coinId, coin?.canWithdraw),
-                  },
-
-                  // 充值
-                  {
-                    disabled: coin?.canRecharge === 0,
-                    label: t("assetsAccount.button.deposit"),
-                    key: "deposit",
-                    onClick: () =>
-                      getCoinList("2", record.coinId, coin?.canRecharge),
-                  },
-
-                  // 交易
-                  {
-                    disabled: !coinPairData,
-                    label: t("assetsAccount.button.trade"),
-                    key: "trade",
-                    onClick: () =>
-                      getCoinList(
-                        "3",
-                        record.coinId,
-                        coinPairData ? 1 : 0,
-                        coinPairData ? true : false
-                      ),
-                  },
-                ],
+                items: rest.map((item) => {
+                  return {
+                    disabled: item.disabled,
+                    label: item.label,
+                    key: item.key,
+                    onClick: item.onClick,
+                  };
+                }),
                 style: { minWidth: 120 },
               }}
             >
