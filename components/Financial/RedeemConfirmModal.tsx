@@ -53,7 +53,7 @@ const RedeemConfirmModal = ({
             size="large"
             className="h-[50px] flex-1"
             onClick={() => {
-              router.push("/financialOrder");
+              router.push("/assets/financial");
             }}
           >
             {t("common.viewPosition")}
