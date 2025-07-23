@@ -49,6 +49,8 @@ export const ROUTER_KEY_ASSETS = {
     FINANCIAL:"/assets/financial", //理财账户
 
     FUTURE_ACCOUNT:"/assets/futureAccount", //合约账户
+    SPOT_ACCOUNT:"/assets/assetsAccount", //现货账户
+    FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
 };
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页

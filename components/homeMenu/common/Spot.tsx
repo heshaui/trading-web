@@ -1,65 +1,30 @@
 import styles from "@/styles/components/HomeMenu.module.css";
-import {
-  Dropdown,
-  Space,
-  Button,
-  Avatar,
-  ConfigProvider,
-  Row,
-  Col,
-  Drawer,
-  Empty,
-  Tabs,
-  TabsProps,
-  Badge,
-} from "antd";
-import { MenuProps } from "antd";
+import { Dropdown, Space } from "antd";
 import MenuItemLabel from "../HomeMenuLabel";
-import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
-// import dayjs from 'dayjs';
-// import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { useThemeMode } from "@/hooks/useThemeMode"; // 导入 useThemeMode 获取当前主题状态
-import { useAuth } from "@/context/AuthContext";
-import { getLoginInfo } from "@/services/overview";
-import { encryptString } from "@/utils/encrypt";
-import { toast } from "sonner";
 import { ROUTER_KEY_SPOT } from "@/config/apiConfig";
 import appStore from "@/store";
+import { FunctionSwitchStatusEnum } from "@/services/financial";
 
 export default function SpotMenuItems() {
   // 路由
   const router = useRouter();
-  const configData = appStore.getFlashConfig();
+  const configData = appStore.flashConfig;
+  const financialConfig = appStore.financialConfig;
 
   // t - 多语言
-  const { t, i18n } = useTranslation(["common"]);
+  const { t } = useTranslation(["common"]);
   // 获取主题状态
   const { isDayMode } = useThemeMode();
 
   // 资产 - 2版
   const itemsFunding = [
+    // 现货订单
     {
       key: "1",
-      label: (
-        <MenuItemLabel
-          src={
-            isDayMode
-              ? "/images/home_menu/icon_spot_day.png"
-              : "/images/home_menu/icon_spot_dark.png"
-          }
-          h5Text={t("router.spotTrade")} //'现货交易'
-          spanText=""
-          onClick={() => {
-            router.push(ROUTER_KEY_SPOT.INDEX);
-          }}
-        />
-      ),
-    },
-    {
-      key: "2",
       label: (
         <MenuItemLabel
           src={
@@ -75,10 +40,11 @@ export default function SpotMenuItems() {
         />
       ),
     },
+    // 闪兑订单
     ...(configData.flashConvertSwitch
       ? [
           {
-            key: "3",
+            key: "2",
             label: (
               <MenuItemLabel
                 src={
@@ -97,6 +63,46 @@ export default function SpotMenuItems() {
           },
         ]
       : []),
+    // 理财订单
+    ...(financialConfig.financialSwitch === FunctionSwitchStatusEnum.OPEN
+      ? [
+          {
+            key: "3",
+            label: (
+              <MenuItemLabel
+                src={
+                  isDayMode
+                    ? "/images/home_menu/icon_bill_line.png"
+                    : "/images/home_menu/icon_bill_line_dark.png"
+                }
+                h5Text={t("router.financialOrder")} //'账单明细'
+                spanText=""
+                onClick={() => {
+                  // router.push(ROUTER_KEY_SPOT.BILL);
+                }}
+              />
+            ),
+          },
+        ]
+      : []),
+    // 账单明细
+    {
+      key: "4",
+      label: (
+        <MenuItemLabel
+          src={
+            isDayMode
+              ? "/images/home_menu/icon_bill_line.png"
+              : "/images/home_menu/icon_bill_line_dark.png"
+          }
+          h5Text={t("router.bill")} //'账单明细'
+          spanText=""
+          onClick={() => {
+            // router.push(ROUTER_KEY_SPOT.BILL);
+          }}
+        />
+      ),
+    },
   ];
 
   return (
@@ -111,13 +117,7 @@ export default function SpotMenuItems() {
         className={styles.dropDownList}
         overlayStyle={{ top: "80px", minWidth: "180px" }}
       >
-        {/* <a onClick={(e) => e.preventDefault()} className={styles.iconCursor}>
-                                                        <Space style={{ columnGap: '3px' }}>
-                                                            <img src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} />
-                                                        </Space>
-                                                    </a> */}
         <Space style={{ columnGap: "3px" }}>
-          {/* <img onClick={(e) => e.preventDefault()} src="/images/home_menu/icon_wallet_line.png" className={styles.iconCursor} /> */}
           <Image
             onClick={(e) => e.preventDefault()}
             alt=""

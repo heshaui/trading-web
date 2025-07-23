@@ -2,7 +2,7 @@ import { NoData } from "@/components/noData";
 import { ConfigProvider, DatePicker, Select, Table } from "antd";
 import { useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Financial.module.css";
 import { getCoinAll } from "@/services/assets";
 import { ColumnsType } from "antd/es/table";
 import {

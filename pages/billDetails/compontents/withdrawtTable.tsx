@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/billDetails.module.css'
+import styles from '../styles/billDetails.module.css'
 import { Input, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -14,7 +14,7 @@ import { getCoinRate } from '@/utils/getUseRate';
 import { roundDown } from '@/utils/math'
 import appStore from '@/store';
 import { WithdrawDataType } from "@/type/assets/billDetails/table"
-import TableCancelModal from '../modal/table_cancel';
+import TableCancelModal from '../../assets/compontents/modal/table_cancel';
 import { encryptData } from '@/hooks/user-encrypt'
 import {  getCancelWithdraw } from '@/services/assets'
 

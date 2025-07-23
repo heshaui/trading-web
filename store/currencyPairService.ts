@@ -1,13 +1,12 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
 import { getCoinAll } from '@/services/assets';
-import appStore from '@/store/index';
+// import appStore from '@/store/index'; // 移除这个导入以打破循环依赖
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
 import { getUsdtPriceWithStables } from "@/services/marketData"
 import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { usdtRateType } from "@/type/userCenter/overview"
 // 获取所有币对数据
-export async function fetchAllCurrencyPairs() {
-    const userToken = appStore.getUserToken();
+export async function fetchAllCurrencyPairs(userToken?: string) {
     try {
         // 1. 获取币种列表
         const coinListResponse = await getExchangeCoinList();
@@ -210,8 +209,7 @@ export async function fetchCurrencyPairPrices() {
 
 // 获取所有币种
 // 获取所有币种
-export async function fetchAllCoin(needPrice: boolean = false) {
-    const userToken = appStore.getUserToken();
+export async function fetchAllCoin(needPrice: boolean = false, userToken?: string) {
     if (!userToken) return {
         success: false,
         data: [],

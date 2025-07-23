@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/billDetails.module.css'
+import styles from '../styles/billDetails.module.css'
 import { Input, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";

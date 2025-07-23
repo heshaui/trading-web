@@ -1,14 +1,14 @@
 import React from "react";
-import styles from "../styles/billDetails.module.css";
+import styles from "./styles/billDetails.module.css";
 import { ConfigProvider, Select, Pagination } from "antd";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import InvitationTable from "../compontents/billDetailTable/inviteTable";
-import WithdrawTable from "../compontents/billDetailTable/withdrawtTable";
-import RechargeTable from "../compontents/billDetailTable/rechargeTable";
-import GiftTable from "../compontents/billDetailTable/giftTable";
+import InvitationTable from "./compontents/inviteTable";
+import WithdrawTable from "./compontents/withdrawtTable";
+import RechargeTable from "./compontents/rechargeTable";
+import GiftTable from "./compontents/giftTable";
 import { getCoinAll, getOrderList } from "@/services/assets";
 import Image from "next/image";
 
