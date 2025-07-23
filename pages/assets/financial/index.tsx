@@ -88,7 +88,7 @@ const TabsItem = ({
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
-      
+
       render: (_: any, record: any) => {
         return (
           <Flex gap="8px">
@@ -101,7 +101,9 @@ const TabsItem = ({
                 style={{ borderRadius: "50%" }}
               />
             )}
-            <div className="font-[500] text-[14px] text-[var(--text-color5)]">{record.coinName}</div>
+            <div className="font-[500] text-[14px] text-[var(--text-color5)]">
+              {record.coinName}
+            </div>
           </Flex>
         );
       },
@@ -143,9 +145,12 @@ const TabsItem = ({
             title: t("common.subscribeDate"),
             dataIndex: "purchaseStartTime",
             key: "purchaseStartTime",
+            align: "right" as const,
             render: (_: any, record: any) => {
               return record.purchaseStartTime
-                ? dayjs(record.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")
+                ? <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                    {dayjs(record.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")}
+                  </div>
                 : "--";
             },
           },
@@ -159,6 +164,16 @@ const TabsItem = ({
             title: `${t("common.term")}(${t("common.day")})`,
             dataIndex: "term",
             key: "term",
+            align: "right" as const,
+            render: (_: any, record: any) => {
+              return record.term ? (
+                <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                  {record.term}
+                </div>
+              ) : (
+                "--"
+              );
+            },
           },
         ]
       : []),
@@ -198,6 +213,8 @@ const TabsItem = ({
       title: t("common.annualRate"),
       dataIndex: "minAnnualInterestRate",
       key: "minAnnualInterestRate",
+      width: type === FinancialType.CURRENT ? 180 : "20%",
+      align: "center",
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
@@ -252,12 +269,15 @@ const TabsItem = ({
             title: t("common.expirationTime"),
             dataIndex: "expirationTime",
             key: "expirationTime",
+            align: "right" as const,
             render: (_: any, record: any) => {
-              return record.expirationTime
-                ? <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-                    {dayjs(record.expirationTime).format("YYYY-MM-DD HH:mm:ss")}
-                  </div>
-                : "--";
+              return record.expirationTime ? (
+                <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                  {dayjs(record.expirationTime).format("YYYY-MM-DD HH:mm:ss")}
+                </div>
+              ) : (
+                "--"
+              );
             },
           },
         ]
