@@ -357,15 +357,14 @@ const Subscription: React.FC<SubscriptionProps> = ({
                       );
                     }
 
-                    // 输入的金额大于最大金额 则返回错误(输入金额大于最大申购金额)
+                    // 输入的金额大于可申购金额 则返回错误(可申购额度 xxx 币种)
                     if (
-                      productInfo?.maxPurchaseAmount &&
-                      Number(value) > Number(productInfo?.maxPurchaseAmount)
+                      Number(value) > Number(financialSubscribeShow.allowPurchaseAmount)
                     ) {
                       return Promise.reject(
                         new Error(
                           `${t("common.exceedSubscribeAmount")} ${
-                            productInfo?.maxPurchaseAmount
+                            financialSubscribeShow.allowPurchaseAmount
                           } ${tokenInfo?.coinName}`
                         )
                       );
@@ -914,6 +913,7 @@ const SubscribeModal = ({
   // 获取申购展示
   const getFinancialSubscribeShowInfo = useCallback(
     async (product: FinancialPageTokenProductItem) => {
+      setLoading(true);
       setFinancialSubscribeShow({
         availableAmount: 0,
         allowPurchaseAmount: 0,
@@ -937,6 +937,7 @@ const SubscribeModal = ({
           autoPurchase: res.data.autoPurchase,
         });
       }
+      setLoading(false);
     },
     [curRecord?.token.coinId, form]
   );
