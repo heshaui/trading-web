@@ -209,9 +209,12 @@ const MyFinancial = observer(() => {
                           style={{ color: "var(--text-color6)" }}
                           size={18}
                           className="cursor-pointer"
-                          onClick={() =>
-                            isLoggedIn && setShowAmount(!showAmount)
-                          }
+                          onClick={() => {
+                            if (isLoggedIn) {
+                              setShowAmount(!showAmount);
+                              appStore.setBanlanceShow(!showAmount);
+                            }
+                          }}
                         />
                       )}
                     </div>
@@ -265,7 +268,7 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }}>
+                            <div style={{ fontFamily: "DIN" }} className="break-all">
                               {
                                 // 有汇率的存在
                                 current.rate
@@ -298,7 +301,7 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap justify-center">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }} className="text-content">
+                            <div style={{ fontFamily: "DIN" }} className="text-content break-all">
                               {
                                 // 有汇率的存在
                                 current.rate
@@ -331,7 +334,7 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap justify-end">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }}>
+                            <div style={{ fontFamily: "DIN" }} className="break-all">
                               {
                                 // 有汇率的存在
                                 current.rate

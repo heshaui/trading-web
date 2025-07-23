@@ -4,12 +4,14 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
+import { getCoinRound } from "@/utils/getUseRate";
 
 export interface RedeemConfirmModalType {
   open: boolean;
   status: "error" | "success" | null;
-  amount?: number;
-  interest?: number;
+  amount?: number; // 申购金额
+  interest?: number; // 已获得利息
+  redeemAmount?: number; // 赎回金额
   type?: FinancialType;
   unit?: string;
   settlementInterest?: SettlementInterest;
@@ -83,7 +85,14 @@ const RedeemConfirmModal = ({
         {/* 标题 成功了显示金额如:5 USDT 失败了显示申购失败 */}
         <div className="text-[20px] text-[var(--text-color5)] font-[500] text-center mb-[16px]">
           {redeemConfirmModal.status === "success"
-            ? `${redeemConfirmModal.amount} ${redeemConfirmModal.unit}`
+            ? `${
+                redeemConfirmModal.unit && redeemConfirmModal.amount
+                  ? getCoinRound(
+                      redeemConfirmModal.unit,
+                      redeemConfirmModal.amount
+                    )
+                  : redeemConfirmModal.amount
+              } ${redeemConfirmModal.unit}`
             : t("common.redeemFailed")}
         </div>
         {/* 副标题 */}
@@ -102,13 +111,19 @@ const RedeemConfirmModal = ({
             {/* 定期赎回 */}
             {redeemConfirmModal.type === FinancialType.FIXED ? (
               <>
-                {/* 赎回成功 */}
+                {/* 申购金额 */}
                 <div className="flex justify-between">
                   <div className="text-[var(--text-color6)] font-[400] text-[14px]">
-                    {t("common.redeemSuccess")}
+                    {t("common.purchaseAmount")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {t("common.fixed")}
+                    {redeemConfirmModal.unit && redeemConfirmModal.amount
+                      ? getCoinRound(
+                          redeemConfirmModal.unit,
+                          redeemConfirmModal.amount
+                        )
+                      : redeemConfirmModal.amount}{" "}
+                    {redeemConfirmModal.unit}
                   </div>
                 </div>
                 {/* 已获得利息 */}
@@ -120,7 +135,13 @@ const RedeemConfirmModal = ({
                       : t("common.totalInterest")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {redeemConfirmModal.interest} {redeemConfirmModal.unit}
+                    {redeemConfirmModal.unit && redeemConfirmModal.interest
+                      ? getCoinRound(
+                          redeemConfirmModal.unit,
+                          redeemConfirmModal.interest
+                        )
+                      : redeemConfirmModal.interest}{" "}
+                    {redeemConfirmModal.unit}
                   </div>
                 </div>
                 {/* 赎回金额 */}
@@ -129,7 +150,13 @@ const RedeemConfirmModal = ({
                     {t("common.redeemAmount")}
                   </div>
                   <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                    {redeemConfirmModal.amount} {redeemConfirmModal.unit}
+                    {redeemConfirmModal.unit && redeemConfirmModal.redeemAmount
+                      ? getCoinRound(
+                          redeemConfirmModal.unit,
+                          redeemConfirmModal.redeemAmount
+                        )
+                      : redeemConfirmModal.redeemAmount}{" "}
+                    {redeemConfirmModal.unit}
                   </div>
                 </div>
                 {/* 提交时间 */}

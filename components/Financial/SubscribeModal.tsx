@@ -511,13 +511,12 @@ const Subscription: React.FC<SubscriptionProps> = ({
               height={16}
               path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
             />
-            <div className="flex flex-ai-center gap-[10px]">
-              <span>
-                {productInfo?.isRedemption === OpenStatusEnum.YES
-                  ? t("common.thisProductSupportsEarlyRedemption")
-                  : t("common.thisProductDoesNotSupportEarlyRedemption")}
-              </span>
-              <span className="cursor-pointer" onClick={() => setTabsKey("2")}>
+            <div>
+              {productInfo?.isRedemption === OpenStatusEnum.YES
+                ? t("common.thisProductSupportsEarlyRedemption")
+                : t("common.thisProductDoesNotSupportEarlyRedemption")}
+
+              <span className="cursor-pointer ml-[10px]" onClick={() => setTabsKey("2")}>
                 {t("common.viewRules")}
               </span>
             </div>

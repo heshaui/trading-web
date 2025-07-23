@@ -6,9 +6,9 @@ const MaskableAmount = ({
   content: React.ReactNode;
 }) => {
   return (
-    <div>
-      <span>{show ? content : "****"}</span>
-    </div>
+    <>
+      {show ? content : "****"}
+    </>
   );
 };
 
