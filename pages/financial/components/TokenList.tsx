@@ -226,6 +226,7 @@ const TokenList = observer(() => {
 
   // 列配置
   const columns: ColumnsType<FinancialPageTokenItem> = [
+    // 币种
     {
       title: t("common.token"),
       dataIndex: "coinName",
@@ -246,6 +247,7 @@ const TokenList = observer(() => {
         </div>
       ),
     },
+    // 年化利率
     {
       title: t("common.annualRate"),
       dataIndex: "minInterestRate",
@@ -256,11 +258,16 @@ const TokenList = observer(() => {
           className="flex items-center gap-[10px]"
           style={{ color: "#00C788" }}
         >
-          <span>{record.minInterestRate}%</span>~
+          {record.minInterestRate ? (
+            <>
+              <span>{record.minInterestRate}%</span>~
+            </>
+          ) : null}
           <span>{record.maxInterestRate}%</span>
         </div>
       ),
     },
+    // 期限
     {
       title: t("common.period"),
       dataIndex: "termType",
@@ -277,6 +284,7 @@ const TokenList = observer(() => {
         </div>
       ),
     },
+    // 操作
     {
       title: t("common.operation"),
       dataIndex: "action",
