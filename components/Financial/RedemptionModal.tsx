@@ -77,28 +77,6 @@ const RedemptionModal = ({
     form.validateFields().then(async (values) => {
       if (!values) return;
       try {
-        if (curProductInfo?.type === FinancialType.CURRENT) {
-          // 不是数字报错
-          if (isNaN(Number(redeemMoney))) {
-            return message.error(t("common.pleaseEnterTheRedeemAmount"));
-          }
-
-          // 小于0报错
-          if (Number(redeemMoney) <= 0) {
-            return message.error(t("common.pleaseEnterTheRedeemAmount"));
-          }
-
-          // 大于总资产报错
-          if (Number(redeemMoney) > Number(redeemInfo.totalAssets)) {
-            return message.error(t("common.pleaseEnterTheRedeemAmount"));
-          }
-
-          // 大于今日赎回上限报错
-          if (Number(redeemMoney) > Number(redeemInfo.redeemLimit)) {
-            return message.error(t("common.pleaseEnterTheRedeemAmount"));
-          }
-        }
-
         setLoading(true);
         if (!curProductInfo) return;
         const res = await financialAccountRedemption({
@@ -289,12 +267,55 @@ const RedemptionModal = ({
                   </div>
                   {/* 输入框 */}
                   <Form.Item
-                    noStyle
+                    style={{ marginBottom: 0 }}
                     name="redeemMoney"
                     rules={[
+                      // 必填
                       {
                         required: true,
                         message: t("common.pleaseEnterTheRedeemAmount"),
+                      },
+                      // 必须是数字
+                      {
+                        validator: (_, value) => {
+                          // 如果没有输入值，不进行范围校验，让required规则单独处理
+                          if (!value || value === "") {
+                            return Promise.resolve();
+                          }
+
+                          // 如果不是数字 则返回错误(请输入数字)
+                          if (isNaN(Number(value))) {
+                            return Promise.reject(
+                              new Error(t("common.pleaseEnterTheNumber"))
+                            );
+                          }
+
+                          // 小于0报错
+                          if (Number(value) <= 0) {
+                            return Promise.reject(
+                              new Error(t("common.redeemAmountCannotBeLessThanOrEqualTo0"))
+                            );
+                          }
+                          // 大于总资产报错
+                          if (Number(value) > Number(redeemInfo.totalAssets)) {
+                            return Promise.reject(
+                              new Error(t("common.insufficientBalance"))
+                            );
+                          }
+
+                          // 超过今日赎回上限报错
+                          if (Number(value) > Number(redeemInfo.redeemLimit)) {
+                            return Promise.reject(
+                              new Error(
+                                `${t(
+                                  "common.todayRedeemLimit"
+                                )}${redeemInfo.redeemLimit}`
+                              )
+                            );
+                          }
+
+                          return Promise.resolve();
+                        },
                       },
                     ]}
                   >
