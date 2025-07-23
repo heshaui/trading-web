@@ -20,6 +20,7 @@ import {
   getProductFilterOptions,
   ProductFilterOptionsItem,
   FunctionEnabledStatusEnum,
+  FunctionSwitchStatusEnum,
 } from "@/services/financial";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import { NoData } from "@/components/noData";
@@ -620,7 +621,8 @@ const TokenList = observer(() => {
                             >
                               {t("common.login")}
                             </Button>
-                          ) : (
+                          ) : financialConfig.financialSwitch ===
+                          FunctionSwitchStatusEnum.CLOSE ? null : (
                             btnMap(record, productRecord)
                           )}
                         </>

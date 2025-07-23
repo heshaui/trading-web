@@ -9,7 +9,10 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import { Image, Modal, Tooltip } from "antd";
-import { FunctionEnabledStatusEnum } from "@/services/financial";
+import {
+  FunctionEnabledStatusEnum,
+  FunctionSwitchStatusEnum,
+} from "@/services/financial";
 import { useRouter } from "next/router";
 import { createStyles } from "antd-style";
 import { useThemeMode } from "@/hooks/useThemeMode";
@@ -224,11 +227,19 @@ const MyFinancial = observer(() => {
                       <div
                         className="w-[24px] h-[24px] cursor-pointer"
                         onClick={() => {
+                          // 没登录
                           if (!isLoggedIn) {
                             router.push("/login");
-                          } else {
-                            router.push("/financialOrder");
                           }
+                          // 没开启
+                          if (
+                            financialConfig.financialSwitch ===
+                            FunctionSwitchStatusEnum.CLOSE
+                          ) {
+                            return;
+                          }
+                          // 跳转
+                          router.push("/financialOrder");
                         }}
                       >
                         <Image
@@ -242,11 +253,19 @@ const MyFinancial = observer(() => {
                       <div
                         className="w-[24px] h-[24px] cursor-pointer"
                         onClick={() => {
+                          // 没登录
                           if (!isLoggedIn) {
-                            router.push("/login");
-                          } else {
-                            router.push("/assets/financial");
+                            return router.push("/login");
                           }
+                          // 没开启
+                          if (
+                            financialConfig.financialSwitch ===
+                            FunctionSwitchStatusEnum.CLOSE
+                          ) {
+                            return;
+                          }
+                          // 跳转
+                          router.push("/assets/financial");
                         }}
                       >
                         <Image
@@ -268,7 +287,10 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }} className="break-all">
+                            <div
+                              style={{ fontFamily: "DIN" }}
+                              className="break-all"
+                            >
                               {
                                 // 有汇率的存在
                                 current.rate
@@ -301,7 +323,10 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap justify-center">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }} className="text-content break-all">
+                            <div
+                              style={{ fontFamily: "DIN" }}
+                              className="text-content break-all"
+                            >
                               {
                                 // 有汇率的存在
                                 current.rate
@@ -334,7 +359,10 @@ const MyFinancial = observer(() => {
                         content={
                           <div className="flex flex-wrap justify-end">
                             <div>≈ {current.symbol}</div>
-                            <div style={{ fontFamily: "DIN" }} className="break-all">
+                            <div
+                              style={{ fontFamily: "DIN" }}
+                              className="break-all"
+                            >
                               {
                                 // 有汇率的存在
                                 current.rate
