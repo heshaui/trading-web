@@ -503,17 +503,20 @@ const Subscription: React.FC<SubscriptionProps> = ({
             </>
           </div>
         )}
-        {/* 提示 isRedemption === 1 支持提前赎回 并且为定期产品*/}
-        {productInfo?.isRedemption === OpenStatusEnum.YES &&
-        productInfo?.type === FinancialType.FIXED ? (
+        {/* 提示 为定期产品*/}
+        {productInfo?.type === FinancialType.FIXED ? (
           <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
             <SvgIcon
               width={16}
               height={16}
               path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
             />
-            <div>
-              {t("common.thisProductSupportsEarlyRedemption")}{" "}
+            <div className="flex flex-ai-center gap-[10px]">
+              <span>
+                {productInfo?.isRedemption === OpenStatusEnum.YES
+                  ? t("common.thisProductSupportsEarlyRedemption")
+                  : t("common.thisProductDoesNotSupportEarlyRedemption")}
+              </span>
               <span className="cursor-pointer" onClick={() => setTabsKey("2")}>
                 {t("common.viewRules")}
               </span>
