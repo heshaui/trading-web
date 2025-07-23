@@ -1,0 +1,488 @@
+/* 计算器模式样式 */
+.calculatorMode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.calculatorOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+  pointer-events: auto;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.calculatorModeBox {
+  background: var(--background5, #ffffff);
+  border-radius: 8px 0 0 8px;
+  padding: 24px;
+  width: 380px;
+  height: 100vh;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  border: none;
+  border-left: 1px solid var(--border-color4, #e0e0e0);
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  overflow-y: auto;
+  pointer-events: auto;
+  transform: translateX(100%);
+  animation: slideInFromRight 0.3s ease forwards;
+}
+
+@keyframes slideInFromRight {
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slideOut {
+  animation: slideOutToRight 0.3s ease forwards !important;
+}
+
+@keyframes slideOutToRight {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease forwards !important;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+/* 计算器标题栏 */
+.calculatorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: -24px -24px 20px -24px;
+  padding: 16px 24px;
+  background: var(--background6, #f8f9fa);
+  border-bottom: 1px solid var(--border-color4, #e0e0e0);
+  position: sticky;
+  top: -24px;
+  z-index: 10;
+}
+
+.calculatorTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color1, #333333);
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color6, #999999);
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  color: var(--text-color1, #333333);
+  background: var(--background5, #ffffff);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 计算器标签 */
+.calculatorTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.calculatorTab {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color4, #e0e0e0);
+  background: var(--background5, #ffffff);
+  color: var(--text-color5, #666666);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.calculatorTab:hover {
+  border-color: var(--theme-color, #ff6b35);
+  color: var(--theme-color, #ff6b35);
+}
+
+.calculatorTabActive {
+  background: var(--theme-color, #ff6b35);
+  border-color: var(--theme-color, #ff6b35);
+  color: #ffffff !important;
+}
+
+/* 分类选择框 */
+.categorySelectBox {
+  position: relative;
+  display: flex;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background: var(--background6, #f5f5f5);
+  padding: 4px;
+}
+
+.tabActiveBg {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  border-radius: 6px;
+  transition: left 0.3s ease;
+  z-index: 1;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 16px;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+}
+
+/* 杠杆调节器 */
+.addAndSub {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--background6);
+}
+
+.addAndSub .label {
+  font-size: 14px;
+  color: var(--text-color5);
+  margin-right: 16px;
+  min-width: 40px;
+}
+
+.addAndSub .content {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.addAndSub .content input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color4);
+  border-radius: 6px;
+  background: var(--background5);
+  font-size: 14px;
+  text-align: center;
+}
+
+.addAndSub .options {
+  display: flex;
+  gap: 8px;
+}
+
+.addAndSub .options .add,
+.addAndSub .options .sub {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color4);
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--background5);
+  color: var(--text-color5);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.addAndSub .options .add:hover,
+.addAndSub .options .sub:hover {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+  background: var(--background7);
+}
+
+/* 拖拽滑块 */
+.transactionDrag {
+  position: relative;
+  height: 40px;
+  margin-bottom: 16px;
+  padding: 0 12px;
+}
+
+.dragDef {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 12px;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+}
+
+.dragBar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.dragStep {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: left 0.2s ease;
+  z-index: 3;
+}
+
+.dragStep .value {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+
+.dragStep .arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--background6);
+}
+
+/* 刻度标记 */
+.dragStep0,
+.dragStep1,
+.dragStep2,
+.dragStep3,
+.dragStep4,
+.dragStep5 {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--border-color4);
+  z-index: 2;
+}
+
+.dragStep0 .mark,
+.dragStep1 .mark,
+.dragStep2 .mark,
+.dragStep3 .mark,
+.dragStep4 .mark,
+.dragStep5 .mark {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-color6);
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+/* 最大持仓提示 */
+.maxCanOpen {
+  font-size: 13px;
+  color: var(--text-color6, #999999);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.maxNumber {
+  color: var(--theme-color, #ff6b35);
+  font-weight: 500;
+}
+
+/* 表单样式 */
+.calculatorModeBox :global(.ant-form) {
+  margin-bottom: 20px;
+}
+
+.calculatorModeBox :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.calculatorModeBox :global(.ant-form-item-label) {
+  padding: 0 0 8px 0;
+}
+
+.calculatorModeBox :global(.ant-form-item-label > label) {
+  font-size: 14px;
+  color: var(--text-color5);
+  font-weight: 500;
+}
+
+.calculatorModeBox :global(.ant-input) {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color4);
+  background: var(--background6);
+  color: var(--text-color5);
+  font-size: 14px;
+}
+
+.calculatorModeBox :global(.ant-input:hover) {
+  border-color: var(--theme-color);
+}
+
+.calculatorModeBox :global(.ant-input:focus) {
+  border-color: var(--theme-color);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+}
+
+.calculatorModeBox :global(.ant-input-suffix) {
+  color: var(--text-color6);
+  font-size: 12px;
+}
+
+/* 计算按钮 */
+.calculatorModeBox :global(.ant-btn) {
+  height: 40px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  background: var(--theme-color);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.calculatorModeBox :global(.ant-btn:hover:not(:disabled)) {
+  background: var(--theme-color);
+  opacity: 0.9;
+}
+
+.calculatorModeBox :global(.ant-btn:disabled) {
+  background: var(--background7);
+  color: var(--text-color6);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 计算结果区域 */
+.formInfo {
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  background: var(--background6, #f8f9fa);
+  border: 1px solid var(--border-color4, #e0e0e0);
+}
+
+.formInfo .tit,
+.formInfoTitle {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--text-color1, #333333);
+}
+
+.formInfo .infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.formInfo .infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.formInfo .text1 {
+  font-size: 13px;
+  color: var(--text-color6);
+}
+
+.formInfo .text2 {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.formInfo .warningText {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .calculatorModeBox {
+    width: 100vw;
+    border-radius: 0;
+    border-left: none;
+    padding: 16px;
+  }
+  
+  .calculatorHeader {
+    margin: -16px -16px 16px -16px;
+    padding: 12px 16px;
+  }
+  
+  .transactionDrag {
+    padding: 0 8px;
+  }
+  
+  .dragDef {
+    left: 8px;
+    right: 8px;
+  }
+}
+  
+  
+  
+  
+  

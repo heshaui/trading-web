@@ -11,7 +11,6 @@ import { SearchOutlined } from '@ant-design/icons';
 import OrderBook from "../../compontents/OrderBook";
 import ContractTradingPanel from "@/modules/contract/compontents/ContractTradingPanel";
 import RiskDisclosureModal from "../../compontents/RiskDisclosureModal";
-import SpotTablePage from "../../../spot/pages/compontents/spotChart_table";
 import SymbolSelector from "../../compontents/SymbolSelector";
 import styles from "./trade.module.css";
 import WebSocketService from "@/utils/websocket";
@@ -123,14 +122,38 @@ const TradePage = () => {
     if (!publicInfo.wsUrl) return;
 
     const ws = new WebSocketService(publicInfo.wsUrl.replace(';', ''));
+    // const event = {
+    //   "event": "sub",
+    //   "params": {
+    //     "channel": "market_btcusdt_kline_1min",
+    //     "cb_id": "btcusdt",
+    //   }
+    // };
+
     const event = {
-      "event": "req",
+      "event": "sub",
       "params": {
-        "channel": "market_S-BTC-USDT_kline_1min",
-        "cb_id": "S-BTC-USDT",
-        "pageSize": 50
+        "channel": "market_btcusdt_depth_step0",
+        "cb_id": "btcusdt",
       }
     };
+    const event2 = {
+      "event": "sub",
+      "params": {
+        "channel": "market_btcusdt_kline_1D",
+        "cb_id": "btcusdt",
+      }
+    };
+
+    const event3 = {
+        "event": "sub",
+        "params": {
+          "channel": "market_btcusdt_trade_ticker",
+          "cb_id": "btcusdt",
+          "top": 100             // 获取最新100条成交记录
+        }
+      }
+
 
     // 消息处理回调 
     const handleMessage = (message: string) => {
@@ -171,6 +194,8 @@ const TradePage = () => {
     ws.setOnConnectedCallback(() => {
       console.log('WebSocket连接成功，发送订阅请求');
       ws.send(JSON.stringify(event));
+      ws.send(JSON.stringify(event2));
+      ws.send(JSON.stringify(event3));
     });
 
     // 建立连接
@@ -190,23 +215,21 @@ const TradePage = () => {
 
   // 处理订单提交
   const handleOrderSubmit = async (orderData: any) => {
+    const params = {
+      contractId: publicInfo.contractList[0].id,
+      ...orderData,
+
+    }
     console.log('Order submitted:', orderData);
     // 这里处理订单提交逻辑
 
- const res = await createOrder({
-
-      contractId: "btc_usdt_perpetual",
-      side: orderData.side,
-      orderType: 1,
-      price: orderData.price,
-      volume: orderData.quantity, 
-      transactionType: orderData.type,
-      leverageLevel: orderData.leverage,
-      marginModel: orderData.marginMode,
-      onlyClose: false,
-    });
+ const res = await createOrder(params);
     console.log('res:', res);
-
+    if(res.code === '0'){
+      toast.success('订单提交成功');
+    }else{
+      toast.error(res.msg);
+    }
   };
 
   // 处理风险确认书

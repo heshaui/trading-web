@@ -102,26 +102,26 @@ class WebSocketService {
               // 这是gzip压缩数据，需要解压
               console.log('检测到gzip压缩数据，需要解压缩');
               this.decompressData(uint8Array, 'gzip').then(decompressed => {
-                this.messageCallback(decompressed);
+                this.messageCallback?.(decompressed);
               }).catch(error => {
                 console.error('gzip解压失败:', error);
                 // 尝试直接解码
                 const decoder = new TextDecoder('utf-8');
                 messageData = decoder.decode(messageData);
-                this.messageCallback(messageData);
+                this.messageCallback?.(messageData);
               });
               return;
             } else if (uint8Array.length >= 2 && uint8Array[0] === 0x78) {
               // 可能是deflate压缩数据 (zlib header: 0x78)
               console.log('检测到可能的deflate压缩数据');
               this.decompressData(uint8Array, 'deflate').then(decompressed => {
-                this.messageCallback(decompressed);
+                this.messageCallback?.(decompressed);
               }).catch(error => {
                 console.error('deflate解压失败:', error);
                 // 尝试直接解码
                 const decoder = new TextDecoder('utf-8');
                 messageData = decoder.decode(messageData);
-                this.messageCallback(messageData);
+                this.messageCallback?.(messageData);
               });
               return;
             } else {
@@ -142,7 +142,7 @@ class WebSocketService {
                     break;
                   }
                 } catch (e) {
-                  console.log(`${encoding} 编码失败:`, e.message);
+                  console.log(`${encoding} 编码失败:`, e instanceof Error ? e.message : String(e));
                 }
               }
               
@@ -159,7 +159,7 @@ class WebSocketService {
           }
         }
         
-        this.messageCallback(messageData);
+        this.messageCallback?.(messageData);
       }
     };
 

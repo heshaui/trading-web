@@ -19,21 +19,19 @@
 
 .marginBtn,
 .leverageBtn {
-  height: 32px;
+  height: 28px;
+  width: 72px;
   padding: 0 16px;
   border-radius: 18px;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
   color: #333;
   border: none;
-  background: transparent;
+  background: rgba(245, 245, 245, 1);
   transition: all 0.2s;
+  margin-right: 10px;
 }
 
-.marginBtn {
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+
 
 .leverageBtn:hover {
   background-color: rgba(255, 255, 255, 0.5);

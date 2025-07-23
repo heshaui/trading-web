@@ -20,16 +20,16 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   onLeverageChange,
   symbol = 'BTCUSDT',
   maxLeverage = 125,
-  positionLimit = 815.4018
+  positionLimit = 815.402
 }) => {
-  const [tempLeverage, setTempLeverage] = useState(currentLeverage);
+  const [tempLeverage, setTempLeverage] = useState(50); // 默认设置为50，与图片一致
 
-  // 当弹框打开时，重置临时杠杆值
+  // 当弹框打开时，重置临时杠杆值为50（与图片一致）
   React.useEffect(() => {
     if (visible) {
-      setTempLeverage(currentLeverage);
+      setTempLeverage(50);
     }
-  }, [visible, currentLeverage]);
+  }, [visible]);
 
   const handleConfirm = () => {
     onLeverageChange(tempLeverage);
@@ -46,8 +46,17 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
     }
   };
 
-  // 预设杠杆倍数
-  const leveragePresets = [1, 25, 50, 75, 100, 125];
+  // 预设杠杆倍数 - 根据图片调整为5个点
+  const leveragePresets = [1, 25, 50, 100, 125];
+
+  // 创建slider的marks
+  const marks = {
+    1: '1x',
+    25: '25x',
+    50: '50x',
+    100: '100x',
+    125: '125x'
+  };
 
   return (
     <Modal
@@ -59,83 +68,80 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       closeIcon={<Iconify icon="mdi:close" />}
     >
       <div className={styles.modalContent}>
-        <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>{symbol} 合约杠杆</h3>
+        {/* 标题 */}
+        <div className={styles.title}>
+          {symbol} 合约杠杆
         </div>
 
-        <div className={styles.leverageInfo}>
-          <div className={styles.infoText}>
-            当前持仓支持杠杆范围 [1,{maxLeverage}]
-          </div>
+        {/* 当前持仓支持杠杆范围 */}
+        <div className={styles.supportRange}>
+          当前持仓支持杠杆范围 【1,125】
         </div>
 
+        {/* 杠杆输入区域 */}
         <div className={styles.leverageInputSection}>
-          <div className={styles.leverageDisplay}>
+          <div className={styles.leverageInput}>
             <InputNumber
               value={tempLeverage}
               onChange={handleInputChange}
               min={1}
               max={maxLeverage}
-              className={styles.leverageInput}
-              controls={{
-                upIcon: <Iconify icon="mdi:chevron-up" />,
-                downIcon: <Iconify icon="mdi:chevron-down" />
-              }}
+              className={styles.leverageInputNumber}
             />
             <span className={styles.leverageUnit}>x</span>
           </div>
+          <div className={styles.leverageArrows}>
+            <Button
+              type="text"
+              icon={<Iconify icon="mdi:chevron-up" />}
+              onClick={() => handleInputChange(Math.min(tempLeverage + 1, maxLeverage))}
+              className={styles.arrowButton}
+            />
+            <Button
+              type="text"
+              icon={<Iconify icon="mdi:chevron-down" />}
+              onClick={() => handleInputChange(Math.max(tempLeverage - 1, 1))}
+              className={styles.arrowButton}
+            />
+          </div>
         </div>
 
+        {/* 杠杆滑块 */}
         <div className={styles.sliderSection}>
           <Slider
-            value={tempLeverage}
-            onChange={handleSliderChange}
             min={1}
             max={maxLeverage}
+            marks={marks}
             step={1}
+            value={tempLeverage}
+            onChange={handleSliderChange}
             className={styles.leverageSlider}
-            tooltip={{ formatter: (value) => `${value}x` }}
-            marks={{
-              1: '',
-              25: '',
-              50: '',
-              75: '',
-              100: '',
-              125: ''
-            }}
+            trackStyle={{ backgroundColor: '#FF6B35' }}
+            handleStyle={{ borderColor: '#FF6B35', backgroundColor: '#FF6B35' }}
+            railStyle={{ backgroundColor: '#f0f0f0' }}
           />
-          
-          <div className={styles.presetButtons}>
-            {leveragePresets.map(preset => (
-              <button
-                key={preset}
-                onClick={() => setTempLeverage(preset)}
-                className={`${styles.presetBtn} ${tempLeverage === preset ? styles.activePreset : ''}`}
-              >
-                {preset}x
-              </button>
-            ))}
-          </div>
         </div>
 
-        <div className={styles.positionInfo}>
-          <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>持仓上限</span>
-            <span className={styles.infoValue}>{positionLimit} BTC</span>
-          </div>
+        {/* 风险提示 */}
+        <div className={styles.riskWarning}>
+          选择高杠杆会增加强行平仓风险
         </div>
 
-        <div className={styles.actionButton}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={handleConfirm}
-            className={styles.confirmButton}
-            block
-          >
-            确认
-          </Button>
+        {/* 持仓上限 */}
+        <div className={styles.positionLimit}>
+          <span className={styles.limitLabel}>持仓上限</span>
+          <span className={styles.limitValue}>{positionLimit}USDT</span>
         </div>
+
+        {/* 确认按钮 */}
+        <Button
+          type="primary"
+          onClick={handleConfirm}
+          className={styles.confirmButton}
+          block
+        >
+          确认
+        </Button>
       </div>
     </Modal>
   );

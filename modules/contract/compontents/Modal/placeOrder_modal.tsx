@@ -62,14 +62,13 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
         console.log('提交订单');
         
         // 如果用户选择不再提醒，保存到本地存储
-        if (noRemind) {
+        if (noRemind && modalData) {
             console.log(modalData,'modalData')
             if(modalData.type===1){
                 localStorage.setItem('limitOrderConfirm', 'false');
             }else{
                 localStorage.setItem('marketOrderConfirm', 'false');
             }
-            
         }
         
         onOk(true)
@@ -164,7 +163,7 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                     <p className={`font-18 font-w-500 ${styles.title_color}`}>{currentPair?.coinSymbol}/{currentPair?.baseSymbol}</p>
                     <p className={`${styles.success_icon} font-14 font-w-400 mt-1`}>
                         {/* 买入/市价 */}
-                        {modalData.direction===0?t('spot.modal.buy'):t('spot.modal.sell')} / {modalData.type===0?t('spot.modal.market'):t('spot.select.limit')}
+                        {modalData?.direction===0?t('spot.modal.buy'):t('spot.modal.sell')} / {modalData?.type===0?t('spot.modal.market'):t('spot.select.limit')}
                         </p>
                     <ul className={`${styles.tip_color1} ${styles.msg_card_box} font-14 font-w-400 mt-4 mb-2_5`}>
                         <li className="flex-x align-center justify-between">
@@ -174,31 +173,31 @@ function NicknameModal({ open, onCancel, onOk ,orderInfo,modalData}: Props) {
                             </p>
                             <p className={`${styles.title_color}`}>
                                 {/* 市价 */}
-                                {modalData.type===0?t('spot.modal.market'):modalData.price}{currentPair?.baseSymbol}
+                                {modalData?.type===0?t('spot.modal.market'):modalData?.price}{currentPair?.baseSymbol}
                             </p>
                         </li>
                         {/* 市价买单不显示数量 */}
-                        {!(modalData.type===0 && modalData.direction===0) && (
+                        {!(modalData?.type===0 && modalData?.direction===0) && (
                             <li className="flex-x align-center justify-between mt-3">
                                 <p>
                                     {/* 数量 */}
                                     {t('spot.modal.amount')}
                                 </p>
-                                <p className={`${styles.title_color}`}>{modalData.amount}{currentPair?.coinSymbol}</p>
+                                <p className={`${styles.title_color}`}>{modalData?.amount}{currentPair?.coinSymbol}</p>
                             </li>
                         )}
                         {/* 市价卖单不显示成交额 */}
-                        {!(modalData.type===0 && modalData.direction===1) && (
+                        {!(modalData?.type===0 && modalData?.direction===1) && (
                             <li className="flex-x align-center justify-between mt-3">
                                 <p>
                                     {/* 成交额 */}
                                     {t('spot.trade.amount2')}
                                 </p>
-                                <p className={`${styles.title_color}`}>{modalData.account}{currentPair?.baseSymbol}</p>
+                                <p className={`${styles.title_color}`}>{modalData?.account}{currentPair?.baseSymbol}</p>
                             </li>
                         )}
                     </ul>
-                  { modalData.type===0 && <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `} >
+                  { modalData?.type===0 && <div className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `} >
                         <Iconify icon="ep:warning-filled" className="warning_color mr-1" size={16} />
                         <span>
                             {/* 市场行情千变万化，市价单交易伴随着滑点，其最终成交价可能低于/高于最新价，请留意市场深度及价格波动 */}

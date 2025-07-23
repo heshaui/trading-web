@@ -1,324 +1,213 @@
 .leverageModal {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
 .leverageModal .ant-modal-content {
   border-radius: 12px;
   overflow: hidden;
-}
-
-.leverageModal .ant-modal-header {
-  border-bottom: none;
-  padding: 0;
-}
-
-.leverageModal .ant-modal-body {
-  padding: 0;
+  background: #ffffff;
 }
 
 .modalContent {
-  padding: 12px;
+  padding: 24px;
 }
 
-.modalHeader {
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.modalTitle {
+.title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
-  margin: 0;
+  color: #333333;
+  margin-bottom: 16px;
+  text-align: left;
 }
 
-.leverageInfo {
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.infoText {
+.supportRange {
   font-size: 14px;
-  color: #666;
+  color: #666666;
+  margin-bottom: 24px;
 }
 
 .leverageInputSection {
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: center;
-}
-
-.leverageDisplay {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 12px;
+  margin-bottom: 32px;
+  gap: 12px;
 }
 
 .leverageInput {
-  border: none;
-  background: transparent;
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  width: 100px;
-  text-align: center;
-}
-
-.leverageInput .ant-input-number-input {
-  font-size: 28px;
-  font-weight: 700;
-  text-align: center;
-  border: none;
-  background: transparent;
-  color: #333;
-}
-
-.leverageInput .ant-input-number-handler-wrap {
-  background: transparent;
-  border-left: 1px solid #e9ecef;
-  opacity: 1;
-  width: 24px;
-}
-
-.leverageInput .ant-input-number-handler {
-  border: none;
-  background: transparent;
-  color: #999;
-  height: 50%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 12px 20px;
+  background: #f5f5f5;
+  min-width: 140px;
+  gap: 8px;
 }
 
-.leverageInput .ant-input-number-handler:hover {
-  color: #666;
-  background-color: #f0f0f0;
+.leverageInputNumber {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 600;
+  width: 80px;
 }
 
-.leverageInput .ant-input-number-handler-up {
-  border-bottom: 1px solid #e9ecef;
-}
-
-.leverageInput .ant-input-number-handler-up-inner,
-.leverageInput .ant-input-number-handler-down-inner {
-  font-size: 12px;
+.leverageInputNumber .ant-input-number-input {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: left;
+  color: #333333;
 }
 
 .leverageUnit {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
+  font-size: 18px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.leverageArrows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.arrowButton {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #666666;
+}
+
+.arrowButton:hover {
+  border-color: #FF6B35;
+  color: #FF6B35;
+  background: #fff8f6;
 }
 
 .sliderSection {
   margin-bottom: 24px;
-  padding: 0 12px;
 }
 
 .leverageSlider {
-  margin-bottom: 8px;
+  margin: 20px 0 36px 0;
+  padding: 0 12px;
 }
 
 .leverageSlider .ant-slider-rail {
-  background-color: #e9ecef;
+  background-color: #e0e0e0;
   height: 4px;
   border-radius: 2px;
 }
 
 .leverageSlider .ant-slider-track {
-  background-color: #FFD700;
+  background-color: #FF6B35;
   height: 4px;
   border-radius: 2px;
 }
 
-.leverageSlider .ant-slider-dot {
-  width: 12px;
-  height: 12px;
-  border: 2px solid #e9ecef;
-  background-color: #ffffff;
-  margin-top: -4px;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.leverageSlider .ant-slider-dot-active {
-  border-color: #FFD700;
-  background-color: #FFD700;
-}
-
-.leverageSlider .ant-slider-mark {
-  top: 25px;
-}
-
-.leverageSlider .ant-slider-mark-text {
-  display: none;
-}
-
 .leverageSlider .ant-slider-handle {
-  border: 3px solid #FFD700;
-  background-color: #FFD700;
+  border: 3px solid #FF6B35;
+  background-color: #ffffff;
   width: 18px;
   height: 18px;
   margin-top: -7px;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.leverageSlider .ant-slider-handle:focus {
-  box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
 }
 
 .leverageSlider .ant-slider-handle:hover {
-  border-color: #FFC700;
-  background-color: #FFC700;
-  transform: scale(1.1);
+  border-color: #FF6B35;
+  box-shadow: 0 3px 12px rgba(255, 107, 53, 0.35);
 }
 
-.leverageSlider .ant-slider-handle:active {
-  transform: scale(0.95);
+.leverageSlider .ant-slider-handle:focus {
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
 
-.leverageSlider .ant-slider-handle::after {
-  display: none;
-}
-
-.presetButtons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  padding: 0 2px;
-}
-
-.presetBtn {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 30px;
-  text-align: center;
+.leverageSlider .ant-slider-mark-text {
+  font-size: 13px;
+  color: #999999;
   font-weight: 400;
 }
 
-.presetBtn:hover {
-  color: #333;
+.leverageSlider .ant-slider-mark-text-active {
+  color: #FF6B35;
+  font-weight: 500;
 }
 
-.activePreset {
-  color: #FFD700;
-  font-weight: 600;
+.leverageSlider .ant-slider-dot {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #d0d0d0;
+  background-color: #ffffff;
+  margin-top: -3px;
+  border-radius: 50%;
 }
 
-.positionInfo {
+.leverageSlider .ant-slider-dot-active {
+  border-color: #FF6B35;
+  background-color: #FF6B35;
+}
+
+.riskWarning {
+  font-size: 12px;
+  color: #FF6B35;
   margin-bottom: 24px;
-  padding: 16px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  text-align: left;
 }
 
-.infoRow {
+.positionLimit {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid #f0f0f0;
 }
 
-.infoLabel {
+.limitLabel {
   font-size: 14px;
-  color: #666;
+  color: #666666;
 }
 
-.infoValue {
+.limitValue {
   font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.actionButton {
-  margin-top: 20px;
+  color: #333333;
+  font-weight: 500;
 }
 
 .confirmButton {
-  height: 48px;
+  background: #FF6B35;
+  border-color: #FF6B35;
   border-radius: 24px;
+  height: 48px;
   font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  border: none;
-  color: #333;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-  transition: all 0.3s ease;
+  font-weight: 500;
+  margin-top: 8px;
 }
 
 .confirmButton:hover {
-  background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+  background: #e55a2b;
+  border-color: #e55a2b;
 }
 
-.confirmButton:active {
-  transform: translateY(0);
+.confirmButton:focus {
+  background: #e55a2b;
+  border-color: #e55a2b;
 }
 
-/* 响应式设计 */
-@media (max-width: 480px) {
-  .modalContent {
-    padding: 16px;
-  }
-  
-  .modalTitle {
-    font-size: 16px;
-  }
-  
-  .leverageInput {
-    font-size: 24px;
-    width: 80px;
-  }
-  
-  .leverageInput .ant-input-number-input {
-    font-size: 24px;
-  }
-  
-  .leverageUnit {
-    font-size: 24px;
-  }
-  
-  .presetButtons {
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-  }
-  
-  .presetBtn {
-    flex: 0 0 auto;
-    min-width: 40px;
-    padding: 4px 8px;
-    font-size: 12px;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-    background-color: #fff;
-  }
-  
-  .presetBtn:hover {
-    border-color: #FFD700;
-    background-color: #fffbf0;
-  }
-  
-  .activePreset {
-    border-color: #FFD700;
-    background-color: #FFD700;
-    color: #333;
-  }
-  
-  .confirmButton {
-    height: 44px;
-    font-size: 14px;
-  }
-} 
+/* 隐藏 InputNumber 的默认控制按钮 */
+.leverageInputNumber .ant-input-number-handler-wrap {
+  display: none;
+}
+

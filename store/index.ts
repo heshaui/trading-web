@@ -63,9 +63,10 @@ class AppStore {
     flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
     isLoadingFlashConfig: boolean = false;
     usdtRate: usdtRateType={} as usdtRateType
-    
+    // 合约模块------start
     // 添加公共数据状态
     publicInfo: any = {};
+    currentContractInfo: any = {};
     isLoadingPublicInfo: boolean = false;
     
     // 添加用户合约配置状态
@@ -834,6 +835,13 @@ class AppStore {
             const publicInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
             if (publicInfoJson) {
                 this.publicInfo = JSON.parse(publicInfoJson);
+                
+                // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
+                if (!this.currentContractInfo || Object.keys(this.currentContractInfo).length === 0) {
+                    if (this.publicInfo?.contractList && Array.isArray(this.publicInfo.contractList) && this.publicInfo.contractList.length > 0) {
+                        this.currentContractInfo = this.publicInfo.contractList[0];
+                    }
+                }
             }
         } catch (error) {
             console.error('Failed to load public info from storage:', error);
@@ -863,6 +871,14 @@ class AppStore {
 
     setPublicInfo(info: any) {
         this.publicInfo = info;
+        
+        // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
+        if (!this.currentContractInfo || Object.keys(this.currentContractInfo).length === 0) {
+            if (info?.contractList && Array.isArray(info.contractList) && info.contractList.length > 0) {
+                this.currentContractInfo = info.contractList[0];
+            }
+        }
+        
         if (isBrowser()) {
             localStorage.setItem(LOCAL_STORAGE_KEY.PUBLIC_INFO, JSON.stringify(info));
         }
@@ -874,9 +890,25 @@ class AppStore {
 
     clearPublicInfo() {
         this.publicInfo = {};
+        this.currentContractInfo = {};
         if (isBrowser()) {
             localStorage.removeItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
         }
+    }
+
+    // 设置当前合约信息
+    setCurrentContractInfo(contractInfo: any) {
+        this.currentContractInfo = contractInfo;
+    }
+
+    // 获取当前合约信息
+    getCurrentContractInfo() {
+        return this.currentContractInfo;
+    }
+
+    // 清除当前合约信息
+    clearCurrentContractInfo() {
+        this.currentContractInfo = {};
     }
 
     // 用户合约配置相关方法

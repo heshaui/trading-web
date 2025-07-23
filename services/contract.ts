@@ -214,6 +214,7 @@ export const createOrder = async (params: any) => {
       headers: formatHeaders(),
       body: JSON.stringify(formattedParams),
     });
+    return response;
   } catch (error) {
     console.error('创建订单失败:', error);
     throw error;
@@ -290,7 +291,6 @@ export const getAssetsList = async () => {
 };
 
 
-// user/edit_user_page_config
 export const editUserPageConfig = async (params: any) => {
   try {
     const formattedParams = await formatParams(params);
@@ -305,5 +305,18 @@ export const editUserPageConfig = async (params: any) => {
   }
 };
 
-
-
+//调整用户合约杠杆
+export const levelEdit = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/user/level_edit', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('调整合约杠杆失败:', error);
+    throw error;
+  }
+};

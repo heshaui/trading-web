@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, InputNumber, Slider, Select, Switch, Tabs, Form, Space, Tooltip,Checkbox } from 'antd';
+import { Button, Input, InputNumber, Slider, Select, Switch, Tabs, Form, Space, Tooltip,Checkbox,Image } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
 import MarginModeModal from '../MarginModeModal/index';
@@ -7,10 +7,13 @@ import LeverageModal from '../LeverageModal/index';
 import OrderSettingsModal from '../OrderSettingsModal/index';
 import TradingSettingsDrawer from '../TradingSettingsDrawer/index';
 import FundTransferModal from '../FundTransferModal/index';
+import PlaceOrder_modal from '../placeOrder_modal';
+import Calculator from '../Calculator';
 import { transferAll } from "@/services/assets";
 import { toast } from "sonner";
 import { encryptData } from "@/utils/encrypt";
 import styles from './styles.module.css';
+import appStore from '@/store';
 
 const { Option } = Select;
 
@@ -31,28 +34,41 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 }) => {
   const { t } = useTranslation(['contract']);
   const [form] = Form.useForm();
-
+  const currentContractInfo = appStore.getCurrentContractInfo();
+  console.log('currentContractInfo:', currentContractInfo);
   // 状态管理
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
-  const [leverageLevel, setLeverageLevel] = useState(5);
-  const [price, setPrice] = useState(lastPrice);
-  const [quantity, setQuantity] = useState(0);
+  const [leverageLevel, setLeverageLevel] = useState(65);
+  const [price, setPrice] = useState<string | number>(lastPrice);
+  const [quantity, setQuantity] = useState<string | number>(0);
   const [percentage, setPercentage] = useState(0);
   const [enableTPSL, setEnableTPSL] = useState(false);
-  const [takeProfitPrice, setTakeProfitPrice] = useState();
-  const [stopLossPrice, setStopLossPrice] = useState();
+  const [takeProfitPrice, setTakeProfitPrice] = useState<string | number>('');
+  const [stopLossPrice, setStopLossPrice] = useState<string | number>('');
   const [marginModel, setMarginModel] = useState<1 | 2>(1);
   const [showMarginModeModal, setShowMarginModeModal] = useState(false);
   const [showLeverageModal, setShowLeverageModal] = useState(false);
   const [showOrderSettingsModal, setShowOrderSettingsModal] = useState(false);
   const [showTradingSettingsDrawer, setShowTradingSettingsDrawer] = useState(false);
   const [showFundTransferModal, setShowFundTransferModal] = useState(false);
+  const [showOrderConfirmModal, setShowOrderConfirmModal] = useState(false);
   const [orderUnit, setOrderUnit] = useState<'BTC' | 'USDT' | '张'>('BTC');
+  const [showCalculator, setShowCalculator] = useState(false);
   // 新增触发价状态
-  const [triggerPrice, setTriggerPrice] = useState();
+  const [triggerPrice, setTriggerPrice] = useState<string>('');
   const [submitData, setSubmitData] = useState({}); //下单提交数据
-  const [confirmData, setConfirmData] = useState({}); //二次确认数据
+  const [confirmData, setConfirmData] = useState({
+    direction: 0,
+    type: 1,
+    price: '' as string | number,
+    amount: 0 as string | number,
+    account: 0,
+    symbol: symbol,
+    marginMode: 1 as number,
+    leverage: 65,
+    orderType: 'limit'
+  }); //二次确认数据
 
   // 获取当前订单类型
   const getOrderType = () => {
@@ -66,10 +82,13 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   // 计算可买/可卖数量
   const calculateMaxQuantity = () => {
+    const lastPriceNum = typeof lastPrice === 'string' ? parseFloat(lastPrice) : lastPrice;
+    const priceNum = typeof price === 'string' ? parseFloat(price as string) : price;
+    
     if (orderType === 'market') {
-      return availableBalance * leverageLevel / lastPrice;
+      return availableBalance * leverageLevel / (lastPriceNum || 1);
     }
-    return availableBalance * leverageLevel / price;
+    return availableBalance * leverageLevel / (priceNum || 1);
   };
 
   // 处理百分比滑块变化
@@ -86,41 +105,62 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   // 处理订单提交
   const handleSubmit = () => {
-    // const orderData = {
-    //   symbol,
-    //   transactionType: transactionType,
-    //   type: orderType,
-    //   quantity,
-    //   price: orderType === 'market' ? undefined : price,
-    //   triggerPrice: orderType === 'conditional' ? triggerPrice : undefined,
-    //   leverageLevel,
-    //   marginModel,
-    //   takeProfit: enableTPSL ? takeProfitPrice : undefined,
-    //   stopLoss: enableTPSL ? stopLossPrice : undefined,
-    // };
+    // 检查用户是否选择不再提醒
+    const dontShowConfirm = localStorage.getItem('dontShowOrderConfirm') === 'true';
+    
+    if (dontShowConfirm) {
+      // 直接执行下单，不显示确认框
+      handleConfirmOrder(null, false);
+      return;
+    }
 
-    // onOrderSubmit?.(orderData);
+    const orderData = {
+      direction: transactionType === 1 ? 0 : 1, // 0: 买入, 1: 卖出
+      type: currentCategory === 1 ? 1 : 0, // 1: 限价, 0: 市价
+      price: price,
+      amount: quantity,
+      account: (typeof quantity === 'string' ? parseFloat(quantity) : quantity) * (typeof price === 'string' ? parseFloat(price) : price),
+      symbol: symbol,
+      marginMode: marginModel,
+      leverage: leverageLevel,
+      orderType: currentCategory === 1 ? 'limit' : currentCategory === 2 ? 'market' : 'conditional'
+    };
 
-    setSubmitData({
-      contractId: 1, // 合约ID
+    setConfirmData(orderData);
+    setShowOrderConfirmModal(true);
+  };
+
+  // 处理确认下单
+  const handleConfirmOrder = (orderData: any, dontRemind: boolean) => {
+    const data = {
       positionType: 1, // 持仓类型(1 全仓，2 仓逐)
-      side: transactionType === 1 ? 'buy' : 'sell', // 买卖方向（buy 买入，sell 卖出）
+      side: transactionType === 1 ? 'BUY' : 'SELL', // 买卖方向（buy 买入，sell 卖出）
       leverageLevel: leverageLevel, // 杠杆倍数
       price: price, // 下单价格(市价单传0)
       volume: quantity, // 下单数量(开仓 市价单：开仓价值)
       triggerPrice: triggerPrice, // 触发价格
-      open: transactionType === 1 ? 'open' : 'close', // 开平仓方向(open 开仓，close 平仓)
+      open: transactionType === 1 ? 'OPEN' : 'CLOSE', // 开平仓方向(open 开仓，close 平仓)
       type: currentCategory === 1 ? 1 : currentCategory === 2 ? 2 : 3, // 订单类型 (1 limit， 2 market，3 IOC，4 FOK，5 POST_ONLY)
       isConditionOrder: currentCategory === 3, // 是否是条件单
       // expireTime: this.expireTime, // 到期时间
       isOto: enableTPSL, // 是否止盈止损单
-      takerProfitTrigger: takeProfitPrice, // 止盈触发价
+      takerProfitTrigger: takeProfitPrice||null, // 止盈触发价
       takerProfitPrice: 0, // 止盈委托价格（0为市价）
       takerProfitType: 2, // 止盈类型
-      stopLossTrigger: stopLossPrice, // 止损触发价格
+      stopLossTrigger: stopLossPrice||null, // 止损触发价格
       stopLossPrice: 0, // 止损委托价格（0为市价）
       stopLossType: 2, // 止损类型
-    });
+      marginModel: marginModel,
+    }
+    
+    // 如果用户选择不再提醒，可以在这里保存设置
+    if (dontRemind) {
+      // 保存到本地存储或全局状态
+      localStorage.setItem('dontShowOrderConfirm', 'true');
+    }
+    
+    onOrderSubmit?.(data);
+    setShowOrderConfirmModal(false);
   };
 
   // 处理保证金模式变更
@@ -189,6 +229,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         </div>
 
         <div className={styles.toolbarIcons}>
+          <Button
+            type="text"
+            size="small"
+            icon={<Iconify icon="mdi:calculator" />}
+            className={styles.iconBtn}
+            onClick={() => setShowCalculator(true)}
+            title="计算器"
+          />
           <Button
             type="text"
             size="small"
@@ -357,9 +405,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             <Checkbox
               checked={enableTPSL}
               onChange={(e) => setEnableTPSL(e.target.checked)}
-              size="small"
               className={styles.tpslSwitch}
-
             />
              <span className={styles.tpslLabel}>止盈止损</span> 
           </div>
@@ -478,6 +524,27 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         visible={showFundTransferModal}
         onClose={() => setShowFundTransferModal(false)}
         onConfirm={handleFundTransferConfirm}
+      />
+
+      {/* 下单确认弹框 */}
+      <PlaceOrder_modal
+        open={showOrderConfirmModal}
+        modalData={confirmData}
+        onCancel={() => {
+          setShowOrderConfirmModal(false);
+        }}
+        onOk={(confirmed) => {
+          if (confirmed) {
+            handleConfirmOrder(confirmData, false);
+          }
+          setShowOrderConfirmModal(false);
+        }}
+      />
+      {/* 计算器组件 */}
+      <Calculator 
+        isShow={showCalculator} 
+        close={() => setShowCalculator(false)} 
+        dataInfo={currentContractInfo} 
       />
     </div>
   );
