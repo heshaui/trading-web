@@ -120,7 +120,8 @@
     "default": {
       "mainTitle": "스테이킹",
       "subTitle": "낮은 문턱 | 높은 안전성 | 높은 수익률\n원스톱 종합 금융 서비스 센터로, 수시, 정기 금융 솔루션을 보유하여 사용자에게 다양한 종류의 수백 가지 디지털 화폐 금융 상품을 제공합니다",
-      "whatIs": "스테이킹이란?"
+      "whatIs": "스테이킹이란?",
+      "whatIsStaking": "지분담보란 무엇인가?"
     },
 
     "needToCompleteTheFollowingOperations": "구독하기 전에 다음 작업을 완료해야 합니다",

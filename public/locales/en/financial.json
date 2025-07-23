@@ -120,7 +120,8 @@
     "default": {
       "mainTitle": "Staking",
       "subTitle": "Low threshold | High security | High return\nA one-stop comprehensive financial management service center, offering a variety of digital currency financial products, including current and fixed-term financial products, to meet the diverse investment needs of users.",
-      "whatIs": "What is"
+      "whatIs": "What is",
+      "whatIsStaking": "What is Staking?"
     },
 
     "needToCompleteTheFollowingOperations": "You need to complete the following operations before subscribing",

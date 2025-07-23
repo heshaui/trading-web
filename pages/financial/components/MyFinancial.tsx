@@ -158,9 +158,9 @@ const MyFinancial = observer(() => {
           backgroundPosition: "center",
         }}
       >
-        <div className="max-w-[1200px] mx-auto flex gap-[60px]">
+        <div className="w-[1200px] mx-auto flex gap-[60px] justify-between">
           {/* 左侧内容 */}
-          <div className="flex-1 max-w-[calc(100%-471px)]">
+          <div className="flex-1 max-w-[calc(100%-471px-60px)] flex-shrink-0">
             <div className="font-w-600 text-[48px] mb-[16px] leading-[normal] text-[var(--text-color5)]">
               {bgContent.mainTitle}
             </div>
@@ -174,7 +174,7 @@ const MyFinancial = observer(() => {
                   className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
                   onClick={openProblem}
                 >
-                  {t("financial.default.whatIs")} {bgContent.mainTitle}？
+                  {t("financial.default.whatIsStaking")}
                 </div>
               )}
           </div>
@@ -384,7 +384,7 @@ const MyFinancial = observer(() => {
         }}
       >
         <div className="text-[var(--text-color5)] text-[16px] font-bold p-[19px_20px_16px_20px]">
-          {t("financial.default.whatIs")} {bgContent.mainTitle}？
+          {t("financial.default.whatIsStaking")}
         </div>
         <div className="text-[var(--text-color6)] text-[14px] p-[0_20px_20px_20px]">
           {t("financial.questionStaking.answer")}
