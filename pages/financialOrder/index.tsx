@@ -98,7 +98,9 @@ const TabsItem = ({
                 style={{ borderRadius: "50%" }}
               />
             )}
-            <div className="text-[14px]">{record.coinName}</div>
+            <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+              {record.coinName}
+            </div>
           </Flex>
         );
       },
@@ -113,7 +115,7 @@ const TabsItem = ({
       width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss")}
           </div>
         );
@@ -131,10 +133,10 @@ const TabsItem = ({
         return (
           <>
             {record.status == FinancialOrderTypeEnum.PURCHASE && (
-              <div className="text-[14px]">{t("common.subscribe")}</div>
+              <div className="text-[14px] text-[var(--text-color5)] font-[500]">{t("common.subscribe")}</div>
             )}
             {record.status == FinancialOrderTypeEnum.REDEEM && (
-              <div className="text-[14px]">{t("common.redeem")}</div>
+              <div className="text-[14px] text-[var(--text-color5)] font-[500]">{t("common.redeem")}</div>
             )}
           </>
         );
@@ -150,10 +152,9 @@ const TabsItem = ({
       width: type === FinancialType.FIXED ? 180 : "20%",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
-              {getCoinRound(record.coinName, record.amount)}{" "}
-              {record.coinName}
+              {getCoinRound(record.coinName, record.amount)} {record.coinName}
             </div>
             <div>
               ≈ {current.symbol}{" "}
@@ -187,7 +188,7 @@ const TabsItem = ({
             align: "right" as const,
             render: (_: any, record: FinancialOrderItem) => {
               return (
-                <div className="text-[14px]">
+                <div className="text-[14px] text-[var(--text-color5)] font-[500]">
                   {record.term ? record.term : "-"}
                 </div>
               );
@@ -206,7 +207,7 @@ const TabsItem = ({
       render: (_: any, record: FinancialOrderItem) => {
         const resultStatus = record.resultStatus;
         return resultStatus !== null && resultStatus !== undefined ? (
-          <div className="text-[var(--text-color5)] font-[400] text-[14px]">
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             {t(resultStatusMap[resultStatus].text)}
           </div>
         ) : (

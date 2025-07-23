@@ -69,7 +69,13 @@ const Financial = observer(() => {
       key: "createTime",
       width: "20%",
       render: (text: number) => {
-        return text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "--";
+        return text ? (
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+            {dayjs(text).format("YYYY-MM-DD HH:mm:ss")}
+          </div>
+        ) : (
+          "--"
+        );
       },
     },
 
@@ -79,6 +85,13 @@ const Financial = observer(() => {
       dataIndex: "coinName",
       key: "coinName",
       width: "20%",
+      render: (_: any, record: FinancialAccountBillDetailsItem) => {
+        return (
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+            {record.coinName}
+          </div>
+        );
+      },
     },
 
     // 类型
@@ -88,9 +101,15 @@ const Financial = observer(() => {
       key: "type",
       width: "20%",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
-        return record.type === FinancialType.CURRENT
-          ? t("common.current")
-          : t("common.fixed");
+        return (
+          record.type === FinancialType.CURRENT
+          ? <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+              {t("common.current")}
+            </div>
+          : <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+              {t("common.fixed")}
+            </div>
+        );
       },
     },
 
@@ -102,7 +121,7 @@ const Financial = observer(() => {
       width: "20%",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
         return (
-          <div>
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             {record.status === FinancialAccountBillDetailsStatusEnum.PURCHASE &&
               t("common.subscribe")}
             {record.status === FinancialAccountBillDetailsStatusEnum.REDEEM &&
@@ -124,9 +143,14 @@ const Financial = observer(() => {
         return (
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>
-              {record.status === Number(FinancialAccountBillDetailsStatusEnum.INTEREST)
-                ? `${getCoinRound(record.endCoinName, record.amount)} ${record.endCoinName}`
-                : `${getCoinRound(record.coinName, record.amount)} ${record.coinName}`}
+              {record.status ===
+              Number(FinancialAccountBillDetailsStatusEnum.INTEREST)
+                ? `${getCoinRound(record.endCoinName, record.amount)} ${
+                    record.endCoinName
+                  }`
+                : `${getCoinRound(record.coinName, record.amount)} ${
+                    record.coinName
+                  }`}
             </div>
             <div>
               ≈{" "}

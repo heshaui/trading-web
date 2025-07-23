@@ -101,7 +101,7 @@ const TabsItem = ({
                 style={{ borderRadius: "50%" }}
               />
             )}
-            <div>{record.coinName}</div>
+            <div className="font-[500] text-[14px] text-[var(--text-color5)]">{record.coinName}</div>
           </Flex>
         );
       },
@@ -171,7 +171,7 @@ const TabsItem = ({
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
               {getCoinRound(record.coinName, record.purchaseAmount)}{" "}
               {record.coinName}
@@ -200,7 +200,7 @@ const TabsItem = ({
       key: "minAnnualInterestRate",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.type === FinancialType.CURRENT
               ? `${record.minAnnualInterestRate}%~`
               : null}
@@ -218,7 +218,7 @@ const TabsItem = ({
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
               {getCoinRound(record.endCoinName, record.accruedInterest)}{" "}
               {record.endCoinName}
@@ -254,7 +254,9 @@ const TabsItem = ({
             key: "expirationTime",
             render: (_: any, record: any) => {
               return record.expirationTime
-                ? dayjs(record.expirationTime).format("YYYY-MM-DD HH:mm:ss")
+                ? <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                    {dayjs(record.expirationTime).format("YYYY-MM-DD HH:mm:ss")}
+                  </div>
                 : "--";
             },
           },
@@ -272,7 +274,7 @@ const TabsItem = ({
             {/* 判断是否活期 */}
             {record.type === FinancialType.CURRENT && (
               <div
-                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                className="font-[500] text-[12px] text-[var(--theme-color)] cursor-pointer"
                 onClick={async () => {
                   try {
                     const res = await getFinancialPageToken({
@@ -310,7 +312,7 @@ const TabsItem = ({
               record.isRedemption === OpenStatusEnum.YES ? (
                 // 赎回按钮
                 <div
-                  className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                  className="font-[500] text-[12px] text-[var(--theme-color)] cursor-pointer"
                   onClick={() => {
                     setCurProduct(record);
                     setOpenRedemption(true);
@@ -320,7 +322,7 @@ const TabsItem = ({
                 </div>
               ) : (
                 // 自动赎回
-                <div className="font-[400] text-[14px] text-[var(--text-color6)]">
+                <div className="font-[500] text-[12px] text-[var(--text-color6)]">
                   {t("common.autoRedeem")}
                 </div>
               )
@@ -328,7 +330,7 @@ const TabsItem = ({
             {/* 活期 */}
             {record.type === FinancialType.CURRENT && (
               <div
-                className="font-[400] text-[14px] text-[var(--theme-color)] cursor-pointer"
+                className="font-[500] text-[12px] text-[var(--theme-color)] cursor-pointer"
                 onClick={() => {
                   setCurProduct(record);
                   setOpenRedemption(true);
