@@ -359,6 +359,7 @@ const TokenList = observer(() => {
     fetchData(formData);
   }, [formData]);
 
+  // 按钮映射
   const btnMap = (
     record: FinancialPageTokenItem,
     productRecord: FinancialPageTokenProductItem
@@ -430,6 +431,19 @@ const TokenList = observer(() => {
         );
     }
   };
+
+  // 类型筛选选项 活期 定期 分开
+  const allOptions = productFilterOptions.reduce(
+    (acc: any, item) => {
+      if (item.value === FinancialType.CURRENT) {
+        acc.current.push(item);
+      } else {
+        acc.fixed.push(item);
+      }
+      return acc;
+    },
+    { current: [], fixed: [] }
+  );
 
   return (
     <ConfigProvider
@@ -515,11 +529,10 @@ const TokenList = observer(() => {
               setExpandedRowKeys([]);
             }}
             options={[
+              // 全部  一次循环 获取定期 跟活期  活期显示在全部之后
               { value: NULL_PLACEHOLDER, label: t("common.all") },
-              ...productFilterOptions.map((item) => ({
-                value: item.value,
-                label: item.label,
-              })),
+              ...allOptions.current, // 活期选项
+              ...allOptions.fixed, // 定期选项
             ]}
           />
         </Space>

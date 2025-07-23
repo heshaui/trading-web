@@ -384,7 +384,7 @@ export interface CoinFilterOptionsItem {
 export function getCoinFilterOptions(): Promise<
   RequestParams<CoinFilterOptionsItem[]>
 > {
-  return request(`${fixUrl}/home-web/v1/exchange-coin/tenantCurrencyCoinList`, {
+  return request(`${fixUrl}/home-web/v1/open/manageMoney/tenantCurrencyCoinList`, {
     method: "POST",
   });
 }
