@@ -197,68 +197,63 @@ const Subscription: React.FC<SubscriptionProps> = ({
       <div className="px-[20px]">
         {/* 选择产品 第一个为 productInfo?.id === item.id  */}
         <div className="flex flex-ai-center gap-[17px] my-[16px] flex-wrap">
-          {sortedData.map((item) => {
-            // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击 并且 申购时间 与当前时间对比 小于0 则显示倒计时  否则显示申购
-            const curTime = dayjs().valueOf();
-            const purchaseStartTime = item.purchaseStartTime;
-            const time = purchaseStartTime && purchaseStartTime - curTime;
-            return (
-              <div
-                onClick={() => {
-                  // 不是进行中 并且 倒计时 大于0 则无法点击
-                  if (
-                    Number(item.status) ===
-                      FinancialPageTokenStatusEnum.IN_PROGRESS &&
-                    time &&
-                    time <= 0
-                  ) {
+          {/* 过滤 非进行中 并且 申购时间 与当前时间对比 小于0的 */}
+          {sortedData
+            .filter(
+              (item) =>
+                Number(item.status) ===
+                  FinancialPageTokenStatusEnum.IN_PROGRESS &&
+                item.purchaseStartTime &&
+                item.purchaseStartTime - dayjs().valueOf() <= 0
+            )
+            .map((item) => {
+              // 状态不是FinancialPageTokenStatusEnum.IN_PROGRESS 无法点击 并且 申购时间 与当前时间对比 小于0 则显示倒计时  否则显示申购
+              return (
+                <div
+                  onClick={() => {
                     form.resetFields();
                     setIncome(() => "-");
                     setProductInfo(item);
                     form.setFieldValue("projectId", item.id);
-                    form.setFieldValue("autoPurchase", curRecord?.curProduct.autoPurchase);
+                    form.setFieldValue(
+                      "autoPurchase",
+                      curRecord?.curProduct.autoPurchase
+                    );
                     // 调用父组件的产品变更处理函数
                     onProductChange(item);
-                  }
-                }}
-                key={item.id}
-                style={{
-                  border:
+                  }}
+                  key={item.id}
+                  style={{
+                    border:
+                      productInfo?.id === item.id
+                        ? "1px solid var(--theme-color)"
+                        : "1px solid var(--border-color4)",
+                    cursor: "pointer",
+                  }}
+                  className={`rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] w-[132px] ${
                     productInfo?.id === item.id
-                      ? "1px solid var(--theme-color)"
-                      : "1px solid var(--border-color4)",
-                  cursor:
-                    Number(item.status) ===
-                      FinancialPageTokenStatusEnum.IN_PROGRESS &&
-                    time &&
-                    time <= 0
-                      ? "pointer"
-                      : "not-allowed",
-                }}
-                className={`rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] w-[132px] ${
-                  productInfo?.id === item.id
-                    ? "border-[var(--theme-color)]"
-                    : "border-[var(--border-color4)]"
-                }`}
-              >
-                <div>
-                  {item.type === FinancialType.CURRENT
-                    ? t("common.current")
-                    : `${item.term} ${t("common.day")}`}
-                </div>
-                <div className="text-[#00C788]">
-                  {item.type === FinancialType.FIXED ? (
-                    <span>{item.maxAnnualInterestRate}%</span>
-                  ) : (
-                    <>
-                      <span>{item.minAnnualInterestRate}%</span>~
+                      ? "border-[var(--theme-color)]"
+                      : "border-[var(--border-color4)]"
+                  }`}
+                >
+                  <div>
+                    {item.type === FinancialType.CURRENT
+                      ? t("common.current")
+                      : `${item.term} ${t("common.day")}`}
+                  </div>
+                  <div className="text-[#00C788]">
+                    {item.type === FinancialType.FIXED ? (
                       <span>{item.maxAnnualInterestRate}%</span>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <span>{item.minAnnualInterestRate}%</span>~
+                        <span>{item.maxAnnualInterestRate}%</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
         {/* 申购数量input */}
         <div className="mb-[16px]">
