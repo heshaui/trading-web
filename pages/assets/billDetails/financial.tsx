@@ -114,7 +114,7 @@ const Financial = observer(() => {
       },
     },
 
-    // 金额
+    // 金额 申购赎回是理财币种 利息是结息币种
     {
       title: t("common.amount"),
       dataIndex: "amount",
@@ -124,7 +124,9 @@ const Financial = observer(() => {
         return (
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>
-              {getCoinRound(record.endCoinName, record.amount)} {record.endCoinName}
+              {record.status === Number(FinancialAccountBillDetailsStatusEnum.INTEREST)
+                ? `${getCoinRound(record.endCoinName, record.amount)} ${record.endCoinName}`
+                : `${getCoinRound(record.coinName, record.amount)} ${record.coinName}`}
             </div>
             <div>
               ≈{" "}
