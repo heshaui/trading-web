@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Slider, Tabs } from 'antd';
 import { observer } from 'mobx-react-lite';
-import appStore from '@/store'; // Assuming this is how you access your MobX store
+import appStore from '@/store';
 import styles from './calculator.module.css';
+import { CloseOutlined } from '@ant-design/icons';
 
 interface CalculatorModeProps {
   isShow: boolean;
@@ -27,16 +28,9 @@ interface FormData {
 
 const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProps) => {
   const [form] = Form.useForm();
-  const dragStepWrapRef = useRef<HTMLDivElement>(null);
-  const dragStepRef = useRef<HTMLSpanElement>(null);
-
-  // 如果不显示则返回 null
-  if (!isShow) {
-    return null;
-  }
 
   // MobX store access
-  const futureStore = appStore.getCurrentContractInfo(); // Adjust based on your store structure
+  const futureStore = appStore.getCurrentContractInfo();
   
   // 使用传入的 dataInfo 或者从 store 获取数据
   const contractInfo = dataInfo || futureStore;
@@ -50,62 +44,53 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   const publicMarkertInfo = contractInfo?.publicMarkertInfo || {};
 
   // State definitions
-  const [categoryType, setCategoryType] = useState(1);
+  const [categoryType, setCategoryType] = useState('1');
   const [sideType, setSideType] = useState(1);
-  const [leverage, setLeverage] = useState(0);
+  const [leverage, setLeverage] = useState(75);
   const [isClosing, setIsClosing] = useState(false);
-  const [stepPosition, setStepPosition] = useState(1);
-  const [inputActiveClass, setInputActiveClass] = useState('a-3-bd');
-  const [maxNumber, setMaxNumber] = useState(0);
-  const [openMargin, setOpenMargin] = useState<string>('0.0');
-  const [revenue, setRevenue] = useState<string>('0.0');
-  const [closePrice, setClosePrice] = useState<string | number>('0.0');
-  const [forceClosePrice, setForceClosePrice] = useState<string>('0.0');
+  const [openMargin, setOpenMargin] = useState<string>('0 USDT');
+  const [revenue, setRevenue] = useState<string>('0 USDT');
+  const [returnRate, setReturnRate] = useState<string>('0%');
   const [formData, setFormData] = useState<FormData>({
     formData_1: { title: '开仓价格', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
     formData_2: { title: '平仓价格', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
     formData_3: { title: '数量', units: coUnit, fix: volfix, errorText: null, value: null, isShow: true },
   });
 
-  // Static text
-  const lanText = {
-    text1: '计算器',
-    text2: '杠杆',
-    text3: '当前杠杆最高可持有头寸数',
-    text4: '计算',
-    text5: '计算结果',
-    text6: '开仓保证金',
-    text7: '收益额',
-    text8: '回报率',
-    text9: '平仓价格',
-    text10: '无法达到该收益率',
-    text11: '强平价格',
-    text12: '开仓价格',
-    text13: '平仓价格',
-    text14: '数量',
-    text71: '计算结果仅供参考',
+  // 杠杆标记点
+  const leverageMarks = {
+    1: '1x',
+    25: '25x',
+    50: '50x',
+    75: '75x',
+    100: '100x',
+    125: '125x'
   };
 
-  const categoryTypeList = [
-    { id: 1, text: '收益计算' },
-    { id: 2, text: '平仓价格' },
-    { id: 3, text: '强平价格' },
-  ];
-
-  const sideTypeList = [
-    { id: 1, text: '买入', classes: sideType === 1 ? 'u-16-cl' : 'b-1-cl b-4-f-h' }, // Placeholder text
-    { id: 2, text: '卖出', classes: sideType === 2 ? 'u-16-cl' : 'b-1-cl b-4-f-h' }, // Placeholder text
+  // Tabs 配置
+  const tabItems = [
+    {
+      key: '1',
+      label: '收益',
+    },
+    {
+      key: '2',
+      label: '平仓价格',
+    },
+    {
+      key: '3',
+      label: '强平价格',
+    },
   ];
 
   const initForm = () => {
-    setOpenMargin('0.0');
-    setRevenue('0.0');
-    setClosePrice('0.0');
-    setForceClosePrice('0.0');
+    setOpenMargin('0 USDT');
+    setRevenue('0 USDT');
+    setReturnRate('0%');
     setFormData({
-      formData_1: { ...formData.formData_1, title: lanText.text12, value: null, errorText: null },
-      formData_2: { ...formData.formData_2, title: lanText.text13, value: null, errorText: null },
-      formData_3: { ...formData.formData_3, title: lanText.text14, value: null, errorText: null },
+      formData_1: { ...formData.formData_1, value: null, errorText: null },
+      formData_2: { ...formData.formData_2, value: null, errorText: null },
+      formData_3: { ...formData.formData_3, value: null, errorText: null },
     });
     form.resetFields();
   };
@@ -114,9 +99,13 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
     if (isShow) {
       setIsClosing(false);
       initForm();
-      setLeverage(20);
+      setLeverage(75);
     }
   }, [isShow]);
+
+  if (!isShow) {
+    return null;
+  }
 
   const handleClose = () => {
     setIsClosing(true);
@@ -126,8 +115,12 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   };
 
   const switchType = (type: string, id: number) => {
-    if (type === 'categoryType') setCategoryType(id);
     if (type === 'sideType') setSideType(id);
+    initForm();
+  };
+
+  const handleTabChange = (key: string) => {
+    setCategoryType(key);
     initForm();
   };
 
@@ -141,7 +134,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   const formVerify = () => {
     const values = form.getFieldsValue();
     if (!values.formData_1 || !values.formData_2) return false;
-    if (categoryType !== 2 && !values.formData_3) return false;
+    if (categoryType !== '2' && !values.formData_3) return false;
     return true;
   };
 
@@ -149,153 +142,110 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
     if (!formVerify()) return;
     const values = form.getFieldsValue();
     const openPrice = Number(values.formData_1);
-    const value2 = Number(values.formData_2);
+    const closePrice = Number(values.formData_2);
     const volume = coUnitType === 2 ? Number(values.formData_3) * multiplier : Number(values.formData_3);
 
-    if (categoryType === 1) {
+    if (categoryType === '1') {
+      // 计算开仓保证金
       const v1 = contractInfo.contractSide === 1 ? volume * openPrice : volume / openPrice;
       const openMarginValue = v1 / leverage / contractInfo.marginRate;
-      setOpenMargin(openMarginValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4));
+      setOpenMargin(`${openMarginValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4)} ${contractInfo?.marginCoin || 'USDT'}`);
 
-      const n2 = contractInfo.contractSide === 1 ? value2 - openPrice : (1 / value2) - (1 / openPrice);
+      // 计算收益额
+      const n2 = contractInfo.contractSide === 1 ? closePrice - openPrice : (1 / closePrice) - (1 / openPrice);
       const n3 = (n2 * volume) / contractInfo.marginRate;
       const revenueValue = sideType === 1 ? n3 : -n3;
-      setRevenue(revenueValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4));
+      setRevenue(`${revenueValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4)} ${contractInfo?.marginCoin || 'USDT'}`);
+      
+      // 计算回报率
+      const returnRateValue = openMarginValue > 0 ? (revenueValue / openMarginValue) * 100 : 0;
+      setReturnRate(`${returnRateValue.toFixed(2)}%`);
     }
-  };
-
-  const add = () => {
-    if (leverage < 100) setLeverage((prev) => prev + 1);
-  };
-
-  const subtract = () => {
-    if (leverage > 1) setLeverage((prev) => prev - 1);
-  };
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    const bar = dragStepWrapRef.current;
-    const self = dragStepRef.current;
-    if (!bar || !self) return;
-    
-    const leftVal = e.clientX - self.offsetLeft;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      let movement = moveEvent.clientX - leftVal;
-      movement = Math.max(0, Math.min(movement, bar.offsetWidth));
-      const newStepPosition = Math.round((movement / bar.offsetWidth) * 100);
-      setStepPosition(newStepPosition < 1 ? 1 : newStepPosition);
-      setLeverage(Math.round((newStepPosition < 1 ? 1 : newStepPosition) * (100 / 100)));
-    };
-
-    const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
   };
 
   return (
     <div className={styles.calculatorMode}>
       <div className={`${styles.calculatorOverlay} ${isClosing ? styles.fadeOut : ''}`} onClick={handleClose} />
       <div className={`${styles.calculatorModeBox} ${isClosing ? styles.slideOut : ''}`}>
-        {/* 标题栏和关闭按钮 */}
+        {/* 标题栏 */}
         <div className={styles.calculatorHeader}>
-          <h4 className={styles.calculatorTitle}>{lanText.text1}</h4>
+          <h4 className={styles.calculatorTitle}>计算器</h4>
           <Button 
             type="text" 
             size="small" 
             onClick={handleClose}
-            icon={<span style={{ fontSize: '16px' }}>×</span>}
+            icon={<CloseOutlined />}
             className={styles.closeBtn}
           />
         </div>
 
-        {/* 计算类型切换 */}
-        <div className={styles.calculatorTabs}>
-          {categoryTypeList.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => switchType('categoryType', item.id)}
-              className={`${styles.calculatorTab} ${categoryType === item.id ? styles.calculatorTabActive : ''}`}
-            >
-              {item.text}
-            </button>
-          ))}
+        {/* 收益/平仓价格/强平价格 切换 - 使用 Ant Design Tabs */}
+        <div style={{ padding: '24px 24px 0' }}>
+          <Tabs
+            activeKey={categoryType}
+            onChange={handleTabChange}
+            items={tabItems}
+          />
         </div>
         
+        {/* 买入/卖出切换 */}
         <div className={styles.categorySelectBox}>
           <em
-            className={`${styles.tabActiveBg}`}
+            className={styles.tabActiveBg}
             style={{ 
               left: sideType === 1 ? '0' : '50%',
               backgroundColor: sideType === 1 ? '#22c55e' : '#ef4444'
             }}
           />
-          {sideTypeList.map((item) => (
-            <span
-              key={item.id}
-              className={`${styles.tab}`}
-              style={{
-                color: sideType === item.id ? '#ffffff' : '#666666'
-              }}
-              onClick={() => switchType('sideType', item.id)}
-            >
-              {item.text}
-            </span>
-          ))}
-        </div>
-        <div className={`${styles.addAndSub} a-3-bd`} style={{ display: 'none' }}>
-          <label className="label">{lanText.text2}</label>
-          <div className="content">
-            <input
-              className="b-1-cl"
-              type="text"
-              value={leverage}
-              onChange={(e) => setLeverage(Number(e.target.value))}
-              onFocus={() => setInputActiveClass('a-12-bd')}
-              onBlur={() => setInputActiveClass('a-3-bd')}
-            />
-          </div>
-          <div className="options">
-            <a className="add a-3-bd" onClick={add}><i>+</i></a>
-            <a className="sub a-3-bd" onClick={subtract}><i>-</i></a>
-          </div>
-        </div>
-        <div className={`${styles.transactionDrag} b-1-cl`} ref={dragStepWrapRef}>
           <span
-            className={`${styles.dragStep} c-8-bd c-8-bg`}
-            ref={dragStepRef}
-            style={{ left: `${stepPosition}%` }}
-            onMouseDown={onMouseDown}
+            className={styles.tab}
+            style={{
+              color: sideType === 1 ? '#ffffff' : '#6b7280'
+            }}
+            onClick={() => switchType('sideType', 1)}
           >
-            {leverage > 0 && (
-              <div className="value a-5-bg">
-                {leverage}X
-                <em className="arrow a-5-bg" />
-              </div>
-            )}
+            买入开多
           </span>
-          <span className={`${styles.dragDef} b-2-bg`}>
-            <em className={`${styles.dragBar} c-8-bg`} style={{ width: `${stepPosition}%` }} />
+          <span
+            className={styles.tab}
+            style={{
+              color: sideType === 2 ? '#ffffff' : '#6b7280'
+            }}
+            onClick={() => switchType('sideType', 2)}
+          >
+            卖出开空
           </span>
-          {[0, 1, 2, 3, 4, 5].map((index) => (
-            <i
-              key={index}
-              className={`b-2-bg a-6-bd ${styles[`dragStep${index}`]} ${index * 20 > stepPosition ? 'b-2-bg' : 'c-8-bg'}`}
-              style={{ left: `${index === 0 ? 1 : index * 20}%` }}
-            >
-              <b className="mark">{index === 0 ? '1X' : `${index * 20}X`}</b>
-            </i>
-          ))}
         </div>
-        <div className={styles.maxCanOpen}>
-          {lanText.text3} <span className={styles.maxNumber}>{maxNumber}{coUnit}</span>
+
+        {/* 杠杆滑块 */}
+        <div className={styles.leverageSection}>
+          <div className={styles.leverageHeader}>
+            <span className={styles.leverageLabel}>杠杆</span>
+            <span className={styles.leverageValue}>{leverage}x</span>
+          </div>
+          <Slider
+            min={1}
+            max={125}
+            value={leverage}
+            onChange={(value) => setLeverage(value)}
+            marks={leverageMarks}
+            className={styles.leverageSlider}
+            trackStyle={{ backgroundColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
+            handleStyle={{ borderColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
+          />
+          <div className={styles.maxPosition}>
+            当前杠杆最高可持有头寸数 <span className={styles.maxNumber}>0 {coUnit}</span>
+          </div>
         </div>
-        <Form form={form} onValuesChange={(changedValues) => {
-          Object.keys(changedValues).forEach((key) => changeInput(key as keyof FormData, changedValues[key]));
-        }}>
+
+        {/* 表单输入 */}
+        <Form 
+          form={form} 
+          layout="vertical"
+          onValuesChange={(changedValues) => {
+            Object.keys(changedValues).forEach((key) => changeInput(key as keyof FormData, changedValues[key]));
+          }}
+        >
           {(Object.keys(formData) as Array<keyof FormData>).map((key) =>
             formData[key].isShow ? (
               <Form.Item
@@ -305,47 +255,50 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
                 validateStatus={formData[key].errorText ? 'error' : ''}
                 help={formData[key].errorText}
               >
-                <Input suffix={formData[key].units} />
+                <Input 
+                  suffix={formData[key].units} 
+                  placeholder="0"
+                  className={styles.calculatorInput}
+                />
               </Form.Item>
             ) : null
           )}
         </Form>
+
+        {/* 计算按钮 */}
         <Button
-          style={{ height: '40px', width: '100%', marginTop: '20px' }}
+          type="primary"
+          block
+          size="large"
           disabled={!formVerify()}
           onClick={submit}
+          className={styles.calculateBtn}
         >
-          {lanText.text4}
+          计算
         </Button>
-        <div className={styles.formInfo}>
-          <div className={styles.formInfoTitle}>{lanText.text5}</div>
-          {categoryType === 1 && (
+
+        {/* 计算结果 */}
+        <div className={styles.resultSection}>
+          <div className={styles.resultTitle}>计算结果</div>
+          {categoryType === '1' && (
             <>
-              <div className={styles.infoItem}>
-                <p className={styles.text1}>{lanText.text6}</p>
-                <p className={styles.text2}>{openMargin} {contractInfo?.marginCoin}</p>
+              <div className={styles.resultItem}>
+                <span className={styles.resultLabel}>开仓保证金</span>
+                <span className={styles.resultValue}>{openMargin}</span>
               </div>
-              <div className={styles.infoItem}>
-                <p className={styles.text1}>{lanText.text7}</p>
-                <p className={styles.text2}>{revenue} {contractInfo?.marginCoin}</p>
+              <div className={styles.resultItem}>
+                <span className={styles.resultLabel}>收益额</span>
+                <span className={styles.resultValue}>{revenue}</span>
+              </div>
+              <div className={styles.resultItem}>
+                <span className={styles.resultLabel}>回报率</span>
+                <span className={styles.resultValue}>{returnRate}</span>
               </div>
             </>
           )}
-          {categoryType === 2 && (
-            <div className={styles.infoItem}>
-              <p className={styles.text1}>{lanText.text9}</p>
-              <p className={styles.text2}>
-                {closePrice === 'none' ? lanText.text10 : `${closePrice} ${priceUnit}`}
-              </p>
-            </div>
-          )}
-          {categoryType === 3 && (
-            <div className={styles.infoItem}>
-              <p className={styles.text1}>{lanText.text11}</p>
-              <p className={styles.text2}>{forceClosePrice} {priceUnit}</p>
-            </div>
-          )}
-          <p className={styles.warningText}>{lanText.text71}</p>
+          <p className={styles.disclaimer}>
+            *计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差
+          </p>
         </div>
       </div>
     </div>

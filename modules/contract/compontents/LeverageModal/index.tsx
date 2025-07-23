@@ -20,7 +20,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   onLeverageChange,
   symbol = 'BTCUSDT',
   maxLeverage = 125,
-  positionLimit = 815.402
+  positionLimit = 3000000
 }) => {
   const [tempLeverage, setTempLeverage] = useState(50); // 默认设置为50，与图片一致
 
@@ -63,9 +63,9 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={400}
+      width={480}
       className={styles.leverageModal}
-      closeIcon={<Iconify icon="mdi:close" />}
+      closeIcon={<Iconify icon="mdi:close" className={styles.closeIcon} />}
     >
       <div className={styles.modalContent}>
         {/* 标题 */}
@@ -75,18 +75,19 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 
         {/* 当前持仓支持杠杆范围 */}
         <div className={styles.supportRange}>
-          当前持仓支持杠杆范围 【1,125】
+          当前持仓支持杠杆范围【1,125】
         </div>
 
         {/* 杠杆输入区域 */}
         <div className={styles.leverageInputSection}>
-          <div className={styles.leverageInput}>
+          <div className={styles.leverageInputWrapper}>
             <InputNumber
               value={tempLeverage}
               onChange={handleInputChange}
               min={1}
               max={maxLeverage}
               className={styles.leverageInputNumber}
+              controls={false}
             />
             <span className={styles.leverageUnit}>x</span>
           </div>
@@ -116,9 +117,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
             value={tempLeverage}
             onChange={handleSliderChange}
             className={styles.leverageSlider}
-            trackStyle={{ backgroundColor: '#FF6B35' }}
-            handleStyle={{ borderColor: '#FF6B35', backgroundColor: '#FF6B35' }}
-            railStyle={{ backgroundColor: '#f0f0f0' }}
+            tooltip={{ open: false }}
           />
         </div>
 
@@ -130,7 +129,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         {/* 持仓上限 */}
         <div className={styles.positionLimit}>
           <span className={styles.limitLabel}>持仓上限</span>
-          <span className={styles.limitValue}>{positionLimit}USDT</span>
+          <span className={styles.limitValue}>{positionLimit.toLocaleString()}USDT</span>
         </div>
 
         {/* 确认按钮 */}

@@ -41,7 +41,11 @@
   "check4": "检查验证码是否位于垃圾箱中",
   "check5": "验证码可能存在延迟，过了10分钟后再试",
   "nodata": "暂无数据",
+  "noData": "暂无数据",
   "noaddress": "暂无地址",
+  "time": "时间",
+  "action": "操作",
+  "loadFailed": "加载失败",
   "safeVerification": "安全验证",
   "noLogin":{
     "tip1":"开始交易",

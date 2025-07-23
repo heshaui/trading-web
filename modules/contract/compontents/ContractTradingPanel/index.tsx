@@ -32,11 +32,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   onOrderSubmit,
   onBalanceUpdate // 解构新增的回调
 }) => {
+  // 确保所有Hooks在组件顶层按固定顺序调用
   const { t } = useTranslation(['contract']);
   const [form] = Form.useForm();
-  const currentContractInfo = appStore.getCurrentContractInfo();
-  console.log('currentContractInfo:', currentContractInfo);
-  // 状态管理
+  
+  // 状态管理 - 按固定顺序声明所有状态
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
   const [leverageLevel, setLeverageLevel] = useState(65);
@@ -69,6 +69,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
     leverage: 65,
     orderType: 'limit'
   }); //二次确认数据
+
+  // 在所有Hooks声明之后获取store数据
+  const currentContractInfo = appStore.getCurrentContractInfo();
+  
+  console.log('currentContractInfo:', currentContractInfo);
 
   // 获取当前订单类型
   const getOrderType = () => {
@@ -236,12 +241,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             className={styles.iconBtn}
             onClick={() => setShowCalculator(true)}
             title="计算器"
-          />
-          <Button
-            type="text"
-            size="small"
-            icon={<Iconify icon="mdi:calendar-blank" />}
-            className={styles.iconBtn}
           />
           <Button
             type="text"

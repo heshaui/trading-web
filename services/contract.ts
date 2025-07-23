@@ -320,3 +320,89 @@ export const levelEdit = async (params: any) => {
     throw error;
   }
 };
+
+
+// 获取当前持仓列表
+export const getCurrentOrderList = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/order/current_order_list', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取当前持仓列表失败:', error);
+    throw error;
+  }
+};
+
+
+// 取消订单
+export const cancelOrder = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/order/order_cancel', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+
+    return response;
+  } catch (error) {
+    console.error('取消订单失败:', error);
+    throw error;
+  }
+};
+
+// /fe-co-api/order/history_order_list
+export const getHistoryOrderList = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/order/history_order_list', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取历史委托列表失败:', error);
+    throw error;
+  }
+};
+
+// /fe-co-api/position/history_position_list
+export const getHistoryPositionList = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/position/history_position_list', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取历史持仓列表失败:', error);
+    throw error;
+  }
+};
+
+// /fe-co-api/common/depth_map
+export const getDepthMap = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/common/depth_map', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) { 
+    console.error('获取深度图失败:', error);
+    throw error;
+  }
+};
+
+
+

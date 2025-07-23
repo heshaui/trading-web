@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Drawer, Button, Switch, Radio } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
+import { useTranslation } from 'next-i18next';
 
 interface TradingSettingsDrawerProps {
   visible: boolean;
@@ -12,9 +13,10 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
   visible,
   onClose
 }) => {
+  const { t } = useTranslation('contract');
   const [positionMode, setPositionMode] = useState<'single' | 'hedge'>('hedge');
-  const [contractUnit, setContractUnit] = useState<'张' | 'BTC' | 'USDT'>('BTC');
-  const [orderValidity, setOrderValidity] = useState<'24H' | '7天' | '14天' | '长期有效'>('长期有效');
+  const [contractUnit, setContractUnit] = useState<'张' | 'BTC' | 'USDT'>('张');
+  const [orderValidity, setOrderValidity] = useState<'24H' | '7天' | '14天' | '长期有效'>('14天');
   const [preOrderConfirm, setPreOrderConfirm] = useState(true);
   const [reverseConfirm, setReverseConfirm] = useState(true);
 
@@ -34,11 +36,11 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
     <Drawer
       title="交易设置"
       placement="right"
-      width={400}
+      width={420}
       onClose={onClose}
       open={visible}
       className={styles.tradingSettingsDrawer}
-      closeIcon={<Iconify icon="mdi:close" />}
+      closeIcon={<Iconify icon="mdi:close" className={styles.closeIcon} />}
       footer={
         <div className={styles.drawerFooter}>
           <Button
@@ -68,14 +70,16 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
               className={`${styles.positionMode} ${positionMode === 'single' ? styles.selectedMode : ''}`}
               onClick={() => setPositionMode('single')}
             >
-              <div className={styles.modeHeader}>
-                <div className={styles.modeIcon}>
-                  <Iconify icon={positionMode === 'single' ? 'mdi:check-circle' : 'mdi:circle-outline'} />
+              <div className={styles.radioWrapper}>
+                <div className={`${styles.radioButton} ${positionMode === 'single' ? styles.radioChecked : ''}`}>
+                  {positionMode === 'single' && <div className={styles.radioInner} />}
                 </div>
-                <span className={styles.modeTitle}>单向持仓</span>
-              </div>
-              <div className={styles.modeDescription}>
-                单向持仓模式下，一个合约只允许持有一个方向的仓位
+                <div className={styles.modeContent}>
+                  <span className={styles.modeTitle}>单向持仓</span>
+                  <div className={styles.modeDescription}>
+                    单向持仓模式下，一个合约只允许持有一个方向的仓位
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -83,14 +87,16 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
               className={`${styles.positionMode} ${positionMode === 'hedge' ? styles.selectedMode : ''}`}
               onClick={() => setPositionMode('hedge')}
             >
-              <div className={styles.modeHeader}>
-                <div className={styles.modeIcon}>
-                  <Iconify icon={positionMode === 'hedge' ? 'mdi:check-circle' : 'mdi:circle-outline'} />
+              <div className={styles.radioWrapper}>
+                <div className={`${styles.radioButton} ${positionMode === 'hedge' ? styles.radioChecked : ''}`}>
+                  {positionMode === 'hedge' && <div className={styles.radioInner} />}
                 </div>
-                <span className={styles.modeTitle}>双向持仓</span>
-              </div>
-              <div className={styles.modeDescription}>
-                双向持仓模式下，一个合约可允许同时持有多空两个方向的仓位，并且同一合约下不同方向仓位风险对冲
+                <div className={styles.modeContent}>
+                  <span className={styles.modeTitle}>双向持仓</span>
+                  <div className={styles.modeDescription}>
+                    双向持仓模式下，一个合约可允许同时持有多空两个方向的仓位，并且同一合约下不同方向仓位风险对冲
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -109,8 +115,8 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                 className={`${styles.unitOption} ${contractUnit === unit ? styles.selectedUnit : ''}`}
                 onClick={() => setContractUnit(unit as any)}
               >
-                <div className={styles.unitIcon}>
-                  <Iconify icon={contractUnit === unit ? 'mdi:check-circle' : 'mdi:circle-outline'} />
+                <div className={`${styles.radioButton} ${contractUnit === unit ? styles.radioChecked : ''}`}>
+                  {contractUnit === unit && <div className={styles.radioInner} />}
                 </div>
                 <span className={styles.unitLabel}>{unit}</span>
               </div>
@@ -131,8 +137,8 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                 className={`${styles.validityOption} ${orderValidity === period ? styles.selectedValidity : ''}`}
                 onClick={() => setOrderValidity(period as any)}
               >
-                <div className={styles.validityIcon}>
-                  <Iconify icon={orderValidity === period ? 'mdi:check-circle' : 'mdi:circle-outline'} />
+                <div className={`${styles.radioButton} ${orderValidity === period ? styles.radioChecked : ''}`}>
+                  {orderValidity === period && <div className={styles.radioInner} />}
                 </div>
                 <span className={styles.validityLabel}>{period}</span>
               </div>
@@ -140,28 +146,28 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
           </div>
         </div>
 
-        {/* 下单前弹框确认 */}
+        {/* 下单前弹窗确认 */}
         <div className={styles.settingSection}>
           <div className={styles.sectionTitle}>
-            <span>下单前弹框确认：</span>
+            <span>下单前弹窗确认：</span>
           </div>
           
           <div className={styles.confirmOptions}>
             <div className={styles.confirmOption}>
-              <span className={styles.confirmLabel}>下单前弹框确认</span>
+              <span className={styles.confirmLabel}>下单前弹窗确认</span>
               <Switch
                 checked={preOrderConfirm}
                 onChange={setPreOrderConfirm}
-                className={styles.confirmSwitch}
+                className={`${styles.confirmSwitch} ${preOrderConfirm ? styles.switchChecked : ''}`}
               />
             </div>
             
             <div className={styles.confirmOption}>
-              <span className={styles.confirmLabel}>反向开仓弹框确认</span>
+              <span className={styles.confirmLabel}>反向开仓弹窗确认</span>
               <Switch
                 checked={reverseConfirm}
                 onChange={setReverseConfirm}
-                className={styles.confirmSwitch}
+                className={`${styles.confirmSwitch} ${reverseConfirm ? styles.switchChecked : ''}`}
               />
             </div>
           </div>

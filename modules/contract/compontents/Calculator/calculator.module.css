@@ -15,7 +15,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1;
   pointer-events: auto;
   opacity: 0;
@@ -29,14 +29,13 @@
 }
 
 .calculatorModeBox {
-  background: var(--background5, #ffffff);
-  border-radius: 8px 0 0 8px;
-  padding: 24px;
-  width: 380px;
+  background: #ffffff;
+  border-radius: 16px 0 0 16px;
+  padding: 0;
+  width: 420px;
   height: 100vh;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
   border: none;
-  border-left: 1px solid var(--border-color4, #e0e0e0);
   position: fixed;
   top: 0;
   right: 0;
@@ -78,20 +77,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: -24px -24px 20px -24px;
-  padding: 16px 24px;
-  background: var(--background6, #f8f9fa);
-  border-bottom: 1px solid var(--border-color4, #e0e0e0);
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
   position: sticky;
-  top: -24px;
+  top: 0;
+  background: #ffffff;
   z-index: 10;
 }
 
 .calculatorTitle {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--text-color1, #333333);
+  color: #1a1a1a;
 }
 
 .closeBtn {
@@ -100,60 +98,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-color6, #999999);
+  color: #666666;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .closeBtn:hover {
-  color: var(--text-color1, #333333);
-  background: var(--background5, #ffffff);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+  background: #f5f5f5;
 }
 
-/* 计算器标签 */
-.calculatorTabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+/* 内容区域 */
+.calculatorContent {
+  padding: 24px;
 }
 
-.calculatorTab {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color4, #e0e0e0);
-  background: var(--background5, #ffffff);
-  color: var(--text-color5, #666666);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.calculatorTab:hover {
-  border-color: var(--theme-color, #ff6b35);
-  color: var(--theme-color, #ff6b35);
-}
-
-.calculatorTabActive {
-  background: var(--theme-color, #ff6b35);
-  border-color: var(--theme-color, #ff6b35);
-  color: #ffffff !important;
-}
-
-/* 分类选择框 */
+/* 买入/卖出切换 */
 .categorySelectBox {
   position: relative;
   display: flex;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  background: var(--background6, #f5f5f5);
+  border-radius: 24px;
+  margin: 20px 24px 24px;
+  background: #f5f5f5;
   padding: 4px;
+  height: 48px;
 }
 
 .tabActiveBg {
@@ -161,198 +132,123 @@
   top: 4px;
   bottom: 4px;
   width: calc(50% - 4px);
-  border-radius: 6px;
-  transition: left 0.3s ease;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .tab {
   flex: 1;
-  padding: 8px 16px;
-  text-align: center;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-  position: relative;
-  z-index: 2;
-}
-
-/* 杠杆调节器 */
-.addAndSub {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--background6);
-}
-
-.addAndSub .label {
-  font-size: 14px;
-  color: var(--text-color5);
-  margin-right: 16px;
-  min-width: 40px;
-}
-
-.addAndSub .content {
-  flex: 1;
-  margin-right: 16px;
-}
-
-.addAndSub .content input {
-  width: 100%;
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--border-color4);
-  border-radius: 6px;
-  background: var(--background5);
-  font-size: 14px;
-  text-align: center;
-}
-
-.addAndSub .options {
-  display: flex;
-  gap: 8px;
-}
-
-.addAndSub .options .add,
-.addAndSub .options .sub {
-  width: 28px;
-  height: 28px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color4);
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
-  background: var(--background5);
-  color: var(--text-color5);
   transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.addAndSub .options .add:hover,
-.addAndSub .options .sub:hover {
-  border-color: var(--theme-color);
-  color: var(--theme-color);
-  background: var(--background7);
-}
-
-/* 拖拽滑块 */
-.transactionDrag {
+  font-size: 14px;
+  font-weight: 600;
   position: relative;
-  height: 40px;
-  margin-bottom: 16px;
-  padding: 0 12px;
-}
-
-.dragDef {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  right: 12px;
-  height: 4px;
-  transform: translateY(-50%);
-  border-radius: 2px;
-}
-
-.dragBar {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.2s ease;
-}
-
-.dragStep {
-  position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  transition: left 0.2s ease;
-  z-index: 3;
-}
-
-.dragStep .value {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  margin-bottom: 8px;
-}
-
-.dragStep .arrow {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid var(--background6);
-}
-
-/* 刻度标记 */
-.dragStep0,
-.dragStep1,
-.dragStep2,
-.dragStep3,
-.dragStep4,
-.dragStep5 {
-  position: absolute;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  border: 1px solid var(--border-color4);
   z-index: 2;
 }
 
-.dragStep0 .mark,
-.dragStep1 .mark,
-.dragStep2 .mark,
-.dragStep3 .mark,
-.dragStep4 .mark,
-.dragStep5 .mark {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: var(--text-color6);
-  margin-top: 8px;
-  white-space: nowrap;
+/* 杠杆部分 */
+.leverageSection {
+  padding: 0 24px;
+  margin-bottom: 24px;
+}
+
+.leverageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.leverageLabel {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.leverageValue {
+  font-size: 14px;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Ant Design Slider 自定义样式 */
+.leverageSlider {
+  margin: 0 0 24px;
+}
+
+.leverageSlider :global(.ant-slider-rail) {
+  height: 6px;
+  background: #e5e5e5;
+}
+
+.leverageSlider :global(.ant-slider-track) {
+  height: 6px;
+}
+
+.leverageSlider :global(.ant-slider-handle) {
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  background: #ffffff;
+  border-width: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.leverageSlider :global(.ant-slider-handle:focus) {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.leverageSlider :global(.ant-slider-mark) {
+  top: 16px;
+}
+
+.leverageSlider :global(.ant-slider-mark-text) {
+  color: #999999;
+  font-size: 12px;
+}
+
+.leverageSlider :global(.ant-slider-mark-text-active) {
+  color: #666666;
+}
+
+.leverageSlider :global(.ant-slider-dot) {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #e5e5e5;
+  margin-top: -1px;
+}
+
+.leverageSlider :global(.ant-slider-dot-active) {
+  border-color: #22c55e;
 }
 
 /* 最大持仓提示 */
-.maxCanOpen {
+.maxPosition {
   font-size: 13px;
-  color: var(--text-color6, #999999);
-  margin-bottom: 20px;
+  color: #666666;
   text-align: center;
 }
 
 .maxNumber {
-  color: var(--theme-color, #ff6b35);
-  font-weight: 500;
+  color: #1a1a1a;
+  font-weight: 600;
 }
 
 /* 表单样式 */
 .calculatorModeBox :global(.ant-form) {
-  margin-bottom: 20px;
+  padding: 0 24px;
+  margin-bottom: 24px;
 }
 
 .calculatorModeBox :global(.ant-form-item) {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .calculatorModeBox :global(.ant-form-item-label) {
@@ -361,101 +257,115 @@
 
 .calculatorModeBox :global(.ant-form-item-label > label) {
   font-size: 14px;
-  color: var(--text-color5);
+  color: #666666;
   font-weight: 500;
+  height: auto;
 }
 
-.calculatorModeBox :global(.ant-input) {
-  height: 40px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color4);
-  background: var(--background6);
-  color: var(--text-color5);
+.calculatorInput :global(.ant-input) {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0 16px;
+}
+
+.calculatorInput :global(.ant-input:hover) {
+  border-color: #cccccc;
+  background: #ffffff;
+}
+
+.calculatorInput :global(.ant-input:focus) {
+  border-color: #22c55e;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.calculatorInput :global(.ant-input-suffix) {
+  color: #999999;
   font-size: 14px;
-}
-
-.calculatorModeBox :global(.ant-input:hover) {
-  border-color: var(--theme-color);
-}
-
-.calculatorModeBox :global(.ant-input:focus) {
-  border-color: var(--theme-color);
-  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
-}
-
-.calculatorModeBox :global(.ant-input-suffix) {
-  color: var(--text-color6);
-  font-size: 12px;
+  font-weight: 500;
 }
 
 /* 计算按钮 */
-.calculatorModeBox :global(.ant-btn) {
-  height: 40px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+.calculateBtn {
+  margin: 0 24px 24px;
+  width: calc(100% - 48px);
+  height: 48px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
   border: none;
-  background: var(--theme-color);
-  color: #ffffff;
+  background: #e5e5e5;
+  color: #999999;
   transition: all 0.2s ease;
 }
 
-.calculatorModeBox :global(.ant-btn:hover:not(:disabled)) {
-  background: var(--theme-color);
-  opacity: 0.9;
+.calculateBtn:not(:disabled) {
+  background: #22c55e;
+  color: #ffffff;
 }
 
-.calculatorModeBox :global(.ant-btn:disabled) {
-  background: var(--background7);
-  color: var(--text-color6);
-  opacity: 0.6;
+.calculateBtn:not(:disabled):hover {
+  background: #16a34a;
+}
+
+.calculateBtn:disabled {
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* 计算结果区域 */
-.formInfo {
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 20px;
-  background: var(--background6, #f8f9fa);
-  border: 1px solid var(--border-color4, #e0e0e0);
+.resultSection {
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 24px 24px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
 }
 
-.formInfo .tit,
-.formInfoTitle {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 16px;
-  color: var(--text-color1, #333333);
+.resultTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1a1a1a;
 }
 
-.formInfo .infoItem {
+.resultItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding: 0;
 }
 
-.formInfo .infoItem:last-child {
-  margin-bottom: 0;
+.resultItem:last-of-type {
+  margin-bottom: 20px;
 }
 
-.formInfo .text1 {
-  font-size: 13px;
-  color: var(--text-color6);
-}
-
-.formInfo .text2 {
-  font-size: 13px;
+.resultLabel {
+  font-size: 14px;
+  color: #666666;
   font-weight: 500;
 }
 
-.formInfo .warningText {
+.resultValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.disclaimer {
   font-size: 12px;
-  text-align: center;
-  margin-top: 16px;
+  text-align: left;
+  margin: 0;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color4);
+  border-top: 1px solid #f0f0f0;
+  color: #ff9500;
+  line-height: 1.5;
 }
 
 /* 响应式设计 */
@@ -463,22 +373,24 @@
   .calculatorModeBox {
     width: 100vw;
     border-radius: 0;
-    border-left: none;
-    padding: 16px;
+    max-width: 100%;
   }
   
   .calculatorHeader {
-    margin: -16px -16px 16px -16px;
-    padding: 12px 16px;
+    padding: 16px 20px;
   }
   
-  .transactionDrag {
-    padding: 0 8px;
+  .categorySelectBox,
+  .leverageSection,
+  .calculatorModeBox :global(.ant-form),
+  .calculateBtn,
+  .resultSection {
+    margin-left: 20px;
+    margin-right: 20px;
   }
   
-  .dragDef {
-    left: 8px;
-    right: 8px;
+  .calculateBtn {
+    width: calc(100% - 40px);
   }
 }
   

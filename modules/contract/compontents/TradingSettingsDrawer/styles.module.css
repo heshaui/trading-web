@@ -2,24 +2,36 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.tradingSettingsDrawer .ant-drawer-header {
-  padding: 16px 24px;
+.tradingSettingsDrawer :global(.ant-drawer-header) {
+  padding: 20px 24px;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.tradingSettingsDrawer .ant-drawer-title {
-  font-size: 16px;
+.tradingSettingsDrawer :global(.ant-drawer-title) {
+  font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
 }
 
-.tradingSettingsDrawer .ant-drawer-body {
+.tradingSettingsDrawer :global(.ant-drawer-body) {
   padding: 0;
+  background-color: #f8f9fa;
 }
 
-.tradingSettingsDrawer .ant-drawer-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #f0f0f0;
+.tradingSettingsDrawer :global(.ant-drawer-footer) {
+  padding: 0;
+  border-top: none;
+}
+
+.closeIcon {
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.closeIcon:hover {
+  color: #333;
 }
 
 .settingsContent {
@@ -35,31 +47,54 @@
 }
 
 .sectionTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
   margin-bottom: 16px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
 }
 
 .sectionNote {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
   font-weight: 400;
+}
+
+/* 自定义单选按钮样式 */
+.radioButton {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.radioChecked {
+  border-color: #ff6b35;
+}
+
+.radioInner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff6b35;
 }
 
 /* 持仓类型 */
 .positionModes {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .positionMode {
-  padding: 16px;
-  border: 1px solid #e9ecef;
+  padding: 16px 20px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -67,130 +102,85 @@
 }
 
 .positionMode:hover {
-  border-color: #FFD700;
-  background-color: #fffbf0;
+  background-color: #fff5f2;
 }
 
 .selectedMode {
-  border-color: #FFD700;
-  background-color: #fffbf0;
+  background-color: #fff5f2;
 }
 
-.modeHeader {
+.radioWrapper {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.modeIcon {
-  color: #999;
-  font-size: 16px;
-}
-
-.selectedMode .modeIcon {
-  color: #FFD700;
+.modeContent {
+  flex: 1;
 }
 
 .modeTitle {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 6px;
 }
 
 .modeDescription {
   font-size: 13px;
   color: #666;
-  line-height: 1.5;
-  margin-left: 24px;
+  line-height: 1.6;
 }
 
 /* 合约单位 */
 .contractUnits {
   display: flex;
-  gap: 16px;
+  gap: 24px;
 }
 
 .unitOption {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: #ffffff;
-  min-width: 80px;
+  padding: 4px;
 }
 
-.unitOption:hover {
-  border-color: #FFD700;
-  background-color: #fffbf0;
-}
-
-.selectedUnit {
-  border-color: #FFD700;
-  background-color: #fffbf0;
-}
-
-.unitIcon {
-  color: #999;
-  font-size: 16px;
-}
-
-.selectedUnit .unitIcon {
-  color: #FFD700;
+.unitOption:hover .radioButton {
+  border-color: #ff8b5a;
 }
 
 .unitLabel {
-  font-size: 14px;
-  color: #333;
+  font-size: 15px;
+  color: #1a1a1a;
   font-weight: 500;
 }
 
 /* 有效期选项 */
 .validityOptions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
 }
 
 .validityOption {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: #ffffff;
-  min-width: 80px;
+  padding: 4px;
 }
 
-.validityOption:hover {
-  border-color: #FFD700;
-  background-color: #fffbf0;
-}
-
-.selectedValidity {
-  border-color: #FFD700;
-  background-color: #fffbf0;
-}
-
-.validityIcon {
-  color: #999;
-  font-size: 16px;
-}
-
-.selectedValidity .validityIcon {
-  color: #FFD700;
+.validityOption:hover .radioButton {
+  border-color: #ff8b5a;
 }
 
 .validityLabel {
-  font-size: 14px;
-  color: #333;
+  font-size: 15px;
+  color: #1a1a1a;
   font-weight: 500;
 }
 
@@ -198,59 +188,59 @@
 .confirmOptions {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .confirmOption {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
 }
 
 .confirmLabel {
-  font-size: 14px;
-  color: #333;
+  font-size: 15px;
+  color: #1a1a1a;
   font-weight: 500;
 }
 
+/* 自定义 Switch 样式 */
 .confirmSwitch {
-  background-color: #e9ecef;
+  background-color: #d9d9d9;
 }
 
-.confirmSwitch.ant-switch-checked {
-  background-color: #FFD700;
+.confirmSwitch:global(.ant-switch-checked) {
+  background-color: #ff6b35;
 }
 
-.confirmSwitch .ant-switch-handle {
-  background-color: #ffffff;
+.switchChecked {
+  background-color: #ff6b35 !important;
 }
 
 /* 底部按钮 */
 .drawerFooter {
   background-color: #ffffff;
+  padding: 16px 24px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .confirmBtn {
-  height: 44px;
-  border-radius: 22px;
+  height: 48px;
+  border-radius: 24px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  background: #ff6b35;
   border: none;
-  color: #333;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  color: #ffffff;
   transition: all 0.3s ease;
 }
 
 .confirmBtn:hover {
-  background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+  background: #ff5722 !important;
+  color: #ffffff !important;
 }
 
 .confirmBtn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 /* 响应式设计 */
@@ -260,31 +250,22 @@
   }
   
   .settingsContent {
-    padding: 16px;
+    padding: 20px;
   }
   
   .settingSection {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
   
   .positionMode {
-    padding: 12px;
+    padding: 14px 16px;
   }
   
   .contractUnits {
-    flex-direction: column;
-  }
-  
-  .unitOption {
-    min-width: auto;
+    gap: 16px;
   }
   
   .validityOptions {
-    gap: 8px;
-  }
-  
-  .validityOption {
-    min-width: 60px;
-    flex: 1;
+    gap: 12px 16px;
   }
 } 
