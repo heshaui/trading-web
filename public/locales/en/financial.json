@@ -110,7 +110,8 @@
     "redeemDate": "Redeem Date",
     "subscribeDate": "Subscribe Date",
     "comingSoon": "Coming soon, stay tuned!",
-    "interestTime": "Interest Time"
+    "interestTime": "Interest Time",
+    "expirationTime": "Expiration Time"
   },
   "financial": {
     "myProperty": "My Property",

@@ -110,7 +110,8 @@
     "redeemDate": "赎回日期",
     "subscribeDate": "申购日期",
     "comingSoon": "即将开始，敬请期待！",
-    "interestTime": "发息时间"
+    "interestTime": "发息时间",
+    "expirationTime": "到期时间"
   },
   "financial": {
     "myProperty": "我的资产",

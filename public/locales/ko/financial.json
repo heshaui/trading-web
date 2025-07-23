@@ -110,7 +110,8 @@
     "redeemDate": "상환 날짜",
     "subscribeDate": "구독 날짜",
     "comingSoon": "준비 중입니다. 잠시 후 다시 시도해주세요!",
-    "interestTime": "이자 지급 시간"
+    "interestTime": "이자 지급 시간",
+    "expirationTime": "만기 시간"
   },
   "financial": {
     "myProperty": "내 자산",

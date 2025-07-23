@@ -80,7 +80,7 @@ const TabsItem = ({
   // 表格列
   const { t } = useTranslation(["financial"]);
 
-  // 定期 币种 自动申购 申购日期 期限(天) 申购金额 年利率 累计收益 赎回日期 操作
+  // 定期 币种 自动申购 申购日期 期限(天) 申购金额 年利率 累计收益 到期时间 操作
   // 活期 币种 自动申购                 申购金额 年利率 累计收益        操作
   const columns: ColumnsType<UserFinancialAccountItem> = [
     // 币种
@@ -88,6 +88,7 @@ const TabsItem = ({
       title: t("common.token"),
       dataIndex: "coinName",
       key: "coinName",
+      
       render: (_: any, record: any) => {
         return (
           <Flex gap="8px">
@@ -167,6 +168,7 @@ const TabsItem = ({
       title: t("common.purchaseAmount"),
       dataIndex: "purchaseAmount",
       key: "purchaseAmount",
+      align: "right" as const,
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
@@ -213,6 +215,7 @@ const TabsItem = ({
       title: t("common.totalIncome"),
       dataIndex: "accruedInterest",
       key: "accruedInterest",
+      align: "right" as const,
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[400]">
@@ -242,11 +245,11 @@ const TabsItem = ({
       },
     },
 
-    // 赎回日期 定期显示
+    // 到期时间 定期显示
     ...(type === FinancialType.FIXED
       ? [
           {
-            title: t("common.redeemDate"),
+            title: t("common.expirationTime"),
             dataIndex: "expirationTime",
             key: "expirationTime",
             render: (_: any, record: any) => {
