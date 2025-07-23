@@ -38,6 +38,7 @@ import financialStyles from "@/styles/components/Financial.module.css";
 import { useStyle } from "@/theme/financialThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
 import SpotBuyModal from "../spotModal/placeOrder_modal";
+import ScrollableContainer from "./ScrollableContainer";
 
 interface SubscriptionProps {
   setSpotModal: (open: boolean) => void;
@@ -194,10 +195,10 @@ const Subscription: React.FC<SubscriptionProps> = ({
       <Form.Item name="projectId" hidden>
         <Input />
       </Form.Item>
-      <div className="px-[20px]">
+      <div>
         {/* 选择产品 第一个为 productInfo?.id === item.id  */}
-        <div className="flex flex-ai-center gap-[17px] my-[16px] flex-wrap">
-          {/* 过滤 非进行中 并且 申购时间 与当前时间对比 小于0的 */}
+        {/* 过滤 非进行中 并且 申购时间 与当前时间对比 小于0的 */}
+        {/* <div className="flex flex-ai-center gap-[17px] my-[16px] flex-wrap">
           {sortedData
             .filter(
               (item) =>
@@ -254,274 +255,338 @@ const Subscription: React.FC<SubscriptionProps> = ({
                 </div>
               );
             })}
-        </div>
-        {/* 申购数量input */}
-        <div className="mb-[16px]">
-          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            {t("common.applyAmount")}
-          </div>
-          <Form.Item
-            style={{
-              marginBottom: "0px",
-            }}
-            name="financialAmount"
-            rules={[
-              {
-                required: true,
-                message: t("common.pleaseEnterSubscribeAmount"),
-              },
-              {
-                validator: (_, value) => {
-                  // 如果没有输入值，不进行范围校验，让required规则单独处理
-                  if (!value || value === "") {
-                    return Promise.resolve();
-                  }
-
-                  // 如果不是数字 则返回错误(请输入数字)
-                  if (isNaN(Number(value))) {
-                    return Promise.reject(
-                      new Error(t("common.pleaseEnterTheNumber"))
+        </div> */}
+        <ScrollableContainer>
+          {sortedData
+            .filter(
+              (item) =>
+                Number(item.status) ===
+                  FinancialPageTokenStatusEnum.IN_PROGRESS &&
+                item.purchaseStartTime &&
+                item.purchaseStartTime - dayjs().valueOf() <= 0
+            )
+            .map((item) => {
+              return (
+                <div
+                  onClick={() => {
+                    form.resetFields();
+                    setIncome(() => "-");
+                    setProductInfo(item);
+                    form.setFieldValue("projectId", item.id);
+                    form.setFieldValue(
+                      "autoPurchase",
+                      curRecord?.curProduct.autoPurchase
                     );
-                  }
-
-                  // 输入的金额小于最小金额 则返回错误(输入金额小于最小申购金额)
-                  if (
-                    productInfo?.minPurchaseAmount &&
-                    Number(value) < Number(productInfo?.minPurchaseAmount)
-                  ) {
-                    return Promise.reject(
-                      new Error(
-                        `${productInfo?.minPurchaseAmount} ${
-                          tokenInfo?.coinName
-                        } ${t("common.startInvestment")}`
-                      )
-                    );
-                  }
-
-                  // 输入的金额大于最大金额 则返回错误(输入金额大于最大申购金额)
-                  if (
-                    productInfo?.maxPurchaseAmount &&
-                    Number(value) > Number(productInfo?.maxPurchaseAmount)
-                  ) {
-                    return Promise.reject(
-                      new Error(
-                        `${t("common.exceedSubscribeAmount")} ${
-                          productInfo?.maxPurchaseAmount
-                        } ${tokenInfo?.coinName}`
-                      )
-                    );
-                  }
-
-                  // 输入金额大于余额 则返回错误(账户余额不足)
-                  if (
-                    Number(value) >
-                    Number(financialSubscribeShow.availableAmount)
-                  ) {
-                    return Promise.reject(
-                      new Error(t("common.insufficientBalance"))
-                    );
-                  }
-
-                  return Promise.resolve();
-                },
-              },
-            ]}
-          >
-            <Input
-              autoComplete="off"
-              placeholder={`${t("common.min")} ${
-                productInfo?.minPurchaseAmount
-              } ${tokenInfo?.coinName}`}
-              className="m-[10px_0] w-[100%] h-[50px]"
-              suffix={suffix}
-              onChange={(e) => {
-                // 如果输入的金额不是数字 则返回错误
-                if (isNaN(Number(e.target.value))) {
-                  setIncome(() => "-");
-                  return;
-                }
-                // 输入的值小于最小金额
-                if (
-                  Number(e.target.value) <
-                  Number(productInfo?.minPurchaseAmount)
-                ) {
-                  setIncome(() => "-");
-                  return;
-                }
-                // 输入的值大于最大金额
-                if (
-                  Number(e.target.value) >
-                  Number(productInfo?.maxPurchaseAmount)
-                ) {
-                  setIncome(() => "-");
-                  return;
-                }
-                // 取消之前的防抖调用，重新开始计算
-                debounceFetchIncome.cancel();
-                // 重新开始防抖计算
-                debounceFetchIncome(projectId, e.target.value);
-              }}
-            />
-          </Form.Item>
-          {/* 现货可用 */}
-          <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[#9E9E9E] font-[400]">
-              {t("common.spotAvailable")}
-            </div>
-            <div className="flex flex-ai-center gap-[4px]">
-              <div>
-                {tokenInfo?.coinName ? (
-                  <>
-                    {getCoinRound(
-                      tokenInfo?.coinName,
-                      financialSubscribeShow.availableAmount
-                    )}{" "}
-                    {tokenInfo?.coinName}
-                  </>
-                ) : (
-                  <>
-                    {financialSubscribeShow.availableAmount}{" "}
-                    {tokenInfo?.coinName}
-                  </>
-                )}
-              </div>
-              <SvgIcon
-                onClick={() => setSpotModal(true)}
-                viewBox="0 0 16 16"
-                width={16}
-                height={16}
-                path="M8.00016 1.33334C11.6822 1.33334 14.6668 4.31801 14.6668 8.00001C14.6668 11.682 11.6822 14.6667 8.00016 14.6667C4.31816 14.6667 1.3335 11.682 1.3335 8.00001C1.3335 4.31801 4.31816 1.33334 8.00016 1.33334ZM8.00016 2.66668C6.58567 2.66668 5.22912 3.22858 4.22893 4.22877C3.22873 5.22897 2.66683 6.58552 2.66683 8.00001C2.66683 9.4145 3.22873 10.7711 4.22893 11.7712C5.22912 12.7714 6.58567 13.3333 8.00016 13.3333C9.41465 13.3333 10.7712 12.7714 11.7714 11.7712C12.7716 10.7711 13.3335 9.4145 13.3335 8.00001C13.3335 6.58552 12.7716 5.22897 11.7714 4.22877C10.7712 3.22858 9.41465 2.66668 8.00016 2.66668ZM8.00016 4.66668C8.17697 4.66668 8.34654 4.73691 8.47157 4.86194C8.59659 4.98696 8.66683 5.15653 8.66683 5.33334V7.33334H10.6668C10.8436 7.33334 11.0132 7.40358 11.1382 7.52861C11.2633 7.65363 11.3335 7.8232 11.3335 8.00001C11.3335 8.17682 11.2633 8.34639 11.1382 8.47141C11.0132 8.59644 10.8436 8.66668 10.6668 8.66668H8.66683V10.6667C8.66683 10.8435 8.59659 11.0131 8.47157 11.1381C8.34654 11.2631 8.17697 11.3333 8.00016 11.3333C7.82335 11.3333 7.65378 11.2631 7.52876 11.1381C7.40373 11.0131 7.3335 10.8435 7.3335 10.6667V8.66668H5.3335C5.15668 8.66668 4.98712 8.59644 4.86209 8.47141C4.73707 8.34639 4.66683 8.17682 4.66683 8.00001C4.66683 7.8232 4.73707 7.65363 4.86209 7.52861C4.98712 7.40358 5.15668 7.33334 5.3335 7.33334H7.3335V5.33334C7.3335 5.15653 7.40373 4.98696 7.52876 4.86194C7.65378 4.73691 7.82335 4.66668 8.00016 4.66668Z"
-              />
-            </div>
-          </div>
-          {/* 可申购金额 */}
-          <div className="flex flex-ai-center flex-jc-between">
-            <span className="text-[#9E9E9E] font-[400]">
-              {t("common.canSubscribe")}
-            </span>
-            <span>
-              {financialSubscribeShow.allowPurchaseAmount} {tokenInfo?.coinName}
-            </span>
-          </div>
-        </div>
-        {/* 概览 */}
-        <div className="flex flex-column gap-[10px] mb-[24px]">
-          {/* 标题 */}
-          <div className="text-[14px] text-[var(--text-color5)] font-[400]">
-            {t("common.overview")}
-          </div>
-          {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
-          <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              <Popover
-                color="var(--background12)"
-                overlayStyle={{
-                  filter: "drop-shadow(0px 5px 30px var(--background))",
-                }}
-                content={
-                  <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
-                    <div className="flex gap-[3px]">
-                      <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
-                      <div>{t("common.estimatedIncomeTips1")}</div>
-                    </div>
-                    <div className="flex gap-[3px]">
-                      <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
-                      <div>{t("common.estimatedIncomeTips2")}</div>
-                    </div>
+                    // 调用父组件的产品变更处理函数
+                    onProductChange(item);
+                  }}
+                  key={item.id}
+                  style={{
+                    border:
+                      productInfo?.id === item.id
+                        ? "1px solid var(--theme-color)"
+                        : "1px solid var(--border-color4)",
+                    cursor: "pointer",
+                  }}
+                  className={`rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
+                    productInfo?.id === item.id
+                      ? "border-[var(--theme-color)]"
+                      : "border-[var(--border-color4)]"
+                  }`}
+                >
+                  <div>
+                    {item.type === FinancialType.CURRENT
+                      ? t("common.current")
+                      : `${item.term} ${t("common.day")}`}
                   </div>
-                }
-              >
-                <div className="border-b border-dashed border-[var(--text-color6)]">
-                  {productInfo?.type === FinancialType.CURRENT
-                    ? t("common.estimatedDailyIncome")
-                    : t("common.estimatedTotalIncome")}
-                </div>
-              </Popover>
-            </div>
-
-            <div className="text-[var(--theme-color)] font-[400]">
-              {income} {tokenInfo?.coinName}
-            </div>
-          </div>
-          {/* 自动申购开关 */}
-          <div className="flex flex-ai-center flex-jc-between">
-            <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
-              <Popover
-                overlayStyle={{
-                  filter: "drop-shadow(0px 5px 30px var(--background))",
-                }}
-                color="var(--background12)"
-                content={
-                  <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
-                    {t("common.autoSubscribeTips")}
+                  <div className="text-[#00C788]">
+                    {item.type === FinancialType.FIXED ? (
+                      <span>{item.maxAnnualInterestRate}%</span>
+                    ) : (
+                      <>
+                        <span>{item.minAnnualInterestRate}%</span>~
+                        <span>{item.maxAnnualInterestRate}%</span>
+                      </>
+                    )}
                   </div>
-                }
-              >
-                <div className="border-b border-dashed border-[var(--text-color6)]">
-                  {t("common.autoSubscribe")}
                 </div>
-              </Popover>
-            </div>
-            <Form.Item name="autoPurchase" noStyle>
-              <Switch size="small" />
-            </Form.Item>
-          </div>
-        </div>
-        {/* 奖励规则 定期不显示 活期显示 */}
-        {productInfo?.type === FinancialType.CURRENT && (
+              );
+            })}
+        </ScrollableContainer>
+        <div className="px-[20px]">
+          {/* 申购数量input */}
           <div className="mb-[16px]">
-            <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
-              {t("common.rewardRules")}
+            <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+              {t("common.applyAmount")}
             </div>
-            <>
-              <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
-                <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
-                  <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
-                  <div>
-                    {t("common.applyAmount")}0 - {productInfo?.assetBoundary}
-                    {tokenInfo?.coinName}
-                  </div>
-                </div>
-                <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.annualInterestRate")}{" "}
-                  {productInfo?.minAnnualInterestRate}%
-                </div>
-              </div>
-              <div className="flex flex-ai-center flex-jc-between text-[14px]">
-                <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
-                  <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
-                  <div>
-                    {t("common.applyAmount")} &gt; {productInfo?.assetBoundary}
-                    {tokenInfo?.coinName}
-                  </div>
-                </div>
-                <div className="text-[var(--text-color6)] font-[400]">
-                  {t("common.annualInterestRate")}{" "}
-                  {productInfo?.maxAnnualInterestRate}%
-                </div>
-              </div>
-            </>
-          </div>
-        )}
-        {/* 提示 为定期产品*/}
-        {productInfo?.type === FinancialType.FIXED ? (
-          <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
-            <SvgIcon
-              width={16}
-              height={16}
-              path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
-            />
-            <div>
-              {productInfo?.isRedemption === OpenStatusEnum.YES
-                ? t("common.thisProductSupportsEarlyRedemption")
-                : t("common.thisProductDoesNotSupportEarlyRedemption")}
+            <Form.Item
+              style={{
+                marginBottom: "0px",
+              }}
+              name="financialAmount"
+              rules={[
+                {
+                  required: true,
+                  message: t("common.pleaseEnterSubscribeAmount"),
+                },
+                {
+                  validator: (_, value) => {
+                    // 如果没有输入值，不进行范围校验，让required规则单独处理
+                    if (!value || value === "") {
+                      return Promise.resolve();
+                    }
 
-              <span className="cursor-pointer ml-[10px]" onClick={() => setTabsKey("2")}>
-                {t("common.viewRules")}
+                    // 如果不是数字 则返回错误(请输入数字)
+                    if (isNaN(Number(value))) {
+                      return Promise.reject(
+                        new Error(t("common.pleaseEnterTheNumber"))
+                      );
+                    }
+
+                    // 输入的金额小于最小金额 则返回错误(输入金额小于最小申购金额)
+                    if (
+                      productInfo?.minPurchaseAmount &&
+                      Number(value) < Number(productInfo?.minPurchaseAmount)
+                    ) {
+                      return Promise.reject(
+                        new Error(
+                          `${productInfo?.minPurchaseAmount} ${
+                            tokenInfo?.coinName
+                          } ${t("common.startInvestment")}`
+                        )
+                      );
+                    }
+
+                    // 输入的金额大于最大金额 则返回错误(输入金额大于最大申购金额)
+                    if (
+                      productInfo?.maxPurchaseAmount &&
+                      Number(value) > Number(productInfo?.maxPurchaseAmount)
+                    ) {
+                      return Promise.reject(
+                        new Error(
+                          `${t("common.exceedSubscribeAmount")} ${
+                            productInfo?.maxPurchaseAmount
+                          } ${tokenInfo?.coinName}`
+                        )
+                      );
+                    }
+
+                    // 输入金额大于余额 则返回错误(账户余额不足)
+                    if (
+                      Number(value) >
+                      Number(financialSubscribeShow.availableAmount)
+                    ) {
+                      return Promise.reject(
+                        new Error(t("common.insufficientBalance"))
+                      );
+                    }
+
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input
+                autoComplete="off"
+                placeholder={`${t("common.min")} ${
+                  productInfo?.minPurchaseAmount
+                } ${tokenInfo?.coinName}`}
+                className="m-[10px_0] w-[100%] h-[50px]"
+                suffix={suffix}
+                onChange={(e) => {
+                  // 如果输入的金额不是数字 则返回错误
+                  if (isNaN(Number(e.target.value))) {
+                    setIncome(() => "-");
+                    return;
+                  }
+                  // 输入的值小于最小金额
+                  if (
+                    Number(e.target.value) <
+                    Number(productInfo?.minPurchaseAmount)
+                  ) {
+                    setIncome(() => "-");
+                    return;
+                  }
+                  // 输入的值大于最大金额
+                  if (
+                    Number(e.target.value) >
+                    Number(productInfo?.maxPurchaseAmount)
+                  ) {
+                    setIncome(() => "-");
+                    return;
+                  }
+                  // 取消之前的防抖调用，重新开始计算
+                  debounceFetchIncome.cancel();
+                  // 重新开始防抖计算
+                  debounceFetchIncome(projectId, e.target.value);
+                }}
+              />
+            </Form.Item>
+            {/* 现货可用 */}
+            <div className="flex flex-ai-center flex-jc-between">
+              <div className="text-[#9E9E9E] font-[400]">
+                {t("common.spotAvailable")}
+              </div>
+              <div className="flex flex-ai-center gap-[4px]">
+                <div>
+                  {tokenInfo?.coinName ? (
+                    <>
+                      {getCoinRound(
+                        tokenInfo?.coinName,
+                        financialSubscribeShow.availableAmount
+                      )}{" "}
+                      {tokenInfo?.coinName}
+                    </>
+                  ) : (
+                    <>
+                      {financialSubscribeShow.availableAmount}{" "}
+                      {tokenInfo?.coinName}
+                    </>
+                  )}
+                </div>
+                <SvgIcon
+                  onClick={() => setSpotModal(true)}
+                  viewBox="0 0 16 16"
+                  width={16}
+                  height={16}
+                  path="M8.00016 1.33334C11.6822 1.33334 14.6668 4.31801 14.6668 8.00001C14.6668 11.682 11.6822 14.6667 8.00016 14.6667C4.31816 14.6667 1.3335 11.682 1.3335 8.00001C1.3335 4.31801 4.31816 1.33334 8.00016 1.33334ZM8.00016 2.66668C6.58567 2.66668 5.22912 3.22858 4.22893 4.22877C3.22873 5.22897 2.66683 6.58552 2.66683 8.00001C2.66683 9.4145 3.22873 10.7711 4.22893 11.7712C5.22912 12.7714 6.58567 13.3333 8.00016 13.3333C9.41465 13.3333 10.7712 12.7714 11.7714 11.7712C12.7716 10.7711 13.3335 9.4145 13.3335 8.00001C13.3335 6.58552 12.7716 5.22897 11.7714 4.22877C10.7712 3.22858 9.41465 2.66668 8.00016 2.66668ZM8.00016 4.66668C8.17697 4.66668 8.34654 4.73691 8.47157 4.86194C8.59659 4.98696 8.66683 5.15653 8.66683 5.33334V7.33334H10.6668C10.8436 7.33334 11.0132 7.40358 11.1382 7.52861C11.2633 7.65363 11.3335 7.8232 11.3335 8.00001C11.3335 8.17682 11.2633 8.34639 11.1382 8.47141C11.0132 8.59644 10.8436 8.66668 10.6668 8.66668H8.66683V10.6667C8.66683 10.8435 8.59659 11.0131 8.47157 11.1381C8.34654 11.2631 8.17697 11.3333 8.00016 11.3333C7.82335 11.3333 7.65378 11.2631 7.52876 11.1381C7.40373 11.0131 7.3335 10.8435 7.3335 10.6667V8.66668H5.3335C5.15668 8.66668 4.98712 8.59644 4.86209 8.47141C4.73707 8.34639 4.66683 8.17682 4.66683 8.00001C4.66683 7.8232 4.73707 7.65363 4.86209 7.52861C4.98712 7.40358 5.15668 7.33334 5.3335 7.33334H7.3335V5.33334C7.3335 5.15653 7.40373 4.98696 7.52876 4.86194C7.65378 4.73691 7.82335 4.66668 8.00016 4.66668Z"
+                />
+              </div>
+            </div>
+            {/* 可申购金额 */}
+            <div className="flex flex-ai-center flex-jc-between">
+              <span className="text-[#9E9E9E] font-[400]">
+                {t("common.canSubscribe")}
+              </span>
+              <span>
+                {financialSubscribeShow.allowPurchaseAmount}{" "}
+                {tokenInfo?.coinName}
               </span>
             </div>
           </div>
-        ) : null}
+          {/* 概览 */}
+          <div className="flex flex-column gap-[10px] mb-[24px]">
+            {/* 标题 */}
+            <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+              {t("common.overview")}
+            </div>
+            {/* 预估收益  定期label:预估总收益  活期label:预估每日收益*/}
+            <div className="flex flex-ai-center flex-jc-between">
+              <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
+                <Popover
+                  color="var(--background12)"
+                  overlayStyle={{
+                    filter: "drop-shadow(0px 5px 30px var(--background))",
+                  }}
+                  content={
+                    <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
+                      <div className="flex gap-[3px]">
+                        <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
+                        <div>{t("common.estimatedIncomeTips1")}</div>
+                      </div>
+                      <div className="flex gap-[3px]">
+                        <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)] flex-shrink-0 mt-[8px]"></div>
+                        <div>{t("common.estimatedIncomeTips2")}</div>
+                      </div>
+                    </div>
+                  }
+                >
+                  <div className="border-b border-dashed border-[var(--text-color6)]">
+                    {productInfo?.type === FinancialType.CURRENT
+                      ? t("common.estimatedDailyIncome")
+                      : t("common.estimatedTotalIncome")}
+                  </div>
+                </Popover>
+              </div>
+
+              <div className="text-[var(--theme-color)] font-[400]">
+                {income} {tokenInfo?.coinName}
+              </div>
+            </div>
+            {/* 自动申购开关 */}
+            <div className="flex flex-ai-center flex-jc-between">
+              <div className="text-[var(--text-color6)] font-[400] cursor-pointer flex flex-ai-center gap-[4px]">
+                <Popover
+                  overlayStyle={{
+                    filter: "drop-shadow(0px 5px 30px var(--background))",
+                  }}
+                  color="var(--background12)"
+                  content={
+                    <div className="max-w-[236px] text-[14px] text-[var(--text-color5)] font-[400]">
+                      {t("common.autoSubscribeTips")}
+                    </div>
+                  }
+                >
+                  <div className="border-b border-dashed border-[var(--text-color6)]">
+                    {t("common.autoSubscribe")}
+                  </div>
+                </Popover>
+              </div>
+              <Form.Item name="autoPurchase" noStyle>
+                <Switch size="small" />
+              </Form.Item>
+            </div>
+          </div>
+          {/* 奖励规则 定期不显示 活期显示 */}
+          {productInfo?.type === FinancialType.CURRENT && (
+            <div className="mb-[16px]">
+              <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
+                {t("common.rewardRules")}
+              </div>
+              <>
+                <div className="flex flex-ai-center flex-jc-between text-[14px] mb-[4px]">
+                  <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
+                    <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
+                    <div>
+                      {t("common.applyAmount")}0 - {productInfo?.assetBoundary}
+                      {tokenInfo?.coinName}
+                    </div>
+                  </div>
+                  <div className="text-[var(--text-color6)] font-[400]">
+                    {t("common.annualInterestRate")}{" "}
+                    {productInfo?.minAnnualInterestRate}%
+                  </div>
+                </div>
+                <div className="flex flex-ai-center flex-jc-between text-[14px]">
+                  <div className="text-[var(--text-color6)] font-[400] flex flex-ai-center gap-[4px]">
+                    <div className="w-[6px] h-[6px] rotate-[-45deg] bg-[var(--theme-color)]"></div>
+                    <div>
+                      {t("common.applyAmount")} &gt;{" "}
+                      {productInfo?.assetBoundary}
+                      {tokenInfo?.coinName}
+                    </div>
+                  </div>
+                  <div className="text-[var(--text-color6)] font-[400]">
+                    {t("common.annualInterestRate")}{" "}
+                    {productInfo?.maxAnnualInterestRate}%
+                  </div>
+                </div>
+              </>
+            </div>
+          )}
+          {/* 提示 为定期产品*/}
+          {productInfo?.type === FinancialType.FIXED ? (
+            <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] text-[#FF8A26] bg-[#FF8A2614] flex flex-ai-center gap-[4px]">
+              <SvgIcon
+                width={16}
+                height={16}
+                path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+              <div>
+                {productInfo?.isRedemption === OpenStatusEnum.YES
+                  ? t("common.thisProductSupportsEarlyRedemption")
+                  : t("common.thisProductDoesNotSupportEarlyRedemption")}
+
+                <span
+                  className="cursor-pointer ml-[10px]"
+                  onClick={() => setTabsKey("2")}
+                >
+                  {t("common.viewRules")}
+                </span>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </Form>
   );
@@ -840,6 +905,7 @@ const SubscribeModal = ({
     useState<FinancialSubscribeShowItem>({
       availableAmount: 0, // 可用余额
       allowPurchaseAmount: 0, // 可申购金额
+      autoPurchase: 0, // 自动申购
     }); // 申购展示
 
   // 监听表单字段变化
@@ -851,6 +917,7 @@ const SubscribeModal = ({
       setFinancialSubscribeShow({
         availableAmount: 0,
         allowPurchaseAmount: 0,
+        autoPurchase: 0,
       });
       const projectId = product.id;
       const coinIdParam = curRecord?.token.coinId;
@@ -866,9 +933,12 @@ const SubscribeModal = ({
       const res = await getFinancialSubscribeShow(params);
       if (res.code === "0") {
         setFinancialSubscribeShow(res.data);
+        form.setFieldsValue({
+          autoPurchase: res.data.autoPurchase,
+        });
       }
     },
-    [curRecord?.token.coinId]
+    [curRecord?.token.coinId, form]
   );
 
   // 标签页

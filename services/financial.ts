@@ -523,6 +523,7 @@ interface FinancialSubscribeShowParams {
 export interface FinancialSubscribeShowItem {
   availableAmount: number;
   allowPurchaseAmount: number;
+  autoPurchase: OpenStatusEnum;
 }
 export function getFinancialSubscribeShow(
   params: FinancialSubscribeShowParams
