@@ -356,7 +356,7 @@ export const cancelOrder = async (params: any) => {
   }
 };
 
-// /fe-co-api/order/history_order_list
+// 历史委托
 export const getHistoryOrderList = async (params: any) => {
   try {
     const formattedParams = await formatParams(params);
@@ -372,7 +372,7 @@ export const getHistoryOrderList = async (params: any) => {
   }
 };
 
-// /fe-co-api/position/history_position_list
+// 历史持仓,盈亏记录
 export const getHistoryPositionList = async (params: any) => {
   try {
     const formattedParams = await formatParams(params);
@@ -388,7 +388,7 @@ export const getHistoryPositionList = async (params: any) => {
   }
 };
 
-// /fe-co-api/common/depth_map
+//深度图
 export const getDepthMap = async (params: any) => {
   try {
     const formattedParams = await formatParams(params);
@@ -404,5 +404,38 @@ export const getDepthMap = async (params: any) => {
   }
 };
 
+// 条件委托
+export const getPositionList = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/order/trigger_order_list', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取条件委托列表失败:', error);
+    throw error;
+  }
+};
 
 
+
+
+
+// 成交记录
+export const getTradeRecord = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/order/get_trade_info', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('获取成交记录失败:', error);
+    throw error;
+  }
+};

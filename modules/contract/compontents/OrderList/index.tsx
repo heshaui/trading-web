@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Table, Button, Switch, Space, Dropdown, Menu, message } from 'antd';
-import { Iconify } from '@/components/icon';
-import {  } from '@/services/contract';
 import styles from './styles.module.css';
 import appStore from '@/store'
 import { cancelOrder,getHistoryOrderList,getCurrentOrderList } from '@/services/contract';
@@ -110,6 +108,7 @@ const OrderList: React.FC = () => {
     }
   };
 
+
   // 取消订单功能
   const handleCancelOrder = async (order: any) => {
     try {
@@ -167,13 +166,13 @@ const OrderList: React.FC = () => {
       key: 'symbol',
     },
     {
-      title: '委托数量',
+      title: '数量',
       dataIndex: 'size',
       key: 'size',
       render: (size: number) => size?.toFixed(3) || '--',
     },
     {
-      title: '成本',
+      title: '成本价',
       dataIndex: 'entryPrice',
       key: 'entryPrice',
       render: (price: number) => price?.toLocaleString() || '--',
@@ -185,14 +184,16 @@ const OrderList: React.FC = () => {
       render: (price: number) => price?.toLocaleString() || '--',
     },
     {
-      title: '未实现盈亏',
-      dataIndex: 'pnl',
-      key: 'pnl',
-      render: (pnl: number) => (
-        <span className={pnl >= 0 ? styles.profit : styles.loss}>
-          {pnl?.toFixed(2) || '0.00'}
-        </span>
-      ),
+      title: '预估强平价',
+      dataIndex: 'liquidationPrice',
+      key: 'liquidationPrice',
+      render: (price: number) => price?.toLocaleString() || '--',
+    },
+    {
+      title: '保证金',
+      dataIndex: 'margin',
+      key: 'margin',
+      render: (margin: number) => margin?.toLocaleString() || '--',
     },
     {
       title: '保证金率',
@@ -201,12 +202,12 @@ const OrderList: React.FC = () => {
       render: (rate: number) => `${(rate * 100)?.toFixed(2) || '0.00'}%`,
     },
     {
-      title: '收益率',
-      dataIndex: 'pnlRate',
-      key: 'pnlRate',
-      render: (rate: number) => (
-        <span className={rate >= 0 ? styles.profit : styles.loss}>
-          {(rate * 100)?.toFixed(2) || '0.00'}%
+      title: '未实现盈亏/收益率',
+      dataIndex: 'pnl',
+      key: 'pnl',
+      render: (pnl: number) => (
+        <span className={pnl >= 0 ? styles.profit : styles.loss}>
+          {pnl?.toFixed(2) || '0.00'}
         </span>
       ),
     },
@@ -234,6 +235,15 @@ const OrderList: React.FC = () => {
       render: () => (
         <Button size="small" type="link">
           止盈止损
+        </Button>
+      ),
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (record: Position) => (
+        <Button size="small" type="link" onClick={() => handleCancelOrder(record)}>
+          撤销订单
         </Button>
       ),
     },
@@ -415,7 +425,7 @@ const OrderList: React.FC = () => {
   const tabItems = [
     {
       key: 'position',
-      label: `持仓(${filterDataBySymbol(positions).length})`,
+      label: `仓位(${filterDataBySymbol(positions).length})`,
     },
     {
       key: 'openOrders',
@@ -431,7 +441,11 @@ const OrderList: React.FC = () => {
     },
     {
       key: 'tradeHistory',
-      label: `成交历史(${filterDataBySymbol(tradeHistory).length})`,
+      label: `盈亏记录(${filterDataBySymbol(tradeHistory).length})`,
+    },
+    {
+      key: 'tradeRecord',
+      label: `成交记录(${filterDataBySymbol(tradeHistory).length})`,
     },
   ];
 

@@ -27,13 +27,13 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [toAccount, setToAccount] = useState<'spot' | 'contract'>('contract');
   const [selectedCoin, setSelectedCoin] = useState('USDT');
   const [transferAmount, setTransferAmount] = useState('');
-  const [availableBalance] = useState(0.00); // 可转余额
+  const [availableBalance] = useState(103.03); // 可用余额
 
   // 币种选项
   const coinOptions = [
-    { value: 'USDT', label: 'USDT' },
-    { value: 'BTC', label: 'BTC' },
-    { value: 'ETH', label: 'ETH' }
+    { value: 'USDT', label: 'USDT', subLabel: 'tetherUSD' },
+    { value: 'BTC', label: 'BTC', subLabel: 'Bitcoin' },
+    { value: 'ETH', label: 'ETH', subLabel: 'Ethereum' }
   ];
 
   // 处理关闭
@@ -55,8 +55,8 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
     handleCancel();
   };
 
-  // 处理全部按钮
-  const handleAllAmount = () => {
+  // 处理最大按钮
+  const handleMaxAmount = () => {
     setTransferAmount(availableBalance.toString());
   };
 
@@ -71,51 +71,27 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
     return accountType === 'spot' ? '现货账户' : '合约账户';
   };
 
-  // 弹框底部按钮
-  const ModalFooter = () => {
-    return (
-      <div className={styles.footerButtons}>
-        <Button
-          size="large"
-          onClick={handleCancel}
-          className={styles.cancelBtn}
-        >
-          取消
-        </Button>
-        <Button
-          type="primary"
-          size="large"
-          onClick={handleConfirm}
-          disabled={!transferAmount || Number(transferAmount) <= 0}
-          className={styles.confirmBtn}
-        >
-          确定
-        </Button>
-      </div>
-    );
-  };
-
   return (
     <ConfigProvider
       theme={{
         components: {
           Modal: {
-            contentBg: "var(--background5)",
-            footerBg: "var(--background5)",
-            headerBg: "var(--background5)",
+            contentBg: "#ffffff",
+            footerBg: "#ffffff",
+            headerBg: "#ffffff",
           },
           Input: {
-            activeBorderColor: 'var(--theme-color)',
-            hoverBorderColor: 'var(--theme-color)',
-            controlHeightLG: 50,
-            activeBg: 'var(--background5)',
-            hoverBg: 'var(--background5)',
+            activeBorderColor: '#ff6b35',
+            hoverBorderColor: '#ff6b35',
+            controlHeightLG: 48,
+            activeBg: '#ffffff',
+            hoverBg: '#ffffff',
           },
           Button: {
-            controlHeightLG: 50,
+            controlHeightLG: 48,
           },
           Select: {
-            selectorBg: 'var(--background5)',
+            selectorBg: '#ffffff',
           }
         },
       }}
@@ -135,47 +111,62 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
         }
         centered
         onCancel={handleCancel}
-        footer={<ModalFooter />}
-        width={470}
+        footer={null}
+        width={500}
         className={`modal_box ${styles.transferModal}`}
         closable={false}
         maskClosable={false}
       >
         <div className={styles.modalContent}>
-          {/* 划转方向 */}
-          <div className={styles.transferDirection}>
-            <div className={styles.directionSection}>
-              <span className={styles.directionLabel}>从</span>
-              <div className={styles.accountBox}>
-                <span className={styles.accountName}>{getAccountName(fromAccount)}</span>
-                <div className={styles.balanceInfo}>
-                  <span className={styles.balanceLabel}>可转</span>
-                  <span className={styles.balanceValue}>{availableBalance.toFixed(2)}</span>
-                </div>
-              </div>
+          {/* 账户选择区域 */}
+          <div className={styles.accountSection}>
+            <div className={styles.accountItem}>
+              <label className={styles.accountLabel}>从</label>
+              <Select
+                value={fromAccount}
+                onChange={(value) => {
+                  setFromAccount(value);
+                  setToAccount(value === 'spot' ? 'contract' : 'spot');
+                }}
+                className={styles.accountSelect}
+                size="large"
+                suffixIcon={<Iconify icon="mdi:chevron-down" />}
+              >
+                <Option value="spot">现货账户</Option>
+                <Option value="contract">合约账户</Option>
+              </Select>
             </div>
 
-            <div className={styles.swapContainer}>
-              <div className={styles.swapButton} onClick={handleAccountSwitch}>
-                <Iconify icon="mdi:swap-horizontal" className={styles.swapIcon} />
-              </div>
+            <div className={styles.swapButtonWrapper}>
+              <Button
+                type="text"
+                icon={<Iconify icon="mdi:swap-horizontal" />}
+                onClick={handleAccountSwitch}
+                className={styles.swapButton}
+              />
             </div>
 
-            <div className={styles.directionSection}>
-              <span className={styles.directionLabel}>划转到</span>
-              <div className={styles.accountBox}>
-                <span className={styles.accountName}>{getAccountName(toAccount)}</span>
-                <div className={styles.balanceInfo}>
-                  <span className={styles.balanceLabel}>可转</span>
-                  <span className={styles.balanceValue}>{availableBalance.toFixed(2)}</span>
-                </div>
-              </div>
+            <div className={styles.accountItem}>
+              <label className={styles.accountLabel}>到</label>
+              <Select
+                value={toAccount}
+                onChange={(value) => {
+                  setToAccount(value);
+                  setFromAccount(value === 'spot' ? 'contract' : 'spot');
+                }}
+                className={styles.accountSelect}
+                size="large"
+                suffixIcon={<Iconify icon="mdi:chevron-down" />}
+              >
+                <Option value="spot">现货账户</Option>
+                <Option value="contract">合约账户</Option>
+              </Select>
             </div>
           </div>
 
           {/* 币种选择 */}
-          <div className={styles.coinSection}>
-            <div className={styles.sectionLabel}>币种</div>
+          <div className={styles.formItem}>
+            <label className={styles.formLabel}>币种</label>
             <Select
               value={selectedCoin}
               onChange={setSelectedCoin}
@@ -185,37 +176,64 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
             >
               {coinOptions.map(coin => (
                 <Option key={coin.value} value={coin.value}>
-                  {coin.label}
+                  <div className={styles.coinOption}>
+                    <div className={styles.coinIcon}>
+                      {coin.value === 'USDT' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#26a17b'}}>₮</span>}
+                      {coin.value === 'BTC' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#f7931a'}}>₿</span>}
+                      {coin.value === 'ETH' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#627eea'}}>Ξ</span>}
+                    </div>
+                    <div className={styles.coinInfo}>
+                      <span className={styles.coinSymbol}>{coin.label}</span>
+                      <span className={styles.coinName}>{coin.subLabel}</span>
+                    </div>
+                  </div>
                 </Option>
               ))}
             </Select>
           </div>
 
-          {/* 划转数量 */}
-          <div className={styles.amountSection}>
-            <div className={styles.sectionLabel}>划转数量</div>
+          {/* 数量输入 */}
+          <div className={styles.formItem}>
+            <label className={styles.formLabel}>数量</label>
             <div className={styles.amountInputWrapper}>
               <Input
                 value={transferAmount}
                 onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="划转数量"
+                placeholder="最少10"
                 className={styles.amountInput}
                 size="large"
                 suffix={
                   <div className={styles.inputSuffix}>
+                    <span className={styles.coinUnit}>USDT</span>
                     <Button
                       type="text"
                       size="small"
-                      onClick={handleAllAmount}
-                      className={styles.allButton}
+                      onClick={handleMaxAmount}
+                      className={styles.maxButton}
                     >
-                      全部
+                      最大
                     </Button>
                   </div>
                 }
               />
+              <div className={styles.availableBalance}>
+                <span>可用 </span>
+                <span className={styles.balanceAmount}>{availableBalance.toFixed(2)} USDT</span>
+              </div>
             </div>
           </div>
+
+          {/* 确认按钮 */}
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleConfirm}
+            disabled={!transferAmount || Number(transferAmount) <= 0}
+            className={styles.confirmButton}
+            block
+          >
+            确认
+          </Button>
         </div>
       </Modal>
     </ConfigProvider>
