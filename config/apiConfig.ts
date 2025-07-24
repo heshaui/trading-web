@@ -53,6 +53,7 @@ export const ROUTER_KEY_ASSETS = {
     FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
 };
 export const ROUTER_KEY_SPOT = {
+    INDEX:"/exchange", //首页
     SPOT_ORDER: "/spotOrder", //现货订单
     FLASH_ORDER:"/flashOrder", //闪兑订单
     FINANCIAL_ORDER:"/financialOrder", //理财订单
