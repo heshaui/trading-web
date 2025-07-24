@@ -96,22 +96,30 @@ class AppStore {
       this.initBanlanceShow(); //初始化资产显示状态
       this.initFlashConfigFromStorage(); // 初始化闪兑配置
       this.initUsdtRateFromStorage(); //初始化USDT和USD汇率
+      this.initFinancialConfigFromStorage(); //初始化理财配置
     }
   }
 
+  // 初始化用户token
   initToken() {
     if (!isBrowser()) return;
     this.userToken = localStorage.getItem(LOCAL_STORAGE_KEY.USER_TOKEN) || null;
   }
+
+  // 获取用户token
   getToken() {
     return this.userToken;
   }
+
+  // 设置用户token
   setToken(token: string) {
     this.userToken = token;
     if (isBrowser()) {
       localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
     }
   }
+
+  // 清除用户token
   clearToken() {
     this.userToken = null;
     localStorage.removeItem(LOCAL_STORAGE_KEY.USER_TOKEN);
@@ -148,9 +156,13 @@ class AppStore {
   getUpdateFlag() {
     return this.updateFlag;
   }
+
+  // 获取用户信息
   getUserInfo() {
     return this.userInfo;
   }
+
+  // 设置用户信息
   setUserInfo(userInfo: UserInfoType) {
     this.userInfo = userInfo;
     if (isBrowser()) {
@@ -160,6 +172,8 @@ class AppStore {
       );
     }
   }
+
+  // 更新用户信息
   updateUserInfo(newUserInfo: Partial<typeof this.userInfo>) {
     this.userInfo = {
       ...this.userInfo,
@@ -172,6 +186,8 @@ class AppStore {
       );
     }
   }
+
+  // 清除用户信息
   clearUserInfo() {
     this.userInfo = {} as UserInfoType;
     if (isBrowser()) {
@@ -179,6 +195,7 @@ class AppStore {
     }
   }
 
+  // 切换暗黑模式
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
   }
@@ -189,6 +206,8 @@ class AppStore {
       localStorage.setItem(LOCAL_STORAGE_KEY.USER_TOKEN, token);
     }
   }
+
+  // 清除用户token
   clearUserToken() {
     this.userToken = null;
     if (isBrowser()) {
@@ -196,14 +215,17 @@ class AppStore {
     }
   }
 
+  // 获取用户token
   getUserToken() {
     return this.userToken;
   }
 
+  // 设置授权码状态
   setAuthcodeState(state: string | number, type: string | number) {
     this.authcodeState = { state, type };
   }
 
+  // 清除授权码状态
   clearAuthcodeState() {
     this.authcodeState = { state: null, type: null };
   }
@@ -214,6 +236,8 @@ class AppStore {
   //         ...newLoginInfo
   //     };
   // }
+
+  // 更新注册信息
   updateRegisterInfo(newRegisterInfo: Partial<typeof this.registerInfo>) {
     this.registerInfo = {
       ...this.registerInfo,
@@ -221,6 +245,7 @@ class AppStore {
     };
   }
 
+  // 初始化邀请信息
   initInviteInfo() {
     if (!isBrowser()) return;
     const inviteInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.INVITE_INFO);
@@ -228,6 +253,8 @@ class AppStore {
       ? JSON.parse(inviteInfoJson)
       : ({} as inviteInfoType);
   }
+
+  // 设置邀请信息
   setInviteInfo(inviteInfo: inviteInfoType) {
     this.inviteInfo = inviteInfo;
     if (isBrowser()) {
@@ -237,9 +264,13 @@ class AppStore {
       );
     }
   }
+
+  // 获取邀请信息
   getInviteInfo() {
     return this.inviteInfo;
   }
+
+  // 清除邀请信息
   clearInviteInfo() {
     this.inviteInfo = {} as inviteInfoType;
     if (isBrowser()) {
@@ -645,6 +676,8 @@ class AppStore {
       });
     }
   }
+
+  // 初始化币种列表
   initCoinList() {
     if (!isBrowser()) return;
     const coinListJson = localStorage.getItem(LOCAL_STORAGE_KEY.CURRENT_COIN);
@@ -656,6 +689,8 @@ class AppStore {
   getCoinList() {
     return this.coinList;
   }
+
+  // 设置币种列表
   setCoinList(coinList: CoinType[]) {
     this.coinList = coinList;
     if (isBrowser()) {
@@ -714,6 +749,8 @@ class AppStore {
   getLangList() {
     return this.languageList;
   }
+
+  // 初始化kv配置
   initKvConfig() {
     if (!isBrowser()) return;
     try {
@@ -823,6 +860,7 @@ class AppStore {
     }
   }
 
+  // 获取闪兑配置
   async loadFlashConfig() {
     try {
       this.isLoadingFlashConfig = true;
@@ -901,6 +939,7 @@ class AppStore {
     }
   }
 
+  // 设置理财配置
   setFinancialConfig(config: any) {
     this.financialConfig = config;
     if (isBrowser()) {

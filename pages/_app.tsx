@@ -19,6 +19,7 @@ import { initTheme } from "@/hooks/dayModeChange";
 import { useFavicon } from "@/hooks/useFavicon";
 import appStore from "@/store";
 import { getFinancialConfig } from "@/services/financial";
+import { getConfig } from "@/services/flash";
 
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
@@ -38,8 +39,6 @@ function App({ Component, pageProps }: AppProps) {
     }
   }, [router.locale, i18n.isInitialized]);
 
-  
-
   // 在客户端同步暗色模式状态并应用主题变量
   useEffect(() => {
     appStore.loadCurrencyPairs();
@@ -56,6 +55,7 @@ function App({ Component, pageProps }: AppProps) {
     setIsAuthChecking,
   });
 
+  // 获取理财配置
   useEffect(() => {
     const getFinancialConfigInfo = async () => {
       const res = await getFinancialConfig();
@@ -66,12 +66,26 @@ function App({ Component, pageProps }: AppProps) {
     getFinancialConfigInfo();
   }, []);
 
+  //获取闪兑配置
+  useEffect(() => {
+    if (isLoggedIn) {
+      const getFlashConfigInfo = async () => {
+        const res = await getConfig({});
+        if (res.code === "0") {
+          appStore.setFlashConfig(res.data);
+        }
+      };
+
+      getFlashConfigInfo();
+    }
+  }, [isLoggedIn]);
+
+  // 获取用户信息
   useEffect(() => {
     if (isLoggedIn) {
       appStore.loadGetUserInfo("init");
     }
   }, [isLoggedIn]);
-
 
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
   const excludePaths = ["/resetPassword"];
