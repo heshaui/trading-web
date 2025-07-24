@@ -1,7 +1,7 @@
 .deal_page {
     background-color: var(--homeground2);
     color: var(--hometext);
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .deal_main,
@@ -29,13 +29,18 @@
 
 .deal_main_pic {
     margin-top: 5vh;
-    width: 100%;
-    height: 610px;
+    /* width: 100%; */
+    /* height: 610px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    margin-bottom: 80px;
 }
 
 .deal_main_pic>img {
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
 }
 
 @media (min-width:2560px) {

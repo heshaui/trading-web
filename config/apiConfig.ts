@@ -26,7 +26,8 @@ export const LOCAL_STORAGE_KEY = {
     USDT_RATE:'usdt_rate', // USDT汇率
     PUBLIC_INFO: 'public_info', // 公共信息
     USER_CONFIG: 'user_config', // 用户合约配置
-    CONTRACT_ASSETS: 'contract_assets' // 合约资产
+    CONTRACT_ASSETS: 'contract_assets',// 合约资产
+    FINANCIAL_CONFIG: 'financial_config', // 理财配置
 };
 
 export const KV_KEYS = [
@@ -51,10 +52,15 @@ export const ROUTER_KEY_ASSETS = {
     FINANCIAL:"/assets/financial", //理财账户
 
     FUTURE_ACCOUNT:"/assets/futureAccount", //合约账户
+    SPOT_ACCOUNT:"/assets/assetsAccount", //现货账户
+    FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
 };
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
     SPOT_ORDER: "/spotOrder", //现货订单
+    FLASH_ORDER:"/flashOrder", //闪兑订单
+    FINANCIAL_ORDER:"/financialOrder", //理财订单
+    BILL:"/billDetails", //账单页面
 };
 export const ROUTER_KEY_OPEN = {
     LOGIN:"/login", //登录页面

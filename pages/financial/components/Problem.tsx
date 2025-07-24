@@ -15,19 +15,31 @@ const Problem = () => {
     {
       key: "1",
       label: t("financial.question1.title"),
-      children: <p>{t("financial.question1.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question1.answer")}</p>,
       style: textStyle,
     },
     {
       key: "2",
       label: t("financial.question2.title"),
-      children: <p>{t("financial.question2.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question2.answer")}</p>,
       style: textStyle,
     },
     {
       key: "3",
       label: t("financial.question3.title"),
-      children: <p>{t("financial.question3.answer")}</p>,
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question3.answer")}</p>,
+      style: textStyle,
+    },
+    {
+      key: "4",
+      label: t("financial.question4.title"),
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question4.answer")}</p>,
+      style: textStyle,
+    },
+    {
+      key: "5",
+      label: t("financial.question5.title"),
+      children: <p className="text-[14px] text-[var(--text-color6)] font-[400]">{t("financial.question5.answer")}</p>,
       style: textStyle,
     },
   ];
@@ -42,12 +54,12 @@ const Problem = () => {
         },
       }}
     >
-      <div className="p-[30px_120px]">
+      <div id="problem" className="py-[30px] max-w-[1200px] mx-auto">
         <div className="text-[32px] font-w-500 mb-[40px] text-[var(--text-color5)]">
           {t("financial.question")}
         </div>
 
-        <div className="m-[5px_20px]">
+        <div>
           <Collapse expandIconPosition="end" ghost items={items} />
         </div>
       </div>

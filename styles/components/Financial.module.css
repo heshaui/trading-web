@@ -20,6 +20,11 @@
   padding: 0 !important;
 }
 
+.table :global(.ant-table-expanded-row)
+  > :global(.ant-table-cell) {
+  border-radius: 8px;
+}
+
 .table
   :global(.ant-table-expanded-row)
   > :global(.ant-table-cell)
@@ -29,8 +34,15 @@
 
 
 .tabs :global(.ant-tabs-nav::before) {
+  /* border-bottom: 0.5px solid var(--border-color4) !important; */
   border-bottom: none !important;
+  box-shadow: 0px -0.5px 0px 0px var(--border-color4) inset !important;
 }
+
+.tabs2 :global(.ant-tabs-nav::before) {
+  border-bottom: 0.5px solid var(--border-color4) !important;
+}
+
 
 .modal :global(.ant-modal-close-icon) {
   color: var(--text-color5) !important;

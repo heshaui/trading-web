@@ -1,18 +1,14 @@
 const MaskableAmount = ({
   show,
-  amount,
-  unit,
-  prefix,
+  content,
 }: {
   show: boolean;
-  amount: number;
-  unit?: string;
-  prefix?: string;
+  content: React.ReactNode;
 }) => {
   return (
-    <span>
-      {show ? `${prefix ? prefix : ""}${amount || 0} ${unit ? unit : ""}` : "****"}
-    </span>
+    <>
+      {show ? content : "****"}
+    </>
   );
 };
 

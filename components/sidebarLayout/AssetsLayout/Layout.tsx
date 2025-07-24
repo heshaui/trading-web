@@ -1,13 +1,11 @@
-import React from "react";
 import UserCenterSidebar from "../menuPublic";
-import { useRouter, NextRouter } from "next/router";
 import styles from "../styles/layout.module.css";
 import type { MenuProps } from "antd";
-import { Iconify, SvgIcon } from "@/components/icon";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import type { GetStaticProps } from "next";
+import { SvgIcon } from "@/components/icon";
 import { useTranslation } from "next-i18next";
 import { ROUTER_KEY_ASSETS } from "@/config/apiConfig";
+import appStore from "@/store";
+import { FunctionSwitchStatusEnum } from "@/services/financial";
 // 定义 UserCenterLayout 组件的属性类型
 interface UserCenterLayoutProps {
   children: React.ReactNode; // children 属性表示组件包裹的子元素，类型为 React.ReactNode
@@ -15,10 +13,8 @@ interface UserCenterLayoutProps {
 type MenuItem = Required<MenuProps>["items"][number];
 
 const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
-  // 使用 useRouter 钩子获取路由对象，并指定其类型为 NextRouter
-  const router: NextRouter = useRouter();
   const { t } = useTranslation("assets");
-  // console.log(router);
+  const financialConfig = appStore.financialConfig;
   // 菜单项定义
   const items: MenuItem[] = [
     {
@@ -38,30 +34,22 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
     //         className={`mr-2`} size={24} />,
     //     label: t('assets.futureAccount'), //'合约账户',
     // },
-    {
-      key: ROUTER_KEY_ASSETS.BILL, //'/assets/billDetails', //'/spot/bills',
-      icon: (
-        <SvgIcon
-          path="M3 5.5C3 4.83696 3.26339 4.20107 3.73223 3.73223C4.20107 3.26339 4.83696 3 5.5 3H18C18.7956 3 19.5587 3.31607 20.1213 3.87868C20.6839 4.44129 21 5.20435 21 6V20C21 20.1779 20.9526 20.3526 20.8626 20.5061C20.7726 20.6596 20.6433 20.7863 20.488 20.8731C20.3327 20.96 20.157 21.0038 19.9791 21.0001C19.8012 20.9963 19.6275 20.9452 19.476 20.852L16.75 19.174L14.024 20.852C13.8664 20.9489 13.685 21.0003 13.5 21.0003C13.315 21.0003 13.1336 20.9489 12.976 20.852L10.25 19.174L7.524 20.852C7.37245 20.9452 7.19878 20.9963 7.02088 21.0001C6.84299 21.0038 6.66733 20.96 6.51202 20.8731C6.35672 20.7863 6.22739 20.6596 6.13738 20.5061C6.04737 20.3526 5.99995 20.1779 6 20V14H4C3.73478 14 3.48043 13.8946 3.29289 13.7071C3.10536 13.5196 3 13.2652 3 13V5.5ZM8 18.21L9.726 17.148C9.88359 17.0511 10.065 16.9997 10.25 16.9997C10.435 16.9997 10.6164 17.0511 10.774 17.148L13.5 18.826L16.226 17.148C16.3836 17.0511 16.565 16.9997 16.75 16.9997C16.935 16.9997 17.1164 17.0511 17.274 17.148L19 18.21V6C19 5.73478 18.8946 5.48043 18.7071 5.29289C18.5196 5.10536 18.2652 5 18 5H7.95C7.983 5.162 8 5.329 8 5.5V18.21ZM5.5 5C5.36739 5 5.24021 5.05268 5.14645 5.14645C5.05268 5.24021 5 5.36739 5 5.5V12H6V5.5C6 5.36739 5.94732 5.24021 5.85355 5.14645C5.75979 5.05268 5.63261 5 5.5 5ZM10 9C10 8.73478 10.1054 8.48043 10.2929 8.29289C10.4804 8.10536 10.7348 8 11 8H16C16.2652 8 16.5196 8.10536 16.7071 8.29289C16.8946 8.48043 17 8.73478 17 9C17 9.26522 16.8946 9.51957 16.7071 9.70711C16.5196 9.89464 16.2652 10 16 10H11C10.7348 10 10.4804 9.89464 10.2929 9.70711C10.1054 9.51957 10 9.26522 10 9ZM10 13C10 12.7348 10.1054 12.4804 10.2929 12.2929C10.4804 12.1054 10.7348 12 11 12H15C15.2652 12 15.5196 12.1054 15.7071 12.2929C15.8946 12.4804 16 12.7348 16 13C16 13.2652 15.8946 13.5196 15.7071 13.7071C15.5196 13.8946 15.2652 14 15 14H11C10.7348 14 10.4804 13.8946 10.2929 13.7071C10.1054 13.5196 10 13.2652 10 13Z"
-          className={`mr-2`}
-          size={24}
-        />
-      ),
-      // icon: <IconSpot className={`mr-2`} size={24}/>,
 
-      label: t("assets.billDetails"), //'账单明细',
-    },
-    {
-      key: ROUTER_KEY_ASSETS.FINANCIAL, //'/assets/financial'
-      icon: (
-        <SvgIcon
-          path="M12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4ZM10.586 7.757C10.94 7.40319 11.4139 7.195 11.9139 7.17352C12.414 7.15205 12.9039 7.31885 13.287 7.641L13.414 7.757L16.243 10.586C16.5968 10.94 16.805 11.4139 16.8265 11.9139C16.848 12.414 16.6811 12.9039 16.359 13.287L16.243 13.414L13.414 16.243C13.06 16.5968 12.5861 16.805 12.0861 16.8265C11.586 16.848 11.0961 16.6811 10.713 16.359L10.586 16.243L7.757 13.414C7.40319 13.06 7.195 12.5861 7.17352 12.0861C7.15205 11.586 7.31885 11.0961 7.641 10.713L7.757 10.586L10.586 7.757ZM12 9.172L9.172 12L12 14.828L14.828 12L12 9.172Z"
-          className={`mr-2`}
-          size={24}
-        />
-      ),
-      label: t("assets.financialAccount"), //'理财账户',
-    },
+    ...(financialConfig.financialSwitch === FunctionSwitchStatusEnum.OPEN
+      ? [
+          {
+            key: ROUTER_KEY_ASSETS.FINANCIAL, //'/assets/financial'
+            icon: (
+              <SvgIcon
+                path="M12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2ZM12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4ZM10.586 7.757C10.94 7.40319 11.4139 7.195 11.9139 7.17352C12.414 7.15205 12.9039 7.31885 13.287 7.641L13.414 7.757L16.243 10.586C16.5968 10.94 16.805 11.4139 16.8265 11.9139C16.848 12.414 16.6811 12.9039 16.359 13.287L16.243 13.414L13.414 16.243C13.06 16.5968 12.5861 16.805 12.0861 16.8265C11.586 16.848 11.0961 16.6811 10.713 16.359L10.586 16.243L7.757 13.414C7.40319 13.06 7.195 12.5861 7.17352 12.0861C7.15205 11.586 7.31885 11.0961 7.641 10.713L7.757 10.586L10.586 7.757ZM12 9.172L9.172 12L12 14.828L14.828 12L12 9.172Z"
+                className={`mr-2`}
+                size={24}
+              />
+            ),
+            label: t("assets.financialAccount"), //'理财账户',
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -71,11 +59,4 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
     </div>
   );
 };
-// export const getStaticProps: GetStaticProps = async ({ locale }) => {
-// 	return {
-// 		props: {
-// 			...(await serverSideTranslations(locale || 'en', ['userCenter','common'])),
-// 		},
-// 	};
-// };
 export default UserCenterLayout;

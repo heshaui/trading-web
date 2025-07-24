@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/billDetails.module.css'
+import styles from '../styles/billDetails.module.css'
 import { Input, Table, Select } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
@@ -13,24 +13,18 @@ import { NoData } from '@/components/noData'
 import { getCoinRate } from '@/utils/getUseRate';
 import { roundDown } from '@/utils/math'
 import appStore from '@/store';
-import { WithdrawDataType } from "@/type/assets/billDetails/table"
-import TableCancelModal from '../modal/table_cancel';
-import { encryptData } from '@/hooks/user-encrypt'
-import {  getCancelWithdraw } from '@/services/assets'
-
-
+import { getWithdrawDepositList } from '@/services/assets'
+import {RechargeDataType} from "@/type/assets/billDetails/table"
 type PropsType = {
-  tableData: WithdrawDataType[],
-  loading: boolean
-  onOk: () => Promise<void>
+  tableData: RechargeDataType[]
+  loading:boolean
 }
-export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
+export default function RechargeTable({ tableData,loading }: PropsType) {
   const { t } = useTranslation(['assets']);
   // const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
-  const [open, setOpen] = useState(false);
- const [orderId, setOrderId] = useState<string>('');
-
+  // const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
   const coninList = appStore.getCoinList()
 
   const pageParam = useRef({
@@ -40,7 +34,7 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
     coinId: null
   })
 
-  const columns: ColumnsType<WithdrawDataType> = [
+  const columns: ColumnsType<RechargeDataType> = [
     {
       title: t('assetsAccount.time'), //"时间",
       dataIndex: "timestamp",
@@ -55,7 +49,7 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
       key: "billType",
       align: "center",
       width: 128,
-      render: (_text) => <span>{t('assetsAccount.cashout')}</span>,
+      render: (_text) => <span>{t("billDetails.recharge")}</span>,
     },
     {
       title: t('assetsAccount.currency'), //"币种",
@@ -78,18 +72,6 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
         const coin = coninList.find((item: any) => item.coinName === record.symbol || item.coinId === record.symbol)
         const text = roundDown(_text, coin?.unitScale || 0)
         return <span >{text || '0'}</span>;
-      },
-    },
-    {
-      title: t('assetsAccount.fee'), //"手续费",
-      key: "fee",
-      dataIndex: "fee",
-      width: 128,
-      align: "center",
-      render: (_status, record) => {
-        const coin = coninList.find((item: any) => item.coinName === record.symbol || item.coinId === record.symbol)
-        return <span >{_status ? roundDown(_status, coin?.unitScale) : '0'}</span>;
-
       },
     },
     {
@@ -122,71 +104,53 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
         return <span >{getStatus(_status) || '--'}</span>;
       },
     },
-    {
-      title: t('assetsAccount.operation'), //"操作",
-      key: "operation",
-      dataIndex: "operation",
-      width: 128,
-      align: "center",
-      render: (_status, record) => {
-        return < >{record?.status?.toString() == '1' || record?.status?.toString() == '0' ?
-          <button className={`${styles.theme_color}`}
-            onClick={() => {
-              setOpen(true)
-              setOrderId(record.orderId)
-            }}
-          >{t('assetsAccount.button.cancel')}</button>
-          : '--'}
-        </>;
-      },
-    },
 
 
   ];
   const getStatus = (status: number) => {
-    const statusText = Number(status)
-    // 状态: 0-创建, 1-待审核, 2-审核通过, 3-审核拒绝, 4-用户撤销  5 提现完成
+    const statusText =Number(status)
     switch (statusText) {
       case 0:
-        return t('withdrawTable.create') //'创建';
+        return t('recharge.rechargeStatus0') //'充值中';
       case 1:
-        return t('withdrawTable.pending') //'待审核'
-      case 2:
-        return t('withdrawTable.passed') //审核通过
-      case 3:
-        return t('withdrawTable.rejected') //'审核拒绝'
-      case 4:
-        return t('withdrawTable.canceled') //'用户撤销'
-      case 5:
-        return t('withdrawTable.completed') //'提现完成'
+        return t('recharge.rechargeStatus1') //'充值完成'
       default:
-        return statusText || '--'
+        return statusText||'--'
     }
   }
-
-     // 撤销提现
-      const cancelWithdraw = async () => {
-          const param = {
-              withdrawalId: orderId
-          }
-          const encrypt = await encryptData(param)
-          const res = await getCancelWithdraw(encrypt)
-          try {
-              if (res.code === '0') {
-                  toast.success(res.message || 'success')
-                  setOpen(false)
-              } else {
-                  toast.error(res.message || 'error')
-              }
-          } catch (error) {
-              toast.error(String(error) || 'error')
-          } finally {
-              await onOk()
-              setOpen(false)
-          }
-  
-      }
-
+  // const pageChange = async (page: number, pageSize: number) => {
+  //   pageParam.current.page = page;
+  //   pageParam.current.pageSize = pageSize;
+  // }
+  // const getRecordData = async () => {
+  //   setLoading(true)
+  //   try {
+  //     const res = await getWithdrawDepositList({
+  //       pageNo: pageParam.current.page,
+  //       pageSize: pageParam.current.pageSize,
+  //       coinId: pageParam.current.coinId
+  //     });
+  //     if (res.code === '0') {
+  //       setTableData(res.data.list)
+  //       pageParam.current.total = res.data.count
+  //     } else {
+  //       toast.error(res.message)
+  //     }
+  //   } catch (error) {
+  //     toast.error(String(error))
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
+  // const searchCurrencyClick = () => {
+  //   const coinId = search ? coninList.find(item => item.coinName.toLowerCase().includes(search.toLowerCase()))?.coinId : null
+  //   if (!coinId) return toast.error(t('assetsAccount.noFind'))
+  //   pageParam.current.coinId = coinId
+  //   getRecordData()
+  // }
+  // useEffect(() => {
+  //   getRecordData()
+  // }, [])
   return (<>
 
     {/* 邀请奖励 */}
@@ -227,9 +191,6 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
         />
 
       </div>
-      <TableCancelModal open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => cancelWithdraw()} />
     </div>
   </>
   );

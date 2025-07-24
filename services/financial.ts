@@ -24,11 +24,15 @@ export enum FinancialType {
   CURRENT = 2, //活期
 }
 
-/*-----------------功能配置start------------------*/
+/*-----------------理财页面-功能配置start------------------*/
 // 1开启，2关闭
 export enum FunctionEnabledStatusEnum {
   OPEN = "1",
   CLOSE = "2",
+}
+export enum FunctionSwitchStatusEnum {
+  OPEN = 1,
+  CLOSE = 2,
 }
 
 interface FinancialConfiItem {
@@ -45,13 +49,13 @@ export function getFinancialConfig(): Promise<
   RequestParams<FinancialConfiItem>
 > {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/getFunctionalConfiguration`,
+    `${fixUrl}/home-web/v1/open/manageMoney/getFunctionalConfiguration`,
     { method: "POST" }
   );
 }
-/*-----------------功能配置end------------------*/
+/*-----------------理财页面-功能配置end------------------*/
 
-/*-----------------背景图片配置start------------------*/
+/*-----------------理财页面-背景图片配置start------------------*/
 interface BackgroundImageConfigItem {
   id: number; //背景图片id
   languageCode: string; //语言代码
@@ -67,13 +71,13 @@ export function getBackgroundImageConfig(): Promise<
   RequestParams<BackgroundImageConfigItem>
 > {
   return request(
-    `${fixUrl2}/assets-web/v1/user-project/getBackgroundImageConfiguration`,
+    `${fixUrl}/home-web/v1/open/manageMoney/getBackgroundImageConfiguration`,
     { method: "POST" }
   );
 }
-/*-----------------背景图片配置end------------------*/
+/*-----------------理财页面-背景图片配置end------------------*/
 
-/*-----------------我的持仓start------------------*/
+/*-----------------理财账户-我的持仓start------------------*/
 interface MyPositionItem {
   holdings: number; //持仓
   totalRevenue: number; //总收益
@@ -85,14 +89,28 @@ export function getMyPosition(): Promise<RequestParams<MyPositionItem>> {
     method: "POST",
   });
 }
-/*-----------------我的持仓end--------------------*/
+/*-----------------理财账户-我的持仓end--------------------*/
+
+/*-----------------理财账户-总资产start------------------*/
+export interface FinancialAccountItem {
+  totalAssets: number; //总资产
+  usdTotalAssets: number; //usd总资产
+  lastRevenue: number; //昨日收益
+  accumulateRevenue: number; //30日累计收益
+}
+export function getFinancialAccount(): Promise<RequestParams<FinancialAccountItem>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/financialAssets`, {
+    method: "POST",
+  });
+}
+/*-----------------理财账户-总资产end--------------------*/
+
 
 /*-----------------理财订单start------------------*/
 // 1.成功 2.失败 3.进行中
 export enum FinancialOrderStatusEnum {
   SUCCESS = 1, //成功
-  FAIL = 2, //失败
-  PROCESSING = 3, //进行中
+  FAIL = 0, //失败
 }
 
 // 1.申购 2.赎回 3.利息
@@ -117,9 +135,10 @@ export interface FinancialOrderItem {
   iconUrl: string; //币种图标
   createTime: number; //日期
   type: FinancialOrderTypeEnum; // 1.申购 2.赎回
-  resultStatusMap: FinancialOrderStatusEnum; // 1成功，2失败，3进行中
+  resultStatus: FinancialOrderStatusEnum; // 1成功，2失败，3进行中
   amount: number; //金额
   usdAmount: number; //usd折算价格
+  term: number; //期限
 }
 
 export function getFinancialOrderList(
@@ -144,9 +163,14 @@ export interface UserFinancialAccountParams {
   coinId?: number | null; //币种ID
   type: FinancialType; // 1定期 2活期
 }
+
+export enum SettlementInterest {
+  DAILY = 1, //按日付息
+  END = 2, //到期还本利息
+}
 export interface UserFinancialAccountItem {
   id: number; //用户理财记录id
-  projectId: number;
+  projectId: number; //项目id
   coinId: number; //币种ID
   coinName: string; //币种名称
   iconUrl: string; //币种图标
@@ -159,6 +183,8 @@ export interface UserFinancialAccountItem {
   accruedInterest: number; //累计收益
   usdAccruedInterest: string; //USD累计收益
   purchaseStatus: RedemptionStatusEnum; // 0失败，1持仓中，2成功赎回
+  settlementInterest: SettlementInterest; //结算利息 1按日付息，2到期还本利息
+  endAccruedInterest: number; //到期收益
 }
 export function getUserFinancialAccount(
   params: UserFinancialAccountParams
@@ -248,6 +274,7 @@ export interface FinancialPageTokenProductItem {
   status?: FinancialPageTokenStatusEnum; //状态 0未发布，1进行中，2待开始，3暂停，4下架，5售罄，6结束
   statusText?: string; //状态文本
   assetBoundary?: number; //资产边界
+  autoPurchase?: OpenStatusEnum; //是否自动申购 0否，1是
 }
 
 export interface FinancialPageTokenItem {
@@ -358,7 +385,7 @@ export interface CoinFilterOptionsItem {
 export function getCoinFilterOptions(): Promise<
   RequestParams<CoinFilterOptionsItem[]>
 > {
-  return request(`${fixUrl}/home-web/v1/exchange-coin/tenantCurrencyCoinList`, {
+  return request(`${fixUrl}/home-web/v1/open/manageMoney/tenantCurrencyCoinList`, {
     method: "POST",
   });
 }
@@ -385,9 +412,13 @@ export function getFinancialAccountRedemptionShow(
 
 /*-----------------理财账户-赎回显示end 定期--------------------*/
 
+export interface FinancialAccountRedemptionShowFixedItem {
+  earnInterest: number;
+  redeemMoney: number;
+}
 export function getFinancialAccountRedemptionShowFixed(
   params: FinancialAccountRedemptionShowParams
-): Promise<RequestParams<string>> {
+  ): Promise<RequestParams<FinancialAccountRedemptionShowFixedItem>> {
   return request(`${fixUrl2}/assets-web/v1/user-project/regularRedeemDisplay`, {
     method: "POST",
     body: JSON.stringify(params),
@@ -446,6 +477,7 @@ export interface FinancialAccountBillDetailsItem {
   type: FinancialType; //1定期 2活期
   usdtAmount: number; //usdt金额
   resultStatus: RedemptionStatusEnum; //1申购，2赎回，3利息
+  endCoinName: string; //结束币种名称
 }
 
 export function getFinancialAccountBillDetails(
@@ -479,3 +511,27 @@ export function financialAccountAutoPurchase(
 }
 
 /*-----------------开启自动申购end--------------------*/
+
+
+/*-----------------申购展示页面start----------------------*/
+
+interface FinancialSubscribeShowParams {
+  projectId: number;
+  coinId: number;
+  maxPurchaseAmount: number;
+}
+
+export interface FinancialSubscribeShowItem {
+  availableAmount: number;
+  allowPurchaseAmount: number;
+  autoPurchase: OpenStatusEnum;
+}
+export function getFinancialSubscribeShow(
+  params: FinancialSubscribeShowParams
+): Promise<RequestParams<FinancialSubscribeShowItem>> {
+  return request(`${fixUrl2}/assets-web/v1/user-project/purchaseDisplay`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+/*-----------------申购展示页面end--------------------*/

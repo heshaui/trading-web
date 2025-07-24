@@ -82,7 +82,6 @@
       "modifySuccess": "Birthday modified successfully",
       "tip": "Please enter the correct date. It cannot be modified after submission."
     }
-   
   },
   "modal": {
     "confirmCancel": "After confirmation, the withdrawal order will be canceled."
@@ -98,6 +97,8 @@
     "midPrice": "Mid Price"
   },
   "router": {
+    "spotAccount": "Spot Account",
+    "financialAccount": "Financial Account",
     "myAssets": "My Assets",
     "recharge": "Deposit",
     "withdraw": "Withdraw",
@@ -105,6 +106,7 @@
     "spotTrade": "Spot Trading",
     "spotOrder": "Spot Orders",
     "flashOrder":"Flash Orders",
+    "financialOrder":"Financial Orders",
     "overView": "Overview",
     "safetyCenter": "Security Center",
     "identity": "Identity Verification",
@@ -149,10 +151,5 @@
     "selectCoin": "Select Coin",
     "searchHistory": "Search History",
     "balance": "Balance"
-  },
-  "flash":{
-    "order":{
-      "title": "Flash Swap Order"
-    }
   }
 }

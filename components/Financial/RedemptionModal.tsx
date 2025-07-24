@@ -1,55 +1,36 @@
 import {
   financialAccountRedemption,
+  FinancialAccountRedemptionShowFixedItem,
   FinancialAccountRedemptionShowItem,
   FinancialType,
   getFinancialAccountRedemptionShow,
   getFinancialAccountRedemptionShowFixed,
+  SettlementInterest,
   UserFinancialAccountItem,
 } from "@/services/financial";
 import {
   Button,
   ConfigProvider,
-  Divider,
   Flex,
   Form,
   Input,
+  message,
   Modal,
   Spin,
 } from "antd";
-import { createStyles } from "antd-style";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const useStyle = createStyles(() => ({
-  "my-modal-header": {
-    height: "60px !important",
-    padding: "0 20px !important",
-    borderRadius: "10px 10px 0px 0px",
-    background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px #dcdcdc inset",
-  },
-  "my-modal-footer": {
-    width: "100%",
-    marginTop: "0 !important",
-    borderRadius: "0 0 10px 10px !important",
-  },
-  "my-modal-content": {
-    padding: "0 !important",
-  },
-}));
-
+import { SvgIcon } from "@/components/icon";
+import RedeemConfirmModal, {
+  RedeemConfirmModalType,
+} from "./RedeemConfirmModal";
+import Image from "next/image";
+import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
+import { getCoinRound } from "@/utils/getUseRate";
 interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
   setOpenRedemption: (open: boolean) => void;
-  setRedeemConfirmModal: (confirmModal: {
-    open: boolean;
-    status: "error" | "success" | null;
-    amount?: number;
-    type?: FinancialType;
-    unit?: string;
-    endTime?: number;
-  }) => void;
   onRefresh?: () => void;
 }
 
@@ -57,7 +38,6 @@ const RedemptionModal = ({
   curProduct,
   openRedemption,
   setOpenRedemption,
-  setRedeemConfirmModal,
   onRefresh,
 }: RedemptionModalProps) => {
   const { styles } = useStyle();
@@ -74,12 +54,23 @@ const RedemptionModal = ({
   // 赎回信息-活期
   const [redeemInfo, setRedeemInfo] =
     useState<FinancialAccountRedemptionShowItem>({
-      totalAssets: 0,
-      redeemLimit: 0,
+      totalAssets: 0, // 总资产
+      redeemLimit: 0, // 今日赎回上限
     });
 
   //赎回金额-定期
-  const [redeemMoneyFixed, setRedeemMoneyFixed] = useState<string>("");
+  const [redeemMoneyFixed, setRedeemMoneyFixed] =
+    useState<FinancialAccountRedemptionShowFixedItem>({
+      earnInterest: 0, // 累计收益
+      redeemMoney: 0, // 赎回金额
+    });
+
+  // 赎回确认弹窗
+  const [redeemConfirmModal, setRedeemConfirmModal] =
+    useState<RedeemConfirmModalType>({
+      open: false,
+      status: null,
+    });
 
   // 提交赎回
   const onSubmit = async () => {
@@ -95,16 +86,22 @@ const RedemptionModal = ({
           redeemMoney:
             curProductInfo?.type === FinancialType.CURRENT
               ? Number(redeemMoney)
-              : Number(redeemMoneyFixed),
+              : Number(redeemMoneyFixed.redeemMoney),
         });
         if (res.code === "0") {
           setOpenRedemption(false);
           setRedeemConfirmModal({
             open: true,
             status: "success",
-            amount: redeemMoney,
+            amount:
+              curProductInfo?.type === FinancialType.CURRENT
+                ? Number(redeemMoney)
+                : curProductInfo?.purchaseAmount,
+            interest: curProductInfo?.accruedInterest,
+            redeemAmount: redeemMoneyFixed.redeemMoney,
             type: curProductInfo?.type,
             unit: curProductInfo?.coinName,
+            settlementInterest: curProductInfo?.settlementInterest,
           });
           // 刷新页面数据
           onRefresh?.();
@@ -125,6 +122,7 @@ const RedemptionModal = ({
 
   // 获取赎回数据
   useEffect(() => {
+    // 打开弹窗
     if (curProduct && openRedemption) {
       setCurProductInfo(curProduct);
       // 获取赎回数据
@@ -145,7 +143,9 @@ const RedemptionModal = ({
             if (curProduct?.type === FinancialType.CURRENT) {
               setRedeemInfo(res.data as FinancialAccountRedemptionShowItem);
             } else {
-              setRedeemMoneyFixed(res.data as string);
+              setRedeemMoneyFixed(
+                res.data as FinancialAccountRedemptionShowFixedItem
+              );
             }
           }
         } catch (error) {
@@ -156,9 +156,13 @@ const RedemptionModal = ({
       };
       fetchRedemptionData();
     }
+    // 关闭弹窗
     if (!openRedemption) {
       form.resetFields();
-      setRedeemMoneyFixed("");
+      setRedeemMoneyFixed({
+        earnInterest: 0,
+        redeemMoney: 0,
+      });
       setCurProductInfo(null);
       setRedeemInfo({
         totalAssets: 0,
@@ -173,27 +177,42 @@ const RedemptionModal = ({
       <div
         className="text-[14px] text-[var(--theme-color)] font-[400] cursor-pointer"
         onClick={() => {
-          form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
+          // 最大：1.当前用户申购金额≤今日赎回限制，点击最大， 输入框数量显示用户全部申购金额
+          // 2.当前用户申购金额≥今日赎回上限， 点击最大，输入框数量显示今日赎回上限
+          if (
+            Number(curProductInfo?.purchaseAmount) <=
+            Number(redeemInfo.redeemLimit)
+          ) {
+            form.setFieldValue("redeemMoney", curProductInfo?.purchaseAmount);
+          } else {
+            form.setFieldValue("redeemMoney", redeemInfo.redeemLimit);
+          }
         }}
       >
         {t("common.max")}
       </div>
-      <Divider type="vertical" />
-      <div className="text-[14px] text-[var(--text-color5)] font-[400]">
+      <div className="w-[1px] h-[14px] bg-[var(--border-color4)] mx-[6.5px]"></div>
+      <div className="text-[14px] text-[var(--text-color5)] font-[400] flex flex-ai-center gap-[10px]">
+        {curProductInfo?.iconUrl && (
+          <Image
+            src={curProductInfo?.iconUrl}
+            alt={""}
+            width={20}
+            height={20}
+            className="mr-[4px]"
+          />
+        )}
         {curProductInfo?.coinName}
       </div>
     </Flex>
   );
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Modal: { titleLineHeight: "60px" },
-        },
-      }}
-    >
+    <ConfigProvider theme={financialThemeConfig}>
+      {/* 赎回弹窗 */}
       <Modal
+        centered
+        width={470}
         classNames={{
           header: styles["my-modal-header"],
           footer: styles["my-modal-footer"],
@@ -217,6 +236,13 @@ const RedemptionModal = ({
               {t("common.cancel")}
             </Button>
             <Button
+              disabled={
+                !redeemMoney && curProductInfo?.type === FinancialType.CURRENT
+              }
+              style={{
+                color: "var(--hometext)",
+                border: "none",
+              }}
               type="primary"
               shape="round"
               size="large"
@@ -231,22 +257,25 @@ const RedemptionModal = ({
       >
         <Spin spinning={loading}>
           <Form form={form}>
-            <div className="p-[30px_20px_10px_20px]">
+            <div className="px-[20px]">
               {curProductInfo?.type === FinancialType.CURRENT ? (
                 // 活期赎回
                 <>
                   {/* label */}
-                  <div className="text-[14px] text-[var(--text-color5)] font-[400] mb-[10px]">
+                  <div className="text-[14px] text-[var(--text-color5)] font-[400] mt-[30px]">
                     {t("common.redeemAmount")}
                   </div>
                   {/* 输入框 */}
                   <Form.Item
+                    style={{ marginBottom: 0 }}
                     name="redeemMoney"
                     rules={[
+                      // 必填
                       {
                         required: true,
                         message: t("common.pleaseEnterTheRedeemAmount"),
                       },
+                      // 必须是数字
                       {
                         validator: (_, value) => {
                           // 如果没有输入值，不进行范围校验，让required规则单独处理
@@ -254,45 +283,44 @@ const RedemptionModal = ({
                             return Promise.resolve();
                           }
 
-                          // 只能输入数字
+                          // 如果不是数字 则返回错误(请输入数字)
                           if (isNaN(Number(value))) {
                             return Promise.reject(
                               new Error(t("common.pleaseEnterTheNumber"))
                             );
                           }
 
-                          // 不能小于0
-                          if (value <= 0) {
+                          // 小于0报错
+                          if (Number(value) <= 0) {
+                            return Promise.reject(
+                              new Error(t("common.redeemAmountCannotBeLessThanOrEqualTo0"))
+                            );
+                          }
+                          // 大于总资产报错
+                          if (Number(value) > Number(redeemInfo.totalAssets)) {
+                            return Promise.reject(
+                              new Error(t("common.insufficientBalance"))
+                            );
+                          }
+
+                          // 超过今日赎回上限报错
+                          if (Number(value) > Number(redeemInfo.redeemLimit)) {
                             return Promise.reject(
                               new Error(
-                                t(
-                                  "common.redeemAmountCannotBeLessThanOrEqualTo0"
-                                )
+                                `${t(
+                                  "common.todayRedeemLimit"
+                                )}${redeemInfo.redeemLimit}`
                               )
                             );
                           }
 
-                          // 不能大于赎回上限
-                          if (
-                            redeemInfo.redeemLimit &&
-                            Number(value) > Number(redeemInfo.redeemLimit)
-                          ) {
-                            return Promise.reject(
-                              new Error(
-                                `${t(
-                                  "common.redeemAmountCannotBeGreaterThan"
-                                )} ${redeemInfo.redeemLimit} ${
-                                  curProductInfo?.coinName
-                                }`
-                              )
-                            );
-                          }
                           return Promise.resolve();
                         },
                       },
                     ]}
                   >
                     <Input
+                      autoComplete="off"
                       placeholder={t("common.pleaseEnterTheRedeemAmount")}
                       className="m-[10px_0] w-[100%] h-[50px]"
                       suffix={suffix}
@@ -302,11 +330,23 @@ const RedemptionModal = ({
                   <div>
                     <div className="mb-[4px]">
                       <span className="text-[12px] text-[var(--text-color6)] font-[400] mr-[10px]">
-                        {t("common.todayAssets")}
+                        {t("common.totalAssets")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
-                        {redeemInfo.totalAssets || "--"}{" "}
-                        {curProductInfo?.coinName}
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemInfo.totalAssets
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemInfo.totalAssets || "--"}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </span>
                     </div>
                     <div>
@@ -314,27 +354,53 @@ const RedemptionModal = ({
                         {t("common.todayRedeemLimit")}
                       </span>
                       <span className="text-[12px] text-[var(--text-color5)] font-[500]">
-                        {redeemInfo.redeemLimit || "-"}{" "}
+                        {curProductInfo?.coinName
+                          ? getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemInfo.redeemLimit
+                            )
+                          : redeemInfo.redeemLimit || "-"}{" "}
                         {curProductInfo?.coinName}
                       </span>
                     </div>
                   </div>
-                  {/* 提示 */}
-                  <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-                    <div>
-                      {t("common.todayRedeemLimit")}：
-                      {redeemInfo.redeemLimit || "-"}
-                      {curProductInfo?.coinName}，
-                      {t("common.pleaseOperateTomorrow")}！
+                  {/* 提示 超过最大才显示 */}
+                  {Number(redeemMoney) > Number(redeemInfo.redeemLimit) && (
+                    <div className="rounded-[8px] p-[12px_10px]  text-[12px] font-[500] mt-[10px] text-[#FF8A26] bg-[#FF8A2614]">
+                      <div className="flex flex-ai-center gap-[4px]">
+                        <SvgIcon
+                          width={16}
+                          height={16}
+                          path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                        />
+                        <div>
+                          {" "}
+                          {t("common.todayRedeemLimit")}：
+                          {curProductInfo?.coinName
+                            ? getCoinRound(
+                                curProductInfo?.coinName,
+                                redeemInfo.redeemLimit
+                              )
+                            : redeemInfo.redeemLimit || "-"}{" "}
+                          {curProductInfo?.coinName}，
+                          {t("common.pleaseOperateTomorrow")}！
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </>
               ) : (
                 // 定期赎回
                 <>
                   {/* 金额 */}
-                  <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center">
-                    {curProductInfo?.purchaseAmount} {curProductInfo?.coinName}
+                  <div className="text-[24px] text-[var(--text-color5)] font-[500] mb-[8px] text-center mt-[28px]">
+                    {curProductInfo?.coinName
+                      ? getCoinRound(
+                          curProductInfo?.coinName,
+                          curProductInfo?.purchaseAmount
+                        )
+                      : curProductInfo?.purchaseAmount}{" "}
+                    {curProductInfo?.coinName}
                   </div>
                   {/* subTitle */}
                   <div className="text-[14px] text-[var(--text-color6)] font-[400] mb-[37px] text-center">
@@ -342,38 +408,98 @@ const RedemptionModal = ({
                   </div>
                   {/* 内容显示 */}
                   <div className="border border-[var(--border-color4)] rounded-[8px] p-[20px] flex flex-column gap-[20px]">
+                    {/* 购买金额 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.purchaseAmount")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        {curProductInfo?.purchaseAmount}{" "}
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
+                        {curProductInfo?.coinName
+                          ? getCoinRound(
+                              curProductInfo?.coinName,
+                              curProductInfo?.purchaseAmount
+                            )
+                          : curProductInfo?.purchaseAmount}{" "}
                         {curProductInfo?.coinName}
                       </div>
                     </div>
+                    {/* 获得利息 */}
                     <div className="flex justify-between">
-                      <div className="text-[#676867] font-[400] text-[14px]">
-                        {t("common.accruedInterest")}
+                      <div className="text-[var(--text-color6)] font-[400] text-[14px]">
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.accruedInterest")
+                          : t("common.totalInterest")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        {curProductInfo?.accruedInterest}{" "}
-                        {curProductInfo?.coinName}
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemMoneyFixed.earnInterest
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemMoneyFixed.earnInterest || "--"}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </div>
                     </div>
+                    {/* 赎回金额 */}
                     <div className="flex justify-between">
-                      <div className="text-[#676867] font-[400] text-[14px]">
+                      <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {t("common.redeemAmount")}
                       </div>
-                      <div className="text-[#0C0D0C] font-[400] text-[14px]">
-                        {redeemMoneyFixed || "--"}{" "}
-                        {curProductInfo?.coinName}
+                      <div className="text-[var(--text-color5)] font-[400] text-[14px]">
+                        {curProductInfo?.coinName ? (
+                          <>
+                            {getCoinRound(
+                              curProductInfo?.coinName,
+                              redeemMoneyFixed.redeemMoney
+                            )}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        ) : (
+                          <>
+                            {redeemMoneyFixed.redeemMoney || "--"}{" "}
+                            {curProductInfo?.coinName}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
                   {/* 提示 */}
-                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[500] mt-[10px] text-[var(--theme-color)] bg-[var(--bgc-color)]">
-                    <div>{t("common.redeemTips1")}</div>
-                    <div>{t("common.redeemTips2")}</div>
+                  <div className="rounded-[8px] p-[10px_16px]  text-[14px] font-[400] mt-[10px] text-[#FF8A26] bg-[#FF8A2614] flex gap-[4px]">
+                    <div className="mt-[2px]">
+                      <SvgIcon
+                        width={16}
+                        height={16}
+                        path="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips1")
+                          : t("common.expirationRedeemTips1")}
+                      </div>
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips2")
+                          : t("common.expirationRedeemTips2")}
+                      </div>
+                      <div>
+                        {curProductInfo?.settlementInterest ===
+                        SettlementInterest.DAILY
+                          ? t("common.redeemTips3")
+                          : t("common.expirationRedeemTips3")}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
@@ -381,6 +507,12 @@ const RedemptionModal = ({
           </Form>
         </Spin>
       </Modal>
+
+      {/* 赎回确认弹窗 */}
+      <RedeemConfirmModal
+        redeemConfirmModal={redeemConfirmModal}
+        setRedeemConfirmModal={setRedeemConfirmModal}
+      />
     </ConfigProvider>
   );
 };
