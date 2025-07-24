@@ -621,7 +621,8 @@ class AppStore {
     try {
       this.isLoadingCoinData = true;
 
-      const result = await fetchAllCoin(needPrice);
+      const userToken = this.getUserToken();
+      const result = await fetchAllCoin(needPrice, userToken || undefined);
 
       if (result.success) {
         runInAction(() => {

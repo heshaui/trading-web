@@ -836,9 +836,7 @@ const AssetsMainPage = observer(() => {
                 active
                 title={true}
                 loading={banlanceLoading && kLineLoading}
-                // loading={true}
                 paragraph={{ rows: 2 }}
-                className="px-1"
               >
                 <li
                   className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}
@@ -873,9 +871,7 @@ const AssetsMainPage = observer(() => {
                 active
                 title={true}
                 loading={banlanceLoading && kLineLoading}
-                // loading={true}
                 paragraph={{ rows: 2 }}
-                className="px-1"
               >
                 <li
                   className={`flex-y flex-wrap ${styles.header_content_item} flex-1`}
@@ -913,11 +909,7 @@ const AssetsMainPage = observer(() => {
             </ul>
           </div>
           <div className={`${styles.table_box} w-full `}>
-            <div
-              className={`${styles.table_header} w-full my-4 flex align-center`}
-            >
-              {/* <Form form={form} layout="inline">
-                        <Form.Item name="search"> */}
+            <div className={`${styles.table_header} w-full my-4 flex align-center`}>
               <Input
                 className={`${styles.input_box} modal-input mr-7`}
                 maxLength={25}
@@ -932,33 +924,20 @@ const AssetsMainPage = observer(() => {
                 }
                 onChange={searchInputChange}
               />
-              {/* </Form.Item>
-                        <Form.Item name="hideZero"> */}
-              <Checkbox
-                // checked={hideZero}
-                onChange={hideZeroChange}
-              >
+              <Checkbox onChange={hideZeroChange} >
                 <span className={`${styles.title_color}`}>
                   {t("assetsAccount.hideZero")}
                 </span>
               </Checkbox>
-              {/* </Form.Item>
-                    </Form> */}
             </div>
             <div className={`${styles.table_content} w-full `}>
               <Table
+                rowKey={(record) => record.coinId}
                 columns={columns}
                 dataSource={tableData}
                 size="large"
                 scroll={{ x: "max-content", y: 500 }}
                 className={`table-box`}
-                // pagination={{
-                //     position: ["bottomRight"],
-                //     showSizeChanger: true,
-                //     total: total,
-                //     size: "default",
-                //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                // }}
                 pagination={false}
                 loading={tableLoading}
                 locale={{ emptyText: <NoData /> }}
