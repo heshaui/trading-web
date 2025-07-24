@@ -230,14 +230,14 @@ const TabsItem = ({
     // 累计收益
     {
       title: t("common.totalIncome"),
-      dataIndex: "accruedInterest",
-      key: "accruedInterest",
+      dataIndex: "endAccruedInterest",
+      key: "endAccruedInterest",
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
-              {getCoinRound(record.endCoinName, record.accruedInterest)}{" "}
+              {getCoinRound(record.endCoinName, record.endAccruedInterest)}{" "}
               {record.endCoinName}
             </div>
             <div>
@@ -247,14 +247,14 @@ const TabsItem = ({
                 current.rate
                   ? // 有精度存在
                     current.accuracy
-                    ? new BigNumber(record.usdAccruedInterest)
+                    ? new BigNumber(record.endAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toFixed(Number(current.accuracy))
-                    : new BigNumber(record.usdAccruedInterest)
+                    : new BigNumber(record.endAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toString()
                   : // 没有汇率的存在
-                    record.usdAccruedInterest
+                    record.endAccruedInterest
               }
             </div>
           </div>

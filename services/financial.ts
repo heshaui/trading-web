@@ -184,6 +184,7 @@ export interface UserFinancialAccountItem {
   usdAccruedInterest: string; //USD累计收益
   purchaseStatus: RedemptionStatusEnum; // 0失败，1持仓中，2成功赎回
   settlementInterest: SettlementInterest; //结算利息 1按日付息，2到期还本利息
+  endAccruedInterest: number; //到期收益
 }
 export function getUserFinancialAccount(
   params: UserFinancialAccountParams
