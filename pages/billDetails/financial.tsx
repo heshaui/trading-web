@@ -52,7 +52,7 @@ const Financial = observer(() => {
     coinId: null, //币种ID
     type: null, //1定期 2活期
     status: null, //1申购 2赎回 3利息
-    timer: [dayjs().subtract(7, "day"), dayjs()],
+    timer: [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")],
   });
 
   // 币种列表

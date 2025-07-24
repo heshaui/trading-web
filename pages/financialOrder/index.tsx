@@ -312,7 +312,7 @@ const TabsItem = ({
               }
               setFormData({
                 ...formData,
-                timer: [value[0], value[1]],
+                timer: [dayjs(value[0]).startOf("day"), dayjs(value[1]).endOf("day")],
               });
             }}
           />
@@ -352,7 +352,8 @@ const FinancialOrder = observer(() => {
     type: FinancialType.CURRENT,
     coinId: null,
     operationType: null,
-    timer: [dayjs().subtract(7, "day"), dayjs()],
+    // 默认显示七天 七天前 00:00:00到 今天的当前时间
+    timer: [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")],
   });
   // 表格数据
   const [tableData, setTableData] = useState<FinancialOrderItem[]>([]);
@@ -491,7 +492,7 @@ const FinancialOrder = observer(() => {
                 type: Number(key),
                 coinId: null,
                 operationType: null,
-                timer: [dayjs().subtract(7, "day"), dayjs()],
+                timer: [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")],
               })
             }
           />
