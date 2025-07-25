@@ -164,7 +164,7 @@ const Financial = observer(() => {
                         .times(new BigNumber(current.rate))
                         .toString()
                   : // 没有汇率的存在
-                    record.amount
+                    record.usdtAmount
               }{" "}
               {current.shortName}
             </div>
