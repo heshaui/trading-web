@@ -439,3 +439,22 @@ export const getTradeRecord = async (params: any) => {
     throw error;
   }
 };
+
+
+// user/margin_model_edit
+export const marginModelEdit = async (params: any) => {
+  try {
+    const formattedParams = await formatParams(params);
+    const response = await request<any>('/fe-co-api/user/margin_model_edit', {
+      method: 'POST',
+      headers: formatHeaders(),
+      body: JSON.stringify(formattedParams),
+    });
+    return response;
+  } catch (error) {
+    console.error('调整保证金模式失败:', error);
+    throw error;
+  }
+};
+
+

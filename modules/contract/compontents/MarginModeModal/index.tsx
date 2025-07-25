@@ -2,6 +2,9 @@ import React from 'react';
 import { Modal } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
+import { marginModelEdit } from '@/services/contract';
+import appStore from '@/store';
+import { toast } from 'sonner';
 
 interface MarginModeModalProps {
   visible: boolean;
@@ -19,10 +22,21 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
   symbol = 'BTCUSDT'
 }) => {
   const [selectedMode, setSelectedMode] = React.useState<1 | 2>(2); // 默认选择逐仓
-
-  const handleConfirm = () => {
-    onModeChange(selectedMode);
+  const { currentContractInfo } = appStore;
+  const handleConfirm = async () => {
+  
     onClose();
+  const res = await marginModelEdit({
+    marginModel: selectedMode,
+    contractId: currentContractInfo.id,
+  });
+  console.log(res);
+    if (res.code === '0') {
+      onModeChange(selectedMode);
+      onClose();
+    }else{
+      toast.error(res.msg);
+    }
   };
 
   return (
@@ -38,7 +52,6 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
         <div className={styles.modalHeader}>
           <h3 className={styles.modalTitle}>{symbol}保证金模式</h3>
         </div>
-
         <div className={styles.modeSelector}>
           <div className={`${styles.slideIndicator} ${selectedMode === 2 ? styles.slideRight : styles.slideLeft}`}></div>
           <div 
