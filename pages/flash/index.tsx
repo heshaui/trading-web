@@ -112,7 +112,7 @@ const FlashPage: NextPage = () => {
   const gerFlashConfig = async (hasUrlParam: boolean = false) => {
     try {
       const config = await appStore.loadFlashConfig();
-      const flashConvertSwitch = config.flashConvertSwitch
+      const flashConvertSwitch = config?.flashConvertSwitch
       
       // 设置闪兑功能开关状态
       setFlashDisable(flashConvertSwitch);

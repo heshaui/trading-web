@@ -40,7 +40,7 @@ export default function SpotMenuItems() {
       ),
     },
     // 闪兑订单
-    ...(configData.flashConvertSwitch
+    ...(configData?.flashConvertSwitch
       ? [
           {
             key: "2",
