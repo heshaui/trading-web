@@ -145,7 +145,7 @@ const Financial = observer(() => {
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>
               {record.status === FinancialAccountBillDetailsStatusEnum.INTEREST
-                ? `${roundDown(record.amount, 8)} ${record.endCoinName}`
+                ? `${roundDown(record.endAmount, 8)} ${record.endCoinName}`
                 : `${getCoinRound(record.coinName, record.amount)} ${
                     record.coinName
                   }`}
