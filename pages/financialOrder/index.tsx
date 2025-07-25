@@ -163,14 +163,14 @@ const TabsItem = ({
                 current.rate
                   ? // 有精度存在
                     current.accuracy
-                    ? new BigNumber(record.amount)
+                    ? new BigNumber(record.usdAmount)
                         .times(new BigNumber(current.rate))
                         .toFixed(Number(current.accuracy))
-                    : new BigNumber(record.amount)
+                    : new BigNumber(record.usdAmount)
                         .times(new BigNumber(current.rate))
                         .toString()
                   : // 没有汇率的存在
-                    record.amount
+                    record.usdAmount
               }
             </div>
           </div>
