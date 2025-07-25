@@ -55,7 +55,7 @@ function LoginForm() {
 	if (loginState !== LoginStateEnum.LOGIN) return null;
 
 	return (
-		<div className="flex-col" style={{ height: "70vh" }}>
+		<div className="flex-col" style={{ minHeight: "70vh" }}>
 			{/* {t('login')} */}
 			<div className="w-full mb-6"><p className={`${styles.title_box}`}>
 				{/* 登录 */}
