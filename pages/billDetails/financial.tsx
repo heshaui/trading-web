@@ -1,6 +1,6 @@
 import { NoData } from "@/components/noData";
-import { ConfigProvider, DatePicker, Select, Table } from "antd";
-import { useEffect, useState } from "react";
+import { ConfigProvider, DatePicker, message, Select, Table } from "antd";
+import { useCallback, useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
 import styles from "@/styles/components/Financial.module.css";
 import { getCoinAll } from "@/services/assets";
@@ -30,7 +30,7 @@ interface FormDataType {
   timer: [dayjs.Dayjs | null, dayjs.Dayjs | null];
 }
 
-const Financial = observer(() => {
+const Financial = observer(({ activeKey }: { activeKey: number }) => {
   const { t } = useTranslation(["financial"]);
   const [tableLoading, setTableLoading] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
@@ -175,7 +175,7 @@ const Financial = observer(() => {
   ];
 
   // 获取币种列表
-  const fetchCoinList = async () => {
+  const fetchCoinList = useCallback(async () => {
     try {
       const response = await getCoinAll();
       if (response.code === "0" && Array.isArray(response.data)) {
@@ -186,16 +186,19 @@ const Financial = observer(() => {
           }))
         );
       } else {
+        setCoinList([]);
+        message.error(t("common.fail"));
       }
     } catch (error) {
       console.error("获取币种列表失败:", error);
     }
-  };
+  }, [t]);
 
   // 获取数据
-  const fetchData = async (params: FormDataType) => {
+  const fetchData = useCallback(async (params: FormDataType) => {
     try {
       setTableLoading(true);
+      setTableData([]);
       const data = {
         coinId: params.coinId,
         type: params.type,
@@ -207,23 +210,29 @@ const Financial = observer(() => {
       if (response.code === "0") {
         setTableData(response.data);
       } else {
+        setTableData([]);
+        message.error(t("common.fail"));
       }
     } catch (error) {
       console.error("获取数据失败:", error);
+      setTableData([]);
+      message.error(t("common.fail"));
     } finally {
       setTableLoading(false);
     }
-  };
+  }, [t]);
 
   // 获取币种列表
   useEffect(() => {
     fetchCoinList();
-  }, []);
+  }, [fetchCoinList]);
 
   // 获取数据
   useEffect(() => {
-    fetchData(formData);
-  }, [formData]);
+    if (activeKey === 2) {
+      fetchData(formData);
+    }
+  }, [formData, fetchData, activeKey]);
 
   // 获取汇率
   useEffect(() => {
