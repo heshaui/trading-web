@@ -63,7 +63,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={480}
       className={styles.leverageModal}
       closeIcon={<Iconify icon="mdi:close" className={styles.closeIcon} />}
     >
@@ -80,31 +79,14 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 
         {/* 杠杆输入区域 */}
         <div className={styles.leverageInputSection}>
-          <div className={styles.leverageInputWrapper}>
+
             <InputNumber
               value={tempLeverage}
               onChange={handleInputChange}
               min={1}
               max={maxLeverage}
               className={styles.leverageInputNumber}
-              controls={false}
             />
-            <span className={styles.leverageUnit}>x</span>
-          </div>
-          <div className={styles.leverageArrows}>
-            <Button
-              type="text"
-              icon={<Iconify icon="mdi:chevron-up" />}
-              onClick={() => handleInputChange(Math.min(tempLeverage + 1, maxLeverage))}
-              className={styles.arrowButton}
-            />
-            <Button
-              type="text"
-              icon={<Iconify icon="mdi:chevron-down" />}
-              onClick={() => handleInputChange(Math.max(tempLeverage - 1, 1))}
-              className={styles.arrowButton}
-            />
-          </div>
         </div>
 
         {/* 杠杆滑块 */}

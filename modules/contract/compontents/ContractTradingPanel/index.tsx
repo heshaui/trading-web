@@ -216,16 +216,16 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       <div className={styles.topToolbar}>
         <div className={styles.marginLeverageGroup}>
           <Button
-            type="text"
             size="small"
+            shape="round"
             className={styles.marginBtn}
             onClick={() => setShowMarginModeModal(true)}
           >
             {marginModel === 1 ? '全仓' : '逐仓'}
           </Button>
           <Button
-            type="text"
             size="small"
+            shape="round"
             className={styles.leverageBtn}
             onClick={() => setShowLeverageModal(true)}
           >
@@ -442,6 +442,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               defaultValue="5"
               size="small"
               className={styles.advancedSelect}
+              bordered={false}
               suffixIcon={<Iconify icon="mdi:chevron-down" />}
             >
               <Option value="5">P/O</Option>
