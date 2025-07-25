@@ -1539,7 +1539,7 @@ const WithdrawMoneyPage = observer(() => {
               items={[
                 {
                   title: (
-                    <Link href={ROUTER_KEY_ASSETS.ACCOUNT}>
+                    <Link href={ROUTER_KEY_ASSETS.SPOT_ACCOUNT}>
                       <span className={`${styles.tip_color}`}>
                         {/* 现货账户 */}
                         {t("assets.assetsAccount")}

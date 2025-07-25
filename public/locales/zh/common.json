@@ -103,6 +103,7 @@
   "router":{
     "spotAccount":"现货账户",
     "financialAccount":"理财账户",
+    "contractAccount":"合约账户",
     "myAssets":"我的资产",
     "recharge":"充币",
     "withdraw":"提币",
@@ -111,6 +112,7 @@
     "spotOrder":"现货订单",
     "flashOrder":"闪兑订单",
     "financialOrder":"理财订单",
+    "contractOrder":"合约订单",
     "overView":"总览",
     "safetyCenter":"安全中心",
     "identity":"身份认证",

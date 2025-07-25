@@ -822,7 +822,7 @@ const AssetsMainPage = observer(() => {
             </button>
             <button
               className={`cancel_btn4 ${styles.btn_style}`}
-              onClick={() => router.push(ROUTER_KEY_ASSETS.BILL)}
+              onClick={() => router.push(ROUTER_KEY_SPOT.BILL)}
             >
               {/* 现货账单  */}
               {t("assetsAccount.button.bill")}

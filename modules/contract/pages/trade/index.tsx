@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown, Select, Tabs, Input, TabsProps,Image } from "antd";
+import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown, Select, Tabs, Input, TabsProps,Image, MenuProps } from "antd";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 import appStore from "@/store";
 import { useAuth } from "@/context/AuthContext";
 import { createCoId, createOrder } from "@/services/contract";
-import TradingView from "@/components/Tradingview";
+import TradingView, { TradingviewRefHandle } from "@/components/Tradingview";
 import { SearchOutlined } from '@ant-design/icons';
 import OrderBook from "../../compontents/OrderBook";
 import ContractTradingPanel from "@/modules/contract/compontents/ContractTradingPanel";
@@ -64,7 +64,6 @@ const TradePage = () => {
 
   const [chartType, setChartType] = useState<any[]>([
     { label: t("spot.label.kline"), value: "basic" },
-    // { label: 'TradingView', value: 'tradingview' },
     { label: t("spot.label.depth"), value: "depth" },
   ]);
   const chartTypeItems: MenuProps["items"] = [
