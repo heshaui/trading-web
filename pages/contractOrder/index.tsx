@@ -11,6 +11,7 @@ import PlanCommission from "./components/PlanCommission";
 import HistoryCommission from "./components/HistoryCommission";
 import HistoryPlanCommission from "./components/HistoryPlanCommission";
 import HistoryDeal from "./components/HistoryDeal";
+import styles from "../../styles/components/Financial.module.css";
 
 const ContractOrder = () => {
   const { t } = useTranslation(["common"]);
@@ -64,6 +65,7 @@ const ContractOrder = () => {
         {/* tabs */}
         <div className="bg-[var(--btncolor7)] rounded-[10px] flex-1">
           <Tabs
+            className={styles.tabs}
             items={items}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
           />
