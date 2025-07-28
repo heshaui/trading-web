@@ -148,11 +148,15 @@ const TabsItem = ({
             key: "purchaseStartTime",
             align: "right" as const,
             render: (_: any, record: any) => {
-              return record.purchaseStartTime
-                ? <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-                    {dayjs(record.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")}
-                  </div>
-                : "--";
+              return record.purchaseStartTime ? (
+                <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                  {dayjs(record.purchaseStartTime).format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  )}
+                </div>
+              ) : (
+                "--"
+              );
             },
           },
         ]
@@ -238,8 +242,7 @@ const TabsItem = ({
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
-              {roundDown(record.endAccruedInterest, 8)}{" "}
-              {record.endCoinName}
+              {roundDown(record.endAccruedInterest, 8)} {record.endCoinName}
             </div>
             <div>
               ≈{current.symbol}
@@ -250,7 +253,7 @@ const TabsItem = ({
                     current.accuracy
                     ? new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
-                        .toFixed(Number(current.accuracy))
+                        .toFixed(Number(current.accuracy), BigNumber.ROUND_DOWN)
                     : new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toString()
@@ -497,26 +500,28 @@ const Financial = observer(() => {
   ];
 
   // 获取理财产品列表
-  const fetchData = useCallback(async (params: UserFinancialAccountParams) => {
-    try {
-      setTableLoading(true);
-      setTableData([]);
-      const res = await getUserFinancialAccount(params);
-      if (res.code === "0") {
-        setTableData(res.data);
-        console.log(res.data);
-      } else {
+  const fetchData = useCallback(
+    async (params: UserFinancialAccountParams) => {
+      try {
+        setTableLoading(true);
+        const res = await getUserFinancialAccount(params);
+        if (res.code === "0") {
+          setTableData(res.data);
+          console.log(res.data);
+        } else {
+          setTableData([]);
+          message.error(res.message);
+        }
+      } catch (error) {
         setTableData([]);
-        message.error(res.message);
+        message.error(t("common.fail"));
+        console.log(error);
+      } finally {
+        setTableLoading(false);
       }
-    } catch (error) {
-      setTableData([]);
-      message.error(t("common.fail"));
-      console.log(error);
-    } finally {
-      setTableLoading(false);
-    }
-  }, [t]);
+    },
+    [t]
+  );
 
   // 获取币种列表
   const fetchCoinList = useCallback(async () => {
@@ -799,7 +804,7 @@ const Financial = observer(() => {
                     value={
                       !formData.coinId ? NULL_PLACEHOLDER : formData.coinId
                     }
-                    onChange={(value) =>{
+                    onChange={(value) => {
                       setFormData({
                         ...formData,
                         coinId:

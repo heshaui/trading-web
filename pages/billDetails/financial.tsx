@@ -159,7 +159,7 @@ const Financial = observer(({ activeKey }: { activeKey: number }) => {
                     current.accuracy
                     ? new BigNumber(record.usdtAmount)
                         .times(new BigNumber(current.rate))
-                        .toFixed(Number(current.accuracy))
+                        .toFixed(Number(current.accuracy),BigNumber.ROUND_DOWN)
                     : new BigNumber(record.usdtAmount)
                         .times(new BigNumber(current.rate))
                         .toString()

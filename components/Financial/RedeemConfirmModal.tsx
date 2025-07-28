@@ -34,7 +34,11 @@ const RedeemConfirmModal = ({
       width={redeemConfirmModal.status === "success" ? 470 : 400}
       open={redeemConfirmModal.open}
       onCancel={() =>
-        setRedeemConfirmModal({ ...redeemConfirmModal, open: false })
+        setRedeemConfirmModal({
+          ...redeemConfirmModal,
+          open: false,
+          status: null,
+        })
       }
       closable={{ "aria-label": "Custom Close Button" }}
       footer={
@@ -43,6 +47,11 @@ const RedeemConfirmModal = ({
             className="bg-[var(--cancel-btn)] text-[var(--cancel-color)] h-[50px] flex-1 border-0"
             onClick={() => {
               router.push("/financial");
+              setRedeemConfirmModal({
+                ...redeemConfirmModal,
+                open: false,
+                status: null,
+              });
             }}
             shape="round"
             size="large"
@@ -56,6 +65,11 @@ const RedeemConfirmModal = ({
             className="h-[50px] flex-1"
             onClick={() => {
               router.push("/assets/financial");
+              setRedeemConfirmModal({
+                ...redeemConfirmModal,
+                open: false,
+                status: null,
+              });
             }}
           >
             {t("common.viewPosition")}
