@@ -75,6 +75,9 @@ export default function Footer() {
   // const [languageList, setLanguageList] = useState<FormattedLanguage[]>([]); // 用于存储语言数据
   // 添加社交媒体列表状态
   const [socialMediaList, setSocialMediaList] = useState<SocialMediaItem[]>([]);
+  
+  // 添加客户端初始化状态，防止 SSR 不匹配
+  const [isClientInitialized, setIsClientInitialized] = useState(false);
 
   // 获取社交媒体列表
   const fetchSocialMedia = async () => {
@@ -138,19 +141,28 @@ export default function Footer() {
       }));
   };
 
+  // 客户端初始化
   useEffect(() => {
-    fetchSocialMedia();
+    if (typeof window !== "undefined") {
+      setIsClientInitialized(true);
+    }
   }, []);
 
   useEffect(() => {
-    if (allConfig) {
+    if (isClientInitialized) {
+      fetchSocialMedia();
+    }
+  }, [isClientInitialized]);
+
+  useEffect(() => {
+    if (allConfig && isClientInitialized) {
       fetchFooterSetting();
       setSelectedLang(
         languageList.find((item) => item.key.includes(i18n.language))?.span ||
-        i18n.language
+          i18n.language
       );
     }
-  }, [allConfig, langKey, languageList]);
+  }, [allConfig, langKey, languageList, isClientInitialized]);
 
   const setLangChange = async (key: string) => {
     const selectedItem = languageList.find((item) => item.key === key);
@@ -334,151 +346,169 @@ export default function Footer() {
 
   return (
     <>
-      {" "}
-      {footerConfig &&
-        (footerConfig.toString() === "0" || footerConfig?.status == "0") ? (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                defaultBg: "inherit",
-                defaultColor: "inherit",
-                contentFontSize: 12,
-                paddingInline: 0,
-                defaultHoverBg: "inherit",
-                defaultHoverColor: "inherit",
-                defaultBorderColor: "#5B5D6A",
-                defaultHoverBorderColor: "inherit",
-                defaultActiveBg: "inherit",
-                defaultActiveColor: "inherit",
-                defaultActiveBorderColor: "inherit",
-              },
-              Dropdown: {
-                fontSize: 12,
-              },
-            },
-          }}
-        >
-          <div className={`${styles.footer_container_box} flex-x-cc`} style={{ borderTop: "0.5px solid #37373A" }}>
-            <div
-              className={`${styles.footerContainer}`}
-              
-            >
-
-              <div className={styles.logoAndButton}>
-                <div className={styles.logo}>
-                  <Image
-                    src={logoUrl || ""}
-                    alt="footer logo"
-                    width={140} // 设置为0，让图片保持原始宽高比
-                    height={140} // 固定高度
-                    style={{ width: "auto", height: "28px" }} // 使用style控制宽度自适应
-                  // onError={() => setLogoUrl('')} // 图片加载失败时使用默认值
-                  />
-                </div>
-                <p suppressHydrationWarning>{`©2023 - 2024 ${allConfig?.tenant_cache_name || ""
-                  }.`}</p>
-                <div className={`${styles.footer_left}`}>
-                  <Row className="mt-3">
-                    <Col>
-                      <h6 style={{ color: "#FFFFFF", fontSize: 12 }}>
-                        {/* 社区 */}
-                        {t("footer.community")}
-                      </h6>
-                    </Col>
-                  </Row>
-                  <Row align="middle" className="mb-2 pt-4">
-                    {renderSocialMediaIcons()}
-                  </Row>
-                  <Dropdown
-                    className="w-full"
-                    menu={{
-                      items: languageList.map((item) => ({
-                        ...item,
-                        label: item.span,
-                        key: item.key,
-                      })),
-                      onClick: ({ key }: { key: string }) => {
-                        setLangChange(key);
-                      },
-                    }}
-                    trigger={["click"]}
-                  >
-                    <Button className="px-4">
-                      <div className="flex-x-cc w-full">
-                        <div className="flex-x-cc  flex-1">
-                          <div className="mr-1">
-                            <Image
-                              src="/images/footer/icon_earth_line.png"
-                              alt=""
-                              width={20}
-                              height={20}
-                            />
-                          </div>
-                          <div
-                            className="flex-1 text-left"
-                            style={{
-                              fontSize: "12px",
-                              color: "#FFFFFF",
-                            }}
-                          >
-                            {selectedLang}
-                          </div>
-                        </div>
-                        <div className="flex-x align-center justify-end">
-                          <Image
-                            src="/images/footer/icon_down_line.png"
-                            alt=""
-                            width={20}
-                            height={20}
-                          />
-                        </div>
-                      </div>
-                    </Button>
-                  </Dropdown>
-                  <div style={{ marginTop: "10px" }}></div>
-                  <Dropdown
-                    className="w-full"
-                    menu={menuProps2}
-                    trigger={["click"]}
-                  >
-                    <Button className="px-4">
-                      <div className="flex-x-cc w-full">
-                        <div className="mr-1">
-                          <Image
-                            src="/images/footer/icon_download_line.png"
-                            alt=""
-                            width={20}
-                            height={20}
-                          />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <span style={{ fontSize: "12px", color: "#FFFFFF" }}>
-                            {/* 下载APP */}
-                            {t("footer.downloadApp")}
-                          </span>
-                        </div>
-                      </div>
-                    </Button>
-                  </Dropdown>
-                </div>
-              </div>
-              <div className={`${styles.footer} flex-x`} suppressHydrationWarning>
-                {/* {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ? renderCustomFooter() :
-                        (
-                            <div
-                                // style={{ color: 'pink' }}
-                                dangerouslySetInnerHTML={{ __html: selectFooter || '' }}
-                            />
-                        )
-                    } */}
-                {renderCustomFooter()}
-              </div>
-            </div>
-          </div>
-        </ConfigProvider>
+      {!isClientInitialized ? (
+        // 服务器端渲染占位符，避免布局跳动
+        <div 
+          style={{ 
+            minHeight: "200px",
+            backgroundColor: "var(--background9)",
+            borderTop: "0.5px solid #37373A"
+          }} 
+        />
       ) : (
-        <div dangerouslySetInnerHTML={{ __html: selectFooter || "" }} />
+        // 客户端渲染完整内容
+        <>
+          {footerConfig &&
+          (footerConfig.toString() === "0" || footerConfig?.status == "0") ? (
+            <ConfigProvider
+              theme={{
+                components: {
+                  Button: {
+                    defaultBg: "inherit",
+                    defaultColor: "inherit",
+                    contentFontSize: 12,
+                    paddingInline: 0,
+                    defaultHoverBg: "inherit",
+                    defaultHoverColor: "inherit",
+                    defaultBorderColor: "#5B5D6A",
+                    defaultHoverBorderColor: "inherit",
+                    defaultActiveBg: "inherit",
+                    defaultActiveColor: "inherit",
+                    defaultActiveBorderColor: "inherit",
+                  },
+                  Dropdown: {
+                    fontSize: 12,
+                  },
+                },
+              }}
+            >
+              <div
+                className={`${styles.footer_container_box} flex-x-cc`}
+                style={{ borderTop: "0.5px solid #37373A" }}
+              >
+                <div className={`${styles.footerContainer}`}>
+                  <div className={styles.logoAndButton}>
+                    <div className={styles.logo}>
+                      {logoUrl && (
+                        <Image
+                          src={logoUrl}
+                          alt="footer logo"
+                          width={140} // 设置为0，让图片保持原始宽高比
+                          height={140} // 固定高度
+                          style={{ width: "auto", height: "28px" }} // 使用style控制宽度自适应
+                          // onError={() => setLogoUrl('')} // 图片加载失败时使用默认值
+                        />
+                      )}
+                    </div>
+                    <p suppressHydrationWarning>{`©2023 - 2024 ${
+                      allConfig?.tenant_cache_name || ""
+                    }.`}</p>
+                    <div className={`${styles.footer_left}`}>
+                      <Row className="mt-3">
+                        <Col>
+                          <h6 style={{ color: "#FFFFFF", fontSize: 12 }}>
+                            {/* 社区 */}
+                            {t("footer.community")}
+                          </h6>
+                        </Col>
+                      </Row>
+                      <Row align="middle" className="mb-2 pt-4">
+                        {renderSocialMediaIcons()}
+                      </Row>
+                      <Dropdown
+                        className="w-full"
+                        menu={{
+                          items: languageList.map((item) => ({
+                            ...item,
+                            label: item.span,
+                            key: item.key,
+                          })),
+                          onClick: ({ key }: { key: string }) => {
+                            setLangChange(key);
+                          },
+                        }}
+                        trigger={["click"]}
+                      >
+                        <Button className="px-4">
+                          <div className="flex-x-cc w-full">
+                            <div className="flex-x-cc  flex-1">
+                              <div className="mr-1">
+                                <Image
+                                  src="/images/footer/icon_earth_line.png"
+                                  alt=""
+                                  width={20}
+                                  height={20}
+                                />
+                              </div>
+                              <div
+                                className="flex-1 text-left"
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#FFFFFF",
+                                }}
+                              >
+                                {selectedLang}
+                              </div>
+                            </div>
+                            <div className="flex-x align-center justify-end">
+                              <Image
+                                src="/images/footer/icon_down_line.png"
+                                alt=""
+                                width={20}
+                                height={20}
+                              />
+                            </div>
+                          </div>
+                        </Button>
+                      </Dropdown>
+                      <div style={{ marginTop: "10px" }}></div>
+                      <Dropdown
+                        className="w-full"
+                        menu={menuProps2}
+                        trigger={["click"]}
+                      >
+                        <Button className="px-4">
+                          <div className="flex-x-cc w-full">
+                            <div className="mr-1">
+                              <Image
+                                src="/images/footer/icon_download_line.png"
+                                alt=""
+                                width={20}
+                                height={20}
+                              />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <span style={{ fontSize: "12px", color: "#FFFFFF" }}>
+                                {/* 下载APP */}
+                                {t("footer.downloadApp")}
+                              </span>
+                            </div>
+                          </div>
+                        </Button>
+                      </Dropdown>
+                    </div>
+                  </div>
+                  <div
+                    className={`${styles.footer} flex-x`}
+                    suppressHydrationWarning
+                  >
+                    {/* {footerConfig && (footerConfig.toString() === '0' || footerConfig?.status == '0') ? renderCustomFooter() :
+                            (
+                                <div
+                                    // style={{ color: 'pink' }}
+                                    dangerouslySetInnerHTML={{ __html: selectFooter || '' }}
+                                />
+                            )
+                        } */}
+                    {renderCustomFooter()}
+                  </div>
+                </div>
+              </div>
+            </ConfigProvider>
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: selectFooter || "" }} />
+          )}
+        </>
       )}
     </>
   );

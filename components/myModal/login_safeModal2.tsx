@@ -186,7 +186,7 @@ function SafeModal({ open, onCancel, onOk, acountInfo }: Props) {
             if (typeof window !== "undefined") {
               store.getKvConfigAllFromApi();
               store.loadCoinList();
-              store.loadGetUserInfo();
+              // store.loadGetUserInfo();
             }
           } else {
             toast.error(res.message);

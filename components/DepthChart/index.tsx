@@ -14,7 +14,6 @@ interface DepthChartProps {
 const DepthChart = ({ data }: DepthChartProps) => {
   const { t } = useTranslation(['common']);
 
-  console.log("DepthChartProps", data);
   
   // 检查数据是否有效
   if (!data || !data.bids || !data.asks) {
@@ -25,69 +24,91 @@ const DepthChart = ({ data }: DepthChartProps) => {
     );
   }
   
-  // 处理相同价格的情况：为每个价格点添加更小的偏移，使其可见但间距更小
-  const processDataWithOffset = (data: any, isBid: boolean) => {
-    let total = 0;
-    let lastPrice = 0;
+  // 处理深度数据，计算累积数量
+  const processDepthData = (data: [number, number][], isBid: boolean) => {
+    // 先按价格排序：买单从高到低，卖单从低到高
+    const sortedData = [...data].sort((a, b) => isBid ? b[0] - a[0] : a[0] - b[0]);
     
-    return data.map((item: any, index: number) => {
-      // 确保买单数量始终为正数用于计算
-      const quantity = Math.abs(item[1]);
-      total += quantity;
-      
-      // 如果价格相同，添加微小偏移，减小偏移量以使点更紧凑
-      let price = item[0];
-      if (price === lastPrice) {
-        // 买单向左偏移，卖单向右偏移，偏移量减小10倍
-        price = isBid ? price - index * 0.05 : price + index * 0.05;
-      }
-      lastPrice = item[0]; // 保存原始价格
-      
-      return [price, total];
-    }).sort((a: any, b: any) => isBid ? b[0] - a[0] : a[0] - b[0]);
+    let cumulativeQuantity = 0;
+    return sortedData.map(([price, quantity]) => {
+      cumulativeQuantity += Math.abs(quantity);
+      return [price, cumulativeQuantity];
+    });
   };
 
-  const processedBids = processDataWithOffset(data.bids, true);
-  const processedAsks = processDataWithOffset(data.asks, false);
+  const processedBids = processDepthData(data.bids, true);
+  const processedAsks = processDepthData(data.asks, false);
   
   // 计算基准价格和x轴显示范围
-  const calculateMidPrice = () => {
+  const calculatePriceRange = () => {
     if (data.bids.length === 0 && data.asks.length === 0) {
-      return 50000; // 默认值
+      return { midPrice: 50000, minPrice: 49000, maxPrice: 51000 };
     }
     
-    const highestBid = data.bids.length > 0 ? data.bids[0][0] : 0;
-    const lowestAsk = data.asks.length > 0 ? data.asks[0][0] : 0;
+    // 获取最高买价和最低卖价
+    const highestBid = data.bids.length > 0 ? Math.max(...data.bids.map(bid => bid[0])) : 0;
+    const lowestAsk = data.asks.length > 0 ? Math.min(...data.asks.map(ask => ask[0])) : 0;
     
-    if (highestBid === 0) return lowestAsk;
-    if (lowestAsk === 0) return highestBid;
+    let midPrice;
+    if (highestBid === 0) {
+      midPrice = lowestAsk;
+    } else if (lowestAsk === 0) {
+      midPrice = highestBid;
+    } else {
+      midPrice = (highestBid + lowestAsk) / 2;
+    }
     
-    return (highestBid + lowestAsk) / 2;
+    // 计算所有价格的范围
+    const allPrices = [...data.bids.map(bid => bid[0]), ...data.asks.map(ask => ask[0])];
+    const minDataPrice = Math.min(...allPrices);
+    const maxDataPrice = Math.max(...allPrices);
+    
+    // 添加一些边距使图表更美观
+    const priceSpread = maxDataPrice - minDataPrice;
+    const margin = Math.max(priceSpread * 0.1, 1); // 10%的边距或至少1
+    
+    return {
+      midPrice,
+      minPrice: minDataPrice - margin,
+      maxPrice: maxDataPrice + margin
+    };
   };
   
-  const basePrice = calculateMidPrice();
-  const priceRange = Math.max(1000, basePrice * 0.1); // 10%的价格范围或至少1000
-  const minPrice = basePrice - priceRange;
-  const maxPrice = basePrice + priceRange;
+  const { midPrice, minPrice, maxPrice } = calculatePriceRange();
 
   // ECharts 配置项
   const option = {
     tooltip: {
-      show:false
+      show: true,
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      },
+      formatter: (params: any) => {
+        if (params && params.length > 0) {
+          const param = params[0];
+          const price = param.data[0];
+          const quantity = param.data[1];
+          const orderType = param.seriesName;
+          return `${orderType}<br/>价格: ${price.toFixed(2)}<br/>累积数量: ${quantity.toFixed(4)}`;
+        }
+        return '';
+      }
     },
     grid: {
       left: '3%',
-      right: '4%',
+      right: '8%',
       bottom: '3%',
+      top: '3%',
       containLabel: true
     },
     xAxis: {
       type: 'value',
-      min: minPrice, // 设置x轴最小值
-      max: maxPrice, // 设置x轴最大值
-      // axisLabel: {
-      //   formatter: (value: number) => value.toFixed(2)
-      // },
+      min: minPrice,
+      max: maxPrice,
+      axisLabel: {
+        formatter: (value: number) => value.toFixed(2)
+      },
       splitLine: {
         show: true,
         lineStyle: {
@@ -116,71 +137,52 @@ const DepthChart = ({ data }: DepthChartProps) => {
         show: false
       },
       axisLabel: {
-        formatter: (value:any) => {
+        formatter: (value: number) => {
           if (value >= 1000) {
-            return (value / 1000).toFixed(2) + 'K';
+            return (value / 1000).toFixed(1) + 'K';
           }
-          return value.toFixed(2);
+          return value.toFixed(1);
         }
       }
     },
     series: [
       {
-        name: t('depthChart.buyOrders'),
+        name: t('depthChart.buyOrders') || '买单',
         type: 'line',
         data: processedBids,
-        step: 'start',
+        step: 'after', // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 255, 0, 0.5)' },
-            { offset: 1, color: 'rgba(0, 255, 0, 0.1)' }
+            { offset: 0, color: 'rgba(0, 199, 136, 0.3)' },
+            { offset: 1, color: 'rgba(0, 199, 136, 0.05)' }
           ])
         },
         lineStyle: {
           width: 2,
-          color: 'rgb(0, 180, 0,0.5)'
+          color: 'rgba(0, 199, 136, 0.8)'
         },
         smooth: false,
         symbol: 'none'
       },
       {
-        name: t('depthChart.sellOrders'),
+        name: t('depthChart.sellOrders') || '卖单',
         type: 'line',
         data: processedAsks,
-        step: 'start',
+        step: 'after', // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 0, 0, 0.5)' },
-            { offset: 1, color: 'rgba(255, 0, 0, 0.1)' }
+            { offset: 0, color: 'rgba(255, 77, 79, 0.3)' },
+            { offset: 1, color: 'rgba(255, 77, 79, 0.05)' }
           ])
         },
         lineStyle: {
           width: 2,
-          color: 'rgb(255, 0, 0,0.5)'
+          color: 'rgba(255, 77, 79, 0.8)'
         },
         smooth: false,
         symbol: 'none'
       },
-      {
-        name: t('depthChart.midPrice'),
-        type: 'line',
-        markLine: {
-          symbol: 'none',
-          data: [
-            {
-              xAxis: basePrice,
-              lineStyle: {
-                color: '#999',
-                type: 'dashed'
-              }
-            }
-          ],
-          label: {
-            show: false
-          }
-        },
-        data: []
-      }
+     
     ]
   };
 

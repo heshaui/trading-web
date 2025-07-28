@@ -97,6 +97,8 @@
     "midPrice": "중간 가격"
   },
   "router": {
+    "spotAccount": "현물 계좌",
+    "financialAccount": "투자 계좌",
     "myAssets": "내 자산",
     "recharge": "입금",
     "withdraw": "출금",
@@ -104,6 +106,7 @@
     "spotTrade": "현물 거래",
     "spotOrder": "현물 주문",
     "flashOrder":"플래시 주문",
+    "financialOrder":"투자 주문",
     "overView": "개요",
     "safetyCenter": "보안 센터",
     "identity": "신원 인증",
@@ -147,10 +150,5 @@
     "loading": "불러오는 중...",
     "selectCoin": "통화 선택",
     "searchHistory": "검색 기록"
-  },
-  "flash":{
-    "order":{
-      "title": "플래시 스왑 주문"
-    }
   }
 }

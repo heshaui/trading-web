@@ -43,21 +43,26 @@ import {
 import { NoData } from "@/components/noData";
 import WebSocketService from "@/utils/websocket";
 import { getToken } from "@/request";
+import { FunctionSwitchStatusEnum } from "@/services/financial";
 
 const AssetsMainPage = observer(() => {
-    const { t } = useTranslation(['assets','flash']);
-    const [initTableData, setInitTableData] = useState<DataType[]>([])
-    const [tableData, setTableData] = useState<DataType[]>([]);
-    const [tableLoading, setTableLoading] = useState(false);
-    const router = useRouter();
-    const [total, setTotal] = useState(0);
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10
-    })
-    const [balanceAll, setBalanceAll] = useState<BalanceAllType>({} as BalanceAllType);
-    const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>({} as YesterdayBalanceType);
-    const [rateKeyName, setRateKeyName] = useState('');
+  const { t } = useTranslation(["assets", "flash"]);
+  const [initTableData, setInitTableData] = useState<DataType[]>([]);
+  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [tableLoading, setTableLoading] = useState(false);
+  const router = useRouter();
+  const [total, setTotal] = useState(0);
+  const [pageParam, setPageParam] = useState({
+    page: 1,
+    pageSize: 10,
+  });
+  const [balanceAll, setBalanceAll] = useState<BalanceAllType>(
+    {} as BalanceAllType
+  );
+  const [balanceDay, setBalanceDay] = useState<YesterdayBalanceType>(
+    {} as YesterdayBalanceType
+  );
+  const [rateKeyName, setRateKeyName] = useState("");
 
   const paramdataRef = useRef(pageParam);
   // 获取币种列表
@@ -70,6 +75,7 @@ const AssetsMainPage = observer(() => {
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const userInfo = appStore.getUserInfo();
   const balanceDataRef = useRef<WebSocketService | null>(null);
+  const financialConfig = appStore.financialConfig;
   const columns: ColumnsType<DataType> = [
     {
       title: t("assetsAccount.currency"), //"币种",
@@ -185,7 +191,6 @@ const AssetsMainPage = observer(() => {
       // width: 128,
       align: "center",
       render: (_text, record) => {
-        console.log("recordLIst", record);
         const coin = coinList.find(
           (item: any) => item.coinName === record.coinName
         );
@@ -196,97 +201,100 @@ const AssetsMainPage = observer(() => {
             record.coinId === item.baseSymbol ||
             record.coinId === item.coinSymbol
         );
+        const btnList = [
+          {
+            label: t("assetsAccount.button.flash"),
+            key: "flash",
+            className: `${
+              coin?.isTradeConvert === 0
+                ? styles.tip_color2
+                : styles.theme_color
+            } font-12 font-w-500`,
+            disabled: coin?.isTradeConvert === 0,
+            onClick: () => goFlash(record.coinName),
+          },
+          // 理财
+          ...(financialConfig.financialSwitch ===
+            FunctionSwitchStatusEnum.OPEN && record.isFinancialCoin === 1
+            ? [
+                {
+                  label: t("assetsAccount.button.financial"),
+                  key: "financial",
+                  className: `${styles.theme_color} font-12 font-w-500`,
+                  onClick: () => goFinancial(record.coinName),
+                },
+              ]
+            : []),
+          // 提现
+          {
+            label: t("assetsAccount.button.withdraw"),
+            key: "withdraw",
+            disabled: coin?.canWithdraw === 0,
+            className: `${
+              coin?.canWithdraw === 0 ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () => getCoinList("1", record.coinId, coin?.canWithdraw),
+          },
+          // 充值
+          {
+            label: t("assetsAccount.button.deposit"),
+            key: "deposit",
+            disabled: coin?.canRecharge === 0,
+            className: `${
+              coin?.canRecharge === 0 ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () => getCoinList("2", record.coinId, coin?.canRecharge),
+          },
+          // 交易
+          {
+            label: t("assetsAccount.button.trade"),
+            key: "trade",
+            disabled: !coinPairData,
+            className: `${
+              !coinPairData ? styles.tip_color2 : styles.theme_color
+            } font-12 font-w-500`,
+            onClick: () =>
+              getCoinList(
+                "3",
+                record.coinId,
+                coinPairData ? 1 : 0,
+                coinPairData ? true : false
+              ),
+          },
+        ];
+        const [item1, item2, ...rest] = btnList;
         return (
           <Space size={4}>
             <Space size={12}>
-              {/* 闪兑 */}
-              {coinList.find((item) => item.coinName === record.coinName)
-                ?.isTradeConvert === 1 && (
-                <button
-                  className={`${
-                    coinPairData ? styles.theme_color : styles.tip_color2
-                  } font-12 font-w-500`}
-                  onClick={() => goFlash(record.coinName)}
-                >
-                  闪兑
-                </button>
-              )}
-              {/* 理财 */}
-              {true && (
-                <button
-                  className={`${
-                    coinPairData ? styles.theme_color : styles.tip_color2
-                  } font-12 font-w-500`}
-                  onClick={() => goFlash(record.coinName)}
-                >
-                  理财
-                </button>
-              )}
-
-              {/* 提现 */}
-              {/* <button
-              className={`${
-                coin?.canWithdraw === 1 ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() => getCoinList("1", record.coinId, coin?.canWithdraw)}
-            >
-              {t("assetsAccount.button.withdraw")}
-            </button> */}
-              {/* 充值 */}
-              {/* <button
-              className={`${
-                coin?.canRecharge === 1 ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() => getCoinList("2", record.coinId, coin?.canRecharge)}
-            >
-              {t("assetsAccount.button.deposit")}
-            </button> */}
-              {/* 交易 */}
-              {/* <button
-              className={`${
-                coinPairData ? styles.theme_color : styles.tip_color2
-              } mr-3 font-12 font-w-500`}
-              onClick={() =>
-                getCoinList(
-                  "3",
-                  record.coinId,
-                  coinPairData ? 1 : 0,
-                  coinPairData ? true : false
-                )
-              }
-            >
-              {t("assetsAccount.button.trade")}
-            </button> */}
+              <button
+                key={item1.key}
+                className={item1.className}
+                disabled={item1.disabled}
+                onClick={item1.onClick}
+              >
+                {item1.label}
+              </button>
+              <button
+                key={item2.key}
+                className={item2.className}
+                disabled={item2.disabled}
+                onClick={item2.onClick}
+              >
+                {item2.label}
+              </button>
             </Space>
             <Dropdown
               placement="bottomRight"
               trigger={["click"]}
               menu={{
-                items: [
-                  {
-                    label: t("assetsAccount.button.withdraw"),
-                    key: "withdraw",
-                    onClick: () =>
-                      getCoinList("1", record.coinId, coin?.canWithdraw),
-                  },
-                  {
-                    label: t("assetsAccount.button.deposit"),
-                    key: "deposit",
-                    onClick: () =>
-                      getCoinList("2", record.coinId, coin?.canRecharge),
-                  },
-                  {
-                    label: t("assetsAccount.button.trade"),
-                    key: "trade",
-                    onClick: () =>
-                      getCoinList(
-                        "3",
-                        record.coinId,
-                        coinPairData ? 1 : 0,
-                        coinPairData ? true : false
-                      ),
-                  },
-                ],
+                items: rest.map((item) => {
+                  return {
+                    disabled: item.disabled,
+                    label: item.label,
+                    key: item.key,
+                    onClick: item.onClick,
+                  };
+                }),
                 style: { minWidth: 120 },
               }}
             >
@@ -310,6 +318,9 @@ const AssetsMainPage = observer(() => {
 
   const goFlash = async (coinName: string) => {
     router.push(`/flash?${coinName}`);
+  };
+  const goFinancial = async (coinName: string) => {
+    router.push(`/financial?coinName=${coinName}`);
   };
 
   const getCoinList = async (
@@ -758,11 +769,11 @@ const AssetsMainPage = observer(() => {
           components: {
             Table: {
               // bodySortBg: "pink",
-              headerBg: "transparent",
-              headerColor: "var(--text-color6)",
+              headerBg: "transparent", // 表头背景色
+              headerColor: "var(--text-color6)", // 表头文本颜色
               headerSplitColor: "transparent", // 表头分割线颜色
               rowExpandedBg: "var(--background10)", // 表格行展开背景色
-              borderColor: "transparent",
+              borderColor: "transparent", // 表格边框颜色
               // stickyScrollBarBg:"transparent",
               headerBorderRadius: 0, // 表头圆角
             },
@@ -825,9 +836,7 @@ const AssetsMainPage = observer(() => {
                 active
                 title={true}
                 loading={banlanceLoading && kLineLoading}
-                // loading={true}
                 paragraph={{ rows: 2 }}
-                className="px-1"
               >
                 <li
                   className={`flex-y flex-wrap ${styles.header_content_item} mr-5`}
@@ -862,9 +871,7 @@ const AssetsMainPage = observer(() => {
                 active
                 title={true}
                 loading={banlanceLoading && kLineLoading}
-                // loading={true}
                 paragraph={{ rows: 2 }}
-                className="px-1"
               >
                 <li
                   className={`flex-y flex-wrap ${styles.header_content_item} flex-1`}
@@ -902,11 +909,7 @@ const AssetsMainPage = observer(() => {
             </ul>
           </div>
           <div className={`${styles.table_box} w-full `}>
-            <div
-              className={`${styles.table_header} w-full my-4 flex align-center`}
-            >
-              {/* <Form form={form} layout="inline">
-                        <Form.Item name="search"> */}
+            <div className={`${styles.table_header} w-full my-4 flex align-center`}>
               <Input
                 className={`${styles.input_box} modal-input mr-7`}
                 maxLength={25}
@@ -921,33 +924,20 @@ const AssetsMainPage = observer(() => {
                 }
                 onChange={searchInputChange}
               />
-              {/* </Form.Item>
-                        <Form.Item name="hideZero"> */}
-              <Checkbox
-                // checked={hideZero}
-                onChange={hideZeroChange}
-              >
+              <Checkbox onChange={hideZeroChange} >
                 <span className={`${styles.title_color}`}>
                   {t("assetsAccount.hideZero")}
                 </span>
               </Checkbox>
-              {/* </Form.Item>
-                    </Form> */}
             </div>
             <div className={`${styles.table_content} w-full `}>
               <Table
+                rowKey={(record) => record.coinId}
                 columns={columns}
                 dataSource={tableData}
                 size="large"
                 scroll={{ x: "max-content", y: 500 }}
                 className={`table-box`}
-                // pagination={{
-                //     position: ["bottomRight"],
-                //     showSizeChanger: true,
-                //     total: total,
-                //     size: "default",
-                //     onChange: (page, pageSize) => pageChange(page, pageSize),
-                // }}
                 pagination={false}
                 loading={tableLoading}
                 locale={{ emptyText: <NoData /> }}

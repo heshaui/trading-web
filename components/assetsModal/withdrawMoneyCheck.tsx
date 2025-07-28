@@ -17,7 +17,7 @@ import { encryptData } from "@/hooks/user-encrypt";
 import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal";
 import TotastModal from "./totastModal";
 import { getUserInfo } from '@/hooks/userInfo';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useResetStateContext } from '@/hooks/useStateProvider';
 
 interface paramsType {

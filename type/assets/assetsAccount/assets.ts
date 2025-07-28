@@ -2,12 +2,14 @@ export interface DataType {
     balance: number,
     frozenBalance: number,
     releaseBalance: number,
-    isLock: number,
     coinId: string,
     coinName: string,
     iconUrl: string,
     nameDefault: string,
-    isTradeConvert:number
+    isLock: 0 | 1, // 钱包锁 0-未锁 1-锁定
+    isFinancialCoin: 0 | 1 // 是否开启理财 1是，0否
+    recharge: string, 
+    withdraw: string, 
 }
 export interface BalanceAllType {
     usdBalance?: number | string,
