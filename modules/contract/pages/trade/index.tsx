@@ -5,8 +5,8 @@ import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 import appStore from "@/store";
 import { useAuth } from "@/context/AuthContext";
-import { createCoId, createOrder } from "@/services/contract";
-import TradingView, { TradingviewRefHandle } from "@/components/Tradingview";
+import { createCoId, createOrder,getDepthMap } from "@/services/contract";
+import TradingView from "../../compontents/Tradingview";
 import { SearchOutlined } from '@ant-design/icons';
 import OrderBook from "../../compontents/OrderBook";
 import ContractTradingPanel from "@/modules/contract/compontents/ContractTradingPanel";
@@ -62,17 +62,24 @@ const TradePage = () => {
   const [activeChartType, setActiveChartType] = useState<string>("basic");
   const tradingviewRef = useRef<TradingviewRefHandle>(null);
 
-  const [chartType, setChartType] = useState<any[]>([
-    { label: t("spot.label.kline"), value: "basic" },
-    { label: t("spot.label.depth"), value: "depth" },
-  ]);
+  const [chartType, setChartType] = useState<any[]>([]);
+
+  // 初始化图表类型选项
+  useEffect(() => {
+    setChartType([
+      { label: t("spot:spot.label.kline"), value: "basic" },
+      // { label: 'TradingView', value: 'tradingview' },
+      { label: t("spot:spot.label.depth"), value: "depth" },
+    ]);
+  }, [t]);
+
   const chartTypeItems: MenuProps["items"] = [
     {
       key: 1,
       label: (
         <span style={{ fontSize: "12px" }}>
           {/* K线图 */}
-          {t("spot.exchange.kLine")}
+          {t("spot:spot.exchange.kLine")}
         </span>
       ),
     },
@@ -81,7 +88,7 @@ const TradePage = () => {
       label: (
         <span style={{ fontSize: "12px" }}>
           {/* 美国线 */}
-          {t("spot.exchange.usdLine")}
+          {t("spot:spot.exchange.usdLine")}
         </span>
       ),
     },
@@ -90,7 +97,7 @@ const TradePage = () => {
       label: (
         <span style={{ fontSize: "12px" }}>
           {/* 面积图 */}
-          {t("spot.exchange.areaLine")}
+          {t("spot:spot.exchange.areaLine")}
         </span>
       ),
     },
@@ -99,7 +106,7 @@ const TradePage = () => {
       label: (
         <span style={{ fontSize: "12px" }}>
           {/* 线型图 */}
-          {t("spot.exchange.lineType")}
+          {t("spot:spot.exchange.lineType")}
         </span>
       ),
     },
@@ -169,8 +176,15 @@ const TradePage = () => {
   };
 
 
+  const getDepthMapData = async () => {
+    const res = await getDepthMap({ symbol: currentPair?.symbol || "BTCUSDT", contractId: publicInfo.contractList[0].id });
+    console.log('res:', res);
+    setDepthData(res);
+  };
+
   useEffect(() => {
     getContractBalance();
+    getDepthMapData();
   }, []);
   // 获取用户合约配置
   useEffect(() => {
@@ -552,7 +566,7 @@ const TradePage = () => {
                       />
                     </Dropdown>
                     <Tooltip
-                      title={t("spot.exchange.technicalIndicators")}
+                      title={t("spot:spot.exchange.technicalIndicators")}
                       overlayInnerStyle={{ fontSize: "12px" }}
                     >
                       <Image
@@ -568,7 +582,7 @@ const TradePage = () => {
                       />
                     </Tooltip>
                     <Tooltip
-                      title={t("spot.exchange.resetChart")}
+                      title={t("spot:spot.exchange.resetChart")}
                       overlayInnerStyle={{ fontSize: "12px" }}
                     >
                       <Image
@@ -585,7 +599,7 @@ const TradePage = () => {
                                             <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
                                         </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
                     <Tooltip
-                      title={t("spot.exchange.volumeDistribution")}
+                      title={t("spot:spot.exchange.volumeDistribution")}
                       overlayInnerStyle={{ fontSize: "12px" }}
                     >
                       <Image
@@ -626,7 +640,7 @@ const TradePage = () => {
                   ))}
 
                   <Tooltip
-                    title={t("spot.exchange.fullscreen")}
+                    title={t("spot:spot.exchange.fullscreen")}
                     overlayInnerStyle={{ fontSize: "12px" }}
                   >
                     <Button

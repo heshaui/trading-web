@@ -180,7 +180,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         </div>
 
         {/* 收益/平仓价格/强平价格 切换 - 使用 Ant Design Tabs */}
-        <div style={{ padding: '24px 24px 0' }}>
+        <div className={styles.tabBox}>
           <Tabs
             activeKey={categoryType}
             onChange={handleTabChange}
@@ -194,7 +194,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             className={styles.tabActiveBg}
             style={{ 
               left: sideType === 1 ? '0' : '50%',
-              backgroundColor: sideType === 1 ? '#22c55e' : '#ef4444'
+              backgroundColor: sideType === 1 ? '#00C788' : '#FF4D4F'
             }}
           />
           <span
@@ -251,13 +251,12 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
               <Form.Item
                 key={key}
                 name={key}
-                label={formData[key].title}
                 validateStatus={formData[key].errorText ? 'error' : ''}
                 help={formData[key].errorText}
               >
                 <Input 
                   suffix={formData[key].units} 
-                  placeholder="0"
+                  placeholder={formData[key].title}
                   className={styles.calculatorInput}
                 />
               </Form.Item>
@@ -268,8 +267,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         {/* 计算按钮 */}
         <Button
           type="primary"
-          block
-          size="large"
+          shape="round"
           disabled={!formVerify()}
           onClick={submit}
           className={styles.calculateBtn}

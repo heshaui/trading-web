@@ -4,6 +4,7 @@
   border-radius: 8px;
   overflow: hidden;
   background-color: #fff;
+  border-bottom: 1px solid #F5F5F5;
 }
 
 .marginModeModal .ant-modal-header {

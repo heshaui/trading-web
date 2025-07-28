@@ -12,7 +12,6 @@
   display: flex;
   align-items: center;
   gap: 0;
-
   border-radius: 20px;
   padding: 2px;
 }
@@ -21,21 +20,22 @@
 .leverageBtn {
   height: 28px;
   width: 72px;
-  padding: 0 16px;
+  padding: 5px 16px!important;
   border-radius: 18px;
   font-size: 12px;
   color: #333;
-  border: none;
-  background: rgba(245, 245, 245, 1);
-  transition: all 0.2s;
+  background: #F5F5F5!important;
   margin-right: 10px;
+  border: none!important;
+  font-size: 12px!important;
 }
-
-
-
+.marginBtn:hover,
 .leverageBtn:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color:var(--theme-color)!important;
+  color: #ffffff!important;
 }
+
+
 
 .toolbarIcons {
   display: flex;
