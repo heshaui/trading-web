@@ -3,74 +3,96 @@ import styles from "../../../styles/components/Financial.module.css";
 
 const dataSource = [
   {
-    name: "合约名称",
-    key: "name",
+    name: "BTCUSDT",
+    time: "2021-01-01 12:00:00",
+    type: "限价",
+    direction: "买",
+    price: "10000",
+    number: "100",
+    number2: "100",
+    price2: "10000",
+    only: "是",
+    stop: "是",
+    operation: "撤单",
   },
+  {
+    name: "BTCUSDT",
+    time: "2021-01-01 12:00:00",
+    type: "限价",
+    direction: "买",
+    price: "10000",
+    number: "100",
+    number2: "100",
+    price2: "10000",
+    only: "是",
+    stop: "是",
+    operation: "撤单",
+  },          
 ];
 // 当前委托
 const CurrentCommission = () => {
   const columns = [
-    //合约
+    // 合约
     {
       title: "合约",
       dataIndex: "name",
       key: "name",
     },
-    //时间
+    // 时间
     {
       title: "时间",
       dataIndex: "time",
       key: "time",
     },
-    //订单类型
+    // 订单类型
     {
       title: "订单类型",
       dataIndex: "type",
       key: "type",
     },
-    //方向
+    // 方向
     {
       title: "方向",
       dataIndex: "direction",
       key: "direction",
     },
-    //委托价格
+    // 委托价格
     {
       title: "委托价格",
       dataIndex: "price",
       key: "price",
     },
-    //委托数量
+    // 委托数量
     {
       title: "委托数量",
       dataIndex: "number",
       key: "number",
     },
-    //成交数量
+    // 成交数量
     {
       title: "成交数量",
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "number2",
+      key: "number2",
     },
-    //成交均价
+    // 成交均价
     {
       title: "成交均价",
       dataIndex: "price",
       key: "price",
     },
-    //只减仓
+    // 只减仓
     {
       title: "只减仓",
       dataIndex: "only",
       key: "only",
     },
-    //止盈止损
+    // 止盈止损
     {
       title: "止盈止损",
       dataIndex: "stop",
       key: "stop",
     },
-    //操作
+    // 操作
     {
       title: "全撤",
       dataIndex: "operation",
@@ -98,6 +120,7 @@ const CurrentCommission = () => {
         />
       </div>
       <Table
+        scroll={{ x: "max-content" }}
         className={styles.table}
         rowKey="id"
         columns={columns}
