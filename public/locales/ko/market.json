@@ -33,7 +33,7 @@
     "tableHeaders": {
       "name": "이름",
       "price": "가격",
-      "change24h": "24시간 변동률",
+      "change24h": "24h 상하락",
       "marketCap": "시가 총액",
       "action": "작업",
       "highLow24h": "24시간 최고가/최저가",

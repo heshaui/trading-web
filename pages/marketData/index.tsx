@@ -725,7 +725,7 @@ export default function MarketData() {
       align: "left",
       onHeaderCell: () => ({
         style: {
-          minWidth: "120px",
+          // minWidth: "100px",
           height: "27px",
           paddingLeft: "20px",
           fontSize: "14px",
@@ -736,6 +736,7 @@ export default function MarketData() {
         style: {
           paddingLeft: "20px",
           fontSize: "14px",
+          paddingRight:0
         },
       }),
       // width: 150,
@@ -772,9 +773,10 @@ export default function MarketData() {
       title: t("rankingList.latestPrice"),
       onHeaderCell: () => ({
         style: {
-          minWidth: "100px",
+          // minWidth: "100px",
           // height: "27px",
           fontSize: "14px",
+          //  backgroundColor:"pink"
           // lineHeight: "20px",
           // textAlign: "center",
         },
@@ -879,7 +881,7 @@ export default function MarketData() {
       align: "left",
       onHeaderCell: () => ({
         style: {
-          minWidth: "120px",
+          // minWidth: "100px",
           height: "27px",
           paddingLeft: "20px",
           fontSize: "14px",
@@ -889,7 +891,8 @@ export default function MarketData() {
       onCell: () => ({
         style: {
           paddingLeft: "20px",
-          fontSize: "14px"
+          fontSize: "14px",
+          paddingRight:0
         },
       }),
       render: (text, record, index) => {
@@ -931,9 +934,10 @@ export default function MarketData() {
       // width: 250,
       onHeaderCell: () => ({
         style: {
-          minWidth: "100px",
+          // minWidth: "100px",
           fontSize: "14px",
           // lineHeight: "20px",
+          // backgroundColor:"pink"
         },
       }),
       onCell: () => ({
@@ -1000,7 +1004,7 @@ export default function MarketData() {
       dataIndex: "priceChangePercent",
       key: "priceChangePercent",
       align: "right",
-      width: 150,
+      // width: 150,
       onHeaderCell: () => ({
         style: {
           minWidth: "100px",

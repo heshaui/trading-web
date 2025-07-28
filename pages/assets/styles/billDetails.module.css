@@ -100,7 +100,6 @@
 }
 .select_box {
     width: 200px;
-    height: 40px !important;
     min-width: 250px;
     color: var(--text-color6) !important;
     background: var(--background8) !important;
@@ -124,3 +123,8 @@
 @media (max-width: 980px) {}
 
 @media (min-width: 1680px) {}
+
+.custom-table .ant-table-thead > tr > th {
+    border-top: 1px solid #E5E5E5 !important;
+    border-bottom: 1px solid #E5E5E5 !important;
+}

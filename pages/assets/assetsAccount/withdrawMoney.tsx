@@ -764,13 +764,18 @@ const WithdrawMoneyPage = observer(() => {
     }
     // 提现最小值获取，提现最大值获取
     const getMinWithdraw = (type: 'min' | 'max') => {
-        const max=getCoinRateData(coninInfo.coinName, userAllLimit.max)
-        const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix)
+        const max=getCoinRateData(coninInfo.coinName, userAllLimit.max||0)
+        const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix||0)
         
+        // if (type === 'min') {
+        //     return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)))
+        // } else {
+        //     return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)), Number(coninInfo.balance || 0))
+        // }
         if (type === 'min') {
-            return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)))
+            return Math.max(Number(coninInfo.minWithdraw),  Number(cut(max,min) || 0))
         } else {
-            return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)), Number(coninInfo.balance || 0))
+            return Math.min(Number(coninInfo.maxWithdraw), Number(cut(max,min) || 0), Number(coninInfo.balance || 0))
         }
     }
     // 获取用户24小时限额
@@ -1284,7 +1289,7 @@ const WithdrawMoneyPage = observer(() => {
                             userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                 )} */}
                     {!userInfo ? null : (
-                        userInfo.merchantWithdrawalStatus !== 1 ? <NoUseCom type='3' /> :
+                        (userInfo?.merchantWithdrawalStatus===1&&userInfo?.realnessStatus===0) ? <NoUseCom type='1' /> :
                             (!userInfo.googleCode || userInfo.isGoogleAuth === 0) ? <NoUseCom type='2' /> :
                                 userInfo.withdrawalStatus === 0 ? <NoUseCom type='3' /> : null
                     )}

@@ -84,7 +84,7 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
                 )}
                 
                 {/* 左箭头 */}
-               { (hideSwitchNoContent&&(!isAtStart||!isAtEnd))&&<div 
+               { (hideSwitchNoContent&&(!isAtStart||!isAtEnd)||(!hideSwitchNoContent&&!isAtStart))&&<div 
                     className={`${styles.scroll_button} ${isAtStart ? `${styles.disabled_button } cursor-disable`: ''}`}
                     onClick={handleScrollLeft}
                 >
@@ -107,7 +107,7 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
                 </div>
                 
                 {/* 右箭头 */}
-                {(hideSwitchNoContent&&(!isAtStart||!isAtEnd))&&<div 
+                {(hideSwitchNoContent&&(!isAtStart||!isAtEnd)||(!hideSwitchNoContent&&!isAtEnd))&&<div 
                     className={`${styles.scroll_button} ${isAtEnd ? styles.disabled_button : ''}`}
                     onClick={handleScrollRight}
                 >

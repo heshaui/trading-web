@@ -302,13 +302,14 @@ function formatted(price: number | string): string {
   
   // 对小数部分每三位添加逗号分隔符
   let formattedDecPart = '';
-  for (let i = 0; i < decPart.length; i++) {
-    formattedDecPart += decPart[i];
-    // 每三位添加一个逗号，但不在最后添加
-    if ((i + 1) % 3 === 0 && i !== decPart.length - 1) {
-      formattedDecPart += ',';
-    }
-  }
+  // for (let i = 0; i < decPart.length; i++) {
+  //   formattedDecPart += decPart[i];
+  //   // 每三位添加一个逗号，但不在最后添加
+  //   if ((i + 1) % 3 === 0 && i !== decPart.length - 1) {
+  //     formattedDecPart += ',';
+  //   }
+  // }
+  formattedDecPart=decPart
   
   // 组合整数和小数部分
   return `${formattedIntPart}.${formattedDecPart}`;
