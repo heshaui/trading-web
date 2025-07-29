@@ -699,8 +699,8 @@ const WithdrawMoneyPage = observer(() => {
           amountAfter:
             countNum(
               amountNum || 0,
-              coninInfo.withdrawFee,
-              coninInfo.minWithdrawFee
+              coninInfo?.withdrawFee||0,
+              coninInfo?.minWithdrawFee||0
             ) || 0,
           protocolName: coinExtSelect.find(
             (item) => item.value === values.protocolId
@@ -710,8 +710,8 @@ const WithdrawMoneyPage = observer(() => {
           countWithdrawFee:
             withdrawFee(
               amountNum || 0,
-              coninInfo.withdrawFee,
-              coninInfo.minWithdrawFee
+              coninInfo?.withdrawFee||0,
+              coninInfo?.minWithdrawFee||0
             ) || 0,
         };
         setWithdrawInfo(params);
@@ -1464,8 +1464,8 @@ const WithdrawMoneyPage = observer(() => {
                                         nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee) || 0} */}
                       {countNum(
                         amountNum || 0,
-                        coninInfo.withdrawFee,
-                        coninInfo.minWithdrawFee
+                        coninInfo?.withdrawFee||0,
+                        coninInfo?.minWithdrawFee||0
                       ) || 0}
                       {coninInfo.coinName || "--"}
                     </p>
@@ -1477,8 +1477,8 @@ const WithdrawMoneyPage = observer(() => {
                         {/* {nul(amountNum, division(coninInfo.withdrawFee,100)) > coninInfo.minWithdrawFee ? nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee} */}
                         {withdrawFee(
                           amountNum || 0,
-                          coninInfo.withdrawFee,
-                          coninInfo.minWithdrawFee
+                          coninInfo?.withdrawFee||0,
+                          coninInfo?.minWithdrawFee||0
                         ) || 0}
                         {coninInfo.coinName || "--"}
                       </span>
