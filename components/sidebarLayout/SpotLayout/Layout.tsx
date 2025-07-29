@@ -30,7 +30,7 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
       label: t("router.spotOrder"), //'现货订单',
     },
     // 闪兑订单
-    ...(configData.flashConvertSwitch
+    ...(configData?.flashConvertSwitch
       ? [
           {
             key: "/flashOrder", //'/spot/assets',
