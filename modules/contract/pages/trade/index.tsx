@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown, Select, Tabs, Input, TabsProps,Image } from "antd";
+import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown, Select, Tabs, Input, TabsProps, Image, MenuProps } from "antd";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 import appStore from "@/store";
 import { useAuth } from "@/context/AuthContext";
-import { createCoId, createOrder,getDepthMap } from "@/services/contract";
+import { createCoId, createOrder, getDepthMap } from "@/services/contract";
 import TradingView from "../../compontents/Tradingview";
 import { SearchOutlined } from '@ant-design/icons';
 import OrderBook from "../../compontents/OrderBook";
@@ -19,15 +19,53 @@ import DepthChart from "@/components/DepthChart";
 import { Iconify } from "@/components/icon";
 import { FullscreenOutlined } from "@ant-design/icons";
 
+// TradingView组件引用类型
+interface TradingviewRefHandle {
+  handleAddIndicator: () => void;
+  resetChart: () => void;
+  toggleFullScreen: () => void;
+  addVolumeDistribution: () => void;
+}
+
 
 const TradePage = () => {
-  const { t } = useTranslation(["contract","spot", "common"]);
+  const { t } = useTranslation(["contract", "spot", "common"]);
   const [currentPair, setCurrentPair] = useState<any>(null);
   const [priceData, setPriceData] = useState<any>(null);
   const [activeOrderTab, setActiveOrderTab] = useState('position'); // 持仓/订单切换
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [currentSymbol, setCurrentSymbol] = useState("BTC/USDT 永续");
   const [depthData, setDepthData] = useState<any>(null);
+  const [orderBookData, setOrderBookData] = useState<any>(null);
+
+  // 测试函数：模拟您提供的WebSocket数据格式
+  const testOrderBookData = () => {
+    const testData = {
+      "event_rep": "",
+      "channel": "market_e_btcusdt_depth_step0",
+      "data": null,
+      "tick": {
+        "asks": [
+          [108350.5, 0.234],
+          [108351.0, 0.156], 
+          [108352.5, 0.089],
+          [108353.0, 0.234],
+          [108354.5, 0.156]
+        ],
+        "buys": [
+          [108330.0, 0.234],
+          [108329.5, 0.156],
+          [108328.0, 0.089], 
+          [108327.5, 0.234],
+          [108326.0, 0.156]
+        ]
+      },
+      "ts": 1753776193000,
+      "status": "ok"
+    };
+    setOrderBookData(testData);
+    console.log('设置测试OrderBook数据:', testData);
+  };
 
   // 币种数据类型 - 与SymbolSelector组件保持一致
   interface SymbolData {
@@ -186,6 +224,8 @@ const TradePage = () => {
   useEffect(() => {
     getContractBalance();
     getDepthMapData();
+    // 设置测试OrderBook数据
+    testOrderBookData();
   }, []);
   // 获取用户合约配置
   useEffect(() => {
@@ -212,28 +252,26 @@ const TradePage = () => {
     //     "cb_id": "btcusdt",
     //   }
     // };
+    const event = { "event": "sub", "params": { "channel": "market_e_btcusdt_depth_step0" } }
 
-    const event = {
-      "event": "sub",
-      "params": {
-        "channel": "market_btcusdt_depth_step0",
-        "cb_id": "btcusdt",
-      }
-    };
+    // const event = {
+    //   "event": "sub",
+    //   "params": {
+    //     "channel": "market_btcusdt_depth_step0",
+    //     "cb_id": "btcusdt",
+    //   }
+    // };
     const event2 = {
       "event": "sub",
       "params": {
-        "channel": "market_btcusdt_kline_1D",
-        "cb_id": "btcusdt",
+        "channel": "market_e_btcusdt_kline_1D",
       }
     };
 
     const event3 = {
       "event": "sub",
       "params": {
-        "channel": "market_btcusdt_trade_ticker",
-        "cb_id": "btcusdt",
-        "top": 100             // 获取最新100条成交记录
+        "channel": "market_e_btcusdt_trade_ticker",
       }
     }
 
@@ -259,6 +297,14 @@ const TradePage = () => {
         if (data.channel === 'market_btcusdt_kline_1min') {
           // 处理K线数据
           setPriceData(data);
+        } else if (data.channel === 'market_e_btcusdt_depth_step0') {
+          // 处理OrderBook深度数据
+          console.log('收到OrderBook数据:', data);
+          if (data.tick) {
+            console.log('买单数据:', data.tick.buys);
+            console.log('卖单数据:', data.tick.asks);
+          }
+          setOrderBookData(data);
         }
       } catch (error) {
         console.error('解析WebSocket消息失败:', error);
@@ -275,7 +321,6 @@ const TradePage = () => {
 
     // 连接成功后发送订阅消息
     ws.setOnConnectedCallback(() => {
-      console.log('WebSocket连接成功，发送订阅请求');
       ws.send(JSON.stringify(event));
       ws.send(JSON.stringify(event2));
       ws.send(JSON.stringify(event3));
@@ -292,7 +337,6 @@ const TradePage = () => {
 
   // 处理订单簿价格点击
   const handlePriceClick = (price: number) => {
-    console.log('Price clicked:', price);
     // 这里可以将价格传递给交易组件
   };
 
@@ -303,11 +347,11 @@ const TradePage = () => {
       ...orderData,
 
     }
-    console.log('Order submitted:', orderData);
+
     // 这里处理订单提交逻辑
 
     const res = await createOrder(params);
-    console.log('res:', res);
+
     if (res.code === '0') {
       toast.success('订单提交成功');
     } else {
@@ -339,7 +383,7 @@ const TradePage = () => {
 
   // 处理币种选择
   const handleSymbolSelect = (item: SymbolData) => {
-    console.log('Selected symbol:', item);
+
     appStore.setCurrentContractInfo(item.id);
     setCurrentPair(item);
     setCurrentSymbol(item.symbol + " 永续");
@@ -462,197 +506,197 @@ const TradePage = () => {
           </div>
 
           <div className={styles.chartContainer}>
-          <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "8px 16px",
-                  borderBottom: "1px solid var(--border-color1)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {dayData.map((item, index) => (
-                    <Button
-                      key={index}
-                      type={timeInterval === item ? "primary" : "text"}
-                      onClick={() => setTimeInterval(item)}
-                      style={{
-                        fontSize: "12px",
-                        background:
-                          timeInterval === item
-                            ? "rgba(0,0,0,0.05)"
-                            : "transparent",
-                        color:
-                          timeInterval === item
-                            ? "var(--text-color5)"
-                            : "var(--text-color6)",
-                      }}
-                    >
-                      {item}
-                      {item === "1D" && (
-                        <Dropdown
-                          trigger={["hover"]}
-                          placement="bottomRight"
-                          dropdownRender={() => (
-                            <div
-                              style={{
-                                background: "#fff",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                padding: "10px",
-                                display: "grid",
-                                gridTemplateColumns: "repeat(3, 1fr)",
-                                gap: "10px",
-                                width: "320px",
-                              }}
-                            >
-                              {timeIntervalOptions.map((option) => (
-                                <div
-                                  key={option}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setTimeInterval(option);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    textAlign: "center",
-                                    background:
-                                      timeInterval === option
-                                        ? "var(--theme-color)"
-                                        : "#f0f0f0",
-                                    color:
-                                      timeInterval === option ? "#fff" : "#000",
-                                    borderRadius: "5px",
-                                    cursor: "pointer",
-                                    fontSize: "12px",
-                                  }}
-                                >
-                                  {option}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        >
-                          <Iconify
-                            icon="eva:arrow-down-fill"
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 16px",
+                borderBottom: "1px solid var(--border-color1)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {dayData.map((item, index) => (
+                  <Button
+                    key={index}
+                    type={timeInterval === item ? "primary" : "text"}
+                    onClick={() => setTimeInterval(item)}
+                    style={{
+                      fontSize: "12px",
+                      background:
+                        timeInterval === item
+                          ? "rgba(0,0,0,0.05)"
+                          : "transparent",
+                      color:
+                        timeInterval === item
+                          ? "var(--text-color5)"
+                          : "var(--text-color6)",
+                    }}
+                  >
+                    {item}
+                    {item === "1D" && (
+                      <Dropdown
+                        trigger={["hover"]}
+                        placement="bottomRight"
+                        dropdownRender={() => (
+                          <div
                             style={{
-                              fontSize: "12px",
-                              marginLeft: "4px",
-                              cursor: "pointer",
+                              background: "#fff",
+                              borderRadius: "8px",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                              padding: "10px",
+                              display: "grid",
+                              gridTemplateColumns: "repeat(3, 1fr)",
+                              gap: "10px",
+                              width: "320px",
                             }}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </Dropdown>
-                      )}
-                    </Button>
-                  ))}
+                          >
+                            {timeIntervalOptions.map((option) => (
+                              <div
+                                key={option}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTimeInterval(option);
+                                }}
+                                style={{
+                                  padding: "10px",
+                                  textAlign: "center",
+                                  background:
+                                    timeInterval === option
+                                      ? "var(--theme-color)"
+                                      : "#f0f0f0",
+                                  color:
+                                    timeInterval === option ? "#fff" : "#000",
+                                  borderRadius: "5px",
+                                  cursor: "pointer",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                {option}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      >
+                        <Iconify
+                          icon="eva:arrow-down-fill"
+                          style={{
+                            fontSize: "12px",
+                            marginLeft: "4px",
+                            cursor: "pointer",
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </Dropdown>
+                    )}
+                  </Button>
+                ))}
 
-                  <Space size="small" style={{ marginLeft: "16px" }}>
-                    <Dropdown
-                      menu={{
-                        items: chartTypeItems,
-                        onClick: handleChartTypeChange,
-                        selectedKeys: [String(chartDisplayType)],
-                      }}
-                      trigger={["hover"]}
-                      placement="bottom"
-                    >
-                      <Image
-                        src="/images/exchange/icon_stock.png"
-                        alt="exchange"
-                        width={20}
-                        height={20}
-                        preview={false}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </Dropdown>
-                    <Tooltip
-                      title={t("spot:spot.exchange.technicalIndicators")}
-                      overlayInnerStyle={{ fontSize: "12px" }}
-                    >
-                      <Image
-                        src="/images/exchange/icon_chart.png"
-                        alt="exchange"
-                        width={20}
-                        height={20}
-                        preview={false}
-                        onClick={() =>
-                          tradingviewRef.current?.handleAddIndicator()
-                        }
-                        style={{ cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                    <Tooltip
-                      title={t("spot:spot.exchange.resetChart")}
-                      overlayInnerStyle={{ fontSize: "12px" }}
-                    >
-                      <Image
-                        src="/images/exchange/icon_delete.png"
-                        alt="exchange"
-                        width={20}
-                        height={20}
-                        preview={false}
-                        onClick={() => tradingviewRef.current?.resetChart()}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                    {/* <Tooltip title="图表截图">
-                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
-                                        </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
-                    <Tooltip
-                      title={t("spot:spot.exchange.volumeDistribution")}
-                      overlayInnerStyle={{ fontSize: "12px" }}
-                    >
-                      <Image
-                        src="/images/exchange/icon_value.png"
-                        alt="exchange"
-                        width={20}
-                        height={20}
-                        preview={false}
-                        onClick={() =>
-                          tradingviewRef.current?.addVolumeDistribution()
-                        }
-                        style={{ cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                  </Space>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {chartType.map((item, index) => (
-                    <Button
-                      key={index}
-                      type={activeChartType === item.value ? "primary" : "text"}
-                      onClick={() => setActiveChartType(item.value)}
-                      style={{
-                        fontSize: "12px",
-                        background:
-                          activeChartType === item.value
-                            ? "rgba(0,0,0,0.05)"
-                            : "transparent",
-                        color:
-                          activeChartType === item.value
-                            ? "var(--text-color5)"
-                            : "var(--text-color6)",
-                      }}
-                    >
-                      {item.label}
-                    </Button>
-                  ))}
-
+                <Space size="small" style={{ marginLeft: "16px" }}>
+                  <Dropdown
+                    menu={{
+                      items: chartTypeItems,
+                      onClick: handleChartTypeChange,
+                      selectedKeys: [String(chartDisplayType)],
+                    }}
+                    trigger={["hover"]}
+                    placement="bottom"
+                  >
+                    <Image
+                      src="/images/exchange/icon_stock.png"
+                      alt="exchange"
+                      width={20}
+                      height={20}
+                      preview={false}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </Dropdown>
                   <Tooltip
-                    title={t("spot:spot.exchange.fullscreen")}
+                    title={t("spot:spot.exchange.technicalIndicators")}
                     overlayInnerStyle={{ fontSize: "12px" }}
                   >
-                    <Button
-                      type="text"
-                      icon={<FullscreenOutlined />}
-                      onClick={() => tradingviewRef.current?.toggleFullScreen()}
+                    <Image
+                      src="/images/exchange/icon_chart.png"
+                      alt="exchange"
+                      width={20}
+                      height={20}
+                      preview={false}
+                      onClick={() =>
+                        tradingviewRef.current?.handleAddIndicator()
+                      }
+                      style={{ cursor: "pointer" }}
                     />
                   </Tooltip>
-                </div>
+                  <Tooltip
+                    title={t("spot:spot.exchange.resetChart")}
+                    overlayInnerStyle={{ fontSize: "12px" }}
+                  >
+                    <Image
+                      src="/images/exchange/icon_delete.png"
+                      alt="exchange"
+                      width={20}
+                      height={20}
+                      preview={false}
+                      onClick={() => tradingviewRef.current?.resetChart()}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </Tooltip>
+                  {/* <Tooltip title="图表截图">
+                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
+                                        </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
+                  <Tooltip
+                    title={t("spot:spot.exchange.volumeDistribution")}
+                    overlayInnerStyle={{ fontSize: "12px" }}
+                  >
+                    <Image
+                      src="/images/exchange/icon_value.png"
+                      alt="exchange"
+                      width={20}
+                      height={20}
+                      preview={false}
+                      onClick={() =>
+                        tradingviewRef.current?.addVolumeDistribution()
+                      }
+                      style={{ cursor: "pointer" }}
+                    />
+                  </Tooltip>
+                </Space>
               </div>
+
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {chartType.map((item, index) => (
+                  <Button
+                    key={index}
+                    type={activeChartType === item.value ? "primary" : "text"}
+                    onClick={() => setActiveChartType(item.value)}
+                    style={{
+                      fontSize: "12px",
+                      background:
+                        activeChartType === item.value
+                          ? "rgba(0,0,0,0.05)"
+                          : "transparent",
+                      color:
+                        activeChartType === item.value
+                          ? "var(--text-color5)"
+                          : "var(--text-color6)",
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+
+                <Tooltip
+                  title={t("spot:spot.exchange.fullscreen")}
+                  overlayInnerStyle={{ fontSize: "12px" }}
+                >
+                  <Button
+                    type="text"
+                    icon={<FullscreenOutlined />}
+                    onClick={() => tradingviewRef.current?.toggleFullScreen()}
+                  />
+                </Tooltip>
+              </div>
+            </div>
 
             {/* K线图容器 */}
             {activeChartType === "basic" && (
@@ -674,7 +718,7 @@ const TradePage = () => {
         {/* 中间 - 订单簿 */}
         <div className={styles.centerPanel}>
           <div className={styles.orderBookContainer}>
-            <OrderBook />
+            <OrderBook orderBookData={orderBookData} />
           </div>
         </div>
 

@@ -55,6 +55,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   const [showOrderConfirmModal, setShowOrderConfirmModal] = useState(false);
   const [orderUnit, setOrderUnit] = useState<'BTC' | 'USDT' | '张'>('BTC');
   const [showCalculator, setShowCalculator] = useState(false);
+  const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
   // 新增触发价状态
   const [triggerPrice, setTriggerPrice] = useState<string>('');
   const [submitData, setSubmitData] = useState({}); //下单提交数据
@@ -109,13 +110,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   };
 
   // 处理订单提交
-  const handleSubmit = () => {
+  const handleSubmit = (side: 'BUY' | 'SELL') => {
     // 检查用户是否选择不再提醒
     const dontShowConfirm = localStorage.getItem('dontShowOrderConfirm') === 'true';
+    setSide(side);
     
     if (dontShowConfirm) {
       // 直接执行下单，不显示确认框
-      handleConfirmOrder(null, false);
+      handleConfirmOrder(side);
       return;
     }
 
@@ -139,7 +141,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   const handleConfirmOrder = (orderData: any, dontRemind: boolean) => {
     const data = {
       positionType: 1, // 持仓类型(1 全仓，2 仓逐)
-      side: transactionType === 1 ? 'BUY' : 'SELL', // 买卖方向（buy 买入，sell 卖出）
+      side: side,
       leverageLevel: leverageLevel, // 杠杆倍数
       price:currentCategory === 1 ? price : 0, // 下单价格(市价单传0)
       volume: quantity, // 下单数量(开仓 市价单：开仓价值)
@@ -207,7 +209,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   const orderTypeTabs = [
     { key: 1, label: '限价' },
     { key: 2, label: '市价' },
-    { key: 3, label: '条件' },
+
   ];
 
   return (
@@ -402,7 +404,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         </div>
 
         {/* 止盈止损 */}
-        <div className={styles.tpslSection}>
+        {/* <div className={styles.tpslSection}>
           <div className={styles.tpslHeader}>
             <Checkbox
               checked={enableTPSL}
@@ -410,10 +412,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               className={styles.tpslSwitch}
             />
              <span className={styles.tpslLabel}>止盈止损</span> 
-          </div>
+          </div> 2027-07-29 zyj暂时注释 */}
 
           {/* 止盈止损输入框 */}
-          {enableTPSL && (
+          {/* {enableTPSL && (
             <div className={styles.tpslInputs}>
               <div className={styles.tpslInputRow}>
                 <Input
@@ -435,7 +437,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               </div>
             </div>
           )}
-        </div>
+        </div> 2027-07-29 zyj暂时注释*/}
 
         {/* 高级设置 */}
         <div className={styles.advancedSettings}>
@@ -460,20 +462,22 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           <Button
             type="primary"
             size="large"
-            onClick={handleSubmit}
+            onClick={()=>handleSubmit('BUY')}
             className={styles.buyBtn}
             block
+            shape='round'
           >
             {transactionType === 1 ? '买入开多' : '买入平空'}
           </Button>
           <Button
             type="primary"
             size="large"
-            onClick={handleSubmit}
+            onClick={()=>handleSubmit('SELL')}
             className={styles.sellBtn}
             block
+            shape='round'
           >
-            {transactionType === 2 ? '卖出开空' : '卖出平多'}
+            {transactionType === 2 ? '卖出平多' : '卖出开空'}
           </Button>
         </div>
 
