@@ -19,6 +19,7 @@ import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import { observer } from "mobx-react-lite";
 import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import TransferModal from "@/components/Contract/TransferModal";
 
 interface ContractAccountItem {
   id: string;
@@ -33,8 +34,14 @@ const Contract = observer(() => {
   const { t } = useTranslation(["contract"]);
   const [form] = Form.useForm();
 
+  // 表格数据
   const [tableData, setTableData] = useState<ContractAccountItem[]>([]);
   const [tableLoading, setTableLoading] = useState(false);
+
+  // 划转弹窗
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  // 当前选中行
+  const [record, setRecord] = useState<ContractAccountItem | null>(null);
 
   // 表格列
   const columns: ColumnsType<ContractAccountItem> = [
@@ -70,6 +77,13 @@ const Contract = observer(() => {
       sorter: (a: ContractAccountItem, b: ContractAccountItem) =>
         a.totalProfit - b.totalProfit,
       align: "right",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+            {record.totalProfit}
+          </div>
+        );
+      },
     },
     // 钱包余额
     {
@@ -77,6 +91,13 @@ const Contract = observer(() => {
       dataIndex: "walletBalance",
       key: "walletBalance",
       align: "right",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+            {record.walletBalance}
+          </div>
+        );
+      },
     },
     // 可用
     {
@@ -86,6 +107,13 @@ const Contract = observer(() => {
       sorter: (a: ContractAccountItem, b: ContractAccountItem) =>
         a.available - b.available,
       align: "right",
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+            {record.available}
+          </div>
+        );
+      },
     },
     // 未实现盈亏
     {
@@ -95,6 +123,13 @@ const Contract = observer(() => {
       align: "right",
       sorter: (a: ContractAccountItem, b: ContractAccountItem) =>
         a.unrealizedProfit - b.unrealizedProfit,
+      render: (_: any, record: any) => {
+        return (
+          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+            {record.unrealizedProfit}
+          </div>
+        );
+      },
     },
     // 操作
     {
@@ -104,7 +139,13 @@ const Contract = observer(() => {
       align: "right",
       render: (_: any, record: any) => {
         return (
-          <div className="text-[var(--theme-color)] cursor-pointer">
+          <div
+            className="text-[var(--theme-color)] cursor-pointer"
+            onClick={() => {
+              setRecord(record);
+              setTransferModalOpen(true);
+            }}
+          >
             {"划转"}
           </div>
         );
@@ -163,51 +204,58 @@ const Contract = observer(() => {
     fetchData();
   }, []);
   return (
-    // 基础页面
-    <ConfigProvider theme={financialThemeConfig}>
-      <div className="flex flex-col h-full gap-[16px]">
-        {/* title */}
-        <div className="text-[20px] text-[var(--text-color5)] font-[500]">
-          {"合约账户"}
-        </div>
-        {/* 内容 */}
-        <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
-          {/* 头部数据 */}
-          <div className="h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end justify-between p-[30px]">
-            {/* 总资产折合  */}
-            <div className="flex flex-col">
-              <div className="text-[14px] text-[var(--text-color6)]">
-                总资产折合
-              </div>
-              <div className="text-[30px] text-[var(--text-color5)] font-[700]">
-                0.00091761 BTC
-              </div>
-              <div className="text-[14px] text-[var(--text-color6)]">
-                ≈ 99.41 USD
-              </div>
-            </div>
-            {/* 今日盈亏 */}
-            <div className="flex flex-col">
-              <div className="text-[14px] text-[var(--text-color6)]">
-                今日盈亏
-              </div>
-              <div className="text-[32px] text-[var(--text-color5)] font-[700]">
-                -0.58 USD
-              </div>
-              <div className="text-[14px] text-[var(--text-color6)]">
-                -0.58%
-              </div>
-            </div>
-            {/* 盈亏分析 */}
-            <Button onClick={() => {}} type="primary" ghost shape="round">
-              盈亏分析
-            </Button>
+    <>
+      <TransferModal
+        record={record}
+        open={transferModalOpen}
+        onCancel={() => setTransferModalOpen(false)}
+      />
+      {/* 基础页面 */}
+      <ConfigProvider theme={financialThemeConfig}>
+        <div className="flex flex-col h-full gap-[16px]">
+          {/* title */}
+          <div className="text-[20px] text-[var(--text-color5)] font-[500]">
+            {"合约账户"}
           </div>
-          {/* 底部数据 */}
-          <div>
-            {/* 搜索 */}
-            <div className="py-[16px]">
-              <Form form={form}>
+          {/* 内容 */}
+          <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
+            {/* 头部数据 */}
+            <div className="h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end justify-between p-[30px]">
+              {/* 总资产折合  */}
+              <div className="flex flex-col">
+                <div className="text-[14px] text-[var(--text-color6)]">
+                  总资产折合
+                </div>
+                <div className="text-[30px] text-[var(--text-color5)] font-[700]">
+                  0.00091761 BTC
+                </div>
+                <div className="text-[14px] text-[var(--text-color6)]">
+                  ≈ 99.41 USD
+                </div>
+              </div>
+
+              {/* 今日盈亏 */}
+              <div className="flex flex-col">
+                <div className="text-[14px] text-[var(--text-color6)]">
+                  今日盈亏
+                </div>
+                <div className="text-[32px] text-[var(--text-color5)] font-[700]">
+                  -0.58 USD
+                </div>
+                <div className="text-[14px] text-[var(--text-color6)]">
+                  -0.58%
+                </div>
+              </div>
+
+              {/* 盈亏分析 */}
+              <Button onClick={() => {}} type="primary" ghost shape="round">
+                盈亏分析
+              </Button>
+            </div>
+            {/* 底部数据 */}
+            <div>
+              {/* 筛选 */}
+              <Form form={form} className="py-[16px]">
                 <Flex align="center" gap={30}>
                   <Form.Item noStyle name="coin">
                     <Input
@@ -227,22 +275,23 @@ const Contract = observer(() => {
                   </Form.Item>
                 </Flex>
               </Form>
+
+              {/* 表格 */}
+              <Table
+                rowKey="id"
+                className={styles.table}
+                columns={columns}
+                showSorterTooltip={false}
+                dataSource={tableData}
+                pagination={false}
+                loading={tableLoading}
+                locale={{ emptyText: <NoData height="35vh" /> }}
+              />
             </div>
-            {/* 表格 */}
-            <Table
-              rowKey="id"
-              className={styles.table}
-              columns={columns}
-              showSorterTooltip={false}
-              dataSource={tableData}
-              pagination={false}
-              loading={tableLoading}
-              locale={{ emptyText: <NoData height="35vh" /> }}
-            />
           </div>
         </div>
-      </div>
-    </ConfigProvider>
+      </ConfigProvider>
+    </>
   );
 });
 

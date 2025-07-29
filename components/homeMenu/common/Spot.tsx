@@ -73,15 +73,15 @@ export default function SpotMenuItems() {
                     <path
                       d="M16.0002 13C16.0002 14.3807 14.2093 15.5 12.0002 15.5C10.3599 15.5 8.95025 14.883 8.33301 14"
                       stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
                     />
                     <path
                       d="M15 12C15.6667 12.1667 16.5 12.5 17.5 14"
                       stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </SvgIcon>
                 }

@@ -55,6 +55,7 @@ const ContractOrder = () => {
   }, []);
 
   if (!isClient) return null; // SSR 阶段不渲染
+  
   return (
     <ConfigProvider theme={financialThemeConfig}>
       <div className="flex flex-col h-full">
