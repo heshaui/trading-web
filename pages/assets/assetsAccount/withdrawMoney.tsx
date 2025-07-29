@@ -14,7 +14,7 @@ import {
 import { Iconify } from "@/components/icon";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import Image from "next/image";
 import Link from "next/link";
@@ -444,9 +444,8 @@ const WithdrawMoneyPage = observer(() => {
           return {
             ...item,
             ...protocol,
-            label: `${protocol?.protocol || "--"}(${
-              protocol?.protocolName || "--"
-            })`,
+            label: `${protocol?.protocol || "--"}(${protocol?.protocolName || "--"
+              })`,
             value: item.protocolId,
           };
         });
@@ -480,8 +479,7 @@ const WithdrawMoneyPage = observer(() => {
 
           if (!isCompatible) {
             toast.warning(
-              t("withdrawMoney.addressNetworkMismatch") ||
-                "当前地址与选择的网络不匹配，请重新选择地址"
+              t("withdrawMoney.addressNetworkMismatch")
             );
             // 清空地址选择
             form.setFieldValue("addressId", null);
@@ -565,22 +563,21 @@ const WithdrawMoneyPage = observer(() => {
     // 每次 addressSelect 变化时，重置过滤
     setFilteredAddressOptions(addressSelect);
   }, [addressSelect]);
-
-  const handleAddressSearch = (value: string) => {
-    setAddressInput(value);
-    if (!value) {
-      setFilteredAddressOptions(addressSelect);
-      return;
-    }
-    setFilteredAddressOptions(
-      addressSelect.filter(
-        (option) =>
-          option.addressName?.toLowerCase().includes(value.toLowerCase()) ||
-          option.addressTitle?.toLowerCase().includes(value.toLowerCase()) ||
-          option.protocolName?.toLowerCase().includes(value.toLowerCase())
-      )
-    );
-  };
+  // const handleAddressSearch = (value: string) => {
+  //   setAddressInput(value);
+  //   if (!value) {
+  //     setFilteredAddressOptions(addressSelect);
+  //     return;
+  //   }
+  //   setFilteredAddressOptions(
+  //     addressSelect.filter(
+  //       (option) =>
+  //         option.addressName?.toLowerCase().includes(value.toLowerCase()) ||
+  //         option.addressTitle?.toLowerCase().includes(value.toLowerCase()) ||
+  //         option.protocolName?.toLowerCase().includes(value.toLowerCase())
+  //     )
+  //   );
+  // };
   // 进入第三步-添加检查函数
   const checkStep2Required = () => {
     const addressId = form.getFieldValue("addressId");
@@ -751,6 +748,52 @@ const WithdrawMoneyPage = observer(() => {
     const isMatch = addressSelect.some((item) => item.addressName === value);
     setShowMemo(!isMatch); // 如果地址不匹配，显示 MEMO
   };
+  // 24h限额换算
+  const getCoinRateData = (coinName: string, number: number | string) => {
+    const { coinRate, price } = getCoinRate(
+      coinName,
+      Number(number),
+      "USDT",
+      1
+    );
+    return coinRate || 0;
+  };
+  // 提现最小值获取，提现最大值获取  
+  const getMinWithdraw = (type: 'min' | 'max') => {
+    // 获取24h限额相关数据
+    const dailyMaxUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.max || 0) // 24h最大限额（USDT值转换为当前币种）
+    const dailyUsedUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.mix || 0) // 24h已使用额度（USDT值转换为当前币种）
+    const dailyRemainingLimit = Number(cut(dailyMaxUsdt, dailyUsedUsdt)) // 24h剩余额度
+
+    // 获取基础数据
+    const balance = Number(coninInfo.balance || 0) // 用户余额
+    const protocolMinWithdraw = Number(coninInfo.minWithdraw || 0) // 协议最小提现
+    const protocolMaxWithdraw = Number(coninInfo.maxWithdraw || 0) // 协议最大提现
+
+    if (type === 'min') {
+      // 最小提现金额：必须满足协议最小值要求
+      const actualMin = Math.max(protocolMinWithdraw, 0)
+
+      // 检查是否有足够的余额和限额来满足最小提现要求
+      const availableAmount = Math.min(balance, dailyRemainingLimit)
+
+      // 如果可用金额小于协议最小值，返回0表示无法提现
+      return availableAmount >= actualMin ? actualMin : 0
+    } else {
+      //  const maxLimit=Math.min(Number(coninInfo.maxWithdraw||0), Number(limit_24h||0)，balance) 
+      // return maxLimit //余额不够限额，以限额为准
+      // 最大提现金额：取所有限制条件中的最小值
+      const actualMax = Math.min(
+        balance, // 不能超过余额
+        protocolMaxWithdraw, // 不能超过协议最大值
+        dailyRemainingLimit // 不能超过24h剩余限额
+      )
+
+      // 确保最大值不为负数，并且不小于协议最小值（如果有余额的话）
+      const minRequirement = Math.max(protocolMinWithdraw, 0)
+      return Math.max(actualMax, 0)
+    }
+  }
   //  输入金额校验
   const checkAmount = (_: any, value: string) => {
     if (!value) {
@@ -805,78 +848,47 @@ const WithdrawMoneyPage = observer(() => {
     setBtnSumbitError(false);
     return Promise.resolve();
   };
-  const maxWithdrawAmountBtn = () => {
-    if (!checkMaxWithdraw()) return;
 
-    // 获取三个限制值
-    const balanceLimit = Number(coninInfo.balance) || 0;
-    const withdrawLimit = Number(coninInfo.maxWithdraw) || 0;
-    const max = getCoinRateData(coninInfo.coinName, userAllLimit.max) || 0;
-    const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix) || 0;
-    const rateLimit = Number(cut(max, min)) || 0;
-    // 找出三个值中的最小值
-    const maxAmount = Math.min(balanceLimit, withdrawLimit, rateLimit);
+  // const maxWithdrawAmountBtn = useCallback(() => {
+  //   if (!checkMaxWithdraw) return;
+  //   // 找出三个值中的最小值
+  //   const maxAmount =getMinWithdraw('max')
 
-    form.setFieldValue("amount", maxAmount);
-    setAmountNum(maxAmount);
+  //   form.setFieldValue("amount", maxAmount);
+  //   setAmountNum(maxAmount);
 
-    // 检查是否允许提现
-    checkAllowWithdraw(maxAmount);
-  };
+  //   // 检查是否允许提现
+  //   checkAllowWithdraw(maxAmount);
+  // }, [allowWithdraw])
   // 新增 checkAllowWithdraw 函数来统一处理提现权限检查
   const checkAllowWithdraw = (amount: number | string) => {
-    // 小于最小提币量，大于最大提币量，大于现货余额
-    if (
-      Number(amount) < coninInfo.minWithdraw ||
-      Number(amount) > coninInfo.maxWithdraw ||
-      Number(amount) > getCoinRateData(coninInfo.coinName, userAllLimit.max)
-    ) {
+    if (Number(amount) > getMinWithdraw('max') ||
+      Number(amount) < getMinWithdraw('min') || !amount) {
       setAllowWithdraw(false);
     } else {
       setAllowWithdraw(true);
     }
-  };
-  // 最大值检查
-  const checkMaxWithdraw = () => {
-    if (
-      (allowWithdraw &&
-        Number(amountNum) <
-          Math.min(
-            Number(coninInfo.balance || 0),
-            Number(coninInfo.maxWithdraw || 0),
-            getCoinRateData(coninInfo.coinName, userAllLimit.max)
-          )) ||
-      Number(amountNum) === 0
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-  // 提现最小值获取，提现最大值获取
-  // 提现最小值获取，提现最大值获取
-  const getMinWithdraw = (type: "min" | "max") => {
-    const max = getCoinRateData(coninInfo.coinName, userAllLimit.max || 0);
-    const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix || 0);
+  }
 
-    // if (type === 'min') {
-    //     return Math.max(Number(coninInfo.minWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)))
-    // } else {
-    //     return Math.min(Number(coninInfo.maxWithdraw), getCoinRateData(coninInfo.coinName, cut(max,min)), Number(coninInfo.balance || 0))
-    // }
-    if (type === "min") {
-      return Math.max(
-        Number(coninInfo.minWithdraw),
-        Number(cut(max, min) || 0)
-      );
+
+   // 最大值检查
+   const checkMaxWithdraw = useMemo(() => {
+    if ((allowWithdraw && amountNum && amountNum < getMinWithdraw('max'))||!amountNum) {
+      return true
     } else {
-      return Math.min(
-        Number(coninInfo.maxWithdraw),
-        Number(cut(max, min) || 0),
-        Number(coninInfo.balance || 0)
-      );
+      return false
     }
-  };
+  }, [amountNum, allowWithdraw])
+
+  const maxWithdrawAmountBtn = useCallback(() => {
+    const maxAmount = getMinWithdraw('max')
+    if (allowWithdraw||checkMaxWithdraw) {
+      form.setFieldValue('amount', maxAmount)
+      setAmountNum(maxAmount)
+      checkAllowWithdraw(maxAmount);
+    }
+  }, [allowWithdraw,checkMaxWithdraw])
+
   // 获取用户24小时限额
   const getUserALlLimitData = async () => {
     try {
@@ -919,16 +931,7 @@ const WithdrawMoneyPage = observer(() => {
       text: `${rate} ${shortName}`,
     };
   };
-  // 24h限额换算
-  const getCoinRateData = (coinName: string, number: number | string) => {
-    const { coinRate, price } = getCoinRate(
-      coinName,
-      Number(number),
-      "USDT",
-      1
-    );
-    return coinRate || 0;
-  };
+
   // 自定义提现网络校验规则
   const validateProtocol = (rule: any, value: any, callback: any) => {
     if (typeof value === "string") {
@@ -937,12 +940,7 @@ const WithdrawMoneyPage = observer(() => {
     if (!value) {
       return Promise.reject(new Error(t("withdrawMoney.selectNetwork2")));
     }
-    // const a=addressId
-    // const addressId = form.getFieldValue('addressId');
-    // const address=filteredAddressOptions.find((item: any) => item.addressName === addressId);
-    // if (address?.protocolId !== value) {
-    //     return Promise.reject(new Error(t('withdrawMoney.selectNetwork2Error')));
-    // }
+
 
     return Promise.resolve();
   };
@@ -1026,12 +1024,11 @@ const WithdrawMoneyPage = observer(() => {
                           <span>{option.data.balance}</span>
                           <span
                             className={`${styles.tip_color} font-w-400 font-12`}
-                          >{`≈${
-                            getWithdrawFee(
-                              option.data.balance,
-                              option.data.coinName
-                            ).text
-                          }`}</span>
+                          >{`≈${getWithdrawFee(
+                            option.data.balance,
+                            option.data.coinName
+                          ).text
+                            }`}</span>
                         </div>
                       </div>
                     );
@@ -1150,12 +1147,15 @@ const WithdrawMoneyPage = observer(() => {
                   style={{ height: 50 }}
                   open={dropdownOpen} // 控制下拉菜单的显示状态
                   options={filteredAddressOptions.map((item) => {
+
+                    const coinInfo = coinSelect.find(coinItem => coinItem.value === form.getFieldValue('tenantId'))
                     // 检查当前地址的protocolName是否在coinExtSelect中存在
                     const isProtocolSupported = coinExtSelect.some(
                       (coinExt) =>
-                        coinExt.protocolName === item.protocolName ||
-                        coinExt.protocol === item.protocolName ||
-                        coinExt.protocolId === item.protocolId
+                        (coinExt.protocolName === item.protocolName ||
+                          coinExt.protocol === item.protocolName ||
+                          coinExt.protocolId === item.protocolId)
+                        && (coinInfo?.coinId === item.coinId || coinInfo?.coinName === item.coinName)
                     );
 
                     return {
@@ -1164,9 +1164,8 @@ const WithdrawMoneyPage = observer(() => {
                       disabled: !isProtocolSupported, // 如果协议不支持则禁用
                       label: (
                         <div
-                          className={`flex-y py-1 ${
-                            !isProtocolSupported ? "opacity-50" : ""
-                          }`}
+                          className={`flex-y py-1 ${!isProtocolSupported ? "opacity-50" : ""
+                            }`}
                           key={item.id}
                         >
                           <p
@@ -1177,16 +1176,14 @@ const WithdrawMoneyPage = observer(() => {
                           <p
                             className={`${styles.tip_color2} font-14 font-w-400`}
                           >
-                            {`${t("withdrawMoney.address")}：${
-                              item.addressName
-                            }`}
+                            {`${t("withdrawMoney.address")}：${item.addressName
+                              }`}
                           </p>
                           <p
                             className={`${styles.tip_color2} font-14 font-w-400`}
                           >
-                            {`${t("withdrawMoney.network")}：${
-                              item.protocolName || "--"
-                            }`}
+                            {`${t("withdrawMoney.network")}：${item.protocolName || "--"
+                              }`}
                             {!isProtocolSupported && (
                               <span className="ml-2 text-red-500 font-12">
                                 ({t("withdrawMoney.selectNetwork3Error")})
@@ -1230,7 +1227,7 @@ const WithdrawMoneyPage = observer(() => {
                     addressChange(value, option);
                     setDropdownOpen(false); // 选择后关闭下拉菜单
                   }}
-                  // onSearch={handleAddressSearch} // 关键：输入变化时过滤
+                // onSearch={handleAddressSearch} // 关键：输入变化时过滤
                 >
                   <Input
                     type="text"
@@ -1280,13 +1277,10 @@ const WithdrawMoneyPage = observer(() => {
                           </p>
                           <p className={`${styles.tip_color2} `}>
                             {/* {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`} */}
-                            {`${t("withdrawMoney.fee")} ${
-                              option.data.withdrawFee
-                            }${
-                              getWithdrawFee(option.data.withdrawFee).coinName
-                            }≈${
-                              getWithdrawFee(option.data.withdrawFee).symbol
-                            } ${getWithdrawFee(option.data.withdrawFee).rate}`}
+                            {`${t("withdrawMoney.fee")} ${option.data.withdrawFee
+                              }${getWithdrawFee(option.data.withdrawFee).coinName
+                              }≈${getWithdrawFee(option.data.withdrawFee).symbol
+                              } ${getWithdrawFee(option.data.withdrawFee).rate}`}
                           </p>
                         </div>
                       );
@@ -1400,13 +1394,12 @@ const WithdrawMoneyPage = observer(() => {
                       </p>
                       <span className={`${styles.tip_color2}`}>|</span>
                       <button
-                        className={`${
-                          checkMaxWithdraw() ? "theme_color" : styles.tip_color2
-                        } pl-2`}
+                        className={`${checkMaxWithdraw ? "theme_color" : styles.tip_color2
+                          } pl-2`}
                         onClick={() => {
                           maxWithdrawAmountBtn();
                         }}
-                        // disabled={allowWithdrawBtn()}
+                      // disabled={allowWithdrawBtn()}
                       >
                         {t("withdrawMoney.max")}
                       </button>
@@ -1445,9 +1438,9 @@ const WithdrawMoneyPage = observer(() => {
                       <span className={`${styles.title_color}`}>
                         {userAllLimit.mix
                           ? getCoinRateData(
-                              coninInfo.coinName,
-                              userAllLimit.mix
-                            )
+                            coninInfo.coinName,
+                            userAllLimit.mix
+                          )
                           : "0"}
                       </span>
                       /{" "}
@@ -1494,11 +1487,10 @@ const WithdrawMoneyPage = observer(() => {
                   {/* default_btn */}
                   <button
                     type="submit"
-                    className={`${styles.withdraw_btn} mr-2 ${
-                      allowWithdraw
-                        ? "default_btn"
-                        : "disabled_btn2 cursor-not-allowed"
-                    }`}
+                    className={`${styles.withdraw_btn} mr-2 ${allowWithdraw
+                      ? "default_btn"
+                      : "disabled_btn2 cursor-not-allowed"
+                      }`}
                     onClick={antiFraud}
                   >
                     {t("withdrawMoney.withdraw")}
@@ -1521,11 +1513,17 @@ const WithdrawMoneyPage = observer(() => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("coinSearchHistory");
-      if (saved) {
-        setSearchHistory(JSON.parse(saved));
+      if((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0)||(userInfo?.merchantWithdrawalStatus === 1 &&
+        userInfo?.realnessStatus === 0)||userInfo?.withdrawalStatus === 0
+      ) return
+      if (saved && coinSelect.length > 0) {
+        const history = JSON.parse(saved).filter((item: any) => {
+          return coinSelect.some((coin: any) => coin.coinId === item.coinId || coin.coinName === item.coinName)
+        })
+        setSearchHistory(history);
       }
     }
-  }, []); // 空依赖数组表示只在组件挂载时执行一次
+  }, [coinSelect,userInfo]); 
 
   return (
     <ResetStateProvider>
@@ -1563,9 +1561,9 @@ const WithdrawMoneyPage = observer(() => {
             {!userInfo ? null : userInfo?.merchantWithdrawalStatus === 1 &&
               userInfo?.realnessStatus === 0 ? (
               <NoUseCom type="1" />
-            ) : !userInfo.googleCode || userInfo.isGoogleAuth === 0 ? (
+            ) : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
               <NoUseCom type="2" />
-            ) : userInfo.withdrawalStatus === 0 ? (
+            ) : userInfo?.withdrawalStatus === 0 ? (
               <NoUseCom type="3" />
             ) : null}
             <div
