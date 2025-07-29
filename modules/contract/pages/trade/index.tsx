@@ -154,6 +154,7 @@ const TradePage = () => {
 
   const [contractAssets, setContractAssets] = useState<ContractAsset[]>([]);
 
+  const currentContractInfo = appStore.getCurrentContractInfo();
   const getContractBalance = async () => {
     try {
       const accountList = await appStore.loadContractAssets();
@@ -177,7 +178,7 @@ const TradePage = () => {
 
 
   const getDepthMapData = async () => {
-    const res = await getDepthMap({ symbol: currentPair?.symbol || "BTCUSDT", contractId: publicInfo.contractList[0].id });
+    const res = await getDepthMap({ symbol: currentPair?.symbol || "BTCUSDT", contractId: currentContractInfo.id });
     console.log('res:', res);
     setDepthData(res);
   };
@@ -190,7 +191,7 @@ const TradePage = () => {
   useEffect(() => {
     const loadUserConfig = async () => {
       if (publicInfo.contractList) {
-        const userConfig = await appStore.loadUserConfig({ contractId: publicInfo.contractList[0].id });
+        const userConfig = await appStore.loadUserConfig({ contractId: currentContractInfo.id });
         if (userConfig.openContract !== 1) {
           setShowRiskDisclosure(true);
         }
@@ -298,7 +299,7 @@ const TradePage = () => {
   // 处理订单提交
   const handleOrderSubmit = async (orderData: any) => {
     const params = {
-      contractId: publicInfo.contractList[0].id,
+      contractId: appStore.getCurrentContractInfo().id,
       ...orderData,
 
     }
@@ -339,6 +340,7 @@ const TradePage = () => {
   // 处理币种选择
   const handleSymbolSelect = (item: SymbolData) => {
     console.log('Selected symbol:', item);
+    appStore.setCurrentContractInfo(item.id);
     setCurrentPair(item);
     setCurrentSymbol(item.symbol + " 永续");
   };

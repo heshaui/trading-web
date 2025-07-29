@@ -41,7 +41,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
   const [leverageLevel, setLeverageLevel] = useState(65);
   const [price, setPrice] = useState<string | number>(lastPrice);
-  const [quantity, setQuantity] = useState<string | number>(0);
+  const [quantity, setQuantity] = useState<string | number>();
   const [percentage, setPercentage] = useState(0);
   const [enableTPSL, setEnableTPSL] = useState(false);
   const [takeProfitPrice, setTakeProfitPrice] = useState<string | number>('');
@@ -141,7 +141,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       positionType: 1, // 持仓类型(1 全仓，2 仓逐)
       side: transactionType === 1 ? 'BUY' : 'SELL', // 买卖方向（buy 买入，sell 卖出）
       leverageLevel: leverageLevel, // 杠杆倍数
-      price: price, // 下单价格(市价单传0)
+      price:currentCategory === 1 ? price : 0, // 下单价格(市价单传0)
       volume: quantity, // 下单数量(开仓 市价单：开仓价值)
       triggerPrice: triggerPrice, // 触发价格
       open: transactionType === 1 ? 'OPEN' : 'CLOSE', // 开平仓方向(open 开仓，close 平仓)
@@ -319,14 +319,16 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         {(currentCategory === 1 || currentCategory === 3) && (
           <Form.Item className={styles.formItem}>
             <div className={styles.inputWrapper}>
-              <div className={styles.inputGroup}>
+              <div className={styles.inputGroup} style={{display: 'flex', alignItems: 'center'}}>
                 <Input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="委托价格"
                   className={styles.priceInput}
                   suffix="USDT"
+                  style={{width: currentCategory === 3 ? '80%' : '100%'}}
                 />
+                {currentCategory === 3 && <Button type="text">市价</Button>}
               </div>
             </div>
           </Form.Item>
@@ -341,16 +343,17 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="委托数量"
                 className={styles.quantityInput}
-                suffix={
-                  <div className={styles.inputSuffixGroup}>
-                    <span>{orderUnit}</span>
-                    <Iconify
-                      icon="mdi:chevron-down"
-                      className={styles.dropdownIcon}
-                      onClick={() => setShowOrderSettingsModal(true)}
-                    />
-                  </div>
-                }
+                 suffix="USDT"
+                // suffix={
+                //   <div className={styles.inputSuffixGroup}>
+                //     <span>{orderUnit}</span>
+                //     <Iconify
+                //       icon="mdi:chevron-down"
+                //       className={styles.dropdownIcon}
+                //       onClick={() => setShowOrderSettingsModal(true)}
+                //     />
+                //   </div>
+                // }
               />
             </div>
           </div>

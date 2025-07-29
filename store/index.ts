@@ -968,8 +968,8 @@ class AppStore {
     }
 
     // 设置当前合约信息
-    setCurrentContractInfo(contractInfo: any) {
-        this.currentContractInfo = contractInfo;
+    setCurrentContractInfo(contractId: number) {
+        this.currentContractInfo = this.publicInfo?.contractList?.find((item: any) => item.id === contractId);
     }
 
     // 获取当前合约信息

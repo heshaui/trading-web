@@ -44,7 +44,7 @@ interface SymbolSelectorProps {
 }
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
-  currentSymbol = "BTC/USDT 永续",
+  currentSymbol = "",
   onSymbolSelect,
   symbolList,
   onToggleFavorite
