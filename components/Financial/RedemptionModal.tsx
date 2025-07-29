@@ -423,7 +423,7 @@ const RedemptionModal = ({
                         {curProductInfo?.coinName}
                       </div>
                     </div>
-                    {/* 获得利息 */}
+                    {/* 已获得利息 */}
                     <div className="flex justify-between">
                       <div className="text-[var(--text-color6)] font-[400] text-[14px]">
                         {curProductInfo?.settlementInterest ===
@@ -432,18 +432,18 @@ const RedemptionModal = ({
                           : t("common.totalInterest")}
                       </div>
                       <div className="text-[var(--text-color5)] font-[400] text-[14px]">
-                        {curProductInfo?.coinName ? (
+                        {curProductInfo?.endCoinName ? (
                           <>
                             {getCoinRound(
-                              curProductInfo?.coinName,
+                              curProductInfo?.endCoinName,
                               redeemMoneyFixed.earnInterest
                             )}{" "}
-                            {curProductInfo?.coinName}
+                            {curProductInfo?.endCoinName}
                           </>
                         ) : (
                           <>
                             {redeemMoneyFixed.earnInterest || "--"}
-                            {curProductInfo?.coinName}
+                            {curProductInfo?.endCoinName}
                           </>
                         )}
                       </div>

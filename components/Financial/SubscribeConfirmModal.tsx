@@ -57,6 +57,11 @@ const SubscribeConfirmModal: React.FC<SubscribeConfirmModalProps> = ({
                   type: subscribeConfirmModal.type,
                 },
               });
+              setSubscribeConfirmModal({
+                ...subscribeConfirmModal,
+                open: false,
+                status: null,
+              });
             }}
             type="primary"
             shape="round"

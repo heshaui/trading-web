@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RedemptionModal from "../../../components/Financial/RedemptionModal";
 import styles from "../../../styles/components/Financial.module.css";
 import {
@@ -148,11 +148,15 @@ const TabsItem = ({
             key: "purchaseStartTime",
             align: "right" as const,
             render: (_: any, record: any) => {
-              return record.purchaseStartTime
-                ? <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-                    {dayjs(record.purchaseStartTime).format("YYYY-MM-DD HH:mm:ss")}
-                  </div>
-                : "--";
+              return record.purchaseStartTime ? (
+                <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+                  {dayjs(record.purchaseStartTime).format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  )}
+                </div>
+              ) : (
+                "--"
+              );
             },
           },
         ]
@@ -238,8 +242,7 @@ const TabsItem = ({
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
-              {roundDown(record.endAccruedInterest, 8)}{" "}
-              {record.endCoinName}
+              {roundDown(record.endAccruedInterest, 8)} {record.endCoinName}
             </div>
             <div>
               ≈{current.symbol}
@@ -250,7 +253,7 @@ const TabsItem = ({
                     current.accuracy
                     ? new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
-                        .toFixed(Number(current.accuracy))
+                        .toFixed(Number(current.accuracy), BigNumber.ROUND_DOWN)
                     : new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toString()
@@ -497,27 +500,31 @@ const Financial = observer(() => {
   ];
 
   // 获取理财产品列表
-  const fetchData = async (params: UserFinancialAccountParams) => {
-    try {
-      setTableLoading(true);
-      const res = await getUserFinancialAccount(params);
-      if (res.code === "0") {
-        setTableData(res.data);
-        console.log(res.data);
-      } else {
+  const fetchData = useCallback(
+    async (params: UserFinancialAccountParams) => {
+      try {
+        setTableLoading(true);
+        const res = await getUserFinancialAccount(params);
+        if (res.code === "0") {
+          setTableData(res.data);
+          console.log(res.data);
+        } else {
+          setTableData([]);
+          message.error(res.message);
+        }
+      } catch (error) {
         setTableData([]);
-        message.error(res.message);
+        message.error(t("common.fail"));
+        console.log(error);
+      } finally {
+        setTableLoading(false);
       }
-    } catch (error) {
-      setTableData([]);
-      console.log(error);
-    } finally {
-      setTableLoading(false);
-    }
-  };
+    },
+    [t]
+  );
 
   // 获取币种列表
-  const fetchCoinList = async () => {
+  const fetchCoinList = useCallback(async () => {
     try {
       const response = await getCoinAll();
       if (response.code === "0" && Array.isArray(response.data)) {
@@ -528,32 +535,38 @@ const Financial = observer(() => {
           }))
         );
       } else {
+        setCoinList([]);
+        message.error(t("common.fail"));
       }
     } catch (error) {
       console.error("获取币种列表失败:", error);
+      message.error(t("common.fail"));
     }
-  };
+  }, [t]);
 
   // 我的持仓
-  const fetchMyPosition = async () => {
+  const fetchMyPosition = useCallback(async () => {
     setMyAmountLoading(true);
     try {
       const res = await getFinancialAccount();
       if (res.code === "0") {
         setMyAmount(res.data);
+      } else {
+        message.error(t("common.fail"));
       }
     } catch (error) {
+      message.error(t("common.fail"));
       console.error("Failed to load position data:", error);
     } finally {
       setMyAmountLoading(false);
     }
-  };
+  }, [t]);
 
   // 添加刷新函数
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     fetchData(formData);
     fetchMyPosition();
-  };
+  }, [fetchMyPosition, fetchData, formData]);
 
   // 获取汇率
   useEffect(() => {
@@ -583,12 +596,12 @@ const Financial = observer(() => {
     fetchMyPosition();
     const amountShow = appStore.getBanlanceShow();
     setShowAmount(amountShow);
-  }, []);
+  }, [fetchCoinList, fetchMyPosition]);
 
   // 获取表格数据
   useEffect(() => {
     fetchData(formData);
-  }, [formData]);
+  }, [formData, fetchData]);
 
   // 是否是客户端渲染
   useEffect(() => {
@@ -791,13 +804,13 @@ const Financial = observer(() => {
                     value={
                       !formData.coinId ? NULL_PLACEHOLDER : formData.coinId
                     }
-                    onChange={(value) =>
+                    onChange={(value) => {
                       setFormData({
                         ...formData,
                         coinId:
                           value === NULL_PLACEHOLDER ? null : Number(value),
-                      })
-                    }
+                      });
+                    }}
                     options={[
                       { label: t("common.all"), value: NULL_PLACEHOLDER },
                       ...coinList.map((item) => ({

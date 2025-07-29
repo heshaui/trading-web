@@ -171,8 +171,11 @@ export enum SettlementInterest {
 export interface UserFinancialAccountItem {
   id: number; //用户理财记录id
   projectId: number; //项目id
+  userProjectId: number; //用户理财记录id
   coinId: number; //币种ID
   coinName: string; //币种名称
+  endCoinId: number; //结束币种ID
+  endCoinName: string; //结束币种名称
   iconUrl: string; //币种图标
   type: FinancialType; // 1定期 2活期
   minAnnualInterestRate: number; //最小年化利率
@@ -181,10 +184,14 @@ export interface UserFinancialAccountItem {
   purchaseAmount: number; //申购金额
   usdPurchaseAmount: string; //USD申购金额
   accruedInterest: number; //累计收益
+  endAccruedInterest: number; //到期收益
   usdAccruedInterest: string; //USD累计收益
   purchaseStatus: RedemptionStatusEnum; // 0失败，1持仓中，2成功赎回
+  isRedemption: OpenStatusEnum; //是否赎回 0否，1是
   settlementInterest: SettlementInterest; //结算利息 1按日付息，2到期还本利息
-  endAccruedInterest: number; //到期收益
+  purchaseStartTime: number; //申购开始时间
+  term: string; //期限
+  expirationTime: number; //到期时间
 }
 export function getUserFinancialAccount(
   params: UserFinancialAccountParams

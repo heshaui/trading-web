@@ -239,7 +239,7 @@ function AuthCode() {
   if (loginState !== LoginStateEnum.Authcode) return null;
 
   return (
-    <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
+    <div className="flex-col" style={{ minHeight: "70vh", width: "100%" }}>
       {/* <div className="mb-6 authcode-header font-w-500" style={{ width: "300px" }}>邮箱/手机号验证</div> */}
       <div className="mb-2">
         <p className="font-16 font-w-500 mb-1">

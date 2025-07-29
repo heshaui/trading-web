@@ -6,13 +6,14 @@ import {
   ConfigProvider,
   DatePicker,
   Flex,
+  message,
   Select,
   Space,
   Table,
   Tabs,
 } from "antd";
 import NoData from "@/components/noData/noData";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../../styles/components/Financial.module.css";
 import {
   FinancialOrderItem,
@@ -163,14 +164,14 @@ const TabsItem = ({
                 current.rate
                   ? // 有精度存在
                     current.accuracy
-                    ? new BigNumber(record.amount)
+                    ? new BigNumber(record.usdAmount)
                         .times(new BigNumber(current.rate))
-                        .toFixed(Number(current.accuracy))
-                    : new BigNumber(record.amount)
+                        .toFixed(Number(current.accuracy),BigNumber.ROUND_DOWN)
+                    : new BigNumber(record.usdAmount)
                         .times(new BigNumber(current.rate))
                         .toString()
                   : // 没有汇率的存在
-                    record.amount
+                    record.usdAmount
               }
             </div>
           </div>
@@ -397,9 +398,10 @@ const FinancialOrder = observer(() => {
   ];
 
   // 获取数据
-  const fetchData = async (params: FormDataType) => {
+  const fetchData = useCallback(async (params: FormDataType) => {
     try {
       setTableLoading(true);
+      setTableData([]);
       const data = {
         coinId: params.coinId,
         type: params.type,
@@ -411,16 +413,21 @@ const FinancialOrder = observer(() => {
       const res = await getFinancialOrderList(data);
       if (res.code === "0") {
         setTableData(res.data);
+      } else {
+        setTableData([]);
+        message.error(t("common.fail"));
       }
     } catch (error) {
       console.error("获取数据失败:", error);
+      setTableData([]);
+      message.error(t("common.fail"));
     } finally {
       setTableLoading(false);
     }
-  };
+  }, [t]);
 
   // 获取币种列表
-  const fetchCoinList = async () => {
+  const fetchCoinList = useCallback(async () => {
     try {
       const response = await getCoinAll();
       if (response.code === "0" && Array.isArray(response.data)) {
@@ -431,21 +438,25 @@ const FinancialOrder = observer(() => {
           }))
         );
       } else {
+        setCoinList([]);
+        message.error(t("common.fail"));
       }
     } catch (error) {
       console.error("获取币种列表失败:", error);
+      setCoinList([]);
+      message.error(t("common.fail"));
     }
-  };
+  }, [t]);
 
   // 获取币种列表
   useEffect(() => {
     fetchCoinList();
-  }, []);
+  }, [fetchCoinList]);
 
   // 获取数据
   useEffect(() => {
     fetchData(formData);
-  }, [formData]);
+  }, [formData, fetchData]);
   const [isClient, setIsClient] = useState(false);
 
   // 获取汇率
