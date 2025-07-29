@@ -530,21 +530,21 @@ export default function HomeMenu() {
         },
       }}
     >
-      <div
-        style={{ position: "relative" }}
-      >
+      <div style={{ position: "relative" }}>
         <div className={styles.container}>
           <div className={styles.logo}>
-            <Image
-              src={logoUrl || ""}
-              alt="go Home"
-              width={140}
-              height={140}
-              // onError={() => setLogoUrl('')} ///home_menu_logo.png
-              className="pointer"
-              onClick={() => router.push("/")}
-              priority
-            />
+            {logoUrl ? (
+              <Image
+                src={logoUrl || ""}
+                alt="go Home"
+                width={140}
+                height={140}
+                // onError={() => setLogoUrl('')} ///home_menu_logo.png
+                className="pointer"
+                onClick={() => router.push("/")}
+                priority
+              />
+            ) : null}
           </div>
           <div className={styles.menuContainer}>
             <div className={styles.menuListContainer}>

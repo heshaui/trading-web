@@ -23,7 +23,8 @@ export const LOCAL_STORAGE_KEY = {
     LANGUAGE_LIST:'cachedLanguageList', //语言列表
     KV_CONFIG:'kv_config', // kv配置
     FLASH_CONFIG: 'flash_config', // 闪兑配置
-    USDT_RATE:'usdt_rate' // USDT汇率
+    USDT_RATE:'usdt_rate', // USDT汇率
+    FINANCIAL_CONFIG: 'financial_config', // 理财配置
 };
 
 export const KV_KEYS = [
@@ -45,12 +46,18 @@ export const ROUTER_KEY_ASSETS = {
 	TOP_UP:"/assets/assetsAccount/topUp", //充值页面
     BILL:"/assets/billDetails", //账单页面
     ADDADRESS:"/assets/address", //添加地址页面
+    FINANCIAL:"/assets/financial", //理财账户
 
     FUTURE_ACCOUNT:"/assets/futureAccount", //合约账户
+    SPOT_ACCOUNT:"/assets/assetsAccount", //现货账户
+    FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
 };
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
     SPOT_ORDER: "/spotOrder", //现货订单
+    FLASH_ORDER:"/flashOrder", //闪兑订单
+    FINANCIAL_ORDER:"/financialOrder", //理财订单
+    BILL:"/billDetails", //账单页面
 };
 export const ROUTER_KEY_OPEN = {
     LOGIN:"/login", //登录页面

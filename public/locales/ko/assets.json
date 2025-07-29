@@ -5,7 +5,8 @@
         "billDetails": "거래 내역",
         "withdraw": "출금",
         "deposit": "입금",
-        "address": "주소 관리"
+        "address": "주소 관리",
+        "financialAccount": "현물 계정"
     },
     "assetsAccount": {
         "title": "현물 계정",

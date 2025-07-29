@@ -1,13 +1,12 @@
 import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList, getExchangeCoinAllPrice } from '@/services/spot';
 import { getCoinAll } from '@/services/assets';
-import appStore from '@/store/index';
+// import appStore from '@/store/index'; // 移除这个导入以打破循环依赖
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig"
-import { getUsdtPriceWithStables } from "@/services/marketData"
+import { getUsdtPriceWithStables, getAllCoinsData } from "@/services/marketData"
 import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
 import { usdtRateType } from "@/type/userCenter/overview"
 // 获取所有币对数据
-export async function fetchAllCurrencyPairs() {
-    const userToken = appStore.getUserToken();
+export async function fetchAllCurrencyPairs(userToken?: string) {
     try {
         // 1. 获取币种列表
         const coinListResponse = await getExchangeCoinList();
@@ -210,22 +209,39 @@ export async function fetchCurrencyPairPrices() {
 
 // 获取所有币种
 // 获取所有币种
-export async function fetchAllCoin(needPrice: boolean = false) {
-    const userToken = appStore.getUserToken();
-    if (!userToken) return {
-        success: false,
-        data: [],
-        rawData: [],
-        error: new Error('未登录')
-    };
+export async function fetchAllCoin(needPrice: boolean = false, userToken?: string) {
     try {
-        // 1. 获取币种列表
-        const coinListResponse = await getCoinAll();
-        if (coinListResponse.code !== '0') {
-            throw new Error('Failed to load coin list');
+        let coinList: any[] = [];
+        
+        // 1. 获取币种列表 - 优先使用需要登录的接口，如果失败则使用不需要登录的接口
+        if (userToken) {
+            try {
+                const coinListResponse = await getCoinAll();
+                if (coinListResponse.code === '0') {
+                    coinList = coinListResponse.data || [];
+                } else {
+                    throw new Error('Failed to load coin list with token');
+                }
+            } catch (error) {
+                console.warn('使用登录接口获取币种列表失败，尝试使用公开接口:', error);
+                // 如果登录接口失败，尝试使用公开接口
+                const publicCoinListResponse = await getAllCoinsData();
+                if (publicCoinListResponse.code === '0') {
+                    coinList = publicCoinListResponse.data || [];
+                } else {
+                    throw new Error('Failed to load coin list from public API');
+                }
+            }
+        } else {
+            // 用户未登录，使用公开接口
+            const publicCoinListResponse = await getAllCoinsData();
+            if (publicCoinListResponse.code === '0') {
+                coinList = publicCoinListResponse.data || [];
+            } else {
+                throw new Error('Failed to load coin list from public API');
+            }
         }
 
-        const coinList = coinListResponse.data || [];
         let processedCoins = coinList;
 
         // 2. 如果需要汇率价格数据，则获取并合并

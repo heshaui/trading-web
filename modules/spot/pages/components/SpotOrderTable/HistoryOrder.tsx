@@ -439,7 +439,10 @@ const SpotMainPage = observer(() => {
       label: t('spot.select.limit'),
       value: 1
     }
-  ]
+  ].map((item, index) => ({
+    ...item,
+    value: index === 0 ? '' : index - 1 // 保持第一个为空字符串，其他用 index
+  }))
 
   const pageChange = async (page: number, pageSize: number) => {
     // const pageData = {
@@ -546,10 +549,10 @@ const SpotMainPage = observer(() => {
   const getCoinList = async () => {
     const res = await getExchangeCoinList();
     if (res.code === '0') {
-      const selectData = res.data.map((item: any) => {
+      const selectData = res.data.map((item: any, index: number) => {
         return {
           label: `${item.coinSymbol}/${item.baseSymbol}`,
-          value: `${item.coinSymbol}/${item.baseSymbol}`,
+          value: index,
           baseSymbol: item.baseSymbol,
           coinSymbol: item.coinSymbol,
           tenantId: item.tenantId

@@ -14,7 +14,6 @@ interface DepthChartProps {
 const DepthChart = ({ data }: DepthChartProps) => {
   const { t } = useTranslation(['common']);
 
-  console.log("DepthChartProps", data);
   
   // 检查数据是否有效
   if (!data || !data.bids || !data.asks) {
@@ -154,13 +153,13 @@ const DepthChart = ({ data }: DepthChartProps) => {
         step: 'after', // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 255, 0, 0.3)' },
-            { offset: 1, color: 'rgba(0, 255, 0, 0.05)' }
+            { offset: 0, color: 'rgba(0, 199, 136, 0.3)' },
+            { offset: 1, color: 'rgba(0, 199, 136, 0.05)' }
           ])
         },
         lineStyle: {
           width: 2,
-          color: 'rgba(0, 180, 0, 0.8)'
+          color: 'rgba(0, 199, 136, 0.8)'
         },
         smooth: false,
         symbol: 'none'
@@ -172,13 +171,13 @@ const DepthChart = ({ data }: DepthChartProps) => {
         step: 'after', // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 0, 0, 0.3)' },
-            { offset: 1, color: 'rgba(255, 0, 0, 0.05)' }
+            { offset: 0, color: 'rgba(255, 77, 79, 0.3)' },
+            { offset: 1, color: 'rgba(255, 77, 79, 0.05)' }
           ])
         },
         lineStyle: {
           width: 2,
-          color: 'rgba(255, 0, 0, 0.8)'
+          color: 'rgba(255, 77, 79, 0.8)'
         },
         smooth: false,
         symbol: 'none'

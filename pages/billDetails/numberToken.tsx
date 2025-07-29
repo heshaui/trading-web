@@ -1,14 +1,14 @@
 import React from "react";
-import styles from "../styles/billDetails.module.css";
+import styles from "./styles/billDetails.module.css";
 import { ConfigProvider, Select, Pagination } from "antd";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import InvitationTable from "../compontents/billDetailTable/inviteTable";
-import WithdrawTable from "../compontents/billDetailTable/withdrawtTable";
-import RechargeTable from "../compontents/billDetailTable/rechargeTable";
-import GiftTable from "../compontents/billDetailTable/giftTable";
+import InvitationTable from "./compontents/inviteTable";
+import WithdrawTable from "./compontents/withdrawtTable";
+import RechargeTable from "./compontents/rechargeTable";
+import GiftTable from "./compontents/giftTable";
 import { getCoinAll, getOrderList } from "@/services/assets";
 import Image from "next/image";
 
@@ -19,6 +19,7 @@ import {
   coinSelectType,
   GiftDataType,
 } from "@/type/assets/billDetails/table";
+import { financialThemeConfig } from "@/theme/financialThemeConfig";
 
 interface DataType {
   id: number;
@@ -165,35 +166,10 @@ const NumberToken = () => {
 
   return (
     <>
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              // bodySortBg: "pink",
-              headerBg: "transparent",
-              headerColor: "var(--text-color6)",
-              headerSplitColor: "transparent", // 表头分割线颜色
-              rowExpandedBg: "var(--background10)", // 表格行展开背景色
-              borderColor: "transparent",
-              // stickyScrollBarBg:"transparent",
-              headerBorderRadius: 0, // 表头圆角
-            },
-            Pagination: {
-              itemActiveBg: "transparent",
-              itemBg: "transparent",
-            },
-
-            Select: {
-              activeBorderColor: "var(--border-color4)",
-              optionActiveBg: "transparent",
-              selectorBg: "transparent", //选框背景色
-            },
-          },
-        }}
-      >
+      <ConfigProvider theme={financialThemeConfig}>
         <div>
           <div
-            className={`${styles.table_header} w-full flex align-center p-[30px_20px]`}
+            className={`${styles.table_header} w-full flex align-center p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]`}
           >
             <Select
               allowClear

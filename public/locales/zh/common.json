@@ -82,7 +82,6 @@
       "modifySuccess": "生日修改成功",
       "tip": "请您输入正确日期，填写后将无法修改。"
     }
-   
   },
   "modal":{
     "confirmCancel":"确认撤销后，提现订单将被取消。"
@@ -98,6 +97,8 @@
     "midPrice": "中间价格"
   },
   "router":{
+    "spotAccount":"现货账户",
+    "financialAccount":"理财账户",
     "myAssets":"我的资产",
     "recharge":"充币",
     "withdraw":"提币",
@@ -105,6 +106,7 @@
     "spotTrade":"现货交易",
     "spotOrder":"现货订单",
     "flashOrder":"闪兑订单",
+    "financialOrder":"理财订单",
     "overView":"总览",
     "safetyCenter":"安全中心",
     "identity":"身份认证",
@@ -149,10 +151,5 @@
     "selectCoin": "选择币种",
     "searchHistory": "搜索历史",
     "balance": "余额"
-  },
-  "flash":{
-    "order":{
-      "title": "闪兑订单"
-    }
   }
 }

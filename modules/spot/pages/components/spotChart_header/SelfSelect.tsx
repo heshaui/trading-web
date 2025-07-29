@@ -16,15 +16,27 @@ interface SelfSelectProps {
     currencyPairs: any[];
     onPairSelect?: (pair: any) => void;
     searchValue: string;
+    wsData?: any;
 }
-const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, searchValue }) => {
+const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, searchValue, wsData }) => {
     const { t } = useTranslation(['spot']);
     const [activeTab, setActiveTab] = useState('all');
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [sortField, setSortField] = useState<string>('');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [showVolume, setShowVolume] = useState<boolean>(false);
-
+    
+    // 辅助函数：格式化大额数字
+    const formatAmount = (amount: number) => {
+        if (amount >= 100000000) {
+            return (amount / 100000000).toFixed(2) + t('spot.header.billion');
+        } else if (amount >= 10000) {
+            return (amount / 10000).toFixed(2) + t('spot.header.tenThousand');
+        } else {
+            return amount.toFixed(2);
+        }
+    };
+ 
 
     // 标签页配置
     const tabsItem: TabsProps['items'] = [
@@ -145,8 +157,29 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
         return isFavorite && matchesSearch && matchesTab;
     });
 
+    // 合并WebSocket数据到币对数据中
+    const enrichedPairs = filteredPairs.map(pair => {
+        const symbol = `${pair.coinSymbol}_${pair.baseSymbol}_${pair.groupStatus}`;
+        const wsKlineData = wsData?.[symbol];
+        
+        if (wsKlineData && Array.isArray(wsKlineData) && wsKlineData.length >= 8) {
+            // 根据实际数据格式：[timestamp, open, high, low, close, volume, changePercent, amount]
+            const [timestamp, open_price, high_price, low_price, close_price, volume, changePercent, amount] = wsKlineData;
+            
+            
+            return {
+                ...pair,
+                realTimePrice: close_price,
+                realTimeChange: changePercent ? changePercent.toFixed(2) : null, // 直接使用WebSocket返回的涨跌幅
+                realTimeVolume: volume,
+                realTimeAmount: amount
+            };
+        }
+        
+        return pair;
+    });
+
     const handlePairClick = async (pair: any) => {
-        console.log(pair);
         await appStore.setCurrentPair(pair);
     };
 
@@ -186,6 +219,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
         e.stopPropagation(); // 阻止事件冒泡
         setShowVolume(!showVolume); // 切换显示状态
     }
+
     return (
         <ConfigProvider
             theme={{
@@ -332,7 +366,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                             },
                         ]}
                     /> */}
-                    {filteredPairs.map((pair, index) => (
+                    {enrichedPairs.map((pair, index) => (
                         <div key={index} className={`${styles.pair_item}  px-4 flex-x align-center`} onClick={() => handlePairClick(pair)}>
                             {/* 币种名称 */}
                             <div className={`${styles.pair_name} flex-1`}>
@@ -349,14 +383,17 @@ const SelfSelect: React.FC<SelfSelectProps> = ({ currencyPairs, onPairSelect, se
                                 <span className={`font-14 ${styles.title_color}`}>{pair.coinSymbol}/{pair.baseSymbol}</span>
                             </div>
                             {/* 最新价 */}
-                            <div className={`font-14 ${styles.title_color} flex-1`}>
-                                {pair.yesterdayPrice}
+                            <div className={`font-14 ${styles.title_color} flex-1 flex-x align-center`}>
+                                <span>{pair.realTimePrice ? pair.realTimePrice.toFixed(2) : (pair.yesterdayPrice || 0)}</span>
                             </div>
                             {/* 24h涨跌/24h成交量 */}
                             <div
-                                className={`${styles.pair_change} ${!showVolume && pair.priceChangePercent > 0 ? styles.success_icon : !showVolume && pair.priceChangePercent < 0 ? styles.error_icon : ''} flex-1`}
+                                className={`${styles.pair_change} ${!showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) > 0 : pair.priceChangePercent > 0) ? styles.success_icon : !showVolume && (pair.realTimeChange ? parseFloat(pair.realTimeChange) < 0 : pair.priceChangePercent < 0) ? styles.error_icon : ''} flex-1`}
                             >
-                                {showVolume ? pair.quantity : `${pair.priceChangePercent.toFixed(2)}%`}
+                                {showVolume 
+                                    ? (pair.realTimeAmount ? formatAmount(pair.realTimeAmount) : (pair.realTimeVolume ? pair.realTimeVolume.toFixed(2) : Number(pair.quantity || 0).toFixed(2)))
+                                    : (pair.realTimeChange ? `${pair.realTimeChange}%` : `${(pair.priceChangePercent || 0).toFixed(2)}%`)
+                                }
                             </div>
                         </div>
                     ))}

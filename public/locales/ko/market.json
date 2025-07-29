@@ -1,33 +1,71 @@
 {
-"pageTitle": "마켓 현황",
-  "marketData": {
-    "pageTitle": "마켓 현황",
-    "rankings": "순위",
-    "marketTrends": "마켓 트렌드"
-  },
-  "rankingList": {
-    "tradingPair": "거래페어",
-    "latestPrice": "최신 가격",
-    "change24h": "24시간 변동",
-    "hotCoins": "급상승",
-    "risingCoins": "상승률 상위 코인",
-    "fallingCoins": "하락률 상위 코인"
-  },
-  "marketList": {
-    "tabs": {
-      "favorites": "즐겨찾기",
-      "allCoins": "전체 코인",
-      "spotMarket": "현물 마켓"
+  "pageTitle": "마켓 현황",
+    "marketData": {
+      "pageTitle": "마켓 현황",
+      "rankings": "순위",
+      "marketTrends": "마켓 트렌드"
     },
-    "categories": {
-      "mainBoard": "메인",
-      "innovationZone": "신규 프로젝트",
-      "newCoins": "신규 상장",
+    "rankingList": {
+      "tradingPair": "거래페어",
+      "latestPrice": "최신 가격",
+      "change24h": "24시간 변동",
+      "hotCoins": "급상승",
+      "risingCoins": "상승률 상위 코인",
+      "fallingCoins": "하락률 상위 코인"
+    },
+    "marketList": {
+      "tabs": {
+        "favorites": "즐겨찾기",
+        "allCoins": "전체 코인",
+        "spotMarket": "현물 마켓"
+      },
+      "categories": {
+        "mainBoard": "메인",
+        "innovationZone": "신규 프로젝트",
+        "newCoins": "신규 상장",
+        "ai": "AI",
+        "meme": "Meme",
+        "nft": "NFT",
+        "web3": "Web3",
+        "payments": "Payments",
+        "launchpad": "Launchpad"
+      },
+      "tableHeaders": {
+        "name": "이름",
+        "price": "가격",
+        "change24h": "24시간 변동",
+        "marketCap": "시가총액",
+        "action": "동작",
+        "highLow24h": "24시간 고가/저가",
+        "volume24h": "24시간 거래량",
+        "trade": "거래"
+      },
+      "operationTips": {
+        "addSuccess": "추가되었습니다",
+        "removeSuccess": "삭제되었습니다",
+        "loginToFavorite": "즐겨찾기를 추가하려면 로그인해주세요",
+        "action": "실행",
+        "emptyData": "데이터 없음",
+        "emptyFavorites": "즐겨찾기가 비어 있습니다",
+        "loginNow": "지금 로그인하기",
+        "goToMarket": "마켓으로 이동",
+        "noData": "사용 가능한 데이터가 없습니다"
+      }
+    },
+    "header": {
+      "favorites": "즐겨찾기",
+      "spot": "현물",
+      "search": "검색",
+      "mainArea": "메인",
+      "innovationArea": "신규 프로젝트",
+      "newCoinArea": "신규 상장",
       "ai": "AI",
       "meme": "Meme",
       "nft": "NFT",
+      "defi": "DeFi",
       "web3": "Web3",
       "payments": "Payments",
+<<<<<<< HEAD
       "launchpad": "Launchpad"
     },
     "tableHeaders": {
@@ -100,3 +138,40 @@
     "routerErr": "해당 거래페어가 존재하지 않습니다"
   }
 }
+=======
+      "launchpad": "Launchpad",
+      "layer2": "Layer2",
+      "solana": "Solana",
+      "rwa": "RWA",
+      "launchpool": "Launchpool",
+      "gameMetaverse": "Game Metaverse",
+      "storage": "Storage",
+      "loadingError": "거래페어 불러오기 실패",
+      "updateFavoriteError": "즐겨찾기 업데이트 실패",
+      "favoriteError": "즐겨찾기 처리 중 오류 발생",
+      "addToFavorites": "즐겨찾기에 추가",
+      "removeFromFavorites": "즐겨찾기에서 제거",
+      "change24h": "24시간 변동",
+      "high24h": "24시간 고가",
+      "low24h": "24시간 저가",
+      "volume24h": "24시간 거래량",
+      "amount24h": "24시간 거래 금액",
+      "billion": "B",
+      "tenThousand": "K",
+      "million": "M",
+      "kthousand": "K",
+      "name": "명칭",
+      "lastPrice": "최종 가격",
+      "time": "시간",
+      "price": "가격",
+      "amount": "수량",
+      "total": "총액",
+      "all": "전체",
+      "loginNow": "지금 로그인하기",
+      "goToMarket": "마켓으로 이동",
+      "noData": "사용 가능한 데이터가 없습니다",
+      "searchInput": "검색어를 입력하세요",
+      "routerErr": "해당 거래페어가 존재하지 않습니다"
+    }
+  }
+>>>>>>> wzm

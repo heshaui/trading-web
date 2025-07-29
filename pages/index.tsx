@@ -20,6 +20,7 @@ import Try from '@/components/home/try_3/try';
 import Assistant from '@/components/home/assistant_4/assistant';
 import ComeUp from '@/components/home/comeUp_5/comeUp';
 import Questions from '@/components/home/questions_6/questions';
+import { useEffect, useState } from 'react';
 
 // import HomeMenu from '@/components/homeMenu/HomeMenu';
 // import Footer from '@/components/footer/Footer';
@@ -30,7 +31,14 @@ import Questions from '@/components/home/questions_6/questions';
 // }
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
 
+  if (!isClient) return null; // SSR 阶段不渲染
+  
   return (
     <div>
       {/* <HomeMenu t={t} /> */}

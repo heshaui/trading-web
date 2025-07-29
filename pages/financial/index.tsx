@@ -4,24 +4,31 @@ import { observer } from "mobx-react-lite";
 import MyFinancial from "./components/MyFinancial";
 import TokenList from "./components/TokenList";
 import Problem from "./components/Problem";
-import { useState } from "react";
-import ConfirmModal from "./components/ConfirmModal";
-import SubscribeModal from "./components/SubscribeModal";
-
-
-
+import { useEffect, useState } from "react";
 
 export default observer(function FinancialPage() {
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [openSubscribe, setOpenSubscribe] = useState(false);
+
+
+
+  const [isClient, setIsClient] = useState(false);
+
+
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
 
   return (
     <>
+      {/* 我的理财 */}
       <MyFinancial />
-      <TokenList setOpenSubscribe={setOpenSubscribe} />
+
+      {/* 理财产品列表 */}
+      <TokenList/>
+
+      {/* 常见问题 */}
       <Problem />
-      <ConfirmModal  openConfirm={openConfirm}  setOpenConfirm={setOpenConfirm} setOpenSubscribe={setOpenSubscribe} />
-      <SubscribeModal openSubscribe={openSubscribe} setOpenSubscribe={setOpenSubscribe} setOpenConfirm={setOpenConfirm} />
     </>
   );
 });
@@ -32,6 +39,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
       ...(await serverSideTranslations(locale || "en", [
         "financial",
         "common",
+        "spot",
       ])),
     },
   };
