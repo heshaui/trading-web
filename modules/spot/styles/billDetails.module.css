@@ -28,7 +28,7 @@
 
 .card_bgc3{
     background-color: var(--background9);
-    padding: 0 20px;
+    /* padding: 0 20px; */
 }
 .card_bgc4{
     background-color: var( --homeground2); 

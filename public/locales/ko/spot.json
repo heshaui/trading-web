@@ -8,7 +8,9 @@
             "technicalIndicators": "기술 지표",
             "resetChart": "차트 초기화",
             "volumeDistribution": "거래량 분포",
-            "fullscreen": "전체 화면"
+            "fullscreen": "전체 화면",
+            "chart": "차트",
+            "coinInfo": "코인 정보"
         },
         "orderBook": {
             "title": "호가창",

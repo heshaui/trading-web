@@ -1267,6 +1267,7 @@ const WithdrawMoneyPage = observer(() => {
                     options={coinExtSelect} //protocolTypeList coinExtSelect
                     className={`${styles.select_box}  custom-select `}
                     optionRender={(option) => {
+                      const withdrawFeeInfo = getWithdrawFee(option.data.minWithdrawFee||0)
                       return (
                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                           <p className={`flex-y `}>
@@ -1277,10 +1278,10 @@ const WithdrawMoneyPage = observer(() => {
                           </p>
                           <p className={`${styles.tip_color2} `}>
                             {/* {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`} */}
-                            {`${t("withdrawMoney.fee")} ${option.data.withdrawFee
-                              }${getWithdrawFee(option.data.withdrawFee).coinName
-                              }≈${getWithdrawFee(option.data.withdrawFee).symbol
-                              } ${getWithdrawFee(option.data.withdrawFee).rate}`}
+                            {`${t("withdrawMoney.fee")} ${option.data.minWithdrawFee||0
+                              }${withdrawFeeInfo?.coinName
+                              }≈${withdrawFeeInfo?.symbol
+                              } ${withdrawFeeInfo?.rate}`}
                           </p>
                         </div>
                       );
