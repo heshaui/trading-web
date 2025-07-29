@@ -19,6 +19,7 @@ import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
 import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { roundDown } from "@/utils";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -101,14 +102,14 @@ const Financial = observer(() => {
       key: "type",
       width: "20%",
       render: (_: any, record: FinancialAccountBillDetailsItem) => {
-        return (
-          record.type === FinancialType.CURRENT
-          ? <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-              {t("common.current")}
-            </div>
-          : <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-              {t("common.fixed")}
-            </div>
+        return record.type === FinancialType.CURRENT ? (
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+            {t("common.current")}
+          </div>
+        ) : (
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+            {t("common.fixed")}
+          </div>
         );
       },
     },
@@ -143,11 +144,8 @@ const Financial = observer(() => {
         return (
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
             <div>
-              {record.status ===
-              Number(FinancialAccountBillDetailsStatusEnum.INTEREST)
-                ? `${getCoinRound(record.endCoinName, record.amount)} ${
-                    record.endCoinName
-                  }`
+              {record.status === FinancialAccountBillDetailsStatusEnum.INTEREST
+                ? `${roundDown(record.amount, 8)} ${record.endCoinName}`
                 : `${getCoinRound(record.coinName, record.amount)} ${
                     record.coinName
                   }`}

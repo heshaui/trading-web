@@ -7,13 +7,10 @@
   overflow: hidden;
 }
 
-.transferModal :global(.ant-modal-header) {
-  border-bottom: none;
-  padding: 20px 24px 0;
-}
+
 
 .transferModal :global(.ant-modal-body) {
-  padding: 20px 24px 24px;
+  padding: 16px;
 }
 
 .modalHeader {
@@ -76,6 +73,11 @@
   border-radius: 8px !important;
   height: 48px !important;
   padding: 0 12px !important;
+}
+
+/* 无边框变体样式 */
+.accountSelect :global(.ant-select-borderless) :global(.ant-select-selector) {
+  border: none !important;
 }
 
 .accountSelect :global(.ant-select-selection-item) {
@@ -204,25 +206,9 @@
   width: 100%;
 }
 
-.amountInput :global(.ant-input) {
-  background: #ffffff !important;
-  border: 1px solid #e0e0e0 !important;
-  border-radius: 8px !important;
-  height: 48px !important;
-  padding: 0 120px 0 12px !important;
-  font-size: 15px !important;
-  color: #1a1a1a !important;
-}
 
-.amountInput :global(.ant-input::placeholder) {
-  color: #bbb !important;
-  font-size: 14px !important;
-}
 
-.amountInput :global(.ant-input:focus) {
-  border-color: #ff6b35 !important;
-  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1) !important;
-}
+
 
 .inputSuffix {
   display: flex;
@@ -257,6 +243,8 @@
 }
 
 .availableBalance {
+  display: flex;
+  justify-content: space-between;
   margin-top: 8px;
   font-size: 13px;
   color: #666;

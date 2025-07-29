@@ -27,7 +27,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [toAccount, setToAccount] = useState<'spot' | 'contract'>('contract');
   const [selectedCoin, setSelectedCoin] = useState('USDT');
   const [transferAmount, setTransferAmount] = useState('');
-  const [availableBalance] = useState(103.03); // 可用余额
+  const [availableBalance] = useState(11111555503.012312338123); // 可用余额
 
   // 币种选项
   const coinOptions = [
@@ -72,30 +72,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Modal: {
-            contentBg: "#ffffff",
-            footerBg: "#ffffff",
-            headerBg: "#ffffff",
-          },
-          Input: {
-            activeBorderColor: '#ff6b35',
-            hoverBorderColor: '#ff6b35',
-            controlHeightLG: 48,
-            activeBg: '#ffffff',
-            hoverBg: '#ffffff',
-          },
-          Button: {
-            controlHeightLG: 48,
-          },
-          Select: {
-            selectorBg: '#ffffff',
-          }
-        },
-      }}
-    >
+
       <Modal
         open={visible}
         title={
@@ -112,7 +89,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
         centered
         onCancel={handleCancel}
         footer={null}
-        width={500}
+        width={520}
         className={`modal_box ${styles.transferModal}`}
         closable={false}
         maskClosable={false}
@@ -136,6 +113,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                 <Option value="contract">合约账户</Option>
               </Select>
             </div>
+            
 
             <div className={styles.swapButtonWrapper}>
               <Button
@@ -147,7 +125,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
             </div>
 
             <div className={styles.accountItem}>
-              <label className={styles.accountLabel}>到</label>
+              <label className={styles.accountLabel}>划转到</label>
               <Select
                 value={toAccount}
                 onChange={(value) => {
@@ -162,6 +140,17 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                 <Option value="contract">合约账户</Option>
               </Select>
             </div>
+          </div>
+          <div className={styles.availableBalance}>
+            <div>
+            <span>可用 </span>
+            <span className={styles.balanceAmount}>{availableBalance} USDT</span>
+            </div>
+            <div>
+            <span>可用 </span>
+            <span className={styles.balanceAmount}>{availableBalance} USDT</span>
+            </div>
+
           </div>
 
           {/* 币种选择 */}
@@ -216,10 +205,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                   </div>
                 }
               />
-              <div className={styles.availableBalance}>
-                <span>可用 </span>
-                <span className={styles.balanceAmount}>{availableBalance.toFixed(2)} USDT</span>
-              </div>
+
             </div>
           </div>
 
@@ -236,7 +222,6 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
           </Button>
         </div>
       </Modal>
-    </ConfigProvider>
   );
 };
 

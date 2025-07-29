@@ -44,6 +44,7 @@ import dayjs from "dayjs";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
 import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { roundDown } from "@/utils";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 interface TabsItemProps {
@@ -230,14 +231,14 @@ const TabsItem = ({
     // 累计收益
     {
       title: t("common.totalIncome"),
-      dataIndex: "endAccruedInterest",
-      key: "endAccruedInterest",
+      dataIndex: "accruedInterest",
+      key: "accruedInterest",
       align: "right" as const,
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             <div>
-              {getCoinRound(record.endCoinName, record.endAccruedInterest)}{" "}
+              {roundDown(record.endAccruedInterest, 8)}{" "}
               {record.endCoinName}
             </div>
             <div>
@@ -247,14 +248,14 @@ const TabsItem = ({
                 current.rate
                   ? // 有精度存在
                     current.accuracy
-                    ? new BigNumber(record.endAccruedInterest)
+                    ? new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toFixed(Number(current.accuracy))
-                    : new BigNumber(record.endAccruedInterest)
+                    : new BigNumber(record.usdAccruedInterest)
                         .times(new BigNumber(current.rate))
                         .toString()
                   : // 没有汇率的存在
-                    record.endAccruedInterest
+                    record.usdAccruedInterest
               }
             </div>
           </div>

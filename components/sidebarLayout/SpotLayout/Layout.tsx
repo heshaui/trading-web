@@ -34,7 +34,7 @@ const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
       label: t("router.spotOrder"),
     },
     // 闪兑订单
-    ...(configData.flashConvertSwitch
+    ...(configData?.flashConvertSwitch
       ? [
           {
             key: ROUTER_KEY_SPOT.FLASH_ORDER,
