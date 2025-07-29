@@ -19,7 +19,6 @@ import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import { observer } from "mobx-react-lite";
 import { financialThemeConfig } from "@/theme/financialThemeConfig";
-import TransferModal from "@/components/Contract/TransferModal";
 
 interface ContractAccountItem {
   id: string;
@@ -205,11 +204,6 @@ const Contract = observer(() => {
   }, []);
   return (
     <>
-      <TransferModal
-        record={record}
-        open={transferModalOpen}
-        onCancel={() => setTransferModalOpen(false)}
-      />
       {/* 基础页面 */}
       <ConfigProvider theme={financialThemeConfig}>
         <div className="flex flex-col h-full gap-[16px]">
