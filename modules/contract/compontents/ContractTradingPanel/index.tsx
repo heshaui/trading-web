@@ -12,6 +12,9 @@ import {
   Tooltip,
   Checkbox,
   Image,
+  ConfigProvider,
+  Segmented,
+  Dropdown,
 } from "antd";
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";
@@ -255,78 +258,107 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   ];
 
   return (
-    <div className="p-[10px_16px]">
-      {/* 顶部工具栏 */}
-      <div className="flex items-center justify-between mb-[16px]">
-        <div className="flex items-center gap-[0] rounded-[20px] p-[2px]">
-          <Button
-            size="small"
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            // 悬停背景颜色
+            defaultHoverBg: "var(--background14)",
+            defaultHoverColor: "var(--text-color5)",
+            defaultActiveBg: "var(--background14)",
+            defaultActiveColor: "var(--text-color5)",
+          },
+          Segmented: {
+            itemSelectedBg: "var(--theme-color)",
+            itemHoverBg: "transparent",
+            itemActiveBg: "transparent",
+            itemColor: "var(--text-color6)",
+            trackPadding: 3,
+            borderRadius: 50,
+            borderRadiusSM: 50,
+          },
+          Slider: {
+            railBg: "var(--background16)",
+            handleColor: "var(--theme-color)",
+            dotSize: 10,
+            dotActiveBorderColor: "var(--theme-color)",
+          },
+        },
+      }}
+    >
+      <div className="p-[10px_16px]">
+        {/* 顶部工具栏 */}
+        <div className="flex items-center justify-between mb-[16px]">
+          <div className="flex items-center gap-[10px]">
+            <Button
+              size="small"
+              shape="round"
+              className="h-[28px] w-[72px] rounded-[23px] text-[var(--text-color5)] bg-[var(--background14)] border-none text-[12px]"
+              onClick={() => setShowMarginModeModal(true)}
+            >
+              {marginModel === 1 ? "全仓" : "逐仓"}
+            </Button>
+            <Button
+              size="small"
+              shape="round"
+              className="h-[28px] w-[72px] rounded-[23px] text-[var(--text-color5)] bg-[var(--background14)] border-none text-[12px]"
+              onClick={() => setShowLeverageModal(true)}
+            >
+              {leverageLevel}x
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-[8px]">
+            <Button
+              type="text"
+              size="small"
+              icon={<Iconify icon="mdi:calculator" width={20} height={20} />}
+              className="border-none text-[var(--text-color6)]"
+              onClick={() => setShowCalculator(true)}
+              title="计算器"
+            />
+            <Button
+              type="text"
+              size="small"
+              onClick={handleSettings}
+              icon={<Iconify icon="mdi:cog-outline" width={20} height={20} />}
+              className="border-none text-[var(--text-color6)]"
+            />
+          </div>
+        </div>
+
+        {/* 开仓/平仓切换 */}
+        <div className="mb-[16px]">
+          <Segmented
             shape="round"
-            className="h-[28px] w-[72px] p-[5px_16px] rounded-[18px] text-[var(--text-color5)] bg-[#F5F5F5] mr-[10px] border-none font-[12px]"
-            onClick={() => setShowMarginModeModal(true)}
-          >
-            {marginModel === 1 ? "全仓" : "逐仓"}
-          </Button>
-          <Button
-            size="small"
-            shape="round"
-            className="h-[28px] w-[72px] p-[5px_16px] rounded-[18px] text-[var(--text-color5)] bg-[#F5F5F5] mr-[10px] border-none font-[12px]"
-            onClick={() => setShowLeverageModal(true)}
-          >
-            {leverageLevel}x
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-[8px]">
-          <Button
-            type="text"
-            size="small"
-            icon={<Iconify icon="mdi:calculator" />}
-            className="w-[32px] h-[32px] p-[0] border-none text-[#999] flex items-center justify-center rounded-[50%] transition-all duration-200"
-            onClick={() => setShowCalculator(true)}
-            title="计算器"
-          />
-          <Button
-            type="text"
-            size="small"
-            onClick={handleSettings}
-            icon={<Iconify icon="mdi:cog-outline" />}
-            className="w-[32px] h-[32px] p-[0] border-none text-[#999] flex items-center justify-center rounded-[50%] transition-all duration-200"
+            className="h-[50px] w-[298px] border border-[var(--theme-color)] bg-[transparent]"
+            options={[
+              {
+                label: (
+                  <div className="h-[44px] flex items-center justify-center">
+                    {" "}
+                    开仓
+                  </div>
+                ),
+                value: 1,
+              },
+              {
+                label: (
+                  <div className="h-[44px] flex items-center justify-center">
+                    {" "}
+                    平仓
+                  </div>
+                ),
+                value: 2,
+              },
+            ]}
+            value={transactionType}
+            block
+            onChange={(value) => setTransactionType(value as 1 | 2)}
           />
         </div>
-      </div>
 
-      {/* 开仓/平仓切换 */}
-      <div className="mb-[16px]">
-        <div className="relative flex items-center border-2 border-[var(--theme-color)] rounded-[25px] p-[4px]">
-          <div
-            className={`absolute left-[4px] top-[4px] w-[50%] h-[28px] bg-[var(--theme-color)] rounded-[20px] transition-all duration-200 ${
-              transactionType === 2 ? "left-[50%]" : ""
-            }`}
-          />
-          <Button
-            type="text"
-            onClick={() => setTransactionType(1)}
-            className={`w-[50%] h-[28px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
-              transactionType === 1 ? "bg-[var(--theme-color)]" : "bg-[#F5F5F5]"
-            }`}
-          >
-            开仓
-          </Button>
-          <Button
-            type="text"
-            onClick={() => setTransactionType(2)}
-            className={`w-[50%] h-[28px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
-              transactionType === 2 ? "bg-[var(--theme-color)]" : "bg-[#F5F5F5]"
-            }`}
-          >
-            平仓
-          </Button>
-        </div>
-      </div>
-
-      {/* 订单类型标签 */}
-      <div>
+        {/* 订单类型标签 */}
         <div className="flex gap-[10px] mb-[10px]">
           {orderTypeTabs.map((tab) => (
             <button
@@ -342,89 +374,70 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             </button>
           ))}
         </div>
-      </div>
 
-      {/* 可用余额 */}
-      <div className="flex items-center mb-[10px] text-[14px] text-[var(--text-color5)] gap-[4px]">
-        <div className="flex items-center gap-[8px]">
-          <span>可用:</span>
-          <span>{availableBalance.toFixed(2)} USDT</span>
-        </div>
-        <Iconify
-          icon="mdi:swap-horizontal"
-          className="text-[16px] text-[var(--theme-color)] cursor-pointer"
-          onClick={() => goTransfer()}
-        />
-      </div>
-
-      <Form form={form} layout="vertical" className="m-[0]">
-        {/* 触发价格 (条件单显示) */}
-        {currentCategory === 3 && (
-          <Form.Item>
-            <div className="flex flex-col gap-[8px]">
-              <div className="flex items-center">
-                <Input
-                  value={triggerPrice}
-                  onChange={(e) => setTriggerPrice(e.target.value)}
-                  placeholder="触发价格"
-                  className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
-                  suffix="USDT"
-                />
-              </div>
-            </div>
-          </Form.Item>
-        )}
-
-        {/* 委托价格 (限价单和条件单显示) */}
-        {(currentCategory === 1 || currentCategory === 3) && (
-          <Form.Item>
-            <div className="flex flex-col gap-[8px]">
-              <div
-                className="flex items-center"
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <Input
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="委托价格"
-                  className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
-                  suffix="USDT"
-                  style={{ width: currentCategory === 3 ? "80%" : "100%" }}
-                />
-                {currentCategory === 3 && <Button type="text">市价</Button>}
-              </div>
-            </div>
-          </Form.Item>
-        )}
-
-        {/* 委托数量 */}
-        <Form.Item>
-          <div className="flex flex-col gap-[8px]">
-            <div className="flex items-center">
-              <Input
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="委托数量"
-                className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
-                suffix="USDT"
-                // suffix={
-                //   <div className={styles.inputSuffixGroup}>
-                //     <span>{orderUnit}</span>
-                //     <Iconify
-                //       icon="mdi:chevron-down"
-                //       className={styles.dropdownIcon}
-                //       onClick={() => setShowOrderSettingsModal(true)}
-                //     />
-                //   </div>
-                // }
-              />
-            </div>
+        {/* 可用余额 */}
+        <div className="flex items-center mb-[10px] text-[14px] text-[var(--text-color5)] gap-[4px]">
+          <div className="flex items-center gap-[8px]">
+            <span>可用:</span>
+            <span>{availableBalance.toFixed(2)} USDT</span>
           </div>
-        </Form.Item>
+          <Iconify
+            icon="mdi:swap-horizontal"
+            className="text-[16px] text-[var(--theme-color)] cursor-pointer"
+            onClick={() => goTransfer()}
+          />
+        </div>
 
-        {/* 百分比滑块 */}
-        <div className="mb-[16px]">
+        <Form form={form} layout="vertical" className="m-[0]">
+          {/* 触发价格 (条件单显示) */}
+          {currentCategory === 3 && (
+            <Form.Item>
+              <div className="flex flex-col gap-[8px]">
+                <div className="flex items-center">
+                  <Input
+                    value={triggerPrice}
+                    onChange={(e) => setTriggerPrice(e.target.value)}
+                    placeholder="触发价格"
+                    className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+                    suffix="USDT"
+                  />
+                </div>
+              </div>
+            </Form.Item>
+          )}
+
+          {/* 委托价格 (限价单和条件单显示) */}
+          {(currentCategory === 1 || currentCategory === 3) && (
+            <Form.Item style={{ marginBottom: "16px" }}>
+              <Input
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="委托价格"
+                className="w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] round-[6px]"
+                suffix="USDT"
+                style={{ width: currentCategory === 3 ? "80%" : "100%" }}
+              />
+              {currentCategory === 3 && <Button type="text">市价</Button>}
+            </Form.Item>
+          )}
+
+          {/* 委托数量 */}
+          <Form.Item style={{ marginBottom: "16px" }}>
+            <Input
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="委托数量"
+              className="w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] round-[6px]"
+              suffix="USDT"
+            />
+          </Form.Item>
+
+          {/* 百分比滑块 */}
           <Slider
+            style={{
+              marginTop: " 16px",
+              marginBottom: "10px",
+            }}
             value={percentage}
             onChange={handlePercentageChange}
             min={0}
@@ -440,24 +453,23 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             }}
             tooltip={{ formatter: (value) => `${value}%` }}
           />
-        </div>
 
-        {/* 可买/可卖数量显示 */}
-        <div className="mb-[16px]">
-          <div className="flex items-center justify-between text-[12px] text-[var(--text-color6)] font-[400]">
-            <div className="flex items-center gap-[4px]">
-              <span>可买</span>
-              <span>0 USDT</span>
-            </div>
-            <div className="flex items-center gap-[4px]">
-              <span>可卖</span>
-              <span>0 USDT</span>
+          {/* 可买/可卖数量显示 */}
+          <div className="mb-[16px]">
+            <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
+              <div className="flex items-center gap-[4px]">
+                <span>可买</span>
+                <span>0 USDT</span>
+              </div>
+              <div className="flex items-center gap-[4px]">
+                <span>可卖</span>
+                <span>0 USDT</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 止盈止损 */}
-        {/* <div className={styles.tpslSection}>
+          {/* 止盈止损 */}
+          {/* <div className={styles.tpslSection}>
           <div className={styles.tpslHeader}>
             <Checkbox
               checked={enableTPSL}
@@ -467,8 +479,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
              <span className={styles.tpslLabel}>止盈止损</span> 
           </div> 2027-07-29 zyj暂时注释 */}
 
-        {/* 止盈止损输入框 */}
-        {/* {enableTPSL && (
+          {/* 止盈止损输入框 */}
+          {/* {enableTPSL && (
             <div className={styles.tpslInputs}>
               <div className={styles.tpslInputRow}>
                 <Input
@@ -492,130 +504,134 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           )}
         </div> 2027-07-29 zyj暂时注释*/}
 
-        {/* 高级设置 */}
-        <div className="flex items-center mb-[16px] rounded-[6px]">
-          <span className="text-[13px] text-[var(--text-color5)] font-[500] mr-[12px]">
-            高级设置
-          </span>
-          <div className="flex items-center">
-            <Select
-              defaultValue="5"
-              size="small"
-              className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
-              suffixIcon={<Iconify icon="mdi:chevron-down" />}
+          {/* 高级设置 */}
+          <div className="flex items-center mb-[22px] gap-[4px]">
+            <span className="text-[14px] text-[var(--text-color6)] font-[400]">
+              高级设置
+            </span>
+            <Dropdown
+              trigger={["click"]}
+              menu={{
+                items: [
+                  { key: "5", label: "P/O" },
+                  { key: "3", label: "IOC" },
+                  { key: "4", label: "FOK" },
+                ],
+              }}
             >
-              <Option value="5">P/O</Option>
-              <Option value="3">IOC</Option>
-              <Option value="4">FOK</Option>
-            </Select>
+              <Space size={4}>
+                GTC
+                <Iconify icon="mdi:chevron-down" />
+              </Space>
+            </Dropdown>
           </div>
-        </div>
 
-        {/* 提交按钮 */}
-        <div className="mb-[16px] flex justify-between gap-[12px]">
-          <Button
-            type="primary"
-            size="large"
-            onClick={() => handleSubmit("BUY")}
-            block
-            shape="round"
-            style={{
-              background: "#00C788",
-              color: "#ffffff",
-            }}
-          >
-            {transactionType === 1 ? "买入开多" : "买入平空"}
-          </Button>
-          <Button
-            type="primary"
-            size="large"
-            onClick={() => handleSubmit("SELL")}
-            style={{
-              background: "#FF4D4F",
-              color: "#ffffff",
-            }}
-            block
-            shape="round"
-          >
-            {transactionType === 2 ? "卖出平多" : "卖出开空"}
-          </Button>
-        </div>
-
-        {/* 成本显示 */}
-        <div className="flex items-center justify-between  font-[400] text-[12px] text-[var(--text-color6)]">
-          <div className="flex gap-[4px]">
-            <span>成本</span>
-            <span>0 USDT</span>
+          {/* 提交按钮 */}
+          <div className="mb-[10px] flex justify-between gap-[12px]">
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => handleSubmit("BUY")}
+              block
+              shape="round"
+              className="h-[50px] text-[16px] font-[400] text-[#FFF]"
+              style={{
+                background: "#00C788",
+              }}
+            >
+              {transactionType === 1 ? "买入开多" : "买入平空"}
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => handleSubmit("SELL")}
+              className="h-[50px] text-[16px] font-[400] text-[#FFF]"
+              style={{
+                background: "#FF4D4F",
+              }}
+              block
+              shape="round"
+            >
+              {transactionType === 2 ? "卖出平多" : "卖出开空"}
+            </Button>
           </div>
-          <div className="flex gap-[4px]">
-            <span>成本</span>
-            <span>0 USDT</span>
+
+          {/* 成本显示 */}
+          <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
+            <div className="flex gap-[4px]">
+              <span>成本</span>
+              <span>0 USDT</span>
+            </div>
+            <div className="flex gap-[4px]">
+              <span>成本</span>
+              <span>0 USDT</span>
+            </div>
           </div>
-        </div>
-      </Form>
+        </Form>
 
-      {/* 保证金模式弹框 */}
-      <MarginModeModal
-        visible={showMarginModeModal}
-        onClose={() => setShowMarginModeModal(false)}
-        currentMode={marginModel}
-        onModeChange={handleMarginModeChange}
-        symbol={symbol}
-      />
+        {/* 保证金模式弹框 */}
+        <MarginModeModal
+          visible={showMarginModeModal}
+          onClose={() => setShowMarginModeModal(false)}
+          currentMode={marginModel}
+          onModeChange={handleMarginModeChange}
+          symbol={symbol}
+        />
 
-      {/* 杠杆设置弹框 */}
-      <LeverageModal
-        visible={showLeverageModal}
-        onClose={() => setShowLeverageModal(false)}
-        currentLeverage={leverageLevel}
-        onLeverageChange={handleLeverageChange}
-        symbol={symbol}
-        maxLeverage={125}
-        positionLimit={815.4018}
-      />
+        {/* 杠杆设置弹框 */}
+        <LeverageModal
+          visible={showLeverageModal}
+          onClose={() => setShowLeverageModal(false)}
+          currentLeverage={leverageLevel}
+          onLeverageChange={handleLeverageChange}
+          symbol={symbol}
+          maxLeverage={125}
+          positionLimit={815.4018}
+        />
 
-      {/* 下单设置弹框 */}
-      <OrderSettingsModal
-        visible={showOrderSettingsModal}
-        onClose={() => setShowOrderSettingsModal(false)}
-        currentUnit={orderUnit}
-        onUnitChange={handleOrderUnitChange}
-      />
+        {/* 下单设置弹框 */}
+        <OrderSettingsModal
+          visible={showOrderSettingsModal}
+          onClose={() => setShowOrderSettingsModal(false)}
+          currentUnit={orderUnit}
+          onUnitChange={handleOrderUnitChange}
+        />
 
-      {/* 交易设置抽屉 */}
-      <TradingSettingsDrawer
-        visible={showTradingSettingsDrawer}
-        onClose={() => setShowTradingSettingsDrawer(false)}
-      />
+        {/* 交易设置抽屉 */}
+        <TradingSettingsDrawer
+          visible={showTradingSettingsDrawer}
+          onClose={() => setShowTradingSettingsDrawer(false)}
+        />
 
-      {/* 资金划转弹框 */}
-      <FundTransferModal
-        visible={showFundTransferModal}
-        onClose={() => setShowFundTransferModal(false)}
-        onConfirm={handleFundTransferConfirm}
-      />
+        {/* 资金划转弹框 */}
+        <FundTransferModal
+          visible={showFundTransferModal}
+          onClose={() => setShowFundTransferModal(false)}
+          onConfirm={handleFundTransferConfirm}
+        />
 
-      {/* 下单确认弹框 */}
-      <PlaceOrder_modal
-        open={showOrderConfirmModal}
-        modalData={confirmData}
-        onCancel={() => {
-          setShowOrderConfirmModal(false);
-        }}
-        onOk={(confirmed) => {
-          if (confirmed) {
-            handleConfirmOrder(confirmData, false);
-          }
-          setShowOrderConfirmModal(false);
-        }}
-      />
-      {/* 计算器组件 */}
-      <Calculator
-        isShow={showCalculator}
-        close={() => setShowCalculator(false)}
-        dataInfo={currentContractInfo}
-      />
-    </div>
+        {/* 下单确认弹框 */}
+        <PlaceOrder_modal
+          open={showOrderConfirmModal}
+          modalData={confirmData}
+          onCancel={() => {
+            setShowOrderConfirmModal(false);
+          }}
+          onOk={(confirmed) => {
+            if (confirmed) {
+              handleConfirmOrder(confirmData, false);
+            }
+            setShowOrderConfirmModal(false);
+          }}
+        />
+        {/* 计算器组件 */}
+        <Calculator
+          isShow={showCalculator}
+          close={() => setShowCalculator(false)}
+          dataInfo={currentContractInfo}
+        />
+      </div>
+    </ConfigProvider>
   );
 };
 

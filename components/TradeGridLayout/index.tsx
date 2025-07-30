@@ -57,7 +57,7 @@ const TradeGridLayout: React.FC<TradeGridLayoutProps> = ({
       backgroundColor: 'var(--background9)',
     },
     {
-      gridRow: 'span 4 / span 4',
+      gridRow: 'span 5 / span 5',
       gridColumnStart: '4',
       gridRowStart: '7',
       ...itemStyle,

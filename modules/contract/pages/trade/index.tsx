@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Space, Tooltip, Image, MenuProps, Dropdown } from "antd";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
@@ -235,18 +235,18 @@ const TradePage = () => {
     return parseFloat(usdtAsset?.canUseAmount || "0");
   };
 
-  const getDepthMapData = async () => {
+  const getDepthMapData = useCallback(async () => {
     if (!currentContractInfo.symbol) return;
     const res = await getDepthMap({ symbol: currentContractInfo.symbol, contractId: currentContractInfo.id });
     console.log('res:', res);
     setDepthData(res);
-  };
+  }, [currentContractInfo.symbol, currentContractInfo.id]);
 
   useEffect(() => {
     getContractBalance();
     getDepthMapData();
 
-  }, []);
+  }, [getDepthMapData]);
   // 获取用户合约配置
   useEffect(() => {
     const loadUserConfig = async () => {
@@ -254,14 +254,14 @@ const TradePage = () => {
         const userConfig = await appStore.loadUserConfig({
           contractId: currentContractInfo.id,
         });
-        if (userConfig.openContract !== 1) {
+        if (userConfig && userConfig.openContract !== 1) {
           setShowRiskDisclosure(true);
         }
       }
     };
 
     loadUserConfig();
-  }, [publicInfo]);
+  }, [publicInfo, currentContractInfo.id]);
 
   useEffect(() => {
     if (!publicInfo.wsUrl) return;
@@ -481,7 +481,7 @@ const TradePage = () => {
   }
   
   return (
-    <div className="h-full flex flex-col overflow-hidden w-full text-[var(--text-color5)]">
+    <>
       <TradeGridLayout>
         {/* 头部信息栏 */}
         <div>
@@ -781,14 +781,72 @@ const TradePage = () => {
         </div>
         {/* 资产 */}
         <div>
-          <div>资产</div>
+          <div className="p-[10px_16px] text-[14px] font-[400]">
+            <div className="text-[var(--text-color5)] font-[500] mb-[16px]">资产</div>
+            <div className="flex flex-col gap-[10px] mb-[14px]">
+              <div className="flex justify-between items-center">
+                <div className="text-[var(--text-color6)]">总权益</div>
+                <div className="text-[var(--text-color5)]">0.00 USDT</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="text-[var(--text-color6)]">钱包余额</div>
+                <div className="text-[var(--text-color5)]">0.00 USDT</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="text-[var(--text-color6)]">未实现盈亏</div>
+                <div className="text-[var(--text-color5)]">0.00 USDT</div>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <Button type="primary" className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]" shape="round" style={{ background: "var(--btncolor6)" }}>
+                划转
+              </Button>
+              <Button type="primary" className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]" shape="round" style={{ background: "var(--btncolor6)" }}>
+                充值
+              </Button>
+            </div>
+          </div>
         </div>
         {/* 订单列表 */}
         <div>
           <OrderList />
         </div>
         {/* 合约信息 */}
-        <div>合约信息</div>
+        <div>
+          <div className="p-[10px_16px] text-[14px] font-[400]">
+            <div className="text-[var(--text-color5)] font-[500] mb-[16px]">合约信息</div>
+            <div className="flex flex-col gap-[10px]">
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">合约代号</div>
+              <div className="text-[var(--text-color5)]">BTCUSDT</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">交割日期</div>
+              <div className="text-[var(--text-color5)]">永续</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">合约标的</div>
+              <div className="text-[var(--text-color5)]">BTCUSDT 指数</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">保证金币种</div>
+              <div className="text-[var(--text-color5)]">USDT</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">合约面值</div>
+              <div className="text-[var(--text-color5)]">0.0001 BTC</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">最小价格变动单位</div>
+              <div className="text-[var(--text-color5)]">0.0001 BTC</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">最低维持保证金率</div>
+              <div className="text-[var(--text-color5)]">0.40%</div>
+            </div>
+            </div>
+          </div>
+        </div>
       </TradeGridLayout>
 
       {/* 风险确认书模态框 */}
@@ -797,7 +855,7 @@ const TradePage = () => {
         onCancel={handleRiskDisclosureCancel}
         onConfirm={handleRiskDisclosureConfirm}
       />
-    </div>
+    </>
   );
 };
 

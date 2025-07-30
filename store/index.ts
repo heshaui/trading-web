@@ -1026,7 +1026,7 @@ class AppStore {
         this.setUserConfig(result.data);
         return result.data;
       } else {
-        throw new Error("Failed to load user config");
+        // throw new Error("Failed to load user config");
       }
     } catch (error) {
       console.error("Error loading user config:", error);
