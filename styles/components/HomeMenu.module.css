@@ -348,6 +348,9 @@
   height: 20px;
   cursor: pointer;
 }
+.iconCursor:hover  {
+  color: var(--theme-color);
+}
 
 .userCursor {
   cursor: pointer;

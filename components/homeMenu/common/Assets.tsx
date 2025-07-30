@@ -9,7 +9,9 @@ import { ROUTER_KEY_ASSETS } from "@/config/apiConfig";
 import { FunctionSwitchStatusEnum } from "@/services/financial";
 import appStore from "@/store";
 import { SvgIcon } from "@/components/icon";
-export default function AssetsMenuItems() {
+// import { ReactComponent as WalletSvg } from '@/public/images/menus/icon_wallet_line.svg';
+
+export default function AssetsMenuItems() { 
   const financialConfig = appStore.financialConfig;
   // 路由
   const router = useRouter();

@@ -288,8 +288,7 @@ const WithdrawMoneyPage = observer(() => {
   const setFormCoin = async (coinId: string | number) => {
     // 1. 首先检查用户权限
     if (
-      (userInfo?.merchantWithdrawalStatus === 1 &&
-        userInfo?.realnessStatus === 0) ||
+      (userInfo?.merchantWithdrawalStatus !== 1) ||
       !userInfo?.googleCode ||
       userInfo.withdrawalStatus === 0
     ) {
@@ -1515,8 +1514,7 @@ const WithdrawMoneyPage = observer(() => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("coinSearchHistory");
-      if((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0)||(userInfo?.merchantWithdrawalStatus === 1 &&
-        userInfo?.realnessStatus === 0)||userInfo?.withdrawalStatus === 0
+      if((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0)||(userInfo?.merchantWithdrawalStatus !== 1)||userInfo?.withdrawalStatus === 0
       ) return
       if (saved && coinSelect.length > 0) {
         const history = JSON.parse(saved).filter((item: any) => {
@@ -1560,8 +1558,7 @@ const WithdrawMoneyPage = observer(() => {
             />
           </div>
           <div className={`${styles.card_box}  mt-6  `}>
-            {!userInfo ? null : userInfo?.merchantWithdrawalStatus === 1 &&
-              userInfo?.realnessStatus === 0 ? (
+            {!userInfo ? null : userInfo?.merchantWithdrawalStatus !== 1  ? (
               <NoUseCom type="1" />
             ) : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
               <NoUseCom type="2" />
@@ -1605,8 +1602,7 @@ const WithdrawMoneyPage = observer(() => {
                   <Form
                     form={form}
                     disabled={
-                      (userInfo?.merchantWithdrawalStatus === 1 &&
-                        userInfo?.realnessStatus === 0) ||
+                      userInfo?.merchantWithdrawalStatus !== 1 ||
                       !userInfo?.googleCode ||
                       userInfo.withdrawalStatus === 0
                     }
