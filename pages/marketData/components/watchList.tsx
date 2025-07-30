@@ -159,7 +159,7 @@ const SelfSelect: React.FC<SelfSelectProps> = ({
 
         const height = formatted(heightText)
         const lower = formatted(lowerText)
-        const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
+        const price =(!record.height&&!record.lower)?`--`:`${record.height ? height : "--"}/${record.lower ? lower : "--"}`
 
         // const height=record.height||"0"
         // const lower=record.lower||"0"

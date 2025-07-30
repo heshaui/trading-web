@@ -191,7 +191,7 @@ const SpotSelect: React.FC<SpotSelectProps> = ({
 
         const height = formatted(heightText)
         const lower = formatted(lowerText)
-        const price = `${record.height ? height : "--"}/${record.lower ? lower : "--"}`
+      const price =(!record.height&&!record.lower)?`--`:`${record.height ? height : "--"}/${record.lower ? lower : "--"}`
         return <span>{price}</span>
       },
     },
