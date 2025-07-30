@@ -367,7 +367,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                   value={triggerPrice}
                   onChange={(e) => setTriggerPrice(e.target.value)}
                   placeholder="触发价格"
-                  className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+                  className="w-[100%] h-[32px] p-[0_12px]  text-[var(--text-color5)] font-[12px] rounded-[6px]"
                   suffix="USDT"
                 />
               </div>
@@ -387,7 +387,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="委托价格"
-                  className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+                  className="w-[100%] h-[50px] p-[0_12px]  text-[var(--text-color5)] font-[12px] rounded-[6px] "
                   suffix="USDT"
                   style={{ width: currentCategory === 3 ? "80%" : "100%" }}
                 />
@@ -405,7 +405,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="委托数量"
-                className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+                className="w-[100%] h-[50px] p-[0_12px] text-[var(--text-color5)] font-[12px] rounded-[6px]"
                 suffix="USDT"
                 // suffix={
                 //   <div className={styles.inputSuffixGroup}>
@@ -494,14 +494,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
         {/* 高级设置 */}
         <div className="flex items-center mb-[16px] rounded-[6px]">
-          <span className="text-[13px] text-[var(--text-color5)] font-[500] mr-[12px]">
+          <span className="text-[13px] text-[var(--text-color5)]  mr-[12px]">
             高级设置
           </span>
           <div className="flex items-center">
             <Select
               defaultValue="5"
               size="small"
-              className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+              className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] "
               suffixIcon={<Iconify icon="mdi:chevron-down" />}
             >
               <Option value="5">P/O</Option>
