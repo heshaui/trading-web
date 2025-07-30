@@ -79,7 +79,7 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
             protocolId: withdrawInfo?.protocolId,
             amount: withdrawInfo?.amount,
             toAddress: withdrawInfo?.toAddress,
-            smsCode: event.phoneCode || '',
+            smsCode: event.smsCode || '',
             emailCode: event.emailCode || '',
             googleCode: event.googleCode || '',
         }
