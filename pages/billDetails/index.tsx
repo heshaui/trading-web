@@ -17,6 +17,7 @@ const BillDetails = observer(() => {
   const { t } = useTranslation(["financial"]);
   const financialConfig = appStore.financialConfig;
   const [isClient, setIsClient] = useState(false);
+  const [activeKey, setActiveKey] = useState(1);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -32,7 +33,7 @@ const BillDetails = observer(() => {
         <div className="rounded-[8px] bg-[var(--btncolor7)] flex-1">
           <Tabs
             className={styles.tabs}
-            defaultActiveKey="1"
+            activeKey={String(activeKey)}
             tabBarStyle={{
               padding: "0px 20px",
               height: "72px",
@@ -49,11 +50,15 @@ const BillDetails = observer(() => {
                     {
                       key: "2",
                       label: t("common.financial"),
-                      children: <Financial />,
+                      children: <Financial activeKey={activeKey} />,
                     },
                   ]
                 : []),
             ]}
+            onChange={(key) => {
+              const newType = Number(key);
+              setActiveKey(newType);
+            }}
           />
         </div>
       </div>

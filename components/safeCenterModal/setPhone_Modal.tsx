@@ -311,7 +311,7 @@ function SetMailModal({ open, onCancel, type, acountInfo, onOk }: Props) {
             </div>
             <Form.Item>
               <div className="flex">
-                <PhoneCodeSelector className={`${styles.input_box}`} />
+                <PhoneCodeSelector/>
                 <Form.Item
                   noStyle
                   name="phoneNumber"

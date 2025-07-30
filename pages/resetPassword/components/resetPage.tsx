@@ -151,7 +151,7 @@ function ResetPassword() {
     if (resetState !== ResetStateEnum.RESET) return null;
 
     return (
-        <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
+        <div className="flex-col" style={{ minHeight: "70vh", width: "100%" }}>
             {/* <div className="mb-2 font-w-500 flex-col" style={{ width: "300px" }}>新密码
             </div> */}
             <div>

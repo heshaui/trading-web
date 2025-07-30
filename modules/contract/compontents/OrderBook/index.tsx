@@ -11,29 +11,72 @@ interface OrderBookItem {
   total: number;
 }
 
-const OrderBook: React.FC = () => {
+interface OrderBookProps {
+  orderBookData?: any;
+}
+
+const OrderBook: React.FC<OrderBookProps> = ({ orderBookData }) => {
   const { t } = useTranslation(['contract', 'spot']);
   const [colorMode, setColorMode] = useState<'red-green' | 'green-red'>('red-green');
   const [precision, setPrecision] = useState<number>(2);
 
-  // 模拟数据
-  const sellOrders: OrderBookItem[] = [
-    { price: 50125.5, amount: 0.234, total: 11729.367 },
-    { price: 50124.0, amount: 0.156, total: 7819.344 },
-    { price: 50123.5, amount: 0.089, total: 4460.992 },
-    { price: 50122.0, amount: 0.234, total: 11728.548 },
-    { price: 50121.5, amount: 0.156, total: 7818.954 },
-    { price: 50121.5, amount: 0.156, total: 7818.954 },
-  ];
+  // 处理WebSocket数据，如果没有数据则使用模拟数据
+  const processOrderBookData = () => {
+    if (orderBookData?.tick) {
+      const { asks, buys } = orderBookData.tick;
+      
+      // 调试信息
+      console.log('OrderBook组件 - 原始数据:', { asks, buys });
+      console.log('asks类型:', typeof asks, 'asks是否为数组:', Array.isArray(asks));
+      console.log('buys类型:', typeof buys, 'buys是否为数组:', Array.isArray(buys));
+      
+      // 处理卖单数据 (asks) - 按价格从高到低排序
+      const processedSellOrders: OrderBookItem[] = (asks && Array.isArray(asks))
+        ? asks
+          .map((item: [number, number]) => {
+            const [price, amount] = item;
+            return {
+              price,
+              amount,
+              total: price * amount
+            };
+          })
+          .filter((item: OrderBookItem) => item.price > 0 && item.amount > 0)
+          .sort((a, b) => b.price - a.price) // 卖单价格从高到低
+          .slice(0, 10) // 只显示前10条
+        : [];
 
-  const buyOrders: OrderBookItem[] = [
-    { price: 50119.0, amount: 0.234, total: 11727.846 },
-    { price: 50118.5, amount: 0.156, total: 7818.486 },
-    { price: 50117.0, amount: 0.089, total: 4460.413 },
-    { price: 50116.5, amount: 0.234, total: 11727.261 },
-    { price: 50115.0, amount: 0.156, total: 7817.940 },
-    { price: 50115.0, amount: 0.156, total: 7817.940 },
-  ];
+      // 处理买单数据 (buys) - 按价格从高到低排序
+      const processedBuyOrders: OrderBookItem[] = (buys && Array.isArray(buys))
+        ? buys
+          .map((item: [number, number]) => {
+            const [price, amount] = item;
+            return {
+              price,
+              amount,
+              total: price * amount
+            };
+          })
+          .filter((item: OrderBookItem) => item.price > 0 && item.amount > 0)
+          .sort((a, b) => b.price - a.price) // 买单价格从高到低
+          .slice(0, 10) // 只显示前10条
+        : [];
+
+      return {
+        sellOrders: processedSellOrders,
+        buyOrders: processedBuyOrders
+      };
+    }
+    
+    // 返回空数据
+    return {
+      sellOrders: [],
+      buyOrders: []
+    };
+  };
+
+
+  const { sellOrders, buyOrders } = processOrderBookData();
 
   const formatNumber = (num: number, decimals: number = precision) => {
     return num.toFixed(decimals);
@@ -117,7 +160,7 @@ const OrderBook: React.FC = () => {
      
       <div className={styles.header}>
         <div className={styles.title}>
-          委托列表
+          委托列表 {orderBookData ? '(实时)' : '(模拟)'}
         </div>
         <div className={styles.controls}>
           {renderColorModeButtons()}
@@ -145,19 +188,27 @@ const OrderBook: React.FC = () => {
 
       <div className={styles.content}>
         <div className={styles.sellSection}>
-          {sellOrders.map((order, index) => (
-            <div key={index} className={styles.orderRow}>
-              <div className={`${styles.priceColumn} ${getSellPriceColor()}`}>
-                {formatNumber(order.price)}
+          {sellOrders.length > 0 ? (
+            sellOrders.map((order, index) => (
+              <div key={index} className={styles.orderRow}>
+                <div className={`${styles.priceColumn} ${getSellPriceColor()}`}>
+                  {formatNumber(order.price)}
+                </div>
+                <div className={styles.amountColumn}>
+                  {formatNumber(order.amount, 3)}
+                </div>
+                <div className={styles.totalColumn}>
+                  {formatNumber(order.total, 3)}
+                </div>
               </div>
-              <div className={styles.amountColumn}>
-                {formatNumber(order.amount, 3)}
-              </div>
-              <div className={styles.totalColumn}>
-                {formatNumber(order.total, 3)}
+            ))
+          ) : (
+            <div className={styles.orderRow}>
+              <div style={{ textAlign: 'center', color: '#999', gridColumn: '1 / -1' }}>
+                暂无卖单数据
               </div>
             </div>
-          ))}
+          )}
         </div>
 
         <div className={styles.currentPrice}>
@@ -166,19 +217,27 @@ const OrderBook: React.FC = () => {
         </div>
 
         <div className={styles.buySection}>
-          {buyOrders.map((order, index) => (
-            <div key={index} className={styles.orderRow}>
-              <div className={`${styles.priceColumn} ${getBuyPriceColor()}`}>
-                {formatNumber(order.price)}
+          {buyOrders.length > 0 ? (
+            buyOrders.map((order, index) => (
+              <div key={index} className={styles.orderRow}>
+                <div className={`${styles.priceColumn} ${getBuyPriceColor()}`}>
+                  {formatNumber(order.price)}
+                </div>
+                <div className={styles.amountColumn}>
+                  {formatNumber(order.amount, 3)}
+                </div>
+                <div className={styles.totalColumn}>
+                  {formatNumber(order.total, 3)}
+                </div>
               </div>
-              <div className={styles.amountColumn}>
-                {formatNumber(order.amount, 3)}
-              </div>
-              <div className={styles.totalColumn}>
-                {formatNumber(order.total, 3)}
+            ))
+          ) : (
+            <div className={styles.orderRow}>
+              <div style={{ textAlign: 'center', color: '#999', gridColumn: '1 / -1' }}>
+                暂无买单数据
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
       </div>

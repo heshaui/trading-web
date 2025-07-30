@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { AutoComplete, Flex, Input, Form, ConfigProvider, Select } from "antd";
+import { Input, Form, ConfigProvider, Select } from "antd";
 import { Iconify } from "@/components/icon/index";
 import { getCountryCode } from "@/services/open";
 import { useTranslation } from "next-i18next";
 import styles from "./styles/phoneCode.module.css";
 import { NoData } from "../noData";
-
-interface OptionItem {
-  label: React.ReactNode;
-  value: string | number;
-  countryName?: string;
-  areaCode?: string;
-}
-
 interface CountryCodeItem {
   sort: string;
   areaCode: string;
@@ -23,8 +15,7 @@ interface CountryCodeItem {
   areaName: string;
 }
 
-const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
-  const [isFocused, setIsFocused] = useState(false);
+const PhoneCodeSelect: React.FC = () => {
   const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const { t } = useTranslation(["common"]);
@@ -62,15 +53,11 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
   }, [groupedOptions, searchValue]);
 
   const handleFocus = () => {
-    setIsFocused(true);
     if (countryCodeList.length === 0) {
       getCountryCodeList();
     }
   };
 
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
 
   const getCountryCodeList = async () => {
     try {
@@ -136,7 +123,6 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
             maxWidth: "115px",
           }}
           onFocus={handleFocus}
-          onBlur={handleBlur}
           options={filteredOptions}
           optionLabelProp="value"
           dropdownStyle={{ width: "320px" }} // 设置下拉框宽度
@@ -171,12 +157,4 @@ const PhoneCodeSelect: React.FC<{ className?: string }> = ({ className }) => {
     </ConfigProvider>
   );
 };
-// 添加此导出函数以支持服务端翻译加载
-// export const getStaticProps: GetStaticProps = async ({ locale }) => {
-// 	return {
-// 		props: {
-// 			...(await serverSideTranslations(locale || 'en', ['common'])),
-// 		},
-// 	};
-// };
 export default PhoneCodeSelect;

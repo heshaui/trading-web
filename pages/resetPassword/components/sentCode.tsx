@@ -310,7 +310,7 @@ function ResetPassword() {
 
 
     return (
-        <div className="flex-col" style={{ height: "70vh", width: "100%" }}>
+        <div className="flex-col" style={{ minHeight: "70vh", width: "100%" }}>
 
             <div className='mt-1'>
                 <ConfigProvider
