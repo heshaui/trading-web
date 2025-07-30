@@ -3,7 +3,7 @@
   width: 30%;
   margin: 0 auto;
   /* height:640px; */
-  border-left: 3px solid var(--background16);
+  border-left: 4px solid var(--background16);
 }
 
 .tabContainer {

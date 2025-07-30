@@ -288,7 +288,8 @@ const WithdrawMoneyPage = observer(() => {
   const setFormCoin = async (coinId: string | number) => {
     // 1. 首先检查用户权限
     if (
-      userInfo?.merchantWithdrawalStatus !== 1 ||
+      (userInfo?.merchantWithdrawalStatus === 1 &&
+        userInfo?.realnessStatus === 0) ||
       !userInfo?.googleCode ||
       userInfo.withdrawalStatus === 0
     ) {
@@ -1604,7 +1605,8 @@ const WithdrawMoneyPage = observer(() => {
                   <Form
                     form={form}
                     disabled={
-                      userInfo?.merchantWithdrawalStatus !== 1 ||
+                      (userInfo?.merchantWithdrawalStatus === 1 &&
+                        userInfo?.realnessStatus === 0) ||
                       !userInfo?.googleCode ||
                       userInfo.withdrawalStatus === 0
                     }
