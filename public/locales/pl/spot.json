@@ -8,7 +8,9 @@
             "technicalIndicators": "technicalIndicators",
             "resetChart": "resetChart",
             "volumeDistribution": "volumeDistribution",
-            "fullscreen": "fullscreen"
+            "fullscreen": "fullscreen",
+            "chart": "Chart",
+            "coinInfo": "Coin Information"
         },
         "orderBook": {
             "title": "Order Book",

@@ -39,6 +39,7 @@ import { useStyle } from "@/theme/financialThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
 import SpotBuyModal from "../spotModal/placeOrder_modal";
 import ScrollableContainer from "./ScrollableContainer";
+import { encryptData } from "@/hooks/user-encrypt";
 
 interface SubscriptionProps {
   setSpotModal: (open: boolean) => void;
@@ -989,7 +990,8 @@ const SubscribeModal = ({
             ? OpenStatusEnum.YES
             : OpenStatusEnum.NO,
         };
-        const res = await financialSubscribe(params);
+        const dataEncrypt = await encryptData(params);
+        const res = await financialSubscribe(dataEncrypt);
         if (res.code === "0") {
           console.log(res);
           setOpenSubscribeModal(false);

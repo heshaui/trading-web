@@ -8,7 +8,9 @@
             "technicalIndicators": "技術指標",
             "resetChart": "チャートリセット",
             "volumeDistribution": "取引量分布",
-            "fullscreen": "フルスクリーン"
+            "fullscreen": "フルスクリーン",
+            "chart": "チャート",
+            "coinInfo": "コイン情報"
         },
         "orderBook": {
             "title": "板情報",

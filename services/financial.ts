@@ -24,6 +24,13 @@ export enum FinancialType {
   CURRENT = 2, //活期
 }
 
+// 加密参数
+export interface ParamsEncrypt {
+  data: string;
+  reqNo: string;
+  time:number
+}
+
 /*-----------------理财页面-功能配置start------------------*/
 // 1开启，2关闭
 export enum FunctionEnabledStatusEnum {
@@ -328,7 +335,7 @@ export interface FinancialSubscribeParams {
 }
 
 export function financialSubscribe(
-  params: FinancialSubscribeParams
+  params: ParamsEncrypt
 ): Promise<RequestParams<boolean>> {
   return request(`${fixUrl2}/assets-web/v1/user-project/purchaseProject`, {
     method: "POST",
@@ -442,7 +449,7 @@ export interface FinancialAccountRedemptionParams {
 }
 
 export function financialAccountRedemption(
-  params: FinancialAccountRedemptionParams
+  params: ParamsEncrypt
 ): Promise<RequestParams<boolean>> {
   return request(`${fixUrl2}/assets-web/v1/user-project/redeem`, {
     method: "POST",

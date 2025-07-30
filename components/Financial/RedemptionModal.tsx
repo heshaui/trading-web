@@ -27,6 +27,7 @@ import RedeemConfirmModal, {
 import Image from "next/image";
 import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
+import { encryptData } from "@/hooks/user-encrypt";
 interface RedemptionModalProps {
   curProduct: UserFinancialAccountItem | null;
   openRedemption: boolean;
@@ -79,7 +80,7 @@ const RedemptionModal = ({
       try {
         setLoading(true);
         if (!curProductInfo) return;
-        const res = await financialAccountRedemption({
+        const params = {
           id: curProductInfo?.id,
           projectId: curProductInfo?.projectId,
           coinId: curProductInfo?.coinId,
@@ -87,7 +88,9 @@ const RedemptionModal = ({
             curProductInfo?.type === FinancialType.CURRENT
               ? Number(redeemMoney)
               : Number(redeemMoneyFixed.redeemMoney),
-        });
+        };
+        const dataEncrypt = await encryptData(params);
+        const res = await financialAccountRedemption(dataEncrypt);
         if (res.code === "0") {
           setOpenRedemption(false);
           setRedeemConfirmModal({
@@ -293,7 +296,11 @@ const RedemptionModal = ({
                           // 小于0报错
                           if (Number(value) <= 0) {
                             return Promise.reject(
-                              new Error(t("common.redeemAmountCannotBeLessThanOrEqualTo0"))
+                              new Error(
+                                t(
+                                  "common.redeemAmountCannotBeLessThanOrEqualTo0"
+                                )
+                              )
                             );
                           }
                           // 大于总资产报错
@@ -307,9 +314,9 @@ const RedemptionModal = ({
                           if (Number(value) > Number(redeemInfo.redeemLimit)) {
                             return Promise.reject(
                               new Error(
-                                `${t(
-                                  "common.todayRedeemLimit"
-                                )}${redeemInfo.redeemLimit}`
+                                `${t("common.todayRedeemLimit")}${
+                                  redeemInfo.redeemLimit
+                                }`
                               )
                             );
                           }

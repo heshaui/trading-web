@@ -23,7 +23,7 @@ export const getCoinRate = (
     const usdtRate = usdtPrice?.nowPrice || usdtPrice?.yesterdayPrice || 1;
 
     // 如果是 USDT，根据计价币种决定是否需要汇率转换
-    if (symbolName.toUpperCase() === "USDT") {
+    if (symbolName&&symbolName?.toUpperCase() === "USDT") {
       return {
         coinRate: Number(priceNum) * Number(usdtRate) || 0,
         price: Number(usdtRate),

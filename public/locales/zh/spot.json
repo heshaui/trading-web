@@ -8,7 +8,9 @@
             "technicalIndicators": "技术指标",
             "resetChart": "图表重置",
             "volumeDistribution": "成交量分布",
-            "fullscreen": "全屏"
+            "fullscreen": "全屏",
+            "chart": "图表",
+            "coinInfo": "币种信息"
         },
         "orderBook": {
             "title": "盘口",

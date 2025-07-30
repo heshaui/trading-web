@@ -8,7 +8,9 @@
             "technicalIndicators": "technicalIndicators",
             "resetChart": "resetChart",
             "volumeDistribution": "volumeDistribution",
-            "fullscreen": "fullscreen"
+            "fullscreen": "fullscreen",
+            "chart": "Chart",
+            "coinInfo": "Coin Information"
         },
         "orderBook": {
             "title": "Order Book",
@@ -170,8 +172,8 @@
             "total": "Total",
             "all": "All",
             "loginNow": "Login now",
-      "goToMarket": "Go to market",
-      "noData": "No data available"
+            "goToMarket": "Go to market",
+            "noData": "No data available"
         },
         "feeCoin": {
             "receivedCoin": "Received Currency",

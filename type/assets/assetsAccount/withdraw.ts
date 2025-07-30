@@ -55,6 +55,8 @@ export interface addressSelectType {
     updateTime: number,
     label: string | React.ReactNode,
     value: string,
+    coinId: string,
+    coinName: string
 }
 
 export interface SearchHistoryItem {

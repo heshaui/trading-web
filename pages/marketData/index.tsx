@@ -439,7 +439,7 @@ export default function MarketData() {
         return; // 如果没有数据，则等待下一次尝试
       }
       const channels = initNewPair.current.map(pair => {
-        return `${ pair.coinSymbol }_${ pair.baseSymbol }_${ currentTenantId }@kline_1d_3s`;
+        return `${pair.coinSymbol}_${pair.baseSymbol}_${currentTenantId}@kline_1d_3s`;
       });
 
       const subscribeMessage = JSON.stringify({
@@ -725,7 +725,7 @@ export default function MarketData() {
       align: "left",
       onHeaderCell: () => ({
         style: {
-          minWidth: "165px",
+          // minWidth: "100px",
           height: "27px",
           paddingLeft: "20px",
           fontSize: "14px",
@@ -736,8 +736,10 @@ export default function MarketData() {
         style: {
           paddingLeft: "20px",
           fontSize: "14px",
+          paddingRight:0
         },
       }),
+      // width: 150,
       render: (text, record, index) => (
         <div className="flex-x align-center">
           <span className="mr-3">{index + 1}</span>
@@ -754,11 +756,11 @@ export default function MarketData() {
             className="ml-1"
             onClick={() => {
               if (record.symbol || (record.coinSymbol && record.baseSymbol)) {
-                const symbol=`${record.symbol}` //`${record.coinSymbol}/${record.baseSymbol}`
+                const symbol = `${record.symbol}` //`${record.coinSymbol}/${record.baseSymbol}`
                 router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
               } else {
                 toast.error(t('header.routerErr'))
-                router.push(`${ ROUTER_KEY_SPOT.INDEX } `)
+                router.push(`${ROUTER_KEY_SPOT.INDEX} `)
               }
             }}
           >
@@ -771,9 +773,10 @@ export default function MarketData() {
       title: t("rankingList.latestPrice"),
       onHeaderCell: () => ({
         style: {
-          // minWidth: "150px",
+          // minWidth: "100px",
           // height: "27px",
           fontSize: "14px",
+          //  backgroundColor:"pink"
           // lineHeight: "20px",
           // textAlign: "center",
         },
@@ -787,7 +790,7 @@ export default function MarketData() {
       align: "left",
       dataIndex: "price",
       // key: "price",
-      // width: 250,
+      // width: 300,
       render: (text, record) => (
         <div style={{ height: 42, minWidth: '33%' }} className="flex-y justify-center">
           <div>{record.price ? formatPriceWithLimit(record.price, record.baseCoinScale || 0) : '--'}</div>
@@ -837,10 +840,9 @@ export default function MarketData() {
       dataIndex: "priceChangePercent",
       key: "priceChangePercent",
       align: "right",
-      width: 150,
       onHeaderCell: () => ({
         style: {
-          minWidth: "70px",
+          minWidth: "100px",
           height: "27px",
           fontSize: "14px",
           lineHeight: "20px",
@@ -862,8 +864,8 @@ export default function MarketData() {
         //   : "var(--color-danger)";
         const prefix = isPositive ? "+" : "";
         return (
-          <span className={`${ styles.text } ${ isPositive ? styles.positive : isNegative ? styles.negative : '' } `}>
-            {changePercent && changePercent !== undefined ? `${ prefix }${ changePercent.toFixed(2) }% ` : `--`}
+          <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''} `}>
+            {changePercent && changePercent !== undefined ? `${prefix}${changePercent.toFixed(2)}% ` : `--`}
           </span>
         );
       },
@@ -876,9 +878,10 @@ export default function MarketData() {
       title: t("rankingList.tradingPair"),
       dataIndex: "symbol",
       key: "symbol",
+      align: "left",
       onHeaderCell: () => ({
         style: {
-          minWidth: "165px",
+          // minWidth: "100px",
           height: "27px",
           paddingLeft: "20px",
           fontSize: "14px",
@@ -888,374 +891,376 @@ export default function MarketData() {
       onCell: () => ({
         style: {
           paddingLeft: "20px",
-          fontSize: "14px"
+          fontSize: "14px",
+          paddingRight:0
         },
       }),
       render: (text, record, index) => {
         const symbol = record.symbol?.split("_")
         const coinSymbol = symbol?.[0]
-        const symbolPairs = `${ record.coinSymbol || '--' }/${record.baseSymbol || '--'}`
-return <div className="flex-x align-center">
-  <span className="mr-3">{index + 1}</span>
-  <Image
-    src={record.iconUrl || ''}
-    alt=""
-    width={20}
-    height={20}
-    className="mr-1"
-    style={{ width: 20, height: 20, borderRadius: '50%' }}
-    preview={false}
-  />
-  <button
-    className="ml-1"
-    onClick={() => {
-      if (record.coinSymbol && record.baseSymbol) {
-        const symbol = `${record.coinSymbol}/${record.baseSymbol}`
-        router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
-      } else {
-        toast.error(t('header.routerErr'))
-        router.push(`${ROUTER_KEY_SPOT.INDEX}`)
-      }
-    }}
-  >
-    {(symbol || symbolPairs) ? `${coinSymbol || symbolPairs}` : '--'}
-  </button>
-</div>
+        const symbolPairs = `${record.coinSymbol || '--'}/${record.baseSymbol || '--'}`
+        return <div className="flex-x align-center">
+          <span className="mr-3">{index + 1}</span>
+          <Image
+            src={record.iconUrl || ''}
+            alt=""
+            width={20}
+            height={20}
+            className="mr-1"
+            style={{ width: 20, height: 20, borderRadius: '50%' }}
+            preview={false}
+          />
+          <button
+            className="ml-1"
+            onClick={() => {
+              if (record.coinSymbol && record.baseSymbol) {
+                const symbol = `${record.coinSymbol}/${record.baseSymbol}`
+                router.push(`${ROUTER_KEY_SPOT.INDEX}?symbol=${symbol}`)
+              } else {
+                toast.error(t('header.routerErr'))
+                router.push(`${ROUTER_KEY_SPOT.INDEX}`)
+              }
+            }}
+          >
+            {(symbol || symbolPairs) ? `${coinSymbol || symbolPairs}` : '--'}
+          </button>
+        </div>
       },
     },
-{
-  title: t("rankingList.latestPrice"),
-    dataIndex: "close_price",
+    {
+      title: t("rankingList.latestPrice"),
+      dataIndex: "close_price",
       key: "close_price",
-        // width: 250,
-        onHeaderCell: () => ({
-          style: {
-            // minWidth: "150px",
-            fontSize: "14px",
-            // lineHeight: "20px",
-          },
-        }),
-          onCell: () => ({
-            style: {
-              fontSize: "14px",
-              padding: "5px 8px"
-            },
-          }),
-            render: (_text, record) => (
-              <div style={{ height: 42, minWidth: '33%' }} className="flex-y justify-center">
-                <div>{_text ? formatPriceWithLimit(_text, record.baseCoinScale || 0) : "--"}</div>
-                {_text && <div style={{ fontSize: "12px", color: "#999" }}>
-                  ${formatPriceWithLimit(_text, record.baseCoinScale || 0)}
-                </div>}
-              </div>
-            ),
+      // width: 250,
+      onHeaderCell: () => ({
+        style: {
+          // minWidth: "100px",
+          fontSize: "14px",
+          // lineHeight: "20px",
+          // backgroundColor:"pink"
+        },
+      }),
+      onCell: () => ({
+        style: {
+          fontSize: "14px",
+          padding: "5px 8px"
+        },
+      }),
+      render: (_text, record) => (
+        <div style={{ height: 42, minWidth: '33%' }} className="flex-y justify-center">
+          <div>{_text ? formatPriceWithLimit(_text, record.baseCoinScale || 0) : "--"}</div>
+          {_text && <div style={{ fontSize: "12px", color: "#999" }}>
+            ${formatPriceWithLimit(_text, record.baseCoinScale || 0)}
+          </div>}
+        </div>
+      ),
     },
-// {
-//   title: t("rankingList.change24h"),
-//   dataIndex: "close_price",
-//   key: "close_price",
-//   align: "right",
-//   width: 150,
-//   onHeaderCell: () => ({
-//     style: {
-//       minWidth: "70px",
-//       height: "27px",
-//       fontSize: "14px",
-//       lineHeight: "20px",
-//       // textAlign: "left",
-//     },
-//   }),
-//   onCell: () => ({
-//     style: { 
-//       fontSize: "14px",
-//     },
-//   }),
-//   render: (_closePrice: any, record: TradeRakingResp, index: number) => {
-//     // 根据涨跌幅确定颜色
-//     // const changePercent = record.priceChangePercent
-//     const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
-//     const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
-//     const changePercent = changePrice ? changePercent1 * 100 : 0
-//     const isPositive = changePercent !== undefined && Number(changePercent) > 0;
-//     const isNegative = changePercent !== undefined && Number(changePercent) < 0;
-//     const prefix = isPositive ? "+" : "";
-//     return (
-//       <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-//         {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
-//       </span>
-//     )
-//     // const isPositive = _closePrice !== undefined && _closePrice > 0;
-//     // const isNegative = _closePrice !== undefined && _closePrice < 0;
-//     // const prefix = isPositive ? "+" : "";
-//     // return (
-//     //   <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-//     //     {_closePrice !== undefined ? `${prefix}${_closePrice}%` : `${Number(0).toFixed(2)}%`}
-//     //   </span>
-//     // );
-//   }
-// },
-{
-  title: t("rankingList.change24h"),
-    dataIndex: "priceChangePercent",
+    // {
+    //   title: t("rankingList.change24h"),
+    //   dataIndex: "close_price",
+    //   key: "close_price",
+    //   align: "right",
+    //   width: 150,
+    //   onHeaderCell: () => ({
+    //     style: {
+    //       minWidth: "70px",
+    //       height: "27px",
+    //       fontSize: "14px",
+    //       lineHeight: "20px",
+    //       // textAlign: "left",
+    //     },
+    //   }),
+    //   onCell: () => ({
+    //     style: { 
+    //       fontSize: "14px",
+    //     },
+    //   }),
+    //   render: (_closePrice: any, record: TradeRakingResp, index: number) => {
+    //     // 根据涨跌幅确定颜色
+    //     // const changePercent = record.priceChangePercent
+    //     const changePrice = Number(cut(Number(_closePrice), Number(record.open_price)))
+    //     const changePercent1 = changePrice ? division(changePrice, Number(record.open_price)) : 0
+    //     const changePercent = changePrice ? changePercent1 * 100 : 0
+    //     const isPositive = changePercent !== undefined && Number(changePercent) > 0;
+    //     const isNegative = changePercent !== undefined && Number(changePercent) < 0;
+    //     const prefix = isPositive ? "+" : "";
+    //     return (
+    //       <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //         {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
+    //       </span>
+    //     )
+    //     // const isPositive = _closePrice !== undefined && _closePrice > 0;
+    //     // const isNegative = _closePrice !== undefined && _closePrice < 0;
+    //     // const prefix = isPositive ? "+" : "";
+    //     // return (
+    //     //   <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+    //     //     {_closePrice !== undefined ? `${prefix}${_closePrice}%` : `${Number(0).toFixed(2)}%`}
+    //     //   </span>
+    //     // );
+    //   }
+    // },
+    {
+      title: t("rankingList.change24h"),
+      dataIndex: "priceChangePercent",
       key: "priceChangePercent",
-        align: "right",
-          width: 150,
-            onHeaderCell: () => ({
-              style: {
-                minWidth: "70px",
-                height: "27px",
-                fontSize: "14px",
-                lineHeight: "20px",
-                // textAlign: "left",
-              },
-            }),
-              onCell: () => ({
-                style: {
-                  fontSize: "14px",
-                },
-              }),
-                render: (_price: any, record: TradeRakingResp, index: number) => {
-                  // 根据涨跌幅确定颜色
-                  const changePercent = _price || 0
-                  const isPositive = changePercent !== undefined && Number(changePercent) > 0;
-                  const isNegative = changePercent !== undefined && Number(changePercent) < 0;
-                  const prefix = isPositive ? "+" : "";
-                  return (
-                    <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-                      {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
-                    </span>
-                  )
-                  // const isPositive = _closePrice !== undefined && _closePrice > 0;
-                  // const isNegative = _closePrice !== undefined && _closePrice < 0;
-                  // const prefix = isPositive ? "+" : "";
-                  // return (
-                  //   <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
-                  //     {_closePrice !== undefined ? `${prefix}${_closePrice}%` : `${Number(0).toFixed(2)}%`}
-                  //   </span>
-                  // );
-                }
-},
+      align: "right",
+      // width: 150,
+      onHeaderCell: () => ({
+        style: {
+          minWidth: "100px",
+          height: "27px",
+          fontSize: "14px",
+          lineHeight: "20px",
+          // textAlign: "left",
+        },
+      }),
+      onCell: () => ({
+        style: {
+          fontSize: "14px",
+        },
+      }),
+      render: (_price: any, record: TradeRakingResp, index: number) => {
+        // 根据涨跌幅确定颜色
+        const changePercent = _price || 0
+        const isPositive = changePercent !== undefined && Number(changePercent) > 0;
+        const isNegative = changePercent !== undefined && Number(changePercent) < 0;
+        const prefix = isPositive ? "+" : "";
+        return (
+          <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+            {changePercent && changePercent !== undefined ? `${prefix}${changePercent?.toFixed(2)}%` : `--`}
+          </span>
+        )
+        // const isPositive = _closePrice !== undefined && _closePrice > 0;
+        // const isNegative = _closePrice !== undefined && _closePrice < 0;
+        // const prefix = isPositive ? "+" : "";
+        // return (
+        //   <span className={`${styles.text} ${isPositive ? styles.positive : isNegative ? styles.negative : ''}`}>
+        //     {_closePrice !== undefined ? `${prefix}${_closePrice}%` : `${Number(0).toFixed(2)}%`}
+        //   </span>
+        // );
+      }
+    },
   ];
 
 
-useEffect(() => {
-  // 执行涨跌幅榜单请求
-  // fetchMarketDataUp();
-  // fetchMarketDataDown();
-  setIsLoading(false);
+  useEffect(() => {
+    // 执行涨跌幅榜单请求
+    // fetchMarketDataUp();
+    // fetchMarketDataDown();
+    setIsLoading(false);
 
-  // 先执行 fetchNewPrice 和 fetchHotMarketData，完成后再执行 WebSocket 连接
-  Promise.all([fetchNewPrice(), fetchHotMarketData()])
-    .then(() => {
-      // 两个请求都完成后，再初始化 WebSocket 连接
-      getMulti();
-    })
-    .catch(error => {
-      console.error("请求过程中发生错误:", error);
-      setIsLoading(false);
-    });
+    // 先执行 fetchNewPrice 和 fetchHotMarketData，完成后再执行 WebSocket 连接
+    Promise.all([fetchNewPrice(), fetchHotMarketData()])
+      .then(() => {
+        // 两个请求都完成后，再初始化 WebSocket 连接
+        getMulti();
+      })
+      .catch(error => {
+        console.error("请求过程中发生错误:", error);
+        setIsLoading(false);
+      });
 
-  return () => {
-    // 组件卸载时清理WebSocket连接
-    cleanupWebSockets();
-    // 清理多通道WebSocket连接
-    if (multiWsRef.current) {
-      multiWsRef.current.close();
-      multiWsRef.current = null;
+    return () => {
+      // 组件卸载时清理WebSocket连接
+      cleanupWebSockets();
+      // 清理多通道WebSocket连接
+      if (multiWsRef.current) {
+        multiWsRef.current.close();
+        multiWsRef.current = null;
+      }
+      // 清理定时器，避免内存泄漏和不必要的请求
+      if (upTimerRef.current) {
+        clearTimeout(upTimerRef.current);
+        upTimerRef.current = null;
+      }
+      if (downTimerRef.current) {
+        clearTimeout(downTimerRef.current);
+        downTimerRef.current = null;
+      }
+    };
+  }, [getMulti]);
+  useEffect(() => {
+    // 只在客户端执行
+    if (typeof window === 'undefined') return;
+
+    try {
+      appStore.loadCurrencyPairs()
+      // appStore.loadUsdtRate()
+      // .then(() => {
+      //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
+      //   setNewPrice(coinPair)
+      //   // fetchNewPrice();
+      // });
+
+    } catch (error) {
+
     }
-    // 清理定时器，避免内存泄漏和不必要的请求
-    if (upTimerRef.current) {
-      clearTimeout(upTimerRef.current);
-      upTimerRef.current = null;
-    }
-    if (downTimerRef.current) {
-      clearTimeout(downTimerRef.current);
-      downTimerRef.current = null;
-    }
-  };
-}, [getMulti]);
-useEffect(() => {
-  // 只在客户端执行
-  if (typeof window === 'undefined') return;
+  }, []);
 
-  try {
-    appStore.loadCurrencyPairs()
-    // appStore.loadUsdtRate()
-    // .then(() => {
-    //   const coinPair = appStore.getCurrentPairList() || appStore.currencyPairs;
-    //   setNewPrice(coinPair)
-    //   // fetchNewPrice();
-    // });
+  return (
+    <ConfigProvider
+      theme={{
+        components: {
+          Input: {
+            inputFontSize: 12,
+            colorTextPlaceholder: "var(--help-center-input-text)",
+            colorBorder: "var(--border-color4)",
+            activeBg: "transparent",
+            hoverBg: "transparent",
+            colorText: "var(--text-color5)",
+          },
+          Menu: {
+            itemColor: "#A4A5AC",
+            itemHoverBg: "var(--theme-color)",
+            itemSelectedBg: "var(--theme-color)",
+            itemHoverColor: "#FFFFFF",
+            itemSelectedColor: "#FFFFFF",
+            itemMarginInline: 20,
+            itemMarginBlock: 0,
+            itemBorderRadius: 10,
+          },
+          Pagination: {
+            itemActiveBg: "var(--theme-color)",
+          },
+          Breadcrumb: {
+            itemColor: "var(--text-color6)",
+            lastItemColor: "var(--text-color5)",
+            separatorColor: "var(--text-color6)",
+            linkColor: "var(--text-color6)",
+            linkHoverColor: "none",
+          },
+          Empty: {
+            colorTextDescription: "var(--text-color6)",
+          },
+          Tabs: {
+            itemActiveColor: "var(--tip-color)", //激活态颜色
+            itemSelectedColor: "var(--text-color5)", //选中态颜色
+            horizontalMargin: "0 0 0 0",
+            itemColor: "var(--text-color6)",
+            inkBarColor: "var(--text-color5)", //指示条颜色
+            itemHoverColor: "var(--text-color5)", //悬浮态颜色
+          },
+          Table: {
+            headerBg: "transparent",
+            headerColor: "var(--text-color6)",
+            headerSplitColor: "transparent", // 表头分割线颜色
+            rowExpandedBg: "var(--background10)", // 表格行展开背景色
+            borderColor: "transparent",
+            // stickyScrollBarBg:"transparent",
+            headerBorderRadius: 0, // 表头圆角
+            // rowHoverBg: "#f5f5f5", // 鼠标悬停在行上时的背景颜色
+          },
+        },
+        token: {
+          colorPrimary: "var(--theme-color)",
+          fontWeightStrong: 400,
+        },
+      }}
+    >
+      <div className={`${styles.market_page} flex-y align-center`}>
+        <div className={`${styles.main_page_box} font-16 fontw-400`}>
+          {/* 榜单 */}
+          <div className={`${styles.ranking_box}`}>
+            <p className={`${styles.section_title}`}>
+              {t("marketData.rankings")}
+            </p>
+            <div className={`${styles.rankings_grid} flex-x`}>
+              {/* 热门榜 */}
+              <div className={`${styles.ranking_list} flex-y flex-1`}>
+                <div className={styles.cardHeader}>
+                  <Image
+                    src="/images/market/icon_bangdan_hot.png"
+                    alt=""
+                    width={24}
+                    height={24}
+                  />
+                  <span className={styles.cardtitle}>
+                    {t("rankingList.hotCoins")}
+                  </span>
+                </div>
+                <div className={`flex-1 ${styles.ranking_content}`}>
+                  <Table
+                    columns={columns}
+                    dataSource={filteredHotPairs.slice(0, 7)}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                    bordered={false}
+                    className={`${styles.table} markerData-ranking`}
+                    // scroll={{ y: '400' }}
+                    // style={{ height: '300px' }}
+                    locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                  />
+                </div>
 
-  } catch (error) {
-
-  }
-}, []);
-
-return (
-  <ConfigProvider
-    theme={{
-      components: {
-        Input: {
-          inputFontSize: 12,
-          colorTextPlaceholder: "var(--help-center-input-text)",
-          colorBorder: "var(--border-color4)",
-          activeBg: "transparent",
-          hoverBg: "transparent",
-          colorText: "var(--text-color5)",
-        },
-        Menu: {
-          itemColor: "#A4A5AC",
-          itemHoverBg: "var(--theme-color)",
-          itemSelectedBg: "var(--theme-color)",
-          itemHoverColor: "#FFFFFF",
-          itemSelectedColor: "#FFFFFF",
-          itemMarginInline: 20,
-          itemMarginBlock: 0,
-          itemBorderRadius: 10,
-        },
-        Pagination: {
-          itemActiveBg: "var(--theme-color)",
-        },
-        Breadcrumb: {
-          itemColor: "var(--text-color6)",
-          lastItemColor: "var(--text-color5)",
-          separatorColor: "var(--text-color6)",
-          linkColor: "var(--text-color6)",
-          linkHoverColor: "none",
-        },
-        Empty: {
-          colorTextDescription: "var(--text-color6)",
-        },
-        Tabs: {
-          itemActiveColor: "var(--tip-color)", //激活态颜色
-          itemSelectedColor: "var(--text-color5)", //选中态颜色
-          horizontalMargin: "0 0 0 0",
-          itemColor: "var(--text-color6)",
-          inkBarColor: "var(--text-color5)", //指示条颜色
-          itemHoverColor: "var(--text-color5)", //悬浮态颜色
-        },
-        Table: {
-          headerBg: "transparent",
-          headerColor: "var(--text-color6)",
-          headerSplitColor: "transparent", // 表头分割线颜色
-          rowExpandedBg: "var(--background10)", // 表格行展开背景色
-          borderColor: "transparent",
-          // stickyScrollBarBg:"transparent",
-          headerBorderRadius: 0, // 表头圆角
-          // rowHoverBg: "#f5f5f5", // 鼠标悬停在行上时的背景颜色
-        },
-      },
-      token: {
-        colorPrimary: "var(--theme-color)",
-        fontWeightStrong: 400,
-      },
-    }}
-  >
-    <div className={`${styles.market_page} flex-y align-center`}>
-      <div className={`${styles.main_page_box} font-16 fontw-400`}>
-        {/* 榜单 */}
-        <div className={`${styles.ranking_box}`}>
-          <p className={`${styles.section_title}`}>
-            {t("marketData.rankings")}
-          </p>
-          <div className={`${styles.rankings_grid} flex-x`}>
-            {/* 热门榜 */}
-            <div className={`${styles.ranking_list} flex-y flex-1`}>
-              <div className={styles.cardHeader}>
-                <Image
-                  src="/images/market/icon_bangdan_hot.png"
-                  alt=""
-                  width={24}
-                  height={24}
-                />
-                <span className={styles.cardtitle}>
-                  {t("rankingList.hotCoins")}
-                </span>
               </div>
-              <div className={`flex-1 ${styles.ranking_content}`}>
-                <Table
-                  columns={columns}
-                  dataSource={filteredHotPairs.slice(0, 7)}
-                  rowKey="id"
-                  pagination={false}
-                  size="small"
-                  bordered={false}
-                  className={`${styles.table} markerData-ranking`}
-                  // scroll={{ y: '400' }}
-                  // style={{ height: '300px' }}
-                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-                />
+              {/* 涨幅榜 */}
+              <div className={`${styles.ranking_list} flex-y flex-1`}>
+                <div className={styles.cardHeader}>
+                  <Image
+                    src="/images/market/icon_bd_up.png"
+                    alt=""
+                    width={24}
+                    height={24}
+                  />
+                  <span className={styles.cardtitle}>
+                    {t("rankingList.risingCoins")}
+                  </span>
+                </div>
+                <div className={`flex-1 ${styles.ranking_content}`}>
+                  <Table
+                    columns={columnsTrading}
+                    dataSource={filteredMarketDataUp.slice(0, 7)}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                    bordered={false}
+                    className={`${styles.table} markerData-ranking`}
+                    locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                  />
+                </div>
               </div>
-
-            </div>
-            {/* 涨幅榜 */}
-            <div className={`${styles.ranking_list} flex-y flex-1`}>
-              <div className={styles.cardHeader}>
-                <Image
-                  src="/images/market/icon_bd_up.png"
-                  alt=""
-                  width={24}
-                  height={24}
-                />
-                <span className={styles.cardtitle}>
-                  {t("rankingList.risingCoins")}
-                </span>
-              </div>
-              <div className={`flex-1 ${styles.ranking_content}`}>
-                <Table
-                  columns={columnsTrading}
-                  dataSource={filteredMarketDataUp.slice(0, 7)}
-                  rowKey="id"
-                  pagination={false}
-                  size="small"
-                  bordered={false}
-                  className={`${styles.table} markerData-ranking`}
-                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-                />
-              </div>
-            </div>
-            {/* 跌幅榜 */}
-            <div className={`${styles.ranking_list} flex-y flex-1`}>
-              <div className={styles.cardHeader}>
-                <Image
-                  src="/images/market/icon_db_down.png"
-                  alt=""
-                  width={24}
-                  height={24}
-                />
-                <span className={styles.cardtitle}>
-                  {t("rankingList.fallingCoins")}
-                </span>
-              </div>
-              <div className={`flex-1 ${styles.ranking_content}`}>
-                <Table
-                  columns={columnsTrading}
-                  dataSource={filteredMarketDataDown.slice(0, 7)}
-                  rowKey="id"
-                  pagination={false}
-                  size="small"
-                  bordered={false}
-                  className={`${styles.table} markerData-ranking`}
-                  locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
-                />
+              {/* 跌幅榜 */}
+              <div className={`${styles.ranking_list} flex-y flex-1`}>
+                <div className={styles.cardHeader}>
+                  <Image
+                    src="/images/market/icon_db_down.png"
+                    alt=""
+                    width={24}
+                    height={24}
+                  />
+                  <span className={styles.cardtitle}>
+                    {t("rankingList.fallingCoins")}
+                  </span>
+                </div>
+                <div className={`flex-1 ${styles.ranking_content}`}>
+                  <Table
+                    columns={columnsTrading}
+                    dataSource={filteredMarketDataDown.slice(0, 7)}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                    bordered={false}
+                    className={`${styles.table} markerData-ranking`}
+                    locale={{ emptyText: <NoData textColor='#A4A5AC' /> }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* 行情 */}
-        <div className={`${styles.ranking_box} ${styles.marketData_tabs}`}>
-          <p className={`${styles.section_title}`}>
-            {t("marketData.marketTrends")}
-          </p>
-          <div className={`${styles.trends_box}`}>
-            <TrendsTable tradeData={newPrice} />
+          {/* 行情 */}
+          <div className={`${styles.ranking_box} ${styles.marketData_tabs}`}>
+            <p className={`${styles.section_title}`}>
+              {t("marketData.marketTrends")}
+            </p>
+            <div className={`${styles.trends_box}`}>
+              <TrendsTable tradeData={newPrice} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </ConfigProvider>
-);
+    </ConfigProvider>
+  );
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
