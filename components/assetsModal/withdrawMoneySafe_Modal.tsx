@@ -107,7 +107,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
     form.validateFields().then(async (values) => {
       const dataInfo = {
         emailCode: values.emailCode || "",
-        phoneCode: values.phoneCode || "",
+        smsCode: values.phoneCode || "",
         googleCode: values.googleCode || "",
       };
 
