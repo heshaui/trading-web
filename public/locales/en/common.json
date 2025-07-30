@@ -99,6 +99,7 @@
   "router": {
     "spotAccount": "Spot Account",
     "financialAccount": "Financial Account",
+    "contractAccount":"Contract Account",
     "myAssets": "My Assets",
     "recharge": "Deposit",
     "withdraw": "Withdraw",
@@ -107,6 +108,7 @@
     "spotOrder": "Spot Orders",
     "flashOrder":"Flash Orders",
     "financialOrder":"Financial Orders",
+    "contractOrder":"Contract Orders",
     "overView": "Overview",
     "safetyCenter": "Security Center",
     "identity": "Identity Verification",

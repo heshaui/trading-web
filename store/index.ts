@@ -4,20 +4,28 @@ import { getWebConfig } from "@/store/kvConfig";
 import { getUserInfo } from "@/store/userInfo";
 import { UserInfoType } from "@/type/userCenter/overview";
 import {
-    fetchAllCurrencyPairs,
-    fetchUserFavorites,
-    addToFavorites,
-    removeFromFavorites,
-    fetchAllCoin,
-    fetchUsdtPrice
-} from './currencyPairService';
-import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange"
-import { getExchangeGroup, getExchangeCoinList, getUserExchangeCoinTypeList } from '@/services/spot';
-import { inviteInfoType,usdtRateType } from "@/type/userCenter/overview"
-import { registerInfoType } from "@/type/store"
-import { getConfig } from '@/services/flash';
-import { getPublicInfo, getUserConfig, getAssetsList } from '@/services/contract';
-import { UserConfigType } from '@/type/contract/userConfig';
+  fetchAllCurrencyPairs,
+  fetchUserFavorites,
+  addToFavorites,
+  removeFromFavorites,
+  fetchAllCoin,
+  fetchUsdtPrice,
+} from "./currencyPairService";
+import { CurrencyPairType, CoinType } from "@/type/assets/spot/exchange";
+import {
+  getExchangeGroup,
+  getExchangeCoinList,
+  getUserExchangeCoinTypeList,
+} from "@/services/spot";
+import { inviteInfoType, usdtRateType } from "@/type/userCenter/overview";
+import { registerInfoType } from "@/type/store";
+import { getConfig } from "@/services/flash";
+import {
+  getPublicInfo,
+  getUserConfig,
+  getAssetsList,
+} from "@/services/contract";
+import { UserConfigType } from "@/type/contract/userConfig";
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== "undefined";
@@ -50,38 +58,36 @@ class AppStore {
   // API加载状态
   isLoadingCurrencyData: boolean = false;
 
-    // 添加币种列表
-    coinList: any[] = [];
-    // API加载状态
-    isLoadingCoinData: boolean = false;
-    // 汇率数据状态
-    rateData: any[] = [];
-    rateKey: string = '';
-    lang: string = '';
-    languageList: any[] = [];
-    kvConfig: Record<string, any> = {};
-    inviteInfo: inviteInfoType = {} as inviteInfoType;
-    banlanceShow: boolean = true;
-    
-    // 添加 flash 配置状态
-    flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
-    isLoadingFlashConfig: boolean = false;
-    usdtRate: usdtRateType={} as usdtRateType
-    // 合约模块------start
-    // 添加公共数据状态
-    publicInfo: any = {};
-    currentContractInfo: any = {};
-    isLoadingPublicInfo: boolean = false;
-    
-    // 添加用户合约配置状态
-    userConfig: UserConfigType = {};
-    isLoadingUserConfig: boolean = false;
-    
-    // 添加合约资产状态
-    contractAssets: any[] = [];
-    isLoadingContractAssets: boolean = false;
+  // 添加币种列表
+  coinList: any[] = [];
+  // API加载状态
+  isLoadingCoinData: boolean = false;
+  // 汇率数据状态
+  rateData: any[] = [];
+  rateKey: string = "";
+  lang: string = "";
+  languageList: any[] = [];
+  kvConfig: Record<string, any> = {};
+  inviteInfo: inviteInfoType = {} as inviteInfoType;
+  banlanceShow: boolean = true;
 
+  // 添加 flash 配置状态
+  flashConfig: any = { minTradeU: 0, maxTradeU: 0 };
+  isLoadingFlashConfig: boolean = false;
+  usdtRate: usdtRateType = {} as usdtRateType;
+  // 合约模块------start
+  // 添加公共数据状态
+  publicInfo: any = {};
+  currentContractInfo: any = {};
+  isLoadingPublicInfo: boolean = false;
 
+  // 添加用户合约配置状态
+  userConfig: UserConfigType = {};
+  isLoadingUserConfig: boolean = false;
+
+  // 添加合约资产状态
+  contractAssets: any[] = [];
+  isLoadingContractAssets: boolean = false;
 
   // 理财配置状态
   financialConfig: any = {
@@ -89,6 +95,11 @@ class AppStore {
     isRealname: null, //是否实名
     isDisplayAssets: null, //是否显示资产
     isDisplayBackground: null, //是否显示背景图片
+  };
+
+  // 合约配置状态
+  contractConfig: any = {
+    contractSwitch: true, //是否开启
   };
 
   constructor() {
@@ -898,196 +909,214 @@ class AppStore {
     }
   }
 
-    // 公共数据相关方法
-     initPublicInfoFromStorage() {
-        if (!isBrowser()) return;
-        try {
-            const publicInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
-            if (publicInfoJson) {
-                this.publicInfo = JSON.parse(publicInfoJson);
-                
-                // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
-                if (!this.currentContractInfo || Object.keys(this.currentContractInfo).length === 0) {
-                    if (this.publicInfo?.contractList && Array.isArray(this.publicInfo.contractList) && this.publicInfo.contractList.length > 0) {
-                        this.currentContractInfo = this.publicInfo.contractList[0];
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load public info from storage:', error);
-        }
-    }
+  // 公共数据相关方法
+  initPublicInfoFromStorage() {
+    if (!isBrowser()) return;
+    try {
+      const publicInfoJson = localStorage.getItem(
+        LOCAL_STORAGE_KEY.PUBLIC_INFO
+      );
+      if (publicInfoJson) {
+        this.publicInfo = JSON.parse(publicInfoJson);
 
-
-    async loadPublicInfo() {
-        try {
-            this.isLoadingPublicInfo = true;
-            const result = await getPublicInfo({});
-            
-            if (result.code === '0') {
-                this.setPublicInfo(result.data);
-                return result.data;
-            } else {
-                throw new Error('Failed to load public info');
-            }
-        } catch (error) {
-            console.error('Error loading public info:', error);
-            throw error;
-        } finally {
-            runInAction(() => {
-                this.isLoadingPublicInfo = false;
-            });
-        }
-    }
-
-    setPublicInfo(info: any) {
-        this.publicInfo = info;
-        
         // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
-        if (!this.currentContractInfo || Object.keys(this.currentContractInfo).length === 0) {
-            if (info?.contractList && Array.isArray(info.contractList) && info.contractList.length > 0) {
-                this.currentContractInfo = info.contractList[0];
-            }
+        if (
+          !this.currentContractInfo ||
+          Object.keys(this.currentContractInfo).length === 0
+        ) {
+          if (
+            this.publicInfo?.contractList &&
+            Array.isArray(this.publicInfo.contractList) &&
+            this.publicInfo.contractList.length > 0
+          ) {
+            this.currentContractInfo = this.publicInfo.contractList[0];
+          }
         }
-        
-        if (isBrowser()) {
-            localStorage.setItem(LOCAL_STORAGE_KEY.PUBLIC_INFO, JSON.stringify(info));
-        }
+      }
+    } catch (error) {
+      console.error("Failed to load public info from storage:", error);
+    }
+  }
+
+  async loadPublicInfo() {
+    try {
+      this.isLoadingPublicInfo = true;
+      const result = await getPublicInfo({});
+
+      if (result.code === "0") {
+        this.setPublicInfo(result.data);
+        return result.data;
+      } else {
+        throw new Error("Failed to load public info");
+      }
+    } catch (error) {
+      console.error("Error loading public info:", error);
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.isLoadingPublicInfo = false;
+      });
+    }
+  }
+
+  setPublicInfo(info: any) {
+    this.publicInfo = info;
+
+    // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
+    if (
+      !this.currentContractInfo ||
+      Object.keys(this.currentContractInfo).length === 0
+    ) {
+      if (
+        info?.contractList &&
+        Array.isArray(info.contractList) &&
+        info.contractList.length > 0
+      ) {
+        this.currentContractInfo = info.contractList[0];
+      }
     }
 
-    getPublicInfo() {
-        return this.publicInfo;
+    if (isBrowser()) {
+      localStorage.setItem(LOCAL_STORAGE_KEY.PUBLIC_INFO, JSON.stringify(info));
     }
+  }
 
-    clearPublicInfo() {
-        this.publicInfo = {};
-        this.currentContractInfo = {};
-        if (isBrowser()) {
-            localStorage.removeItem(LOCAL_STORAGE_KEY.PUBLIC_INFO);
-        }
-    }
+  getPublicInfo() {
+    return this.publicInfo;
+  }
 
-    // 设置当前合约信息
-    setCurrentContractInfo(contractId: number) {
-        this.currentContractInfo = this.publicInfo?.contractList?.find((item: any) => item.id === contractId);
-    }
+  // 设置当前合约信息
+  setCurrentContractInfo(contractId: number) {
+    this.currentContractInfo = this.publicInfo?.contractList?.find(
+      (item: any) => item.id === contractId
+    );
+  }
 
-    // 获取当前合约信息
-    getCurrentContractInfo() {
-        return this.currentContractInfo;
-    }
+  // 获取当前合约信息
+  getCurrentContractInfo() {
+    return this.currentContractInfo;
+  }
 
-    // 清除当前合约信息
-    clearCurrentContractInfo() {
-        this.currentContractInfo = {};
-    }
+  // 清除当前合约信息
+  clearCurrentContractInfo() {
+    this.currentContractInfo = {};
+  }
 
-    // 用户合约配置相关方法
-    initUserConfigFromStorage() {
-        if (!isBrowser()) return;
-        try {
-            const userConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.USER_CONFIG);
-            if (userConfigJson) {
-                this.userConfig = JSON.parse(userConfigJson);
-            }
-        } catch (error) {
-            console.error('Failed to load user config from storage:', error);
-        }
+  // 用户合约配置相关方法
+  initUserConfigFromStorage() {
+    if (!isBrowser()) return;
+    try {
+      const userConfigJson = localStorage.getItem(
+        LOCAL_STORAGE_KEY.USER_CONFIG
+      );
+      if (userConfigJson) {
+        this.userConfig = JSON.parse(userConfigJson);
+      }
+    } catch (error) {
+      console.error("Failed to load user config from storage:", error);
     }
+  }
 
-    async loadUserConfig(params: any = {}) {
-        try {
-            this.isLoadingUserConfig = true;
-            const result = await getUserConfig(params);
-            
-            if (result.code === '0') {
-                this.setUserConfig(result.data);
-                return result.data;
-            } else {
-                throw new Error('Failed to load user config');
-            }
-        } catch (error) {
-            console.error('Error loading user config:', error);
-            throw error;
-        } finally {
-            runInAction(() => {
-                this.isLoadingUserConfig = false;
-            });
-        }
-    }
+  async loadUserConfig(params: any = {}) {
+    try {
+      this.isLoadingUserConfig = true;
+      const result = await getUserConfig(params);
 
-    setUserConfig(config: UserConfigType) {
-        this.userConfig = config;
-        if (isBrowser()) {
-            localStorage.setItem(LOCAL_STORAGE_KEY.USER_CONFIG, JSON.stringify(config));
-        }
+      if (result.code === "0") {
+        this.setUserConfig(result.data);
+        return result.data;
+      } else {
+        throw new Error("Failed to load user config");
+      }
+    } catch (error) {
+      console.error("Error loading user config:", error);
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.isLoadingUserConfig = false;
+      });
     }
+  }
 
-    getUserConfig() {
-        return this.userConfig;
+  setUserConfig(config: UserConfigType) {
+    this.userConfig = config;
+    if (isBrowser()) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY.USER_CONFIG,
+        JSON.stringify(config)
+      );
     }
+  }
 
-    clearUserConfig() {
-        this.userConfig = {} as UserConfigType;
-        if (isBrowser()) {
-            localStorage.removeItem(LOCAL_STORAGE_KEY.USER_CONFIG);
-        }
-    }
+  getUserConfig() {
+    return this.userConfig;
+  }
 
-    // 合约资产相关方法
-    initContractAssetsFromStorage() {
-        if (!isBrowser()) return;
-        try {
-            const contractAssetsJson = localStorage.getItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS);
-            if (contractAssetsJson) {
-                this.contractAssets = JSON.parse(contractAssetsJson);
-            }
-        } catch (error) {
-            console.error('Failed to load contract assets from storage:', error);
-        }
+  clearUserConfig() {
+    this.userConfig = {} as UserConfigType;
+    if (isBrowser()) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY.USER_CONFIG);
     }
+  }
 
-    async loadContractAssets() {
-        try {
-            this.isLoadingContractAssets = true;
-            const result = await getAssetsList();
-            
-            if (result.code === '0') {
-                // 只保存accountList部分
-                const accountList = result.data?.accountList || [];
-                this.setContractAssets(accountList);
-                return accountList;
-            } else {
-                throw new Error('Failed to load contract assets');
-            }
-        } catch (error) {
-            console.error('Error loading contract assets:', error);
-            throw error;
-        } finally {
-            runInAction(() => {
-                this.isLoadingContractAssets = false;
-            });
-        }
+  // 合约资产相关方法
+  initContractAssetsFromStorage() {
+    if (!isBrowser()) return;
+    try {
+      const contractAssetsJson = localStorage.getItem(
+        LOCAL_STORAGE_KEY.CONTRACT_ASSETS
+      );
+      if (contractAssetsJson) {
+        this.contractAssets = JSON.parse(contractAssetsJson);
+      }
+    } catch (error) {
+      console.error("Failed to load contract assets from storage:", error);
     }
+  }
 
-    setContractAssets(assets: any) {
-        this.contractAssets = assets;
-        if (isBrowser()) {
-            localStorage.setItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS, JSON.stringify(assets));
-        }
-    }
+  async loadContractAssets() {
+    try {
+      this.isLoadingContractAssets = true;
+      const result = await getAssetsList();
 
-    getContractAssets() {
-        return this.contractAssets;
+      if (result.code === "0") {
+        // 只保存accountList部分
+        const accountList = result.data?.accountList || [];
+        this.setContractAssets(accountList);
+        return accountList;
+      } else {
+        throw new Error("Failed to load contract assets");
+      }
+    } catch (error) {
+      console.error("Error loading contract assets:", error);
+      throw error;
+    } finally {
+      runInAction(() => {
+        this.isLoadingContractAssets = false;
+      });
     }
+  }
 
-    clearContractAssets() {
-        this.contractAssets = [];
-        if (isBrowser()) {
-            localStorage.removeItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS);
-        }
+  setContractAssets(assets: any) {
+    this.contractAssets = assets;
+    if (isBrowser()) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY.CONTRACT_ASSETS,
+        JSON.stringify(assets)
+      );
     }
-  
+  }
+
+  getContractAssets() {
+    return this.contractAssets;
+  }
+
+  clearContractAssets() {
+    this.contractAssets = [];
+    if (isBrowser()) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY.CONTRACT_ASSETS);
+    }
+  }
 
   setFlashConfig(config: any) {
     this.flashConfig = config;
@@ -1098,7 +1127,6 @@ class AppStore {
       );
     }
   }
-
 
   getFlashConfig() {
     return this.flashConfig;
@@ -1140,7 +1168,9 @@ class AppStore {
   // 理财配置相关方法
   initFinancialConfigFromStorage() {
     if (!isBrowser()) return;
-    const financialConfigJson = localStorage.getItem(LOCAL_STORAGE_KEY.FINANCIAL_CONFIG);
+    const financialConfigJson = localStorage.getItem(
+      LOCAL_STORAGE_KEY.FINANCIAL_CONFIG
+    );
     if (financialConfigJson) {
       this.financialConfig = JSON.parse(financialConfigJson);
     }
@@ -1150,10 +1180,12 @@ class AppStore {
   setFinancialConfig(config: any) {
     this.financialConfig = config;
     if (isBrowser()) {
-      localStorage.setItem(LOCAL_STORAGE_KEY.FINANCIAL_CONFIG, JSON.stringify(config));
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY.FINANCIAL_CONFIG,
+        JSON.stringify(config)
+      );
     }
   }
-  
 }
 
 const appStore = new AppStore();

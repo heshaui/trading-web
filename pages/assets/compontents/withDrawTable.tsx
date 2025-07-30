@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import TableCancelModal from './modal/table_cancel';
 import { useResetStateContext } from '@/hooks/useStateProvider';
 import { encryptData } from '@/hooks/user-encrypt'
-import { ROUTER_KEY_ASSETS, LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+import { ROUTER_KEY_ASSETS, LOCAL_STORAGE_KEY, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { roundDown } from '@/utils';
 interface DataType {
     withdrawalId: string,
@@ -331,7 +331,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                             </span>
                         </Checkbox>
                         <button className='flex-x align-center font-16' onClick={() => {
-                            router.push(ROUTER_KEY_ASSETS.BILL)
+                            router.push(ROUTER_KEY_SPOT.BILL)
                         }}>
                             {t('withdrawTable.more')}
                             <Iconify icon="mingcute:right-line" size={26} />

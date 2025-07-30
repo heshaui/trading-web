@@ -173,7 +173,7 @@
 }
 
 .formItem {
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
 }
 
 .formItem .ant-form-item {
@@ -238,7 +238,6 @@
 
 /* 百分比滑块 */
 .percentageSection {
-  margin-bottom: 20px;
   padding: 0 4px;
 }
 

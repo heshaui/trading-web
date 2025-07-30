@@ -1,524 +1,378 @@
-// components/OrderBook.js
-import { useState, useEffect } from "react";
-import styles from "./style/OrderBook.module.css";
-import Image from "next/image";
-import appStore from "@/store";
-import { Tooltip, Select } from "antd";
+import React, { useState } from "react";
+import { Button, Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
-import { add, cut, nul, roundDown } from "@/utils/index";
-import { getPairsRate } from "@/utils/getUseRate";
-// 定义订单类型
-interface Order {
+
+const { Option } = Select;
+
+interface OrderBookItem {
   price: number;
   amount: number;
   total: number;
 }
 
-// 定义交易类型
-interface Trade {
+interface OrderBookProps {
+  orderBookData?: any;
+}
+
+interface TradeItem {
   price: number;
   amount: number;
   time: string;
-  type: 'buy' | 'sell';
+  side: "buy" | "sell";
 }
 
-// 定义货币对类型
-interface CurrencyPair {
-  baseCoinScale: number;
-  quoteCoinScale: number;
-  symbol: string;
-  baseSymbol: string;
-  quoteSymbol: string;
+interface RealtimeTradeProps {
+  tradeData?: any;
+  orderBookData?: any; // 暂时使用orderBookData模拟
 }
 
-// WebSocket数据结构
-interface WebSocketData {
-  event_rep: string;
-  channel: string;
-  data: any;
-  tick: {
-    asks: [number, number][]; // [价格, 数量]
-    buys: [number, number][];  // [价格, 数量]
+// 委托列表组件
+const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
+  const { t } = useTranslation(["contract", "spot"]);
+  const [colorMode, setColorMode] = useState<"red-green" | "green-red">(
+    "red-green"
+  );
+  const [precision, setPrecision] = useState<number>(2);
+
+  // 处理WebSocket数据，如果没有数据则使用模拟数据
+  const processOrderBookData = () => {
+    if (orderBookData?.tick) {
+      const { asks, buys } = orderBookData.tick;
+
+      // 调试信息
+      console.log("OrderBook组件 - 原始数据:", { asks, buys });
+      console.log(
+        "asks类型:",
+        typeof asks,
+        "asks是否为数组:",
+        Array.isArray(asks)
+      );
+      console.log(
+        "buys类型:",
+        typeof buys,
+        "buys是否为数组:",
+        Array.isArray(buys)
+      );
+
+      // 处理卖单数据 (asks) - 按价格从高到低排序
+      const processedSellOrders: OrderBookItem[] =
+        asks && Array.isArray(asks)
+          ? asks
+              .map((item: [number, number]) => {
+                const [price, amount] = item;
+                return {
+                  price,
+                  amount,
+                  total: price * amount,
+                };
+              })
+              .filter(
+                (item: OrderBookItem) => item.price > 0 && item.amount > 0
+              )
+              .sort((a, b) => b.price - a.price) // 卖单价格从高到低
+              .slice(0, 10) // 只显示前10条
+          : [];
+
+      // 处理买单数据 (buys) - 按价格从高到低排序
+      const processedBuyOrders: OrderBookItem[] =
+        buys && Array.isArray(buys)
+          ? buys
+              .map((item: [number, number]) => {
+                const [price, amount] = item;
+                return {
+                  price,
+                  amount,
+                  total: price * amount,
+                };
+              })
+              .filter(
+                (item: OrderBookItem) => item.price > 0 && item.amount > 0
+              )
+              .sort((a, b) => b.price - a.price) // 买单价格从高到低
+              .slice(0, 10) // 只显示前10条
+          : [];
+
+      return {
+        sellOrders: processedSellOrders,
+        buyOrders: processedBuyOrders,
+      };
+    }
+
+    // 返回空数据
+    return {
+      sellOrders: [],
+      buyOrders: [],
+    };
   };
-  ts: number;
-  status: string;
-}
 
-interface OrderBookProps {
-  bookData: WebSocketData | any; // 支持WebSocket数据格式
-  orderData?: any;
-  klineData?: any;
-  priceClickHandler?: (price: number) => void;
-}
+  const { sellOrders, buyOrders } = processOrderBookData();
 
-const OrderBook = ({
-  bookData,
-  orderData,
-  klineData,
-  priceClickHandler,
-}: OrderBookProps) => {
-  const { t } = useTranslation(["spot"]);
+  const formatNumber = (num: number, decimals: number = precision) => {
+    return num.toFixed(decimals);
+  };
 
-  const [sellOrders, setSellOrders] = useState<Order[]>([]);
-  const [buyOrders, setBuyOrders] = useState<Order[]>([]);
-  
-  // 调试：监听状态变化
-  useEffect(() => {
-    console.log('sellOrders state changed:', sellOrders);
-  }, [sellOrders]);
-  
-  useEffect(() => {
-    console.log('buyOrders state changed:', buyOrders);
-  }, [buyOrders]);
-  const [currentPrice, setCurrentPrice] = useState(0);
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [priceSource, setPriceSource] = useState<'buy' | 'sell' | null>(null);
-  const [priceDirection, setPriceDirection] = useState<'up' | 'down' | null>(null);
-  const [currentPair, setCurrentPair] = useState<CurrencyPair | null>(null);
+  const getSellPriceColor = () => {
+    return colorMode === "red-green" ? "text-red-500" : "text-green-500";
+  };
 
-  const [priceScale, setPriceScale] = useState<string>("0.1");
-  const [colorMode, setColorMode] = useState(1);
-
-  // 初始化默认设置
-  useEffect(() => {
-    // 设置默认货币对信息
-    if (!currentPair) {
-      setCurrentPair({
-        baseCoinScale: 2,
-        quoteCoinScale: 5,
-        symbol: 'BTCUSDT',
-        baseSymbol: 'BTC',
-        quoteSymbol: 'USDT'
-      });
-    }
-  }, [currentPair]);
-
-  // 监听价格变化
-  useEffect(() => {
-    if (klineData && klineData.close) {
-      const newPrice = parseFloat(klineData.close);
-      const oldPrice = currentPrice;
-      
-      setCurrentPrice(newPrice);
-      
-      if (newPrice > oldPrice) {
-        setPriceDirection('up');
-        setPriceSource('buy');
-      } else if (newPrice < oldPrice) {
-        setPriceDirection('down');
-        setPriceSource('sell');
-      }
-    }
-  }, [klineData, currentPrice]);
-
-  // 处理订单簿数据
-  useEffect(() => {
-    console.log('OrderBook useEffect triggered, bookData:', bookData);
-    
-    if (bookData) {
-      // 处理WebSocket数据格式：bookData.tick.asks 和 bookData.tick.buys
-      const tickData = bookData.tick || bookData;
-      
-      console.log('Processing tickData:', tickData);
-      console.log('tickData.asks:', tickData.asks);
-      console.log('tickData.buys:', tickData.buys);
-      
-      // 处理卖单数据 (asks)
-      if (tickData.asks && Array.isArray(tickData.asks)) {
-        const processedSells = tickData.asks.map((ask: any) => ({
-          price: parseFloat(ask[0]),
-          amount: parseFloat(ask[1]),
-          total: parseFloat(ask[0]) * parseFloat(ask[1])
-        })).sort((a: Order, b: Order) => a.price - b.price); // 卖单按价格从低到高排序
-        
-        console.log('Processed sell orders:', processedSells);
-        setSellOrders(processedSells);
-      }
-
-      // 处理买单数据 (buys)
-      if (tickData.buys && Array.isArray(tickData.buys)) {
-        const processedBuys = tickData.buys.map((bid: any) => ({
-          price: parseFloat(bid[0]),
-          amount: parseFloat(bid[1]),
-          total: parseFloat(bid[0]) * parseFloat(bid[1])
-        })).sort((a: Order, b: Order) => b.price - a.price); // 买单按价格从高到低排序
-        
-        console.log('Processed buy orders:', processedBuys);
-        setBuyOrders(processedBuys);
-      }
-
-      // 兼容旧格式 (bids)
-      if (tickData.bids && Array.isArray(tickData.bids)) {
-        const processedBuys = tickData.bids.map((bid: any) => ({
-          price: parseFloat(bid[0]),
-          amount: parseFloat(bid[1]),
-          total: parseFloat(bid[0]) * parseFloat(bid[1])
-        })).sort((a: Order, b: Order) => b.price - a.price);
-        setBuyOrders(processedBuys);
-      }
-    }
-  }, [bookData]);
-
-
+  const getBuyPriceColor = () => {
+    return colorMode === "red-green" ? "text-green-500" : "text-red-500";
+  };
 
   const renderColorModeButtons = () => {
     return (
-      <div className="flex" style={{ gap: "10px" }}>
+      <div className="flex gap-[8px]">
         {/* 显示买卖盘 */}
         <Tooltip
-          title={t("spot.orderBook.bothOrders")}
+          title={t("spot:spot.orderBook.bothOrders")}
           overlayInnerStyle={{ fontSize: "12px" }}
         >
           <Image
             src={
-              colorMode === 1
+              colorMode === "red-green"
                 ? "/images/exchange/icon_order_hover.png"
                 : "/images/exchange/icon_order.png"
             }
             alt="color-mode"
             width={20}
             height={20}
+            preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode(1)}
+            onClick={() => setColorMode("red-green")}
           />
         </Tooltip>
         {/* 显示买盘 */}
         <Tooltip
-          title={t("spot.orderBook.buyOrders")}
+          title={t("spot:spot.orderBook.buyOrders")}
           overlayInnerStyle={{ fontSize: "12px" }}
         >
           <Image
             src={
-              colorMode === 2
+              colorMode === "green-red"
                 ? "/images/exchange/icon_green_hover.png"
                 : "/images/exchange/icon_green.png"
             }
             alt="color-mode"
             width={20}
             height={20}
+            preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode(2)}
+            onClick={() => setColorMode("green-red")}
           />
         </Tooltip>
         {/* 显示卖盘 */}
         <Tooltip
-          title={t("spot.orderBook.sellOrders")}
+          title={t("spot:spot.orderBook.sellOrders")}
           overlayInnerStyle={{ fontSize: "12px" }}
         >
           <Image
             src={
-              colorMode === 3
+              colorMode === "red-green"
                 ? "/images/exchange/icon_red_hover.png"
                 : "/images/exchange/icon_red.png"
             }
             alt="color-mode"
             width={20}
             height={20}
+            preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode(3)}
+            onClick={() => setColorMode("red-green")}
           />
         </Tooltip>
       </div>
     );
   };
 
-  // 渲染最新成交列表
-  const renderTrades = () => {
-    return (
-      <div className={styles.tradesContainer}>
-        <div>实时成交</div>
-        <div className={styles.labels} style={{ fontSize: "12px" }}>
-          <span>
-            {t("spot.orderBook.price")}
-          </span>
-          <span>
-            {t("spot.orderBook.amount")}
-          </span>
-          <span>{t("spot.orderBook.time")}</span>
+  return (
+    <div className="p-[10px_16px]">
+      <div className="flex flex-col gap-[8px] mb-[10px]">
+        <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+          委托列表 {orderBookData ? "(实时)" : "(模拟)"}
         </div>
-        <div
-          className={styles.tradesList}
-          style={{ height: "450px", overflowY: "auto" }}
-        >
-          {trades.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-color6)' }}>
-              暂无交易数据
-            </div>
-          ) : (
-            trades.map((trade, index) => (
-            <div key={index} className={styles.tradeRow}>
-              <span
-                className={`${styles.tradePrice} ${
-                  trade.type === "buy" ? styles.buyPrice : styles.sellPrice
-                }`}
+        <div className="flex justify-between items-center gap-[8px]">
+          {renderColorModeButtons()}
+          <Select
+            size="small"
+            style={{ width: 60 }}
+            value={precision}
+            onChange={setPrecision}
+            className="w-20"
+          >
+            <Option value={0}>0</Option>
+            <Option value={1}>0.1</Option>
+            <Option value={2}>0.5</Option>
+            <Option value={3}>1</Option>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
+        <div className="flex-1 text-left">价格</div>
+        <div className="flex-1 text-right">数量</div>
+        <div className="flex-1 text-right">总计</div>
+      </div>
+
+      <div className="flex flex-col overflow-hidden">
+        <div className="flex flex-col gap-[9px] overflow-y-auto">
+          {sellOrders.length > 0 ? (
+            sellOrders.map((order, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
               >
-                {trade.price.toFixed(currentPair?.baseCoinScale || 2)}
-              </span>
-              <span className={styles.tradeAmount}>
-                {trade.amount.toFixed(currentPair?.quoteCoinScale || 5)}
-              </span>
-              <span className={styles.tradeTime}>{trade.time}</span>
+                <div className={`flex-1 text-left ${getSellPriceColor()}`}>
+                  {formatNumber(order.price)}
+                </div>
+                <div className="flex-1 text-right">
+                  {formatNumber(order.amount, 3)}
+                </div>
+                <div className="flex-1 text-right">
+                  {formatNumber(order.total, 3)}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+              暂无卖单数据
             </div>
-          ))
+          )}
+        </div>
+
+        <div className="flex justify-between items-center my-[10px]">
+          <div className="text-xl font-semibold text-red-500">50120.5</div>
+          <div className="text-xs text-green-500">+0.12%</div>
+        </div>
+
+        <div className="flex flex-col gap-[9px] overflow-y-auto">
+          {buyOrders.length > 0 ? (
+            buyOrders.map((order, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+              >
+                <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
+                  {formatNumber(order.price)}
+                </div>
+                <div className="flex-1 text-right">
+                  {formatNumber(order.amount, 3)}
+                </div>
+                <div className="flex-1 text-right">
+                  {formatNumber(order.total, 3)}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+              暂无买单数据
+            </div>
           )}
         </div>
       </div>
-    );
-  };
-
-  // 价格精度聚合函数
-  const aggregateOrdersByPriceScale = (orders: Order[], scale: string, type: 'buy' | 'sell' = 'buy') => {
-    const scaleNum = parseFloat(scale);
-    const aggregated = new Map<number, Order>();
-
-    orders.forEach(order => {
-      const aggregatedPrice = Math.floor(order.price / scaleNum) * scaleNum;
-      const existing = aggregated.get(aggregatedPrice);
-      
-      if (existing) {
-        aggregated.set(aggregatedPrice, {
-          price: aggregatedPrice,
-          amount: existing.amount + order.amount,
-          total: existing.total + order.total
-        });
-      } else {
-        aggregated.set(aggregatedPrice, {
-          price: aggregatedPrice,
-          amount: order.amount,
-          total: order.total
-        });
-      }
-    });
-
-    // 买单按价格从高到低排序，卖单按价格从低到高排序
-    const sortedOrders = Array.from(aggregated.values());
-    return type === 'buy' 
-      ? sortedOrders.sort((a, b) => b.price - a.price)
-      : sortedOrders.sort((a, b) => a.price - b.price);
-  };
-
-  const handlePriceClick = (price: number) => {
-    if (priceClickHandler) {
-      priceClickHandler(price);
-    }
-  };
-
-  return (
-    <div className={styles.container}>
-      {/* <div className={styles.tabContainer}> */}
-        {/* <div
-          className={`${styles.tab} ${
-            activeTab === "orderbook" ? styles.activeTab : ""
-          }`}
-          onClick={() => setActiveTab("orderbook")}
-        >
-          {t("spot.orderBook.title")}
-        </div>
-        <div
-          className={`${styles.tab} ${
-            activeTab === "trades" ? styles.activeTab : ""
-          }`}
-          onClick={() => setActiveTab("trades")}
-        >
-          {t("spot.orderBook.latestTrades")}
-        </div>
-      </div> */}
-      <div>委托列表</div>
-
-        <div className={styles.toolbar}>
-          {renderColorModeButtons()}
-
-          <Select 
-            value={priceScale || "0.1"}
-            bordered={false}
-            onChange={(e) => setPriceScale(e)}
-            className={styles.priceScaleSelect}
-            size="small"
-          >
-            <Select.Option value="0.1">0.1</Select.Option>
-            <Select.Option value="0.01">0.01</Select.Option>
-            <Select.Option value="0.001">0.001</Select.Option>
-            <Select.Option value="0.0001">0.0001</Select.Option>
-          </Select>
-        </div>
-
-
-      {/* 根据活动标签显示不同内容 */}
-
-        <>
-          <div className={styles.labels} style={{ fontSize: "12px" }}>
-            <span>
-              {t("spot.orderBook.price")}
-            </span>
-            <span>
-              {t("spot.orderBook.amount")}
-            </span>
-            <span>
-              {t("spot.orderBook.total")}
-            </span>
-          </div>
-
-          {/* 卖单 */}
-          {(colorMode === 1 || colorMode === 3) && (
-            <div className={styles.orderList}>
-              {sellOrders.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-color6)' }}>
-                  暂无卖单数据
-                </div>
-              ) : (
-                aggregateOrdersByPriceScale(sellOrders, priceScale, 'sell').map((order, index) => {
-                const aggregatedSells = aggregateOrdersByPriceScale(sellOrders, priceScale, 'sell');
-                const maxTotal = aggregatedSells.length > 0 ? Math.max(...aggregatedSells.map((o) => o.total)) : 1;
-                const percentWidth = Math.min((order.total / maxTotal) * 100, 100);
-                return (
-                  <div
-                    key={index}
-                    className={`${styles.orderRow} ${styles.sell}`}
-                    style={{ fontSize: "12px" }}
-                  >
-                    <span
-                      className={styles.price}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handlePriceClick(order.price)}
-                    >
-                      {order.price.toFixed(currentPair?.baseCoinScale || 2)}
-                    </span>
-                    <span className={styles.amount}>
-                      {order.amount.toFixed(5)}
-                    </span>
-                    <div className={styles.totalColumn}>
-                      <div
-                        className={styles.background}
-                        style={{
-                          width: `${percentWidth}%`,
-                          transition: "width 0.3s ease-in-out",
-                        }}
-                      />
-                      <span className={styles.total}>
-                        {order.total > 10000
-                          ? `${(order.total / 10000).toFixed(2)}万`
-                          : order.total.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-              )}
-            </div>
-          )}
-
-          {/* 当前价格 */}
-          <div className={styles.currentPrice}>
-            <div className={styles.priceContainer}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span
-                  className={styles.priceValue}
-                  style={{
-                    color:
-                      priceSource === "buy" || priceDirection === "up"
-                        ? "#00b373" // 绿色
-                        : priceSource === "sell" || priceDirection === "down"
-                        ? "#ff5252" // 红色
-                        : "inherit",
-                  }}
-                >
-                  {currentPrice > 0 ? currentPrice.toFixed(currentPair?.baseCoinScale || 2) : '--'}
-                </span>
-                <span
-                  className={styles.priceChange}
-                  style={{
-                    color:
-                      priceDirection === "up"
-                        ? "#00b373"
-                        : priceDirection === "down"
-                        ? "#ff5252"
-                        : "inherit",
-                  }}
-                >
-                  {priceDirection === "up" ? (
-                    <Image
-                      src={"/images/order_book/up.svg"}
-                      width={16}
-                      height={16}
-                      alt="up"
-                      style={{ height: "16px", width: "16px" }}
-                    />
-                  ) : priceDirection === "down" ? (
-                    <Image
-                      src={"/images/order_book/down.svg"}
-                      width={16}
-                      height={16}
-                      alt="down"
-                      style={{ height: "16px", width: "16px" }}
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </span>
-                <span className={styles.priceLabel}>
-                  {currentPrice > 0 ? currentPrice.toLocaleString() : '--'}
-                </span>
-              </div>
-              <span className={styles.priceCny}>
-                ¥ {currentPrice > 0 ? getPairsRate(currentPrice, 'CNY').rate.toFixed(2) : '--'}
-              </span>
-            </div>
-          </div>
-
-          {/* 买单 */}
-          {(colorMode === 1 || colorMode === 2) && (
-            <div className={styles.orderList} style={{ fontSize: "12px" }}>
-              {buyOrders.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-color6)' }}>
-                  暂无买单数据
-                </div>
-              ) : (
-                aggregateOrdersByPriceScale(buyOrders, priceScale, 'buy').map((order, index) => {
-                const aggregatedBuys = aggregateOrdersByPriceScale(buyOrders, priceScale, 'buy');
-                const maxTotal = aggregatedBuys.length > 0 ? Math.max(...aggregatedBuys.map((o) => o.total)) : 1;
-                const percentWidth = Math.min((order.total / maxTotal) * 100, 100);
-                return (
-                  <div
-                    key={index}
-                    className={`${styles.orderRow} ${styles.buy}`}
-                  >
-                    <span
-                      className={styles.price}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handlePriceClick(order.price)}
-                    >
-                      {order.price.toFixed(currentPair?.baseCoinScale || 2)}
-                    </span>
-                    <span className={styles.amount}>
-                      {order.amount.toFixed(5)}
-                    </span>
-                    <div className={styles.totalColumn}>
-                      <div
-                        className={styles.background}
-                        style={{
-                          width: `${percentWidth}%`,
-                          transition: "width 0.3s ease-in-out",
-                        }}
-                      />
-                      <span className={styles.total}>
-                        {order.total > 10000
-                          ? `${(order.total / 10000).toFixed(2)}万`
-                          : order.total.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-              )}
-            </div>
-          )}
-        </>
-
-        {/* 最新成交列表 */}
-        {renderTrades()}
-
     </div>
   );
 };
 
-export default OrderBook;
+// 实时成交组件
+const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
+  tradeData,
+  orderBookData,
+}) => {
+  const { t } = useTranslation(["contract", "spot"]);
+  const [colorMode] = useState<"red-green" | "green-red">("red-green");
+
+  // 处理实时成交数据，暂时使用orderBookData模拟
+  const processTradeData = () => {
+    if (orderBookData?.tick) {
+      const { asks, buys } = orderBookData.tick;
+
+      // 合并买卖单数据作为成交记录
+      const allTrades: TradeItem[] = [];
+
+      if (asks && Array.isArray(asks)) {
+        asks.slice(0, 5).forEach((item: [number, number], index: number) => {
+          const [price, amount] = item;
+          allTrades.push({
+            price,
+            amount,
+            time: new Date(Date.now() - index * 1000).toLocaleTimeString(),
+            side: "sell",
+          });
+        });
+      }
+
+      if (buys && Array.isArray(buys)) {
+        buys.slice(0, 5).forEach((item: [number, number], index: number) => {
+          const [price, amount] = item;
+          allTrades.push({
+            price,
+            amount,
+            time: new Date(
+              Date.now() - (index + 5) * 1000
+            ).toLocaleTimeString(),
+            side: "buy",
+          });
+        });
+      }
+
+      // 按时间排序（最新的在前）
+      return allTrades
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+        .slice(0, 10);
+    }
+
+    return [];
+  };
+
+  const trades = processTradeData();
+
+  const formatNumber = (num: number, decimals: number = 2) => {
+    return num.toFixed(decimals);
+  };
+
+  const getPriceColor = (side: "buy" | "sell") => {
+    if (side === "sell") {
+      return colorMode === "red-green" ? "text-red-500" : "text-green-500";
+    } else {
+      return colorMode === "red-green" ? "text-green-500" : "text-red-500";
+    }
+  };
+
+  return (
+    <div className="p-[10px_16px]">
+      <div className="text-[var(--text-color5)] font-[500] text-[14px] mb-[10px]">
+        实时成交
+      </div>
+
+      <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
+        <div className="flex-1 text-left">价格</div>
+        <div className="flex-1 text-right">数量</div>
+        <div className="flex-1 text-right">时间</div>
+      </div>
+
+      <div className="flex flex-col gap-[9px] overflow-y-auto">
+        {trades.length > 0 ? (
+          trades.map((trade, index) => (
+            <div
+              key={index}
+              className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+            >
+              <div className={`flex-1 text-left ${getPriceColor(trade.side)}`}>
+                {formatNumber(trade.price)}
+              </div>
+              <div className="flex-1 text-right">
+                {formatNumber(trade.amount, 3)}
+              </div>
+              <div className="flex-1 text-right">{trade.time}</div>
+            </div>
+          ))
+        ) : (
+          <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+            暂无成交数据
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export { OrderBookList, RealtimeTrade };
