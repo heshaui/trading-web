@@ -37,6 +37,7 @@ const TradePage = () => {
   const [currentSymbol, setCurrentSymbol] = useState("BTC/USDT 永续");
   const [depthData, setDepthData] = useState<any>(null);
   const [orderBookData, setOrderBookData] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
   // 测试函数：模拟您提供的WebSocket数据格式
   const testOrderBookData = () => {
@@ -168,9 +169,25 @@ const TradePage = () => {
     "1M",
     "1Y",
   ]);
-  // 获取公共数据
-  const publicInfo = appStore.getPublicInfo();
+  
+  // 安全获取公共数据 - 仅在客户端执行
+  const [publicInfo, setPublicInfo] = useState<any>({});
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]);
+  
+  useEffect(() => {
+    setIsClient(true);
+    
+    // 只在客户端执行
+    if (typeof window !== 'undefined') {
+      const info = appStore.getPublicInfo();
+      setPublicInfo(info);
+      
+      if (info.contractList) {
+        setSymbolList(info.contractList);
+      }
+    }
+  }, []);
+  
   useEffect(() => {
     if (publicInfo.contractList) {
       setSymbolList(publicInfo.contractList);
@@ -191,8 +208,15 @@ const TradePage = () => {
   const [chartDisplayType, setChartDisplayType] = useState<number>(1);
 
   const [contractAssets, setContractAssets] = useState<ContractAsset[]>([]);
-
-  const currentContractInfo = appStore.getCurrentContractInfo();
+  const [currentContractInfo, setCurrentContractInfo] = useState<any>({});
+  
+  // 安全获取当前合约信息
+  useEffect(() => {
+    if (isClient && typeof window !== 'undefined') {
+      const contractInfo = appStore.getCurrentContractInfo();
+      setCurrentContractInfo(contractInfo);
+    }
+  }, [isClient]);
   const getContractBalance = async () => {
     try {
       const accountList = await appStore.loadContractAssets();
@@ -216,7 +240,8 @@ const TradePage = () => {
 
 
   const getDepthMapData = async () => {
-    const res = await getDepthMap({ symbol: currentPair?.symbol || "BTCUSDT", contractId: currentContractInfo.id });
+    if (!currentContractInfo.symbol) return;
+    const res = await getDepthMap({ symbol: currentContractInfo.symbol, contractId: currentContractInfo.id });
     console.log('res:', res);
     setDepthData(res);
   };
@@ -224,8 +249,7 @@ const TradePage = () => {
   useEffect(() => {
     getContractBalance();
     getDepthMapData();
-    // 设置测试OrderBook数据
-    testOrderBookData();
+
   }, []);
   // 获取用户合约配置
   useEffect(() => {
@@ -446,6 +470,12 @@ const TradePage = () => {
   const handleChartTypeChange = (e: { key: string }) => {
     setChartDisplayType(Number(e.key));
   };
+  
+  // 如果不是客户端环境，返回加载中状态
+  if (!isClient) {
+    return <div>Loading...</div>;
+  }
+  
   return (
     <div className={styles.tradePage}>
       {/* 主要内容区域 - 三栏布局 */}
@@ -718,7 +748,7 @@ const TradePage = () => {
         {/* 中间 - 订单簿 */}
         <div className={styles.centerPanel}>
           <div className={styles.orderBookContainer}>
-            <OrderBook orderBookData={orderBookData} />
+            <OrderBook bookData={orderBookData} />
           </div>
         </div>
 

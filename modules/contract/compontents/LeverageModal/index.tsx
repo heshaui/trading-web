@@ -63,6 +63,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       open={visible}
       onCancel={onClose}
       footer={null}
+      width={420}
       className={styles.leverageModal}
       closeIcon={<Iconify icon="mdi:close" className={styles.closeIcon} />}
     >
@@ -117,6 +118,8 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         {/* 确认按钮 */}
         <Button
           type="primary"
+          size="large"
+          shape='round'
           onClick={handleConfirm}
           className={styles.confirmButton}
           block

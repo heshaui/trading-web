@@ -194,46 +194,33 @@
 
 .positionLimit {
   display: flex;
+  height: 50px;
   justify-content: space-between;
+  border-radius: 10px;
+  border: 1px solid #F5F5F5;
+  padding: 0 16px;
   align-items: center;
-  padding: 20px 24px;
-  background: #fafafa;
-  border-radius: 12px;
   margin-bottom: 32px;
-  border: 1px solid #f0f0f0;
 }
 
 .limitLabel {
-  font-size: 15px;
+  font-size: 14px;
   color: #666666;
 }
 
 .limitValue {
-  font-size: 16px;
-  color: #1a1a1a;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .confirmButton {
-  background: #FF6B35;
-  border-color: #FF6B35;
-  border-radius: 28px;
-  height: 56px;
-  font-size: 16px;
-  font-weight: 600;
+
+
+  height: 50px;
   margin-top: 0;
-  transition: all 0.3s;
+
 }
 
-.confirmButton:hover {
-  background: #e55a2b;
-  border-color: #e55a2b;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-}
 
-.confirmButton:focus {
-  background: #e55a2b;
-  border-color: #e55a2b;
-}
+
 

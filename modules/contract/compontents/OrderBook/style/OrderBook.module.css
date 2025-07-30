@@ -1,127 +1,426 @@
-.orderBook {
-  border-radius: 8px;
-  height: 100%;
+/* styles/OrderBook.module.css */
+.container {
+  margin: 0 auto;
+  background-color: var(--background8);
+  border-radius: 8px 0 0 8px;
+}
+
+.tabContainer {
   display: flex;
-  flex-direction: column;
-}
-.orderBookContent{
-  padding: 10px 16px;
+  border-bottom: 1px solid var(--background16);
+  background-color: var(--background9);
 }
 
-.orderBookContent:not(:last-child){  
-
-  border-bottom: 4px solid #F5F5F5;
+.tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-color6);
+  transition: color 0.2s ease;
+  border-bottom: 3px solid transparent;
 }
 
-.title {
-  font-size: 16px;
+.tab:hover {
+  color: var(--text-color5);
+}
+
+.activeTab {
+  color: var(--text-color5);
   font-weight: 600;
-  color: #333;
+  border-bottom: 3px solid var(--text-color5);
 }
 
-.controls {
+.toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--background16);
+  background-color: var(--background9);
 }
 
-.colorModeBtn {
-  padding: 4px 8px;
-  height: 28px;
-  border-radius: 4px;
-
-  font-size: 12px;
+.priceScaleSelect {
+  min-width: 60px;
 }
 
-.precisionSelect {
-  width: 80px;
+.priceScaleSelect .ant-select-selector {
+  border: 1px solid var(--background16) !important;
+  background-color: var(--background9) !important;
+  color: var(--text-color6) !important;
+  font-size: 12px !important;
 }
 
-.tableHeader {
+.priceScaleSelect .ant-select-arrow {
+  color: var(--text-color6) !important;
+}
+
+.colorModes {
   display: flex;
-  padding: 8px 0;
-
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
+  gap: 12px;
 }
 
-.priceColumn {
-  flex: 1;
-  text-align: left;
-}
-
-.amountColumn {
-  flex: 1;
-  text-align: right;
-}
-
-.totalColumn {
-  flex: 1;
-  text-align: right;
-}
-
-.content {
-
-  display: flex;
-  flex-direction: column;
+.colorMode {
+  width: 25px;
+  height: 30px;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  cursor: pointer;
   overflow: hidden;
 }
 
-.sellSection {
-
-  display: flex;
-  flex-direction: column-reverse;
-  overflow-y: auto;
+.active {
+  border-color: #007bff;
 }
 
-.buySection {
+.colorTop {
+  height: 50%;
+  width: 100%;
+}
 
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+.colorBottom {
+  height: 50%;
+  width: 100%;
+}
+
+.dropdown {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  background-color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dropdown option {
+  padding: 5px;
+}
+
+.labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--background16);
+  background-color: var(--background9);
+}
+.labels span{
+  color: var(--text-color6);
+  font-weight: 500;
+}
+
+.sortIcon {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.orderList {
+  width: 100%;
 }
 
 .orderRow {
-  display: flex;
-  padding: 4px 0;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 24px;
+  line-height: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease;
 }
 
-/* .orderRow:hover {
-  background-color: #f5f5f5;
-} */
-
-.sellPrice {
-  color: #FF4D4F;
+.orderRow:hover {
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
-.buyPrice {
-  color: #00C788;
+.price {
+  text-align: left;
+  padding-left: 15px;
+  font-weight: 500;
+}
+
+.amount {
+  text-align: center;
+  font-weight: 400;
+}
+
+.totalColumn {
+  position: relative;
+  height: 100%;
+}
+
+.total {
+  text-align: right;
+  padding-right: 15px;
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-weight: 400;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 0;
+}
+
+.sell .background {
+  background-color: rgba(255, 99, 71, 0.1);
+}
+
+.buy .background {
+  background-color: rgba(0, 199, 136, 0.1);
+}
+
+.sell .price {
+  color: #ff6347;
+}
+
+.buy .price {
+  color: #00c788;
 }
 
 .currentPrice {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
 
-  margin: 8px 0;
+
+  height: 40px;
+  margin: 2px 0 2px 10px;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .priceValue {
-  font-size: 20px;
-  font-weight: 600;
-  color: #FF4D4F;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff6347;
+  letter-spacing: 0.5px;
 }
 
 .priceChange {
-  font-size: 12px;
-  color: #00C788;
+  color: #ff6347;
+  font-size: 16px;
+  margin-left: 5px;
 }
-.headerTrade{
-  padding: 0 0 10px 0;
 
+.priceCny {
+  color: var(--text-color6);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.priceLabel {
+  background-color: rgba(255, 136, 85, 0.2);
+  color: #ff8855;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ratio {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.ratioBar {
+  display: flex;
+  flex: 1;
+  height: 40px;
+  position: relative;
+  overflow: visible;
+}
+
+.buyRatio {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: rgba(0, 199, 136, 0.15);
+  height: 100%;
+  transition: width 0.3s ease;
+  min-width: 50px;
+  padding: 0 15px;
+  position: relative;
+}
+
+.buyRatio::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  background-color: rgba(0, 199, 136, 0.15);
+  transform: skewX(-20deg);
+  z-index: 1;
+}
+
+.sellRatio {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: rgba(255, 99, 71, 0.15);
+  height: 100%;
+  transition: width 0.3s ease;
+  min-width: 50px;
+  padding: 0 15px;
+  position: relative;
+}
+
+.sellRatio::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  background-color: rgba(255, 99, 71, 0.15);
+  transform: skewX(-20deg);
+  z-index: 1;
+}
+
+.buyBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 30px;
+  height: 30px;
+  color: #00c788;
+  border: 2px solid #00c788;
+  border-radius: 8px;
+  background-color: var(--background9);
+  font-weight: bold;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.sellBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 30px;
+  height: 30px;
+  color: #ff6347;
+  border: 2px solid #ff6347;
+  border-radius: 8px;
+  background-color: var(--background9);
+  font-weight: bold;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.buyPercent {
+  color: #00c788;
+  font-weight: bold;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.sellPercent {
+  color: #ff6347;
+  font-weight: bold;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+/* 订单行的进入和退出动画 */
+.orderRow {
+  animation: fadeIn 0.3s ease-in-out;
+  transition: all 0.3s ease;
+}
+
+/* 当前价格的动画效果 */
+.priceValue {
+  transition: color 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tradesContainer {
+  width: 100%;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.tradesList {
+  height: 450px;
+  overflow-y: auto;
+}
+
+.tradeRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 15px;
+  font-size: 14px;
+}
+
+.tradePrice {
+  flex: 1;
+  text-align: left;
+}
+
+.buyPrice {
+  color: #00c788;
+}
+
+.sellPrice {
+  color: #ff6347;
+}
+
+.tradeAmount {
+  flex: 1;
+  text-align: center;
+}
+
+.tradeTime {
+  flex: 1;
+  text-align: right;
+}
+
+.background {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  opacity: 0.2;
+  z-index: 0;
+  transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.buy .background {
+  background-color: var(--buy-color, #00c788);
+}
+
+.sell .background {
+  background-color: var(--sell-color, #ff6347);
 }
