@@ -289,7 +289,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                         : "1px solid var(--border-color4)",
                     cursor: "pointer",
                   }}
-                  className={`rounded-[10px]  border py-[5px] px-[14px] cursor-pointer bg-[var(--background12)] ${
+                  className={`rounded-[10px]  border p-[6px] cursor-pointer bg-[var(--background12)] ${
                     productInfo?.id === item.id
                       ? "border-[var(--theme-color)]"
                       : "border-[var(--border-color4)]"
@@ -300,7 +300,7 @@ const Subscription: React.FC<SubscriptionProps> = ({
                       ? t("common.current")
                       : `${item.term} ${t("common.day")}`}
                   </div>
-                  <div className="text-[#00C788]">
+                  <div className="text-[#00C788] text-[12px]">
                     {item.type === FinancialType.FIXED ? (
                       <span>{item.maxAnnualInterestRate}%</span>
                     ) : (
