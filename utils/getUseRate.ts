@@ -25,8 +25,8 @@ export const getCoinRate = (
     // 如果是 USDT，根据计价币种决定是否需要汇率转换
     if (symbolName&&symbolName?.toUpperCase() === "USDT") {
       return {
-        coinRate: Number(priceNum) * Number(usdtRate) || 0,
-        price: Number(usdtRate),
+        coinRate: Number(priceNum)  || 0,
+        price:1,
       };
     }
 
