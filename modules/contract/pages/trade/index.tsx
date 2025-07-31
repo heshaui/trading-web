@@ -226,6 +226,7 @@ const TradePage = () => {
 
   // 获取特定币种的资产信息
   const getAssetBySymbol = (symbol: string): ContractAsset | undefined => {
+    if (!contractAssets) return;
     return contractAssets.find((asset) => asset.symbol === symbol);
   };
 
@@ -678,7 +679,6 @@ const TradePage = () => {
                   </Dropdown>
                   <Tooltip
                     title={t("spot:spot.exchange.technicalIndicators")}
-                    overlayInnerStyle={{ fontSize: "12px" }}
                   >
                     <Image
                       src="/images/exchange/icon_chart.png"
@@ -694,7 +694,6 @@ const TradePage = () => {
                   </Tooltip>
                   <Tooltip
                     title={t("spot:spot.exchange.resetChart")}
-                    overlayInnerStyle={{ fontSize: "12px" }}
                   >
                     <Image
                       src="/images/exchange/icon_delete.png"
@@ -707,11 +706,10 @@ const TradePage = () => {
                     />
                   </Tooltip>
                   {/* <Tooltip title="图表截图">
-                                            <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
-                                        </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
+                        <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
+                      </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
                   <Tooltip
                     title={t("spot:spot.exchange.volumeDistribution")}
-                    overlayInnerStyle={{ fontSize: "12px" }}
                   >
                     <Image
                       src="/images/exchange/icon_value.png"
@@ -752,7 +750,6 @@ const TradePage = () => {
 
                 <Tooltip
                   title={t("spot:spot.exchange.fullscreen")}
-                  overlayInnerStyle={{ fontSize: "12px" }}
                 >
                   <Button
                     type="text"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Select, Tooltip, Image } from "antd";
+import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 
 const { Option } = Select;
@@ -125,7 +125,6 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         {/* 显示买卖盘 */}
         <Tooltip
           title={t("spot:spot.orderBook.bothOrders")}
-          overlayInnerStyle={{ fontSize: "12px" }}
         >
           <Image
             src={
@@ -144,7 +143,6 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         {/* 显示买盘 */}
         <Tooltip
           title={t("spot:spot.orderBook.buyOrders")}
-          overlayInnerStyle={{ fontSize: "12px" }}
         >
           <Image
             src={

@@ -68,7 +68,8 @@ export async function request<T>(
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || '请求失败');
+      // throw new Error(data.message || '请求失败');
+      console.log(data.message || '请求失败');
     }
 
     // 检查响应码是否为 10005
