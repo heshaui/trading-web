@@ -7,6 +7,7 @@ import { Tooltip, Select } from "antd";
 import { useTranslation } from "next-i18next";
 import { add, cut, nul, roundDown } from "@/utils/index";
 import { getPairsRate } from "@/utils/getUseRate";
+import { Tabs } from "antd";
 // 定义订单类型
 interface Order {
   price: number;
@@ -61,7 +62,7 @@ const OrderBook = ({
   }, [currentPair]);
 
   useEffect(() => {
-    
+
     // 直接使用WebSocket推送的完整30档位数据
     if (bookData && (bookData.asks || bookData.bids)) {
       // 处理卖单数据 - 直接使用完整的asks数据
@@ -75,7 +76,7 @@ const OrderBook = ({
             return { price, amount, total };
           })
 
-          // .sort((a: Order, b: Order) => b.price - a.price); // 卖单按价格降序排列
+        // .sort((a: Order, b: Order) => b.price - a.price); // 卖单按价格降序排列
 
         // 根据显示模式限制显示数量
         const maxSellOrders = colorMode === 1 ? 10 : 20;
@@ -92,7 +93,7 @@ const OrderBook = ({
             const total = nul(price, amount);
             return { price, amount, total };
           })
-          // .sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
+        // .sort((a: Order, b: Order) => b.price - a.price); // 买单按价格降序排列
 
         // 根据显示模式限制显示数量
         const maxBuyOrders = colorMode === 1 ? 10 : 20;
@@ -103,7 +104,7 @@ const OrderBook = ({
       if (bookData.asks?.length > 0 && bookData.bids?.length > 0) {
         const topAskPrice = Number(bookData.asks[0][0]);
         const topBidPrice = Number(bookData.bids[0][0]);
-        
+
         // 计算买卖比例
         const totalSellAmount = bookData.asks.reduce(
           (sum: number, item: [number, number]) => sum + Number(item[1]),
@@ -119,7 +120,7 @@ const OrderBook = ({
           setBuyRatio(Number(((totalBuyAmount / total) * 100).toFixed(2)));
           setSellRatio(Number(((totalSellAmount / total) * 100).toFixed(2)));
         }
-      } 
+      }
     }
   }, [bookData, colorMode]); // 将sellOrders和buyOrders从依赖数组中排除，以避免潜在的循环更新
   // 注意：这里故意不将sellOrders和buyOrders添加到依赖数组中，因为每次更新这些状态会触发新的effect执行，造成无限循环
@@ -196,7 +197,7 @@ const OrderBook = ({
         setSellRatio(Number(newSellRatio.toFixed(2)));
       }
     }
-  
+
   }, [orderData]); // 保持正确的依赖项
 
   // 使用klineData的收盘价更新currentPrice
@@ -303,9 +304,8 @@ const OrderBook = ({
           {trades.map((trade, index) => (
             <div key={index} className={styles.tradeRow}>
               <span
-                className={`${styles.tradePrice} ${
-                  trade.type === "buy" ? styles.buyPrice : styles.sellPrice
-                }`}
+                className={`${styles.tradePrice} ${trade.type === "buy" ? styles.buyPrice : styles.sellPrice
+                  }`}
               >
                 {trade.price.toFixed(currentPair?.baseCoinScale || 1)}
               </span>
@@ -329,22 +329,39 @@ const OrderBook = ({
   return (
     <div className={styles.container}>
       <div className={styles.tabContainer}>
-        <div
-          className={`${styles.tab} ${
-            activeTab === "orderbook" ? styles.activeTab : ""
-          }`}
+        <Tabs items={[
+          {
+            key: 'orderbook',
+            label: t("spot.orderBook.title"),
+          },
+          {
+            key: 'trades',
+            label: t("spot.orderBook.latestTrades"),
+          }
+        ]}
+          className="custom-tabs2"
+          destroyInactiveTabPane={true}
+          defaultActiveKey="orderbook"
+          indicator={{
+            size: (origin) => origin - 5,
+            align: 'center'
+          }}
+          onChange={(key) => setActiveTab(key as string)}
+        />
+        {/* <div
+          className={`${styles.tab} ${activeTab === "orderbook" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("orderbook")}
         >
           {t("spot.orderBook.title")}
         </div>
         <div
-          className={`${styles.tab} ${
-            activeTab === "trades" ? styles.activeTab : ""
-          }`}
+          className={`${styles.tab} ${activeTab === "trades" ? styles.activeTab : ""
+            }`}
           onClick={() => setActiveTab("trades")}
         >
           {t("spot.orderBook.latestTrades")}
-        </div>
+        </div> */}
       </div>
 
       {activeTab === "orderbook" && (
@@ -385,7 +402,7 @@ const OrderBook = ({
               {sellOrders.map((order, index) => {
                 const percentWidth = Math.min(
                   (order.total / Math.max(...sellOrders.map((o) => o.total))) *
-                    100,
+                  100,
                   100
                 );
                 return (
@@ -434,8 +451,8 @@ const OrderBook = ({
                     priceSource === "buy" || priceDirection === "up"
                       ? "#00b373" // 绿色
                       : priceSource === "sell" || priceDirection === "down"
-                      ? "#ff5252" // 红色
-                      : "inherit",
+                        ? "#ff5252" // 红色
+                        : "inherit",
                 }}
               >
                 {currentPrice.toFixed(currentPair?.baseCoinScale || 1)}
@@ -447,8 +464,8 @@ const OrderBook = ({
                     priceDirection === "up"
                       ? "#00b373"
                       : priceDirection === "down"
-                      ? "#ff5252"
-                      : "inherit",
+                        ? "#ff5252"
+                        : "inherit",
                 }}
               >
                 {priceDirection === "up" ? (
@@ -484,7 +501,7 @@ const OrderBook = ({
               {buyOrders.map((order, index) => {
                 const percentWidth = Math.min(
                   (order.total / Math.max(...buyOrders.map((o) => o.total))) *
-                    100,
+                  100,
                   100
                 );
                 return (

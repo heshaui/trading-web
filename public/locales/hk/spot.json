@@ -253,6 +253,30 @@
             "feeDetails": "挂单{{maker}}% / 吃单{{taker}}%",
             "kline": "K线",
             "depth": "深度图"
+        },
+        "coinInfo":{
+            "officialLink": "官方链接",
+            "website": "网站",
+            "official": "官网",
+            "whitepaper": "白皮书",
+            "blockchain": "区块浏览器",
+            "baseData": "基础数据由第三方机构提供，仅供参考。此信息以“原样”呈现，不构成任何形式的陈述或保证。",
+            "introduction": "介绍",
+            "expand": "展开",
+            "collapse": "收起",
+            "rank": "排行",
+            "marketCap": "市值",
+            "marketShare": "市场占有率",
+            "num": "流通数量",
+            "historyHigh": "历史最高价",
+            "historyLow": "历史最低价",
+            "issueDate": "发行日期",
+            "chain": "所属公链",
+            "firstPrice": "首次发行价",
+            "maxSupply": "最大供应量",
+            "totalSupply": "总供应",
+            "circulateRate": "流通率"
         }
+        
     }
 }

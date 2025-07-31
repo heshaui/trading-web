@@ -130,7 +130,7 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
             <Dropdown
               menu={{
                 items: processedItems as MenuProps["items"],
-                triggerSubMenuAction: "hover",
+                triggerSubMenuAction: "click",
                 onClick: handleMenuClick,
               }}
               placement="bottomLeft"
@@ -148,7 +148,7 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
         <Dropdown
           menu={{
             items: processedItems as MenuProps["items"],
-            triggerSubMenuAction: "hover",
+            triggerSubMenuAction: "click",
             onClick: handleMenuClick,
           }}
           key={menuList.key}

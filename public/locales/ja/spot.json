@@ -253,6 +253,29 @@
             "feeDetails": "メーカー{{maker}}% / テイカー{{taker}}%",
             "kline": "K線",
             "depth": "板深度"
+        },
+        "coinInfo": {
+            "officialLink": "公式リンク",
+            "website": "ウェブサイト",
+            "official": "公式サイト",
+            "whitepaper": "ホワイトペーパー",
+            "blockchain": "ブロックチェーンエクスプローラー",
+            "baseData": "基本データは第三者機関によって提供され、参考目的のみです。この情報は「現状のまま」で提示され、いかなる形の表明や保証も構成しません。",
+            "introduction": "概要",
+            "expand": "展開",
+            "collapse": "折りたたみ",
+            "rank": "ランキング",
+            "marketCap": "時価総額",
+            "marketShare": "市場シェア",
+            "num": "流通量",
+            "historyHigh": "史上最高値",
+            "historyLow": "史上最安値",
+            "issueDate": "発行日",
+            "chain": "所属チェーン",
+            "firstPrice": "初期発行価格",
+            "maxSupply": "最大供給量",
+            "totalSupply": "総供給量",
+            "circulateRate": "流通率"
         }
     }
 }
