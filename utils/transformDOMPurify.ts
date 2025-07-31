@@ -28,7 +28,19 @@ export const transformDOMPurify = (html: string) => {
             'aside',
             'footer',
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-        ALLOWED_ATTR: ['style', 'class', 'href', 'target'],
+        ALLOWED_ATTR: [
+            'style',
+            'class',
+            'href',
+            'target',
+            'id',
+            'name',
+            'data-id',
+            'data-name',
+            'data-type',
+            'data-value',
+            'data-key',
+            'click'],
         ALLOW_DATA_ATTR: false
     };
     // 将 JSX 风格的样式对象转换为标准 HTML style 字符串
@@ -48,6 +60,6 @@ export const transformDOMPurify = (html: string) => {
     );
 
     // 使用 DOMPurify 净化 HTML
-    htmlString = DOMPurify.sanitize(htmlString,purifyConfig);
+    htmlString = DOMPurify.sanitize(htmlString, purifyConfig);
     return htmlString;
 };

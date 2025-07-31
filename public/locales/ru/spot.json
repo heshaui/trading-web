@@ -275,7 +275,9 @@
             "firstPrice": "Initial Price",
             "maxSupply": "Max Supply",
             "totalSupply": "Total Supply",
-            "circulateRate": "Circulation Rate"
+            "circulateRate": "Circulation Rate",
+            "hotRank": "Popularity Rank",
+            "marketRank": "Market Cap Rank"
         }
     }
 }

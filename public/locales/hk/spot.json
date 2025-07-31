@@ -275,7 +275,9 @@
             "firstPrice": "首次发行价",
             "maxSupply": "最大供应量",
             "totalSupply": "总供应",
-            "circulateRate": "流通率"
+            "circulateRate": "流通率",
+            "hotRank": "热度排行",
+            "marketRank": "市值排行"
         }
         
     }

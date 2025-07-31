@@ -275,7 +275,9 @@
             "firstPrice": "初期発行価格",
             "maxSupply": "最大供給量",
             "totalSupply": "総供給量",
-            "circulateRate": "流通率"
+            "circulateRate": "流通率",
+            "hotRank": "人気ランキング",
+            "marketRank": "時価総額ランキング"
         }
     }
 }

@@ -117,7 +117,7 @@ const LanguageMenu = observer(() => {
     }}
     content={
       <div className="flex-x">
-        <div className="flex-1 border-r border-solid border-[var(--border-color)] pr-3 py-3">
+        <div className="flex-1 border-r border-solid border-[var(--border-color7)] pr-3 py-3">
           <h6 style={{ color: "var(--text-color5)", marginBottom: "8px" }} className="ml-3">
             {t("header.language")}
           </h6>

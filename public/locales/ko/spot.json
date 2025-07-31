@@ -275,7 +275,9 @@
             "firstPrice": "최초 발행가",
             "maxSupply": "최대 공급량",
             "totalSupply": "총 공급량",
-            "circulateRate": "유통률"
+            "circulateRate": "유통률",
+            "hotRank": "인기 순위",
+            "marketRank": "시가총액 순위"
         }
     }
 }

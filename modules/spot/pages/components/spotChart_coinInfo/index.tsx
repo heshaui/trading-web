@@ -4,22 +4,8 @@ import { Image } from "antd";
 import { Iconify } from "@/components/icon";
 import { DownOutlined } from "@ant-design/icons";
 import { useTranslation } from "next-i18next";
+import { infoDataType } from "@/type/spot/coionInfo";
 
-
-interface infoDataType {
-    rank: string,
-    marketCap: string,
-    marketShare: string,
-    num: string,
-    historyHigh: string,
-    historyLow: string,
-    issueDate: string,
-    chain: string,
-    firstPrice: string,
-    maxSupply: string,
-    totalSupply: string,
-    circulateRate: string,
-}
 type Props = {
     className?: string;
 }
@@ -29,52 +15,56 @@ const SpotChartCoinInfo = ({ className }: Props) => {
     const { t } = useTranslation("spot");
     const infoDataList = [
         {
-            label:t('spot.coinInfo.rank'),// "排行",
-            key: "rank"
+            label:t('spot.coinInfo.marketRank'),// "市值排行",
+            key: "marketCapRan"
+        },
+        {
+            label:t('spot.coinInfo.hotRank'),// "热度排行",
+            key: "hotRank"
         },
         {
             label:t('spot.coinInfo.marketCap'),// "市值",
             key: "marketCap"
         },
-        {
-            label:t('spot.coinInfo.marketShare'),// "市场占有率",
-            key: "marketShare"
-        },
+        // {
+        //     label:t('spot.coinInfo.marketShare'),// "市场占有率",
+        //     key: "flowTotal"
+        // },
         {
             label:t('spot.coinInfo.num'),// "流通数量",
-            key: "num"
+            key: "flowTotal"
         },
         {
             label: t('spot.coinInfo.historyHigh'),//"历史最高价",
-            key: "historyHigh"
+            key: "hisHighPrice"
         },
         {
             label: t('spot.coinInfo.historyLow'),//"历史最低价",
-            key: "historyLow"
+            key: "hisLowPrice"
         },
         {
             label: t('spot.coinInfo.issueDate'),//"发行日期",
-            key: "issueDate"
+            key: "issuingDate"
         },
         {
             label: t('spot.coinInfo.chain'),//"所属公链",
-            key: "chain"
+            key: "pubChain"
         },
         {
             label: t('spot.coinInfo.firstPrice'),//"首次发行价",
-            key: "firstPrice"
+            key: "initialPrice"
         },
         {
             label: t('spot.coinInfo.maxSupply'),//"最大供应量",
-            key: "maxSupply"
+            key: "maxSup"
         },
-        {
-            label: t('spot.coinInfo.totalSupply'),//"总供应",
-            key: "totalSupply"
-        },
+        // {
+        //     label: t('spot.coinInfo.totalSupply'),//"总供应",
+        //     key: "flowTotal"
+        // },
         {
             label: t('spot.coinInfo.circulateRate'),//"流通率",
-            key: "circulateRate"
+            key: "selNumPer"
         },
     ];
 
@@ -101,7 +91,15 @@ const SpotChartCoinInfo = ({ className }: Props) => {
                    {infoDataList.map((item, index) => (
                     <li className="flex-x align-center justify-between mb-2_5" key={`info_${index}`}>
                         <div className={styles.tip_color}>{item.label}</div>
-                        <div className={styles.title_color}>{infoData[item.key as keyof infoDataType] || '0'}</div>
+                        <div className={styles.title_color}>
+                            {(() => {
+                                const value = infoData[item.key as keyof infoDataType];
+                                if (typeof value === 'string' || typeof value === 'number') {
+                                    return value || '--';
+                                }
+                                return '--';
+                            })()}
+                        </div>
                     </li>
                    ))}
 
@@ -150,9 +148,14 @@ const SpotChartCoinInfo = ({ className }: Props) => {
             </p>
             <div className={`${styles.tip_color} mt-1`}>
                 <div className={isExpanded ? '' : styles.textEllipsis}>
-                    比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。 BTC可以安全,
+                    {/* 比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。 BTC可以安全,
                     可验证和不变的方式进行电子现比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。
-                    BTC可以安全, 可验证和不变的方式进行电子交易，无需通过第三方中介。这种数字货币使用密码学原理来确保交易安全，并控制新单位的创建。
+                    BTC可以安全, 可验证和不变的方式进行电子交易，无需通过第三方中介。这种数字货币使用密码学原理来确保交易安全，并控制新单位的创建。 */}
+                    {infoData.introduce||'--'}
+                    <div className={` mt-1`}>
+                        {/* 叙事摘要-带样式的文本 */}
+                        {infoData.narrativeSummary||''}
+                    </div>
                 </div>
                 <button
                     className={`${styles.title_color} font-12 mt-1 cursor-pointer`}
