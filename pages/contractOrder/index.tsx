@@ -1,5 +1,5 @@
 import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { DatePickerTheme, SelectTheme, TableTheme, TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { ConfigProvider, Tabs } from "antd";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -11,7 +11,6 @@ import PlanCommission from "./components/PlanCommission";
 import HistoryCommission from "./components/HistoryCommission";
 import HistoryPlanCommission from "./components/HistoryPlanCommission";
 import HistoryDeal from "./components/HistoryDeal";
-import styles from "../../styles/components/Financial.module.css";
 
 const ContractOrder = () => {
   const { t } = useTranslation(["common"]);
@@ -55,9 +54,19 @@ const ContractOrder = () => {
   }, []);
 
   if (!isClient) return null; // SSR 阶段不渲染
-  
+
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider
+      theme={{
+        components: {
+          Tabs: TabsTheme,
+          Table: TableTheme,
+          Select: SelectTheme,
+          DatePicker: DatePickerTheme,
+        },
+        token: TokenTheme,
+      }}
+    >
       <div className="flex flex-col h-full">
         {/* title */}
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
@@ -66,7 +75,6 @@ const ContractOrder = () => {
         {/* tabs */}
         <div className="bg-[var(--btncolor7)] rounded-[10px] flex-1">
           <Tabs
-            className={styles.tabs}
             items={items}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
           />

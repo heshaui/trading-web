@@ -19,7 +19,7 @@ import {
   coinSelectType,
   GiftDataType,
 } from "@/type/assets/billDetails/table";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { SelectTheme, TableTheme, TokenTheme } from "@/theme/publicThemeConfig";
 
 interface DataType {
   id: number;
@@ -166,7 +166,15 @@ const NumberToken = () => {
 
   return (
     <>
-      <ConfigProvider theme={financialThemeConfig}>
+      <ConfigProvider
+        theme={{
+          components: {
+            Select: SelectTheme,
+            Table: TableTheme,
+          },
+          token: TokenTheme,
+        }}
+      >
         <div>
           <div
             className={`${styles.table_header} w-full flex align-center p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]`}

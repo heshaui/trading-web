@@ -62,8 +62,6 @@ const ScrollableContainer: React.FC<ScrollableContainerProps> = ({
     }
   };
 
-  const itemWidthPercent = 100 / itemsPerView;
-
   return (
     <div className={`relative ${className} p-[20px]`}>
       <div

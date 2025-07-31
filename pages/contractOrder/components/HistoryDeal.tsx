@@ -1,5 +1,5 @@
 import { Select, Table, DatePicker, Form, Flex } from "antd";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import dayjs from "dayjs";
 import { Iconify } from "@/components/icon";
 import { useTranslation } from "react-i18next";

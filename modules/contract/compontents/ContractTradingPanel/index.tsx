@@ -476,7 +476,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               onChange={(e) => setEnableTPSL(e.target.checked)}
               className={styles.tpslSwitch}
             />
-             <span className={styles.tpslLabel}>止盈止损</span> 
+            <span className={styles.tpslLabel}>止盈止损</span> 
           </div> 2027-07-29 zyj暂时注释 */}
 
           {/* 止盈止损输入框 */}

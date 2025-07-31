@@ -1,5 +1,5 @@
 import { Select, Table, DatePicker, Form, Flex } from "antd";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import { useTranslation } from "react-i18next";
 import { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
