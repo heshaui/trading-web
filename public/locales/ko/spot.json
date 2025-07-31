@@ -253,6 +253,29 @@
             "feeDetails": "지정가 {{maker}}% / 시장가 {{taker}}%",
             "kline": "캔들 차트",
             "depth": "호가 깊이 차트"
+        },
+        "coinInfo": {
+            "officialLink": "공식 링크",
+            "website": "웹사이트",
+            "official": "공식 사이트",
+            "whitepaper": "백서",
+            "blockchain": "블록체인 탐색기",
+            "baseData": "기본 데이터는 제3자 기관에서 제공하며 참고용입니다. 이 정보는 '있는 그대로' 제시되며 어떠한 형태의 진술이나 보증도 구성하지 않습니다.",
+            "introduction": "소개",
+            "expand": "펼치기",
+            "collapse": "접기",
+            "rank": "순위",
+            "marketCap": "시가총액",
+            "marketShare": "시장 점유율",
+            "num": "유통량",
+            "historyHigh": "사상 최고가",
+            "historyLow": "사상 최저가",
+            "issueDate": "발행일",
+            "chain": "소속 블록체인",
+            "firstPrice": "최초 발행가",
+            "maxSupply": "최대 공급량",
+            "totalSupply": "총 공급량",
+            "circulateRate": "유통률"
         }
     }
 }

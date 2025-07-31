@@ -707,3 +707,8 @@
 /* .ant-modal-content{
   padding: 10px 0 15px 0 !important;
 } */
+ .headerMenu-Popover .ant-popover-inner{
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    background-color: var(--background5) !important;
+ }

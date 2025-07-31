@@ -26,63 +26,69 @@ type Props = {
 const SpotChartCoinInfo = ({ className }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [infoData, setInfoData] = useState<infoDataType>({} as infoDataType);
-    const { t } = useTranslation("assets");
+    const { t } = useTranslation("spot");
     const infoDataList = [
         {
-            label: "排行",
+            label:t('spot.coinInfo.rank'),// "排行",
             key: "rank"
         },
         {
-            label: "市值",
+            label:t('spot.coinInfo.marketCap'),// "市值",
             key: "marketCap"
         },
         {
-            label: "市场占有率",
+            label:t('spot.coinInfo.marketShare'),// "市场占有率",
             key: "marketShare"
         },
         {
-            label: "流通数量",
+            label:t('spot.coinInfo.num'),// "流通数量",
             key: "num"
         },
         {
-            label: "历史最高价",
+            label: t('spot.coinInfo.historyHigh'),//"历史最高价",
             key: "historyHigh"
         },
         {
-            label: "历史最低价",
+            label: t('spot.coinInfo.historyLow'),//"历史最低价",
             key: "historyLow"
         },
         {
-            label: "发行日期",
+            label: t('spot.coinInfo.issueDate'),//"发行日期",
             key: "issueDate"
         },
         {
-            label: "所属公链",
+            label: t('spot.coinInfo.chain'),//"所属公链",
             key: "chain"
         },
         {
-            label: "首次发行价",
+            label: t('spot.coinInfo.firstPrice'),//"首次发行价",
             key: "firstPrice"
         },
         {
-            label: "最大供应量",
+            label: t('spot.coinInfo.maxSupply'),//"最大供应量",
             key: "maxSupply"
         },
         {
-            label: "总供应",
+            label: t('spot.coinInfo.totalSupply'),//"总供应",
             key: "totalSupply"
         },
         {
-            label: "流通率",
+            label: t('spot.coinInfo.circulateRate'),//"流通率",
             key: "circulateRate"
         },
     ];
 
     return <div className={`${styles.container} ${className}`}>
-        <div className="flex-x">
+        <div 
+            className={`flex-x overflow-y-auto`} 
+            id="coinInfo-baseData"
+            style={{ display: isExpanded ? 'none' : 'flex' }}
+        >
             <div className="flex-1 mr-10">
                 <div className="w-full flex-x align-center">
-                    <Image src="/images/exchange/icon_btc.png" alt="btc" width={20} height={20} />
+                    <Image src="/images/exchange/icon_btc.png" alt="btc" width={20} height={20}
+                    preview={false}
+                    className="border-radius-50%" />
                     <div className="flex-x align-end">
                         <span className={`${styles.title_color} font-18 font-w-500 ml-1`}>
                             BTC/USDT
@@ -104,32 +110,43 @@ const SpotChartCoinInfo = ({ className }: Props) => {
             </div>
             <div className="flex-1">
                 <div className={`${styles.title_color} font-14 font-w-500`}>
-                    官方链接
+                    {/* 官方链接 */}
+                    {t('spot.coinInfo.officialLink')}
                 </div>
                 <ul className={`${styles.tip_color} font-14 font-w-400`}>
                     <li className="flex-x align-center justify-between">
-                        网站
+                        {/* 网站 */}
+                        {t('spot.coinInfo.website')}
                         <div className="flex-x align-center ">
-                            <button className={`default_btn ${styles.btn_style} mr-1`}>官网</button>
-                            <button className={`default_btn ${styles.btn_style}`}>白皮书</button>
+                            <button className={`default_btn ${styles.btn_style} mr-1`}>
+                                {/* 官网 */}
+                                {t('spot.coinInfo.official')}
+                            </button>
+                            <button className={`default_btn ${styles.btn_style}`}>
+                                {/* 白皮书 */}
+                                {t('spot.coinInfo.whitepaper')}
+                            </button>
                         </div>
                     </li>
                     <li className="flex-x align-center justify-between mt-7">
-                        区块浏览器
+                        {/* 区块浏览器 */}
+                        {t('spot.coinInfo.blockchain')}
                         <div className="flex-x align-center ">
                             <button className={`default_btn ${styles.btn_style}`}>blockchain</button>
                         </div>
                     </li>
                     <li className="mt-7 font-12">
-                        *基础数据由第三方机构提供，仅供参考。此信息以“原样”呈现，
-                        不构成任何形式的陈述或保证。
+                        {/* *基础数据由第三方机构提供，仅供参考。此信息以“原样”呈现，
+                        不构成任何形式的陈述或保证。 */}
+                        *{t('spot.coinInfo.baseData')}
                     </li>
                 </ul>
             </div>
         </div>
-        <div className="font-14 font-w-400 mt-5">
+        <div className="font-14 font-w-400 mt-5" id="coinInfo-introduction">
             <p className={`${styles.title_color} font-w-500`}>
-                介绍
+                {/* 介绍 */}
+                {t('spot.coinInfo.introduction')}
             </p>
             <div className={`${styles.tip_color} mt-1`}>
                 <div className={isExpanded ? '' : styles.textEllipsis}>
@@ -141,7 +158,7 @@ const SpotChartCoinInfo = ({ className }: Props) => {
                     className={`${styles.title_color} font-12 mt-1 cursor-pointer`}
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
-                    {isExpanded ? '收起' : '展开'}
+                    {isExpanded ? t('spot.coinInfo.collapse') : t('spot.coinInfo.expand')}
                     <DownOutlined rotate={isExpanded ? 180 : 0} className="ml-1 font-12" />
                 </button>
             </div>

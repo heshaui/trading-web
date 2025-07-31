@@ -57,6 +57,7 @@ const InputContent: React.FC<{ h5Text: string; onInputChange?: (value: string) =
           alt=""
           width={16}
           height={16}
+          className="ml-2"
         />
       }
       onChange={(e) => onInputChange?.(e.target.value)}

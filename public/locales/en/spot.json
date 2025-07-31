@@ -256,6 +256,29 @@
             "feeDetails": "Maker {{maker}}% / Taker {{taker}}%",
             "kline": "K-Line",
             "depth": "Depth Chart"
+        },
+        "coinInfo": {
+            "officialLink": "Official Links",
+            "website": "Website",
+            "official": "Official Site",
+            "whitepaper": "Whitepaper",
+            "blockchain": "Blockchain Explorer",
+            "baseData": "Base data is provided by third-party institutions for reference only. This information is presented 'as is' and does not constitute any form of representation or warranty.",
+            "introduction": "Introduction",
+            "expand": "Expand",
+            "collapse": "Collapse",
+            "rank": "Rank",
+            "marketCap": "Market Cap",
+            "marketShare": "Market Share",
+            "num": "Circulating Supply",
+            "historyHigh": "All-Time High",
+            "historyLow": "All-Time Low",
+            "issueDate": "Issue Date",
+            "chain": "Blockchain",
+            "firstPrice": "Initial Price",
+            "maxSupply": "Max Supply",
+            "totalSupply": "Total Supply",
+            "circulateRate": "Circulation Rate"
         }
     }
 }
