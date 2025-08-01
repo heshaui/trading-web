@@ -1,6 +1,7 @@
 import { request } from '@/request/index';
 import { API_MODULE_NAME } from '@/config/apiConfig';
 const fixUrl = `/${API_MODULE_NAME.AMBIT_USER_WEB}`
+const fixUrl2 = `/${API_MODULE_NAME.AMBIT_HOME_WEB}`
 
 interface createOrderType {
     amount:number,
@@ -125,3 +126,15 @@ export function getOrderInfo(data:any): Promise<any> {
     });
 }
 
+// 根据币种名称查询OKX币种信息
+export function getCoinInfo({coinName}:{coinName:string}): Promise<any> {
+    return request(`${fixUrl2}/home-web/v1/coin/info?coinName=${coinName}`, {
+        method: 'GET',
+    });
+}
+// 根据introduction和languageCode查询简介内容
+export function getCoinIntroduction({introduction,languageCode}:{introduction:string,languageCode:string}): Promise<any> {
+    return request(`${fixUrl2}/home-web/v1/coin/introduction?introduction=${introduction}&languageCode=${languageCode}`, {
+        method: 'GET',
+    });
+}

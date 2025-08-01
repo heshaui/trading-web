@@ -1,11 +1,13 @@
 export interface SocialMedia {
-    name: string;
-    url: string;
+    icon:string ,
+    name:string ,
+    title:string ,
+    url:string ,
 }
 
 export interface CoinAllocation {
     name: string;
-    value: number;
+    percent: number;
 }
 export interface infoDataType {
     id: number;
@@ -41,4 +43,11 @@ export interface infoDataType {
     supportTokenUnlock: boolean; //是否支持代币解锁
     createTime: number; //创建时间
     updateTime: number; //更新时间
+}
+
+export interface introductionDataType {
+    id: string;
+    introduction: string;
+    languageCode: string;
+    content: string;
 }

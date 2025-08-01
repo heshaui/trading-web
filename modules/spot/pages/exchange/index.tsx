@@ -773,7 +773,10 @@ const ExchangePage = () => {
               {
                 key:'coinInfo',
                 label:t('spot.exchange.coinInfo'),
-                children:<SpotChartCoinInfo className="px-4 py-3"/>
+                children:<SpotChartCoinInfo className="px-4 py-3" 
+                coinName={currentPair?.coinSymbol || ""}
+                baseCoinName={currentPair?.baseSymbol || ""}
+                />
               }
             ]}
               className="custom-tabs2"

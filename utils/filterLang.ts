@@ -10,9 +10,9 @@ export const getNextJsLocale = (langCode: string, type: number = 0): string => {
         return 'en';
     }else {
         // 更精确的匹配
-        if (lowerLangCode.startsWith('zh_') || lowerLangCode === 'zh') return 'zh_CN';
-        if (lowerLangCode.startsWith('ja_') || lowerLangCode === 'ja') return 'ja_JP';
-        if (lowerLangCode.startsWith('ko_') || lowerLangCode === 'ko') return 'ko_KR';
+        if (lowerLangCode.startsWith('zh') || lowerLangCode === 'zh') return 'zh_CN';
+        if (lowerLangCode.startsWith('ja') || lowerLangCode === 'ja') return 'ja_JP';
+        if (lowerLangCode.startsWith('ko') || lowerLangCode === 'ko') return 'ko_KR';
         return 'en_US';
     }
 };
