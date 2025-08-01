@@ -14,8 +14,8 @@ import WebSocketService from "@/utils/websocket";
 import DepthChart from "@/components/DepthChart";
 import { Iconify } from "@/components/icon";
 import { FullscreenOutlined } from "@ant-design/icons";
-import TradeGridLayout from "@/components/TradeGridLayout";
 import OrderList from "../../compontents/OrderList";
+import WaterfallLayout, { WaterfallItem } from "@/components/WaterfallLayout";
 
 // TradingView组件引用类型
 interface TradingviewRefHandle {
@@ -166,25 +166,25 @@ const TradePage = () => {
     "1M",
     "1Y",
   ]);
-  
+
   // 安全获取公共数据 - 仅在客户端执行
   const [publicInfo, setPublicInfo] = useState<any>({});
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]);
-  
+
   useEffect(() => {
     setIsClient(true);
-    
+
     // 只在客户端执行
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const info = appStore.getPublicInfo();
       setPublicInfo(info);
-      
+
       if (info.contractList) {
         setSymbolList(info.contractList);
       }
     }
   }, []);
-  
+
   useEffect(() => {
     if (publicInfo.contractList) {
       setSymbolList(publicInfo.contractList);
@@ -206,10 +206,10 @@ const TradePage = () => {
 
   const [contractAssets, setContractAssets] = useState<ContractAsset[]>([]);
   const [currentContractInfo, setCurrentContractInfo] = useState<any>({});
-  
+
   // 安全获取当前合约信息
   useEffect(() => {
-    if (isClient && typeof window !== 'undefined') {
+    if (isClient && typeof window !== "undefined") {
       const contractInfo = appStore.getCurrentContractInfo();
       setCurrentContractInfo(contractInfo);
     }
@@ -238,15 +238,17 @@ const TradePage = () => {
 
   const getDepthMapData = useCallback(async () => {
     if (!currentContractInfo.symbol) return;
-    const res = await getDepthMap({ symbol: currentContractInfo.symbol, contractId: currentContractInfo.id });
-    console.log('res:', res);
+    const res = await getDepthMap({
+      symbol: currentContractInfo.symbol,
+      contractId: currentContractInfo.id,
+    });
+    console.log("res:", res);
     setDepthData(res);
   }, [currentContractInfo.symbol, currentContractInfo.id]);
 
   useEffect(() => {
     getContractBalance();
     getDepthMapData();
-
   }, [getDepthMapData]);
   // 获取用户合约配置
   useEffect(() => {
@@ -288,10 +290,10 @@ const TradePage = () => {
     //   }
     // };
     const event2 = {
-      "event": "sub",
-      "params": {
-        "channel": "market_e_btcusdt_kline_1day",
-      }
+      event: "sub",
+      params: {
+        channel: "market_e_btcusdt_kline_1day",
+      },
     };
 
     const event3 = {
@@ -475,115 +477,124 @@ const TradePage = () => {
   const handleChartTypeChange = (e: { key: string }) => {
     setChartDisplayType(Number(e.key));
   };
-  
+
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
     return <div>Loading...</div>;
   }
-  
-  return (
-    <>
-      <TradeGridLayout>
-        {/* 头部信息栏 */}
-        <div>
-          <div className="flex items-center px-[16px] h-[100%]">
-            <SymbolSelector
-              currentSymbol={currentSymbol}
-              onSymbolSelect={handleSymbolSelect}
-              symbolList={symbolList}
-              onToggleFavorite={handleToggleFavorite}
-            />
-            <div className="w-[1px] h-[20px] bg-[var(--border-color4)] mx-[16px]"></div>
-            <div className="flex gap-[24px] ml-[16px]">
-              <div className="flex flex-col">
-                <div
-                  className={`font-500 text-[14px] ${
-                    mockPriceData.isUp
-                      ? "text-[var(--success-color)]"
-                      : "text-[var(--error-color)]"
-                  }`}
-                >
-                  {mockPriceData.price}
-                </div>
-                <div
-                  className={`text-[12px] font-500 ${
-                    mockPriceData.isUp
-                      ? "text-[var(--success-color)]"
-                      : "text-[var(--error-color)]"
-                  }`}
-                >
-                  {mockPriceData.changePercent}
-                </div>
+
+  const items: WaterfallItem[] = [
+    {
+      columnSpan: 3,
+      height: 60,
+      content: (
+        <div className="flex items-center px-[16px] h-[100%] bg-[var(--background9)]">
+          <SymbolSelector
+            currentSymbol={currentSymbol}
+            onSymbolSelect={handleSymbolSelect}
+            symbolList={symbolList}
+            onToggleFavorite={handleToggleFavorite}
+          />
+          <div className="w-[1px] h-[20px] bg-[var(--border-color4)] mx-[16px]"></div>
+          <div className="flex gap-[24px] ml-[16px]">
+            <div className="flex flex-col">
+              <div
+                className={`font-500 text-[14px] ${
+                  mockPriceData.isUp
+                    ? "text-[var(--success-color)]"
+                    : "text-[var(--error-color)]"
+                }`}
+              >
+                {mockPriceData.price}
               </div>
-              <div className="flex flex-col">
-                <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-                  标记价格
-                </span>
+              <div
+                className={`text-[12px] font-500 ${
+                  mockPriceData.isUp
+                    ? "text-[var(--success-color)]"
+                    : "text-[var(--error-color)]"
+                }`}
+              >
+                {mockPriceData.changePercent}
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+                标记价格
+              </span>
+              <span
+                className={`text-[var(--text-color5)] font-500 text-[12px] ${
+                  mockPriceData.isUp
+                    ? "text-[var(--success-color)]"
+                    : "text-[var(--error-color)]"
+                }`}
+              >
+                {mockPriceData.change24h}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+                指数价格
+              </span>
+              <span className="text-[var(--text-color5)] font-500 text-[12px]">
+                {mockPriceData.high24h}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+                资金费率/倒计时
+              </span>
+              <span className="text-[var(--text-color5)] font-500 text-[12px]">
+                {mockPriceData.low24h}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+                24H 成交量(张)
+              </span>
+              <span className="text-[var(--text-color5)] font-500 text-[12px]">
+                {mockPriceData.volume24hUSD}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+                24H 成交额(USD)
+              </span>
+              <span className="text-[var(--text-color5)] font-500 text-[12px]">
                 <span
-                  className={`text-[var(--text-color5)] font-500 text-[12px] ${
-                    mockPriceData.isUp
+                  className={
+                    mockPriceData.fundingRate.startsWith("+")
                       ? "text-[var(--success-color)]"
-                      : "text-[var(--error-color)]"
-                  }`}
+                      : mockPriceData.fundingRate.startsWith("-")
+                      ? "text-[var(--error-color)]"
+                      : ""
+                  }
                 >
-                  {mockPriceData.change24h}
+                  {mockPriceData.fundingRate}
                 </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-                  指数价格
+                <span className="text-[var(--text-color6)] font-[400]">
+                  {" "}
+                  / {mockPriceData.fundingCountdown}
                 </span>
-                <span className="text-[var(--text-color5)] font-500 text-[12px]">
-                  {mockPriceData.high24h}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-                  资金费率/倒计时
-                </span>
-                <span className="text-[var(--text-color5)] font-500 text-[12px]">
-                  {mockPriceData.low24h}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-                  24H 成交量(张)
-                </span>
-                <span className="text-[var(--text-color5)] font-500 text-[12px]">
-                  {mockPriceData.volume24hUSD}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-                  24H 成交额(USD)
-                </span>
-                <span className="text-[var(--text-color5)] font-500 text-[12px]">
-                  <span
-                    className={
-                      mockPriceData.fundingRate.startsWith("+")
-                        ? "text-[var(--success-color)]"
-                        : mockPriceData.fundingRate.startsWith("-")
-                        ? "text-[var(--error-color)]"
-                        : ""
-                    }
-                  >
-                    {mockPriceData.fundingRate}
-                  </span>
-                  <span className="text-[var(--text-color6)] font-[400]">
-                    {" "}
-                    / {mockPriceData.fundingCountdown}
-                  </span>
-                </span>
-              </div>
+              </span>
             </div>
           </div>
         </div>
-        {/* 委托列表 */}
-        <div>
+      ),
+    },
+    {
+      columnSpan: 1,
+      height: 380,
+      content: (
+        <div className="bg-[var(--background9)] h-[100%]">
           <OrderBookList orderBookData={orderBookData} />
         </div>
-        {/* 交易面板 */}
-        <div>
+      ),
+    },
+    {
+      columnSpan: 1,
+      height: 530,
+      content: (
+        <div className="bg-[var(--background9)] h-[100%]">
           <ContractTradingPanel
             symbol={mockPriceData.symbol}
             lastPrice={parseFloat(mockPriceData.price.replace(/,/g, ""))}
@@ -592,227 +603,253 @@ const TradePage = () => {
             onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
           />
         </div>
-        {/* 图表 */}
-        <div>
-          <div className="flex-1">
-            <div className="flex justify-between items-center p-[8px_16px] border-b-[1px_solid_var(--border-color1)]">
-              <div className="flex items-center">
-                {dayData.map((item, index) => (
-                  <Button
-                    key={index}
-                    type={timeInterval === item ? "primary" : "text"}
-                    onClick={() => setTimeInterval(item)}
-                    style={{
-                      fontSize: "12px",
-                      background:
-                        timeInterval === item
-                          ? "rgba(0,0,0,0.05)"
-                          : "transparent",
-                      color:
-                        timeInterval === item
-                          ? "var(--text-color5)"
-                          : "var(--text-color6)",
-                    }}
-                  >
-                    {item}
-                    {item === "1D" && (
-                      <Dropdown
-                        trigger={["hover"]}
-                        placement="bottomRight"
-                        dropdownRender={() => (
-                          <div className="bg-[#fff] rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] p-[10px] grid grid-cols-3 gap-[10px] w-[320px]">
-                            {timeIntervalOptions.map((option) => (
-                              <div
-                                key={option}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setTimeInterval(option);
-                                }}
-                                className="p-[10px] text-center rounded-[5px] cursor-pointer text-[12px]"
-                                style={{
-                                  background:
-                                    timeInterval === option
-                                      ? "var(--theme-color)"
-                                      : "#f0f0f0",
-                                  color:
-                                    timeInterval === option ? "#fff" : "#000",
-                                }}
-                              >
-                                {option}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      >
-                        <Iconify
-                          icon="eva:arrow-down-fill"
-                          style={{
-                            fontSize: "12px",
-                            marginLeft: "4px",
-                            cursor: "pointer",
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </Dropdown>
-                    )}
-                  </Button>
-                ))}
-
-                <Space size="small" style={{ marginLeft: "16px" }}>
-                  <Dropdown
-                    menu={{
-                      items: chartTypeItems,
-                      onClick: handleChartTypeChange,
-                      selectedKeys: [String(chartDisplayType)],
-                    }}
-                    trigger={["hover"]}
-                    placement="bottom"
-                  >
-                    <Image
-                      src="/images/exchange/icon_stock.png"
-                      alt="exchange"
-                      width={20}
-                      height={20}
-                      preview={false}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </Dropdown>
-                  <Tooltip
-                    title={t("spot:spot.exchange.technicalIndicators")}
-                  >
-                    <Image
-                      src="/images/exchange/icon_chart.png"
-                      alt="exchange"
-                      width={20}
-                      height={20}
-                      preview={false}
-                      onClick={() =>
-                        tradingviewRef.current?.handleAddIndicator()
-                      }
-                      style={{ cursor: "pointer" }}
-                    />
-                  </Tooltip>
-                  <Tooltip
-                    title={t("spot:spot.exchange.resetChart")}
-                  >
-                    <Image
-                      src="/images/exchange/icon_delete.png"
-                      alt="exchange"
-                      width={20}
-                      height={20}
-                      preview={false}
-                      onClick={() => tradingviewRef.current?.resetChart()}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </Tooltip>
-                  {/* <Tooltip title="图表截图">
-                        <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
-                      </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
-                  <Tooltip
-                    title={t("spot:spot.exchange.volumeDistribution")}
-                  >
-                    <Image
-                      src="/images/exchange/icon_value.png"
-                      alt="exchange"
-                      width={20}
-                      height={20}
-                      preview={false}
-                      onClick={() =>
-                        tradingviewRef.current?.addVolumeDistribution()
-                      }
-                      style={{ cursor: "pointer" }}
-                    />
-                  </Tooltip>
-                </Space>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center" }}>
-                {chartType.map((item, index) => (
-                  <Button
-                    key={index}
-                    type={activeChartType === item.value ? "primary" : "text"}
-                    onClick={() => setActiveChartType(item.value)}
-                    style={{
-                      fontSize: "12px",
-                      background:
-                        activeChartType === item.value
-                          ? "rgba(0,0,0,0.05)"
-                          : "transparent",
-                      color:
-                        activeChartType === item.value
-                          ? "var(--text-color5)"
-                          : "var(--text-color6)",
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-
-                <Tooltip
-                  title={t("spot:spot.exchange.fullscreen")}
+      ),
+    },
+    {
+      columnSpan: 3,
+      height: 604,
+      content: (
+        <div className="bg-[var(--background9)] h-[100%]">
+        <div className="flex-1 00%]">
+          <div className="flex justify-between items-center p-[8px_16px] border-b-[1px_solid_var(--border-color1)]">
+            <div className="flex items-center">
+              {dayData.map((item, index) => (
+                <Button
+                  key={index}
+                  type={timeInterval === item ? "primary" : "text"}
+                  onClick={() => setTimeInterval(item)}
+                  style={{
+                    fontSize: "12px",
+                    background:
+                      timeInterval === item
+                        ? "rgba(0,0,0,0.05)"
+                        : "transparent",
+                    color:
+                      timeInterval === item
+                        ? "var(--text-color5)"
+                        : "var(--text-color6)",
+                  }}
                 >
-                  <Button
-                    type="text"
-                    icon={<FullscreenOutlined />}
-                    onClick={() => tradingviewRef.current?.toggleFullScreen()}
+                  {item}
+                  {item === "1D" && (
+                    <Dropdown
+                      trigger={["hover"]}
+                      placement="bottomRight"
+                      dropdownRender={() => (
+                        <div className="bg-[#fff] rounded-[8px] shadow-[0_2px_8px_rgba(0,0,0,0.15)] p-[10px] grid grid-cols-3 gap-[10px] w-[320px]">
+                          {timeIntervalOptions.map((option) => (
+                            <div
+                              key={option}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTimeInterval(option);
+                              }}
+                              className="p-[10px] text-center rounded-[5px] cursor-pointer text-[12px]"
+                              style={{
+                                background:
+                                  timeInterval === option
+                                    ? "var(--theme-color)"
+                                    : "#f0f0f0",
+                                color:
+                                  timeInterval === option ? "#fff" : "#000",
+                              }}
+                            >
+                              {option}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    >
+                      <Iconify
+                        icon="eva:arrow-down-fill"
+                        style={{
+                          fontSize: "12px",
+                          marginLeft: "4px",
+                          cursor: "pointer",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </Dropdown>
+                  )}
+                </Button>
+              ))}
+
+              <Space size="small" style={{ marginLeft: "16px" }}>
+                <Dropdown
+                  menu={{
+                    items: chartTypeItems,
+                    onClick: handleChartTypeChange,
+                    selectedKeys: [String(chartDisplayType)],
+                  }}
+                  trigger={["hover"]}
+                  placement="bottom"
+                >
+                  <Image
+                    src="/images/exchange/icon_stock.png"
+                    alt="exchange"
+                    width={20}
+                    height={20}
+                    preview={false}
+                    style={{ cursor: "pointer" }}
+                  />
+                </Dropdown>
+                <Tooltip title={t("spot:spot.exchange.technicalIndicators")}>
+                  <Image
+                    src="/images/exchange/icon_chart.png"
+                    alt="exchange"
+                    width={20}
+                    height={20}
+                    preview={false}
+                    onClick={() => tradingviewRef.current?.handleAddIndicator()}
+                    style={{ cursor: "pointer" }}
                   />
                 </Tooltip>
-              </div>
+                <Tooltip title={t("spot:spot.exchange.resetChart")}>
+                  <Image
+                    src="/images/exchange/icon_delete.png"
+                    alt="exchange"
+                    width={20}
+                    height={20}
+                    preview={false}
+                    onClick={() => tradingviewRef.current?.resetChart()}
+                    style={{ cursor: "pointer" }}
+                  />
+                </Tooltip>
+                {/* <Tooltip title="图表截图">
+                      <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
+                    </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
+                <Tooltip title={t("spot:spot.exchange.volumeDistribution")}>
+                  <Image
+                    src="/images/exchange/icon_value.png"
+                    alt="exchange"
+                    width={20}
+                    height={20}
+                    preview={false}
+                    onClick={() =>
+                      tradingviewRef.current?.addVolumeDistribution()
+                    }
+                    style={{ cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Space>
             </div>
 
-            {/* K线图容器 */}
-            {activeChartType === "basic" && (
-              <TradingView
-                symbol={currentPair?.symbol || "BTCUSDT"}
-                showLeftToolbar={false}
-                chartType={9}
-                timeInterval="15m"
-              />
-            )}
-            {activeChartType === "depth" && <DepthChart data={depthData} />}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {chartType.map((item, index) => (
+                <Button
+                  key={index}
+                  type={activeChartType === item.value ? "primary" : "text"}
+                  onClick={() => setActiveChartType(item.value)}
+                  style={{
+                    fontSize: "12px",
+                    background:
+                      activeChartType === item.value
+                        ? "rgba(0,0,0,0.05)"
+                        : "transparent",
+                    color:
+                      activeChartType === item.value
+                        ? "var(--text-color5)"
+                        : "var(--text-color6)",
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+
+              <Tooltip title={t("spot:spot.exchange.fullscreen")}>
+                <Button
+                  type="text"
+                  icon={<FullscreenOutlined />}
+                  onClick={() => tradingviewRef.current?.toggleFullScreen()}
+                />
+              </Tooltip>
+            </div>
           </div>
+
+          {/* K线图容器 */}
+          {activeChartType === "basic" && (
+            <TradingView
+              symbol={currentPair?.symbol || "BTCUSDT"}
+              showLeftToolbar={false}
+              chartType={9}
+              timeInterval="15m"
+            />
+          )}
+          {activeChartType === "depth" && <DepthChart data={depthData} />}
         </div>
-        {/* 实时成交 */}
-        <div>
+        </div>
+      ),
+    },
+    {
+      columnSpan: 1,
+      height: 284,
+      content: (
+        <div className="bg-[var(--background9)] h-[100%]">
           <RealtimeTrade orderBookData={orderBookData} />
         </div>
-        {/* 资产 */}
-        <div>
-          <div className="p-[10px_16px] text-[14px] font-[400]">
-            <div className="text-[var(--text-color5)] font-[500] mb-[16px]">资产</div>
-            <div className="flex flex-col gap-[10px] mb-[14px]">
-              <div className="flex justify-between items-center">
-                <div className="text-[var(--text-color6)]">总权益</div>
-                <div className="text-[var(--text-color5)]">0.00 USDT</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-[var(--text-color6)]">钱包余额</div>
-                <div className="text-[var(--text-color5)]">0.00 USDT</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-[var(--text-color6)]">未实现盈亏</div>
-                <div className="text-[var(--text-color5)]">0.00 USDT</div>
-              </div>
+      ),
+    },
+    {
+      columnSpan: 1,
+      height: 190,
+      content: (
+        <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)] h-[100%]">
+          <div className="text-[var(--text-color5)] font-[500] mb-[16px]">
+            资产
+          </div>
+          <div className="flex flex-col gap-[10px] mb-[14px]">
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">总权益</div>
+              <div className="text-[var(--text-color5)]">0.00 USDT</div>
             </div>
             <div className="flex justify-between items-center">
-              <Button type="primary" className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]" shape="round" style={{ background: "var(--btncolor6)" }}>
-                划转
-              </Button>
-              <Button type="primary" className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]" shape="round" style={{ background: "var(--btncolor6)" }}>
-                充值
-              </Button>
+              <div className="text-[var(--text-color6)]">钱包余额</div>
+              <div className="text-[var(--text-color5)]">0.00 USDT</div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-[var(--text-color6)]">未实现盈亏</div>
+              <div className="text-[var(--text-color5)]">0.00 USDT</div>
             </div>
           </div>
+          <div className="flex justify-between items-center">
+            <Button
+              type="primary"
+              className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]"
+              shape="round"
+              style={{ background: "var(--btncolor6)" }}
+            >
+              划转
+            </Button>
+            <Button
+              type="primary"
+              className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]"
+              shape="round"
+              style={{ background: "var(--btncolor6)" }}
+            >
+              充值
+            </Button>
+          </div>
         </div>
-        {/* 订单列表 */}
-        <div>
+      ),
+    },
+    {
+      columnSpan: 4,
+      minHeight: 400,
+      content: (
+        <div className="bg-[var(--background9)] h-[100%]">
           <OrderList />
         </div>
-        {/* 合约信息 */}
-        <div>
-          <div className="p-[10px_16px] text-[14px] font-[400]">
-            <div className="text-[var(--text-color5)] font-[500] mb-[16px]">合约信息</div>
-            <div className="flex flex-col gap-[10px]">
+      ),
+    },
+    {
+      columnSpan: 1,
+      height: 300,
+      content: (
+        <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)] h-[100%]">
+          <div className="text-[var(--text-color5)] font-[500] mb-[16px]">
+            合约信息
+          </div>
+          <div className="flex flex-col gap-[10px]">
             <div className="flex justify-between items-center">
               <div className="text-[var(--text-color6)]">合约代号</div>
               <div className="text-[var(--text-color5)]">BTCUSDT</div>
@@ -841,10 +878,18 @@ const TradePage = () => {
               <div className="text-[var(--text-color6)]">最低维持保证金率</div>
               <div className="text-[var(--text-color5)]">0.40%</div>
             </div>
-            </div>
           </div>
         </div>
-      </TradeGridLayout>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      {/* 瀑布流布局 */}
+      <div className="bg-[var(--background14)]">
+        <WaterfallLayout items={items} gap={4} />
+      </div>
 
       {/* 风险确认书模态框 */}
       <RiskDisclosureModal

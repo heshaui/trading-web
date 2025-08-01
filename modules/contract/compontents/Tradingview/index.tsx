@@ -972,7 +972,7 @@ const Tradingview: React.ForwardRefRenderFunction<
       <div
         className="TVChartContainer"
         ref={chartContainerRef}
-        style={{ width: "100%", height: "580px", margin: "auto" }}
+        style={{ width: "100%", height: "548px", margin: "auto" }}
       ></div>
 
     </div>

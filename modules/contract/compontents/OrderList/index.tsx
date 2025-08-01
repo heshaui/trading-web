@@ -134,22 +134,20 @@ const OrderList: React.FC = () => {
 
   // table 数据
   // 仓位
-  const [positions, setPositions] = useState<Position[]>([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      side: "LONG",
-      size: 595.51,
-      entryPrice: 10000,
-      markPrice: 10000,
-      pnl: 100,
-      pnlRate: 0.1,
-      margin: 1000,
-      marginRate: 0.1,
-      liquidationPrice: 10000,
-      createTime: 1717334400000,
-    },
-  ]);
+  const [positions, setPositions] = useState<Position[]>(Array.from({ length: 10 }, (_, index) => ({
+    id: index.toString(),
+    symbol: "BTCUSDT",
+    side: "LONG",
+    size: 595.51,
+    entryPrice: 10000,
+    markPrice: 10000,
+    pnl: 100,
+    pnlRate: 0.1,
+    margin: 1000,
+    marginRate: 0.1,
+    liquidationPrice: 10000,
+    createTime: 1717334400000,
+  })));
   // 普通委托
   const [ordinaryCommission, setOrdinaryCommission] = useState<
     OrdinaryCommission[]
@@ -1182,6 +1180,7 @@ const OrderList: React.FC = () => {
           </div>
         }
         items={tabItems}
+        style={{ minHeight: "404px" }}
       />
     </ConfigProvider>
   );
