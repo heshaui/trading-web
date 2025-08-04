@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { encryptData } from "@/utils/encrypt";
 import styles from "./styles.module.css";
 import appStore from "@/store";
+import { useUserConfig } from "@/hooks/useUserConfig";
 
 const { Option } = Select;
 
@@ -90,8 +91,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
+  const { userConfig } = useUserConfig();
 
   console.log("currentContractInfo:", currentContractInfo);
+  console.log("ContractTradingPanel userConfig:", userConfig);
 
   // 获取当前订单类型
   const getOrderType = () => {
@@ -304,7 +307,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               className="h-[28px] w-[72px] rounded-[23px] text-[var(--text-color5)] bg-[var(--background14)] border-none text-[12px]"
               onClick={() => setShowLeverageModal(true)}
             >
-              {leverageLevel}x
+              {userConfig.nowLevel}x
             </Button>
           </div>
 
@@ -534,7 +537,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               onClick={() => handleSubmit("BUY")}
               block
               shape="round"
-              className="h-[50px] text-[16px] font-[400] text-[#FFF]"
+              className=" text-[16px] font-[400] text-[#FFF]"
               style={{
                 background: "#00C788",
               }}
@@ -545,7 +548,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               type="primary"
               size="large"
               onClick={() => handleSubmit("SELL")}
-              className="h-[50px] text-[16px] font-[400] text-[#FFF]"
+              className=" text-[16px] font-[400] text-[#FFF]"
               style={{
                 background: "#FF4D4F",
               }}

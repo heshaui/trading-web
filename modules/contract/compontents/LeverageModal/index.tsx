@@ -1,8 +1,10 @@
-import React, { useState,useEffect } from 'react';
-import { Modal, Button, Slider, InputNumber } from 'antd';
+import React, { useState } from 'react';
+import { Modal, Button, Slider, InputNumber,message } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import appStore from '@/store';
+import { levelEdit } from '@/services/contract';
+import { useUserConfig } from "@/hooks/useUserConfig";
 interface LeverageModalProps {
   visible: boolean;
   onClose: () => void;
@@ -21,16 +23,14 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   symbol = 'BTCUSDT',
   positionLimit = 0
 }) => {
-  const [tempLeverage, setTempLeverage] = useState(1); // 默认设置为50，与图片一致
+  const [tempLeverage, setTempLeverage] = useState(currentLeverage);
   const ContractInfo = appStore.currentContractInfo;
   const maxLeverage = ContractInfo.maxLever;
+  const { loadUserConfig } = useUserConfig();
 
  
 
-  const handleConfirm = () => {
-    onLeverageChange(tempLeverage);
-    onClose();
-  };
+ 
 
   const handleSliderChange = (value: number) => {
     setTempLeverage(value);
@@ -42,6 +42,20 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
     }
   };
 
+  const handleConfirm = async () => {
+    const res = await levelEdit({
+      contractId: ContractInfo.id,
+      nowLevel: tempLeverage,
+    });
+    if(res.code === '0'){
+      message.success('成功');
+      console.log('LeverageModal: 开始调用 loadUserConfig');
+      await loadUserConfig();
+      console.log('LeverageModal: loadUserConfig 调用完成');
+      onLeverageChange(tempLeverage);
+      onClose();
+    }
+  };
 
 
   // 创建slider的marks

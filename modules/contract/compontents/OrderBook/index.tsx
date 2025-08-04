@@ -29,9 +29,7 @@ interface RealtimeTradeProps {
 // 委托列表组件
 const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   const { t } = useTranslation(["contract", "spot"]);
-  const [colorMode, setColorMode] = useState<"red-green" | "green-red">(
-    "red-green"
-  );
+  const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>(2);
 
   // 处理WebSocket数据，如果没有数据则使用模拟数据
@@ -112,11 +110,11 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   };
 
   const getSellPriceColor = () => {
-    return colorMode === "red-green" ? "text-red-500" : "text-green-500";
+    return colorMode === "both" || colorMode === "sell" ? "text-red-500" : "text-green-500";
   };
 
   const getBuyPriceColor = () => {
-    return colorMode === "red-green" ? "text-green-500" : "text-red-500";
+    return colorMode === "both" || colorMode === "buy" ? "text-green-500" : "text-red-500";
   };
 
   const renderColorModeButtons = () => {
@@ -128,7 +126,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         >
           <Image
             src={
-              colorMode === "red-green"
+              colorMode === "both"
                 ? "/images/exchange/icon_order_hover.png"
                 : "/images/exchange/icon_order.png"
             }
@@ -137,7 +135,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
             height={20}
             preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode("red-green")}
+            onClick={() => setColorMode("both")}
           />
         </Tooltip>
         {/* 显示买盘 */}
@@ -146,7 +144,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         >
           <Image
             src={
-              colorMode === "green-red"
+              colorMode === "buy"
                 ? "/images/exchange/icon_green_hover.png"
                 : "/images/exchange/icon_green.png"
             }
@@ -155,7 +153,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
             height={20}
             preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode("green-red")}
+            onClick={() => setColorMode("buy")}
           />
         </Tooltip>
         {/* 显示卖盘 */}
@@ -165,7 +163,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         >
           <Image
             src={
-              colorMode === "red-green"
+              colorMode === "sell"
                 ? "/images/exchange/icon_red_hover.png"
                 : "/images/exchange/icon_red.png"
             }
@@ -174,7 +172,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
             height={20}
             preview={false}
             style={{ cursor: "pointer" }}
-            onClick={() => setColorMode("red-green")}
+            onClick={() => setColorMode("sell")}
           />
         </Tooltip>
       </div>
@@ -185,7 +183,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
     <div className="p-[10px_16px]">
       <div className="flex flex-col gap-[8px] mb-[10px]">
         <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-          委托列表 {orderBookData ? "(实时)" : "(模拟)"}
+          委托列表
         </div>
         <div className="flex justify-between items-center gap-[8px]">
           {renderColorModeButtons()}
@@ -211,60 +209,69 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
       </div>
 
       <div className="flex flex-col overflow-hidden">
-        <div className="flex flex-col gap-[9px] overflow-y-auto">
-          {sellOrders.length > 0 ? (
-            sellOrders.map((order, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-              >
-                <div className={`flex-1 text-left ${getSellPriceColor()}`}>
-                  {formatNumber(order.price)}
+        {/* 卖盘数据 - 只在 both 或 sell 模式下显示 */}
+        {(colorMode === "both" || colorMode === "sell") && (
+          <div className="flex flex-col gap-[9px] overflow-y-auto">
+            {sellOrders.length > 0 ? (
+              sellOrders.map((order, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+                >
+                  <div className={`flex-1 text-left ${getSellPriceColor()}`}>
+                    {formatNumber(order.price)}
+                  </div>
+                  <div className="flex-1 text-right">
+                    {formatNumber(order.amount, 3)}
+                  </div>
+                  <div className="flex-1 text-right">
+                    {formatNumber(order.total, 3)}
+                  </div>
                 </div>
-                <div className="flex-1 text-right">
-                  {formatNumber(order.amount, 3)}
-                </div>
-                <div className="flex-1 text-right">
-                  {formatNumber(order.total, 3)}
-                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+                暂无卖单数据
               </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-              暂无卖单数据
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
-        <div className="flex justify-between items-center my-[10px]">
-          <div className="text-xl font-semibold text-red-500">50120.5</div>
-          <div className="text-xs text-green-500">+0.12%</div>
-        </div>
+        {/* 当前价格显示 - 只在 both 模式下显示 */}
+        {colorMode === "both" && (
+          <div className="flex justify-between items-center my-[10px]">
+            <div className="text-xl font-semibold text-red-500">50120.5</div>
+            <div className="text-xs text-green-500">+0.12%</div>
+          </div>
+        )}
 
-        <div className="flex flex-col gap-[9px] overflow-y-auto">
-          {buyOrders.length > 0 ? (
-            buyOrders.map((order, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-              >
-                <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
-                  {formatNumber(order.price)}
+        {/* 买盘数据 - 只在 both 或 buy 模式下显示 */}
+        {(colorMode === "both" || colorMode === "buy") && (
+          <div className="flex flex-col gap-[9px] overflow-y-auto">
+            {buyOrders.length > 0 ? (
+              buyOrders.map((order, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+                >
+                  <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
+                    {formatNumber(order.price)}
+                  </div>
+                  <div className="flex-1 text-right">
+                    {formatNumber(order.amount, 3)}
+                  </div>
+                  <div className="flex-1 text-right">
+                    {formatNumber(order.total, 3)}
+                  </div>
                 </div>
-                <div className="flex-1 text-right">
-                  {formatNumber(order.amount, 3)}
-                </div>
-                <div className="flex-1 text-right">
-                  {formatNumber(order.total, 3)}
-                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+                暂无买单数据
               </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-              暂无买单数据
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -276,7 +283,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   orderBookData,
 }) => {
   const { t } = useTranslation(["contract", "spot"]);
-  const [colorMode] = useState<"red-green" | "green-red">("red-green");
+  const [colorMode] = useState<"both" | "buy" | "sell">("both");
 
   // 处理实时成交数据，暂时使用orderBookData模拟
   const processTradeData = () => {
@@ -329,9 +336,9 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
 
   const getPriceColor = (side: "buy" | "sell") => {
     if (side === "sell") {
-      return colorMode === "red-green" ? "text-red-500" : "text-green-500";
+      return colorMode === "both" || colorMode === "sell" ? "text-red-500" : "text-green-500";
     } else {
-      return colorMode === "red-green" ? "text-green-500" : "text-red-500";
+      return colorMode === "both" || colorMode === "buy" ? "text-green-500" : "text-red-500";
     }
   };
 

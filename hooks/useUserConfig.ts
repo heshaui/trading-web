@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import { reaction } from 'mobx';
 import appStore from '@/store';
 import { UserConfigType, UseUserConfigReturn } from '@/type/contract/userConfig';
 
@@ -21,11 +22,22 @@ export const useUserConfig = (): UseUserConfigReturn => {
     // 立即更新一次
     updateUserConfig();
 
-    // 这里可以添加MobX的reaction来监听变化
-    // 或者使用其他状态管理方案的监听机制
+    // 使用 MobX reaction 监听 store 变化
+    const disposer = reaction(
+      () => ({
+        userConfig: appStore.userConfig,
+        isLoadingUserConfig: appStore.isLoadingUserConfig
+      }),
+      (newData: { userConfig: UserConfigType; isLoadingUserConfig: boolean }) => {
+        console.log('useUserConfig reaction triggered:', newData);
+        setUserConfig(newData.userConfig);
+        setIsLoading(newData.isLoadingUserConfig);
+      },
+      { fireImmediately: false }
+    );
     
     return () => {
-      // 清理函数
+      disposer();
     };
   }, []);
 
@@ -34,7 +46,10 @@ export const useUserConfig = (): UseUserConfigReturn => {
    */
   const loadUserConfig = async (params = {}) => {
     try {
-      return await appStore.loadUserConfig(params);
+      console.log('useUserConfig loadUserConfig called');
+      const result = await appStore.loadUserConfig(params);
+      console.log('useUserConfig loadUserConfig result:', result);
+      return result;
     } catch (error) {
       console.error('加载用户合约配置失败:', error);
       throw error;

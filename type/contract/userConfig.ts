@@ -10,6 +10,8 @@ export interface UserConfigType {
   isContractEnabled?: boolean;
   /** 杠杆倍数 */
   leverage?: number;
+  /** 当前杠杆倍数 */
+  nowLevel?: number;
   /** 保证金模式 1:逐仓 2:全仓 */
   marginMode?: number;
   /** 持仓模式 1:单向持仓 2:双向持仓 */

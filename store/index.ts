@@ -1039,7 +1039,9 @@ class AppStore {
   }
 
   setUserConfig(config: UserConfigType) {
-    this.userConfig = config;
+    runInAction(() => {
+      this.userConfig = config;
+    });
     if (isBrowser()) {
       localStorage.setItem(
         LOCAL_STORAGE_KEY.USER_CONFIG,
