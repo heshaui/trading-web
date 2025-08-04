@@ -1,29 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
 import styles from "../../styles/billDetails.module.css";
-import {
-  Input,
-  Radio,
-  ConfigProvider,
-  Table,
-  Select,
-  Form,
-  Tabs,
-  Spin,
-  Button,
-  Space,
-  Tooltip,
-  Dropdown,
-} from "antd";
+import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown } from "antd";
 import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Iconify } from "@/components/icon";
-import type { ColumnsType } from "antd/es/table";
-import dayjs from "dayjs";
 import { useRouter } from "next/router";
-import type { GetStaticProps } from "next";
-import type { TabsProps } from "antd";
 import SpotChartTables from "../components/spotChart_table";
 import SpotChartAssets from "../components/spotChart_assets";
 import SpotChartTrade from "../components/spotChart_trade";
@@ -34,16 +15,12 @@ import OrderBook from "@/components/OrderBook";
 import WebSocketService from "@/utils/websocket";
 import { FullscreenOutlined } from "@ant-design/icons";
 import Image from "next/image";
-import { NoData } from "@/components/noData";
-import type { DropdownProps, MenuProps } from "antd";
+import type { MenuProps } from "antd";
 import { getExchangeGroup, getExchangeCoinList } from "@/services/spot";
-import { toast } from "sonner";
 import appStore from "@/store";
-import { set } from "mobx";
 import { reaction } from "mobx";
 import { useAuth } from "@/context/AuthContext";
 import { throttle } from "lodash";
-
 
 interface DataType {
   id: number;
@@ -182,12 +159,9 @@ const ExchangePage = () => {
           // 限制数组长度
           return combinedData.slice(0, maxEntries);
         });
-      } catch (error) {
-
-      }
+      } catch (error) {}
     });
   }, [currentPair]);
-
 
   const getWsDepthData = useCallback(() => {
     // 如果已经有连接，不要重复创建
@@ -226,26 +200,21 @@ const ExchangePage = () => {
           return;
         }
 
-
-        
         setDepthData(() => {
           // 处理买单(bids) - 按价格降序排列
-          const processedBids = (data.bids || [])
+          const processedBids = data.bids || [];
 
-
-          // 处理卖单(asks) - 按价格升序排列  
-          const processedAsks = (data.asks || [])
-
+          // 处理卖单(asks) - 按价格升序排列
+          const processedAsks = data.asks || [];
 
           const newDepthData = {
             asks: processedAsks,
             bids: processedBids,
           };
-          
+
           return newDepthData;
         });
-      } catch (error) {
-      }
+      } catch (error) {}
     });
   }, [currentPair]);
 

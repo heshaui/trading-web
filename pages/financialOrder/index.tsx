@@ -1,7 +1,7 @@
 // export { default } from '../../modules/spot/pages';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";
 import {
   ConfigProvider,
   DatePicker,
@@ -520,7 +520,7 @@ const FinancialOrder = observer(() => {
   );
 });
 
-export default withSpotLayout(FinancialOrder);
+export default withOrderLayout(FinancialOrder);
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
