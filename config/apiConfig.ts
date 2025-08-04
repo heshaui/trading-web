@@ -50,7 +50,7 @@ export const ROUTER_KEY_ASSETS = {
 
     FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
     CONTRACT_ACCOUNT:"/assets/contract", //合约账户
-    SPOT_ACCOUNT:"/assets/assetsAccount", //现货账户
+    SPOT_ACCOUNT:"/assets/spot", //现货账户
 };
 export const ROUTER_KEY_SPOT = {
     INDEX:"/exchange", //首页
