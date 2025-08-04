@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Modal, Button, Slider, InputNumber,message } from 'antd';
+import { Modal, Button, Slider, InputNumber } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import appStore from '@/store';
 import { levelEdit } from '@/services/contract';
 import { useUserConfig } from "@/hooks/useUserConfig";
+import { toast } from 'sonner';
+
 interface LeverageModalProps {
   visible: boolean;
   onClose: () => void;
@@ -48,7 +50,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       nowLevel: tempLeverage,
     });
     if(res.code === '0'){
-      message.success('成功');
+      toast.success('成功');
       console.log('LeverageModal: 开始调用 loadUserConfig');
       await loadUserConfig();
       console.log('LeverageModal: loadUserConfig 调用完成');

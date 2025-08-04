@@ -441,7 +441,8 @@ export const getTradeRecord = async (params: any) => {
 };
 
 
-// user/margin_model_edit
+
+// 调整保证金模式
 export const marginModelEdit = async (params: any) => {
   try {
     const formattedParams = await formatParams(params);
