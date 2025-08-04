@@ -5,6 +5,8 @@ import styles from './styles.module.css';
 import { marginModelEdit } from '@/services/contract';
 import appStore from '@/store';
 import { toast } from 'sonner';
+import { useUserConfig } from "@/hooks/useUserConfig";
+// marginModelEdit
 
 interface MarginModeModalProps {
   visible: boolean;
@@ -34,6 +36,7 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
     if (res.code === '0') {
       onModeChange(selectedMode);
       onClose();
+      toast.success('设置成功');
     }else{
       toast.error(res.msg);
     }

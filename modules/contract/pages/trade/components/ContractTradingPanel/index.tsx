@@ -96,6 +96,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   console.log("currentContractInfo:", currentContractInfo);
   console.log("ContractTradingPanel userConfig:", userConfig);
 
+  // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
+  useEffect(() => {
+    if (userConfig?.nowLevel && userConfig.nowLevel !== leverageLevel) {
+      console.log('ContractTradingPanel: 同步杠杆值', userConfig.nowLevel);
+      setLeverageLevel(userConfig.nowLevel);
+    }
+  }, [userConfig?.nowLevel, leverageLevel]);
+
   // 获取当前订单类型
   const getOrderType = () => {
     if (currentCategory === 1) return "limit";
