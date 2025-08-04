@@ -4,10 +4,9 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import NumberToken from "./numberToken";
 import Financial from "./financial";
-import styles from "@/styles/components/Financial.module.css";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { FunctionSwitchStatusEnum } from "@/services/financial";
 import appStore from "@/store";
 import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
@@ -25,14 +24,18 @@ const BillDetails = observer(() => {
 
   if (!isClient) return null; // SSR 阶段不渲染
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider theme={{
+      components: {
+        Tabs: TabsTheme,
+      },
+      token: TokenTheme,
+    }}>
       <div className="flex flex-col h-full">
         <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
           {t("common.billDetails")}
         </div>
         <div className="rounded-[8px] bg-[var(--btncolor7)] flex-1">
           <Tabs
-            className={styles.tabs}
             activeKey={String(activeKey)}
             tabBarStyle={{
               padding: "0px 20px",

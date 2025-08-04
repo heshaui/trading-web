@@ -947,7 +947,7 @@ class AppStore {
         this.setPublicInfo(result.data);
         return result.data;
       } else {
-        throw new Error("Failed to load public info");
+        // throw new Error("Failed to load public info");
       }
     } catch (error) {
       console.error("Error loading public info:", error);
@@ -1026,7 +1026,7 @@ class AppStore {
         this.setUserConfig(result.data);
         return result.data;
       } else {
-        throw new Error("Failed to load user config");
+        // throw new Error("Failed to load user config");
       }
     } catch (error) {
       console.error("Error loading user config:", error);
@@ -1085,7 +1085,8 @@ class AppStore {
         this.setContractAssets(accountList);
         return accountList;
       } else {
-        throw new Error("Failed to load contract assets");
+        // throw new Error("Failed to load contract assets");
+        console.log(result.message || "Failed to load contract assets");
       }
     } catch (error) {
       console.error("Error loading contract assets:", error);

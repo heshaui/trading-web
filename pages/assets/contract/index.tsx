@@ -11,14 +11,14 @@ import {
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import { NoData } from "@/components/noData";
 import { useEffect, useState } from "react";
 import { Iconify } from "@/components/icon";
 import Image from "next/image";
 import { ColumnsType } from "antd/es/table";
 import { observer } from "mobx-react-lite";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { ButtonTheme, TableTheme, TokenTheme } from "@/theme/publicThemeConfig";
 
 interface ContractAccountItem {
   id: string;
@@ -205,7 +205,15 @@ const Contract = observer(() => {
   return (
     <>
       {/* 基础页面 */}
-      <ConfigProvider theme={financialThemeConfig}>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: TableTheme,
+            Button: ButtonTheme,
+          },
+          token: TokenTheme,
+        }}
+      >
         <div className="flex flex-col h-full gap-[16px]">
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500]">

@@ -19,31 +19,12 @@ import { useThemeMode } from "@/hooks/useThemeMode";
 import appStore from "@/store";
 import BigNumber from "bignumber.js";
 import { useAuth } from "@/context/AuthContext";
-
-const useStyle = createStyles(() => ({
-  "my-modal-header": {
-    height: "60px !important",
-    padding: "0 20px !important",
-    borderRadius: "10px 10px 0px 0px",
-    background: "#fff",
-    boxShadow: "0px -0.5px 0px 0px #dcdcdc inset",
-  },
-  "my-modal-footer": {
-    width: "100%",
-    marginTop: "0 !important",
-    borderRadius: "0 0 10px 10px !important",
-    padding: "20px !important",
-    borderTop: "1px solid var(--border-color4) !important",
-  },
-  "my-modal-content": {
-    padding: "0 !important",
-  },
-}));
+import { modalStyle } from "@/theme/publicThemeConfig";
 
 const MyFinancial = observer(() => {
   const { t } = useTranslation(["financial"]);
   const router = useRouter();
-  const { styles } = useStyle();
+  const { styles } = modalStyle();
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const rateData = appStore.getRateData();
   const { isLoggedIn } = useAuth();

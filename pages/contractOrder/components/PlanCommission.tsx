@@ -1,5 +1,5 @@
 import { Flex, Form, Select, Table } from "antd";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import { SvgIcon } from "@/components/icon";
 import { useEffect, useState } from "react";
 import { NoData } from "@/components/noData";

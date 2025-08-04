@@ -270,7 +270,7 @@ export const getAccountBalance = async (params: any) => {
     return response;
   } catch (error) {
     console.error('获取账户余额失败:', error);
-    throw error;
+    // throw error;
   }
 };
 
@@ -286,7 +286,7 @@ export const getAssetsList = async () => {
     return response;
   } catch (error) {
     console.error('获取账户余额失败:', error);
-    throw error;
+    // throw error;
   }
 };
 

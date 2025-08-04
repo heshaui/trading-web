@@ -1,5 +1,5 @@
 import { Flex, Form, message, Select, Table } from "antd";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import { ColumnsType } from "antd/es/table";
 import { SvgIcon } from "@/components/icon";
 import { useTranslation } from "react-i18next";
