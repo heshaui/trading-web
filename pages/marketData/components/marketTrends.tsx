@@ -12,7 +12,7 @@ import SportMarket from './SportMarket'
 import WatchList from './watchList'
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
-import SelfSelect from '@/modules/spot/pages/components/spotChart_header/SelfSelect'
+import SelfSelect from '@/modules/spot/pages/trade/components/spotChart_header/SelfSelect'
 type Props = {
   tradeData?: any;
   

@@ -5,9 +5,9 @@ import { ConfigProvider, Tabs } from 'antd';
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
 import type { TabsProps } from 'antd';
-import SpotOrderNow from '../components/SpotOrderTable/NowOrder'
-import SpotOrderHistory from '../components/SpotOrderTable/HistoryOrder'
-import SpotOrderDeal from '../components/SpotOrderTable/HistoryDeal'
+import SpotOrderNow from './components/NowOrder'
+import SpotOrderHistory from './components/HistoryOrder'
+import SpotOrderDeal from './components/HistoryDeal'
 import appStore from '@/store';
 import { useAuth } from '@/context/AuthContext';
 interface DataType {

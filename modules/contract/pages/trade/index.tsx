@@ -5,16 +5,16 @@ import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 import appStore from "@/store";
 import { createCoId, createOrder, getDepthMap } from "@/services/contract";
-import TradingView from "../../compontents/Tradingview";
-import ContractTradingPanel from "@/modules/contract/compontents/ContractTradingPanel";
-import RiskDisclosureModal from "../../compontents/RiskDisclosureModal";
-import SymbolSelector from "../../compontents/SymbolSelector";
-import { OrderBookList, RealtimeTrade } from "../../compontents/OrderBook";
+import TradingView from "./components/Tradingview";
+import ContractTradingPanel from "./components/ContractTradingPanel";
+import RiskDisclosureModal from "./components/RiskDisclosureModal";
+import SymbolSelector from "./components/SymbolSelector";
+import { OrderBookList, RealtimeTrade } from "./components/OrderBook";
 import WebSocketService from "@/utils/websocket";
 import DepthChart from "@/components/DepthChart";
 import { Iconify } from "@/components/icon";
 import { FullscreenOutlined } from "@ant-design/icons";
-import OrderList from "../../compontents/OrderList";
+import OrderList from "./components/OrderList";
 import WaterfallLayout, { WaterfallItem } from "@/components/WaterfallLayout";
 
 // TradingView组件引用类型
