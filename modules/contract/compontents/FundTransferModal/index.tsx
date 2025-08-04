@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, ConfigProvider, Input, Button, Select } from 'antd';
+import { Modal, ConfigProvider, Input, Button, Select,Image } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
@@ -28,13 +28,20 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [selectedCoin, setSelectedCoin] = useState('USDT');
   const [transferAmount, setTransferAmount] = useState('');
   const [availableBalance] = useState(11111555503.012312338123); // 可用余额
-
+  const coinList = appStore.getCoinList();
+  console.log('coinList',coinList);
   // 币种选项
-  const coinOptions = [
-    { value: 'USDT', label: 'USDT', subLabel: 'tetherUSD' },
-    { value: 'BTC', label: 'BTC', subLabel: 'Bitcoin' },
-    { value: 'ETH', label: 'ETH', subLabel: 'Ethereum' }
-  ];
+  // const coinOptions = [
+  //   { value: 'USDT', label: 'USDT', subLabel: 'tetherUSD' },
+  //   { value: 'BTC', label: 'BTC', subLabel: 'Bitcoin' },
+  //   { value: 'ETH', label: 'ETH', subLabel: 'Ethereum' }
+  // ];
+  const coinOptions = coinList.map(coin => ({
+    id: coin.id,
+    value: coin.coinName,
+    label: coin.coinName,
+    icon: coin.iconUrl,
+  }));
 
   // 处理关闭
   const handleCancel = () => {
@@ -167,14 +174,10 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                 <Option key={coin.value} value={coin.value}>
                   <div className={styles.coinOption}>
                     <div className={styles.coinIcon}>
-                      {coin.value === 'USDT' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#26a17b'}}>₮</span>}
-                      {coin.value === 'BTC' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#f7931a'}}>₿</span>}
-                      {coin.value === 'ETH' && <span style={{fontSize: '14px', fontWeight: 'bold', color: '#627eea'}}>Ξ</span>}
+                   <Image src={coin.icon} alt={coin.label} width={20} height={20} preview={false}/>
                     </div>
                     <div className={styles.coinInfo}>
-                      <span className={styles.coinSymbol}>{coin.label}</span>
-                      <span className={styles.coinName}>{coin.subLabel}</span>
-                    </div>
+                      <span className={styles.coinSymbol}>{coin.label}</span>                    </div>
                   </div>
                 </Option>
               ))}

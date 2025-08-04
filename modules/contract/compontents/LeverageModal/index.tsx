@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Modal, Button, Slider, InputNumber } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
-
+import appStore from '@/store';
 interface LeverageModalProps {
   visible: boolean;
   onClose: () => void;
@@ -19,17 +19,13 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   currentLeverage,
   onLeverageChange,
   symbol = 'BTCUSDT',
-  maxLeverage = 0,
   positionLimit = 0
 }) => {
   const [tempLeverage, setTempLeverage] = useState(1); // 默认设置为50，与图片一致
+  const ContractInfo = appStore.currentContractInfo;
+  const maxLeverage = ContractInfo.maxLever;
 
-  // 当弹框打开时，重置临时杠杆值为50（与图片一致）
-  React.useEffect(() => {
-    if (visible) {
-      setTempLeverage(50);
-    }
-  }, [visible]);
+ 
 
   const handleConfirm = () => {
     onLeverageChange(tempLeverage);
@@ -75,7 +71,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 
         {/* 当前持仓支持杠杆范围 */}
         <div className={styles.supportRange}>
-          当前持仓支持杠杆范围【1,125】
+          当前持仓支持杠杆范围【1-{maxLeverage}】
         </div>
 
         {/* 杠杆输入区域 */}
