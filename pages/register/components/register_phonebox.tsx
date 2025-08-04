@@ -58,8 +58,8 @@ function RegisterPhone() {
 
   const onFinish = async () => {
     form.validateFields().then(async (values) => {
-      console.log(values, 111);
-      if (!values.agree) return toast.error("请先同意用户协议和隐私政策");
+      // console.log(values, 111);
+      if (!values.agree) return toast.error(t('registerForm.agreeErr'))
       const data = {
         type: "p",
         phone: values.phoneNumber,
