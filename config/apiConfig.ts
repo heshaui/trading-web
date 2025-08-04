@@ -44,8 +44,8 @@ export const KV_KEYS = [
 ];
 
 export const ROUTER_KEY_ASSETS = {
-	WITHDRAW_MONEY:"/assets/assetsAccount/withdrawMoney", //提现页面
-	TOP_UP:"/assets/assetsAccount/topUp", //充值页面
+	WITHDRAW_MONEY:"/assets/spot/withdrawMoney", //提现页面
+	TOP_UP:"/assets/spot/topUp", //充值页面
     ADDADRESS:"/assets/address", //添加地址页面
 
     FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
@@ -53,7 +53,7 @@ export const ROUTER_KEY_ASSETS = {
     SPOT_ACCOUNT:"/assets/spot", //现货账户
 };
 export const ROUTER_KEY_SPOT = {
-    INDEX:"/exchange", //首页
+    INDEX:"/spotTrade", //现货交易页面
     SPOT_ORDER: "/spotOrder", //现货订单
     FLASH_ORDER:"/flashOrder", //闪兑订单
     FINANCIAL_ORDER:"/financialOrder", //理财订单

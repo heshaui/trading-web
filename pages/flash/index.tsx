@@ -335,7 +335,7 @@ const FlashPage: NextPage = () => {
       return;
     }
     if (page === 1) {
-      router.push("/exchange");
+      router.push("/spotTrade");
     } else if (page === 2) {
       router.push("/flashOrder");
     }
