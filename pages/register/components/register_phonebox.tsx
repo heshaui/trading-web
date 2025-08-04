@@ -188,7 +188,9 @@ function RegisterPhone() {
           </div>
           <Form.Item>
             <div className="flex">
-              <PhoneCodeSelector />
+              <Form.Item noStyle name="areaCode" >
+                <PhoneCodeSelector />
+              </Form.Item>
               <Form.Item
                 noStyle
                 name="phoneNumber"

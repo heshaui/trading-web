@@ -18,7 +18,9 @@ interface CountryCodeItem {
 const PhoneCodeSelect: React.FC = () => {
   const [countryCodeList, setCountryCodeList] = useState<CountryCodeItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [hasSetDefault, setHasSetDefault] = useState(false);
   const { t } = useTranslation(["common"]);
+  const form = Form.useFormInstance();
   // 国家选项列表
   const groupedOptions = useMemo(() => {
     if (!countryCodeList.length) return [];
@@ -84,6 +86,19 @@ const PhoneCodeSelect: React.FC = () => {
   useEffect(() => {
     getCountryCodeList();
   }, []);
+
+  // 当groupedOptions有数据时，设置默认选中第一项
+  useEffect(() => {
+    if (groupedOptions.length > 0 && !hasSetDefault) {
+      const currentValue = form.getFieldValue('areaCode');
+      // 只有当前没有值时才设置默认值
+      if (!currentValue) {
+        const firstOption = groupedOptions[0];
+        form.setFieldValue('areaCode', firstOption.value);
+        setHasSetDefault(true);
+      }
+    }
+  }, [groupedOptions, hasSetDefault, form]);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);

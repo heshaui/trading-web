@@ -270,7 +270,7 @@
             "rank": "排行",
             "marketCap": "市值",
             "marketShare": "市场占有率",
-            "num": "流通数量",
+            "num": "流通量",
             "historyHigh": "历史最高价",
             "historyLow": "历史最低价",
             "issueDate": "发行日期",
@@ -280,7 +280,8 @@
             "totalSupply": "总供应",
             "circulateRate": "流通率",
             "hotRank": "热度排行",
-            "marketRank": "市值排行"
+            "marketRank": "市值排行",
+            "maxSupplyMarket": "最大供应市值"
         }
     }
 }

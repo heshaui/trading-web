@@ -101,150 +101,152 @@ function ResetPassword() {
                     }
                 } catch (error) {
                     toast.error(String(error))
-                }finally{
+                } finally {
                     setIsLoding(false)
                 }
 
 
             })
 
-}
-const handleSearch = (value: string) => {
-    setOptions(() => {
-
-        if (!value || value.includes('@')) {
-            return [];
-        }
-        return emailSuffixes.map((domain) => ({
-            label: `${value}@${domain}`,
-            value: `${value}@${domain}`,
-        }));
-    });
-};
-
-const tabsChange = (value: string) => {
-    setTabsProps(value)
-};
-useEffect(() => {
-    // 初始表单内容
-    form.setFieldsValue({
-        areaCode: type === 'p' && acount && acount !== 'undefined' ? `+${areaCode}` : "+1",
-        acount: type === 'm' && acount && acount !== 'undefined' ? acount : "",
-        acountNumber: type === 'p' && acount && acount !== 'undefined' ? acount : ""
-    });
-    if (type === 'm') {
-        setTabsProps('email')
-    } else if (type === 'p') {
-        setTabsProps('phone')
     }
-}, [acount, type, areaCode, form]);
+    const handleSearch = (value: string) => {
+        setOptions(() => {
 
-if (resetState !== ResetStateEnum.INPUT) return null;
-
-return (<>
-    <ConfigProvider
-        theme={{
-            components: {
-                Form: {
-                    itemMarginBottom: 0, // 去除表单项之间的间距
-                },
-                Input: {
-                    controlHeightLG: 50,
-                    activeBorderColor: 'var(--theme-color)',
-                    hoverBorderColor: 'var(--theme-color)',
-                    activeBg: 'var(--background11)',
-                    hoverBg: 'var(--background11)',
-                },
-                Select: {
-                    selectorBg: 'var(--background11)',
-                }
-            },
-            token: {
-                // colorBgContainerDisabled: '#fff',
+            if (!value || value.includes('@')) {
+                return [];
             }
-        }}
-    >
-        <Segmented
-            className={`${styles.custom_segmented} custom-segmented`}
-            options={[
-                {
-                    label: (
-                        //  button-color
-                        <div className={`${styles.tabs_label}`} >
-                            <div>
-                                {t('email')}</div>
-                        </div>
+            return emailSuffixes.map((domain) => ({
+                label: `${value}@${domain}`,
+                value: `${value}@${domain}`,
+            }));
+        });
+    };
 
-                    ),
-                    value: 'email',
+    const tabsChange = (value: string) => {
+        setTabsProps(value)
+    };
+    useEffect(() => {
+        // 初始表单内容
+        form.setFieldsValue({
+            areaCode: type === 'p' && acount && acount !== 'undefined' ? `+${areaCode}` : null,
+            acount: type === 'm' && acount && acount !== 'undefined' ? acount : "",
+            acountNumber: type === 'p' && acount && acount !== 'undefined' ? acount : ""
+        });
+        if (type === 'm') {
+            setTabsProps('email')
+        } else if (type === 'p') {
+            setTabsProps('phone')
+        }
+    }, [acount, type, areaCode, form]);
+
+    if (resetState !== ResetStateEnum.INPUT) return null;
+
+    return (<>
+        <ConfigProvider
+            theme={{
+                components: {
+                    Form: {
+                        itemMarginBottom: 0, // 去除表单项之间的间距
+                    },
+                    Input: {
+                        controlHeightLG: 50,
+                        activeBorderColor: 'var(--theme-color)',
+                        hoverBorderColor: 'var(--theme-color)',
+                        activeBg: 'var(--background11)',
+                        hoverBg: 'var(--background11)',
+                    },
+                    Select: {
+                        selectorBg: 'var(--background11)',
+                    }
                 },
-                {
-                    label: (
-                        <div className={`${styles.tabs_label}`} >
-                            <div>{t('phone')}</div>
-                        </div>
+                token: {
+                    // colorBgContainerDisabled: '#fff',
+                }
+            }}
+        >
+            <Segmented
+                className={`${styles.custom_segmented} custom-segmented`}
+                options={[
+                    {
+                        label: (
+                            //  button-color
+                            <div className={`${styles.tabs_label}`} >
+                                <div>
+                                    {t('email')}</div>
+                            </div>
 
-                    ),
-                    value: 'phone',
-                },
+                        ),
+                        value: 'email',
+                    },
+                    {
+                        label: (
+                            <div className={`${styles.tabs_label}`} >
+                                <div>{t('phone')}</div>
+                            </div>
 
-            ]}
-            onChange={tabsChange}
-            defaultValue={tabsProps}
-            value={tabsProps}
-        />
+                        ),
+                        value: 'phone',
+                    },
 
-        <div className="flex-col mt-10" style={{ minHeight: "70vh", width: "100%" }}>
-            {/* <div className="mb-7  font-w-500" style={{ width: "300px" }}>手机号/邮箱</div> */}
-            <Form
-                name="aount"
-                form={form}
-            // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
-            >
-                {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: t('inputAcount') }
-                    //  { validator: validateAcount }
                 ]}
+                onChange={tabsChange}
+                defaultValue={tabsProps}
+                value={tabsProps}
+            />
+
+            <div className="flex-col mt-10" style={{ minHeight: "70vh", width: "100%" }}>
+                {/* <div className="mb-7  font-w-500" style={{ width: "300px" }}>手机号/邮箱</div> */}
+                <Form
+                    name="aount"
+                    form={form}
+                // initialValues={{ areaCode: areaCode||"+1", acount: type === 'm' ? acount : "", acountNumber: type === 'p' ? acount : "" }}
                 >
-                    <AutoComplete
-                        onSearch={handleSearch}
-                        // placeholder="请输入手机/邮箱"
-                        placeholder={t('inputAcount')}
-                        options={options}
-                        allowClear={true}
-                        backfill={true}
-                        className={`${styles.acount_input} auto-complete-input  autoComplete-custom custom-sleect`}
-                    // onChange={getValue}
-                    />
+                    {tabsProps === 'email' && (<Form.Item name="acount" rules={[{ required: true, message: t('inputAcount') }
+                        //  { validator: validateAcount }
+                    ]}
+                    >
+                        <AutoComplete
+                            onSearch={handleSearch}
+                            // placeholder="请输入手机/邮箱"
+                            placeholder={t('inputAcount')}
+                            options={options}
+                            allowClear={true}
+                            backfill={true}
+                            className={`${styles.acount_input} auto-complete-input  autoComplete-custom custom-sleect`}
+                        // onChange={getValue}
+                        />
 
-                </Form.Item>)}
-                {tabsProps === 'phone' && (
-                    <Form.Item >
-                        <div className={`flex ${styles.acount_input}`}>
-                            <PhoneCodeSelector />
-                            <Form.Item noStyle name="acountNumber" rules={[{ required: true, message: t('smsInputNull') }]}>
-                                <Input placeholder={t('smsInput')} allowClear={true} className={`${styles.mail_input} ml-2 custom-input modal-input`} />
-                            </Form.Item>
-                        </div>
-                    </Form.Item>
-                )}
-            </Form>
-            <div className='flex mt-6'>
-                <button
-                    className={`${styles.goBack_btn} mr-4`}
-                    onClick={() => goBackPage()}>
-                    {/* 上一步 */}
-                    {t('goBack')}
-                </button>
-                <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>
-                    {isLoding ? <Iconify icon="eos-icons:bubble-loading" size={20} /> : t('next')}
+                    </Form.Item>)}
+                    {tabsProps === 'phone' && (
+                        <Form.Item >
+                            <div className={`flex ${styles.acount_input}`}>
+                                <Form.Item noStyle name="areaCode" >
+                                    <PhoneCodeSelector />
+                                </Form.Item>
+                                <Form.Item noStyle name="acountNumber" rules={[{ required: true, message: t('smsInputNull') }]}>
+                                    <Input placeholder={t('smsInput')} allowClear={true} className={`${styles.mail_input} ml-2 custom-input modal-input`} />
+                                </Form.Item>
+                            </div>
+                        </Form.Item>
+                    )}
+                </Form>
+                <div className='flex mt-6'>
+                    <button
+                        className={`${styles.goBack_btn} mr-4`}
+                        onClick={() => goBackPage()}>
+                        {/* 上一步 */}
+                        {t('goBack')}
                     </button>
+                    <button type='submit' className={`btn-color ${styles.next_btn} flex-1`} onClick={goNext}>
+                        {isLoding ? <Iconify icon="eos-icons:bubble-loading" size={20} /> : t('next')}
+                    </button>
+                </div>
+
             </div>
+        </ConfigProvider>
+    </>
 
-        </div>
-    </ConfigProvider>
-</>
-
-);
+    );
 }
 
 export default ResetPassword;

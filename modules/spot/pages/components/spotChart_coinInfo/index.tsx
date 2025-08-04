@@ -9,6 +9,7 @@ import { getCoinInfo, getCoinIntroduction } from "@/services/spot";
 import { toast } from "sonner";
 import { getNextJsLocale } from "@/utils/filterLang";
 import dayjs from "dayjs";
+import { division ,roundDown} from "@/utils";
 
 type Props = {
     className?: string;
@@ -18,7 +19,7 @@ type Props = {
 const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [infoData, setInfoData] = useState<infoDataType>({} as infoDataType);
-    const { t, i18n } = useTranslation("spot");
+    const { t, i18n } = useTranslation(["spot","market"]);
 
     // 优化的安全跳转函数
     const safeOpenUrl = (url: string, linkType: string = 'link') => {
@@ -71,23 +72,45 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         },
         {
             label: t('spot.coinInfo.marketCap'),// "市值",
-            key: "marketCap"
+            key: "marketCap",
+            render: (_value: string) => {
+                const unit = _value?.split('_')[1]
+                const value = _value?.split('_')[0]
+                let unitValue
+                if (unit === 'B') {
+                    unitValue = t('header.billion',{ns:'market'})
+                } else if (unit === 'M') {
+                    unitValue = t('header.million',{ns:'market'})
+                } else if (unit === 'K') {
+                    unitValue = t('header.kthousand',{ns:'market'})
+                }
+                return _value ? `$${parseFloat(value).toLocaleString()}${unitValue ? `${unitValue}` : ''}` : '--'
+            }
         },
         // {
         //     label:t('spot.coinInfo.marketShare'),// "市场占有率",
         //     key: "flowTotal"
         // },
         {
-            label: t('spot.coinInfo.num'),// "流通数量",
-            key: "flowTotal"
+            label: t('spot.coinInfo.num'),// "流通量",
+            key: "flowTotal",
+            render: (value: string) => {
+                return value ? `${parseFloat(value).toLocaleString()} ${coinName || '--'}` : '--'
+            }
         },
         {
             label: t('spot.coinInfo.historyHigh'),//"历史最高价",
-            key: "hisHighPrice"
+            key: "hisHighPrice",
+            render: (value: string) => {
+                return value ? `$${parseFloat(value).toLocaleString()} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+            }
         },
         {
             label: t('spot.coinInfo.historyLow'),//"历史最低价",
-            key: "hisLowPrice"
+            key: "hisLowPrice",
+            render: (value: string) => {
+                return value ? `$${value} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+            }
         },
         {
             label: t('spot.coinInfo.issueDate'),//"发行日期",
@@ -98,23 +121,38 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         },
         {
             label: t('spot.coinInfo.chain'),//"所属公链",
-            key: "pubChain"
+            key: "pubChain",
+            render: (value: string[]) => {
+                return value && value.length > 0 ? value.join(',') : '--'
+            }
         },
         {
             label: t('spot.coinInfo.firstPrice'),//"首次发行价",
-            key: "initialPrice"
+            key: "initialPrice",
+            render: (value: string) => {
+                return value ? `$${parseFloat(value).toLocaleString()}` : '--'
+            }
         },
         {
             label: t('spot.coinInfo.maxSupply'),//"最大供应量",
-            key: "maxSup"
+            key: "maxSup",
+            render: (value: string) => {
+                return value ? `${parseFloat(value).toLocaleString()} ${coinName || '--'}` : '--'
+            }
         },
-        // {
-        //     label: t('spot.coinInfo.totalSupply'),//"总供应",
-        //     key: "flowTotal"
-        // },
+        {
+            label: t('spot.coinInfo.maxSupplyMarket'),//"最大供应市值",
+            key: "maxSupMar",
+            render: (value: string) => {
+                return value ? `$${parseFloat(value).toLocaleString()}` : '--'
+            }
+        },
         {
             label: t('spot.coinInfo.circulateRate'),//"流通率",
-            key: "selNumPer"
+            key: "selNumPer2",
+            render: (value: string) => {
+                return value ? `${roundDown(value,2)}%` : '--'
+            }
         },
     ];
     const getCoinInfoData = async () => {
@@ -122,6 +160,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         try {
             const res = await getCoinInfo({ coinName: coinName });
             if (res.code === '0' && res.data) {
+                if (res.data.selNumPer) {
+                    res.data.selNumPer2 = res.data?.maxSup ? division(res.data?.flowTotal, res.data?.maxSup) * 100 : 0
+                }
                 setInfoData(res.data);
             } else {
                 console.warn('Failed to get coin info:', res.message);
@@ -167,7 +208,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                                     const value = infoData[item.key as keyof infoDataType];
                                     // 如果字段有自定义的 render 函数，使用它
                                     if (item.render) {
-                                        return item.render(value as string);
+                                        return item.render(value as any);
                                     }
                                     // 否则使用默认逻辑
                                     if (typeof value === 'string' || typeof value === 'number') {

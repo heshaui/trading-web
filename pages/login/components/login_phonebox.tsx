@@ -164,10 +164,10 @@ function Phonebox() {
   const goResetPassword = () => {
     router.push(
       "/resetPassword?acount=" +
-        phoneNumber +
-        "&type=p" +
-        "&areaCode=" +
-        areaCode
+      phoneNumber +
+      "&type=p" +
+      "&areaCode=" +
+      areaCode
     );
   };
   const goRegister = () => {
@@ -214,8 +214,8 @@ function Phonebox() {
           size="large"
           form={form}
           // onFinish={onFinish}
-          initialValues={{ areaCode: "+1" }}
-          // onValuesChange={usernameChange}
+          // initialValues={{ areaCode: "+1" }}
+        // onValuesChange={usernameChange}
         >
           <div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
             {/* 手机号 */}
@@ -247,7 +247,9 @@ function Phonebox() {
                                 // }}
 							/> */}
 
-              <PhoneCodeSelector />
+              <Form.Item noStyle name="areaCode" >
+                <PhoneCodeSelector />
+              </Form.Item>
               {/* </Form.Item> */}
               <Form.Item
                 name="phoneNumber"
