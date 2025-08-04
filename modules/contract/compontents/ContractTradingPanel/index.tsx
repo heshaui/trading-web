@@ -52,7 +52,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   // 状态管理 - 按固定顺序声明所有状态
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
-  const [leverageLevel, setLeverageLevel] = useState(65);
+  const [leverageLevel, setLeverageLevel] = useState(1);
   const [price, setPrice] = useState<string | number>(lastPrice);
   const [quantity, setQuantity] = useState<string | number>();
   const [percentage, setPercentage] = useState(0);
@@ -300,15 +300,15 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       <div className="mb-[16px]">
         <div className="relative flex items-center border-2 border-[var(--theme-color)] rounded-[25px] p-[4px]">
           <div
-            className={`absolute left-[4px] top-[4px] w-[50%] h-[28px] bg-[var(--theme-color)] rounded-[20px] transition-all duration-200 ${
+            className={`absolute  left-[4px] top-[4px] w-[50%] h-[40px] bg-[var(--theme-color)] rounded-[20px] transition-all duration-200 ${
               transactionType === 2 ? "left-[50%]" : ""
             }`}
           />
           <Button
             type="text"
             onClick={() => setTransactionType(1)}
-            className={`w-[50%] h-[28px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
-              transactionType === 1 ? "bg-[var(--theme-color)]" : "bg-[#F5F5F5]"
+            className={`w-[50%] h-[40px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
+              transactionType === 1 ? "bg-[var(--theme-color)]" : "bg-transparent"
             }`}
           >
             开仓
@@ -316,8 +316,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           <Button
             type="text"
             onClick={() => setTransactionType(2)}
-            className={`w-[50%] h-[28px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
-              transactionType === 2 ? "bg-[var(--theme-color)]" : "bg-[#F5F5F5]"
+            className={`w-[50%] h-[40px] text-[var(--text-color5)] font-[12px] flex items-center justify-center rounded-[20px] transition-all duration-200 ${
+              transactionType === 2 ? "bg-[var(--theme-color)]" : "bg-transparent"
             }`}
           >
             平仓
@@ -570,8 +570,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         currentLeverage={leverageLevel}
         onLeverageChange={handleLeverageChange}
         symbol={symbol}
-        maxLeverage={125}
-        positionLimit={815.4018}
+        maxLeverage={currentContractInfo.maxLever }
       />
 
       {/* 下单设置弹框 */}

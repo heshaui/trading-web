@@ -19,10 +19,10 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   currentLeverage,
   onLeverageChange,
   symbol = 'BTCUSDT',
-  maxLeverage = 125,
-  positionLimit = 3000000
+  maxLeverage = 0,
+  positionLimit = 0
 }) => {
-  const [tempLeverage, setTempLeverage] = useState(50); // 默认设置为50，与图片一致
+  const [tempLeverage, setTempLeverage] = useState(1); // 默认设置为50，与图片一致
 
   // 当弹框打开时，重置临时杠杆值为50（与图片一致）
   React.useEffect(() => {
@@ -46,14 +46,14 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
     }
   };
 
-  // 预设杠杆倍数 - 根据图片调整为5个点
-  const leveragePresets = [1, 25, 50, 100, 125];
+
 
   // 创建slider的marks
   const marks = {
     1: '1x',
     25: '25x',
     50: '50x',
+    75: '75x',
     100: '100x',
     125: '125x'
   };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'antd';
+import { Modal, Button } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import { marginModelEdit } from '@/services/contract';
@@ -82,12 +82,15 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
         }
 
         <div className={styles.confirmButton}>
-          <button
+          <Button
+            type='primary'
+            size='large'
+            shape='round'
             onClick={handleConfirm}
             className={styles.confirmBtn}
           >
             设置为{selectedMode === 1 ? '全仓' : '逐仓'}模式
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>
