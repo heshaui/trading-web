@@ -1,4 +1,3 @@
-import { withAssetsLayout } from "@/components/sidebarLayout/AssetsLayout/userAssetsLayout";
 import { ConfigProvider, Tabs } from "antd";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -9,7 +8,7 @@ import { useEffect, useState } from "react";
 import { TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { FunctionSwitchStatusEnum } from "@/services/financial";
 import appStore from "@/store";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";  
 import { observer } from "mobx-react-lite";
 
 const BillDetails = observer(() => {
@@ -69,7 +68,7 @@ const BillDetails = observer(() => {
   );
 });
 
-export default withSpotLayout(BillDetails);
+export default withOrderLayout(BillDetails);
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {

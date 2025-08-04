@@ -1,15 +1,9 @@
 import React from 'react';
-import { withSpotLayout } from '@/components/sidebarLayout/SpotLayout/userSpotLayout';
+import { withOrderLayout } from '@/components/sidebarLayout/OrderLayout/userOrderLayout';
 import styles from '../../styles/billDetails.module.css'
-import { Input, Radio, ConfigProvider, Table, Select, Form, Tabs } from 'antd';
-import { Iconify } from "@/components/icon"
-import type { ColumnsType } from "antd/es/table";
-import dayjs from 'dayjs';
+import { ConfigProvider, Tabs } from 'antd';
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from 'next/router';
-import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { TabsProps } from 'antd';
 import SpotOrderNow from '../components/SpotOrderTable/NowOrder'
 import SpotOrderHistory from '../components/SpotOrderTable/HistoryOrder'
@@ -168,4 +162,4 @@ const SpotOrderPage = () => {
     );
 };
 
-export default withSpotLayout(SpotOrderPage);
+export default withOrderLayout(SpotOrderPage);

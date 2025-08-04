@@ -1,4 +1,4 @@
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";    
 import { DatePickerTheme, SelectTheme, TableTheme, TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { ConfigProvider, Tabs } from "antd";
 import { GetStaticProps } from "next";
@@ -84,7 +84,7 @@ const ContractOrder = () => {
   );
 };
 
-export default withSpotLayout(ContractOrder);
+export default withOrderLayout(ContractOrder);
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {

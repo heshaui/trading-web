@@ -1,18 +1,15 @@
 import React from "react";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";
 import {
   ConfigProvider,
   Table,
-  Tag,
   DatePicker,
   Select,
   Space,
-  Button,
-  Image,
 } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import dayjs from "dayjs";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -24,7 +21,7 @@ import { getCoinAll } from "@/services/assets";
 import { NoData } from "@/components/noData";
 import type { GetStaticProps } from "next";
 import { Iconify } from "@/components/icon";
-import { getRate, getCoinRate, getCoinRound } from "@/utils/getUseRate";
+import { getCoinRound } from "@/utils/getUseRate";
 
 interface TransactionRecord {
   id: string;
@@ -406,7 +403,7 @@ const FlashOrderPage = () => {
   );
 };
 
-export default withSpotLayout(FlashOrderPage);
+export default withOrderLayout(FlashOrderPage);
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
