@@ -1,10 +1,13 @@
-import { Flex, Form, Select, Table } from "antd";
+import { Flex, Form, message, Select, Table } from "antd";
 import styles from "@/styles/components/Table.module.css";
 import { SvgIcon } from "@/components/icon";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NoData } from "@/components/noData";
 import { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+import { getPlanOrderList } from "@/services/contract";
+import { useWatch } from "antd/es/form/Form";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -28,46 +31,43 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
   },
 };
 // 计划委托
-const PlanCommission = () => {
+const PlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
+  const contractId = useWatch("contractId", form);
 
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(false);
 
   // 获取列表
-  const fetchData = async () => {
-    setTimeout(() => {
-      setDataSource([
-        {
-          name: "BTCUSDT",
-          time: "2021-01-01 12:00:00",
-          type: "限价",
-          direction: 1,
-          price: "10000",
-          number: "100",
-          orderType: "限价",
-          triggerPrice: "10000",
-          only: "是",
-          expirationTime: "2021-01-01 12:00:00",
-          operation: "撤单",
-        },
-        {
-          name: "BTCUSDT",
-          time: "2021-01-01 12:00:00",
-          type: "限价",
-          direction: 2,
-          price: "10000",
-          number: "100",
-          orderType: "限价",
-          triggerPrice: "10000",
-          only: "是",
-          expirationTime: "2021-01-01 12:00:00",
-          operation: "撤单",
-        },
-      ]);
-    }, 1000);
-  };
+  const fetchData = useCallback(async () => {
+    // 如果参数未定义则不执行请求
+    if (contractId === undefined) {
+      return;
+    }
+    // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
+    try {
+      setTableLoading(true);
+      const paramsContractId =
+        contractId === NULL_PLACEHOLDER || !contractId ? "" : contractId;
+      const res = await getPlanOrderList({
+        limit: 10,
+        page: 1,
+        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        contractId: paramsContractId,
+      });
+      if (res.code === 0) {
+        setDataSource(res.data.list);
+      } else {
+        message.error(res.msg);
+      }
+      console.log("res", res);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setTableLoading(false);
+    }
+  }, [contractId]);
 
   // 撤单
   const cancelOrder = (record: any) => {
@@ -239,8 +239,10 @@ const PlanCommission = () => {
   ];
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (activeKey === "2") {
+      fetchData();
+    }
+  }, [activeKey, fetchData]);
 
   //返回
   return (
@@ -252,28 +254,32 @@ const PlanCommission = () => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle>
+          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
-              value={
-                !form.getFieldValue("contractId")
-                  ? NULL_PLACEHOLDER
-                  : form.getFieldValue("contractId")
-              }
-              prefix={"全部合约"}
+              value={!contractId ? NULL_PLACEHOLDER : contractId}
+              prefix={"合约"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
+                {
+                  label: "测试",
+                  value: 1,
+                },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : value;
                 form.setFieldsValue({
-                  contractId: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  contractId: newValue,
+                });
+              }}
             />
           </Form.Item>
         </Flex>

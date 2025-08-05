@@ -254,8 +254,8 @@ const OrderList: React.FC = () => {
       setLoading(true);
       const response = await getHistoryOrderList({
         contractId: currentContractInfo.id,
+        limit: 100,
         page: 1,
-        pageSize: 100,
       });
       if (response?.data?.orderList) {
         setHistoryCommission(response.data.orderList || []);
@@ -279,6 +279,10 @@ const OrderList: React.FC = () => {
       setLoading(true);
       const response = await getCurrentOrderList({
         contractId: currentContractInfo.id,
+        limit: 10,
+        page: 1,
+        type: "",
+        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
 
       if (response?.data?.orderList) {
@@ -1131,7 +1135,7 @@ const OrderList: React.FC = () => {
     if (currentContractInfo?.id) {
       getOrderList();
     }
-  }, [currentContractInfo?.id, getOrderList]);
+  }, [getOrderList]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染

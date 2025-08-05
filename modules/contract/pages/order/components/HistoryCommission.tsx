@@ -1,11 +1,13 @@
-import { DatePicker, Flex, Form, Select, Table } from "antd";
+import { DatePicker, Flex, Form, message, Select, Table } from "antd";
 import styles from "@/styles/components/Table.module.css";
 import { ColumnsType } from "antd/es/table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NoData } from "@/components/noData";
 import { useTranslation } from "react-i18next";
 import { Iconify } from "@/components/icon";
 import dayjs from "dayjs";
+import { getHistoryOrderList } from "@/services/contract";
+import { useWatch } from "antd/es/form/Form";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -30,48 +32,55 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
   },
 };
 // 历史委托
-const HistoryCommission = () => {
+const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
+
+  const contractId = useWatch("contractId", form);
+  const type = useWatch("type", form);
+  const time = useWatch("time", form);
 
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(false);
 
   // 获取列表
-  const fetchData = async () => {
-    setTimeout(() => {
-      setDataSource([
-        {
-          name: "BTCUSDT",
-          orderType: "限价",
-          direction: 1,
-          price: "10000",
-          number: "100",
-          number2: "100",
-          price2: "10000",
-          fee: "10000",
-          only: "是",
-          stop: "是",
-          status: "已撤单",
-          time: "2021-01-01 12:00:00",
-        },
-        {
-          name: "BTCUSDT",
-          orderType: "限价",
-          direction: 2,
-          price: "10000",
-          number: "100",
-          number2: "100",
-          price2: "10000",
-          fee: "10000",
-          only: "是",
-          stop: "是",
-          status: "已撤单",
-          time: "2021-01-01 12:00:00",
-        },
-      ]);
-    }, 1000);
-  };
+  const fetchData = useCallback(async () => {
+    // 如果参数未定义则不执行请求
+    if (contractId === undefined || type === undefined || time === undefined) {
+      return;
+    }
+    // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
+    try {
+      setTableLoading(true);
+      const paramsContractId =
+        contractId === NULL_PLACEHOLDER || !contractId ? "" : contractId;
+
+      const paramsType = type === NULL_PLACEHOLDER || !type ? "" : type;
+
+      const paramsTime = time
+        ? [dayjs(time[0]).startOf("day"), dayjs(time[1]).endOf("day")]
+        : [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")];
+
+      const res = await getHistoryOrderList({
+        limit: 10,
+        page: 1,
+        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        type: paramsType,
+        contractId: paramsContractId,
+        beginTime: paramsTime[0].valueOf(),
+        endTime: paramsTime[1].valueOf(),
+      });
+      if (res.code === 0) {
+        setDataSource(res.data.list);
+      } else {
+        message.error(res.msg);
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setTableLoading(false);
+    }
+  }, [contractId, type, time]);
 
   // 列表项
   const columns: ColumnsType<any> = [
@@ -249,8 +258,10 @@ const HistoryCommission = () => {
   ];
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (activeKey === "3") {
+      fetchData();
+    }
+  }, [activeKey, fetchData]);
 
   // 返回
   return (
@@ -262,60 +273,75 @@ const HistoryCommission = () => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle>
+          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
-              value={
-                !form.getFieldValue("contractId")
-                  ? NULL_PLACEHOLDER
-                  : form.getFieldValue("contractId")
-              }
-              prefix={"全部合约"}
+              value={!contractId ? NULL_PLACEHOLDER : contractId}
+              prefix={"合约"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
+                {
+                  label: "测试",
+                  value: 1,
+                },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : value;
                 form.setFieldsValue({
-                  contractId: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  contractId: newValue,
+                });
+              }}
             />
           </Form.Item>
 
           {/* 全部类型 */}
-          <Form.Item name="type" noStyle>
+          <Form.Item name="type" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
-              value={
-                !form.getFieldValue("type")
-                  ? NULL_PLACEHOLDER
-                  : form.getFieldValue("type")
-              }
-              prefix={"全部类型"}
+              value={!type ? NULL_PLACEHOLDER : type}
+              prefix={"类型"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
+                {
+                  label: "测试",
+                  value: 1,
+                },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : value;
                 form.setFieldsValue({
-                  type: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  type: newValue,
+                });
+              }}
             />
             {/* 全部类型 */}
           </Form.Item>
 
           {/* 开始时间-结束时间 */}
-          <Form.Item name="time" noStyle>
+          <Form.Item
+            name="time"
+            noStyle
+            initialValue={[
+              dayjs().subtract(7, "day").startOf("day"),
+              dayjs().endOf("day"),
+            ]}
+          >
             {/* 时间  默认显示七天 ,超过六个月不可点击*/}
             <RangePicker
               className="w-[278px] h-[50px]"
@@ -331,7 +357,7 @@ const HistoryCommission = () => {
                   (current.isBefore(sixMonthsAgo) || current.isAfter(today))
                 );
               }}
-              value={form.getFieldValue("time")}
+              value={time}
               suffixIcon={
                 <Iconify
                   icon="cuida:calendar-outline"
@@ -339,7 +365,7 @@ const HistoryCommission = () => {
                   size={20}
                 />
               }
-              placeholder={[t("common.startTime"), t("common.endTime")]}
+              placeholder={["开始时间", "结束时间"]}
               onChange={(value) => {
                 if (!value) {
                   form.setFieldsValue({

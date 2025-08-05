@@ -3,8 +3,11 @@ import styles from "@/styles/components/Table.module.css";
 import { ColumnsType } from "antd/es/table";
 import { SvgIcon } from "@/components/icon";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NoData } from "@/components/noData";
+import { getCurrentOrderList } from "@/services/contract";
+import dayjs from "dayjs";
+import { useWatch } from "antd/es/form/Form";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -28,9 +31,12 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
   },
 };
 // 当前委托
-const CurrentCommission = () => {
+const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+
+  const type = useWatch("type", form);
+  const contractId = useWatch("contractId", form);
 
   const [tableLoading, setTableLoading] = useState(false);
   const [dataSource, setDataSource] = useState<any[]>([]);
@@ -40,63 +46,37 @@ const CurrentCommission = () => {
   };
 
   // 获取列表
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    // 如果参数未定义则不执行请求
+    if (type === undefined || contractId === undefined) {
+      return;
+    }
+    // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
     try {
       setTableLoading(true);
-      setTimeout(() => {
-        setDataSource([
-          {
-            id: 1,
-            name: "BTCUSDT",
-            time: "2021-01-01 12:00:00",
-            type: "限价",
-            direction: 1,
-            price: "10000",
-            number: "100",
-            number2: "100",
-            price2: "10000",
-            only: "是",
-            stop: "是",
-            operation: "撤单",
-          },
-          {
-            id: 2,
-            name: "BTCUSDT",
-            time: "2021-01-01 12:00:00",
-            type: "限价",
-            direction: 2,
-            price: "10000",
-            number: "100",
-            number2: "100",
-            price2: "10000",
-            only: "是",
-            stop: "是",
-            operation: "撤单",
-          },
-          {
-            id: 3,
-            name: "BTCUSDT",
-            time: "2021-01-01 12:00:00",
-            type: "限价",
-            direction: 3,
-            price: "10000",
-            number: "100",
-            number2: "100",
-            price2: "10000",
-            only: "是",
-            stop: "是",
-            operation: "撤单",
-          },
-        ]);
-      }, 1000);
+      const paramsType = type === NULL_PLACEHOLDER ? "" : type;
+      const paramsContractId =
+        contractId === NULL_PLACEHOLDER ? "" : contractId;
+
+      const res = await getCurrentOrderList({
+        limit: 10,
+        page: 1,
+        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        type: paramsType,
+        contractId: paramsContractId,
+      });
+      if (res.code === 0) {
+        setDataSource(res.data.list);
+      } else {
+        message.error(res.msg);
+      }
+      console.log("res", res);
     } catch (error) {
-      console.log(error);
-      setDataSource([]);
-      message.error("获取列表失败");
+      console.log("error", error);
     } finally {
       setTableLoading(false);
     }
-  };
+  }, [type, contractId]);
   // 列表项
   const columns: ColumnsType<any> = [
     // 合约
@@ -261,8 +241,11 @@ const CurrentCommission = () => {
   ];
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    // 只有当当前标签页是激活状态时才请求数据
+    if (activeKey === "1") {
+      fetchData();
+    }
+  }, [activeKey, fetchData]);
 
   // 返回
   return (
@@ -274,58 +257,68 @@ const CurrentCommission = () => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle>
+          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
-              value={
-                !form.getFieldValue("contractId")
-                  ? NULL_PLACEHOLDER
-                  : form.getFieldValue("contractId")
-              }
-              prefix={"全部合约"}
+              value={!contractId ? NULL_PLACEHOLDER : contractId}
+              prefix={"合约"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                // 当点击 allowClear 或选择"全部"时，设置为 NULL_PLACEHOLDER
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : Number(value);
                 form.setFieldsValue({
-                  contractId: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  contractId: newValue,
+                });
+              }}
             />
           </Form.Item>
           {/* 全部类型 */}
-          <Form.Item name="type" noStyle>
+          <Form.Item name="type" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
-              value={
-                !form.getFieldValue("type")
-                  ? NULL_PLACEHOLDER
-                  : form.getFieldValue("type")
-              }
-              prefix={"全部类型"}
+              value={!type ? NULL_PLACEHOLDER : type}
+              prefix={"类型"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
+                {
+                  label: "限价单",
+                  value: 1,
+                },
+                {
+                  label: "PostOnly",
+                  value: 5,
+                },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                // 当点击 allowClear 或选择"全部"时，设置为 NULL_PLACEHOLDER
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : value;
                 form.setFieldsValue({
-                  type: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  type: newValue,
+                });
+              }}
             />
           </Form.Item>
         </Flex>
       </Form>
-      
+
       {/* 表格 */}
       <Table
         scroll={{ x: "max-content" }}

@@ -1,5 +1,11 @@
-import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";    
-import { DatePickerTheme, SelectTheme, TableTheme, TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";
+import {
+  DatePickerTheme,
+  SelectTheme,
+  TableTheme,
+  TabsTheme,
+  TokenTheme,
+} from "@/theme/publicThemeConfig";
 import { ConfigProvider, Tabs } from "antd";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
@@ -13,37 +19,38 @@ import HistoryDeal from "./components/HistoryDeal";
 const ContractOrder = () => {
   const { t } = useTranslation(["common"]);
   const [isClient, setIsClient] = useState(false);
+  const [activeKey, setActiveKey] = useState("1");
 
   const items = [
     // 当前委托  CurrentCommission
     {
       key: "1",
       label: "当前委托",
-      children: <CurrentCommission />,
+      children: <CurrentCommission activeKey={activeKey} />,
     },
     // 计划委托 PlanCommission
     {
       key: "2",
       label: "计划委托",
-      children: <PlanCommission />,
+      children: <PlanCommission activeKey={activeKey} />,
     },
     // 历史委托 HistoryCommission
     {
       key: "3",
       label: "历史委托",
-      children: <HistoryCommission />,
+      children: <HistoryCommission activeKey={activeKey} />,
     },
     // 历史计划委托 HistoryPlanCommission
     {
       key: "4",
       label: "历史计划委托",
-      children: <HistoryPlanCommission />,
+      children: <HistoryPlanCommission activeKey={activeKey} />,
     },
     // 历史成交 HistoryDeal
     {
       key: "5",
       label: "历史成交",
-      children: <HistoryDeal />,
+      children: <HistoryDeal activeKey={activeKey} />,
     },
   ];
 
@@ -74,6 +81,10 @@ const ContractOrder = () => {
         <div className="bg-[var(--btncolor7)] rounded-[10px] flex-1">
           <Tabs
             items={items}
+            activeKey={activeKey}
+            onChange={(key) => {
+              setActiveKey(key);
+            }}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
           />
         </div>

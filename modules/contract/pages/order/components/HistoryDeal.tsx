@@ -1,11 +1,13 @@
-import { Select, Table, DatePicker, Form, Flex } from "antd";
+import { Select, Table, DatePicker, Form, Flex, message } from "antd";
 import styles from "@/styles/components/Table.module.css";
 import dayjs from "dayjs";
 import { Iconify } from "@/components/icon";
 import { useTranslation } from "react-i18next";
 import { ColumnsType } from "antd/es/table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NoData } from "@/components/noData";
+import { getHistoryTradeList } from "@/services/contract";
+import { useWatch } from "antd/es/form/Form";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -29,9 +31,12 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
   },
 };
 // 历史成交
-const HistoryDeal = () => {
+const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
+
+  const contractId = useWatch("contractId", form);
+  const time = useWatch("time", form);
 
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(false);
@@ -60,7 +65,10 @@ const HistoryDeal = () => {
       render: (_: any, record: any) => {
         const direction = record.direction as DirectionEnum;
         return (
-          <div className="text-[14px] font-[500]" style={{ color: directionMap[direction].color }}>
+          <div
+            className="text-[14px] font-[500]"
+            style={{ color: directionMap[direction].color }}
+          >
             {directionMap[direction].text}
           </div>
         );
@@ -138,35 +146,46 @@ const HistoryDeal = () => {
     },
   ];
 
-  const fetchData = async () => {
-    setTimeout(() => {
-      setDataSource([
-        {
-          name: "BTCUSDT",
-          direction: 1,
-          role: "买",
-          price: "10000",
-          number: "100",
-          fee: "10000",
-          time: "2021-01-01 12:00:00",
-        },
-        {
-          name: "BTCUSDT",
-          direction: 2,
-          role: "买",
-          price: "10000",
-          number: "100",
-          fee: "10000",
-          time: "2021-01-01 12:00:00",
-        },
-      ]);
-    }, 1000);
-  };
+  const fetchData = useCallback(async () => {
+    // 如果参数未定义则不执行请求
+    if (contractId === undefined || time === undefined) {
+      return;
+    }
+    // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
+    try {
+      setTableLoading(true);
+      const paramsContractId =
+        contractId === NULL_PLACEHOLDER || !contractId ? "" : contractId;
+      const paramsTime = time
+        ? [dayjs(time[0]).startOf("day"), dayjs(time[1]).endOf("day")]
+        : [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")];
+
+      const res = await getHistoryTradeList({
+        limit: 10,
+        page: 1,
+        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        contractId: paramsContractId,
+        beginTime: paramsTime[0].valueOf(),
+        endTime: paramsTime[1].valueOf(),
+      });
+      if (res.code === 0) {
+        setDataSource(res.data.list);
+      } else {
+        message.error(res.msg);
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setTableLoading(false);
+    }
+  }, [contractId, time]);
 
   // 获取列表
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (activeKey === "5") {
+      fetchData();
+    }
+  }, [activeKey, fetchData]);
 
   return (
     <div>
@@ -177,7 +196,7 @@ const HistoryDeal = () => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle>
+          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
             <Select
               allowClear
               value={
@@ -185,25 +204,40 @@ const HistoryDeal = () => {
                   ? NULL_PLACEHOLDER
                   : form.getFieldValue("contractId")
               }
-              prefix={"全部合约"}
+              prefix={"合约"}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: t("common.all"),
+                  label: "全部",
                   value: NULL_PLACEHOLDER,
                 },
+                {
+                  label: "测试",
+                  value: 1,
+                },
               ]}
-              onChange={(value) =>
+              onChange={(value) => {
+                const newValue =
+                  value === NULL_PLACEHOLDER || value === undefined
+                    ? NULL_PLACEHOLDER
+                    : value;
                 form.setFieldsValue({
-                  contractId: value === NULL_PLACEHOLDER ? null : Number(value),
-                })
-              }
+                  contractId: newValue,
+                });
+              }}
             />
           </Form.Item>
 
           {/* 开始时间-结束时间 */}
-          <Form.Item name="time" noStyle>
+          <Form.Item
+            name="time"
+            noStyle
+            initialValue={[
+              dayjs().subtract(7, "day").startOf("day"),
+              dayjs().endOf("day"),
+            ]}
+          >
             {/* 时间  默认显示七天 ,超过六个月不可点击*/}
             <RangePicker
               className="w-[278px] h-[50px]"
@@ -219,7 +253,7 @@ const HistoryDeal = () => {
                   (current.isBefore(sixMonthsAgo) || current.isAfter(today))
                 );
               }}
-              value={form.getFieldValue("time")}
+              value={time}
               suffixIcon={
                 <Iconify
                   icon="cuida:calendar-outline"
@@ -227,7 +261,7 @@ const HistoryDeal = () => {
                   size={20}
                 />
               }
-              placeholder={[t("common.startTime"), t("common.endTime")]}
+              placeholder={["开始时间", "结束时间"]}
               onChange={(value) => {
                 if (!value) {
                   form.setFieldsValue({
