@@ -423,7 +423,7 @@ interface CurrentOrderListParams {
   uaTime?: string; // 时间戳
 }
 export const getCurrentOrderList = async (params: CurrentOrderListParams) => {
-  try { 
+  try {
     const response = await request<any>("/fe-co-api/order/current_order_list", {
       method: "POST",
       headers: formatHeaders(),
@@ -538,3 +538,29 @@ export const getHistoryTradeList = async (params: HistoryTradeListParams) => {
   }
 };
 /*-----------------5.合约订单-历史成交end------------------*/
+
+/**************************合约账户*****************************/
+/*-----------------1.合约账户-资金记录start------------------*/
+interface ContractFinancialRecordsParams {
+  onlyAccount: number; // 1: 仅账户资金记录, 0: 账户资金记录+合约资金记录
+  uaTime: string; // 时间
+}
+export const getContractFinancialRecords = async (
+  params: ContractFinancialRecordsParams
+) => {
+  try {
+    const response = await request<any>(
+      "/fe-co-api/position/get_assets_list?pageSource=coAccount",
+      {
+        method: "POST",
+        headers: formatHeaders(),
+        body: JSON.stringify(params),
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("获取合约账户资金记录失败:", error);
+    throw error;
+  }
+};
+/*-----------------1.合约账户-资金记录end------------------*/
