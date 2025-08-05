@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/now.module.css'
+import styles from '../../styles/now.module.css'
 import { Checkbox, ConfigProvider, Table, Select, Form, DatePicker } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";

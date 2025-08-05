@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/now.module.css'
+import styles from '../../styles/now.module.css'
 import { Input, Radio, ConfigProvider, Table, Select, Form, Tooltip, notification } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";

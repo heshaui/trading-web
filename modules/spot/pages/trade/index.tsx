@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import styles from "../../styles/billDetails.module.css";
+import styles from "../styles/billDetails.module.css";
 import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown } from "antd";
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";

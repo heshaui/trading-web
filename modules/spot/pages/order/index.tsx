@@ -1,6 +1,6 @@
 import React from 'react';
 import { withOrderLayout } from '@/components/sidebarLayout/OrderLayout/userOrderLayout';
-import styles from '../../styles/billDetails.module.css'
+import styles from '../styles/billDetails.module.css'
 import { ConfigProvider, Tabs } from 'antd';
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'next-i18next';
