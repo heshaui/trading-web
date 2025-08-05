@@ -237,7 +237,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         className="border-radius-50% rounded-full w-[20px] h-[20px]" />
                     <div className="flex-x align-end">
                         <span className={`${styles.title_color} font-18 font-w-500 ml-1`}>
-                            {coinName || '--'}/{baseCoinName || '--'}
+                            {coinName || '--'}
                         </span>
                         <span className={`${styles.tip_color} font-12 font-w-400 ml-1`}>{infoData?.nameDefault || '--'}</span>
                     </div>
