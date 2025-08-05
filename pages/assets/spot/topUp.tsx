@@ -13,8 +13,8 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { NoData, NoAddress } from "@/components/noData";
-import NoUseCom from "../compontents/noSM";
-import RechargeTable from "../compontents/rechargeTable";
+import NoUseCom from "../components/noSM";
+import RechargeTable from "../components/rechargeTable";
 const TopUpPage = () => {
   const { t } = useTranslation("assets");
   const { isDayMode } = useThemeMode(); // 使用 hook

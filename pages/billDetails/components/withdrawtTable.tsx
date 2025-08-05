@@ -14,7 +14,7 @@ import { getCoinRate } from '@/utils/getUseRate';
 import { roundDown } from '@/utils/math'
 import appStore from '@/store';
 import { WithdrawDataType } from "@/type/assets/billDetails/table"
-import TableCancelModal from '../../assets/compontents/modal/table_cancel';
+import TableCancelModal from '../../assets/components/modal/table_cancel';
 import { encryptData } from '@/hooks/user-encrypt'
 import {  getCancelWithdraw } from '@/services/assets'
 

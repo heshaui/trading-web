@@ -21,7 +21,7 @@ import Link from "next/link";
 import { NoData, NoAddress } from "@/components/noData";
 import WithdrawMoneyCheck from "@/components/assetsModal/withdrawMoneyCheck";
 import { useRouter } from "next/router";
-import NoUseCom from "../compontents/noSM";
+import NoUseCom from "../components/noSM";
 import {
   getuserAddressList,
   getWithdrawCoinAll,
@@ -34,7 +34,7 @@ import {
 import { toast } from "sonner";
 import { cut, nul, division, countNum, withdrawFee } from "@/utils";
 import { getUserInfo } from "@/hooks/userInfo";
-import TableBox from "../compontents/withDrawTable";
+import TableBox from "../components/withDrawTable";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
@@ -56,7 +56,7 @@ import {
   coinInfoType,
   limitType,
 } from "@/type/assets/assetsAccount/withdraw";
-import WithdrawSteps from "../compontents/withDrawSteps";
+import WithdrawSteps from "../components/withDrawSteps";
 
 const WithdrawMoneyPage = observer(() => {
   const { t } = useTranslation("assets");

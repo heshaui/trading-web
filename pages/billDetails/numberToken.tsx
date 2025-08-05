@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import InvitationTable from "./compontents/inviteTable";
-import WithdrawTable from "./compontents/withdrawtTable";
-import RechargeTable from "./compontents/rechargeTable";
-import GiftTable from "./compontents/giftTable";
+import InvitationTable from "./components/inviteTable";
+import WithdrawTable from "./components/withdrawtTable";
+import RechargeTable from "./components/rechargeTable";
+import GiftTable from "./components/giftTable";
 import { getCoinAll, getOrderList } from "@/services/assets";
 import Image from "next/image";
 
