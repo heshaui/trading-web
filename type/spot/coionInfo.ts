@@ -14,6 +14,8 @@ export interface infoDataType {
     coinName: string;
     fullName: string; //币种简称
     name: string; //币种简称
+    iconUrl: string; //币种图标
+    nameDefault: string; //币种全称
     project: string; //项目名称
     marketCapRank: number; //市值排行
     hotRank: number; //热度排行

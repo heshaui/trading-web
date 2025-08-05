@@ -9,7 +9,8 @@ import { getCoinInfo, getCoinIntroduction } from "@/services/spot";
 import { toast } from "sonner";
 import { getNextJsLocale } from "@/utils/filterLang";
 import dayjs from "dayjs";
-import { division ,roundDown} from "@/utils";
+import { division ,roundDown,nul} from "@/utils";
+import appStore from "@/store";
 
 type Props = {
     className?: string;
@@ -20,7 +21,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [infoData, setInfoData] = useState<infoDataType>({} as infoDataType);
     const { t, i18n } = useTranslation(["spot","market"]);
-
+    const coinListInfo = appStore.getCoinList()
+    const rateKey=appStore.getRateKey()
+    const rateList=appStore.getRateData()
     // 优化的安全跳转函数
     const safeOpenUrl = (url: string, linkType: string = 'link') => {
         if (!url) {
@@ -74,17 +77,43 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.marketCap'),// "市值",
             key: "marketCap",
             render: (_value: string) => {
-                const unit = _value?.split('_')[1]
-                const value = _value?.split('_')[0]
-                let unitValue
-                if (unit === 'B') {
-                    unitValue = t('header.billion',{ns:'market'})
-                } else if (unit === 'M') {
-                    unitValue = t('header.million',{ns:'market'})
-                } else if (unit === 'K') {
-                    unitValue = t('header.kthousand',{ns:'market'})
+                if (!_value) return '--'
+                
+                const [num, unit] = _value.split('_')
+                const rateInfo = rateList.find(item => item.shortName === rateKey)
+                
+                // 单位转换配置
+                const UNIT_MULTIPLIERS = { 'B': 1e9, 'M': 1e6, 'K': 1e3 }
+                const UNIT_LABELS = {
+                    'B': t('header.billion',{ns:'market'}),
+                    'M': t('header.million',{ns:'market'}),
+                    'K': t('header.kthousand',{ns:'market'})
                 }
-                return _value ? `$${parseFloat(value).toLocaleString()}${unitValue ? `${unitValue}` : ''}` : '--'
+                
+                // 计算转换后的值
+                const baseValue = parseFloat(num) || 0
+                const multiplier = UNIT_MULTIPLIERS[unit as keyof typeof UNIT_MULTIPLIERS] || 1
+                const convertedValue = nul(baseValue * multiplier, rateInfo?.exchangeRate || 1) || 0
+                
+                // 智能格式化
+                const formatLargeNumber = (value: number) => {
+                    const formats = [
+                        [1e9, UNIT_LABELS.B],
+                        [1e6, UNIT_LABELS.M], 
+                        [1e3, UNIT_LABELS.K]
+                    ] as const
+                    
+                    const [divisor, label] = formats.find(([threshold]) => value >= threshold) || [1, '']
+                    const formattedValue = (value / divisor).toFixed(2)
+                    
+                    return {
+                        value: parseFloat(formattedValue).toLocaleString(),
+                        unit: label
+                    }
+                }
+                
+                const { value, unit: displayUnit } = formatLargeNumber(convertedValue)
+                return `${rateInfo?.symbol || '--'}${value}${displayUnit}`
             }
         },
         // {
@@ -95,21 +124,26 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.num'),// "流通量",
             key: "flowTotal",
             render: (value: string) => {
+                
                 return value ? `${parseFloat(value).toLocaleString()} ${coinName || '--'}` : '--'
             }
         },
         {
             label: t('spot.coinInfo.historyHigh'),//"历史最高价",
             key: "hisHighPrice",
-            render: (value: string) => {
-                return value ? `$${parseFloat(value).toLocaleString()} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+            render: (_value: string) => {
+                const rateInfo=rateList.find(item=>item.shortName===rateKey)
+                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
+                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
             label: t('spot.coinInfo.historyLow'),//"历史最低价",
             key: "hisLowPrice",
-            render: (value: string) => {
-                return value ? `$${value} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+            render: (_value: string) => {
+                const rateInfo=rateList.find(item=>item.shortName===rateKey)
+                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
+                return _value ? `${rateInfo?.symbol||'--'}${value} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
@@ -129,8 +163,10 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         {
             label: t('spot.coinInfo.firstPrice'),//"首次发行价",
             key: "initialPrice",
-            render: (value: string) => {
-                return value ? `$${parseFloat(value).toLocaleString()}` : '--'
+            render: (_value: string) => {
+                const rateInfo=rateList.find(item=>item.shortName===rateKey)
+                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
+                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()}` : '--'
             }
         },
         {
@@ -143,8 +179,10 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         {
             label: t('spot.coinInfo.maxSupplyMarket'),//"最大供应市值",
             key: "maxSupMar",
-            render: (value: string) => {
-                return value ? `$${parseFloat(value).toLocaleString()}` : '--'
+            render: (_value: string) => {
+                const rateInfo=rateList.find(item=>item.shortName===rateKey)
+                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
+                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()}` : '--'
             }
         },
         {
@@ -160,10 +198,17 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         try {
             const res = await getCoinInfo({ coinName: coinName });
             if (res.code === '0' && res.data) {
-                if (res.data.selNumPer) {
-                    res.data.selNumPer2 = res.data?.maxSup ? division(res.data?.flowTotal, res.data?.maxSup) * 100 : 0
+                // if (res.data.selNumPer) {
+                //     res.data.selNumPer2 = res.data?.maxSup ? division(res.data?.flowTotal, res.data?.maxSup) * 100 : 0
+                // }
+                const coinInfo = coinListInfo.find(item => item.coinName === coinName)
+                const coinBaseInfo = {
+                    ...res.data,
+                    iconUrl:coinInfo?.iconUrl,
+                    selNumPer2:res.data?.maxSup?division(res.data?.flowTotal,res.data?.maxSup)*100:0,
+                    nameDefault:coinInfo?.nameDefault,
                 }
-                setInfoData(res.data);
+                setInfoData(coinBaseInfo);
             } else {
                 console.warn('Failed to get coin info:', res.message);
                 // 不显示错误提示，静默失败
@@ -187,14 +232,14 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         >
             <div className="flex-1 mr-10">
                 <div className="w-full flex-x align-center">
-                    <Image src={infoData?.icon || ''} alt="btc" width={20} height={20}
+                    <Image src={infoData?.iconUrl || ''} alt="btc" width={20} height={20}
                         preview={false}
-                        className="border-radius-50%" />
+                        className="border-radius-50% rounded-full w-[20px] h-[20px]" />
                     <div className="flex-x align-end">
                         <span className={`${styles.title_color} font-18 font-w-500 ml-1`}>
                             {coinName || '--'}/{baseCoinName || '--'}
                         </span>
-                        <span className={`${styles.tip_color} font-12 font-w-400 ml-1`}>{infoData?.fullName || '--'}</span>
+                        <span className={`${styles.tip_color} font-12 font-w-400 ml-1`}>{infoData?.nameDefault || '--'}</span>
                     </div>
 
                 </div>
@@ -283,7 +328,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                 {/* 介绍 */}
                 {t('spot.coinInfo.introduction')}
             </p>
-            <div className={`${styles.tip_color} mt-1`}>
+            <div className={`${styles.tip_color} mt-1 max-h-[480px] overflow-y-auto`}>
                 <div className={isExpanded ? '' : styles.textEllipsis}>
                     {/* 比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。 BTC可以安全,
                     可验证和不变的方式进行电子现比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。
@@ -299,7 +344,8 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
                     {isExpanded ? t('spot.coinInfo.collapse') : t('spot.coinInfo.expand')}
-                    <DownOutlined rotate={isExpanded ? 180 : 0} className="ml-1 font-12" />
+                    <Iconify icon={isExpanded?"ant-design:up-outlined":"ant-design:down-outlined"} className="ml-1 font-12" size={16} />
+                    {/* <DownOutlined rotate={ ? 180 : 0} className="ml-1 font-12" /> */}
                 </button>
             </div>
         </div>

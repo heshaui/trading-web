@@ -277,7 +277,9 @@
             "totalSupply": "총 공급량",
             "circulateRate": "유통률",
             "hotRank": "인기 순위",
-            "marketRank": "시가총액 순위"
+            "marketRank": "시가총액 순위",
+             "maxSupplyMarket": "최대 공급 시가총액"
+             
         }
     }
 }

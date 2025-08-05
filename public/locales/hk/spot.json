@@ -277,7 +277,8 @@
             "totalSupply": "总供应",
             "circulateRate": "流通率",
             "hotRank": "热度排行",
-            "marketRank": "市值排行"
+            "marketRank": "市值排行",
+            "maxSupplyMarket": "最大供应市值"
         }
         
     }

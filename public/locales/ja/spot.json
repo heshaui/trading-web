@@ -277,7 +277,8 @@
             "totalSupply": "総供給量",
             "circulateRate": "流通率",
             "hotRank": "人気ランキング",
-            "marketRank": "時価総額ランキング"
+            "marketRank": "時価総額ランキング",
+            "maxSupplyMarket": "最大供給時価総額"
         }
     }
 }

@@ -780,7 +780,7 @@ const ExchangePage = () => {
               }
             ]}
               className="custom-tabs2"
-              destroyInactiveTabPane={true}
+              destroyInactiveTabPane={false} // 不销毁未激活的tab
               defaultActiveKey="chart"
               indicator={{ 
                 size: (origin) => origin - 5, 
