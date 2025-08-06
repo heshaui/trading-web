@@ -315,7 +315,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         {/* 区块浏览器 */}
                         <span>{t('spot.coinInfo.blockchain')}</span>
                         {(() => {
-                            const blockBrowser = infoData?.socialMediaList?.find(item => item.name === 'blockBrowser')?.url
+                            const blockBrowser = infoData?.officialUrl
                             
                             if (!blockBrowser) {
                                 return '--'
