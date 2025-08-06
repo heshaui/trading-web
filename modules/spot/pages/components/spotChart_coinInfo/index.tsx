@@ -67,7 +67,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
     const infoDataList = [
         {
             label: t('spot.coinInfo.marketRank'),// "市值排行",
-            key: "marketCapRan"
+            key: "marketCapRank"
         },
         {
             label: t('spot.coinInfo.hotRank'),// "热度排行",
@@ -334,10 +334,10 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                     可验证和不变的方式进行电子现比特币(BTC)是一种点对点加密货币, 旨在充当独立于任何中央机构的一种交易手段。
                     BTC可以安全, 可验证和不变的方式进行电子交易，无需通过第三方中介。这种数字货币使用密码学原理来确保交易安全，并控制新单位的创建。 */}
                     {infoData?.introduce || '--'}
-                    <div className={` mt-1`}>
-                        {/* 叙事摘要-带样式的文本 */}
+                    {/* <div className={` mt-1`}>
+                        叙事摘要-带样式的文本
                         {infoData?.narrativeSummary || ''}
-                    </div>
+                    </div> */}
                 </div>
                 <button
                     className={`${styles.title_color} font-12 mt-1 cursor-pointer`}

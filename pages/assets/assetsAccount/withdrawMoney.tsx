@@ -1558,9 +1558,11 @@ const WithdrawMoneyPage = observer(() => {
             />
           </div>
           <div className={`${styles.card_box}  mt-6  `}>
-            {!userInfo ? null : (userInfo?.merchantWithdrawalStatus !== 1&&userInfo?.realnessStatus === 0)  ? (
+            {!userInfo ? null 
+            : (userInfo?.merchantWithdrawalStatus === 0&&userInfo?.userLevel === 'L0')  ? (
               <NoUseCom type="1" />
-            ) : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
+            ) 
+            : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
               <NoUseCom type="2" />
             ) : userInfo?.withdrawalStatus === 0||userInfo?.merchantWithdrawalStatus !== 1 ? (
               <NoUseCom type="3" />
