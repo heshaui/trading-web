@@ -33,7 +33,7 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 // 历史成交
 const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["contract"]);
 
   const contractId = useWatch("contractId", form);
   const time = useWatch("time", form);
@@ -45,7 +45,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
   const columns: ColumnsType<any> = [
     // 合约
     {
-      title: "合约",
+      title: t("symbol"),
       dataIndex: "name",
       key: "name",
       render: (_: any, record: any) => {
@@ -58,7 +58,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 方向
     {
-      title: "方向",
+      title: t("side"),
       dataIndex: "direction",
       key: "direction",
       align: "right",
@@ -76,7 +76,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 角色
     {
-      title: "角色",
+      title: t("role"),
       dataIndex: "role",
       key: "role",
       align: "right",
@@ -90,7 +90,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 成交数量
     {
-      title: "成交数量",
+      title: t("filledAmount"),
       dataIndex: "number",
       key: "number",
       align: "right",
@@ -104,7 +104,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 成交价格
     {
-      title: "成交价格",
+      title: t("filledPrice"),
       dataIndex: "price",
       key: "price",
       align: "right",
@@ -118,7 +118,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 手续费
     {
-      title: "手续费",
+      title: t("fee"),
       dataIndex: "fee",
       key: "fee",
       align: "right",
@@ -132,7 +132,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     },
     // 时间
     {
-      title: "时间",
+      title: t("time"),
       dataIndex: "time",
       key: "time",
       align: "right",
@@ -204,12 +204,12 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
                   ? NULL_PLACEHOLDER
                   : form.getFieldValue("contractId")
               }
-              prefix={"合约"}
+              prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: "全部",
+                  label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
                 {
@@ -261,7 +261,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
                   size={20}
                 />
               }
-              placeholder={["开始时间", "结束时间"]}
+              placeholder={[t("startTime"), t("endTime")]}
               onChange={(value) => {
                 if (!value) {
                   form.setFieldsValue({

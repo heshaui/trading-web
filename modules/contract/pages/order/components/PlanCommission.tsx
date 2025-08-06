@@ -33,7 +33,7 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 // 计划委托
 const PlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["contract"]);
   const contractId = useWatch("contractId", form);
 
   const [dataSource, setDataSource] = useState<any[]>([]);
@@ -78,7 +78,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
   const columns: ColumnsType<any> = [
     // 合约
     {
-      title: "合约",
+      title: t("symbol"),
       dataIndex: "name",
       key: "name",
       render: (_: any, record: any) => {
@@ -91,7 +91,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 类型
     {
-      title: "类型",
+      title: t("type"),
       dataIndex: "type",
       key: "type",
       align: "right",
@@ -105,7 +105,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 时间
     {
-      title: "时间",
+      title: t("time"),
       dataIndex: "time",
       key: "time",
       align: "right",
@@ -119,7 +119,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 订单类型
     {
-      title: "订单类型",
+      title: t("orderType"),
       dataIndex: "orderType",
       key: "orderType",
       align: "right",
@@ -133,7 +133,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 方向
     {
-      title: "方向",
+      title: t("side"),
       dataIndex: "direction",
       key: "direction",
       align: "right",
@@ -151,7 +151,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 触发价
     {
-      title: "触发价",
+      title: t("triggerPrice"),
       dataIndex: "triggerPrice",
       key: "triggerPrice",
       align: "right",
@@ -165,7 +165,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托价格
     {
-      title: "委托价格",
+      title: t("orderPrice"),
       dataIndex: "price",
       key: "price",
       align: "right",
@@ -179,7 +179,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托数量
     {
-      title: "委托数量",
+      title: t("orderAmount"),
       dataIndex: "number",
       key: "number",
       align: "right",
@@ -193,7 +193,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 只减仓
     {
-      title: "只减仓",
+      title: t("reduceOnly"),
       dataIndex: "only",
       key: "only",
       align: "right",
@@ -207,7 +207,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 过期时间
     {
-      title: "过期时间",
+      title: t("expirationTime"),
       dataIndex: "expirationTime",
       key: "expirationTime",
       align: "right",
@@ -221,7 +221,7 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 操作
     {
-      title: <div className="text-[#FF5F1F]">全撤</div>,
+      title: <div className="text-[#FF5F1F]">{t("allCancel")}</div>,
       dataIndex: "operation",
       key: "operation",
       render: (_: any, record: any) => {
@@ -258,12 +258,12 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
             <Select
               allowClear
               value={!contractId ? NULL_PLACEHOLDER : contractId}
-              prefix={"合约"}
+              prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: "全部",
+                  label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
                 {

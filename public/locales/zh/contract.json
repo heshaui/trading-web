@@ -80,6 +80,17 @@
   "closePosition": "平仓",
   "confirmClose": "确认平仓",
   "closeAll": "全部平仓",
+  "orderType": "订单类型",
+  "allCancel": "全撤",
+  "priceLimitOrder": "限价单",
+  "startTime": "开始时间",
+  "endTime": "结束时间",
+  "role": "角色",
+  "filledPrice": "成交价格",
+  "triggerPrice": "触发价",
+  "submitTime": "提交委托时间",
+  "triggerTime": "触发时间",
+  "expirationTime": "过期时间",
   "calculator": {
     "title": "计算器",
     "profitTab": "收益",
@@ -110,5 +121,14 @@
       "paragraph4": "平台不对因市场波动、系统故障、网络延迟等原因造成的损失承担责任。您应当自行承担交易风险，并对您的交易决策负责。"
     }
   },
-  "loadFailed": "加载失败"
+  "loadFailed": "加载失败",
+  "order": {
+    "title": "合约订单",
+    "currentCommission": "当前委托",
+    "planCommission": "计划委托",
+    "historyCommission": "历史委托",
+    "historyPlanCommission": "历史计划委托",
+    "historyDeal": "历史成交",
+    "historyPlanDeal": "历史计划成交"
+  }
 } 

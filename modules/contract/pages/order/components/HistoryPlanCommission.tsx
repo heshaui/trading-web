@@ -34,7 +34,7 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 // 历史计划委托
 const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["contract"]);
 
   const contractId = useWatch("contractId", form);
   const time = useWatch("time", form);
@@ -46,7 +46,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
   const columns: ColumnsType<any> = [
     // 合约
     {
-      title: "合约",
+      title: t("symbol"),
       dataIndex: "name",
       key: "name",
       render: (_: any, record: any) => {
@@ -59,7 +59,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 类型
     {
-      title: "类型",
+      title: t("type"),
       dataIndex: "type",
       key: "type",
       align: "right",
@@ -73,7 +73,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 方向
     {
-      title: "方向",
+      title: t("side"),
       dataIndex: "direction",
       key: "direction",
       align: "right",
@@ -91,7 +91,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 触发价
     {
-      title: "触发价",
+      title: t("triggerPrice"),
       dataIndex: "triggerPrice",
       key: "triggerPrice",
       align: "right",
@@ -105,7 +105,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托价格
     {
-      title: "委托价格",
+      title: t("orderPrice"),
       dataIndex: "price",
       key: "price",
       align: "right",
@@ -119,7 +119,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托数量
     {
-      title: "委托数量",
+      title: t("orderAmount"),
       dataIndex: "number",
       key: "number",
       align: "right",
@@ -133,7 +133,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 只减仓
     {
-      title: "只减仓",
+      title: t("reduceOnly"),
       dataIndex: "only",
       key: "only",
       align: "right",
@@ -147,7 +147,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 状态
     {
-      title: "状态",
+      title: t("status"),
       dataIndex: "status",
       key: "status",
       align: "right",
@@ -161,7 +161,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 提交委托时间
     {
-      title: "提交委托时间",
+      title: t("submitTime"),
       dataIndex: "time",
       key: "time",
       align: "right",
@@ -175,7 +175,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 操作
     {
-      title: "触发时间",
+      title: t("triggerTime"),
       dataIndex: "triggerTime",
       key: "triggerTime",
       align: "right",
@@ -249,12 +249,12 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
                   ? NULL_PLACEHOLDER
                   : contractId
               }
-              prefix={"合约"}
+              prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: "全部",
+                  label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
                 {
@@ -306,7 +306,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
                   size={20}
                 />
               }
-              placeholder={["开始时间", "结束时间"]}
+              placeholder={[t("startTime"), t("endTime")]}
               onChange={(value) => {
                 if (!value) {
                   form.setFieldsValue({

@@ -17,7 +17,7 @@ import HistoryPlanCommission from "./components/HistoryPlanCommission";
 import HistoryDeal from "./components/HistoryDeal";
 
 const ContractOrder = () => {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["contract"]);
   const [isClient, setIsClient] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
 
@@ -25,31 +25,31 @@ const ContractOrder = () => {
     // 当前委托  CurrentCommission
     {
       key: "1",
-      label: "当前委托",
+      label: t("order.currentCommission"),
       children: <CurrentCommission activeKey={activeKey} />,
     },
     // 计划委托 PlanCommission
     {
       key: "2",
-      label: "计划委托",
+      label: t("order.planCommission"),
       children: <PlanCommission activeKey={activeKey} />,
     },
     // 历史委托 HistoryCommission
     {
       key: "3",
-      label: "历史委托",
+      label: t("order.historyCommission"),
       children: <HistoryCommission activeKey={activeKey} />,
     },
     // 历史计划委托 HistoryPlanCommission
     {
       key: "4",
-      label: "历史计划委托",
+      label: t("order.historyPlanCommission"),
       children: <HistoryPlanCommission activeKey={activeKey} />,
     },
     // 历史成交 HistoryDeal
     {
       key: "5",
-      label: "历史成交",
+      label: t("order.historyDeal"),
       children: <HistoryDeal activeKey={activeKey} />,
     },
   ];
@@ -75,7 +75,7 @@ const ContractOrder = () => {
       <div className="flex flex-col h-full">
         {/* title */}
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
-          {"合约订单"}
+          {t("order.title")}
         </div>
         {/* tabs */}
         <div className="bg-[var(--btncolor7)] rounded-[10px] flex-1">

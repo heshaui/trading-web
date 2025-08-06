@@ -32,7 +32,7 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 };
 // 当前委托
 const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["contract"]);
   const [form] = Form.useForm();
 
   const type = useWatch("type", form);
@@ -81,7 +81,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
   const columns: ColumnsType<any> = [
     // 合约
     {
-      title: "合约",
+      title: t("symbol"),
       dataIndex: "name",
       key: "name",
       render: (_: any, record: any) => {
@@ -94,7 +94,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 时间
     {
-      title: "时间",
+      title: t("time"),
       dataIndex: "time",
       key: "time",
       align: "right",
@@ -108,7 +108,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 订单类型
     {
-      title: "订单类型",
+      title: t("orderType"),
       dataIndex: "type",
       key: "type",
       align: "right",
@@ -122,7 +122,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 方向
     {
-      title: "方向",
+      title: t("side"),
       dataIndex: "direction",
       key: "direction",
       render: (_: any, record: any) => {
@@ -139,7 +139,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托价格
     {
-      title: "委托价格",
+      title: t("orderPrice"),
       dataIndex: "price",
       key: "price",
       align: "right",
@@ -153,7 +153,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 委托数量
     {
-      title: "委托数量",
+      title: t("orderAmount"),
       dataIndex: "number",
       key: "number",
       align: "right",
@@ -167,7 +167,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 成交数量
     {
-      title: "成交数量",
+      title: t("filledAmount"),
       dataIndex: "number2",
       key: "number2",
       align: "right",
@@ -181,7 +181,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 成交均价
     {
-      title: "成交均价",
+      title: t("avgPrice"),
       dataIndex: "price",
       key: "price",
       align: "right",
@@ -195,7 +195,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 只减仓
     {
-      title: "只减仓",
+      title: t("reduceOnly"),
       dataIndex: "only",
       key: "only",
       align: "right",
@@ -209,7 +209,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 止盈止损
     {
-      title: "止盈止损",
+      title: t("tpsl"),
       dataIndex: "stop",
       key: "stop",
       align: "right",
@@ -223,7 +223,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     },
     // 操作
     {
-      title: <div className="text-[#FF5F1F]">全撤</div>,
+      title: <div className="text-[#FF5F1F]">{t("allCancel")}</div>,
       dataIndex: "operation",
       key: "operation",
       render: (_: any, record: any) => {
@@ -261,12 +261,12 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
             <Select
               allowClear
               value={!contractId ? NULL_PLACEHOLDER : contractId}
-              prefix={"合约"}
+              prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: "全部",
+                  label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
               ]}
@@ -287,16 +287,16 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
             <Select
               allowClear
               value={!type ? NULL_PLACEHOLDER : type}
-              prefix={"类型"}
+              prefix={t("type")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
                 {
-                  label: "全部",
+                  label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
                 {
-                  label: "限价单",
+                  label: t("priceLimitOrder"),
                   value: 1,
                 },
                 {
