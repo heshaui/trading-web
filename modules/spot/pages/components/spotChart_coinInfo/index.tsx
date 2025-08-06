@@ -11,6 +11,7 @@ import { getNextJsLocale } from "@/utils/filterLang";
 import dayjs from "dayjs";
 import { division ,roundDown,nul} from "@/utils";
 import appStore from "@/store";
+import { formatted } from "@/utils/math";
 
 type Props = {
     className?: string;
@@ -107,7 +108,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                     const formattedValue = (value / divisor).toFixed(2)
                     
                     return {
-                        value: parseFloat(formattedValue).toLocaleString(),
+                        value: formatted(formattedValue),
                         unit: label
                     }
                 }
@@ -125,7 +126,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             key: "flowTotal",
             render: (value: string) => {
                 
-                return value ? `${parseFloat(value).toLocaleString()} ${coinName || '--'}` : '--'
+                return value ? `${formatted(value)} ${coinName || '--'}` : '--'
             }
         },
         {
@@ -134,7 +135,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             render: (_value: string) => {
                 const rateInfo=rateList.find(item=>item.shortName===rateKey)
                 const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
@@ -143,7 +144,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             render: (_value: string) => {
                 const rateInfo=rateList.find(item=>item.shortName===rateKey)
                 const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${value} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
@@ -166,14 +167,14 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             render: (_value: string) => {
                 const rateInfo=rateList.find(item=>item.shortName===rateKey)
                 const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()}` : '--'
+                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)}` : '--'
             }
         },
         {
             label: t('spot.coinInfo.maxSupply'),//"最大供应量",
             key: "maxSup",
             render: (value: string) => {
-                return value ? `${parseFloat(value).toLocaleString()} ${coinName || '--'}` : '--'
+                return value ? `${formatted(value)} ${coinName || '--'}` : '--'
             }
         },
         {
@@ -182,7 +183,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             render: (_value: string) => {
                 const rateInfo=rateList.find(item=>item.shortName===rateKey)
                 const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${parseFloat(value).toLocaleString()}` : '--'
+                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)}` : '--'
             }
         },
         {
@@ -276,44 +277,58 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                 <ul className={`${styles.tip_color} font-14 font-w-400`}>
                     <li className="flex-x align-center justify-between">
                         {/* 网站 */}
-                        {t('spot.coinInfo.website')}
-                        <div className="flex-x align-center ">
-                            <button className={`default_btn ${styles.btn_style} mr-1`}
-                                onClick={() => {
-                                    const url = infoData?.socialMediaList?.find(item => item.name === 'officialUrl')?.url
-                                    if (url) {
-                                        safeOpenUrl(url, 'official')
-                                    }
-                                }}>
-                                {/* 官网 */}
-                                {t('spot.coinInfo.official')}
-                            </button>
-                            <button className={`default_btn ${styles.btn_style}`}
-                                onClick={() => {
-                                    const url = infoData?.socialMediaList?.find(item => item.name === 'whitePaper')?.url
-                                    if (url) {
-                                        safeOpenUrl(url, 'whitepaper')
-                                    }
-                                }}>
-                                {/* 白皮书 */}
-                                {t('spot.coinInfo.whitepaper')}
-                            </button>
-                        </div>
+                        <span>{t('spot.coinInfo.website')}</span>
+                        {(() => {
+                            const officialUrl = infoData?.socialMediaList?.find(item => item.name === 'officialUrl')?.url
+                            const whitePaper = infoData?.socialMediaList?.find(item => item.name === 'whitePaper')?.url
+                            
+                            if (!officialUrl && !whitePaper) {
+                                return '--'
+                            }
+                            
+                            return (
+                                <div className="flex-x align-center">
+                                    {officialUrl && (
+                                        <button 
+                                            className={`default_btn ${styles.btn_style} ${whitePaper ? 'mr-1' : ''}`}
+                                            onClick={() => safeOpenUrl(officialUrl, 'official')}
+                                        >
+                                            {t('spot.coinInfo.official')}
+                                        </button>
+                                    )}
+                                    {whitePaper && (
+                                        <button 
+                                            className={`default_btn ${styles.btn_style}`}
+                                            onClick={() => safeOpenUrl(whitePaper, 'whitepaper')}
+                                        >
+                                            {t('spot.coinInfo.whitepaper')}
+                                        </button>
+                                    )}
+                                </div>
+                            )
+                        })()}
                     </li>
                     <li className="flex-x align-center justify-between mt-7">
                         {/* 区块浏览器 */}
-                        {t('spot.coinInfo.blockchain')}
-                        <div className="flex-x align-center ">
-                            <button className={`default_btn ${styles.btn_style}`}
-                                onClick={() => {
-                                    const url = infoData?.socialMediaList?.find(item => item.name === 'blockBrowser')?.url
-                                    if (url) {
-                                        safeOpenUrl(url, 'blockchain')
-                                    }
-                                }}>
-                                blockchain
-                            </button>
-                        </div>
+                        <span>{t('spot.coinInfo.blockchain')}</span>
+                        {(() => {
+                            const blockBrowser = infoData?.socialMediaList?.find(item => item.name === 'blockBrowser')?.url
+                            
+                            if (!blockBrowser) {
+                                return '--'
+                            }
+                            
+                            return (
+                                <div className="flex-x align-center">
+                                    <button 
+                                        className={`default_btn ${styles.btn_style}`}
+                                        onClick={() => safeOpenUrl(blockBrowser, 'blockchain')}
+                                    >
+                                        blockchain
+                                    </button>
+                                </div>
+                            )
+                        })()}
                     </li>
                     <li className="mt-7 font-12">
                         {/* *基础数据由第三方机构提供，仅供参考。此信息以“原样”呈现，
@@ -339,14 +354,16 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         {infoData?.narrativeSummary || ''}
                     </div> */}
                 </div>
-                <button
-                    className={`${styles.title_color} font-12 mt-1 cursor-pointer`}
+               {infoData?.introduce&&<button
+                    className={`${styles.title_color} font-12 mt-1 cursor-pointer flex-x-cc`}
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
                     {isExpanded ? t('spot.coinInfo.collapse') : t('spot.coinInfo.expand')}
-                    <Iconify icon={isExpanded?"ant-design:up-outlined":"ant-design:down-outlined"} className="ml-1 font-12" size={16} />
-                    {/* <DownOutlined rotate={ ? 180 : 0} className="ml-1 font-12" /> */}
-                </button>
+                    {/* <Iconify icon={isExpanded?"ant-design:up-outlined":"ant-design:down-outlined"} className="ml-1 font-12" size={16} /> */}
+                   <Image src={!isExpanded ? "/images/exchange/icon_more.svg" : "/images/exchange/icon_up.svg"} alt="up" width={16} height={16} className="ml-1 font-12"
+                    preview={false}
+                    />
+                </button>}
             </div>
         </div>
     </div>
