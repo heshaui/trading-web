@@ -205,9 +205,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                 const coinInfo = coinListInfo.find(item => item.coinName === coinName)
                 const coinBaseInfo = {
                     ...res.data,
-                    iconUrl:coinInfo?.iconUrl,
+                    iconUrl:coinInfo?.iconUrl||'',
                     selNumPer2:res.data?.maxSup?division(res.data?.flowTotal,res.data?.maxSup)*100:0,
-                    nameDefault:coinInfo?.nameDefault,
+                    nameDefault:coinInfo?.nameDefault||'',
                 }
                 setInfoData(coinBaseInfo);
             } else {
