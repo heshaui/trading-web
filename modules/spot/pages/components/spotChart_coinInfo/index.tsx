@@ -224,6 +224,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         if (!coinName) return
         getCoinInfoData()
     }, [coinName]);
+    useEffect(()=>{
+        appStore.loadCoinList();
+    },[])
 
     return <div className={`${styles.container} ${className}`}>
         <div
