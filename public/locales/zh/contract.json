@@ -130,5 +130,16 @@
     "historyPlanCommission": "历史计划委托",
     "historyDeal": "历史成交",
     "historyPlanDeal": "历史计划成交"
+  },
+  "account": {
+    "title": "合约账户",
+    "totalAssetsValue": "总资产折合",
+    "todayProfit": "今日盈亏",
+    "profitAnalysis": "盈亏分析",
+    "inputCoin": "请输入币种",
+    "hideSmallAssets": "隐藏小额资产",
+    "totalAssets": "总资产",
+    "walletBalance": "钱包余额",
+    "transfer": "划转"
   }
 } 

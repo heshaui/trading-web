@@ -59,7 +59,7 @@ const Contract = observer(() => {
   const columns: ColumnsType<ContractAccountItem> = [
     // 币种
     {
-      title: "币种",
+      title: t("symbol"),
       dataIndex: "symbol",
       key: "symbol",
       render: (_: any, record: any) => {
@@ -83,7 +83,7 @@ const Contract = observer(() => {
     },
     //总收益
     {
-      title: "总收益",
+      title: t("account.totalAssets"),
       dataIndex: "realizedAmount",
       key: "realizedAmount",
       sorter: (a: ContractAccountItem, b: ContractAccountItem) =>
@@ -99,7 +99,7 @@ const Contract = observer(() => {
     },
     // 钱包余额
     {
-      title: "钱包余额",
+      title: t("account.walletBalance"),
       dataIndex: "totalAmount",
       key: "totalAmount",
       align: "right",
@@ -113,7 +113,7 @@ const Contract = observer(() => {
     },
     // 可用
     {
-      title: "可用",
+      title: t("availableBalance"),
       dataIndex: "canUseAmount",
       key: "available",
       sorter: (a: ContractAccountItem, b: ContractAccountItem) =>
@@ -129,7 +129,7 @@ const Contract = observer(() => {
     },
     // 未实现盈亏
     {
-      title: "未实现盈亏",
+      title: t("unrealizedPnl"),
       dataIndex: "unRealizedAmount",
       key: "unRealizedAmount",
       align: "right",
@@ -145,7 +145,7 @@ const Contract = observer(() => {
     },
     // 操作
     {
-      title: "操作",
+      title: t("action"),
       dataIndex: "action",
       key: "action",
       align: "right",
@@ -158,7 +158,7 @@ const Contract = observer(() => {
               setTransferModalOpen(true);
             }}
           >
-            {"划转"}
+            {t("account.transfer")}
           </div>
         );
       },
@@ -207,7 +207,7 @@ const Contract = observer(() => {
         <div className="flex flex-col h-full gap-[16px]">
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500]">
-            {"合约账户"}
+            {t("account.title")}
           </div>
           {/* 内容 */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
@@ -224,7 +224,7 @@ const Contract = observer(() => {
               >
                 <div className="flex flex-col">
                   <div className="text-[14px] text-[var(--text-color6)] flex items-center gap-[4px]">
-                    总资产折合
+                    {t("account.totalAssetsValue")}
                     <div>
                       {showAmount ? (
                         <EyeOutlined
@@ -303,7 +303,7 @@ const Contract = observer(() => {
               >
                 <div className="flex flex-col">
                   <div className="text-[14px] text-[var(--text-color6)]">
-                    今日盈亏
+                    {t("account.todayProfit")}
                   </div>
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
@@ -322,7 +322,7 @@ const Contract = observer(() => {
 
               {/* 盈亏分析 */}
               <Button onClick={() => {}} type="primary" ghost shape="round">
-                盈亏分析
+                {t("account.profitAnalysis")}
               </Button>
             </div>
             {/* 底部数据 */}
@@ -333,7 +333,7 @@ const Contract = observer(() => {
                   <Form.Item noStyle name="coin">
                     <Input
                       allowClear
-                      placeholder="请输入币种"
+                      placeholder={t("account.inputCoin")}
                       className="h-[40px]"
                       style={{ width: "188px" }}
                       prefix={<Iconify icon="garden:search-26" size={20} />}
@@ -344,7 +344,9 @@ const Contract = observer(() => {
                     name="hideSmallAssets"
                     valuePropName="checked"
                   >
-                    <Checkbox onChange={() => {}}>隐藏小额资产</Checkbox>
+                    <Checkbox onChange={() => {}}>
+                      {t("account.hideSmallAssets")}
+                    </Checkbox>
                   </Form.Item>
                 </Flex>
               </Form>

@@ -130,5 +130,16 @@
     "historyPlanCommission": "Conditional Order History",
     "historyDeal": "Trade History",
     "historyPlanDeal": "Conditional Trade History"
+  },
+  "account": {
+    "title": "Contract Account",
+    "totalAssetsValue": "Total Assets",
+    "todayProfit": "Today Profit",
+    "profitAnalysis": "Profit Analysis",
+    "inputCoin": "Input Coin",
+    "hideSmallAssets": "Hide Small Assets",
+    "totalAssets": "Total Assets",
+    "walletBalance": "Wallet Balance",
+    "transfer": "Transfer"
   }
 }
