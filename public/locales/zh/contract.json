@@ -83,6 +83,7 @@
   "orderType": "订单类型",
   "allCancel": "全撤",
   "priceLimitOrder": "限价单",
+  "marketPrice": "市价单",
   "startTime": "开始时间",
   "endTime": "结束时间",
   "role": "角色",
@@ -142,4 +143,4 @@
     "walletBalance": "钱包余额",
     "transfer": "划转"
   }
-} 
+}

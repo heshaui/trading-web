@@ -8,6 +8,8 @@ import { Iconify } from "@/components/icon";
 import dayjs from "dayjs";
 import { getHistoryOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
+import appStore from "@/store";
+import { OrderTypeEnum } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -35,6 +37,8 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation(["contract"]);
+
+  const publicInfo = appStore.getPublicInfo();
 
   const contractId = useWatch("contractId", form);
   const type = useWatch("type", form);
@@ -70,7 +74,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
         beginTime: paramsTime[0].valueOf(),
         endTime: paramsTime[1].valueOf(),
       });
-      if (res.code === 0) {
+      if (res.code === "0") {
         setDataSource(res.data.list);
       } else {
         message.error(res.msg);
@@ -273,22 +277,27 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
+          <Form.Item
+            name="contractId"
+            noStyle
+            // initialValue={NULL_PLACEHOLDER}
+            initialValue={publicInfo.contractList[0].id}
+          >
             <Select
-              allowClear
+              // allowClear
               value={!contractId ? NULL_PLACEHOLDER : contractId}
               prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
-                {
-                  label: t("all"),
-                  value: NULL_PLACEHOLDER,
-                },
-                {
-                  label: "测试",
-                  value: 1,
-                },
+                // {
+                //   label: t("all"),
+                //   value: NULL_PLACEHOLDER,
+                // },
+                ...publicInfo.contractList.map((item: any) => ({
+                  label: item.contractName,
+                  value: item.id,
+                })),
               ]}
               onChange={(value) => {
                 const newValue =
@@ -311,13 +320,30 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
+                //全部
                 {
                   label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
+                // 限价单
                 {
-                  label: "测试",
-                  value: 1,
+                  label: t("priceLimitOrder"),
+                  value: OrderTypeEnum.LIMIT,
+                },
+                // 市价单
+                {
+                  label: t("marketPrice"),
+                  value: OrderTypeEnum.MARKET,
+                },
+                // PostOnly
+                {
+                  label: "PostOnly",
+                  value: OrderTypeEnum.POST_ONLY,
+                },
+                // IOC
+                {
+                  label: "IOC",
+                  value: OrderTypeEnum.IOC,
                 },
               ]}
               onChange={(value) => {

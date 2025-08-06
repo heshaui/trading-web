@@ -8,6 +8,8 @@ import { NoData } from "@/components/noData";
 import { getCurrentOrderList } from "@/services/contract";
 import dayjs from "dayjs";
 import { useWatch } from "antd/es/form/Form";
+import appStore from "@/store";
+import { OrderTypeEnum } from "./type";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -34,7 +36,9 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
   const { t } = useTranslation(["contract"]);
   const [form] = Form.useForm();
+  const publicInfo = appStore.getPublicInfo();
 
+  console.log("publicInfo", publicInfo);
   const type = useWatch("type", form);
   const contractId = useWatch("contractId", form);
 
@@ -65,7 +69,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
         type: paramsType,
         contractId: paramsContractId,
       });
-      if (res.code === 0) {
+      if (res.code === "0") {
         setDataSource(res.data.list);
       } else {
         message.error(res.msg);
@@ -257,18 +261,27 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
+          <Form.Item
+            name="contractId"
+            noStyle
+            // initialValue={NULL_PLACEHOLDER}
+            initialValue={publicInfo.contractList[0].id}
+          >
             <Select
-              allowClear
+              // allowClear
               value={!contractId ? NULL_PLACEHOLDER : contractId}
               prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
-                {
-                  label: t("all"),
-                  value: NULL_PLACEHOLDER,
-                },
+                // {
+                //   label: t("all"),
+                //   value: NULL_PLACEHOLDER,
+                // },
+                ...publicInfo.contractList.map((item: any) => ({
+                  label: item.contractName,
+                  value: item.id,
+                })),
               ]}
               onChange={(value) => {
                 // 当点击 allowClear 或选择"全部"时，设置为 NULL_PLACEHOLDER
@@ -291,17 +304,20 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
+                // 全部
                 {
                   label: t("all"),
                   value: NULL_PLACEHOLDER,
                 },
+                // 限价单
                 {
                   label: t("priceLimitOrder"),
-                  value: 1,
+                  value: OrderTypeEnum.LIMIT,
                 },
+                // PostOnly
                 {
                   label: "PostOnly",
-                  value: 5,
+                  value: OrderTypeEnum.POST_ONLY,
                 },
               ]}
               onChange={(value) => {

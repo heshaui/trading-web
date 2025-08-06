@@ -83,6 +83,7 @@
   "orderType": "Order Type",
   "allCancel": "Cancel All",
   "priceLimitOrder": "Limit Order",
+  "marketPrice": "Market Order",
   "startTime": "Start Time",
   "endTime": "End Time",
   "role": "Role",
@@ -123,7 +124,7 @@
   },
   "loadFailed": "Load Failed",
   "order": {
-    "title": "Futures Orders",
+    "title": "Contract Orders",
     "currentCommission": "Open Orders",
     "planCommission": "Conditional Orders",
     "historyCommission": "Order History",

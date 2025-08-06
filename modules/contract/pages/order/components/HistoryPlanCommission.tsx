@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { Iconify } from "@/components/icon";
 import { getHistoryPlanOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
+import appStore from "@/store";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -35,6 +36,8 @@ const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
 const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation(["contract"]);
+
+  const publicInfo = appStore.getPublicInfo();
 
   const contractId = useWatch("contractId", form);
   const time = useWatch("time", form);
@@ -213,7 +216,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
         beginTime: paramsTime[0].valueOf(),
         endTime: paramsTime[1].valueOf(),
       });
-      if (res.code === 0) {
+      if (res.code === "0") {
         setDataSource(res.data.list);
       } else {
         message.error(res.msg);
@@ -241,26 +244,27 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
       >
         <Flex gap={20}>
           {/* 全部合约 */}
-          <Form.Item name="contractId" noStyle initialValue={NULL_PLACEHOLDER}>
+          <Form.Item
+            name="contractId"
+            noStyle
+            // initialValue={NULL_PLACEHOLDER}
+            initialValue={publicInfo.contractList[0].id}
+          >
             <Select
-              allowClear
-              value={
-                !contractId
-                  ? NULL_PLACEHOLDER
-                  : contractId
-              }
+              // allowClear
+              value={!contractId ? NULL_PLACEHOLDER : contractId}
               prefix={t("symbol")}
               className="w-[200px] h-[50px]"
               style={{ textAlign: "end" }}
               options={[
-                {
-                  label: t("all"),
-                  value: NULL_PLACEHOLDER,
-                },
-                {
-                  label: "测试",
-                  value: 1,
-                },
+                // {
+                //   label: t("all"),
+                //   value: NULL_PLACEHOLDER,
+                // },
+                ...publicInfo.contractList.map((item: any) => ({
+                  label: item.contractName,
+                  value: item.id,
+                })),
               ]}
               onChange={(value) => {
                 const newValue =
