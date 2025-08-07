@@ -134,20 +134,22 @@ const OrderList: React.FC = () => {
 
   // table 数据
   // 仓位
-  const [positions, setPositions] = useState<Position[]>(Array.from({ length: 10 }, (_, index) => ({
-    id: index.toString(),
-    symbol: "BTCUSDT",
-    side: "LONG",
-    size: 595.51,
-    entryPrice: 10000,
-    markPrice: 10000,
-    pnl: 100,
-    pnlRate: 0.1,
-    margin: 1000,
-    marginRate: 0.1,
-    liquidationPrice: 10000,
-    createTime: 1717334400000,
-  })));
+  const [positions, setPositions] = useState<Position[]>(
+    Array.from({ length: 10 }, (_, index) => ({
+      id: index.toString(),
+      symbol: "BTCUSDT",
+      side: "LONG",
+      size: 595.51,
+      entryPrice: 10000,
+      markPrice: 10000,
+      pnl: 100,
+      pnlRate: 0.1,
+      margin: 1000,
+      marginRate: 0.1,
+      liquidationPrice: 10000,
+      createTime: 1717334400000,
+    }))
+  );
   // 普通委托
   const [ordinaryCommission, setOrdinaryCommission] = useState<
     OrdinaryCommission[]
@@ -229,7 +231,7 @@ const OrderList: React.FC = () => {
       id: "1",
       symbol: "BTCUSDT",
       side: "BUY",
-      size: 10000,  
+      size: 10000,
       filledPrice: 10000,
       role: "maker",
       fee: 10000,
@@ -1157,35 +1159,37 @@ const OrderList: React.FC = () => {
         token: TokenTheme,
       }}
     >
-      {/* tabs 切换 */}
-      <Tabs
-        tabBarGutter={20}
-        activeKey={activeTab}
-        onChange={(key) => {
-          setActiveTab(key);
-          if (key === "orderHistory") {
-            getHistoryOrder();
-          }
-        }}
-        tabBarStyle={{ padding: "0 20px", height: "72px" }}
-        tabBarExtraContent={
-          <div className="flex items-center gap-[20px] text-[14px] font-[400]">
-            {/* 当前合约 */}
-            <div className="flex items-center gap-[8px]">
-              <Switch size="small" onChange={setOnlyCurrentSymbol} />
-              <div className="text-[var(--text-color5)]">仅当前合约</div>
-            </div>
-            {/* 一键全平 */}
-            {activeTab === "position" && (
-              <div className="text-[var(--theme-color)] cursor-pointer">
-                一键全平
+      <div className="bg-[var(--background9)] h-[100%]">
+        {/* tabs 切换 */}
+        <Tabs
+          tabBarGutter={20}
+          activeKey={activeTab}
+          onChange={(key) => {
+            setActiveTab(key);
+            if (key === "orderHistory") {
+              getHistoryOrder();
+            }
+          }}
+          tabBarStyle={{ padding: "0 20px", height: "72px" }}
+          tabBarExtraContent={
+            <div className="flex items-center gap-[20px] text-[14px] font-[400]">
+              {/* 当前合约 */}
+              <div className="flex items-center gap-[8px]">
+                <Switch size="small" onChange={setOnlyCurrentSymbol} />
+                <div className="text-[var(--text-color5)]">仅当前合约</div>
               </div>
-            )}
-          </div>
-        }
-        items={tabItems}
-        style={{ minHeight: "404px" }}
-      />
+              {/* 一键全平 */}
+              {activeTab === "position" && (
+                <div className="text-[var(--theme-color)] cursor-pointer">
+                  一键全平
+                </div>
+              )}
+            </div>
+          }
+          items={tabItems}
+          style={{ minHeight: "404px" }}
+        />
+      </div>
     </ConfigProvider>
   );
 };

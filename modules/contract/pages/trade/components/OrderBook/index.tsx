@@ -110,20 +110,22 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   };
 
   const getSellPriceColor = () => {
-    return colorMode === "both" || colorMode === "sell" ? "text-red-500" : "text-green-500";
+    return colorMode === "both" || colorMode === "sell"
+      ? "text-red-500"
+      : "text-green-500";
   };
 
   const getBuyPriceColor = () => {
-    return colorMode === "both" || colorMode === "buy" ? "text-green-500" : "text-red-500";
+    return colorMode === "both" || colorMode === "buy"
+      ? "text-green-500"
+      : "text-red-500";
   };
 
   const renderColorModeButtons = () => {
     return (
       <div className="flex gap-[8px]">
         {/* 显示买卖盘 */}
-        <Tooltip
-          title={t("spot:spot.orderBook.bothOrders")}
-        >
+        <Tooltip title={t("spot:spot.orderBook.bothOrders")}>
           <Image
             src={
               colorMode === "both"
@@ -139,9 +141,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           />
         </Tooltip>
         {/* 显示买盘 */}
-        <Tooltip
-          title={t("spot:spot.orderBook.buyOrders")}
-        >
+        <Tooltip title={t("spot:spot.orderBook.buyOrders")}>
           <Image
             src={
               colorMode === "buy"
@@ -180,98 +180,100 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   };
 
   return (
-    <div className="p-[10px_16px]">
-      <div className="flex flex-col gap-[8px] mb-[10px]">
-        <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-          委托列表
+    <div className="bg-[var(--background9)] h-[100%]">
+      <div className="p-[10px_16px]">
+        <div className="flex flex-col gap-[8px] mb-[10px]">
+          <div className="text-[var(--text-color5)] font-[500] text-[14px]">
+            委托列表
+          </div>
+          <div className="flex justify-between items-center gap-[8px]">
+            {renderColorModeButtons()}
+            <Select
+              size="small"
+              style={{ width: 60 }}
+              value={precision}
+              onChange={setPrecision}
+              className="w-20"
+            >
+              <Option value={0}>0</Option>
+              <Option value={1}>0.1</Option>
+              <Option value={2}>0.5</Option>
+              <Option value={3}>1</Option>
+            </Select>
+          </div>
         </div>
-        <div className="flex justify-between items-center gap-[8px]">
-          {renderColorModeButtons()}
-          <Select
-            size="small"
-            style={{ width: 60 }}
-            value={precision}
-            onChange={setPrecision}
-            className="w-20"
-          >
-            <Option value={0}>0</Option>
-            <Option value={1}>0.1</Option>
-            <Option value={2}>0.5</Option>
-            <Option value={3}>1</Option>
-          </Select>
+
+        <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
+          <div className="flex-1 text-left">价格</div>
+          <div className="flex-1 text-right">数量</div>
+          <div className="flex-1 text-right">总计</div>
         </div>
-      </div>
 
-      <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
-        <div className="flex-1 text-left">价格</div>
-        <div className="flex-1 text-right">数量</div>
-        <div className="flex-1 text-right">总计</div>
-      </div>
-
-      <div className="flex flex-col overflow-hidden">
-        {/* 卖盘数据 - 只在 both 或 sell 模式下显示 */}
-        {(colorMode === "both" || colorMode === "sell") && (
-          <div className="flex flex-col gap-[9px] overflow-y-auto">
-            {sellOrders.length > 0 ? (
-              sellOrders.map((order, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-                >
-                  <div className={`flex-1 text-left ${getSellPriceColor()}`}>
-                    {formatNumber(order.price)}
+        <div className="flex flex-col overflow-hidden">
+          {/* 卖盘数据 - 只在 both 或 sell 模式下显示 */}
+          {(colorMode === "both" || colorMode === "sell") && (
+            <div className="flex flex-col gap-[9px] overflow-y-auto">
+              {sellOrders.length > 0 ? (
+                sellOrders.map((order, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+                  >
+                    <div className={`flex-1 text-left ${getSellPriceColor()}`}>
+                      {formatNumber(order.price)}
+                    </div>
+                    <div className="flex-1 text-right">
+                      {formatNumber(order.amount, 3)}
+                    </div>
+                    <div className="flex-1 text-right">
+                      {formatNumber(order.total, 3)}
+                    </div>
                   </div>
-                  <div className="flex-1 text-right">
-                    {formatNumber(order.amount, 3)}
-                  </div>
-                  <div className="flex-1 text-right">
-                    {formatNumber(order.total, 3)}
-                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+                  暂无卖单数据
                 </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-                暂无卖单数据
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-        {/* 当前价格显示 - 只在 both 模式下显示 */}
-        {colorMode === "both" && (
-          <div className="flex justify-between items-center my-[10px]">
-            <div className="text-xl font-semibold text-red-500">50120.5</div>
-            <div className="text-xs text-green-500">+0.12%</div>
-          </div>
-        )}
+          {/* 当前价格显示 - 只在 both 模式下显示 */}
+          {colorMode === "both" && (
+            <div className="flex justify-between items-center my-[10px]">
+              <div className="text-xl font-semibold text-red-500">50120.5</div>
+              <div className="text-xs text-green-500">+0.12%</div>
+            </div>
+          )}
 
-        {/* 买盘数据 - 只在 both 或 buy 模式下显示 */}
-        {(colorMode === "both" || colorMode === "buy") && (
-          <div className="flex flex-col gap-[9px] overflow-y-auto">
-            {buyOrders.length > 0 ? (
-              buyOrders.map((order, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-                >
-                  <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
-                    {formatNumber(order.price)}
+          {/* 买盘数据 - 只在 both 或 buy 模式下显示 */}
+          {(colorMode === "both" || colorMode === "buy") && (
+            <div className="flex flex-col gap-[9px] overflow-y-auto">
+              {buyOrders.length > 0 ? (
+                buyOrders.map((order, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+                  >
+                    <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
+                      {formatNumber(order.price)}
+                    </div>
+                    <div className="flex-1 text-right">
+                      {formatNumber(order.amount, 3)}
+                    </div>
+                    <div className="flex-1 text-right">
+                      {formatNumber(order.total, 3)}
+                    </div>
                   </div>
-                  <div className="flex-1 text-right">
-                    {formatNumber(order.amount, 3)}
-                  </div>
-                  <div className="flex-1 text-right">
-                    {formatNumber(order.total, 3)}
-                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+                  暂无买单数据
                 </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-                暂无买单数据
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -336,45 +338,53 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
 
   const getPriceColor = (side: "buy" | "sell") => {
     if (side === "sell") {
-      return colorMode === "both" || colorMode === "sell" ? "text-red-500" : "text-green-500";
+      return colorMode === "both" || colorMode === "sell"
+        ? "text-red-500"
+        : "text-green-500";
     } else {
-      return colorMode === "both" || colorMode === "buy" ? "text-green-500" : "text-red-500";
+      return colorMode === "both" || colorMode === "buy"
+        ? "text-green-500"
+        : "text-red-500";
     }
   };
 
   return (
-    <div className="p-[10px_16px]">
-      <div className="text-[var(--text-color5)] font-[500] text-[14px] mb-[10px]">
-        实时成交
-      </div>
+    <div className="bg-[var(--background9)] h-[100%]">
+      <div className="p-[10px_16px]">
+        <div className="text-[var(--text-color5)] font-[500] text-[14px] mb-[10px]">
+          实时成交
+        </div>
 
-      <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
-        <div className="flex-1 text-left">价格</div>
-        <div className="flex-1 text-right">数量</div>
-        <div className="flex-1 text-right">时间</div>
-      </div>
+        <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
+          <div className="flex-1 text-left">价格</div>
+          <div className="flex-1 text-right">数量</div>
+          <div className="flex-1 text-right">时间</div>
+        </div>
 
-      <div className="flex flex-col gap-[9px] overflow-y-auto">
-        {trades.length > 0 ? (
-          trades.map((trade, index) => (
-            <div
-              key={index}
-              className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-            >
-              <div className={`flex-1 text-left ${getPriceColor(trade.side)}`}>
-                {formatNumber(trade.price)}
+        <div className="flex flex-col gap-[9px] overflow-y-auto">
+          {trades.length > 0 ? (
+            trades.map((trade, index) => (
+              <div
+                key={index}
+                className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+              >
+                <div
+                  className={`flex-1 text-left ${getPriceColor(trade.side)}`}
+                >
+                  {formatNumber(trade.price)}
+                </div>
+                <div className="flex-1 text-right">
+                  {formatNumber(trade.amount, 3)}
+                </div>
+                <div className="flex-1 text-right">{trade.time}</div>
               </div>
-              <div className="flex-1 text-right">
-                {formatNumber(trade.amount, 3)}
-              </div>
-              <div className="flex-1 text-right">{trade.time}</div>
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+              暂无成交数据
             </div>
-          ))
-        ) : (
-          <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-            暂无成交数据
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
