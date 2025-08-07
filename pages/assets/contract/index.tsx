@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import appStore from "@/store";
 import MaskableAmount from "@/components/MaskableAmount";
+import { highlightText } from "@/utils/highlight";
 
 interface ContractAccountItem {
   symbol: string; // 币种
@@ -42,7 +43,6 @@ interface ContractAccountItem {
 
 const Contract = observer(() => {
   const { t } = useTranslation(["contract"]);
-  const [form] = Form.useForm();
 
   const coinList = appStore.getCoinList();
   const [initTableData, setInitTableData] = useState<ContractAccountItem[]>([]); // 初始化表格数据
@@ -90,7 +90,9 @@ const Contract = observer(() => {
               />
             )}
             <div className="font-[500] text-[14px] text-[var(--text-color5)]">
-              {record.symbol}
+              {searchKeyword.trim()
+                ? highlightText(record.symbol, searchKeyword)
+                : record.symbol}
             </div>
           </Flex>
         );
@@ -419,7 +421,7 @@ const Contract = observer(() => {
             {/* 底部数据 */}
             <div>
               {/* 筛选 */}
-              <Form form={form} className="py-[16px]">
+              <Form className="py-[16px]">
                 <Flex align="center" gap={30}>
                   <Form.Item noStyle>
                     <Input
