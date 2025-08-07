@@ -23,6 +23,7 @@ import {
 import { NoData } from "@/components/noData";
 import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
+import StopModal from "./components/StopModal";
 
 // 仓位
 interface Position {
@@ -123,6 +124,7 @@ const OrderList: React.FC = () => {
 
   // 当前tab
   const [activeTab, setActiveTab] = useState("position");
+  const [stopModalOpen, setStopModalOpen] = useState(false);
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
@@ -289,7 +291,7 @@ const OrderList: React.FC = () => {
 
       if (response?.data?.orderList) {
         // 这里应该根据实际API返回的数据结构来设置不同的状态
-        setPositions(response.data.orderList || []);
+        // setPositions(response.data.orderList || []);
       }
     } catch (error) {
       console.error("Failed to fetch order list:", error);
@@ -298,38 +300,6 @@ const OrderList: React.FC = () => {
       setLoading(false);
     }
   }, [currentContractInfo?.id]);
-
-  // 取消订单功能
-  const handleCancelOrder = async (order: any) => {
-    try {
-      // 添加到取消中的订单ID集合
-      setCancellingOrderIds((prev) => new Set(prev).add(order.id));
-
-      const response = await cancelOrder({
-        orderId: order.id,
-        contractId: order.contractId,
-        isConditionOrder: false,
-      });
-
-      if (response?.code === "0") {
-        message.success("订单取消成功");
-        // 重新获取订单列表
-        await getOrderList();
-      } else {
-        message.error(response?.msg || "取消订单失败");
-      }
-    } catch (error) {
-      console.error("Cancel order failed:", error);
-      message.error("取消订单失败");
-    } finally {
-      // 从取消中的订单ID集合中移除
-      setCancellingOrderIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(order.id);
-        return newSet;
-      });
-    }
-  };
 
   // 根据仅当前合约开关过滤数据
   const filterDataBySymbol = <T extends { symbol?: string }>(
@@ -503,7 +473,10 @@ const OrderList: React.FC = () => {
       title: "止盈止损",
       key: "tpsl",
       render: () => (
-        <SvgIcon className="text-[var(--theme-color)]">
+        <SvgIcon
+          className="text-[var(--theme-color)]"
+          onClick={() => setStopModalOpen(true)}
+        >
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -1137,7 +1110,7 @@ const OrderList: React.FC = () => {
     if (currentContractInfo?.id) {
       getOrderList();
     }
-  }, [getOrderList]);
+  }, [getOrderList, currentContractInfo?.id]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -1146,51 +1119,57 @@ const OrderList: React.FC = () => {
   if (!isClient) return null; // SSR 阶段不渲染
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Table: TableTheme,
-          Tabs: {
-            ...TabsTheme,
-            inkBarColor: "transparent",
+    <>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: TableTheme,
+            Tabs: {
+              ...TabsTheme,
+              inkBarColor: "transparent",
+            },
+            Switch: SwitchTheme,
           },
-          Switch: SwitchTheme,
-        },
-        token: TokenTheme,
-      }}
-    >
-      <div className="bg-[var(--background9)] h-[100%]">
-        {/* tabs 切换 */}
-        <Tabs
-          tabBarGutter={20}
-          activeKey={activeTab}
-          onChange={(key) => {
-            setActiveTab(key);
-            if (key === "orderHistory") {
-              getHistoryOrder();
-            }
-          }}
-          tabBarStyle={{ padding: "0 20px", height: "72px" }}
-          tabBarExtraContent={
-            <div className="flex items-center gap-[20px] text-[14px] font-[400]">
-              {/* 当前合约 */}
-              <div className="flex items-center gap-[8px]">
-                <Switch size="small" onChange={setOnlyCurrentSymbol} />
-                <div className="text-[var(--text-color5)]">仅当前合约</div>
-              </div>
-              {/* 一键全平 */}
-              {activeTab === "position" && (
-                <div className="text-[var(--theme-color)] cursor-pointer">
-                  一键全平
+          token: TokenTheme,
+        }}
+      >
+        <div className="bg-[var(--background9)] h-[100%]">
+          {/* tabs 切换 */}
+          <Tabs
+            tabBarGutter={20}
+            activeKey={activeTab}
+            onChange={(key) => {
+              setActiveTab(key);
+              if (key === "orderHistory") {
+                getHistoryOrder();
+              }
+            }}
+            tabBarStyle={{ padding: "0 20px", height: "72px" }}
+            tabBarExtraContent={
+              <div className="flex items-center gap-[20px] text-[14px] font-[400]">
+                {/* 当前合约 */}
+                <div className="flex items-center gap-[8px]">
+                  <Switch size="small" onChange={setOnlyCurrentSymbol} />
+                  <div className="text-[var(--text-color5)]">仅当前合约</div>
                 </div>
-              )}
-            </div>
-          }
-          items={tabItems}
-          style={{ minHeight: "404px" }}
-        />
-      </div>
-    </ConfigProvider>
+                {/* 一键全平 */}
+                {activeTab === "position" && (
+                  <div className="text-[var(--theme-color)] cursor-pointer">
+                    一键全平
+                  </div>
+                )}
+              </div>
+            }
+            items={tabItems}
+            style={{ minHeight: "404px" }}
+          />
+        </div>
+      </ConfigProvider>
+      <StopModal
+        open={stopModalOpen}
+        onCancel={() => setStopModalOpen(false)}
+      />
+    </>
   );
 };
 
