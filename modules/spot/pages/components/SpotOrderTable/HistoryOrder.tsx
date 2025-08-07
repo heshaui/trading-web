@@ -552,7 +552,7 @@ const SpotMainPage = observer(() => {
       const selectData = res.data.map((item: any, index: number) => {
         return {
           label: `${item.coinSymbol}/${item.baseSymbol}`,
-          value: index,
+          value: `${item.coinSymbol}/${item.baseSymbol}`,
           baseSymbol: item.baseSymbol,
           coinSymbol: item.coinSymbol,
           tenantId: item.tenantId
