@@ -321,6 +321,8 @@ const SpotMainPage = observer(() => {
   const getOrderListData = async () => {
     setLoading(true);
     const symbol = form.getFieldValue('symbol');
+    console.log(symbol,999);
+    
     try {
       // 请求数据
       const params = {
@@ -357,7 +359,7 @@ const SpotMainPage = observer(() => {
         const selectData = res.data.map((item: any, index: number) => {
           return {
             label: `${item.coinSymbol}/${item.baseSymbol}`,
-            value: index,
+            value: `${item.coinSymbol}/${item.baseSymbol}`,
             baseSymbol: item.baseSymbol,
             coinSymbol: item.coinSymbol,
             tenantId: item.tenantId

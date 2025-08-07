@@ -47,7 +47,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             // 检查是否被浏览器拦截
             if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                 // 被拦截时提供备用方案
-                toast.warning(t('spot.coinInfo.popupBlocked'));
+                // toast.warning(t('spot.coinInfo.popupBlocked'));
                 // 备用方案：创建隐藏的a标签点击
                 const link = document.createElement('a');
                 link.href = validUrl;
