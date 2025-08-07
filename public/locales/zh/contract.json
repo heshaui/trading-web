@@ -141,6 +141,7 @@
     "hideSmallAssets": "隐藏小额资产",
     "totalAssets": "总资产",
     "walletBalance": "钱包余额",
-    "transfer": "划转"
+    "transfer": "划转",
+    "coin": "币种"
   }
 }
