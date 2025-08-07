@@ -278,7 +278,9 @@
             "circulateRate": "Circulation Rate",
             "hotRank": "Popularity Rank",
             "marketRank": "Market Cap Rank",
-             "maxSupplyMarket": "Max Supply Market"
+             "maxSupplyMarket": "Max Supply Market",
+              "invalidLink": "Invalid link",
+            "popupBlocked": "Risky link!"
         }
     }
 }

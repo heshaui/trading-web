@@ -278,8 +278,9 @@
             "circulateRate": "유통률",
             "hotRank": "인기 순위",
             "marketRank": "시가총액 순위",
-             "maxSupplyMarket": "최대 공급 시가총액"
-             
+            "maxSupplyMarket": "최대 공급 시가총액",
+            "invalidLink": "유효하지 않은 링크",
+            "popupBlocked": "위험한 링크!"
         }
     }
 }
