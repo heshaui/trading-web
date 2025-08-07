@@ -2,7 +2,6 @@
   "name": "trading-web",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/h5",
   "scripts": {
     "dev": "next dev",
     "build": "ANALYZE=true next build",
