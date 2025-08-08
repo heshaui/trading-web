@@ -25,6 +25,7 @@ import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
 import StopModal from "./components/StopModal";
 import ReverModal from "./components/ReverModal";
+import AdjustModal from "./components/AdjustModal";
 
 // 仓位
 interface Position {
@@ -127,6 +128,7 @@ const OrderList: React.FC = () => {
   const [activeTab, setActiveTab] = useState("position");
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [reverModalOpen, setReverModalOpen] = useState(false);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
@@ -369,14 +371,15 @@ const OrderList: React.FC = () => {
           <div className="flex items-center gap-[4px] ">
             <div>USDT</div>
             <SvgIcon
-              className="text-[var(--text-color5)] flex items-center"
+              onClick={() => setAdjustModalOpen(true)}
+              className="text-[var(--text-color5)] flex items-center cursor-pointer"
               width={18}
               height={18}
               viewBox="0 0 18 18"
             >
               <path
                 d="M9 1.5C13.1422 1.5 16.5 4.85775 16.5 9C16.5 13.1422 13.1422 16.5 9 16.5C4.85775 16.5 1.5 13.1422 1.5 9C1.5 4.85775 4.85775 1.5 9 1.5ZM9 3C7.4087 3 5.88258 3.63214 4.75736 4.75736C3.63214 5.88258 3 7.4087 3 9C3 10.5913 3.63214 12.1174 4.75736 13.2426C5.88258 14.3679 7.4087 15 9 15C10.5913 15 12.1174 14.3679 13.2426 13.2426C14.3679 12.1174 15 10.5913 15 9C15 7.4087 14.3679 5.88258 13.2426 4.75736C12.1174 3.63214 10.5913 3 9 3ZM9 5.25C9.19891 5.25 9.38968 5.32902 9.53033 5.46967C9.67098 5.61032 9.75 5.80109 9.75 6V8.25H12C12.1989 8.25 12.3897 8.32902 12.5303 8.46967C12.671 8.61032 12.75 8.80109 12.75 9C12.75 9.19891 12.671 9.38968 12.5303 9.53033C12.3897 9.67098 12.1989 9.75 12 9.75H9.75V12C9.75 12.1989 9.67098 12.3897 9.53033 12.5303C9.38968 12.671 9.19891 12.75 9 12.75C8.80109 12.75 8.61032 12.671 8.46967 12.5303C8.32902 12.3897 8.25 12.1989 8.25 12V9.75H6C5.80109 9.75 5.61032 9.67098 5.46967 9.53033C5.32902 9.38968 5.25 9.19891 5.25 9C5.25 8.80109 5.32902 8.61032 5.46967 8.46967C5.61032 8.32902 5.80109 8.25 6 8.25H8.25V6C8.25 5.80109 8.32902 5.61032 8.46967 5.46967C8.61032 5.32902 8.80109 5.25 9 5.25Z"
-                fill="#0C0D0C"
+                fill="currentColor"
               />
             </SvgIcon>
           </div>
@@ -1177,6 +1180,10 @@ const OrderList: React.FC = () => {
       <ReverModal
         open={reverModalOpen}
         onCancel={() => setReverModalOpen(false)}
+      />
+      <AdjustModal
+        open={adjustModalOpen}
+        onCancel={() => setAdjustModalOpen(false)}
       />
     </>
   );

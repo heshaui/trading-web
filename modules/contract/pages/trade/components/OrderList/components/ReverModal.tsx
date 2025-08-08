@@ -3,8 +3,6 @@ import {
   ButtonTheme,
   modalStyle,
   ModalTheme,
-  TableTheme,
-  TabsTheme,
   TokenTheme,
 } from "@/theme/publicThemeConfig";
 import { Button, Checkbox, ConfigProvider, Modal } from "antd";
@@ -34,7 +32,7 @@ const ReverModal = ({
         maskClosable={false}
         centered
         open={open}
-        width={661}
+        width={430}
         title={
           <div className="text-[16px] text-[var(--text-color5)] font-[500]">
             反向开仓
