@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Tabs, InputNumber, Tooltip, Popover, Slider } from "antd";
+import { Tabs, InputNumber, Tooltip, Popover, Slider, Space } from "antd";
 
 interface CloseItemProps {
   show: boolean;
   onShowChange: (visible: boolean) => void;
   buttonText: string;
+  type: "market" | "limit";
 }
 
 const CloseItem: React.FC<CloseItemProps> = ({
   show,
   onShowChange,
   buttonText,
+  type,
 }) => {
   return (
     <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
@@ -38,11 +40,22 @@ const CloseItem: React.FC<CloseItemProps> = ({
             </div>
           )}
         >
-          <InputNumber
-            onClick={() => onShowChange(true)}
-            size="small"
-            className="w-[92px]"
-          />
+          <Space>
+            {type === "limit" && (
+              <InputNumber
+                placeholder="价格"
+                onClick={() => onShowChange(true)}
+                size="small"
+                className="w-[92px]"
+              />
+            )}
+            <InputNumber
+              placeholder="数量"
+              onClick={() => onShowChange(true)}
+              size="small"
+              className="w-[92px]"
+            />
+          </Space>
         </Popover>
       </Tooltip>
       <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
@@ -74,6 +87,7 @@ const QuickClose: React.FC = () => {
           key: "market",
           children: (
             <CloseItem
+              type="market"
               show={showMarket}
               onShowChange={handleMarketPopoverChange}
               buttonText="市价平"
@@ -85,6 +99,7 @@ const QuickClose: React.FC = () => {
           key: "limit",
           children: (
             <CloseItem
+              type="limit"
               show={showLimit}
               onShowChange={handleLimitPopoverChange}
               buttonText="限价平"

@@ -4,6 +4,7 @@ import appStore from "@/store";
 import { getHistoryOrderList, getCurrentOrderList } from "@/services/contract";
 import styles from "@/styles/components/Table.module.css";
 import {
+  SliderTheme,
   SwitchTheme,
   TableTheme,
   TabsTheme,
@@ -1135,6 +1136,7 @@ const OrderList: React.FC = () => {
               ...TabsTheme,
               inkBarColor: "transparent",
             },
+            Slider: SliderTheme,
             Switch: SwitchTheme,
           },
           token: TokenTheme,

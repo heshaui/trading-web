@@ -77,7 +77,7 @@ const ReverModal = ({
             </div>
             <div className="flex flex-col gap-[2px] text-[14px] font-[400]">
               <div className="text-[var(--text-color6)]">最新价格</div>
-              <div className="text-[var(--text-color5)]">0</div>
+              <div className="text-[var(--text-color5)] text-right">0</div>
             </div>
           </div>
           {/* top-box */}
