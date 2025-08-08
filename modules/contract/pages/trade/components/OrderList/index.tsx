@@ -6,6 +6,9 @@ import {
   message,
   ConfigProvider,
   InputNumber,
+  Tooltip,
+  Popover,
+  Slider,
 } from "antd";
 import appStore from "@/store";
 import {
@@ -29,6 +32,7 @@ import AdjustModal from "./components/AdjustModal";
 import TipModal from "./components/TipModal";
 import ConfirmModal from "./components/ConfirmModal";
 import PhaseModal from "./components/PhaseModal";
+import QuickClose from "./components/QuickClose";
 
 // 仓位
 interface Position {
@@ -454,38 +458,7 @@ const OrderList: React.FC = () => {
     {
       title: "快速平仓",
       key: "quickClose",
-      render: () => (
-        <Tabs
-          tabBarGutter={10}
-          size="small"
-          items={[
-            {
-              label: <div className="text-[12px] font-[500]">市价</div>,
-              key: "market",
-              children: (
-                <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
-                  <InputNumber className="w-[92px] h-[25px]" />
-                  <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
-                    市价平
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: <div className="text-[12px] font-[500]">限价</div>,
-              key: "limit",
-              children: (
-                <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
-                  <InputNumber className="w-[92px] h-[25px]" />
-                  <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
-                    限价平
-                  </div>
-                </div>
-              ),
-            },
-          ]}
-        />
-      ),
+      render: () => <QuickClose />,
     },
     {
       title: "反向开仓",
