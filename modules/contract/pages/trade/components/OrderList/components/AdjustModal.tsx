@@ -2,14 +2,12 @@ import {
   ButtonTheme,
   modalStyle,
   ModalTheme,
-  SegmentedTheme,
   SliderTheme,
   TokenTheme,
 } from "@/theme/publicThemeConfig";
 import {
   Button,
   ConfigProvider,
-  Input,
   InputNumber,
   Modal,
   Segmented,
@@ -117,7 +115,7 @@ const AdjustModal = ({
             min={0}
             max={100}
             step={1}
-            className="w-[100%] !my-[16px]"
+            className="!my-[16px]"
             marks={{
               0: " ",
               25: " ",

@@ -143,7 +143,7 @@ const ReverModal = ({
             </div>
           </div>
           {/* checkbox */}
-          <div className="flex items-center gap-[10px] mt-[10px]">
+          <div className="mt-[10px]">
             <Checkbox checked={checked} onChange={() => setChecked(!checked)}>
               <div className="text-[14px] text-[var(--text-color5)] font-[400]">
                 不再提醒。可在交易设置中，开启或关闭提示。

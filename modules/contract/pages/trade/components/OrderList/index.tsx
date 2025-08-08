@@ -26,6 +26,9 @@ import dayjs from "dayjs";
 import StopModal from "./components/StopModal";
 import ReverModal from "./components/ReverModal";
 import AdjustModal from "./components/AdjustModal";
+import TipModal from "./components/TipModal";
+import ConfirmModal from "./components/ConfirmModal";
+import PhaseModal from "./components/PhaseModal";
 
 // 仓位
 interface Position {
@@ -129,6 +132,13 @@ const OrderList: React.FC = () => {
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [reverModalOpen, setReverModalOpen] = useState(false);
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [phaseModalOpen, setPhaseModalOpen] = useState(false);
+  const [tipModal, setTipModal] = useState({
+    open: false,
+    title: "",
+    tip: "",
+  });
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
@@ -320,7 +330,18 @@ const OrderList: React.FC = () => {
       dataIndex: "symbol",
       key: "symbol",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.symbol}</div>
+        <div
+          className="text-[12px] font-[500] cursor-pointer"
+          onClick={() =>
+            setTipModal({
+              open: true,
+              title: "自动减仓",
+              tip: "该指标代表你在自动减仓序列的排序。若指示灯全部亮起，发生平仓事件后，您的持仓可能会被减少。",
+            })
+          }
+        >
+          {record.symbol}
+        </div>
       ),
     },
     {
@@ -408,6 +429,7 @@ const OrderList: React.FC = () => {
             </div>
             <div className="text-[var(--text-color5)]">USDT</div>
             <SvgIcon
+              onClick={() => setPhaseModalOpen(true)}
               width={18}
               height={18}
               viewBox="0 0 18 18"
@@ -740,7 +762,7 @@ const OrderList: React.FC = () => {
     },
   ];
 
-  // 历史委托: 合约,类型,方向,委托价格 ,委托数量,成交数量,成交均价,盈亏,手续费,止盈止损,状态,时间
+  // 历史委托: 合约,类型(强制减仓),方向,委托价格 ,委托数量,成交数量,成交均价,盈亏,手续费,止盈止损,状态,时间
   const historyColumns = [
     {
       title: "合约",
@@ -757,7 +779,18 @@ const OrderList: React.FC = () => {
       render: (_: any, record: HistoryCommission) => (
         <div className="text-[12px] font-[500] flex items-center gap-[4px]">
           <div>{record.type}</div>
-          <div className="text-[var(--theme-color)]">查看</div>
+          <div
+            className="text-[var(--theme-color)] cursor-pointer"
+            onClick={() =>
+              setTipModal({
+                open: true,
+                title: "强制减仓",
+                tip: "BTCUSDT标记价格到达34,039.1，仓位保证金率大于或等于100%，触发强制平仓，仓位被系统接管。仓位被系统接管后，会以破产价格委托到市场上，若成交后有盈利，则盈利部分注入保险基金中。",
+              })
+            }
+          >
+            查看
+          </div>
         </div>
       ),
     },
@@ -1173,17 +1206,37 @@ const OrderList: React.FC = () => {
           />
         </div>
       </ConfigProvider>
+      {/* 止盈止损 */}
       <StopModal
         open={stopModalOpen}
         onCancel={() => setStopModalOpen(false)}
       />
+      {/* 反向开仓 */}
       <ReverModal
         open={reverModalOpen}
         onCancel={() => setReverModalOpen(false)}
       />
+      {/* 调整保证金 */}
       <AdjustModal
         open={adjustModalOpen}
         onCancel={() => setAdjustModalOpen(false)}
+      />
+      {/* 提示弹框 */}
+      <TipModal
+        title={tipModal.title}
+        tip={tipModal.tip}
+        open={tipModal.open}
+        onCancel={() => setTipModal({ open: false, title: "", tip: "" })}
+      />
+      {/* 二次确认弹框 */}
+      <ConfirmModal
+        open={confirmModalOpen}
+        onCancel={() => setConfirmModalOpen(false)}
+      />
+      {/* 未实现盈亏/收益率 */}
+      <PhaseModal
+        open={phaseModalOpen}
+        onCancel={() => setPhaseModalOpen(false)}
       />
     </>
   );
