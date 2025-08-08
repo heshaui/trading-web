@@ -24,6 +24,7 @@ import { NoData } from "@/components/noData";
 import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
 import StopModal from "./components/StopModal";
+import ReverModal from "./components/ReverModal";
 
 // 仓位
 interface Position {
@@ -125,6 +126,7 @@ const OrderList: React.FC = () => {
   // 当前tab
   const [activeTab, setActiveTab] = useState("position");
   const [stopModalOpen, setStopModalOpen] = useState(false);
+  const [reverModalOpen, setReverModalOpen] = useState(false);
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
@@ -464,7 +466,10 @@ const OrderList: React.FC = () => {
       title: "反向开仓",
       key: "reverseOpen",
       render: () => (
-        <span className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap">
+        <span
+          onClick={() => setReverModalOpen(true)}
+          className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap"
+        >
           反向开仓
         </span>
       ),
@@ -1168,6 +1173,10 @@ const OrderList: React.FC = () => {
       <StopModal
         open={stopModalOpen}
         onCancel={() => setStopModalOpen(false)}
+      />
+      <ReverModal
+        open={reverModalOpen}
+        onCancel={() => setReverModalOpen(false)}
       />
     </>
   );
