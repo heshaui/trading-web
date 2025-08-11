@@ -699,8 +699,8 @@ const WithdrawMoneyPage = observer(() => {
           amountAfter:
             countNum(
               amountNum || 0,
-              coninInfo?.withdrawFee||0,
-              coninInfo?.minWithdrawFee||0
+              coninInfo?.withdrawFee || 0,
+              coninInfo?.minWithdrawFee || 0
             ) || 0,
           protocolName: coinExtSelect.find(
             (item) => item.value === values.protocolId
@@ -710,8 +710,8 @@ const WithdrawMoneyPage = observer(() => {
           countWithdrawFee:
             withdrawFee(
               amountNum || 0,
-              coninInfo?.withdrawFee||0,
-              coninInfo?.minWithdrawFee||0
+              coninInfo?.withdrawFee || 0,
+              coninInfo?.minWithdrawFee || 0
             ) || 0,
         };
         setWithdrawInfo(params);
@@ -871,9 +871,9 @@ const WithdrawMoneyPage = observer(() => {
   }
 
 
-   // 最大值检查
-   const checkMaxWithdraw = useMemo(() => {
-    if ((allowWithdraw && amountNum && amountNum < getMinWithdraw('max'))||!amountNum) {
+  // 最大值检查
+  const checkMaxWithdraw = useMemo(() => {
+    if ((allowWithdraw && amountNum && amountNum < getMinWithdraw('max')) || !amountNum) {
       return true
     } else {
       return false
@@ -882,12 +882,12 @@ const WithdrawMoneyPage = observer(() => {
 
   const maxWithdrawAmountBtn = useCallback(() => {
     const maxAmount = getMinWithdraw('max')
-    if (allowWithdraw||checkMaxWithdraw) {
+    if (allowWithdraw || checkMaxWithdraw) {
       form.setFieldValue('amount', maxAmount)
       setAmountNum(maxAmount)
       checkAllowWithdraw(maxAmount);
     }
-  }, [allowWithdraw,checkMaxWithdraw])
+  }, [allowWithdraw, checkMaxWithdraw])
 
   // 获取用户24小时限额
   const getUserALlLimitData = async () => {
@@ -1267,7 +1267,7 @@ const WithdrawMoneyPage = observer(() => {
                     options={coinExtSelect} //protocolTypeList coinExtSelect
                     className={`${styles.select_box}  custom-select `}
                     optionRender={(option) => {
-                      const withdrawFeeInfo = getWithdrawFee(option.data.minWithdrawFee||0)
+                      const withdrawFeeInfo = getWithdrawFee(option.data.minWithdrawFee || 0)
                       return (
                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                           <p className={`flex-y `}>
@@ -1278,7 +1278,7 @@ const WithdrawMoneyPage = observer(() => {
                           </p>
                           <p className={`${styles.tip_color2} `}>
                             {/* {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`} */}
-                            {`${t("withdrawMoney.fee")} ${option.data.minWithdrawFee||0
+                            {`${t("withdrawMoney.fee")} ${option.data.minWithdrawFee || 0
                               }${withdrawFeeInfo?.coinName
                               }≈${withdrawFeeInfo?.symbol
                               } ${withdrawFeeInfo?.rate}`}
@@ -1465,8 +1465,8 @@ const WithdrawMoneyPage = observer(() => {
                                         nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee) || 0} */}
                       {countNum(
                         amountNum || 0,
-                        coninInfo?.withdrawFee||0,
-                        coninInfo?.minWithdrawFee||0
+                        coninInfo?.withdrawFee || 0,
+                        coninInfo?.minWithdrawFee || 0
                       ) || 0}
                       {coninInfo.coinName || "--"}
                     </p>
@@ -1478,8 +1478,8 @@ const WithdrawMoneyPage = observer(() => {
                         {/* {nul(amountNum, division(coninInfo.withdrawFee,100)) > coninInfo.minWithdrawFee ? nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee} */}
                         {withdrawFee(
                           amountNum || 0,
-                          coninInfo?.withdrawFee||0,
-                          coninInfo?.minWithdrawFee||0
+                          coninInfo?.withdrawFee || 0,
+                          coninInfo?.minWithdrawFee || 0
                         ) || 0}
                         {coninInfo.coinName || "--"}
                       </span>
@@ -1514,7 +1514,7 @@ const WithdrawMoneyPage = observer(() => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("coinSearchHistory");
-      if((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0)||(userInfo?.merchantWithdrawalStatus !== 1)||userInfo?.withdrawalStatus === 0
+      if ((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0) || (userInfo?.merchantWithdrawalStatus !== 1) || userInfo?.withdrawalStatus === 0
       ) return
       if (saved && coinSelect.length > 0) {
         const history = JSON.parse(saved).filter((item: any) => {
@@ -1523,7 +1523,7 @@ const WithdrawMoneyPage = observer(() => {
         setSearchHistory(history);
       }
     }
-  }, [coinSelect,userInfo]); 
+  }, [coinSelect, userInfo]);
 
   return (
     <ResetStateProvider>
@@ -1558,15 +1558,15 @@ const WithdrawMoneyPage = observer(() => {
             />
           </div>
           <div className={`${styles.card_box}  mt-6  `}>
-            {!userInfo ? null 
-            : (userInfo?.merchantWithdrawalStatus === 0&&userInfo?.userLevel === 'L0')  ? (
-              <NoUseCom type="1" />
-            ) 
-            : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
-              <NoUseCom type="2" />
-            ) : userInfo?.withdrawalStatus === 0||userInfo?.merchantWithdrawalStatus !== 1 ? (
-              <NoUseCom type="3" />
-            ) : null}
+            {!userInfo ? null :
+              (userInfo?.withdrawalStatus !== 1 || (userInfo?.verifiedWithdrawalStatus !== 1 && userInfo?.unverifiedWithdrawalStatus !== 1)) ? (
+                <NoUseCom type="3" />
+              )
+                : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
+                  <NoUseCom type="2" />
+                ) : (userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0) ? (
+                  <NoUseCom type="1" />
+                ) : null}
             <div
               className={` w-full flex-x justify-between ${styles.card_content2}`}
             >
