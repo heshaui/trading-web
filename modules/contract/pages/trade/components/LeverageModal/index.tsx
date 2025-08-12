@@ -30,9 +30,9 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   const maxLeverage = ContractInfo.maxLever;
   const { loadUserConfig } = useUserConfig();
 
- 
 
- 
+
+
 
   const handleSliderChange = (value: number) => {
     setTempLeverage(value);
@@ -45,17 +45,36 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   };
 
   const handleConfirm = async () => {
-    const res = await levelEdit({
-      contractId: ContractInfo.id,
-      nowLevel: tempLeverage,
-    });
-    if(res.code === '0'){
-      toast.success('成功');
-      console.log('LeverageModal: 开始调用 loadUserConfig');
-      await loadUserConfig();
-      console.log('LeverageModal: loadUserConfig 调用完成');
-      onLeverageChange(tempLeverage);
-      onClose();
+    try {
+      const res = await levelEdit({
+        contractId: ContractInfo.id,
+        nowLevel: tempLeverage,
+      });
+
+      if (res.code === '0') {
+        toast.success('杠杆设置成功');
+
+        // 立即更新 store 中的 userConfig.nowLevel，确保 UI 立即响应
+        const currentUserConfig = appStore.getUserConfig();
+        appStore.setUserConfig({
+          ...currentUserConfig,
+          nowLevel: tempLeverage
+        });
+
+        // 先通知父组件杠杆值变化
+        onLeverageChange(tempLeverage);
+
+        // 异步重新获取用户配置，确保数据同步
+        await loadUserConfig();
+
+        // 最后关闭模态框
+        onClose();
+      } else {
+        toast.error(res.message || '杠杆设置失败');
+      }
+    } catch (error) {
+      console.error('杠杆设置失败:', error);
+      toast.error('杠杆设置失败，请重试');
     }
   };
 
@@ -93,13 +112,13 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         {/* 杠杆输入区域 */}
         <div className={styles.leverageInputSection}>
 
-            <InputNumber
-              value={tempLeverage}
-              onChange={handleInputChange}
-              min={1}
-              max={maxLeverage}
-              className={styles.leverageInputNumber}
-            />
+          <InputNumber
+            value={tempLeverage}
+            onChange={handleInputChange}
+            min={1}
+            max={maxLeverage}
+            className={styles.leverageInputNumber}
+          />
         </div>
 
         {/* 杠杆滑块 */}

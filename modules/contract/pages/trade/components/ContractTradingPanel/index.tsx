@@ -99,10 +99,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
   useEffect(() => {
     if (userConfig?.nowLevel && userConfig.nowLevel !== leverageLevel) {
-      console.log('ContractTradingPanel: 同步杠杆值', userConfig.nowLevel);
+      console.log('ContractTradingPanel: 同步杠杆值', userConfig.nowLevel, '当前值:', leverageLevel);
       setLeverageLevel(userConfig.nowLevel);
     }
-  }, [userConfig?.nowLevel, leverageLevel]);
+  }, [userConfig?.nowLevel]); // 移除 leverageLevel 依赖，避免无限循环
 
   // 获取当前订单类型
   const getOrderType = () => {
@@ -165,8 +165,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           currentCategory === 1
             ? "limit"
             : currentCategory === 2
-            ? "market"
-            : "conditional",
+              ? "market"
+              : "conditional",
       };
       handleConfirmOrder(orderData, false);
       return;
@@ -187,8 +187,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
         currentCategory === 1
           ? "limit"
           : currentCategory === 2
-          ? "market"
-          : "conditional",
+            ? "market"
+            : "conditional",
     };
 
     setConfirmData(orderData);
@@ -375,11 +375,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             <button
               key={tab.key}
               onClick={() => setCurrentCategory(tab.key as any)}
-              className={`text-[14px] font-[400] ${
-                currentCategory === tab.key
+              className={`text-[14px] font-[400] ${currentCategory === tab.key
                   ? "text-[var(--text-color5)] font-[500]"
                   : "text-[var(--text-color6)]"
-              }`}
+                }`}
             >
               {tab.label}
             </button>
