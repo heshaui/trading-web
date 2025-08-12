@@ -1564,7 +1564,7 @@ const WithdrawMoneyPage = observer(() => {
               )
                 : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
                   <NoUseCom type="2" />
-                ) : (userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0) ? (
+                ) : (userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0&& userInfo?.unverifiedWithdrawalStatus !== 1) ? (
                   <NoUseCom type="1" />
                 ) : null}
             <div
