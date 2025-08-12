@@ -564,3 +564,18 @@ export const getContractFinancialRecords = async (
   }
 };
 /*-----------------1.合约账户-资金记录end------------------*/
+
+// common/public_market_info
+export const getPublicMarketInfo = async (params: any) => {
+  try {
+    const response = await request<any>("/fe-co-api/common/public_market_info", {
+      method: "POST",
+      headers: formatHeaders(),
+      body: JSON.stringify(params),
+    });
+    return response;
+  } catch (error) {
+    console.error("获取公共市场信息失败:", error);
+    throw error;
+  }
+};

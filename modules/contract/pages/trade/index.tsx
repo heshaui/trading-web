@@ -15,7 +15,7 @@ import ContractKlineChart from "./components/ContractKlineChart";
 import WebSocketService from "@/utils/websocket";
 import WaterfallLayout, { WaterfallItem } from "@/components/WaterfallLayout";
 import appStore from "@/store";
-import { createCoId, createOrder } from "@/services/contract";
+import { createCoId, createOrder, getPublicMarketInfo } from "@/services/contract";
 
 interface ContractAsset {
   symbol: string;
@@ -69,6 +69,8 @@ const TradePage = () => {
   const [publicInfo, setPublicInfo] = useState<any>({}); // 公共数据
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]); // 币种列表
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
+
+
 
   // 获取合约账户余额
   const getContractBalance = async () => {
@@ -219,6 +221,7 @@ const TradePage = () => {
 
   // 获取币种列表
   useEffect(() => {
+
     if (publicInfo.contractList) {
       setSymbolList(publicInfo.contractList);
     }

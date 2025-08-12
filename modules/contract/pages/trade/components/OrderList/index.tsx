@@ -341,9 +341,8 @@ const OrderList: React.FC = () => {
       key: "size",
       render: (_: any, record: Position) => (
         <div
-          className={`text-[12px] font-[500] ${
-            record.side === "LONG" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`text-[12px] font-[500] ${record.side === "LONG" ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.size} USDT
         </div>
@@ -494,9 +493,8 @@ const OrderList: React.FC = () => {
       key: "side",
       render: (_: any, record: OrdinaryCommission) => (
         <span
-          className={`${
-            record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.side === "BUY" ? "买入" : "卖出"}
         </span>
@@ -638,9 +636,8 @@ const OrderList: React.FC = () => {
       key: "side",
       render: (_: any, record: ConditionalCommission) => (
         <span
-          className={`${
-            record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.side === "BUY" ? "买入" : "卖出"}
         </span>
@@ -767,9 +764,8 @@ const OrderList: React.FC = () => {
       key: "side",
       render: (_: any, record: HistoryCommission) => (
         <span
-          className={`${
-            record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.side === "BUY" ? "买入" : "卖出"}
         </span>
@@ -813,9 +809,8 @@ const OrderList: React.FC = () => {
       key: "profit",
       render: (_: any, record: HistoryCommission) => (
         <div
-          className={`text-[12px] font-[500] ${
-            record.profit >= 0 ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`text-[12px] font-[500] ${record.profit >= 0 ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.profit} USDT
         </div>
@@ -976,9 +971,8 @@ const OrderList: React.FC = () => {
       key: "side",
       render: (_: any, record: TradeHistory) => (
         <span
-          className={`${
-            record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
         >
           {record.side === "BUY" ? "买入" : "卖出"}
         </span>
@@ -1162,11 +1156,11 @@ const OrderList: React.FC = () => {
                   <div className="text-[var(--text-color5)]">仅当前合约</div>
                 </div>
                 {/* 一键全平 */}
-                {activeTab === "position" && (
+                {/* {activeTab === "position" && (
                   <div className="text-[var(--theme-color)] cursor-pointer">
                     一键全平
                   </div>
-                )}
+                )} */}
               </div>
             }
             items={tabItems}
