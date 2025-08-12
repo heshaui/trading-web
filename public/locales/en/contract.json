@@ -141,6 +141,7 @@
     "hideSmallAssets": "Hide Small Assets",
     "totalAssets": "Total Assets",
     "walletBalance": "Wallet Balance",
-    "transfer": "Transfer"
+    "transfer": "Transfer",
+    "coin": "Coin"
   }
 }

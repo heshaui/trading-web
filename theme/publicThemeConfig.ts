@@ -79,6 +79,14 @@ export const TokenTheme: TokenThemeConfig = {
   colorBgContainerDisabled: "var(--theme-05)", // 禁用状态背景色
 };
 
+type SliderThemeConfig = NonNullable<ThemeConfig["components"]>["Slider"];
+export const SliderTheme: SliderThemeConfig = {
+  railBg: "var(--background16)",
+  handleColor: "var(--theme-color)",
+  dotSize: 10,
+  dotActiveBorderColor: "var(--theme-color)",
+};
+
 export const modalStyle = createStyles(() => ({
   "my-modal-header": {
     height: "60px !important",

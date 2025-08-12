@@ -15,6 +15,7 @@ import { useTranslation } from "next-i18next";
 import { NoData, NoAddress } from "@/components/noData";
 import NoUseCom from "../components/noSM";
 import RechargeTable from "../components/rechargeTable";
+import { ROUTER_KEY_ASSETS } from "@/config/apiConfig";
 const TopUpPage = () => {
   const { t } = useTranslation("assets");
   const { isDayMode } = useThemeMode(); // 使用 hook
@@ -200,7 +201,7 @@ const TopUpPage = () => {
             items={[
               {
                 title: (
-                  <Link href="/assets/assetsAccount">
+                  <Link href={ROUTER_KEY_ASSETS.SPOT_ACCOUNT}>
                     <span className={`${styles.tip_color}`}>
                       {/* 现货账户 */}
                       {t("assets.assetsAccount")}

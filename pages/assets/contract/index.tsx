@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import appStore from "@/store";
 import MaskableAmount from "@/components/MaskableAmount";
+import { highlightText } from "@/utils/highlight";
 
 interface ContractAccountItem {
   symbol: string; // 币种
@@ -42,24 +43,38 @@ interface ContractAccountItem {
 
 const Contract = observer(() => {
   const { t } = useTranslation(["contract"]);
-  const [form] = Form.useForm();
 
-  // 表格数据
-  const [tableData, setTableData] = useState<ContractAccountItem[]>([]);
-  const [tableLoading, setTableLoading] = useState(false);
-  const [myAmountLoading, setMyAmountLoading] = useState(false);
-  const [showAmount, setShowAmount] = useState(false);
+  const coinList = appStore.getCoinList();
+  const [initTableData, setInitTableData] = useState<ContractAccountItem[]>([]); // 初始化表格数据
+  const [tableData, setTableData] = useState<ContractAccountItem[]>([]); // 表格数据
+  const [tableLoading, setTableLoading] = useState(false); // 表格loading
+
+  const [myAmountLoading, setMyAmountLoading] = useState(false); // 是否显示金额loading
+  const [showAmount, setShowAmount] = useState(false); // 是否显示金额
+
+  const [hideSmallAssets, setHideSmallAssets] = useState(false); // 隐藏小额资产
+  const [searchKeyword, setSearchKeyword] = useState(""); // 搜索关键词
+
+  // 当前显示的币种
+  const [showCoin, setShowCoin] = useState({
+    number: "0.00091761",
+    coinName: coinList[0]?.coinName,
+    coinId: coinList[0]?.coinId,
+  });
 
   // 划转弹窗
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   // 当前选中行
   const [record, setRecord] = useState<ContractAccountItem | null>(null);
 
+  // 是否是客户端渲染
+  const [isClient, setIsClient] = useState(false);
+
   // 表格列
   const columns: ColumnsType<ContractAccountItem> = [
     // 币种
     {
-      title: t("symbol"),
+      title: t("account.coin"),
       dataIndex: "symbol",
       key: "symbol",
       render: (_: any, record: any) => {
@@ -75,7 +90,9 @@ const Contract = observer(() => {
               />
             )}
             <div className="font-[500] text-[14px] text-[var(--text-color5)]">
-              {record.symbol}
+              {searchKeyword.trim()
+                ? highlightText(record.symbol, searchKeyword)
+                : record.symbol}
             </div>
           </Flex>
         );
@@ -137,7 +154,11 @@ const Contract = observer(() => {
         Number(a.unRealizedAmount) - Number(b.unRealizedAmount),
       render: (_: any, record: any) => {
         return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+          <div
+            className={`text-[14px] font-[500] 
+            ${Number(record.unRealizedAmount) > 0 && "text-[#00C788]"} 
+            ${Number(record.unRealizedAmount) < 0 && "text-[#FF4D4F]"}`}
+          >
             {record.unRealizedAmount}
           </div>
         );
@@ -165,6 +186,42 @@ const Contract = observer(() => {
     },
   ];
 
+  // 过滤数据的处理函数
+  const filterData = (keyword: string, hideSmall: boolean) => {
+    let filteredData = [...initTableData];
+
+    // 根据搜索关键词过滤
+    if (keyword.trim()) {
+      filteredData = filteredData.filter((item) =>
+        item.symbol.toLowerCase().includes(keyword.toLowerCase())
+      );
+    }
+
+    // 根据隐藏小额资产过滤
+    if (hideSmall) {
+      filteredData = filteredData.filter(
+        (item) => item.totalAmount && item.totalAmount.toString().trim() !== "0"
+      );
+    }
+
+    setTableData(filteredData);
+  };
+
+  // 搜索输入变化处理函数
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log(value);
+    setSearchKeyword(value);
+    filterData(value, hideSmallAssets);
+  };
+
+  // 隐藏小额资产的处理函数
+  const hideSmallAssetsChange = (e: any) => {
+    const value = e.target.checked;
+    setHideSmallAssets(value);
+    filterData(searchKeyword, value);
+  };
+
   // 获取数据
   const fetchData = async () => {
     setTableLoading(true);
@@ -175,6 +232,7 @@ const Contract = observer(() => {
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
       if (res.code === "0") {
+        setInitTableData(res.data.accountList);
         setTableData(res.data.accountList);
       } else {
         message.error(res.msg);
@@ -192,6 +250,14 @@ const Contract = observer(() => {
     const amountShow = appStore.getBanlanceShow();
     setShowAmount(amountShow);
   }, []);
+
+  // 是否是客户端渲染
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
+
   return (
     <>
       {/* 基础页面 */}
@@ -212,7 +278,7 @@ const Contract = observer(() => {
           {/* 内容 */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
             {/* 头部数据 */}
-            <div className="h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end justify-between p-[30px]">
+            <div className="min-h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end flex-wrap p-[30px] gap-[33%]">
               {/* 总资产折合  */}
               <Skeleton
                 active
@@ -253,32 +319,41 @@ const Contract = observer(() => {
                     <MaskableAmount
                       show={showAmount}
                       content={
-                        <div className="flex gap-[4px] items-center">
-                          <div>0.00091761 BTC</div>
-                          <Dropdown
-                            trigger={["click"]}
-                            arrow={true}
-                            menu={{
-                              items: [
-                                { label: "BTC", key: "BTC" },
-                                { label: "ETH", key: "ETH" },
-                              ],
-                            }}
-                          >
-                            <SvgIcon
-                              width={24}
-                              height={24}
-                              viewBox="0 0 24 24"
-                              className="text-[var(--text-color6)] cursor-pointer"
+                        <div className="flex gap-[4px] items-center flex-wrap">
+                          <div>{showCoin.number}</div>
+                          <div className="flex items-center gap-[4px]">
+                            {showCoin.coinName}
+                            <Dropdown
+                              trigger={["click"]}
+                              menu={{
+                                items: coinList.map((item) => ({
+                                  label: item.coinName,
+                                  key: item.coinId,
+                                  onClick: () => {
+                                    setShowCoin({
+                                      ...showCoin,
+                                      coinName: item.coinName,
+                                      coinId: item.coinId,
+                                    });
+                                  },
+                                })),
+                              }}
                             >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M12.707 15.707C12.5194 15.8945 12.2651 15.9998 12 15.9998C11.7348 15.9998 11.4805 15.8945 11.293 15.707L5.63598 10.05C5.54047 9.95776 5.46428 9.84742 5.41188 9.72541C5.35947 9.60341 5.33188 9.47219 5.33073 9.33941C5.32957 9.20663 5.35487 9.07495 5.40516 8.95205C5.45544 8.82916 5.52969 8.7175 5.62358 8.62361C5.71747 8.52972 5.82913 8.45547 5.95202 8.40519C6.07492 8.3549 6.2066 8.3296 6.33938 8.33076C6.47216 8.33191 6.60338 8.3595 6.72538 8.41191C6.84739 8.46431 6.95773 8.5405 7.04998 8.63601L12 13.586L16.95 8.63601C17.1386 8.45385 17.3912 8.35305 17.6534 8.35533C17.9156 8.35761 18.1664 8.46278 18.3518 8.64819C18.5372 8.8336 18.6424 9.08441 18.6447 9.34661C18.6469 9.6088 18.5461 9.86141 18.364 10.05L12.707 15.707Z"
-                                fill="currentColor"
-                              />
-                            </SvgIcon>
-                          </Dropdown>
+                              <SvgIcon
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                className="text-[var(--text-color6)] cursor-pointer"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M12.707 15.707C12.5194 15.8945 12.2651 15.9998 12 15.9998C11.7348 15.9998 11.4805 15.8945 11.293 15.707L5.63598 10.05C5.54047 9.95776 5.46428 9.84742 5.41188 9.72541C5.35947 9.60341 5.33188 9.47219 5.33073 9.33941C5.32957 9.20663 5.35487 9.07495 5.40516 8.95205C5.45544 8.82916 5.52969 8.7175 5.62358 8.62361C5.71747 8.52972 5.82913 8.45547 5.95202 8.40519C6.07492 8.3549 6.2066 8.3296 6.33938 8.33076C6.47216 8.33191 6.60338 8.3595 6.72538 8.41191C6.84739 8.46431 6.95773 8.5405 7.04998 8.63601L12 13.586L16.95 8.63601C17.1386 8.45385 17.3912 8.35305 17.6534 8.35533C17.9156 8.35761 18.1664 8.46278 18.3518 8.64819C18.5372 8.8336 18.6424 9.08441 18.6447 9.34661C18.6469 9.6088 18.5461 9.86141 18.364 10.05L12.707 15.707Z"
+                                  fill="currentColor"
+                                />
+                              </SvgIcon>
+                            </Dropdown>
+                          </div>
                         </div>
                       }
                     />
@@ -308,43 +383,62 @@ const Contract = observer(() => {
                   <div className="text-[32px] text-[var(--text-color5)] font-[700]">
                     <MaskableAmount
                       show={showAmount}
-                      content={<div>-0.58 USD</div>}
+                      content={
+                        <div
+                          className={`
+                            ${Number(-0.58) > 0 && "text-[#00C788]"}
+                            ${Number(-0.58) < 0 && "text-[#FF4D4F]"}
+                          `}
+                        >
+                          -0.58 USD
+                        </div>
+                      }
                     />
                   </div>
                   <div className="text-[14px] text-[var(--text-color6)]">
                     <MaskableAmount
                       show={showAmount}
-                      content={<div>-0.58%</div>}
+                      content={
+                        <div
+                          className={`
+                            ${Number(-0.58) > 0 && "text-[#00C788]"}
+                            ${Number(-0.58) < 0 && "text-[#FF4D4F]"}
+                          `}
+                        >
+                          -0.58%
+                        </div>
+                      }
                     />
                   </div>
                 </div>
               </Skeleton>
 
               {/* 盈亏分析 */}
-              <Button onClick={() => {}} type="primary" ghost shape="round">
+              {/* <Button onClick={() => {}} type="primary" ghost shape="round">
                 {t("account.profitAnalysis")}
-              </Button>
+              </Button> */}
             </div>
             {/* 底部数据 */}
             <div>
               {/* 筛选 */}
-              <Form form={form} className="py-[16px]">
+              <Form className="py-[16px]">
                 <Flex align="center" gap={30}>
-                  <Form.Item noStyle name="coin">
+                  <Form.Item noStyle>
                     <Input
                       allowClear
+                      value={searchKeyword}
+                      onChange={handleSearchChange}
                       placeholder={t("account.inputCoin")}
                       className="h-[40px]"
                       style={{ width: "188px" }}
                       prefix={<Iconify icon="garden:search-26" size={20} />}
                     />
                   </Form.Item>
-                  <Form.Item
-                    noStyle
-                    name="hideSmallAssets"
-                    valuePropName="checked"
-                  >
-                    <Checkbox onChange={() => {}}>
+                  <Form.Item noStyle>
+                    <Checkbox
+                      checked={hideSmallAssets}
+                      onChange={hideSmallAssetsChange}
+                    >
                       {t("account.hideSmallAssets")}
                     </Checkbox>
                   </Form.Item>
@@ -353,7 +447,7 @@ const Contract = observer(() => {
 
               {/* 表格 */}
               <Table
-                rowKey="id"
+                rowKey={(record) => record.symbol}
                 className={styles.table}
                 columns={columns}
                 showSorterTooltip={false}

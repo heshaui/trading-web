@@ -1,20 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Tabs,
-  Table,
-  Switch,
-  message,
-  ConfigProvider,
-  InputNumber,
-} from "antd";
+import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
-import {
-  cancelOrder,
-  getHistoryOrderList,
-  getCurrentOrderList,
-} from "@/services/contract";
+import { getHistoryOrderList, getCurrentOrderList } from "@/services/contract";
 import styles from "@/styles/components/Table.module.css";
 import {
+  SliderTheme,
   SwitchTheme,
   TableTheme,
   TabsTheme,
@@ -23,6 +13,13 @@ import {
 import { NoData } from "@/components/noData";
 import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
+import StopModal from "./components/StopModal";
+import ReverModal from "./components/ReverModal";
+import AdjustModal from "./components/AdjustModal";
+import TipModal from "./components/TipModal";
+import ConfirmModal from "./components/ConfirmModal";
+import PhaseModal from "./components/PhaseModal";
+import QuickClose from "./components/QuickClose";
 
 // 仓位
 interface Position {
@@ -123,6 +120,16 @@ const OrderList: React.FC = () => {
 
   // 当前tab
   const [activeTab, setActiveTab] = useState("position");
+  const [stopModalOpen, setStopModalOpen] = useState(false);
+  const [reverModalOpen, setReverModalOpen] = useState(false);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [phaseModalOpen, setPhaseModalOpen] = useState(false);
+  const [tipModal, setTipModal] = useState({
+    open: false,
+    title: "",
+    tip: "",
+  });
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
@@ -134,20 +141,22 @@ const OrderList: React.FC = () => {
 
   // table 数据
   // 仓位
-  const [positions, setPositions] = useState<Position[]>(Array.from({ length: 10 }, (_, index) => ({
-    id: index.toString(),
-    symbol: "BTCUSDT",
-    side: "LONG",
-    size: 595.51,
-    entryPrice: 10000,
-    markPrice: 10000,
-    pnl: 100,
-    pnlRate: 0.1,
-    margin: 1000,
-    marginRate: 0.1,
-    liquidationPrice: 10000,
-    createTime: 1717334400000,
-  })));
+  const [positions, setPositions] = useState<Position[]>(
+    Array.from({ length: 10 }, (_, index) => ({
+      id: index.toString(),
+      symbol: "BTCUSDT",
+      side: "LONG",
+      size: 595.51,
+      entryPrice: 10000,
+      markPrice: 10000,
+      pnl: 100,
+      pnlRate: 0.1,
+      margin: 1000,
+      marginRate: 0.1,
+      liquidationPrice: 10000,
+      createTime: 1717334400000,
+    }))
+  );
   // 普通委托
   const [ordinaryCommission, setOrdinaryCommission] = useState<
     OrdinaryCommission[]
@@ -229,7 +238,7 @@ const OrderList: React.FC = () => {
       id: "1",
       symbol: "BTCUSDT",
       side: "BUY",
-      size: 10000,  
+      size: 10000,
       filledPrice: 10000,
       role: "maker",
       fee: 10000,
@@ -287,7 +296,7 @@ const OrderList: React.FC = () => {
 
       if (response?.data?.orderList) {
         // 这里应该根据实际API返回的数据结构来设置不同的状态
-        setPositions(response.data.orderList || []);
+        // setPositions(response.data.orderList || []);
       }
     } catch (error) {
       console.error("Failed to fetch order list:", error);
@@ -296,38 +305,6 @@ const OrderList: React.FC = () => {
       setLoading(false);
     }
   }, [currentContractInfo?.id]);
-
-  // 取消订单功能
-  const handleCancelOrder = async (order: any) => {
-    try {
-      // 添加到取消中的订单ID集合
-      setCancellingOrderIds((prev) => new Set(prev).add(order.id));
-
-      const response = await cancelOrder({
-        orderId: order.id,
-        contractId: order.contractId,
-        isConditionOrder: false,
-      });
-
-      if (response?.code === "0") {
-        message.success("订单取消成功");
-        // 重新获取订单列表
-        await getOrderList();
-      } else {
-        message.error(response?.msg || "取消订单失败");
-      }
-    } catch (error) {
-      console.error("Cancel order failed:", error);
-      message.error("取消订单失败");
-    } finally {
-      // 从取消中的订单ID集合中移除
-      setCancellingOrderIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(order.id);
-        return newSet;
-      });
-    }
-  };
 
   // 根据仅当前合约开关过滤数据
   const filterDataBySymbol = <T extends { symbol?: string }>(
@@ -344,7 +321,18 @@ const OrderList: React.FC = () => {
       dataIndex: "symbol",
       key: "symbol",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.symbol}</div>
+        <div
+          className="text-[12px] font-[500] cursor-pointer"
+          onClick={() =>
+            setTipModal({
+              open: true,
+              title: "自动减仓",
+              tip: "该指标代表你在自动减仓序列的排序。若指示灯全部亮起，发生平仓事件后，您的持仓可能会被减少。",
+            })
+          }
+        >
+          {record.symbol}
+        </div>
       ),
     },
     {
@@ -395,14 +383,15 @@ const OrderList: React.FC = () => {
           <div className="flex items-center gap-[4px] ">
             <div>USDT</div>
             <SvgIcon
-              className="text-[var(--text-color5)] flex items-center"
+              onClick={() => setAdjustModalOpen(true)}
+              className="text-[var(--text-color5)] flex items-center cursor-pointer"
               width={18}
               height={18}
               viewBox="0 0 18 18"
             >
               <path
                 d="M9 1.5C13.1422 1.5 16.5 4.85775 16.5 9C16.5 13.1422 13.1422 16.5 9 16.5C4.85775 16.5 1.5 13.1422 1.5 9C1.5 4.85775 4.85775 1.5 9 1.5ZM9 3C7.4087 3 5.88258 3.63214 4.75736 4.75736C3.63214 5.88258 3 7.4087 3 9C3 10.5913 3.63214 12.1174 4.75736 13.2426C5.88258 14.3679 7.4087 15 9 15C10.5913 15 12.1174 14.3679 13.2426 13.2426C14.3679 12.1174 15 10.5913 15 9C15 7.4087 14.3679 5.88258 13.2426 4.75736C12.1174 3.63214 10.5913 3 9 3ZM9 5.25C9.19891 5.25 9.38968 5.32902 9.53033 5.46967C9.67098 5.61032 9.75 5.80109 9.75 6V8.25H12C12.1989 8.25 12.3897 8.32902 12.5303 8.46967C12.671 8.61032 12.75 8.80109 12.75 9C12.75 9.19891 12.671 9.38968 12.5303 9.53033C12.3897 9.67098 12.1989 9.75 12 9.75H9.75V12C9.75 12.1989 9.67098 12.3897 9.53033 12.5303C9.38968 12.671 9.19891 12.75 9 12.75C8.80109 12.75 8.61032 12.671 8.46967 12.5303C8.32902 12.3897 8.25 12.1989 8.25 12V9.75H6C5.80109 9.75 5.61032 9.67098 5.46967 9.53033C5.32902 9.38968 5.25 9.19891 5.25 9C5.25 8.80109 5.32902 8.61032 5.46967 8.46967C5.61032 8.32902 5.80109 8.25 6 8.25H8.25V6C8.25 5.80109 8.32902 5.61032 8.46967 5.46967C8.61032 5.32902 8.80109 5.25 9 5.25Z"
-                fill="#0C0D0C"
+                fill="currentColor"
               />
             </SvgIcon>
           </div>
@@ -431,6 +420,7 @@ const OrderList: React.FC = () => {
             </div>
             <div className="text-[var(--text-color5)]">USDT</div>
             <SvgIcon
+              onClick={() => setPhaseModalOpen(true)}
               width={18}
               height={18}
               viewBox="0 0 18 18"
@@ -455,44 +445,16 @@ const OrderList: React.FC = () => {
     {
       title: "快速平仓",
       key: "quickClose",
-      render: () => (
-        <Tabs
-          tabBarGutter={10}
-          size="small"
-          items={[
-            {
-              label: <div className="text-[12px] font-[500]">市价</div>,
-              key: "market",
-              children: (
-                <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
-                  <InputNumber className="w-[92px] h-[25px]" />
-                  <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
-                    市价平
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: <div className="text-[12px] font-[500]">限价</div>,
-              key: "limit",
-              children: (
-                <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
-                  <InputNumber className="w-[92px] h-[25px]" />
-                  <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
-                    限价平
-                  </div>
-                </div>
-              ),
-            },
-          ]}
-        />
-      ),
+      render: () => <QuickClose />,
     },
     {
       title: "反向开仓",
       key: "reverseOpen",
       render: () => (
-        <span className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap">
+        <span
+          onClick={() => setReverModalOpen(true)}
+          className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap"
+        >
           反向开仓
         </span>
       ),
@@ -501,7 +463,10 @@ const OrderList: React.FC = () => {
       title: "止盈止损",
       key: "tpsl",
       render: () => (
-        <SvgIcon className="text-[var(--theme-color)]">
+        <SvgIcon
+          className="text-[var(--theme-color)]"
+          onClick={() => setStopModalOpen(true)}
+        >
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -622,21 +587,28 @@ const OrderList: React.FC = () => {
       ),
     },
     {
-      title: "全撤",
+      title: (
+        <div className="text-[12px] font-[500] text-[var(--theme-color)] cursor-pointer">
+          全撤
+        </div>
+      ),
       key: "action",
+      align: "right" as const,
       render: (_: any, record: OrdinaryCommission) => {
         return (
-          <SvgIcon
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            className="text-[var(--theme-color)]"
-          >
-            <path
-              fill="currentColor"
-              d="M14.28 2C14.6998 2.00011 15.1088 2.13229 15.4493 2.37781C15.7898 2.62333 16.0444 2.96975 16.177 3.368L16.72 5H20C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7L19.997 7.071L19.13 19.214C19.0759 19.9706 18.7372 20.6786 18.182 21.1956C17.6269 21.7125 16.8965 21.9999 16.138 22H7.862C7.10346 21.9999 6.37311 21.7125 5.81797 21.1956C5.26283 20.6786 4.92411 19.9706 4.87 19.214L4.003 7.07C4.00119 7.04671 4.00019 7.02336 4 7C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H7.28L7.823 3.368C7.9557 2.96959 8.21043 2.62305 8.5511 2.37752C8.89176 2.13198 9.30107 1.9999 9.721 2H14.28ZM17.997 7H6.003L6.865 19.071C6.88295 19.3232 6.99577 19.5592 7.18076 19.7316C7.36574 19.904 7.60916 19.9999 7.862 20H16.138C16.3908 19.9999 16.6343 19.904 16.8192 19.7316C17.0042 19.5592 17.117 19.3232 17.135 19.071L17.997 7ZM10 10C10.2449 10 10.4813 10.09 10.6644 10.2527C10.8474 10.4155 10.9643 10.6397 10.993 10.883L11 11V16C10.9997 16.2549 10.9021 16.5 10.7272 16.6854C10.5522 16.8707 10.313 16.9822 10.0586 16.9972C9.80416 17.0121 9.55362 16.9293 9.35817 16.7657C9.16271 16.6021 9.0371 16.3701 9.007 16.117L9 16V11C9 10.7348 9.10536 10.4804 9.29289 10.2929C9.48043 10.1054 9.73478 10 10 10ZM14 10C14.2652 10 14.5196 10.1054 14.7071 10.2929C14.8946 10.4804 15 10.7348 15 11V16C15 16.2652 14.8946 16.5196 14.7071 16.7071C14.5196 16.8946 14.2652 17 14 17C13.7348 17 13.4804 16.8946 13.2929 16.7071C13.1054 16.5196 13 16.2652 13 16V11C13 10.7348 13.1054 10.4804 13.2929 10.2929C13.4804 10.1054 13.7348 10 14 10ZM14.28 4H9.72L9.387 5H14.613L14.28 4Z"
-            />
-          </SvgIcon>
+          <Tooltip title="取消" placement="left" className="ml-auto">
+            <SvgIcon
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              className="text-[var(--theme-color)]"
+            >
+              <path
+                fill="currentColor"
+                d="M14.28 2C14.6998 2.00011 15.1088 2.13229 15.4493 2.37781C15.7898 2.62333 16.0444 2.96975 16.177 3.368L16.72 5H20C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7L19.997 7.071L19.13 19.214C19.0759 19.9706 18.7372 20.6786 18.182 21.1956C17.6269 21.7125 16.8965 21.9999 16.138 22H7.862C7.10346 21.9999 6.37311 21.7125 5.81797 21.1956C5.26283 20.6786 4.92411 19.9706 4.87 19.214L4.003 7.07C4.00119 7.04671 4.00019 7.02336 4 7C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H7.28L7.823 3.368C7.9557 2.96959 8.21043 2.62305 8.5511 2.37752C8.89176 2.13198 9.30107 1.9999 9.721 2H14.28ZM17.997 7H6.003L6.865 19.071C6.88295 19.3232 6.99577 19.5592 7.18076 19.7316C7.36574 19.904 7.60916 19.9999 7.862 20H16.138C16.3908 19.9999 16.6343 19.904 16.8192 19.7316C17.0042 19.5592 17.117 19.3232 17.135 19.071L17.997 7ZM10 10C10.2449 10 10.4813 10.09 10.6644 10.2527C10.8474 10.4155 10.9643 10.6397 10.993 10.883L11 11V16C10.9997 16.2549 10.9021 16.5 10.7272 16.6854C10.5522 16.8707 10.313 16.9822 10.0586 16.9972C9.80416 17.0121 9.55362 16.9293 9.35817 16.7657C9.16271 16.6021 9.0371 16.3701 9.007 16.117L9 16V11C9 10.7348 9.10536 10.4804 9.29289 10.2929C9.48043 10.1054 9.73478 10 10 10ZM14 10C14.2652 10 14.5196 10.1054 14.7071 10.2929C14.8946 10.4804 15 10.7348 15 11V16C15 16.2652 14.8946 16.5196 14.7071 16.7071C14.5196 16.8946 14.2652 17 14 17C13.7348 17 13.4804 16.8946 13.2929 16.7071C13.1054 16.5196 13 16.2652 13 16V11C13 10.7348 13.1054 10.4804 13.2929 10.2929C13.4804 10.1054 13.7348 10 14 10ZM14.28 4H9.72L9.387 5H14.613L14.28 4Z"
+              />
+            </SvgIcon>
+          </Tooltip>
         );
       },
     },
@@ -757,7 +729,7 @@ const OrderList: React.FC = () => {
     },
   ];
 
-  // 历史委托: 合约,类型,方向,委托价格 ,委托数量,成交数量,成交均价,盈亏,手续费,止盈止损,状态,时间
+  // 历史委托: 合约,类型(强制减仓),方向,委托价格 ,委托数量,成交数量,成交均价,盈亏,手续费,止盈止损,状态,时间
   const historyColumns = [
     {
       title: "合约",
@@ -774,7 +746,18 @@ const OrderList: React.FC = () => {
       render: (_: any, record: HistoryCommission) => (
         <div className="text-[12px] font-[500] flex items-center gap-[4px]">
           <div>{record.type}</div>
-          <div className="text-[var(--theme-color)]">查看</div>
+          <div
+            className="text-[var(--theme-color)] cursor-pointer"
+            onClick={() =>
+              setTipModal({
+                open: true,
+                title: "强制减仓",
+                tip: "BTCUSDT标记价格到达34,039.1，仓位保证金率大于或等于100%，触发强制平仓，仓位被系统接管。仓位被系统接管后，会以破产价格委托到市场上，若成交后有盈利，则盈利部分注入保险基金中。",
+              })
+            }
+          >
+            查看
+          </div>
         </div>
       ),
     },
@@ -1135,7 +1118,7 @@ const OrderList: React.FC = () => {
     if (currentContractInfo?.id) {
       getOrderList();
     }
-  }, [getOrderList]);
+  }, [getOrderList, currentContractInfo?.id]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -1144,49 +1127,86 @@ const OrderList: React.FC = () => {
   if (!isClient) return null; // SSR 阶段不渲染
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Table: TableTheme,
-          Tabs: {
-            ...TabsTheme,
-            inkBarColor: "transparent",
+    <>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: TableTheme,
+            Tabs: {
+              ...TabsTheme,
+              inkBarColor: "transparent",
+            },
+            Slider: SliderTheme,
+            Switch: SwitchTheme,
           },
-          Switch: SwitchTheme,
-        },
-        token: TokenTheme,
-      }}
-    >
-      {/* tabs 切换 */}
-      <Tabs
-        tabBarGutter={20}
-        activeKey={activeTab}
-        onChange={(key) => {
-          setActiveTab(key);
-          if (key === "orderHistory") {
-            getHistoryOrder();
-          }
+          token: TokenTheme,
         }}
-        tabBarStyle={{ padding: "0 20px", height: "72px" }}
-        tabBarExtraContent={
-          <div className="flex items-center gap-[20px] text-[14px] font-[400]">
-            {/* 当前合约 */}
-            <div className="flex items-center gap-[8px]">
-              <Switch size="small" onChange={setOnlyCurrentSymbol} />
-              <div className="text-[var(--text-color5)]">仅当前合约</div>
-            </div>
-            {/* 一键全平 */}
-            {activeTab === "position" && (
-              <div className="text-[var(--theme-color)] cursor-pointer">
-                一键全平
+      >
+        <div className="bg-[var(--background9)] h-[100%]">
+          {/* tabs 切换 */}
+          <Tabs
+            tabBarGutter={20}
+            activeKey={activeTab}
+            onChange={(key) => {
+              setActiveTab(key);
+              if (key === "orderHistory") {
+                getHistoryOrder();
+              }
+            }}
+            tabBarStyle={{ padding: "0 20px", height: "72px" }}
+            tabBarExtraContent={
+              <div className="flex items-center gap-[20px] text-[14px] font-[400]">
+                {/* 当前合约 */}
+                <div className="flex items-center gap-[8px]">
+                  <Switch size="small" onChange={setOnlyCurrentSymbol} />
+                  <div className="text-[var(--text-color5)]">仅当前合约</div>
+                </div>
+                {/* 一键全平 */}
+                {activeTab === "position" && (
+                  <div className="text-[var(--theme-color)] cursor-pointer">
+                    一键全平
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        }
-        items={tabItems}
-        style={{ minHeight: "404px" }}
+            }
+            items={tabItems}
+            style={{ minHeight: "404px" }}
+          />
+        </div>
+      </ConfigProvider>
+      {/* 止盈止损 */}
+      <StopModal
+        open={stopModalOpen}
+        onCancel={() => setStopModalOpen(false)}
       />
-    </ConfigProvider>
+      {/* 反向开仓 */}
+      <ReverModal
+        open={reverModalOpen}
+        onCancel={() => setReverModalOpen(false)}
+      />
+      {/* 调整保证金 */}
+      <AdjustModal
+        open={adjustModalOpen}
+        onCancel={() => setAdjustModalOpen(false)}
+      />
+      {/* 提示弹框 */}
+      <TipModal
+        title={tipModal.title}
+        tip={tipModal.tip}
+        open={tipModal.open}
+        onCancel={() => setTipModal({ open: false, title: "", tip: "" })}
+      />
+      {/* 二次确认弹框 */}
+      <ConfirmModal
+        open={confirmModalOpen}
+        onCancel={() => setConfirmModalOpen(false)}
+      />
+      {/* 未实现盈亏/收益率 */}
+      <PhaseModal
+        open={phaseModalOpen}
+        onCancel={() => setPhaseModalOpen(false)}
+      />
+    </>
   );
 };
 
