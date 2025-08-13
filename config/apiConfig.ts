@@ -25,6 +25,7 @@ export const LOCAL_STORAGE_KEY = {
     FLASH_CONFIG: 'flash_config', // 闪兑配置
     USDT_RATE:'usdt_rate', // USDT汇率
     FINANCIAL_CONFIG: 'financial_config', // 理财配置
+    COUNTRY_LIST: 'country_list', // 国家列表
 };
 
 export const KV_KEYS = [

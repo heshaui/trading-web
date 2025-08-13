@@ -4,6 +4,8 @@ import { Iconify } from "@/components/icon"
 import Image from 'next/image';
 import { encryptIdCard, getBenefitValue } from '@/utils/encrypt';
 import { useTranslation } from 'next-i18next';
+import appStore from '@/store';
+import { useEffect } from 'react';
 // 按钮配置接口
 interface ButtonConfig {
     title: string;
@@ -27,7 +29,7 @@ interface levelBenefitType {
     value: string;
     benefitId: number;
     benefitName: string;
-    benefitValue:string
+    benefitValue: string
     status0?: number;
     value0?: string;
     params0?: string;
@@ -59,8 +61,8 @@ interface infoType {
 }
 
 const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBenefitType[] }> = ({ identityInfo, levelBenefit }) => {
-    const { t } = useTranslation(['userCenter']);
-
+    const { t, i18n } = useTranslation(['userCenter']);
+    const countryList = appStore.getCountryList();
     const cardTypeSeelect: { label: string, value: string }[] = [
         {
             label: t('identity.certified.idTypes.idCard'), // 居民身份证
@@ -70,10 +72,10 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
             label: t('identity.certified.idTypes.passport'), // 普通护照
             value: '2'
         },
-         {
-                    label: t('identity.certified.idTypes.driverLicense'), // 驾驶证
-                    value: '3'
-                },
+        {
+            label: t('identity.certified.idTypes.driverLicense'), // 驾驶证
+            value: '3'
+        },
         // {
         //     label: t('identity.certified.idTypes.hkMacauPass'), // 港澳通行证
         //     value: '3'
@@ -105,17 +107,20 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
 
     // }
     const lableShow = (key: string) => {
-        console.log(key,999);
-        
-        if(key==='cyptocurrency_withdrawal'){
+        console.log(key, 999);
+
+        if (key === 'cyptocurrency_withdrawal') {
             return t('identity.withdrawal')
         } else if (key === 'cyptocurrency_recharge') {
             return t('identity.recharge')
         } else {
-            return key||'--'
+            return key || '--'
         }
-        
+
     }
+    useEffect(() => {
+        appStore.fetchCountryCodeList();
+    }, [i18n.language]);
     return (< >
         <div className={`${styles.identity_content} flex-1`}>
             <div className={`${styles.content_header} `}>
@@ -216,9 +221,9 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {/* 国家 */}
                             {t('identity.certified.info.country')}
                         </div>
-                        <div className={` font-w-500`}>{identityInfo?.countryId === 1 ?
-                            t('identity.certified.info.countries.mainland') :
-                            t('identity.certified.info.countries.hongkong')}</div>
+                        <div className={` font-w-500`}>{identityInfo?.countryId ?
+                            countryList.find(item => item.id === identityInfo?.countryId)?.countryName :
+                            '--'}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
                         <div className={` font-w-400 ${styles.tip_color}`}>

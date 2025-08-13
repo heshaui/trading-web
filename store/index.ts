@@ -20,6 +20,7 @@ import {
 import { inviteInfoType, usdtRateType } from "@/type/userCenter/overview";
 import { registerInfoType } from "@/type/store";
 import { getConfig } from "@/services/flash";
+import { getCountryCodeList } from "@/store/publicInfo";
 // const { isLoggedIn} = useAuth()
 // 添加这个辅助函数来检查是否在浏览器环境
 const isBrowser = () => typeof window !== "undefined";
@@ -77,7 +78,7 @@ class AppStore {
     isDisplayAssets: null, //是否显示资产
     isDisplayBackground: null, //是否显示背景图片
   };
-
+  countryList: any[] = [];
   constructor() {
     // 使状态响应式
     makeAutoObservable(this);
@@ -946,7 +947,25 @@ class AppStore {
       localStorage.setItem(LOCAL_STORAGE_KEY.FINANCIAL_CONFIG, JSON.stringify(config));
     }
   }
-  
+  // 国家列表
+  async fetchCountryCodeList() {
+    const result = await getCountryCodeList();
+    if (result.success) {
+      this.countryList = result.data;
+      if (isBrowser()) {
+        localStorage.setItem(LOCAL_STORAGE_KEY.COUNTRY_LIST, JSON.stringify(result.data));
+      }
+    }
+  }
+  setCountryList(countryList: any[]) {
+    this.countryList = countryList;
+    if (isBrowser()) {
+      localStorage.setItem(LOCAL_STORAGE_KEY.COUNTRY_LIST, JSON.stringify(countryList));
+    }
+  }
+  getCountryList() {
+    return this.countryList;
+  }
 }
 
 const appStore = new AppStore();
