@@ -565,7 +565,7 @@ export const getContractFinancialRecords = async (
 };
 /*-----------------1.合约账户-资金记录end------------------*/
 
-// common/public_market_info
+
 export const getPublicMarketInfo = async (params: any) => {
   try {
     const response = await request<any>("/fe-co-api/common/public_market_info", {

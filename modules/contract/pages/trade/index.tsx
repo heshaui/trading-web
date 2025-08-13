@@ -284,6 +284,7 @@ const TradePage = () => {
       event: "sub",
       params: {
         channel: "market_e_btcusdt_kline_1day",
+        
       },
     };
 

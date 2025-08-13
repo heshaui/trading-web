@@ -343,7 +343,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
           <div className="mb-[16px]">
             <Segmented
               shape="round"
-              className="h-[50px] max-w-[298px] w-[100%] border border-[var(--theme-color)] bg-[transparent]"
+              className="h-[50px]  w-[100%] border border-[var(--theme-color)] bg-[transparent]"
               options={[
                 {
                   label: (
