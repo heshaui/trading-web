@@ -287,11 +287,7 @@ const WithdrawMoneyPage = observer(() => {
   // 历史币种快捷键
   const setFormCoin = async (coinId: string | number) => {
     // 1. 首先检查用户权限
-    if (
-      (userInfo?.merchantWithdrawalStatus !== 1) ||
-      !userInfo?.googleCode ||
-      userInfo.withdrawalStatus === 0
-    ) {
+    if (isallowWithdraw) {
       return toast.error(t("withdrawMoney.function"));
     }
 
@@ -1509,13 +1505,24 @@ const WithdrawMoneyPage = observer(() => {
     localStorage.removeItem("coinSearchHistory");
     setSearchHistory([]);
   };
+  const isallowWithdraw = useMemo(() => {
+    // const verified11 = currentUserInfo?.verifiedWithdrawalStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
+    const verified10 = userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedWithdrawalStatus
+    // const unverifie10 = userInfo?.unverifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
+    const unverifie11 = userInfo?.unverifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedWithdrawalStatus
 
+    const needsKyc = verified10 && userInfo?.unverifiedWithdrawalStatus !== 1
+    const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
+    const needsMerchantWithdrawal = userInfo?.withdrawalStatus !== 1 ||
+      (userInfo?.verifiedWithdrawalStatus !== 1 && userInfo?.unverifiedWithdrawalStatus !== 1) ||
+      (unverifie11 && userInfo?.verifiedWithdrawalStatus !== 1)
+    return needsKyc || needsGoogleAuth || needsMerchantWithdrawal
+  }, [userInfo])
   // 添加 useEffect 来加载历史记录
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("coinSearchHistory");
-      if ((!userInfo?.googleCode || userInfo?.isGoogleAuth === 0) || (userInfo?.merchantWithdrawalStatus !== 1) || userInfo?.withdrawalStatus === 0
-      ) return
+      if (isallowWithdraw) return
       if (saved && coinSelect.length > 0) {
         const history = JSON.parse(saved).filter((item: any) => {
           return coinSelect.some((coin: any) => coin.coinId === item.coinId || coin.coinName === item.coinName)
@@ -1523,7 +1530,7 @@ const WithdrawMoneyPage = observer(() => {
         setSearchHistory(history);
       }
     }
-  }, [coinSelect, userInfo]);
+  }, [coinSelect, userInfo, isallowWithdraw]);
 
   return (
     <ResetStateProvider>
@@ -1558,15 +1565,22 @@ const WithdrawMoneyPage = observer(() => {
             />
           </div>
           <div className={`${styles.card_box}  mt-6  `}>
-            {!userInfo ? null :
-              (userInfo?.withdrawalStatus !== 1 || (userInfo?.verifiedWithdrawalStatus !== 1 && userInfo?.unverifiedWithdrawalStatus !== 1)) ? (
+            {!userInfo ? null : (() => {
+              // const verified11 = currentUserInfo?.verifiedWithdrawalStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
+              const verified10 = userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedWithdrawalStatus
+              // const unverifie10 = userInfo?.unverifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
+              const unverifie11 = userInfo?.unverifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedWithdrawalStatus
+
+              return (userInfo?.withdrawalStatus !== 1 || (userInfo?.verifiedWithdrawalStatus !== 1 && userInfo?.unverifiedWithdrawalStatus !== 1) ||
+                (unverifie11 && userInfo?.verifiedWithdrawalStatus !== 1)) ? (
                 <NoUseCom type="3" />
               )
                 : !userInfo?.googleCode || userInfo?.isGoogleAuth === 0 ? (
                   <NoUseCom type="2" />
-                ) : (userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0&& userInfo?.unverifiedWithdrawalStatus !== 1) ? (
+                ) : (verified10 && userInfo?.unverifiedWithdrawalStatus !== 1) ? (
                   <NoUseCom type="1" />
-                ) : null}
+                ) : null
+            })()}
             <div
               className={` w-full flex-x justify-between ${styles.card_content2}`}
             >
@@ -1603,11 +1617,7 @@ const WithdrawMoneyPage = observer(() => {
                 >
                   <Form
                     form={form}
-                    disabled={
-                      userInfo?.merchantWithdrawalStatus !== 1 ||
-                      !userInfo?.googleCode ||
-                      userInfo.withdrawalStatus === 0
-                    }
+                    disabled={isallowWithdraw}
                   >
                     <Steps
                       direction="vertical"
