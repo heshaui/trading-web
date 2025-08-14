@@ -57,6 +57,7 @@ interface infoType {
     createTime: number;
     updateTime: number;
     tenantId: string;
+    areaCode: number;
 
 }
 
@@ -221,8 +222,8 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {/* 国家 */}
                             {t('identity.certified.info.country')}
                         </div>
-                        <div className={` font-w-500`}>{identityInfo?.countryId ?
-                            countryList.find(item => item.id === identityInfo?.countryId)?.countryName :
+                        <div className={` font-w-500`}>{identityInfo?.areaCode ?
+                            countryList.find(item => item.areaCode === identityInfo?.areaCode)?.countryName :
                             '--'}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
