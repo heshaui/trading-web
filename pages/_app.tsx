@@ -161,14 +161,7 @@ function App({ Component, pageProps }: AppProps) {
           <div className={isDarkMode ? "dark" : ""}>
             {shouldShowMenu && <HomeMenu />}
 
-            <div
-              style={{
-                minHeight: "calc(100vh - 80px)",
-                width: "100%",
-              }}
-            >
-              <Component {...pageProps} isLoggedIn={isLoggedIn} />
-            </div>
+            <Component {...pageProps} isLoggedIn={isLoggedIn} />
 
             {shouldShowFooter && <Footer />}
             <Toaster />
