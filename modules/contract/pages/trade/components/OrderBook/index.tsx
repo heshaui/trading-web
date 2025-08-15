@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
+import styles from "./style/index.module.css";
 
 const { Option } = Select;
 
@@ -52,42 +53,45 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
         Array.isArray(buys)
       );
 
+      // 根据显示模式决定显示数量：both模式显示6条，单独模式显示12条
+      const displayCount = colorMode === "both" ? 6 : 12;
+
       // 处理卖单数据 (asks) - 按价格从高到低排序
       const processedSellOrders: OrderBookItem[] =
         asks && Array.isArray(asks)
           ? asks
-              .map((item: [number, number]) => {
-                const [price, amount] = item;
-                return {
-                  price,
-                  amount,
-                  total: price * amount,
-                };
-              })
-              .filter(
-                (item: OrderBookItem) => item.price > 0 && item.amount > 0
-              )
-              .sort((a, b) => b.price - a.price) // 卖单价格从高到低
-              .slice(0, 10) // 只显示前10条
+            .map((item: [number, number]) => {
+              const [price, amount] = item;
+              return {
+                price,
+                amount,
+                total: price * amount,
+              };
+            })
+            .filter(
+              (item: OrderBookItem) => item.price > 0 && item.amount > 0
+            )
+            .sort((a, b) => b.price - a.price) // 卖单价格从高到低
+            .slice(0, displayCount) // 根据模式显示不同数量
           : [];
 
       // 处理买单数据 (buys) - 按价格从高到低排序
       const processedBuyOrders: OrderBookItem[] =
         buys && Array.isArray(buys)
           ? buys
-              .map((item: [number, number]) => {
-                const [price, amount] = item;
-                return {
-                  price,
-                  amount,
-                  total: price * amount,
-                };
-              })
-              .filter(
-                (item: OrderBookItem) => item.price > 0 && item.amount > 0
-              )
-              .sort((a, b) => b.price - a.price) // 买单价格从高到低
-              .slice(0, 10) // 只显示前10条
+            .map((item: [number, number]) => {
+              const [price, amount] = item;
+              return {
+                price,
+                amount,
+                total: price * amount,
+              };
+            })
+            .filter(
+              (item: OrderBookItem) => item.price > 0 && item.amount > 0
+            )
+            .sort((a, b) => b.price - a.price) // 买单价格从高到低
+            .slice(0, displayCount) // 根据模式显示不同数量
           : [];
 
       return {
@@ -107,6 +111,13 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
 
   const formatNumber = (num: number, decimals: number = precision) => {
     return num.toFixed(decimals);
+  };
+
+  // 计算百分比宽度
+  const calculatePercentWidth = (orders: OrderBookItem[], currentTotal: number): number => {
+    if (orders.length === 0) return 0;
+    const maxTotal = Math.max(...orders.map(order => order.total));
+    return maxTotal > 0 ? (currentTotal / maxTotal) * 100 : 0;
   };
 
   const getSellPriceColor = () => {
@@ -214,22 +225,40 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           {(colorMode === "both" || colorMode === "sell") && (
             <div className="flex flex-col gap-[9px] overflow-y-auto">
               {sellOrders.length > 0 ? (
-                sellOrders.map((order, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-                  >
-                    <div className={`flex-1 text-left ${getSellPriceColor()}`}>
-                      {formatNumber(order.price)}
+                sellOrders.map((order, index) => {
+                  const percentWidth = calculatePercentWidth(sellOrders, order.total);
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
+                    >
+                      <div className={`flex-1 text-left ${getSellPriceColor()}`}>
+                        {formatNumber(order.price)}
+                      </div>
+                      <div className="flex-1 text-right" style={{ color: "#000" }}>
+                        {formatNumber(order.amount, 3)}
+                      </div>
+                      <div className="flex-1 text-right relative overflow-hidden">
+                        <div
+                          className={styles.background}
+                          style={{
+                            width: `${Math.min(percentWidth, 100)}%`,
+                            transition: "width 0.3s ease-in-out",
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(239, 68, 68, 0.1)",
+                            zIndex: 0,
+                          }}
+                        />
+                        <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
+                          {formatNumber(order.total, 3)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 text-right">
-                      {formatNumber(order.amount, 3)}
-                    </div>
-                    <div className="flex-1 text-right">
-                      {formatNumber(order.total, 3)}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
                   暂无卖单数据
@@ -250,22 +279,40 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           {(colorMode === "both" || colorMode === "buy") && (
             <div className="flex flex-col gap-[9px] overflow-y-auto">
               {buyOrders.length > 0 ? (
-                buyOrders.map((order, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
-                  >
-                    <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
-                      {formatNumber(order.price)}
+                buyOrders.map((order, index) => {
+                  const percentWidth = calculatePercentWidth(buyOrders, order.total);
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
+                    >
+                      <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
+                        {formatNumber(order.price)}
+                      </div>
+                      <div className="flex-1 text-right" style={{ color: "#000" }}>
+                        {formatNumber(order.amount, 3)}
+                      </div>
+                      <div className="flex-1 text-right relative overflow-hidden">
+                        <div
+                          className={styles.background}
+                          style={{
+                            width: `${Math.min(percentWidth, 100)}%`,
+                            transition: "width 0.3s ease-in-out",
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(34, 197, 94, 0.1)",
+                            zIndex: 0,
+                          }}
+                        />
+                        <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
+                          {formatNumber(order.total, 3)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 text-right">
-                      {formatNumber(order.amount, 3)}
-                    </div>
-                    <div className="flex-1 text-right">
-                      {formatNumber(order.total, 3)}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
                   暂无买单数据
@@ -373,10 +420,10 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
                 >
                   {formatNumber(trade.price)}
                 </div>
-                <div className="flex-1 text-right">
+                <div className="flex-1 text-right" style={{ color: "#000" }}>
                   {formatNumber(trade.amount, 3)}
                 </div>
-                <div className="flex-1 text-right">{trade.time}</div>
+                <div className="flex-1 text-right" style={{ color: "#000" }}>{trade.time}</div>
               </div>
             ))
           ) : (
