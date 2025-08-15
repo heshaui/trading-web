@@ -295,13 +295,12 @@ export const getAccountBalance = async (params: any) => {
 };
 
 // 获取资产列表
-export const getAssetsList = async () => {
+export const getAssetsList = async (params: any) => {
   try {
-    const formattedParams = await formatParams();
     const response = await request<any>("/fe-co-api/position/get_assets_list", {
       method: "POST",
       headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
+      body: JSON.stringify(params),
     });
     return response;
   } catch (error) {
@@ -417,8 +416,8 @@ export const marginModelEdit = async (params: any) => {
 /*-----------------1.合约订单-当前委托start------------------*/
 interface CurrentOrderListParams {
   type?: string; // 订单类型: 全部,限价单,PostOnly
-  limit: number; // 每页条数
-  page: number; // 页码
+  limit?: number; // 每页条数
+  page?: number; // 页码
   contractId?: number | string; // 合约ID
   uaTime?: string; // 时间戳
 }
@@ -565,17 +564,34 @@ export const getContractFinancialRecords = async (
 };
 /*-----------------1.合约账户-资金记录end------------------*/
 
-
 export const getPublicMarketInfo = async (params: any) => {
   try {
-    const response = await request<any>("/fe-co-api/common/public_market_info", {
+    const response = await request<any>(
+      "/fe-co-api/common/public_market_info",
+      {
+        method: "POST",
+        headers: formatHeaders(),
+        body: JSON.stringify(params),
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("获取公共市场信息失败:", error);
+    throw error;
+  }
+};
+
+// 成交记录
+export const getTradeInfo = async (params: any) => {
+  try {
+    const response = await request<any>("/fe-co-api/order/get_trade_info", {
       method: "POST",
       headers: formatHeaders(),
       body: JSON.stringify(params),
     });
     return response;
   } catch (error) {
-    console.error("获取公共市场信息失败:", error);
+    console.error("获取成交记录失败:", error);
     throw error;
   }
 };
