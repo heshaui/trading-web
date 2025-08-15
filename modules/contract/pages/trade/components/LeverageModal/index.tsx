@@ -31,9 +31,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   const { loadUserConfig } = useUserConfig();
 
 
-
-
-
   const handleSliderChange = (value: number) => {
     setTempLeverage(value);
   };

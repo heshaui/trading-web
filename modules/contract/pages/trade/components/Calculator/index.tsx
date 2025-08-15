@@ -31,7 +31,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
 
   // MobX store access
   const futureStore = appStore.getCurrentContractInfo();
-  
+
   // 使用传入的 dataInfo 或者从 store 获取数据
   const contractInfo = dataInfo || futureStore;
   const contractId = contractInfo?.id || '';
@@ -156,7 +156,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       const n3 = (n2 * volume) / contractInfo.marginRate;
       const revenueValue = sideType === 1 ? n3 : -n3;
       setRevenue(`${revenueValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4)} ${contractInfo?.marginCoin || 'USDT'}`);
-      
+
       // 计算回报率
       const returnRateValue = openMarginValue > 0 ? (revenueValue / openMarginValue) * 100 : 0;
       setReturnRate(`${returnRateValue.toFixed(2)}%`);
@@ -170,9 +170,9 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         {/* 标题栏 */}
         <div className={styles.calculatorHeader}>
           <h4 className={styles.calculatorTitle}>计算器</h4>
-          <Button 
-            type="text" 
-            size="small" 
+          <Button
+            type="text"
+            size="small"
             onClick={handleClose}
             icon={<CloseOutlined />}
             className={styles.closeBtn}
@@ -187,12 +187,12 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             items={tabItems}
           />
         </div>
-        
+
         {/* 买入/卖出切换 */}
         <div className={styles.categorySelectBox}>
           <em
             className={styles.tabActiveBg}
-            style={{ 
+            style={{
               left: sideType === 1 ? '0' : '50%',
               backgroundColor: sideType === 1 ? '#00C788' : '#FF4D4F'
             }}
@@ -229,7 +229,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             value={leverage}
             onChange={(value) => setLeverage(value)}
             marks={leverageMarks}
-            className={styles.leverageSlider}
+            // className={styles.leverageSlider}
             trackStyle={{ backgroundColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
             handleStyle={{ borderColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
           />
@@ -239,8 +239,8 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         </div>
 
         {/* 表单输入 */}
-        <Form 
-          form={form} 
+        <Form
+          form={form}
           layout="vertical"
           onValuesChange={(changedValues) => {
             Object.keys(changedValues).forEach((key) => changeInput(key as keyof FormData, changedValues[key]));
@@ -254,8 +254,8 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
                 validateStatus={formData[key].errorText ? 'error' : ''}
                 help={formData[key].errorText}
               >
-                <Input 
-                  suffix={formData[key].units} 
+                <Input
+                  suffix={formData[key].units}
                   placeholder={formData[key].title}
                   className={styles.calculatorInput}
                 />
