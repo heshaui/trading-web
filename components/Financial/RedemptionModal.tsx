@@ -14,7 +14,6 @@ import {
   Flex,
   Form,
   Input,
-  message,
   Modal,
   Spin,
 } from "antd";
@@ -25,7 +24,7 @@ import RedeemConfirmModal, {
   RedeemConfirmModalType,
 } from "./RedeemConfirmModal";
 import Image from "next/image";
-import { financialThemeConfig, useStyle } from "@/theme/financialThemeConfig";
+import {  ButtonTheme, modalStyle, ModalTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
 import { encryptData } from "@/hooks/user-encrypt";
 interface RedemptionModalProps {
@@ -41,7 +40,7 @@ const RedemptionModal = ({
   setOpenRedemption,
   onRefresh,
 }: RedemptionModalProps) => {
-  const { styles } = useStyle();
+  const { styles } = modalStyle();
   const { t } = useTranslation(["financial"]);
   const [form] = Form.useForm();
   const redeemMoney = Form.useWatch("redeemMoney", form);
@@ -211,7 +210,13 @@ const RedemptionModal = ({
   );
 
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider theme={{
+      components: {
+        Modal: ModalTheme,
+        Button: ButtonTheme,
+      },
+      token: TokenTheme,
+    }}>
       {/* 赎回弹窗 */}
       <Modal
         centered

@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import InvitationTable from "./compontents/inviteTable";
-import WithdrawTable from "./compontents/withdrawtTable";
-import RechargeTable from "./compontents/rechargeTable";
-import GiftTable from "./compontents/giftTable";
+import InvitationTable from "./components/inviteTable";
+import WithdrawTable from "./components/withdrawtTable";
+import RechargeTable from "./components/rechargeTable";
+import GiftTable from "./components/giftTable";
 import { getCoinAll, getOrderList } from "@/services/assets";
 import Image from "next/image";
 
@@ -19,7 +19,7 @@ import {
   coinSelectType,
   GiftDataType,
 } from "@/type/assets/billDetails/table";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { SelectTheme, TableTheme, TokenTheme } from "@/theme/publicThemeConfig";
 
 interface DataType {
   id: number;
@@ -166,7 +166,15 @@ const NumberToken = () => {
 
   return (
     <>
-      <ConfigProvider theme={financialThemeConfig}>
+      <ConfigProvider
+        theme={{
+          components: {
+            Select: SelectTheme,
+            Table: TableTheme,
+          },
+          token: TokenTheme,
+        }}
+      >
         <div>
           <div
             className={`${styles.table_header} w-full flex align-center p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]`}

@@ -99,6 +99,7 @@
   "router": {
     "spotAccount": "현물 계좌",
     "financialAccount": "투자 계좌",
+    "contractAccount":"계약 계좌",
     "myAssets": "내 자산",
     "recharge": "입금",
     "withdraw": "출금",
@@ -107,6 +108,7 @@
     "spotOrder": "현물 주문",
     "flashOrder":"플래시 주문",
     "financialOrder":"투자 주문",
+    "contractOrder":"계약 주문",
     "overView": "개요",
     "safetyCenter": "보안 센터",
     "identity": "신원 인증",

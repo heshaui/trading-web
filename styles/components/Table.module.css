@@ -1,0 +1,39 @@
+/* 表头单元格 */
+.table :global(.ant-table-thead > tr > th) {
+  border-top: 0.5px solid var(--border-color);
+  border-bottom: 0.5px solid var(--border-color);
+}
+
+/* 表尾 */
+.table :global(.ant-table-footer) {
+  padding: 0 !important;
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 表头 */
+.table :global(.ant-table-thead) :global(.ant-table-cell) {
+  font-size: 12px !important;
+}
+
+/* 展开行 */
+.table :global(.ant-table-expanded-row) > :global(.ant-table-cell) {
+  padding: 0 !important;
+}
+
+/* 展开行 */
+.table :global(.ant-table-expanded-row)
+  > :global(.ant-table-cell) {
+  border-radius: 8px;
+}
+
+/* 展开行 */
+.table
+  :global(.ant-table-expanded-row)
+  > :global(.ant-table-cell)
+  :global(.ant-table) {
+  margin: 0 !important;
+}
+

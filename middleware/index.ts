@@ -5,16 +5,17 @@ import { useRouter } from 'next/router';
 import { forbiddenPathManager } from './forbiddenPathManager';
 // 定义公开路径（不需要登录即可访问的页面）
 export const publicPaths = [
-    '/',
-    '/login',
-    '/register',
-    '/resetPassword',
-    '/exchange',
-    '/Notice',
-    '/helpCenter',
-    '/helpCenter/*',
-    '/marketData',
-    '/financial',
+    '/', //首页
+    '/login', //登录页面
+    '/register', //注册页面
+    '/resetPassword', //重置密码页面
+    '/spotTrade', //现货交易页面
+    '/contractTrade', //合约交易页面
+    '/Notice', //公告页面
+    '/helpCenter', //帮助中心页面
+    '/helpCenter/*', //帮助中心页面
+    '/marketData', //行情页面
+    '/financial', //理财页面
 ];
 
 // 检查路径是否匹配公开路径

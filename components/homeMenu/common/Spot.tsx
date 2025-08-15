@@ -15,11 +15,10 @@ export default function SpotMenuItems() {
   const router = useRouter();
   const configData = appStore.flashConfig;
   const financialConfig = appStore.financialConfig;
+  const contractConfig = appStore.contractConfig;
 
   // t - 多语言
   const { t } = useTranslation(["common"]);
-  // 获取主题状态
-  const { isDayMode } = useThemeMode();
 
   // 资产 - 2版
   const itemsFunding = [
@@ -74,19 +73,19 @@ export default function SpotMenuItems() {
                     <path
                       d="M16.0002 13C16.0002 14.3807 14.2093 15.5 12.0002 15.5C10.3599 15.5 8.95025 14.883 8.33301 14"
                       stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
                     />
                     <path
                       d="M15 12C15.6667 12.1667 16.5 12.5 17.5 14"
                       stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </SvgIcon>
                 }
-                h5Text={t("router.financialOrder")} 
+                h5Text={t("router.financialOrder")}
                 spanText=""
                 onClick={() => {
                   router.push(ROUTER_KEY_SPOT.FINANCIAL_ORDER);
@@ -96,9 +95,30 @@ export default function SpotMenuItems() {
           },
         ]
       : []),
+
+    // 合约订单
+    ...(contractConfig.contractSwitch
+      ? [
+          {
+            key: "4",
+            label: (
+              <MenuItemLabel
+                icon={
+                  <SvgIcon path="M12 4C11.4696 4 10.9609 4.21071 10.5858 4.58579C10.2107 4.96086 10 5.46957 10 6H14C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4ZM9.354 3C10.059 2.378 10.986 2 12 2C13.014 2 13.94 2.378 14.646 3H18C18.5304 3 19.0391 3.21071 19.4142 3.58579C19.7893 3.96086 20 4.46957 20 5V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V5C4 4.46957 4.21071 3.96086 4.58579 3.58579C4.96086 3.21071 5.46957 3 6 3H9.354ZM8.126 5H6V20H18V5H15.874C15.956 5.32 16 5.655 16 6V7C16 7.26522 15.8946 7.51957 15.7071 7.70711C15.5196 7.89464 15.2652 8 15 8H9C8.73478 8 8.48043 7.89464 8.29289 7.70711C8.10536 7.51957 8 7.26522 8 7V6C8 5.655 8.044 5.32 8.126 5ZM8 11C8 10.7348 8.10536 10.4804 8.29289 10.2929C8.48043 10.1054 8.73478 10 9 10H15C15.2652 10 15.5196 10.1054 15.7071 10.2929C15.8946 10.4804 16 10.7348 16 11C16 11.2652 15.8946 11.5196 15.7071 11.7071C15.5196 11.8946 15.2652 12 15 12H9C8.73478 12 8.48043 11.8946 8.29289 11.7071C8.10536 11.5196 8 11.2652 8 11ZM8 15C8 14.7348 8.10536 14.4804 8.29289 14.2929C8.48043 14.1054 8.73478 14 9 14H12C12.2652 14 12.5196 14.1054 12.7071 14.2929C12.8946 14.4804 13 14.7348 13 15C13 15.2652 12.8946 15.5196 12.7071 15.7071C12.5196 15.8946 12.2652 16 12 16H9C8.73478 16 8.48043 15.8946 8.29289 15.7071C8.10536 15.5196 8 15.2652 8 15Z" />
+                }
+                h5Text={t("router.contractOrder")}
+                spanText=""
+                onClick={() => {
+                  router.push(ROUTER_KEY_SPOT.CONTRACT_ORDER);
+                }}
+              />
+            ),
+          },
+        ]
+      : []),
     // 账单明细
     {
-      key: "4",
+      key: "5",
       label: (
         <MenuItemLabel
           icon={
