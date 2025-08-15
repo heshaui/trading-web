@@ -186,7 +186,8 @@ const Details = () => {
   }, [id]);
 
   return (
-    <div className="bg-[var(--background14)]">
+    <div className="bg-[var(--background14)]  min-h-[calc(100vh-80px)] flex flex-col">
+      {/* 顶部 */}
       <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_#DCDCDC]">
         <SvgIcon
           className="w-[24px] h-[24px] text-[var(--text-color5)] cursor-pointer"
@@ -201,7 +202,8 @@ const Details = () => {
           />
         </SvgIcon>
       </div>
-      <div className="flex justify-center items-center gap-[20px] p-[20px_120px]">
+      {/* 底部 */}
+      <div className="flex justify-center gap-[20px] p-[20px_120px] flex-1">
         {/* 左侧菜单 */}
         <Menu
           menuData={menuData}
