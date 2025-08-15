@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
-import { getHistoryOrderList, getCurrentOrderList, getPlanOrderList, getHistoryPositionList, getTradeInfo, getAssetsList } from "@/services/contract";
+import {
+  getHistoryOrderList,
+  getCurrentOrderList,
+  getPlanOrderList,
+  getHistoryPositionList,
+  getTradeInfo,
+  getAssetsList,
+} from "@/services/contract";
 import styles from "@/styles/components/Table.module.css";
 import {
   SliderTheme,
@@ -10,7 +17,7 @@ import {
   TabsTheme,
   TokenTheme,
 } from "@/theme/publicThemeConfig";
-import { NoData } from "@/components/noData";
+import { NoData, NoLogin } from "@/components/noData";
 import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
 import StopModal from "./components/StopModal";
@@ -20,6 +27,8 @@ import TipModal from "./components/TipModal";
 import ConfirmModal from "./components/ConfirmModal";
 import PhaseModal from "./components/PhaseModal";
 import QuickClose from "./components/QuickClose";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/router";
 
 // 仓位
 interface Position {
@@ -42,10 +51,10 @@ interface OrdinaryCommission {
   symbol: string; // 合约名称
   pricePrecision: number; // 价格精度
   side: "BUY" | "SELL"; // 方向
-  positionType: 1, // 仓位类型
+  positionType: 1; // 仓位类型
   avgPrice: number; // 平均价格
   tradeFee: number; // 交易手续费
-  type: 1, // 类型
+  type: 1; // 类型
   mtime: number; // 修改时间
   volume: number; // 数量
   dealVolume: number; // 成交数量
@@ -122,6 +131,9 @@ const OrderList: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
   // 当前tab
+  const { isLoggedIn } = useAuth();
+  // tabs 切换
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("position");
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [reverModalOpen, setReverModalOpen] = useState(false);
@@ -173,23 +185,23 @@ const OrderList: React.FC = () => {
   };
 
   // 获取仓位
-  const getPosition = async () => {
+  const getPosition = useCallback(async () => {
     console.log("获取仓位");
     const res = await getAssetsList({
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     console.log(res);
-  };
+  }, []);
 
   // 获取普通委托(当前委托)
-  const getOrdinaryCommission = async () => {
+  const getOrdinaryCommission = useCallback(async () => {
     try {
       console.log("获取普通委托(当前委托)");
       const { code, data, msg } = await getCurrentOrderList({
         contractId: currentContractInfo?.id,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
-      if (code === '0') {
+      if (code === "0") {
         setOrdinaryCommission(data.orderList);
       } else {
         message.error(msg);
@@ -197,47 +209,47 @@ const OrderList: React.FC = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [currentContractInfo?.id]);
 
   // 获取条件委托
-  const getConditionalCommission = async () => {
+  const getConditionalCommission = useCallback(async () => {
     console.log("获取条件委托");
     const res = await getPlanOrderList({
       contractId: currentContractInfo?.id,
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     console.log(res);
-  };
+  }, [currentContractInfo?.id]);
 
   // 获取历史委托
-  const getHistoryCommission = async () => {
+  const getHistoryCommission = useCallback(async () => {
     console.log("获取历史委托");
     const res = await getHistoryOrderList({
       contractId: currentContractInfo?.id,
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     console.log(res);
-  };
+  }, [currentContractInfo?.id]);
 
   // 获取盈亏记录
-  const getProfitLoss = async () => {
+  const getProfitLoss = useCallback(async () => {
     console.log("盈亏记录");
     const res = await getHistoryPositionList({
       contractId: currentContractInfo?.id,
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     console.log(res);
-  };
+  }, [currentContractInfo?.id]);
 
   // 获取成交记录
-  const getTradeHistory = async () => {
+  const getTradeHistory = useCallback(async () => {
     console.log("获取成交记录");
     const res = await getTradeInfo({
       contractId: currentContractInfo?.id,
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     console.log(res);
-  };
+  }, [currentContractInfo?.id]);
 
   // 仓位: 合约,数量,成本价,标记价格,预估强平价,保证金,保证金率,未实现盈亏/收益率,快速平仓,反向开仓,止盈止损
   const positionColumns = [
@@ -599,7 +611,9 @@ const OrderList: React.FC = () => {
       dataIndex: "mtime",
       key: "mtime",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}</div>
+        <div className="text-[12px] font-[500]">
+          {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
+        </div>
       ),
     },
     {
@@ -639,7 +653,9 @@ const OrderList: React.FC = () => {
       dataIndex: "ctime",
       key: "ctime",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}</div>
+        <div className="text-[12px] font-[500]">
+          {dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}
+        </div>
       ),
     },
     {
@@ -1077,7 +1093,6 @@ const OrderList: React.FC = () => {
     },
   ];
 
-  // tabs 切换
   const tabItems = [
     {
       key: "position",
@@ -1091,7 +1106,9 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
@@ -1107,7 +1124,9 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
@@ -1123,13 +1142,15 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
     {
       key: "orderHistory",
-      label: `历史委托(${filterDataBySymbol(historyCommission).length})`,
+      label: `历史委托`,
       children: (
         <Table<any>
           scroll={{ x: "max-content" }}
@@ -1139,13 +1160,15 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
     {
       key: "profitLoss",
-      label: `盈亏记录(${filterDataBySymbol(profitLoss).length})`,
+      label: `盈亏记录`,
       children: (
         <Table<TradeRecord>
           scroll={{ x: "max-content" }}
@@ -1155,13 +1178,15 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
     {
       key: "tradeHistory",
-      label: `成交记录(${filterDataBySymbol(tradeHistory).length})`,
+      label: `成交记录`,
       children: (
         <Table<TradeHistory>
           scroll={{ x: "max-content" }}
@@ -1171,14 +1196,16 @@ const OrderList: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={loading}
-          locale={{ emptyText: <NoData height="266px" /> }}
+          locale={{
+            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+          }}
         />
       ),
     },
   ];
 
   useEffect(() => {
-    if (currentContractInfo?.id) {
+    if (currentContractInfo?.id && isLoggedIn) {
       const map = {
         position: () => getPosition(),
         openOrders: () => getOrdinaryCommission(),
@@ -1190,7 +1217,17 @@ const OrderList: React.FC = () => {
       const fn = map[activeTab as keyof typeof map];
       fn?.();
     }
-  }, [activeTab, currentContractInfo?.id]);
+  }, [
+    activeTab,
+    currentContractInfo?.id,
+    isLoggedIn,
+    getPosition,
+    getOrdinaryCommission,
+    getConditionalCommission,
+    getHistoryCommission,
+    getProfitLoss,
+    getTradeHistory,
+  ]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染

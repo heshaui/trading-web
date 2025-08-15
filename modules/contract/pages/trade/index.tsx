@@ -18,6 +18,7 @@ import appStore from "@/store";
 import { createCoId, createOrder, getPublicMarketInfo } from "@/services/contract";
 
 import { getUserBalanceAll } from "@/services/assets";
+import { useAuth } from "@/context/AuthContext";
 
 interface ContractAsset {
   symbol: string;
@@ -63,6 +64,8 @@ interface SymbolData {
 }
 const TradePage = () => {
   const { t } = useTranslation(["contract", "spot", "common"]);
+
+  const { isLoggedIn } = useAuth();
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [orderBookData, setOrderBookData] = useState<any>(null); // 订单簿数据
   const [isClient, setIsClient] = useState(false); // 是否是客户端
@@ -212,11 +215,11 @@ const TradePage = () => {
       height: 284,
       content: <RealtimeTrade orderBookData={orderBookData} />,
     },
-    {
+    ...(isLoggedIn ? [{
       columnSpan: 1,
       height: 190,
       content: <ContractAsset />,
-    },
+    }] : []),
     {
       columnSpan: 4,
       minHeight: 400,
