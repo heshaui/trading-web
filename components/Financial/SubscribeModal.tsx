@@ -34,8 +34,15 @@ import SubscribeConfirmModal, {
 } from "./SubscribeConfirmModal";
 import Image from "next/image";
 import { getCurrentTimeZone } from "@/utils/currentTimeZone";
-import financialStyles from "@/styles/components/Financial.module.css";
-import { useStyle } from "@/theme/financialThemeConfig";
+import {
+  ButtonTheme,
+  modalStyle,
+  ModalTheme,
+  SegmentedTheme,
+  SwitchTheme,
+  TabsTheme,
+  TokenTheme,
+} from "@/theme/publicThemeConfig";
 import { getCoinRound } from "@/utils/getUseRate";
 import SpotBuyModal from "../spotModal/placeOrder_modal";
 import ScrollableContainer from "./ScrollableContainer";
@@ -360,7 +367,8 @@ const Subscription: React.FC<SubscriptionProps> = ({
 
                     // 输入的金额大于可申购金额 则返回错误(可申购额度 xxx 币种)
                     if (
-                      Number(value) > Number(financialSubscribeShow.allowPurchaseAmount)
+                      Number(value) >
+                      Number(financialSubscribeShow.allowPurchaseAmount)
                     ) {
                       return Promise.reject(
                         new Error(
@@ -878,7 +886,7 @@ const SubscribeModal = ({
   setOpenSubscribeModal,
   onRefresh,
 }: SubscribeModalProps) => {
-  const { styles } = useStyle();
+  const { styles } = modalStyle();
   const [form] = Form.useForm();
   const { t } = useTranslation(["financial"]);
 
@@ -1043,34 +1051,20 @@ const SubscribeModal = ({
     <ConfigProvider
       theme={{
         components: {
-          Switch: {
-            colorTextQuaternary: "var(--switch-color)", // 关闭状态背景色
-            colorTextTertiary: "var(--switch-color)", // 悬停背景颜色
-          },
+          Switch: SwitchTheme,
           Tabs: {
             fontSize: 16, // 标签字体大小
-            horizontalMargin: "0px",
-            inkBarColor: "var(--theme-color)",
-            itemActiveColor: "var(--theme-color)",
-            itemColor: "var(--text-color6)",
+            horizontalMargin: "0px", // 水平边距
+            inkBarColor: "var(--theme-color)", // 指示条颜色
+            itemActiveColor: "var(--theme-color)", // 选中文本颜色
+            itemColor: "var(--text-color6)", // 文本颜色
+            colorBorderSecondary: "var(--border-color4)", // 分割线颜色
           },
-          Modal: { titleLineHeight: "60px", margin: 0 },
-          Button: {
-            borderColorDisabled: "transparent", // 禁用状态边框颜色
-            defaultHoverBg: "var(--cancel-btn)", // 默认按钮悬停背景色
-          },
-          Segmented: {
-            fontSize: 12, // 分段器字体大小
-            borderRadius: 50, // 分段器圆角
-            borderRadiusSM: 50, // 分段器圆角
-            itemSelectedBg: "var(--segmented-item-active-bg2)", // 选中背景色
-            trackBg: "var(--background12)", // 轨道背景色
-          },
+          Modal: ModalTheme,
+          Button: ButtonTheme,
+          Segmented: SegmentedTheme,
         },
-        token: {
-          colorSplit: "var(--border-color4)", // 分割线颜色
-          colorBgContainerDisabled: "var(--theme-05)", // 禁用状态背景色
-        },
+        token: TokenTheme,
       }}
     >
       <Modal
@@ -1133,10 +1127,13 @@ const SubscribeModal = ({
       >
         <Spin spinning={loading}>
           <Tabs
-            className={financialStyles.tabs2}
             activeKey={tabsKey}
             defaultActiveKey="1"
-            tabBarStyle={{ padding: "0 28px", height: "60px" }}
+            tabBarStyle={{
+              padding: "0 28px",
+              height: "60px",
+              borderBottom: "0",
+            }}
             items={items}
             onChange={(key) => setTabsKey(key)}
           />

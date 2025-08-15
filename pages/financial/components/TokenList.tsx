@@ -8,9 +8,9 @@ import {
   Spin,
 } from "antd";
 import { useState, useEffect } from "react";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import {
-  CoinFilterOptionsItem,
+  CoinFilterOptionsItem,  
   FinancialPageTokenItem,
   FinancialPageTokenProductItem,
   FinancialPageTokenStatusEnum,
@@ -35,6 +35,7 @@ import appStore from "@/store";
 import { useAuth } from "@/context/AuthContext";
 import { observer } from "mobx-react-lite";
 import SubscribeModal from "@/components/Financial/SubscribeModal";
+import { CloseOutlined } from "@ant-design/icons";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -167,12 +168,12 @@ const TokenList = observer(() => {
       userInfo.realnessStatus !== 1
     ) {
       Modal.confirm({
-        className: styles.modal,
         title: (
           <div className="font-w-400 text-[16px] text-[var(--text-color5)]">
             {t("financial.needToCompleteTheFollowingOperations")}
           </div>
         ),
+        closeIcon: <CloseOutlined style={{ color: "var(--text-color5)" }} />,
         closable: true,
         icon: null,
         styles: {

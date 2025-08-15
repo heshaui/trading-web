@@ -118,6 +118,10 @@ const nextConfig: NextConfig = {
         source: "/ambit-assets-web/:path*", // 匹配所有 zs/xxx 请求
         destination: "http://ljx.imbit.work/ambit-assets-web/:path*" // 代理到目标服务器
       },
+      {
+        source: "/fe-co-api/:path*", // 合约模块 - 强制转发到 futures.imbit.work
+        destination: "https://futures.imbit.work/fe-co-api/:path*" // 强制代理到目标服务器
+      }
       
     ];
   },

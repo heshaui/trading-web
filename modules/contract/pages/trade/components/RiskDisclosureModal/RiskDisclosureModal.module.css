@@ -1,0 +1,90 @@
+.riskDisclosureModal {
+  .modalTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-color1);
+    padding: 0;
+    margin: 0;
+  }
+
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-color3);
+    cursor: pointer;
+    
+    &:hover {
+      color: var(--text-color1);
+      background: transparent;
+    }
+  }
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+.riskContent {
+  flex: 1;
+  padding: 24px;
+  background: var(--background6);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  
+  .riskParagraph {
+    color: var(--text-color2);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    text-align: justify;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  /* 自定义滚动条样式 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--background7);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color2);
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--border-color3);
+    }
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+
+
+
+

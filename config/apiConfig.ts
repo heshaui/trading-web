@@ -24,6 +24,9 @@ export const LOCAL_STORAGE_KEY = {
     KV_CONFIG:'kv_config', // kv配置
     FLASH_CONFIG: 'flash_config', // 闪兑配置
     USDT_RATE:'usdt_rate', // USDT汇率
+    PUBLIC_INFO: 'public_info', // 公共信息
+    USER_CONFIG: 'user_config', // 用户合约配置
+    CONTRACT_ASSETS: 'contract_assets',// 合约资产
     FINANCIAL_CONFIG: 'financial_config', // 理财配置
     COUNTRY_LIST: 'country_list', // 国家列表
 };
@@ -44,22 +47,20 @@ export const KV_KEYS = [
 ];
 
 export const ROUTER_KEY_ASSETS = {
-    ACCOUNT:"/assets/assetsAccount", //资产页面/现货账户
-	WITHDRAW_MONEY:"/assets/assetsAccount/withdrawMoney", //提现页面
-	TOP_UP:"/assets/assetsAccount/topUp", //充值页面
-    BILL:"/assets/billDetails", //账单页面
+	WITHDRAW_MONEY:"/assets/spot/withdrawMoney", //提现页面
+	TOP_UP:"/assets/spot/topUp", //充值页面
     ADDADRESS:"/assets/address", //添加地址页面
-    FINANCIAL:"/assets/financial", //理财账户
 
-    FUTURE_ACCOUNT:"/assets/futureAccount", //合约账户
-    SPOT_ACCOUNT:"/assets/assetsAccount", //现货账户
     FINANCIAL_ACCOUNT:"/assets/financial", //理财账户
+    CONTRACT_ACCOUNT:"/assets/contract", //合约账户
+    SPOT_ACCOUNT:"/assets/spot", //现货账户
 };
 export const ROUTER_KEY_SPOT = {
-    INDEX:"/exchange", //首页
+    INDEX:"/spotTrade", //现货交易页面
     SPOT_ORDER: "/spotOrder", //现货订单
     FLASH_ORDER:"/flashOrder", //闪兑订单
     FINANCIAL_ORDER:"/financialOrder", //理财订单
+    CONTRACT_ORDER:"/contractOrder", //合约订单
     BILL:"/billDetails", //账单页面
 };
 export const ROUTER_KEY_OPEN = {

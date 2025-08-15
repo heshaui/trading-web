@@ -18,20 +18,36 @@ export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // const url = `${BASE_URL}${endpoint}`;
-  const url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
+  // 特殊处理：fe-co-api 强制转发到 futures.imbit.work
+  let url: string;
+  if (endpoint.startsWith('/fe-co-api/')) {
+    url = `https://futures.imbit.work${endpoint}`;
+  } else {
+    url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
+  }
   // console.log('请求 URL:', url);
   
-  const defaultHeaders:RequestHeaders = {
-    // 'Content-Type': '',
-    'Authorization': `${getToken()}`, // 获取 token（可选）
-    'sa-token': `${getToken()}`,
-    'lang': localStorage.getItem('lang') || 'en_US',
-    // 'ambit-saas': process.env.NEXT_PUBLIC_AMBIT_SAAS||'',
-  };
+  let defaultHeaders:RequestHeaders = {};
   
-  // 仅在开发环境下添加 ambit-saas 头部
-  if (process.env.NODE_ENV === 'development') {
+  // 针对 fe-co-api 请求使用不同的头部配置
+  if (endpoint.startsWith('/fe-co-api/')) {
+    // fe-co-api 请求使用最小化头部配置，避免CORS问题
+    // 具体的头部（exchange-token, exchange-client, exchange-language）
+    // 会通过 formatHeaders 在 common.ts 中处理
+    defaultHeaders = {
+      // 只设置必要的头部
+    };
+  } else {
+    // 其他请求保持原有配置
+    defaultHeaders = {
+      'Authorization': `${getToken()}`, // 获取 token（可选）
+      'sa-token': `${getToken()}`,
+      'lang': localStorage.getItem('lang') || 'en_US',
+    };
+  }
+  
+  // 仅在开发环境下添加 ambit-saas 头部（但不包括 fe-co-api 请求）
+  if (process.env.NODE_ENV === 'development' && !endpoint.startsWith('/fe-co-api/')) {
     defaultHeaders['ambit-saas'] = process.env.NEXT_PUBLIC_AMBIT_SAAS||'2e5bbf22907d4a31992e9641079af195';
   }
 
@@ -52,7 +68,8 @@ export async function request<T>(
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || '请求失败');
+      // throw new Error(data.message || '请求失败');
+      console.log(data.message || '请求失败');
     }
 
     // 检查响应码是否为 10005

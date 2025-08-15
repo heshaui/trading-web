@@ -170,3 +170,13 @@ export function getOrderList(data: paramsType3): Promise<any> {
     body: JSON.stringify(data)
   });
 }
+
+// 合约账户转现货账户
+export function transferAll(data:any): Promise<any> {
+  return request(`${fixUrl2}/assets-web/v1/transfer/all`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+
