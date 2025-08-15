@@ -7,7 +7,7 @@ const Details = ({ loading, detailsData }: { loading?: boolean, detailsData?: De
     <Spin spinning={loading}>
 
         {/* 文字标题 */}
-        <div className="pb-[20px] border-b border-[#DCDCDC]">
+        <div className="pb-[20px] border-b border-[var(--border-color4)]">
           <div className="mb-[10px] truncate text-[var(--text-color5)] text-[16px] font-[500]">
             {detailsData?.title}
           </div>

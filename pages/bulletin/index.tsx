@@ -206,7 +206,7 @@ const Notice = () => {
   return (
     <div className="bg-[var(--background17)]  min-h-[calc(100vh-80px)] flex flex-col">
       {/* 顶部 */}
-      <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_#DCDCDC]">
+      <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
         <div className="flex gap-[30px] items-center">
           <div className="text-[16px] font-[500] text-[var(--text-color5)] text-nowrap">
             通知
@@ -230,7 +230,7 @@ const Notice = () => {
           renderItem={renderItem}
           loading={menuLoading}
         />
-        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] min-h-[593px]">
+        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px]">
           <div className="text-[20px] font-[500] text-[var(--text-color5)]">全部公告</div>
           <List
             pagination={pagination}

@@ -24,7 +24,7 @@ const List = ({
           },
         },
         token: {
-          colorSplit: "#DCDCDC",
+          colorSplit: "var(--border-color4)",
         },
       }}
     >

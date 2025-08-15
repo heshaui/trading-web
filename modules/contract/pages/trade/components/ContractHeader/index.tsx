@@ -8,7 +8,7 @@ const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
   const [marketInfo, setMarketInfo] = useState<any>(null);
   const currentContractInfo = appStore.getCurrentContractInfo();
   const handleSymbolSelect = (symbol: any) => {
-    
+
     appStore.setCurrentContractInfo(symbol.id);
     setCurrentSymbol(symbol);
   };

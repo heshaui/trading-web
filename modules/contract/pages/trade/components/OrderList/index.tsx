@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
-import { getHistoryOrderList, getCurrentOrderList } from "@/services/contract";
+import { getHistoryOrderList, getCurrentOrderList, getPlanOrderList, getHistoryPositionList, getTradeInfo, getAssetsList } from "@/services/contract";
 import styles from "@/styles/components/Table.module.css";
 import {
   SliderTheme,
@@ -117,7 +117,6 @@ interface TradeHistory {
 const OrderList: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
-
   // 当前tab
   const [activeTab, setActiveTab] = useState("position");
   const [stopModalOpen, setStopModalOpen] = useState(false);
@@ -133,7 +132,6 @@ const OrderList: React.FC = () => {
 
   // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
-
   // 取消中的订单ID集合
   const [cancellingOrderIds, setCancellingOrderIds] = useState<Set<string>>(
     new Set()
@@ -141,177 +139,92 @@ const OrderList: React.FC = () => {
 
   // table 数据
   // 仓位
-  const [positions, setPositions] = useState<Position[]>(
-    Array.from({ length: 10 }, (_, index) => ({
-      id: index.toString(),
-      symbol: "BTCUSDT",
-      side: "LONG",
-      size: 595.51,
-      entryPrice: 10000,
-      markPrice: 10000,
-      pnl: 100,
-      pnlRate: 0.1,
-      margin: 1000,
-      marginRate: 0.1,
-      liquidationPrice: 10000,
-      createTime: 1717334400000,
-    }))
-  );
+  const [positions, setPositions] = useState<Position[]>([]);
   // 普通委托
   const [ordinaryCommission, setOrdinaryCommission] = useState<
     OrdinaryCommission[]
-  >([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      side: "BUY",
-      type: "LIMIT",
-      size: 595.51,
-      price: 10000,
-      onlyReduce: true,
-      filled: 0,
-      filledPrice: 10000,
-      remaining: 0,
-      status: "NEW",
-      createTime: 1717334400000,
-      tpsl: "10000",
-    },
-  ]);
+  >([]);
   // 条件委托
   const [conditionalCommission, setConditionalCommission] = useState<
     ConditionalCommission[]
-  >([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      type: "LIMIT",
-      side: "BUY",
-      triggerPrice: 10000,
-      price: 10000,
-      size: 10000,
-      orderType: "LIMIT",
-      onlyReduce: true,
-      createTime: 1717334400000,
-      expireTime: 1717334400000,
-    },
-  ]);
+  >([]);
   // 历史委托
   const [historyCommission, setHistoryCommission] = useState<
     HistoryCommission[]
-  >([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      type: "LIMIT",
-      side: "BUY",
-      price: 10000,
-      size: 10000,
-      filled: 10000,
-      filledPrice: 10000,
-      tpsl: "10000",
-      status: "NEW",
-      createTime: 1717334400000,
-      profit: 10000,
-      fee: 10000,
-    },
-  ]);
+  >([]);
   // 盈亏记录
-  const [profitLoss, setProfitLoss] = useState<TradeRecord[]>([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      side: "BUY",
-      size: 10000,
-      price: 10000,
-      fee: 10000,
-      createTime: 1717334400000,
-      openPrice: 10000,
-      realizedPnl: 10000,
-      fundingFee: 10000,
-      pnl: 10000,
-      closeTime: 1717334400000,
-    },
-  ]);
+  const [profitLoss, setProfitLoss] = useState<TradeRecord[]>([]);
   // 成交记录
-  const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([
-    {
-      id: "1",
-      symbol: "BTCUSDT",
-      side: "BUY",
-      size: 10000,
-      filledPrice: 10000,
-      role: "maker",
-      fee: 10000,
-      createTime: 1717334400000,
-    },
-  ]);
-
+  const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([]);
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
-
   // 获取当前合约symbol用于过滤
   const currentSymbol = currentContractInfo?.symbol || "";
-
-  // 获取历史委托
-  const getHistoryOrder = async () => {
-    if (!currentContractInfo?.id) {
-      console.warn("No contract info available");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await getHistoryOrderList({
-        contractId: currentContractInfo.id,
-        limit: 100,
-        page: 1,
-      });
-      if (response?.data?.orderList) {
-        setHistoryCommission(response.data.orderList || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch history order list:", error);
-      message.error("加载历史委托失败");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 获取当前合约的订单列表
-  const getOrderList = useCallback(async () => {
-    if (!currentContractInfo?.id) {
-      console.warn("No contract info available");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await getCurrentOrderList({
-        contractId: currentContractInfo.id,
-        limit: 10,
-        page: 1,
-        type: "",
-        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-      });
-
-      if (response?.data?.orderList) {
-        // 这里应该根据实际API返回的数据结构来设置不同的状态
-        // setPositions(response.data.orderList || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch order list:", error);
-      message.error("加载失败");
-    } finally {
-      setLoading(false);
-    }
-  }, [currentContractInfo?.id]);
-
   // 根据仅当前合约开关过滤数据
   const filterDataBySymbol = <T extends { symbol?: string }>(
     data: T[]
   ): T[] => {
     if (!onlyCurrentSymbol || !currentSymbol) return data;
     return data.filter((item) => item.symbol === currentSymbol);
+  };
+
+  // 获取仓位
+  const getPosition = async () => {
+    console.log("获取仓位");
+    const res = await getAssetsList({
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
+  };
+
+  // 获取普通委托(当前委托)
+  const getOrdinaryCommission = async () => {
+    console.log("获取普通委托(当前委托)");
+    const res = await getCurrentOrderList({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
+  };
+
+  // 获取条件委托
+  const getConditionalCommission = async () => {
+    console.log("获取条件委托");
+    const res = await getPlanOrderList({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
+  };
+
+  // 获取历史委托
+  const getHistoryCommission = async () => {
+    console.log("获取历史委托");
+    const res = await getHistoryOrderList({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
+  };
+
+  // 获取盈亏记录
+  const getProfitLoss = async () => {
+    console.log("盈亏记录");
+    const res = await getHistoryPositionList({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
+  };
+
+  // 获取成交记录
+  const getTradeHistory = async () => {
+    console.log("获取成交记录");
+    const res = await getTradeInfo({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(res);
   };
 
   // 仓位: 合约,数量,成本价,标记价格,预估强平价,保证金,保证金率,未实现盈亏/收益率,快速平仓,反向开仓,止盈止损
@@ -441,40 +354,40 @@ const OrderList: React.FC = () => {
         </div>
       ),
     },
-    {
-      title: "快速平仓",
-      key: "quickClose",
-      render: () => <QuickClose />,
-    },
-    {
-      title: "反向开仓",
-      key: "reverseOpen",
-      render: () => (
-        <span
-          onClick={() => setReverModalOpen(true)}
-          className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap"
-        >
-          反向开仓
-        </span>
-      ),
-    },
-    {
-      title: "止盈止损",
-      key: "tpsl",
-      render: () => (
-        <SvgIcon
-          className="text-[var(--theme-color)]"
-          onClick={() => setStopModalOpen(true)}
-        >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M12.5431 2.27249C12.2618 1.99129 11.8803 1.83331 11.4826 1.83331C11.0848 1.83331 10.7034 1.99129 10.4221 2.27249L2.68657 10.008C2.40525 10.2892 2.24716 10.6707 2.24707 11.0685V14.9932C2.24707 15.411 2.58682 15.7507 3.00457 15.7507L15.0001 15.75C15.199 15.75 15.3897 15.671 15.5304 15.5303C15.6711 15.3897 15.7501 15.1989 15.7501 15C15.7501 14.8011 15.6711 14.6103 15.5304 14.4697C15.3897 14.329 15.199 14.25 15.0001 14.25H9.05107L15.7253 7.57574C16.0065 7.29445 16.1645 6.91299 16.1645 6.51524C16.1645 6.1175 16.0065 5.73603 15.7253 5.45474L12.5431 2.27249ZM6.93007 14.25L14.6648 6.51524L11.4826 3.33299L3.74707 11.0685V14.25H6.93007Z"
-            fill="currentColor"
-          />
-        </SvgIcon>
-      ),
-    },
+    // {
+    //   title: "快速平仓",
+    //   key: "quickClose",
+    //   render: () => <QuickClose />,
+    // },
+    // {
+    //   title: "反向开仓",
+    //   key: "reverseOpen",
+    //   render: () => (
+    //     <span
+    //       onClick={() => setReverModalOpen(true)}
+    //       className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap"
+    //     >
+    //       反向开仓
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   title: "止盈止损",
+    //   key: "tpsl",
+    //   render: () => (
+    //     <SvgIcon
+    //       className="text-[var(--theme-color)]"
+    //       onClick={() => setStopModalOpen(true)}
+    //     >
+    //       <path
+    //         fillRule="evenodd"
+    //         clipRule="evenodd"
+    //         d="M12.5431 2.27249C12.2618 1.99129 11.8803 1.83331 11.4826 1.83331C11.0848 1.83331 10.7034 1.99129 10.4221 2.27249L2.68657 10.008C2.40525 10.2892 2.24716 10.6707 2.24707 11.0685V14.9932C2.24707 15.411 2.58682 15.7507 3.00457 15.7507L15.0001 15.75C15.199 15.75 15.3897 15.671 15.5304 15.5303C15.6711 15.3897 15.7501 15.1989 15.7501 15C15.7501 14.8011 15.6711 14.6103 15.5304 14.4697C15.3897 14.329 15.199 14.25 15.0001 14.25H9.05107L15.7253 7.57574C16.0065 7.29445 16.1645 6.91299 16.1645 6.51524C16.1645 6.1175 16.0065 5.73603 15.7253 5.45474L12.5431 2.27249ZM6.93007 14.25L14.6648 6.51524L11.4826 3.33299L3.74707 11.0685V14.25H6.93007Z"
+    //         fill="currentColor"
+    //       />
+    //     </SvgIcon>
+    //   ),
+    // },
   ];
 
   // 普通委托: 合约,方向,数量,完成度 ,委托价格,成交均价,类型,只减仓,止盈止损,时间,全撤
@@ -1107,12 +1020,20 @@ const OrderList: React.FC = () => {
     },
   ];
 
-  // 获取当前合约的订单列表
   useEffect(() => {
     if (currentContractInfo?.id) {
-      getOrderList();
+      const map = {
+        position: () => getPosition(),
+        openOrders: () => getOrdinaryCommission(),
+        conditionalOrders: () => getConditionalCommission(),
+        orderHistory: () => getHistoryCommission(),
+        profitLoss: () => getProfitLoss(),
+        tradeHistory: () => getTradeHistory(),
+      };
+      const fn = map[activeTab as keyof typeof map];
+      fn?.();
     }
-  }, [getOrderList, currentContractInfo?.id]);
+  }, [activeTab, currentContractInfo?.id]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -1141,12 +1062,7 @@ const OrderList: React.FC = () => {
           <Tabs
             tabBarGutter={20}
             activeKey={activeTab}
-            onChange={(key) => {
-              setActiveTab(key);
-              if (key === "orderHistory") {
-                getHistoryOrder();
-              }
-            }}
+            onChange={(key) => setActiveTab(key)}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
             tabBarExtraContent={
               <div className="flex items-center gap-[20px] text-[14px] font-[400]">
