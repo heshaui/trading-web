@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "next-i18next";
 import { SvgIcon } from "@/components/icon";
 import List from "@/components/bulletin/List";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, ConfigProvider } from "antd";
 
 interface MenuData {
   id: number; // 公告类型id
@@ -186,9 +186,16 @@ const Details = () => {
   }, [id]);
 
   return (
-    <div className="bg-[var(--background14)]  min-h-[calc(100vh-80px)] flex flex-col">
+    <ConfigProvider  theme={{
+      components: {
+        Breadcrumb: {
+          itemColor: "var(--text-color6)",
+        },
+      },
+    }}>
+    <div className="bg-[var(--background17)]  min-h-[calc(100vh-80px)] flex flex-col">
       {/* 顶部 */}
-      <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_#DCDCDC]">
+      <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
         <SvgIcon
           className="w-[24px] h-[24px] text-[var(--text-color5)] cursor-pointer"
           onClick={() => router.back()}
@@ -210,9 +217,9 @@ const Details = () => {
           renderItem={renderItem}
           loading={menuLoading}
         />
-        <div className="flex-1  bg-[#FFF] rounded-[8px] p-[20px] min-h-[593px]">
+        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px]">
           {/* 标题 */}
-          <div className="text-[20px] font-[500] text-[#333] mb-[10px]">
+          <div className="text-[20px] font-[500] text-[var(--text-color5)] mb-[10px]">
             <div className="mb-[10px]">公告中心</div>
             {/* 面包屑 */}
             <Breadcrumb items={BreadcrumbItems} className="mb-[10px]" />
@@ -232,6 +239,7 @@ const Details = () => {
         </div>
       </div>
     </div>
+    </ConfigProvider>
   );
 };
 
