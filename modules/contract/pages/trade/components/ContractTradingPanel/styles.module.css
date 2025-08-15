@@ -1,5 +1,3 @@
-
-
 /* 顶部工具栏 */
 .topToolbar {
   display: flex;
@@ -20,22 +18,20 @@
 .leverageBtn {
   height: 28px;
   width: 72px;
-  padding: 5px 16px!important;
+  padding: 5px 16px !important;
   border-radius: 18px;
   font-size: 12px;
   color: #333;
-  background: #F5F5F5!important;
+  background: #f5f5f5 !important;
   margin-right: 10px;
-  border: none!important;
-  font-size: 12px!important;
+  border: none !important;
+  font-size: 12px !important;
 }
 .marginBtn:hover,
 .leverageBtn:hover {
-  background-color:var(--theme-color)!important;
-  color: #ffffff!important;
+  background-color: var(--theme-color) !important;
+  color: #ffffff !important;
 }
-
-
 
 .toolbarIcons {
   display: flex;
@@ -112,7 +108,6 @@
   color: #ffffff;
 }
 
-
 .tabsWrapper {
   display: flex;
   gap: 24px;
@@ -138,8 +133,6 @@
   color: #333;
   font-weight: 500;
 }
-
-
 
 /* 可用余额 */
 .balanceSection {
@@ -246,7 +239,6 @@
 }
 
 .percentageSlider .ant-slider-rail {
-
   height: 4px;
 }
 
@@ -316,11 +308,11 @@
 }
 
 .buyLabel {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .sellLabel {
-  color: #F44336;
+  color: #f44336;
 }
 
 .buyValue,
@@ -341,8 +333,6 @@
   gap: 8px;
 }
 
-
-
 .tpslLabel {
   font-size: 13px;
   color: #333;
@@ -350,7 +340,6 @@
 }
 
 .tpslInputs {
-  
   margin-top: 12px;
 }
 
@@ -379,10 +368,6 @@
   border: 1px solid #d9d9d9;
   font-size: 14px;
 }
-
-
-
-
 
 .tpslInput .ant-input-suffix {
   color: #999;
@@ -444,18 +429,14 @@
 }
 
 .buyBtn {
-  background: #00C788!important;
+  background: #00c788 !important;
   color: #ffffff;
 }
-
-
 
 .sellBtn {
-  background: #FF4D4F!important;
+  background: #ff4d4f !important;
   color: #ffffff;
 }
-
-
 
 /* 成本显示 */
 .costSection {
@@ -482,3 +463,46 @@
   margin-left: auto;
 }
 
+/* 验证错误提示样式 */
+.validationError {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.validationErrorTitle {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.validationErrorList {
+  margin-top: 4px;
+  color: #ef4444;
+  font-size: 11px;
+}
+
+.validationErrorList li {
+  margin-bottom: 2px;
+}
+
+/* 输入框错误状态 */
+.inputError {
+  border-color: #f87171 !important;
+}
+
+.inputError:focus {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* 错误提示文本 */
+.errorText {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.2;
+}

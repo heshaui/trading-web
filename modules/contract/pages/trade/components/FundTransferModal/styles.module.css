@@ -1,13 +1,12 @@
 .transferModal {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 .transferModal :global(.ant-modal-content) {
   border-radius: 12px;
   overflow: hidden;
 }
-
-
 
 .transferModal :global(.ant-modal-body) {
   padding: 16px;
@@ -205,10 +204,6 @@
   width: 100%;
 }
 
-
-
-
-
 .inputSuffix {
   display: flex;
   align-items: center;
@@ -279,3 +274,33 @@
   cursor: not-allowed;
 }
 
+/* 转账提示信息 */
+.transferInfo {
+  margin: 16px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.infoLabel {
+  color: #666;
+  font-weight: 400;
+}
+
+.infoValue {
+  color: #1a1a1a;
+  font-weight: 500;
+}

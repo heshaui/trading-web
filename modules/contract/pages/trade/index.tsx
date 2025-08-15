@@ -17,6 +17,8 @@ import WaterfallLayout, { WaterfallItem } from "@/components/WaterfallLayout";
 import appStore from "@/store";
 import { createCoId, createOrder, getPublicMarketInfo } from "@/services/contract";
 
+import { getUserBalanceAll } from "@/services/assets";
+
 interface ContractAsset {
   symbol: string;
   totalAmount: string;
@@ -70,7 +72,14 @@ const TradePage = () => {
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]); // 币种列表
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
 
+  const [spotBalance, setSpotBalance] = useState<number>(0); // USDT资产可用余额
 
+
+  // 获取USDT资产可用余额
+  const getSpotBalance = async () => {
+    const res = await getUserBalanceAll();
+    setSpotBalance(res.data);
+  };
 
   // 获取合约账户余额
   const getContractBalance = async () => {
@@ -138,18 +147,18 @@ const TradePage = () => {
   // 模拟价格数据
   const mockPriceData = {
     symbol: "BTCUSDT",
-    price: "108,330.8",
-    priceUsd: "$108,330.8",
-    changePercent: "+0.07%",
-    change24h: "+75.6",
-    high24h: "109,100.0",
-    low24h: "107,800.0",
-    volume24h: "7,749.52",
-    markPrice: "108,333.0",
-    indexPrice: "108,381.4",
-    fundingRate: "0.0066%",
-    fundingCountdown: "00:18:09",
-    volume24hUSD: "8.38亿",
+    price: "0",
+    priceUsd: "0",
+    changePercent: "0",
+    change24h: "0",
+    high24h: "0",
+    low24h: "0",
+    volume24h: "0",
+    markPrice: "0",
+    indexPrice: "0",
+    fundingRate: "0",
+    fundingCountdown: "00:00:00",
+    volume24hUSD: "0",
     isUp: true,
   };
 
@@ -172,6 +181,8 @@ const TradePage = () => {
           symbol={mockPriceData.symbol}
           lastPrice={parseFloat(mockPriceData.price.replace(/,/g, ""))}
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
+          spotBalance={spotBalance}
+          contractBalance={contractAssets}
           onOrderSubmit={handleOrderSubmit}
           onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
         />
@@ -238,6 +249,7 @@ const TradePage = () => {
   // 获取合约账户余额
   useEffect(() => {
     getContractBalance();
+    getSpotBalance();
   }, []);
 
   // 获取用户合约配置
@@ -284,7 +296,7 @@ const TradePage = () => {
       event: "sub",
       params: {
         channel: "market_e_btcusdt_kline_1day",
-        
+
       },
     };
 

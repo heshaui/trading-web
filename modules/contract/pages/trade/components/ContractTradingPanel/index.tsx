@@ -38,6 +38,8 @@ interface ContractTradingPanelProps {
   symbol?: string;
   lastPrice?: number;
   availableBalance?: number;
+  spotBalance?: any;
+  contractBalance?: any;
   onOrderSubmit?: (orderData: any) => void;
   onBalanceUpdate?: () => void; // 新增余额更新回调
 }
@@ -46,6 +48,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
   symbol = "BTCUSDT",
   lastPrice = "",
   availableBalance = 0,
+  spotBalance,
+  contractBalance,
   onOrderSubmit,
   onBalanceUpdate, // 解构新增的回调
 }) => {
@@ -88,6 +92,13 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
     leverage: 65,
     orderType: "limit",
   }); //二次确认数据
+
+  // 新增验证错误状态
+  const [validationErrors, setValidationErrors] = useState<{
+    price?: string;
+    quantity?: string;
+    triggerPrice?: string;
+  }>({});
 
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
@@ -141,6 +152,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   // 处理订单提交
   const handleSubmit = (side: "BUY" | "SELL") => {
+    // 表单验证
+    if (!validateForm()) {
+      return;
+    }
+
     // 检查用户是否选择不再提醒
     const dontShowConfirm =
       localStorage.getItem("dontShowOrderConfirm") === "true";
@@ -183,6 +199,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       symbol: symbol,
       marginMode: marginModel,
       leverage: leverageLevel,
+      btnText: side,
       orderType:
         currentCategory === 1
           ? "limit"
@@ -193,6 +210,141 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
     setConfirmData(orderData);
     setShowOrderConfirmModal(true);
+  };
+
+  // 表单验证函数
+  const validateForm = (): boolean => {
+    // 验证触发价格（条件单必填）
+    if (currentCategory === 3) {
+      if (!triggerPrice || triggerPrice.trim() === "") {
+        toast.error("请输入触发价格");
+        return false;
+      }
+      const triggerPriceNum = parseFloat(triggerPrice);
+      if (isNaN(triggerPriceNum) || triggerPriceNum <= 0) {
+        toast.error("触发价格必须大于0");
+        return false;
+      }
+    }
+
+    // 验证委托价格（限价单和条件单必填）
+    if (currentCategory === 1 || currentCategory === 3) {
+      if (!price || price.toString().trim() === "") {
+        toast.error("请输入委托价格");
+        return false;
+      }
+      const priceNum = parseFloat(price.toString());
+      if (isNaN(priceNum) || priceNum <= 0) {
+        toast.error("委托价格必须大于0");
+        return false;
+      }
+    }
+
+    // 验证委托数量
+    if (!quantity || quantity.toString().trim() === "") {
+      toast.error("请输入委托数量");
+      return false;
+    }
+    const quantityNum = parseFloat(quantity.toString());
+    if (isNaN(quantityNum) || quantityNum <= 0) {
+      toast.error("委托数量必须大于0");
+      return false;
+    }
+
+    // 验证可用余额
+    if (availableBalance <= 0) {
+      toast.error("可用余额不足");
+      return false;
+    }
+
+    // 验证杠杆倍数
+    if (leverageLevel <= 0 || leverageLevel > 125) {
+      toast.error("杠杆倍数无效");
+      return false;
+    }
+
+    // 验证数量是否超过可买/可卖数量
+    const maxQuantity = calculateMaxQuantity();
+    if (quantityNum > maxQuantity) {
+      toast.error(`委托数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`);
+      return false;
+    }
+
+    return true;
+  };
+
+  // 实时验证函数
+  const validateField = (field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
+    if (!value || value.toString().trim() === "") {
+      return "此字段为必填项";
+    }
+
+    const numValue = parseFloat(value.toString());
+    if (isNaN(numValue)) {
+      return "请输入有效的数字";
+    }
+
+    if (numValue <= 0) {
+      return "数值必须大于0";
+    }
+
+    // 特定字段的额外验证
+    if (field === 'quantity') {
+      const maxQuantity = calculateMaxQuantity();
+      if (numValue > maxQuantity) {
+        return `数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`;
+      }
+    }
+
+    return undefined;
+  };
+
+  // 处理价格输入变化
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPrice(value);
+
+    // 实时验证
+    if (currentCategory === 1 || currentCategory === 3) {
+      const error = validateField('price', value);
+      setValidationErrors(prev => ({
+        ...prev,
+        price: error
+      }));
+    }
+  };
+
+  // 处理数量输入变化
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuantity(value);
+
+    // 实时验证
+    const error = validateField('quantity', value);
+    setValidationErrors(prev => ({
+      ...prev,
+      quantity: error
+    }));
+  };
+
+  // 处理触发价格输入变化
+  const handleTriggerPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTriggerPrice(value);
+
+    // 实时验证
+    if (currentCategory === 3) {
+      const error = validateField('triggerPrice', value);
+      setValidationErrors(prev => ({
+        ...prev,
+        triggerPrice: error
+      }));
+    }
+  };
+
+  // 清除验证错误
+  const clearValidationErrors = () => {
+    setValidationErrors({});
   };
 
   // 处理确认下单
@@ -366,7 +518,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               ]}
               value={transactionType}
               block
-              onChange={(value) => setTransactionType(value as 1 | 2)}
+              onChange={(value) => {
+                setTransactionType(value as 1 | 2);
+                clearValidationErrors(); // 清除验证错误
+              }}
             />
 
 
@@ -376,7 +531,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                 orderTypeTabs.map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setCurrentCategory(tab.key as any)}
+                    onClick={() => {
+                      setCurrentCategory(tab.key as any);
+                      clearValidationErrors(); // 清除验证错误
+                    }}
                     className={`text-[14px] font-[400] ${currentCategory === tab.key
                       ? "text-[var(--text-color5)] font-[500]"
                       : "text-[var(--text-color6)]"
@@ -409,12 +567,15 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                     <div className="flex items-center">
                       <Input
                         value={triggerPrice}
-                        onChange={(e) => setTriggerPrice(e.target.value)}
+                        onChange={handleTriggerPriceChange}
                         placeholder="触发价格"
-                        className="w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5]"
+                        className={`w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5] ${validationErrors.triggerPrice ? styles.inputError : ''}`}
                         suffix="USDT"
                       />
                     </div>
+                    {validationErrors.triggerPrice && (
+                      <span className={styles.errorText}>{validationErrors.triggerPrice}</span>
+                    )}
                   </div>
                 </Form.Item>
               )}
@@ -424,13 +585,16 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                 <Form.Item style={{ marginBottom: "16px" }}>
                   <Input
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={handlePriceChange}
                     placeholder="委托价格"
-                    className="w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px]"
+                    className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.price ? styles.inputError : ''}`}
                     suffix="USDT"
                     style={{ width: currentCategory === 3 ? "80%" : "100%" }}
                   />
                   {currentCategory === 3 && <Button type="text">市价</Button>}
+                  {validationErrors.price && (
+                    <span className={styles.errorText}>{validationErrors.price}</span>
+                  )}
                 </Form.Item>
               )}
 
@@ -438,11 +602,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
               <Form.Item style={{ marginBottom: "16px" }}>
                 <Input
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleQuantityChange}
                   placeholder="委托数量"
-                  className="w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px]"
+                  className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.quantity ? styles.inputError : ''}`}
                   suffix="USDT"
                 />
+                {validationErrors.quantity && (
+                  <span className={styles.errorText}>{validationErrors.quantity}</span>
+                )}
               </Form.Item>
 
               {/* 百分比滑块 */}
@@ -551,6 +718,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                   style={{
                     background: "#00C788",
                   }}
+                  disabled={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors])}
+                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? "请先解决表单验证错误" : ""}
                 >
                   {transactionType === 1 ? "买入开多" : "买入平空"}
                 </Button>
@@ -564,10 +733,26 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
                   }}
                   block
                   shape="round"
+                  disabled={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors])}
+                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? "请先解决表单验证错误" : ""}
                 >
                   {transactionType === 2 ? "卖出平多" : "卖出开空"}
                 </Button>
               </div>
+
+              {/* 验证错误提示 */}
+              {Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) && (
+                <div className={styles.validationError}>
+                  <div className={styles.validationErrorTitle}>
+                    请解决以下问题后重试：
+                  </div>
+                  <ul className={styles.validationErrorList}>
+                    {Object.entries(validationErrors).map(([key, error]) =>
+                      error ? <li key={key}>• {error}</li> : null
+                    )}
+                  </ul>
+                </div>
+              )}
 
               {/* 成本显示 */}
               <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
@@ -619,6 +804,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
             {/* 资金划转弹框 */}
             <FundTransferModal
               visible={showFundTransferModal}
+              spotBalance={spotBalance}
+              contractBalance={contractBalance}
               onClose={() => setShowFundTransferModal(false)}
               onConfirm={handleFundTransferConfirm}
             />
