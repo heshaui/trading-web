@@ -183,6 +183,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       symbol: symbol,
       marginMode: marginModel,
       leverage: leverageLevel,
+      btnText: side,
       orderType:
         currentCategory === 1
           ? "limit"
