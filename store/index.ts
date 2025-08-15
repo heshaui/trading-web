@@ -1081,7 +1081,7 @@ class AppStore {
   async loadContractAssets() {
     try {
       this.isLoadingContractAssets = true;
-      const result = await getAssetsList();
+      const result = await getAssetsList({});
 
       if (result.code === "0") {
         // 只保存accountList部分
