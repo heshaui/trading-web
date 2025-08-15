@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, ConfigProvider, Input, Button, Select, Image } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
@@ -13,8 +13,8 @@ interface FundTransferModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm?: (transferData: any) => void;
-  spotBalance?: any[];
-  contractBalance?: any[];
+  spotBalance?: any[]; // 现货账户余额是数组
+  contractBalance?: any[]; // 合约账户余额是数组
 }
 
 const FundTransferModal: React.FC<FundTransferModalProps> = ({
@@ -31,11 +31,28 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [toAccount, setToAccount] = useState<'spot' | 'contract'>('contract');
   const [selectedCoin, setSelectedCoin] = useState('USDT');
   const [transferAmount, setTransferAmount] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0); // 强制刷新key
   const [availableBalance] = useState(11111555503.012312338123); // 可用余额
   const coinList = appStore.getCoinList();
   console.log('coinList', coinList);
   console.log('spotBalance', spotBalance);
   console.log('contractBalance', contractBalance);
+
+  // 监听币种和账户变化，更新可用余额
+  useEffect(() => {
+    // 当币种或账户变化时，重新计算可用余额
+    const currentBalance = fromAccount === 'spot' ? getSpotBalance() : getContractBalance();
+    console.log(`当前${fromAccount === 'spot' ? '现货' : '合约'}账户${selectedCoin}余额:`, currentBalance);
+  }, [selectedCoin, fromAccount, spotBalance, contractBalance]);
+
+  // 调试信息 - 在每次渲染时输出
+  console.log('FundTransferModal Render Debug:', {
+    selectedCoin,
+    fromAccount,
+    toAccount,
+    spotBalance,
+    contractBalanceLength: Array.isArray(contractBalance) ? contractBalance.length : 'not array'
+  });
 
   // 币种选项
   // const coinOptions = [
@@ -52,22 +69,42 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
   // 获取指定币种的余额
   const getBalance = (balanceList: any[], coinName: string) => {
-    if (!Array.isArray(balanceList) || balanceList.length === 0) return 0;
-    const balanceItem = balanceList.find((item: any) => item.coinName === coinName || item.symbol === coinName);
-    const balance = balanceItem ? (balanceItem.balance || balanceItem.canUseAmount || 0) : 0;
-    // 确保balance是数字类型
-    const numericBalance = typeof balance === 'number' ? balance : parseFloat(balance) || 0;
-    return Number(numericBalance.toFixed(4));
+    console.log('getBalance called with:', { balanceList, coinName });
+
+    if (!Array.isArray(balanceList) || balanceList.length === 0) {
+      console.log('balanceList is not array or empty');
+      return 0;
+    }
+
+    const balanceItem = balanceList.find((item: any) => {
+      const matches = item.coinName === coinName || item.symbol === coinName;
+      console.log('Checking item:', item, 'matches:', matches);
+      return matches;
+    });
+
+    console.log('Found balanceItem:', balanceItem);
+
+    if (balanceItem) {
+      const balance = balanceItem.balance || balanceItem.canUseAmount || 0;
+      console.log('Raw balance value:', balance);
+      // 确保balance是数字类型
+      const numericBalance = typeof balance === 'number' ? balance : parseFloat(balance) || 0;
+      console.log('Numeric balance:', numericBalance);
+      return Number(numericBalance.toFixed(4));
+    }
+
+    console.log('No balance item found for coinName:', coinName);
+    return 0;
   };
 
   // 获取当前选择的币种在现货账户的余额
   const getSpotBalance = () => {
-    return getBalance(spotBalance, selectedCoin);
+    return getBalance(spotBalance || [], selectedCoin);
   };
 
   // 获取当前选择的币种在合约账户的余额
   const getContractBalance = () => {
-    return getBalance(contractBalance, selectedCoin);
+    return getBalance(contractBalance || [], selectedCoin);
   };
 
   // 检查是否有足够的余额进行转账
@@ -92,6 +129,9 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   // 处理关闭
   const handleCancel = () => {
     setTransferAmount('');
+    setSelectedCoin('USDT'); // 重置为默认币种
+    setFromAccount('spot'); // 重置为默认账户
+    setToAccount('contract'); // 重置为默认目标账户
     onClose();
   };
 
@@ -123,6 +163,10 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const handleAccountSwitch = () => {
     setFromAccount(fromAccount === 'spot' ? 'contract' : 'spot');
     setToAccount(toAccount === 'spot' ? 'contract' : 'spot');
+    // 清空转账数量，因为交换账户后余额可能不同
+    setTransferAmount('');
+    // 强制刷新余额显示
+    setRefreshKey(prev => prev + 1);
   };
 
   // 获取账户显示名称
@@ -163,6 +207,10 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               onChange={(value) => {
                 setFromAccount(value);
                 setToAccount(value === 'spot' ? 'contract' : 'spot');
+                // 清空转账数量，因为切换账户后余额可能不同
+                setTransferAmount('');
+                // 强制刷新余额显示
+                setRefreshKey(prev => prev + 1);
               }}
               className={styles.accountSelect}
               size="large"
@@ -190,6 +238,8 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               onChange={(value) => {
                 setToAccount(value);
                 setFromAccount(value === 'spot' ? 'contract' : 'spot');
+                // 强制刷新余额显示
+                setRefreshKey(prev => prev + 1);
               }}
               className={styles.accountSelect}
               size="large"
@@ -200,14 +250,18 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
             </Select>
           </div>
         </div>
-        <div className={styles.availableBalance}>
+        <div className={styles.availableBalance} key={`balance-${refreshKey}`}>
           <div>
-            <span>可用 </span>
-            <span className={styles.balanceAmount}>{getSpotBalance()} {selectedCoin}</span>
+            <span>可用: </span>
+            <span className={styles.balanceAmount}>
+              {fromAccount === 'spot' ? getSpotBalance() : getContractBalance()} {selectedCoin}
+            </span>
           </div>
           <div>
-            <span>可用 </span>
-            <span className={styles.balanceAmount}>{getContractBalance()} {selectedCoin}</span>
+            <span>可用: </span>
+            <span className={styles.balanceAmount}>
+              {toAccount === 'spot' ? getSpotBalance() : getContractBalance()} {selectedCoin}
+            </span>
           </div>
         </div>
 
@@ -216,7 +270,13 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
           <label className={styles.formLabel}>币种</label>
           <Select
             value={selectedCoin}
-            onChange={setSelectedCoin}
+            onChange={(value) => {
+              setSelectedCoin(value);
+              // 清空转账数量，因为切换币种后余额可能不同
+              setTransferAmount('');
+              // 强制刷新余额显示
+              setRefreshKey(prev => prev + 1);
+            }}
             className={styles.coinSelect}
             size="large"
             suffixIcon={<Iconify icon="mdi:chevron-down" />}
@@ -247,7 +307,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               size="large"
               suffix={
                 <div className={styles.inputSuffix}>
-                  <span className={styles.coinUnit}>USDT</span>
+                  <span className={styles.coinUnit}>{selectedCoin}</span>
                   <Button
                     type="text"
                     size="small"
