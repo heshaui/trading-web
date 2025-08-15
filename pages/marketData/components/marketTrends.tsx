@@ -12,10 +12,10 @@ import SportMarket from './SportMarket'
 import WatchList from './watchList'
 import { observer } from 'mobx-react-lite';
 import appStore from '@/store';
-import SelfSelect from '@/modules/spot/pages/trade/components/spotChart_header/SelfSelect'
+import SelfSelect from '@/modules/spot/pages/exchange/components/spotChart_header/SelfSelect'
 type Props = {
   tradeData?: any;
-  
+
 }
 
 const TrendsTable = observer(({ tradeData }: Props) => {
@@ -61,8 +61,8 @@ const TrendsTable = observer(({ tradeData }: Props) => {
     {
       key: "2",
       label: t("marketList.tabs.allCoins"),
-      children: <div style={{ minHeight: "45vh",paddingBottom: '20px' }}>
-        <AllCoins  pairsNewPrice={tradeData}
+      children: <div style={{ minHeight: "45vh", paddingBottom: '20px' }}>
+        <AllCoins pairsNewPrice={tradeData}
           currencyPairs={currencyPairsArray}
           onPairSelect={handlePairSelect}
         /> </div>,
@@ -70,12 +70,12 @@ const TrendsTable = observer(({ tradeData }: Props) => {
     {
       key: "3",
       label: t("marketList.tabs.spotMarket"),
-      children: <div style={{ minHeight: "45vh",paddingBottom: '20px' }}><SportMarket
+      children: <div style={{ minHeight: "45vh", paddingBottom: '20px' }}><SportMarket
         currencyPairs={currencyPairsArray}
         pairsNewPrice={tradeData}
         onPairSelect={handlePairSelect}
-       
-        // searchValue={searchKeyword}
+
+      // searchValue={searchKeyword}
       /> </div>,
     },
   ];
