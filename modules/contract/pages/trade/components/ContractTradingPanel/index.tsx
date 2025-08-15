@@ -106,6 +106,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
 
   console.log("currentContractInfo:", currentContractInfo);
   console.log("ContractTradingPanel userConfig:", userConfig);
+  console.log("ContractTradingPanel props - spotBalance:", spotBalance);
+  console.log("ContractTradingPanel props - contractBalance:", contractBalance);
+  console.log("ContractTradingPanel props - availableBalance:", availableBalance);
 
   // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
   useEffect(() => {

@@ -72,13 +72,27 @@ const TradePage = () => {
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]); // 币种列表
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
 
-  const [spotBalance, setSpotBalance] = useState<number>(0); // USDT资产可用余额
+  const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
 
 
-  // 获取USDT资产可用余额
+  // 获取现货账户余额
   const getSpotBalance = async () => {
-    const res = await getUserBalanceAll();
-    setSpotBalance(res.data);
+    try {
+      const res = await getUserBalanceAll();
+      console.log("getUserBalanceAll response:", res);
+      console.log("getUserBalanceAll res.data:", res.data);
+      console.log("getUserBalanceAll res.data type:", typeof res.data);
+
+      if (res.code === "0" && Array.isArray(res.data)) {
+        setSpotBalance(res.data);
+      } else {
+        console.error("获取现货余额失败:", res);
+        setSpotBalance([]);
+      }
+    } catch (error) {
+      console.error("获取现货余额异常:", error);
+      setSpotBalance([]);
+    }
   };
 
   // 获取合约账户余额
