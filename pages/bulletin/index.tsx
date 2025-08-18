@@ -25,6 +25,7 @@ interface MenuData {
 type MenuKey = MenuData["key"];
 const Notice = () => {
   const { t } = useTranslation(["builetinCenter", "common"]);
+  const { type } = router.query;
 
   const [menuLoading, setMenuLoading] = useState(false);
   const [activeKey, setActiveKey] = useState<MenuKey>("all");
@@ -212,6 +213,11 @@ const Notice = () => {
     }
   }, [pagination.pageNo, activeKey, getNoticeList, getOtherType]);
 
+  useEffect(() => {
+    if (type) {
+      setActiveKey(String(type));
+    }
+  }, [type]);
   return (
     <div className="bg-[var(--background17)]  min-h-[calc(100vh-80px)] flex flex-col">
       {/* 顶部 */}

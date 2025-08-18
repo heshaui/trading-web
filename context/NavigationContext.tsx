@@ -89,6 +89,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({
             const formattedBulletinData = bulletinResponse.data.list.map(
               (item: any) => ({
                 id: item.id,
+                classMenu: item.classMenu,
                 h5Text: item.title,
                 spanText: dayjs(item.releaseTime).format("YYYY/MM/DD HH:mm:ss"),
               })
@@ -321,7 +322,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     const { pathname, query } = router;
     router
       .push({ pathname, query }, undefined, { locale: nextLocale })
-      .then(() => {});
+      .then(() => { });
   };
   // 首次加载
   useEffect(() => {
@@ -351,6 +352,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({
                   spanText: dayjs(item.releaseTime).format(
                     "YYYY/MM/DD HH:mm:ss"
                   ),
+                  classMenu: item.classMenu,
                 })
               );
               setBulletinData(formattedBulletinData);

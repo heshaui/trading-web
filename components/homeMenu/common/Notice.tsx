@@ -28,8 +28,8 @@ const Notice: React.FC<NoticeProps> = ({
   const [assetsLoading, setAssetsLoading] = useState(false);
   const [transactionLoading, setTransactionLoading] = useState(false);
   const [bizData, setBizData] = useState<any[]>([]);
-  const goNotice = useCallback((id: string) => {
-    router.push(`/Notice/${id}`);
+  const goNotice = useCallback((item: any) => {
+    router.push(`/bulletin/details?id=${item.id}&classMenu=${item.classMenu}`);
   }, [router]);
   const handleTabChange = (key: string) => {
     if (key === "2") {
@@ -118,7 +118,7 @@ const Notice: React.FC<NoticeProps> = ({
                 spanText={item.spanText}
                 needHover
                 onClick={() => {
-                  goNotice(item.id);
+                  goNotice(item);
                 }}
               />
             ))
@@ -155,7 +155,7 @@ const Notice: React.FC<NoticeProps> = ({
               spanText={item.content}
               needHover
               onClick={() => {
-                router.push(`/bulletinCenter?type=${item.id}`);
+                router.push(`/bulletin?type=account`);
               }}
             />
           ))
@@ -192,7 +192,7 @@ const Notice: React.FC<NoticeProps> = ({
               spanText={item.content}
               needHover
               onClick={() => {
-                router.push(`/bulletinCenter??type=${item.id}`);
+                router.push(`/bulletin?type=assets`);
               }}
             />
           ))
@@ -229,7 +229,7 @@ const Notice: React.FC<NoticeProps> = ({
               spanText={item.content}
               needHover
               onClick={() => {
-                router.push(`/bulletinCenter?type=${item.id}`);
+                router.push(`/bulletin?type=trading`);
               }}
             />
           ))
