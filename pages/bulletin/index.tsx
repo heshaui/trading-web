@@ -83,28 +83,31 @@ const Notice = () => {
     }
   };
   // 获取公告列表
-  const getNoticeList = useCallback(async (key?: number) => {
-    try {
-      setLoading(true);
-      const lang = localStorage.getItem("lang") || "en_US";
-      const res = await getBulletinMessageLogined({
-        pageNo: pagination.pageNo,
-        pageSize: pagination.pageSize,
-        languageCode: lang,
-        classMenu: key,
-      });
-      if (res.code === "0") {
-        setDataSource({
-          list: res.data.list,
-          count: res.data.count,
+  const getNoticeList = useCallback(
+    async (key?: number) => {
+      try {
+        setLoading(true);
+        const lang = localStorage.getItem("lang") || "en_US";
+        const res = await getBulletinMessageLogined({
+          pageNo: pagination.pageNo,
+          pageSize: pagination.pageSize,
+          languageCode: lang,
+          classMenu: key,
         });
+        if (res.code === "0") {
+          setDataSource({
+            list: res.data.list,
+            count: res.data.count,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.pageNo, pagination.pageSize]);
+    },
+    [pagination.pageNo, pagination.pageSize]
+  );
   // 批量已读
   const readAll = async () => {
     try {
@@ -123,43 +126,50 @@ const Notice = () => {
 
   // 点击跳转详情页面
   const handleListClick = (item: any) => {
-    router.push(`/bulletin/details?id=${item.id}&classMenu=${item.classMenu}`);
+    if (activeKey === "all") {
+      router.push(
+        `/bulletin/details?id=${item.id}&classMenu=${item.classMenu}`
+      );
+    }
   };
 
   // 其他类型 账户,资产,交易
-  const getOtherType = useCallback(async (key: string) => {
-    try {
-      setLoading(true);
-      const lang = localStorage.getItem("lang") || "en_US";
-      const { code, data } = await getInformUserMessageList({
-        bizType: key,
-        languageCode: lang,
-        pageNo: pagination.pageNo,
-        pageSize: pagination.pageSize, 
-      });
-      if (code === "0") {
-        const list = data.list.map((item: any) => ({
-          key: item.id,
-          title: item.titleTemplate,
-          content: item.contentTemplate,
-        }));
-        setDataSource({
-          list,
-          count: data.count,
+  const getOtherType = useCallback(
+    async (key: string) => {
+      try {
+        setLoading(true);
+        const lang = localStorage.getItem("lang") || "en_US";
+        const { code, data } = await getInformUserMessageList({
+          bizType: key,
+          languageCode: lang,
+          pageNo: pagination.pageNo,
+          pageSize: pagination.pageSize,
         });
+        if (code === "0") {
+          const list = data.list.map((item: any) => ({
+            key: item.id,
+            title: item.titleTemplate,
+            content: item.contentTemplate,
+          }));
+          setDataSource({
+            list,
+            count: data.count,
+          });
+        }
+      } catch (error) {
+        // Error handling
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      // Error handling
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.pageNo, pagination.pageSize]);
+    },
+    [pagination.pageNo, pagination.pageSize]
+  );
 
   // 切换类型
   const handleChangeType = (item: MenuData) => {
     setActiveKey(item.key);
     // 切换类型时重置到第一页
-    setPagination(prev => ({ ...prev, pageNo: 1 }));
+    setPagination((prev) => ({ ...prev, pageNo: 1 }));
   };
   // 渲染菜单项
   const renderItem = (item: MenuData) => {
@@ -202,7 +212,6 @@ const Notice = () => {
     }
   }, [pagination.pageNo, activeKey, getNoticeList, getOtherType]);
 
-
   return (
     <div className="bg-[var(--background17)]  min-h-[calc(100vh-80px)] flex flex-col">
       {/* 顶部 */}
@@ -225,13 +234,17 @@ const Notice = () => {
       </div>
       {/* 底部 */}
       <div className="flex justify-center gap-[20px] p-[20px_120px] flex-1">
-        <Menu
-          menuData={menuData}
-          renderItem={renderItem}
-          loading={menuLoading}
-        />
-        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px]">
-          <div className="text-[20px] font-[500] text-[var(--text-color5)]">全部公告</div>
+        <div className="min-w-[264px] min-h-[593px] bg-[var(--background18)] text-[var(--text-color6)] rounded-[8px] relative overflow-hidde border border-[var(--border-color4)]">
+          <Menu
+            menuData={menuData}
+            renderItem={renderItem}
+            loading={menuLoading}
+          />
+        </div>
+        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] [filter:drop-shadow(0px_1px_1px_var(--border-color4))] border border-[var(--border-color4)]">
+          <div className="text-[20px] font-[500] text-[var(--text-color5)]">
+            全部公告
+          </div>
           <List
             pagination={pagination}
             dataSource={dataSource}
