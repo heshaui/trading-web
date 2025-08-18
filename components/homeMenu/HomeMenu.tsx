@@ -91,7 +91,7 @@ export default function HomeMenu() {
     rateData = [],
     currentLang = "",
     unreadCount = 0,
-    changeLanguage = () => {},
+    changeLanguage = () => { },
   } = useNavigation() || {};
 
   // 使用 useAuth 钩子获取登录状态

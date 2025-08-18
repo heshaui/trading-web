@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "../styles/spotChart_coinInfo.module.css";
+import styles from "./styles/spotChart_coinInfo.module.css";
 import { Image } from "antd";
 import { Iconify } from "@/components/icon";
 import { DownOutlined } from "@ant-design/icons";
@@ -9,7 +9,7 @@ import { getCoinInfo, getCoinIntroduction } from "@/services/spot";
 import { toast } from "sonner";
 import { getNextJsLocale } from "@/utils/filterLang";
 import dayjs from "dayjs";
-import { division ,roundDown,nul} from "@/utils";
+import { division, roundDown, nul } from "@/utils";
 import appStore from "@/store";
 import { formatted } from "@/utils/math";
 
@@ -21,10 +21,10 @@ type Props = {
 const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [infoData, setInfoData] = useState<infoDataType>({} as infoDataType);
-    const { t, i18n } = useTranslation(["spot","market"]);
+    const { t, i18n } = useTranslation(["spot", "market"]);
     const coinListInfo = appStore.getCoinList()
-    const rateKey=appStore.getRateKey()
-    const rateList=appStore.getRateData()
+    const rateKey = appStore.getRateKey()
+    const rateList = appStore.getRateData()
     // 优化的安全跳转函数
     const safeOpenUrl = (url: string, linkType: string = 'link') => {
         if (!url) {
@@ -79,40 +79,40 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             key: "marketCap",
             render: (_value: string) => {
                 if (!_value) return '--'
-                
+
                 const [num, unit] = _value.split('_')
                 const rateInfo = rateList.find(item => item.shortName === rateKey)
-                
+
                 // 单位转换配置
                 const UNIT_MULTIPLIERS = { 'B': 1e9, 'M': 1e6, 'K': 1e3 }
                 const UNIT_LABELS = {
-                    'B': t('header.billion',{ns:'market'}),
-                    'M': t('header.million',{ns:'market'}),
-                    'K': t('header.kthousand',{ns:'market'})
+                    'B': t('header.billion', { ns: 'market' }),
+                    'M': t('header.million', { ns: 'market' }),
+                    'K': t('header.kthousand', { ns: 'market' })
                 }
-                
+
                 // 计算转换后的值
                 const baseValue = parseFloat(num) || 0
                 const multiplier = UNIT_MULTIPLIERS[unit as keyof typeof UNIT_MULTIPLIERS] || 1
                 const convertedValue = nul(baseValue * multiplier, rateInfo?.exchangeRate || 1) || 0
-                
+
                 // 智能格式化
                 const formatLargeNumber = (value: number) => {
                     const formats = [
                         [1e9, UNIT_LABELS.B],
-                        [1e6, UNIT_LABELS.M], 
+                        [1e6, UNIT_LABELS.M],
                         [1e3, UNIT_LABELS.K]
                     ] as const
-                    
+
                     const [divisor, label] = formats.find(([threshold]) => value >= threshold) || [1, '']
                     const formattedValue = (value / divisor).toFixed(2)
-                    
+
                     return {
                         value: formatted(formattedValue),
                         unit: label
                     }
                 }
-                
+
                 const { value, unit: displayUnit } = formatLargeNumber(convertedValue)
                 return `${rateInfo?.symbol || '--'}${value}${displayUnit}`
             }
@@ -125,7 +125,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.num'),// "流通量",
             key: "flowTotal",
             render: (value: string) => {
-                
+
                 return value ? `${formatted(value)} ${coinName || '--'}` : '--'
             }
         },
@@ -133,18 +133,18 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.historyHigh'),//"历史最高价",
             key: "hisHighPrice",
             render: (_value: string) => {
-                const rateInfo=rateList.find(item=>item.shortName===rateKey)
-                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+                const rateInfo = rateList.find(item => item.shortName === rateKey)
+                const value = nul(_value, rateInfo?.exchangeRate || 1)?.toString()
+                return _value ? `${rateInfo?.symbol || '--'}${formatted(value)} (${infoData?.hisHighPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
             label: t('spot.coinInfo.historyLow'),//"历史最低价",
             key: "hisLowPrice",
             render: (_value: string) => {
-                const rateInfo=rateList.find(item=>item.shortName===rateKey)
-                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
+                const rateInfo = rateList.find(item => item.shortName === rateKey)
+                const value = nul(_value, rateInfo?.exchangeRate || 1)?.toString()
+                return _value ? `${rateInfo?.symbol || '--'}${formatted(value)} (${infoData?.hisLowPriceTs ? dayjs(infoData?.hisHighPriceTs).format('YYYY-MM-DD') : '--'})` : '--'
             }
         },
         {
@@ -165,9 +165,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.firstPrice'),//"首次发行价",
             key: "initialPrice",
             render: (_value: string) => {
-                const rateInfo=rateList.find(item=>item.shortName===rateKey)
-                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)}` : '--'
+                const rateInfo = rateList.find(item => item.shortName === rateKey)
+                const value = nul(_value, rateInfo?.exchangeRate || 1)?.toString()
+                return _value ? `${rateInfo?.symbol || '--'}${formatted(value)}` : '--'
             }
         },
         {
@@ -181,16 +181,16 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
             label: t('spot.coinInfo.maxSupplyMarket'),//"最大供应市值",
             key: "maxSupMar",
             render: (_value: string) => {
-                const rateInfo=rateList.find(item=>item.shortName===rateKey)
-                const value=nul(_value,rateInfo?.exchangeRate||1)?.toString()
-                return _value ? `${rateInfo?.symbol||'--'}${formatted(value)}` : '--'
+                const rateInfo = rateList.find(item => item.shortName === rateKey)
+                const value = nul(_value, rateInfo?.exchangeRate || 1)?.toString()
+                return _value ? `${rateInfo?.symbol || '--'}${formatted(value)}` : '--'
             }
         },
         {
             label: t('spot.coinInfo.circulateRate'),//"流通率",
             key: "selNumPer2",
             render: (value: string) => {
-                return value ? `${roundDown(value,2)}%` : '--'
+                return value ? `${roundDown(value, 2)}%` : '--'
             }
         },
     ];
@@ -205,9 +205,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                 const coinInfo = coinListInfo.find(item => item.coinName === coinName)
                 const coinBaseInfo = {
                     ...res.data,
-                    iconUrl:coinInfo?.iconUrl||'',
-                    selNumPer2:res.data?.maxSup?division(res.data?.flowTotal,res.data?.maxSup)*100:0,
-                    nameDefault:coinInfo?.nameDefault||'',
+                    iconUrl: coinInfo?.iconUrl || '',
+                    selNumPer2: res.data?.maxSup ? division(res.data?.flowTotal, res.data?.maxSup) * 100 : 0,
+                    nameDefault: coinInfo?.nameDefault || '',
                 }
                 setInfoData(coinBaseInfo);
             } else {
@@ -224,9 +224,9 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
         if (!coinName) return
         getCoinInfoData()
     }, [coinName]);
-    useEffect(()=>{
+    useEffect(() => {
         appStore.loadCoinList();
-    },[])
+    }, [])
 
     return <div className={`${styles.container} ${className}`}>
         <div
@@ -284,15 +284,15 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         {(() => {
                             const officialUrl = infoData?.socialMediaList?.find(item => item.name === 'officialUrl')?.url
                             const whitePaper = infoData?.socialMediaList?.find(item => item.name === 'whitePaper')?.url
-                            
+
                             if (!officialUrl && !whitePaper) {
                                 return '--'
                             }
-                            
+
                             return (
                                 <div className="flex-x align-center">
                                     {officialUrl && (
-                                        <button 
+                                        <button
                                             className={`default_btn ${styles.btn_style} ${whitePaper ? 'mr-1' : ''}`}
                                             onClick={() => safeOpenUrl(officialUrl, 'official')}
                                         >
@@ -300,7 +300,7 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                                         </button>
                                     )}
                                     {whitePaper && (
-                                        <button 
+                                        <button
                                             className={`default_btn ${styles.btn_style}`}
                                             onClick={() => safeOpenUrl(whitePaper, 'whitepaper')}
                                         >
@@ -316,14 +316,14 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         <span>{t('spot.coinInfo.blockchain')}</span>
                         {(() => {
                             const blockBrowser = infoData?.officialUrl
-                            
+
                             if (!blockBrowser) {
                                 return '--'
                             }
-                            
+
                             return (
                                 <div className="flex-x align-center">
-                                    <button 
+                                    <button
                                         className={`default_btn ${styles.btn_style}`}
                                         onClick={() => safeOpenUrl(blockBrowser, 'blockchain')}
                                     >
@@ -357,14 +357,14 @@ const SpotChartCoinInfo = ({ className, coinName, baseCoinName }: Props) => {
                         {infoData?.narrativeSummary || ''}
                     </div> */}
                 </div>
-               {infoData?.introduce&&<button
+                {infoData?.introduce && <button
                     className={`${styles.title_color} font-12 mt-1 cursor-pointer flex-x-cc`}
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
                     {isExpanded ? t('spot.coinInfo.collapse') : t('spot.coinInfo.expand')}
                     {/* <Iconify icon={isExpanded?"ant-design:up-outlined":"ant-design:down-outlined"} className="ml-1 font-12" size={16} /> */}
-                   <Image src={!isExpanded ? "/images/exchange/icon_more.svg" : "/images/exchange/icon_up.svg"} alt="up" width={16} height={16} className="ml-1 font-12"
-                    preview={false}
+                    <Image src={!isExpanded ? "/images/exchange/icon_more.svg" : "/images/exchange/icon_up.svg"} alt="up" width={16} height={16} className="ml-1 font-12"
+                        preview={false}
                     />
                 </button>}
             </div>

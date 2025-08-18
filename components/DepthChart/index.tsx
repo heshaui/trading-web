@@ -1,34 +1,41 @@
-'use client';
-import ReactECharts from 'echarts-for-react';
-import * as echarts from 'echarts';
-import { useTranslation } from 'next-i18next';
+"use client";
+import ReactECharts from "echarts-for-react";
+import * as echarts from "echarts";
+import { useTranslation } from "next-i18next";
 
-interface DepthChartProps { 
+interface DepthChartProps {
   data: {
     bids: [number, number][];
     asks: [number, number][];
     spot_log_last_seq?: number;
-  };  // 修改为对象类型
+  }; // 修改为对象类型
 }
 
 const DepthChart = ({ data }: DepthChartProps) => {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(["common"]);
 
-  
   // 检查数据是否有效
   if (!data || !data.bids || !data.asks) {
     return (
-      <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-       
-      </div>
+      <div
+        style={{
+          width: "100%",
+          height: "500px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      ></div>
     );
   }
-  
+
   // 处理深度数据，计算累积数量
   const processDepthData = (data: [number, number][], isBid: boolean) => {
     // 先按价格排序：买单从高到低，卖单从低到高
-    const sortedData = [...data].sort((a, b) => isBid ? b[0] - a[0] : a[0] - b[0]);
-    
+    const sortedData = [...data].sort((a, b) =>
+      isBid ? b[0] - a[0] : a[0] - b[0]
+    );
+
     let cumulativeQuantity = 0;
     return sortedData.map(([price, quantity]) => {
       cumulativeQuantity += Math.abs(quantity);
@@ -38,17 +45,19 @@ const DepthChart = ({ data }: DepthChartProps) => {
 
   const processedBids = processDepthData(data.bids, true);
   const processedAsks = processDepthData(data.asks, false);
-  
+
   // 计算基准价格和x轴显示范围
   const calculatePriceRange = () => {
     if (data.bids.length === 0 && data.asks.length === 0) {
       return { midPrice: 50000, minPrice: 49000, maxPrice: 51000 };
     }
-    
+
     // 获取最高买价和最低卖价
-    const highestBid = data.bids.length > 0 ? Math.max(...data.bids.map(bid => bid[0])) : 0;
-    const lowestAsk = data.asks.length > 0 ? Math.min(...data.asks.map(ask => ask[0])) : 0;
-    
+    const highestBid =
+      data.bids.length > 0 ? Math.max(...data.bids.map((bid) => bid[0])) : 0;
+    const lowestAsk =
+      data.asks.length > 0 ? Math.min(...data.asks.map((ask) => ask[0])) : 0;
+
     let midPrice;
     if (highestBid === 0) {
       midPrice = lowestAsk;
@@ -57,32 +66,35 @@ const DepthChart = ({ data }: DepthChartProps) => {
     } else {
       midPrice = (highestBid + lowestAsk) / 2;
     }
-    
+
     // 计算所有价格的范围
-    const allPrices = [...data.bids.map(bid => bid[0]), ...data.asks.map(ask => ask[0])];
+    const allPrices = [
+      ...data.bids.map((bid) => bid[0]),
+      ...data.asks.map((ask) => ask[0]),
+    ];
     const minDataPrice = Math.min(...allPrices);
     const maxDataPrice = Math.max(...allPrices);
-    
+
     // 添加一些边距使图表更美观
     const priceSpread = maxDataPrice - minDataPrice;
     const margin = Math.max(priceSpread * 0.1, 1); // 10%的边距或至少1
-    
+
     return {
       midPrice,
       minPrice: minDataPrice - margin,
-      maxPrice: maxDataPrice + margin
+      maxPrice: maxDataPrice + margin,
     };
   };
-  
+
   const { midPrice, minPrice, maxPrice } = calculatePriceRange();
 
   // ECharts 配置项
   const option = {
     tooltip: {
       show: true,
-      trigger: 'axis',
+      trigger: "axis",
       axisPointer: {
-        type: 'cross'
+        type: "cross",
       },
       formatter: (params: any) => {
         if (params && params.length > 0) {
@@ -90,108 +102,109 @@ const DepthChart = ({ data }: DepthChartProps) => {
           const price = param.data[0];
           const quantity = param.data[1];
           const orderType = param.seriesName;
-          return `${orderType}<br/>价格: ${price.toFixed(2)}<br/>累积数量: ${quantity.toFixed(4)}`;
+          return `${orderType}<br/>价格: ${price.toFixed(
+            2
+          )}<br/>累积数量: ${quantity.toFixed(4)}`;
         }
-        return '';
-      }
+        return "";
+      },
     },
     grid: {
-      left: '3%',
-      right: '8%',
-      bottom: '3%',
-      top: '3%',
-      containLabel: true
+      left: "3%",
+      right: "8%",
+      bottom: "3%",
+      top: "3%",
+      containLabel: true,
     },
     xAxis: {
-      type: 'value',
+      type: "value",
       min: minPrice,
       max: maxPrice,
       axisLabel: {
-        formatter: (value: number) => value.toFixed(2)
+        formatter: (value: number) => value.toFixed(2),
       },
       splitLine: {
         show: true,
         lineStyle: {
-          type: 'dashed',
-          opacity: 0.3
-        }
+          type: "dashed",
+          opacity: 0.3,
+        },
       },
       axisPointer: {
-        snap: true
-      }
+        snap: true,
+      },
     },
     yAxis: {
-      type: 'value',
-      position: 'right',
+      type: "value",
+      position: "right",
       splitLine: {
         show: true,
         lineStyle: {
-          type: 'dashed',
-          opacity: 0.3
-        }
+          type: "dashed",
+          opacity: 0.3,
+        },
       },
       axisTick: {
-        show: false
+        show: false,
       },
       axisLine: {
-        show: false
+        show: false,
       },
       axisLabel: {
         formatter: (value: number) => {
           if (value >= 1000) {
-            return (value / 1000).toFixed(1) + 'K';
+            return (value / 1000).toFixed(1) + "K";
           }
           return value.toFixed(1);
-        }
-      }
+        },
+      },
     },
     series: [
       {
-        name: t('depthChart.buyOrders') || '买单',
-        type: 'line',
+        name: t("depthChart.buyOrders") || "买单",
+        type: "line",
         data: processedBids,
-        step: 'after', // 改为 after 以正确显示深度图的阶梯效果
+        step: "after", // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 199, 136, 0.3)' },
-            { offset: 1, color: 'rgba(0, 199, 136, 0.05)' }
-          ])
+            { offset: 0, color: "rgba(0, 199, 136, 0.3)" },
+            { offset: 1, color: "rgba(0, 199, 136, 0.05)" },
+          ]),
         },
         lineStyle: {
           width: 2,
-          color: 'rgba(0, 199, 136, 0.8)'
+          color: "rgba(0, 199, 136, 0.8)",
         },
         smooth: false,
-        symbol: 'none'
+        symbol: "none",
       },
       {
-        name: t('depthChart.sellOrders') || '卖单',
-        type: 'line',
+        name: t("depthChart.sellOrders") || "卖单",
+        type: "line",
         data: processedAsks,
-        step: 'after', // 改为 after 以正确显示深度图的阶梯效果
+        step: "after", // 改为 after 以正确显示深度图的阶梯效果
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 77, 79, 0.3)' },
-            { offset: 1, color: 'rgba(255, 77, 79, 0.05)' }
-          ])
+            { offset: 0, color: "rgba(255, 77, 79, 0.3)" },
+            { offset: 1, color: "rgba(255, 77, 79, 0.05)" },
+          ]),
         },
         lineStyle: {
           width: 2,
-          color: 'rgba(255, 77, 79, 0.8)'
+          color: "rgba(255, 77, 79, 0.8)",
         },
         smooth: false,
-        symbol: 'none'
+        symbol: "none",
       },
-     
-    ]
+    ],
   };
 
   return (
-    <div style={{ width: '100%', height: '500px' }}>
+    <div style={{ width: "100%", height: "500px" }}>
       <ReactECharts
         echarts={echarts}
         option={option}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         notMerge={true}
       />
     </div>

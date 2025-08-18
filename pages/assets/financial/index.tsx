@@ -16,7 +16,7 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect, useState, useCallback } from "react";
 import RedemptionModal from "../../../components/Financial/RedemptionModal";
-import styles from "../../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import {
   OpenStatusEnum,
   FinancialType,
@@ -43,7 +43,13 @@ import appStore from "@/store";
 import dayjs from "dayjs";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import {
+  SelectTheme,
+  SwitchTheme,
+  TableTheme,
+  TabsTheme,
+  TokenTheme,
+} from "@/theme/publicThemeConfig";
 import { roundDown } from "@/utils";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -629,7 +635,17 @@ const Financial = observer(() => {
       />
 
       {/* 基础页面 */}
-      <ConfigProvider theme={financialThemeConfig}>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: TableTheme,
+            Tabs: TabsTheme,
+            Switch: SwitchTheme,
+            Select: SelectTheme,
+          },
+          token: TokenTheme,
+        }}
+      >
         <div className="flex flex-col h-full">
           {/* title */}
           <div className="text-[20px] text-[var(--text-color5)] font-[500] mb-[16px]">
@@ -792,7 +808,6 @@ const Financial = observer(() => {
             </div>
             {/* 表格 */}
             <Tabs
-              className={styles.tabs}
               items={items}
               activeKey={String(activeKey)}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}

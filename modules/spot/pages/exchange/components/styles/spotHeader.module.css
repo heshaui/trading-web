@@ -1,0 +1,238 @@
+.page_box{
+    /* background: var(--background6); */
+    background: var(--background16);
+}
+.header_tip {
+    margin-top: 6px;
+}
+
+.tip_color {
+    color: var(--text-color6);
+}
+
+.card_bgc {
+    background-color: var(--background9);
+    /* border-radius: 8px; */
+    padding: 20px;
+}
+
+
+.success_icon {
+    color: #00C788;
+}
+
+.error_icon {
+    color: #FF4D4F;
+}
+
+.warning_color {
+    color: var(--waring-color);
+}
+
+.default_icon {
+    color: #A4A5AC;
+}
+.theme_color{
+    color: var(--theme-color);
+}
+.warning_box {
+    color: var(--waring-color);
+    background-color: var(--waring-bg);
+    /* width: 400px; */
+    /* height: 41px; */
+    padding: 12px 10px;
+    border-radius: 8px;
+}
+.btn_style {
+    min-width: 56px;
+    min-height: 28px;
+    border-radius: 23px;
+    padding: 5px 16px;
+    font-weight: 500;
+    font-size: 12px;
+
+}
+.tip_color {
+    color: var(--text-color6);
+}
+.tip_color2{
+    color: var(--tip-color2);
+}
+
+.title_color {
+    color: var(--text-color5)
+}
+
+.strong_color {
+    color: var(--btncolor5)
+}
+.input_box {
+    /* width: 188px !important; */
+    height: 40px;
+    background: var(--background8) ;
+    color: var(--text-color5) !important;
+}
+.select_box {
+    width: 165px;
+    height: 40px !important;
+    min-width:165px;
+    color: var(--text-color6) !important;
+    background: var(--background7) !important;
+}
+
+.header_content_item{
+    width: 30%;
+}
+.header_content_msg::before{
+    content: '';
+    display: block;
+    width: 1px;
+    height: 20px;
+    background-color: var(--text-color4);
+    margin-right:20px;
+}
+
+.grid_layout {
+    display: grid;
+    grid-template-columns:  auto 6fr;
+    gap: 4px;
+    margin-bottom: 4px;
+    grid-template-rows:auto;
+    /* display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;  */
+}
+
+.grid_item {
+    /* min-height: 100%; */
+    min-width: 330px;
+}
+
+
+
+
+
+
+
+.dropdown_container {
+    background-color: var(--background5);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    width: 320px;
+}
+
+.search_container {
+    padding: 12px 12px 0 12px;
+}
+
+.search_input {
+    background-color: var(--background6);
+    border-radius: 4px;
+}
+
+.search_input input {
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+.tabs_container {
+    padding: 8px 0;
+}
+
+.tabs_list {
+    display: flex;
+    overflow-x: auto;
+    /* padding: 0 12px; */
+    margin-bottom: 8px;
+    white-space: nowrap;
+}
+
+.tab_item {
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--text-color6);
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.tab_item:hover {
+    color: var(--text-color);
+}
+
+.tab_item.active {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.content_container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.pair_list {
+    padding: 0 12px;
+}
+
+.pair_header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    padding: 8px 0;
+    color: var(--text-color6);
+    font-size: 12px;
+}
+
+.dropdown_trigger {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.dropdown_trigger:hover {
+    background-color: var(--background6);
+}
+
+.dropdown_icon {
+    color: var(--text-color6);
+}
+
+.input_box{
+    background: var(--background5);
+    color: var(--text-color6);
+}
+/* 输入框组件覆盖 */
+.input_box:focus,
+.input_box:focus-within {
+   border-color: var(--text-color3) !important;
+   box-shadow: none !important;
+   /* box-shadow: 0 0 0 1px var(--text_color3) !important; */
+}
+/* 鼠标聚焦且移出样式 */
+.input_box:focus:not(:hover){
+    background-color: var(--homeground5);
+    color: #fff;
+    box-shadow: none !important;
+    color: var(--text-color6) !important;
+}
+/* 鼠标滑过 */
+.input_box:hover{
+    border-color: var(--text-color3);
+}
+
+@media (max-width: 680px) {
+    .card_mt {
+        margin-top: 24px;
+    }
+    .header_content_item{
+        width: 50%;
+    }
+
+}
+
+/* @media (max-width: 980px) {
+    .grid_layout {
+        grid-template-columns: 1fr;
+    }
+} */
+
+/* @media (min-width: 1680px) {} */

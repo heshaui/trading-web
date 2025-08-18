@@ -124,6 +124,7 @@ const MenuItem = React.memo(({ menuList, haveArrow }: Props) => {
 
   return (
     <>
+      {/* haveArrow 为 true 时，显示下拉菜单 */}
       {haveArrow ? (
         <Space direction="vertical">
           <Space wrap>
