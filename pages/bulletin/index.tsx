@@ -12,7 +12,7 @@ import {
   getInformUserMessageList,
   readBulletinMessageLogined,
 } from "@/services/bulletinCenter";
-import router from "next/router";
+import router, { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 
 interface MenuData {
@@ -25,6 +25,7 @@ interface MenuData {
 type MenuKey = MenuData["key"];
 const Notice = () => {
   const { t } = useTranslation(["builetinCenter", "common"]);
+  const router = useRouter();
   const { type } = router.query;
 
   const [menuLoading, setMenuLoading] = useState(false);
