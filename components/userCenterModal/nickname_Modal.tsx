@@ -48,7 +48,7 @@ const kvConfig=appStore.getKvConfigAll()
         form.validateFields()
             .then(async(values) => {
                 // console.log(values);
-                if(!nicknameInfo?.isNicknameUpdate) return toast.error(t('usersetting.modifyOnce'))
+                if(!nicknameInfo?.isNicknameUpdate) return toast.error(t('usersetting.modifyNicknameOnceTip1',{time:kvConfig?.nickname_modify_time || 24}))
                 try {
                     const param={
                         // userId:localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO)||'',

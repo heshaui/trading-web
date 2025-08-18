@@ -223,7 +223,7 @@ const NoAuthentication: React.FC<{ identityInfo: infoType, levelBenefit: levelBe
                             {t('identity.certified.info.country')}
                         </div>
                         <div className={` font-w-500`}>{identityInfo?.areaCode ?
-                            countryList.find(item => item.areaCode === identityInfo?.areaCode)?.countryName :
+                            countryList.find(item => item.areaCode === identityInfo?.areaCode)?.countryName||'--' :
                             '--'}</div>
                     </li>
                     <li className={`flex align-center justify-between font-14 ${styles.certified_box}`}>
