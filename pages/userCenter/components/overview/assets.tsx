@@ -344,7 +344,7 @@ const AssetsPage: React.FC = observer(() => {
           {t("overview.assets.title")}
           <button
             type="button"
-            onClick={() => router.push(ROUTER_KEY_ASSETS.ACCOUNT)}
+            onClick={() => router.push(ROUTER_KEY_ASSETS.SPOT_ACCOUNT)}
           >
             <Iconify
               icon="mingcute:arrow-right-line"

@@ -2,7 +2,7 @@ import { NoData } from "@/components/noData";
 import { ConfigProvider, DatePicker, message, Select, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
-import styles from "@/styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import { getCoinAll } from "@/services/assets";
 import { ColumnsType } from "antd/es/table";
 import {
@@ -18,7 +18,7 @@ import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
 import { getCoinRound } from "@/utils/getUseRate";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { DatePickerTheme, SelectTheme, TableTheme, TokenTheme } from "@/theme/publicThemeConfig";
 import { roundDown } from "@/utils";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
@@ -257,7 +257,14 @@ const Financial = observer(({ activeKey }: { activeKey: number }) => {
   }, [rateKey, rateData]);
 
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider theme={{
+      components: {
+        Select: SelectTheme,
+        Table: TableTheme,
+        DatePicker: DatePickerTheme,
+      },
+      token: TokenTheme,
+    }}>
       <div className="flex items-center gap-[20px] p-[30px_20px] border-t-[1px] border-t-[var(--border-color)]">
         <Select
           allowClear

@@ -21,6 +21,8 @@
   --background14: #F5F5F5;
   --background15: #ffffff;
   --background16: #EBEBEC;
+  --background17: #F5F5F5;
+  --background18: #ffffff;
   --foreground: #171717;
   --homeground: #000000;
   --homeground2: #FFFFFF;
@@ -104,6 +106,8 @@
     --background14: #333333;
     --background15: #37373A;
     --background16: #4F4F4F;
+    --background17: #0C0D0C;
+    --background18: #919296;
     --foreground: #ededed;
     --homeground: #000000;
     --homeground2: #000000;

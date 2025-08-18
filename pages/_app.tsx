@@ -42,6 +42,7 @@ function App({ Component, pageProps }: AppProps) {
   // 在客户端同步暗色模式状态并应用主题变量
   useEffect(() => {
     appStore.loadCurrencyPairs();
+    appStore.loadPublicInfo();
     initTheme();
   }, []);
 
@@ -89,7 +90,7 @@ function App({ Component, pageProps }: AppProps) {
 
   // 定义不需要显示 HomeMenu 和 Footer 的页面路径 //'/login', '/register',
   const excludePaths = ["/resetPassword"];
-  const excludePathsFooter = ["/resetPassword", "/exchange"];
+  const excludePathsFooter = ["/resetPassword", "/spotTrade"];
 
   const shouldShowMenu = !excludePaths.includes(router.pathname);
   const shouldShowFooter = !excludePathsFooter.includes(router.pathname);
@@ -161,14 +162,7 @@ function App({ Component, pageProps }: AppProps) {
           <div className={isDarkMode ? "dark" : ""}>
             {shouldShowMenu && <HomeMenu />}
 
-            <div
-              style={{
-                minHeight: "calc(100vh - 80px)",
-                width: "100%",
-              }}
-            >
-              <Component {...pageProps} isLoggedIn={isLoggedIn} />
-            </div>
+            <Component {...pageProps} isLoggedIn={isLoggedIn} />
 
             {shouldShowFooter && <Footer />}
             <Toaster />

@@ -1,33 +1,16 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
-import styles from "../../styles/billDetails.module.css";
-import {
-  Input,
-  Radio,
-  ConfigProvider,
-  Table,
-  Select,
-  Form,
-  Tabs,
-  Spin,
-  Button,
-  Space,
-  Tooltip,
-  Dropdown,
-} from "antd";
+import styles from "../styles/billDetails.module.css";
+import { ConfigProvider, Form, Button, Space, Tooltip, Dropdown, Tabs } from "antd";
 import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Iconify } from "@/components/icon";
-import type { ColumnsType } from "antd/es/table";
-import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import type { GetStaticProps } from "next";
 import type { TabsProps } from "antd";
-import SpotChartTables from "../components/spotChart_table";
-import SpotChartAssets from "../components/spotChart_assets";
-import SpotChartTrade from "../components/spotChart_trade";
-import SpotHeaderPage from "../components/spotChart_header";
+import SpotChartTables from "./components/spotChart_table";
+import SpotChartAssets from "./components/spotChart_assets";
+import SpotChartTrade from "./components/spotChart_trade";
+import SpotHeaderPage from "./components/spotChart_header";
 import SpotChartCoinInfo from "../components/spotChart_coinInfo";
 import Tradingview, { TradingviewRefHandle } from "@/components/Tradingview";
 import DepthChart from "@/components/DepthChart";
@@ -35,16 +18,12 @@ import OrderBook from "@/components/OrderBook";
 import WebSocketService from "@/utils/websocket";
 import { FullscreenOutlined } from "@ant-design/icons";
 import Image from "next/image";
-import { NoData } from "@/components/noData";
-import type { DropdownProps, MenuProps } from "antd";
+import type { MenuProps } from "antd";
 import { getExchangeGroup, getExchangeCoinList } from "@/services/spot";
-import { toast } from "sonner";
 import appStore from "@/store";
-import { set } from "mobx";
 import { reaction } from "mobx";
 import { useAuth } from "@/context/AuthContext";
 import { throttle } from "lodash";
-
 
 interface DataType {
   id: number;
@@ -181,12 +160,9 @@ const ExchangePage = () => {
           // 限制数组长度
           return combinedData.slice(0, maxEntries);
         });
-      } catch (error) {
-
-      }
+      } catch (error) { }
     });
   }, [currentPair]);
-
 
   const getWsDepthData = useCallback(() => {
     // 如果已经有连接，不要重复创建
@@ -227,12 +203,10 @@ const ExchangePage = () => {
 
         setDepthData(() => {
           // 处理买单(bids) - 按价格降序排列
-          const processedBids = (data.bids || [])
+          const processedBids = data.bids || [];
 
-
-          // 处理卖单(asks) - 按价格升序排列  
-          const processedAsks = (data.asks || [])
-
+          // 处理卖单(asks) - 按价格升序排列
+          const processedAsks = data.asks || [];
 
           const newDepthData = {
             asks: processedAsks,
@@ -241,8 +215,7 @@ const ExchangePage = () => {
 
           return newDepthData;
         });
-      } catch (error) {
-      }
+      } catch (error) { }
     });
   }, [currentPair]);
 
@@ -543,249 +516,250 @@ const ExchangePage = () => {
             style={{ paddingRight: "0" }}
           >
             <div className={`flex-1`} style={{ width: "100%", minHeight: "548px" }}>
-            <Tabs items={[
-              {
-                key:'chart',
-                label:t('spot.exchange.chart'),
-                children: <div
-                  id="chart-container"
-                  // style={{ width: "100%", height: "548px" }}
-                  className="flex-1 pl-4"
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "8px 16px",
-                      borderBottom: "1px solid var(--border-color1)",
-                    }}
+              <Tabs items={[
+                {
+                  key: 'chart',
+                  label: t('spot.exchange.chart'),
+                  children: <div
+                    id="chart-container"
+                    // style={{ width: "100%", height: "548px" }}
+                    className="flex-1 pl-4"
                   >
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {dayData.map((item, index) => (
-                        <Button
-                          key={index}
-                          type={timeInterval === item ? "primary" : "text"}
-                          onClick={() => setTimeInterval(item)}
-                          style={{
-                            fontSize: "12px",
-                            background:
-                              timeInterval === item
-                                ? "rgba(0,0,0,0.05)"
-                                : "transparent",
-                            color:
-                              timeInterval === item
-                                ? "var(--text-color5)"
-                                : "var(--text-color6)",
-                          }}
-                        >
-                          {item}
-                          {item === "1D" && (
-                            <Dropdown
-                              trigger={["hover"]}
-                              placement="bottomRight"
-                              dropdownRender={() => (
-                                <div
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 16px",
+                        borderBottom: "1px solid var(--border-color1)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {dayData.map((item, index) => (
+                          <Button
+                            key={index}
+                            type={timeInterval === item ? "primary" : "text"}
+                            onClick={() => setTimeInterval(item)}
+                            style={{
+                              fontSize: "12px",
+                              background:
+                                timeInterval === item
+                                  ? "rgba(0,0,0,0.05)"
+                                  : "transparent",
+                              color:
+                                timeInterval === item
+                                  ? "var(--text-color5)"
+                                  : "var(--text-color6)",
+                            }}
+                          >
+                            {item}
+                            {item === "1D" && (
+                              <Dropdown
+                                trigger={["hover"]}
+                                placement="bottomRight"
+                                dropdownRender={() => (
+                                  <div
+                                    style={{
+                                      background: "#fff",
+                                      borderRadius: "8px",
+                                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                      padding: "10px",
+                                      display: "grid",
+                                      gridTemplateColumns: "repeat(3, 1fr)",
+                                      gap: "10px",
+                                      width: "320px",
+                                    }}
+                                  >
+                                    {timeIntervalOptions.map((option) => (
+                                      <div
+                                        key={option}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTimeInterval(option);
+                                        }}
+                                        style={{
+                                          padding: "10px",
+                                          textAlign: "center",
+                                          background:
+                                            timeInterval === option
+                                              ? "var(--theme-color)"
+                                              : "#f0f0f0",
+                                          color:
+                                            timeInterval === option ? "#fff" : "#000",
+                                          borderRadius: "5px",
+                                          cursor: "pointer",
+                                          fontSize: "12px",
+                                        }}
+                                      >
+                                        {option}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              >
+                                <Iconify
+                                  icon="eva:arrow-down-fill"
                                   style={{
-                                    background: "#fff",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                    padding: "10px",
-                                    display: "grid",
-                                    gridTemplateColumns: "repeat(3, 1fr)",
-                                    gap: "10px",
-                                    width: "320px",
+                                    fontSize: "12px",
+                                    marginLeft: "4px",
+                                    cursor: "pointer",
                                   }}
-                                >
-                                  {timeIntervalOptions.map((option) => (
-                                    <div
-                                      key={option}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setTimeInterval(option);
-                                      }}
-                                      style={{
-                                        padding: "10px",
-                                        textAlign: "center",
-                                        background:
-                                          timeInterval === option
-                                            ? "var(--theme-color)"
-                                            : "#f0f0f0",
-                                        color:
-                                          timeInterval === option ? "#fff" : "#000",
-                                        borderRadius: "5px",
-                                        cursor: "pointer",
-                                        fontSize: "12px",
-                                      }}
-                                    >
-                                      {option}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            >
-                              <Iconify
-                                icon="eva:arrow-down-fill"
-                                style={{
-                                  fontSize: "12px",
-                                  marginLeft: "4px",
-                                  cursor: "pointer",
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </Dropdown>
-                          )}
-                        </Button>
-                      ))}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </Dropdown>
+                            )}
+                          </Button>
+                        ))}
 
-                      <Space size="small" style={{ marginLeft: "16px" }}>
-                        <Dropdown
-                          menu={{
-                            items: chartTypeItems,
-                            onClick: handleChartTypeChange,
-                            selectedKeys: [String(chartDisplayType)],
-                          }}
-                          trigger={["hover"]}
-                          placement="bottom"
-                        >
-                          <Image
-                            src="/images/exchange/icon_stock.png"
-                            alt="exchange"
-                            width={20}
-                            height={20}
-                            style={{ cursor: "pointer" }}
-                          />
-                        </Dropdown>
-                        <Tooltip
-                          title={t("spot.exchange.technicalIndicators")}
-                          overlayInnerStyle={{ fontSize: "12px" }}
-                        >
-                          <Image
-                            src="/images/exchange/icon_chart.png"
-                            alt="exchange"
-                            width={20}
-                            height={20}
-                            onClick={() =>
-                              tradingviewRef.current?.handleAddIndicator()
-                            }
-                            style={{ cursor: "pointer" }}
-                          />
-                        </Tooltip>
-                        <Tooltip
-                          title={t("spot.exchange.resetChart")}
-                          overlayInnerStyle={{ fontSize: "12px" }}
-                        >
-                          <Image
-                            src="/images/exchange/icon_delete.png"
-                            alt="exchange"
-                            width={20}
-                            height={20}
-                            onClick={() => tradingviewRef.current?.resetChart()}
-                            style={{ cursor: "pointer" }}
-                          />
-                        </Tooltip>
-                        {/* <Tooltip title="图表截图">
+                        <Space size="small" style={{ marginLeft: "16px" }}>
+                          <Dropdown
+                            menu={{
+                              items: chartTypeItems,
+                              onClick: handleChartTypeChange,
+                              selectedKeys: [String(chartDisplayType)],
+                            }}
+                            trigger={["hover"]}
+                            placement="bottom"
+                          >
+                            <Image
+                              src="/images/exchange/icon_stock.png"
+                              alt="exchange"
+                              width={20}
+                              height={20}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </Dropdown>
+                          <Tooltip
+                            title={t("spot.exchange.technicalIndicators")}
+                            overlayInnerStyle={{ fontSize: "12px" }}
+                          >
+                            <Image
+                              src="/images/exchange/icon_chart.png"
+                              alt="exchange"
+                              width={20}
+                              height={20}
+                              onClick={() =>
+                                tradingviewRef.current?.handleAddIndicator()
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            title={t("spot.exchange.resetChart")}
+                            overlayInnerStyle={{ fontSize: "12px" }}
+                          >
+                            <Image
+                              src="/images/exchange/icon_delete.png"
+                              alt="exchange"
+                              width={20}
+                              height={20}
+                              onClick={() => tradingviewRef.current?.resetChart()}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </Tooltip>
+                          {/* <Tooltip title="图表截图">
                                             <Image src="/images/exchange/icon_camera.png" alt="exchange" width={20} height={20}  onClick={() => tradingviewRef.current?.handleChartScreenshot()}/>
                                         </Tooltip> 暂时注释 ---2025。04.28 -zyj */}
+                          <Tooltip
+                            title={t("spot.exchange.volumeDistribution")}
+                            overlayInnerStyle={{ fontSize: "12px" }}
+                          >
+                            <Image
+                              src="/images/exchange/icon_value.png"
+                              alt="exchange"
+                              width={20}
+                              height={20}
+                              onClick={() =>
+                                tradingviewRef.current?.addVolumeDistribution()
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </Tooltip>
+                        </Space>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {chartType.map((item, index) => (
+                          <Button
+                            key={index}
+                            type={activeChartType === item.value ? "primary" : "text"}
+                            onClick={() => setActiveChartType(item.value)}
+                            style={{
+                              fontSize: "12px",
+                              background:
+                                activeChartType === item.value
+                                  ? "rgba(0,0,0,0.05)"
+                                  : "transparent",
+                              color:
+                                activeChartType === item.value
+                                  ? "var(--text-color5)"
+                                  : "var(--text-color6)",
+                            }}
+                          >
+                            {item.label}
+                          </Button>
+                        ))}
+
                         <Tooltip
-                          title={t("spot.exchange.volumeDistribution")}
+                          title={t("spot.exchange.fullscreen")}
                           overlayInnerStyle={{ fontSize: "12px" }}
                         >
-                          <Image
-                            src="/images/exchange/icon_value.png"
-                            alt="exchange"
-                            width={20}
-                            height={20}
-                            onClick={() =>
-                              tradingviewRef.current?.addVolumeDistribution()
-                            }
-                            style={{ cursor: "pointer" }}
+                          <Button
+                            type="text"
+                            icon={<FullscreenOutlined />}
+                            onClick={() => tradingviewRef.current?.toggleFullScreen()}
                           />
                         </Tooltip>
-                      </Space>
+                      </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {chartType.map((item, index) => (
-                        <Button
-                          key={index}
-                          type={activeChartType === item.value ? "primary" : "text"}
-                          onClick={() => setActiveChartType(item.value)}
-                          style={{
-                            fontSize: "12px",
-                            background:
-                              activeChartType === item.value
-                                ? "rgba(0,0,0,0.05)"
-                                : "transparent",
-                            color:
-                              activeChartType === item.value
-                                ? "var(--text-color5)"
-                                : "var(--text-color6)",
-                          }}
-                        >
-                          {item.label}
-                        </Button>
-                      ))}
-
-                      <Tooltip
-                        title={t("spot.exchange.fullscreen")}
-                        overlayInnerStyle={{ fontSize: "12px" }}
-                      >
-                        <Button
-                          type="text"
-                          icon={<FullscreenOutlined />}
-                          onClick={() => tradingviewRef.current?.toggleFullScreen()}
+                    {activeChartType === "basic" && (
+                      <div>
+                        <Tradingview
+                          ref={tradingviewRef}
+                          key={`${currentPair?.coinSymbol || ""}_${currentPair?.baseSymbol || ""
+                            }_${currentPair?.groupStatus || ""}_${timeInterval}`}
+                          symbol={
+                            (currentPair?.coinSymbol || "") +
+                            "_" +
+                            (currentPair?.baseSymbol || "") +
+                            "_" +
+                            (currentPair?.groupStatus || "")
+                          }
+                          showLeftToolbar={activeChartType === "basic" ? false : true}
+                          chartType={chartDisplayType}
+                          klineData={klineData}
+                          timeInterval={timeInterval}
                         />
-                      </Tooltip>
-                    </div>
-                  </div>
+                      </div>
+                    )}
 
-                  {activeChartType === "basic" && (
-                    <div>
-                      <Tradingview
-                        ref={tradingviewRef}
-                        key={`${currentPair?.coinSymbol || ""}_${currentPair?.baseSymbol || ""
-                          }_${currentPair?.groupStatus || ""}_${timeInterval}`}
-                        symbol={
-                          (currentPair?.coinSymbol || "") +
-                          "_" +
-                          (currentPair?.baseSymbol || "") +
-                          "_" +
-                          (currentPair?.groupStatus || "")
-                        }
-                        showLeftToolbar={activeChartType === "basic" ? false : true}
-                        chartType={chartDisplayType}
-                        klineData={klineData}
-                        timeInterval={timeInterval}
+                    {activeChartType === "depth" && (
+                      <DepthChart
+                        key={`depth_${currentPair?.coinSymbol || ""}_${currentPair?.baseSymbol || ""
+                          }_${currentPair?.groupStatus || ""}`}
+                        data={depthData}
                       />
-                    </div>
-                  )}
-
-                  {activeChartType === "depth" && (
-                    <DepthChart
-                      key={`depth_${currentPair?.coinSymbol || ""}_${currentPair?.baseSymbol || ""
-                        }_${currentPair?.groupStatus || ""}`}
-                      data={depthData}
-                    />
-                  )}
-                </div>
-              },
-              {
-                key:'coinInfo',
-                label:t('spot.exchange.coinInfo'),
-                children:<SpotChartCoinInfo className="px-4 py-3" 
-                coinName={currentPair?.coinSymbol || ""}
-                baseCoinName={currentPair?.baseSymbol || ""}
-                />
-              }
-            ]}
-              className="custom-tabs2"
-              destroyInactiveTabPane={true} // 不销毁未激活的tab
-              defaultActiveKey="chart"
-              indicator={{ 
-                size: (origin) => origin - 5, 
-              align: 'center' }} />
-              </div>
+                    )}
+                  </div>
+                },
+                {
+                  key: 'coinInfo',
+                  label: t('spot.exchange.coinInfo'),
+                  children: <SpotChartCoinInfo className="px-4 py-3"
+                    coinName={currentPair?.coinSymbol || ""}
+                    baseCoinName={currentPair?.baseSymbol || ""}
+                  />
+                }
+              ]}
+                className="custom-tabs2"
+                destroyInactiveTabPane={true} // 不销毁未激活的tab
+                defaultActiveKey="chart"
+                indicator={{
+                  size: (origin: any) => origin - 5,
+                  align: 'center'
+                }} />
+            </div>
             <OrderBook
               bookData={depthData}
               orderData={orderData}

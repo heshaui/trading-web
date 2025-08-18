@@ -1,7 +1,7 @@
 // export { default } from '../../modules/spot/pages';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
-import { withSpotLayout } from "@/components/sidebarLayout/SpotLayout/userSpotLayout";
+import { withOrderLayout } from "@/components/sidebarLayout/OrderLayout/userOrderLayout";
 import {
   ConfigProvider,
   DatePicker,
@@ -14,7 +14,7 @@ import {
 } from "antd";
 import NoData from "@/components/noData/noData";
 import { useCallback, useEffect, useState } from "react";
-import styles from "../../styles/components/Financial.module.css";
+import styles from "@/styles/components/Table.module.css";
 import {
   FinancialOrderItem,
   FinancialOrderStatusEnum,
@@ -33,7 +33,7 @@ import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import { getCoinRound } from "@/utils/getUseRate";
 import BigNumber from "bignumber.js";
-import { financialThemeConfig } from "@/theme/financialThemeConfig";
+import { DatePickerTheme, SelectTheme, TableTheme, TabsTheme, TokenTheme } from "@/theme/publicThemeConfig";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
@@ -488,14 +488,21 @@ const FinancialOrder = observer(() => {
   if (!isClient) return null; // SSR 阶段不渲染
 
   return (
-    <ConfigProvider theme={financialThemeConfig}>
+    <ConfigProvider theme={{
+      components: {
+        Tabs: TabsTheme,
+        Table: TableTheme,
+        Select: SelectTheme,
+        DatePicker: DatePickerTheme,
+      },
+      token: TokenTheme,
+    }}>
       <div className="flex flex-col h-full">
         <div className="mb-[16px] text-[var(--text-color5)] font-[500] text-[20px]">
           {t("common.financialOrder")}
         </div>
         <div className="bg-[var(--btncolor7)] rounded-[10px] flex-1">
           <Tabs
-            className={styles.tabs}
             tabBarStyle={{ padding: "0 20px", height: "72px" }}
             items={items}
             onChange={(key) =>
@@ -513,7 +520,7 @@ const FinancialOrder = observer(() => {
   );
 });
 
-export default withSpotLayout(FinancialOrder);
+export default withOrderLayout(FinancialOrder);
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {

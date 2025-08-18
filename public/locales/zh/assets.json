@@ -1,7 +1,7 @@
 {
   "assets": {
     "assetsAccount": "现货账户",
-    "futureAccount": "合约账户",
+    "contractAccount": "合约账户",
     "billDetails": "账单明细",
     "withdraw": "提现",
     "deposit": "充值",
