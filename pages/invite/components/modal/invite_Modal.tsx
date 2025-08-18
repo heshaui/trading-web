@@ -19,9 +19,13 @@ type Props = {
     // onOk?: (event: boolean) => void;
     onOk: () => void;
     onCancel: () => void;
+    inviteInfo: {
+        inviteCode: string,
+        inviteLink: string,
+    };
 };
 
-function NicknameModal({ open, onCancel, onOk }: Props) {
+function NicknameModal({ open, onCancel, onOk,inviteInfo }: Props) {
     // const router = useRouter();
     const { t } = useTranslation(['invite']);
     const [form] = Form.useForm();
@@ -126,8 +130,11 @@ function NicknameModal({ open, onCancel, onOk }: Props) {
                         <div
                             className={`${styles.modal_QRCode}`}
                             style={{ padding: "5px" }}>
-                            <QRCode value={`${BASE_URL}/register`}
-                            style={{ backgroundColor: "#fff", padding: "5px", minWidth: "68px" }} size={68} /> 
+                            <QRCode value={inviteInfo?.inviteLink ||''}
+                             color="#000"
+                            bgColor="#fff"
+                            style={{ backgroundColor: "#fff", padding: "5px", minWidth: "68px" }}
+                             size={68} /> 
                         </div>
                        
                     </div>

@@ -65,6 +65,7 @@ const InvitePage = () => {
           <InviteContent onReturn={onInviteReturn} />
           <InviteModal
             open={open}
+            inviteInfo={inviteInfo}
             onCancel={() => setOpen(false)}
             onOk={inviteModalOK}
           />
