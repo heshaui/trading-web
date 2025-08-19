@@ -378,7 +378,7 @@ export default function HomeMenu() {
                   </span>
                 </Col>
                 <Col>
-                  <Link href="/bulletinCenter">
+                  <Link href="/bulletin">
                     <span
                       style={{
                         color: "var(--theme-color)",
