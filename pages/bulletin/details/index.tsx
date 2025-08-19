@@ -205,7 +205,7 @@ const Details = () => {
         <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
           <SvgIcon
             className="w-[24px] h-[24px] text-[var(--text-color5)] cursor-pointer"
-            onClick={() => router.back()}
+            onClick={() => router.push("/bulletin")}
             style={{ color: "var(--text-color5)" }}
           >
             <path
