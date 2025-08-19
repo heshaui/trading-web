@@ -14,6 +14,7 @@ import {
 } from "@/services/bulletinCenter";
 import router, { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import { SearchOutlined } from "@ant-design/icons";
 
 interface MenuData {
   key: string;
@@ -24,7 +25,7 @@ interface MenuData {
 
 type MenuKey = MenuData["key"];
 const Notice = () => {
-  const { t } = useTranslation(["builetinCenter", "common"]);
+  const { t } = useTranslation(["notice", "common"]);
   const router = useRouter();
   const { type } = router.query;
 
@@ -49,25 +50,25 @@ const Notice = () => {
       key: "all",
       defaultIcon: "/images/bulletin_center/icon_horn.png",
       hoverIcon: "/images/bulletin_center/icon_horn_hover.png",
-      label: "bulletinCenter.menu.all",
+      label: "notice.menu.notice",
     },
     {
       key: "account",
       defaultIcon: "/images/bulletin_center/icon_contacts.png",
       hoverIcon: "/images/bulletin_center/icon_contacts_hover.png",
-      label: "bulletinCenter.menu.account",
+      label: "notice.menu.account",
     },
     {
       key: "assets",
       defaultIcon: "/images/bulletin_center/icon_assets.png",
       hoverIcon: "/images/bulletin_center/icon_assets_hover.png",
-      label: "bulletinCenter.menu.assets",
+      label: "notice.menu.assets",
     },
     {
       key: "trading",
       defaultIcon: "/images/bulletin_center/icon_Trading.png",
       hoverIcon: "/images/bulletin_center/icon_Trading_hover.png",
-      label: "bulletinCenter.menu.trading",
+      label: "notice.menu.trading",
     },
   ];
   // 获取未读数量
@@ -225,17 +226,23 @@ const Notice = () => {
       <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
         <div className="flex gap-[30px] items-center">
           <div className="text-[16px] font-[500] text-[var(--text-color5)] text-nowrap">
-            通知
+            {t("notice.top.notification")}
           </div>
-          <Input style={{ width: "300px", height: "50px" }} />
+          <Input
+            suffix={<SearchOutlined />}
+            style={{ width: "300px", height: "50px" }}
+            placeholder={t("notice.top.search.placeholder")}
+          />
         </div>
         <div className="flex gap-[20px] items-center text-[14px]">
-          <Checkbox className="font-[400]">只看未读</Checkbox>
+          <Checkbox className="font-[400]">
+            {t("notice.top.unread")}
+          </Checkbox>
           <div
             className="cursor-pointer text-[var(--theme-color)] font-[500] "
             onClick={readAll}
           >
-            全部已读
+            {t("notice.top.markAllRead")}
           </div>
         </div>
       </div>
@@ -250,7 +257,7 @@ const Notice = () => {
         </div>
         <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] [filter:drop-shadow(0px_1px_1px_var(--border-color4))] border border-[var(--border-color4)]">
           <div className="text-[20px] font-[500] text-[var(--text-color5)]">
-            全部公告
+            {t("notice.all")}
           </div>
           <List
             pagination={pagination}
@@ -271,7 +278,6 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale || "en", [
-        "builetinCenter",
         "notice",
         "common",
       ])),

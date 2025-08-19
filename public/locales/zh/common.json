@@ -4,13 +4,13 @@
   "home1": "IMBIT数字货币交易所更快、更好、更强",
   "home2": "更多",
   "nickname": "昵称",
-  "login":"已有账号？",
-  "userCenter":{
-    "overView":"总览",
-    "account":"用户设置",
-    "identity":"身份认证",
-    "security":"安全中心"
-},
+  "login": "已有账号？",
+  "userCenter": {
+    "overView": "总览",
+    "account": "用户设置",
+    "identity": "身份认证",
+    "security": "安全中心"
+  },
   "search": "搜索",
   "filter": "筛选",
   "ok": "确认",
@@ -47,13 +47,13 @@
   "action": "操作",
   "loadFailed": "加载失败",
   "safeVerification": "安全验证",
-  "noLogin":{
-    "tip1":"开始交易",
-    "tip2":"登录",
-    "tip3":"立即注册",
-    "or":"或"
+  "noLogin": {
+    "tip1": "开始交易",
+    "tip2": "登录",
+    "tip3": "立即注册",
+    "or": "或"
   },
-  "usersetting":{
+  "usersetting": {
     "modifyOnce": "24h内只能修改1次",
     "modifySuccess": "昵称修改成功",
     "modifyNickname": "修改昵称",
@@ -87,42 +87,42 @@
       "tip": "请您输入正确日期，填写后将无法修改。"
     }
   },
-  "modal":{
-    "confirmCancel":"确认撤销后，提现订单将被取消。"
+  "modal": {
+    "confirmCancel": "确认撤销后，提现订单将被取消。"
   },
-  "footer":{
-    "scanDownloadApp":"扫码下载APP",
-    "downloadApp":"下载APP",
-    "community":"社区"
+  "footer": {
+    "scanDownloadApp": "扫码下载APP",
+    "downloadApp": "下载APP",
+    "community": "社区"
   },
   "depthChart": {
     "buyOrders": "买盘",
     "sellOrders": "卖盘",
     "midPrice": "中间价格"
   },
-  "router":{
-    "spotAccount":"现货账户",
-    "financialAccount":"理财账户",
-    "contractAccount":"合约账户",
-    "myAssets":"我的资产",
-    "recharge":"充币",
-    "withdraw":"提币",
-    "bill":"账单明细",
-    "spotTrade":"现货交易",
-    "spotOrder":"现货订单",
-    "flashOrder":"闪兑订单",
-    "financialOrder":"理财订单",
-    "contractOrder":"合约订单",
-    "overView":"总览",
-    "safetyCenter":"安全中心",
-    "identity":"身份认证",
-    "inviteFriend":"邀请好友",
-    "setting":"设置",
-    "logout":"退出登录"
+  "router": {
+    "spotAccount": "现货账户",
+    "financialAccount": "理财账户",
+    "contractAccount": "合约账户",
+    "myAssets": "我的资产",
+    "recharge": "充币",
+    "withdraw": "提币",
+    "bill": "账单明细",
+    "spotTrade": "现货交易",
+    "spotOrder": "现货订单",
+    "flashOrder": "闪兑订单",
+    "financialOrder": "理财订单",
+    "contractOrder": "合约订单",
+    "overView": "总览",
+    "safetyCenter": "安全中心",
+    "identity": "身份认证",
+    "inviteFriend": "邀请好友",
+    "setting": "设置",
+    "logout": "退出登录"
   },
-  "header":{
-    "login":"登录",
-    "register":"注册",
+  "header": {
+    "login": "登录",
+    "register": "注册",
     "noLanguageData": "暂无语言数据",
     "noRateData": "暂无汇率数据",
     "language": "语言",
@@ -133,23 +133,23 @@
     "noNewNotice": "暂无新的通知",
     "loading": "加载中...",
     "noMenuData": "暂无菜单数据",
-    "notice":{
+    "notice": {
       "notice": "公告",
-      "accountAssistant": "账户助手",
+      "account": "账户助手",
       "assets": "资产",
-      "transaction": "交易",
+      "trading": "交易",
       "message": "消息",
       "viewAll": "查看全部"
     },
-    "dayMode":{
-      "day":"日间模式",
-      "night":"夜间模式"
+    "dayMode": {
+      "day": "日间模式",
+      "night": "夜间模式"
     }
   },
-  "scrollableTabs":{
+  "scrollableTabs": {
     "all": "全部"
   },
-  "imageSelect":{
+  "imageSelect": {
     "search": "搜索",
     "noData": "暂无数据",
     "noSearchData": "暂无搜索结果",

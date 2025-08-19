@@ -136,7 +136,7 @@ const Notice: React.FC<NoticeProps> = ({
       },
       {
         key: "2",
-        label: t("header.notice.accountAssistant"), // "账户助手"
+        label: t("header.notice.account"), // "账户助手"
         children: accountLoading ? (
           <div
             style={{
@@ -210,7 +210,7 @@ const Notice: React.FC<NoticeProps> = ({
       },
       {
         key: "4",
-        label: t("header.notice.transaction"), // "交易"
+        label: t("header.notice.trading"), // "交易"
         children: transactionLoading ? (
           <div
             style={{

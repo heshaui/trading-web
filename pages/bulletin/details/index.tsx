@@ -39,7 +39,7 @@ enum SelectType {
   List = "List",
 }
 const Details = () => {
-  const { t } = useTranslation(["builetinCenter", "common"]);
+  const { t } = useTranslation(["notice", "common"]);
   const router = useRouter();
   const { id, classMenu } = router.query;
 
@@ -229,7 +229,7 @@ const Details = () => {
           <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] border border-[var(--border-color4)]">
             {/* 标题 */}
             <div className="text-[20px] font-[500] text-[var(--text-color5)] mb-[10px]">
-              <div className="mb-[10px]">公告中心</div>
+              <div className="mb-[10px]"> {t("notice.center")}</div>
               {/* 面包屑 */}
               <Breadcrumb items={breadcrumbItems} className="mb-[10px]" />
             </div>
@@ -261,7 +261,6 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale || "en", [
-        "builetinCenter",
         "notice",
         "common",
       ])),

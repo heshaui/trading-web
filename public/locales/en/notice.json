@@ -1,9 +1,12 @@
 {
   "notice": {
-    "title": "Announcement Center",
+    "center": "Notice Center",
+    "all": "All Notice",
     "menu": {
-      "loading": "Loading...",
-      "announcement": "Announcement"
+      "notice": "Notice",
+      "account": "Account",
+      "assets": "Assets",
+      "trading": "Trading"
     },
     "top": {
       "notification": "Notification",
