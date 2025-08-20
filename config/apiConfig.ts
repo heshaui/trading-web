@@ -27,6 +27,7 @@ export const LOCAL_STORAGE_KEY = {
   PUBLIC_INFO: "public_info", // 公共信息
   USER_CONFIG: "user_config", // 用户合约配置
   CONTRACT_ASSETS: "contract_assets", // 合约资产
+  CURRENT_CONTRACT_INFO: "current_contract_info", // 当前合约信息
   FINANCIAL_CONFIG: "financial_config", // 理财配置
   COUNTRY_LIST: "country_list", // 国家列表
 };

@@ -3,10 +3,10 @@ import SymbolSelector from "../SymbolSelector";
 import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
 const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
-  const [currentSymbol, setCurrentSymbol] = useState<any>(null);
   const symbolList = appStore.getPublicInfo();
-  const [marketInfo, setMarketInfo] = useState<any>(null);
   const currentContractInfo = appStore.getCurrentContractInfo();
+  const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
+  const [marketInfo, setMarketInfo] = useState<any>(null);
   const handleSymbolSelect = (symbol: any) => {
 
     appStore.setCurrentContractInfo(symbol.id);
@@ -25,11 +25,20 @@ const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
     }
   };
 
+  // 同步 store 中的 currentContractInfo 到本地状态
   useEffect(() => {
-    const interval = setInterval(() => {
-      getMarketInfo(currentContractInfo.id);
-    }, 2000);
-    return () => clearInterval(interval);
+    if (currentContractInfo && Object.keys(currentContractInfo).length > 0) {
+      setCurrentSymbol(currentContractInfo);
+    }
+  }, [currentContractInfo]);
+
+  useEffect(() => {
+    if (currentContractInfo?.id) {
+      const interval = setInterval(() => {
+        getMarketInfo(currentContractInfo.id);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
   }, [currentContractInfo]);
 
   return (

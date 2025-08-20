@@ -9,6 +9,7 @@ import { emailSuffixes } from "@/utils/enum";
 import { useRouter } from 'next/router';
 import styles from '../styles/login.module.css'
 import { Iconify } from "@/components/icon"
+import { windowOpen } from "@/utils/windowOpen";
 
 const fromStyle: CSSProperties = {
     borderRadius: "5px",
@@ -38,8 +39,9 @@ export default function RegisterMail() {
     const [showLengthCheck, setShowLengthCheck] = useState(false);
     const [showCharCheck, setShowCharCheck] = useState(false);
     const [showNumCheck, setShowNumCheck] = useState(false);
-    
-    const [showRules, setShowRules]=useState(false);
+
+    const [showRules, setShowRules] = useState(false);
+    const allConfig = store.getKvConfigAll();
 
 
     useEffect(() => {
@@ -137,17 +139,17 @@ export default function RegisterMail() {
     // 监听密码输入变化
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        if(value.length > 0) {
+        if (value.length > 0) {
             setShowRules(true);
         }
-        
+
         // 检查长度是否在 8 - 100 位之间
         if (value.length < 8 || value.length > 100) {
             setLengthValid(false);
         } else {
             setLengthValid(true);
         }
-        
+
         // 检查是否包含数字
         const hasNumber = /.*\d+.*/
         if (!hasNumber.test(value)) {
@@ -155,7 +157,7 @@ export default function RegisterMail() {
         } else {
             setNumValid(true);
         }
-        
+
         // 检查是否包含大写字母
         const hasUpperCase = /.*[A-Z].*/
         if (!hasUpperCase.test(value)) {
@@ -164,13 +166,13 @@ export default function RegisterMail() {
             setCharValid(true);
         }
     };
-    
+
     const showRule = () => {
         setShowLengthCheck(true);
         setShowCharCheck(true);
         setShowNumCheck(true);
     }
-    
+
     const hideRule = () => {
         setShowRules(false);
         setShowLengthCheck(false);
@@ -178,7 +180,13 @@ export default function RegisterMail() {
         setShowNumCheck(false);
     }
 
-
+    const goLink = (type: 'user' | 'policy') => {
+        if (type === 'user') {
+            windowOpen(allConfig?.user_agreement_url || '');
+        } else {
+            windowOpen(allConfig?.privacy_policy_url || '');
+        }
+    }
 
     if (registerType !== RegisterTypeEnum.EMAIL) return null;
     return (
@@ -258,7 +266,7 @@ export default function RegisterMail() {
                             onBlur={hideRule}
                         />
                     </Form.Item>
-                   {showRules && <div className={`mt-1`}>
+                    {showRules && <div className={`mt-1`}>
                         {showLengthCheck && (
                             <div className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color}`}>
                                 <Iconify
@@ -323,7 +331,13 @@ export default function RegisterMail() {
                         <Checkbox className="custom-checkbox text-color-default " >
                             <p className={`${styles.title_color}`}>
                                 {/* 我已阅读并同意 */}
-                                {t('agree')} <span className="text-color">{t('protocol')}</span> {t('and')} <span className="text-color">{t('policy')}</span>
+                                {t('agree')}&nbsp;<button type="button" className="text-color" onClick={(event) => {
+                                    event.stopPropagation();
+                                    goLink('user')
+                                }}>{t('protocol')}</button>&nbsp;{t('and')}&nbsp;<button type="button" className="text-color" onClick={(event) => {
+                                    event.stopPropagation();
+                                    goLink('policy')
+                                }}>{t('policy')}</button>
                             </p>
                         </Checkbox>
                     </Form.Item>
