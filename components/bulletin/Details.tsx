@@ -10,7 +10,7 @@ const Details = ({ loading, detailsData }: { loading?: boolean, detailsData?: De
         <div className="mb-[10px] truncate text-[var(--text-color5)] text-[16px] font-[500]">
           {detailsData?.title}
         </div>
-        <div className="text-[var(--text-color6)] text-[12px]">
+        <div className="text-[var(--text-color9)] text-[12px]">
           {dayjs(detailsData?.createTime).format("YYYY-MM-DD HH:mm:ss")}
         </div>
       </div>

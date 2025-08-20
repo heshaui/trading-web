@@ -173,7 +173,7 @@ const Details = () => {
           className={`text-[16px] font-[500] 
               ${activeKey === item.id
               ? "text-[#FFF]"
-              : "text-[#A4A5AC]"
+              : "text-[#676867]"
             }`}
         >
           {item.languageContent}
@@ -195,7 +195,7 @@ const Details = () => {
       theme={{
         components: {
           Breadcrumb: {
-            itemColor: "var(--text-color6)",
+            itemColor: "#676867",
           },
         },
       }}
