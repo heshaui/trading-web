@@ -79,9 +79,9 @@ const Details = () => {
         )?.languageContent;
         if (curMenu) {
           setBreadcrumbItems([
-            { title: t("bulletinCenter.menu.all") },
+            { title: t("notice.menu.notice") },
             { title: curMenu },
-            { title: t("bulletinCenter.menu.article") },
+            { title: t("notice.article") },
           ]);
         }
       }
@@ -141,7 +141,7 @@ const Details = () => {
     setActiveKey(item.id);
 
     setBreadcrumbItems([
-      { title: t("bulletinCenter.menu.all") },
+      { title: t("notice.menu.notice") },
       { title: item.languageContent },
     ]);
     setCurSelectType(SelectType.List);
@@ -152,7 +152,7 @@ const Details = () => {
   const handleListClick = (item: any) => {
     setBreadcrumbItems([
       ...(breadcrumbItems || []),
-      { title: t("bulletinCenter.menu.article") },
+      { title: t("notice.article") },
     ]);
     setCurSelectType(SelectType.Details);
 
