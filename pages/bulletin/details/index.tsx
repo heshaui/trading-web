@@ -173,7 +173,7 @@ const Details = () => {
           className={`text-[16px] font-[500] 
               ${activeKey === item.id
               ? "text-[#FFF]"
-              : "text-[var(--text-color5)]"
+              : "text-[#A4A5AC]"
             }`}
         >
           {item.languageContent}

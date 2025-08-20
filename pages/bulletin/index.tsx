@@ -195,7 +195,7 @@ const Notice = () => {
         />
         <div
           className={`text-[16px] font-[500] 
-        ${activeKey === item.key ? "text-[#FFF]" : "text-[var(--text-color5)]"}
+        ${activeKey === item.key ? "text-[#FFF]" : "text-[#A4A5AC]"}
         `}
         >
           {t(item.label) +
