@@ -65,7 +65,8 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate }: Contra
             划转
           </Button>
           <Button
-            onClick={() => router.push(ROUTER_KEY_ASSETS.CONTRACT_TOP_UP)}
+            // onClick={() => router.push(ROUTER_KEY_ASSETS.CONTRACT_TOP_UP)}
+            onClick={() => toast.error("暂未开放")}
             type="primary"
             className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]"
             shape="round"
