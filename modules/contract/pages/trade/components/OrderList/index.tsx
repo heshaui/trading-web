@@ -264,6 +264,12 @@ const OrderList: React.FC = () => {
       const res = await cancelOrder(params);
       if (res.code === "0") {
         message.success(res.msg);
+        // 刷新当前页面数据
+        if (type === "ordinary") {
+          getOrdinaryCommission();
+        } else {
+          getConditionalCommission();
+        }
       } else {
         message.error(res.msg);
       }
