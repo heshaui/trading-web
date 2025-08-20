@@ -192,7 +192,7 @@ const TradePage = () => {
     },
     {
       columnSpan: 1,
-      height: 530,
+      minHeight: 522,
       content: (
         <ContractTradingPanel
           symbol={mockPriceData.symbol}

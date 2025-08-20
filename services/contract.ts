@@ -346,11 +346,10 @@ export const levelEdit = async (params: any) => {
 // 取消订单
 export const cancelOrder = async (params: any) => {
   try {
-    const formattedParams = await formatParams(params);
     const response = await request<any>("/fe-co-api/order/order_cancel", {
       method: "POST",
       headers: formatHeaders(),
-      body: JSON.stringify(formattedParams),
+      body: JSON.stringify(params),
     });
 
     return response;
