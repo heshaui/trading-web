@@ -91,7 +91,7 @@ function ResetPassword({ onNext, onPrev, userInfo }: IDVProps) {
                 }
 
                 const encrypt = await encryptData(params)
-                console.log(params,111,encrypt,222);
+                // console.log(params,111,encrypt,222);
                 
                 const res = await postSaveIdentity(encrypt)
                 setIsLoading(true)
