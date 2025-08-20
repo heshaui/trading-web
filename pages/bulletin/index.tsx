@@ -31,6 +31,7 @@ const Notice = () => {
 
   const [menuLoading, setMenuLoading] = useState(false);
   const [activeKey, setActiveKey] = useState<MenuKey>("all");
+  const [title, setTitle] = useState<string>("notice.all");
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -173,6 +174,7 @@ const Notice = () => {
     setActiveKey(item.key);
     // 切换类型时重置到第一页
     setPagination((prev) => ({ ...prev, pageNo: 1 }));
+    setTitle(item.key === "all" ? "notice.all" : item.label);
   };
   // 渲染菜单项
   const renderItem = (item: MenuData) => {
@@ -195,7 +197,7 @@ const Notice = () => {
         ${activeKey === item.key ? "text-[#FFF]" : "text-[var(--text-color5)]"}
         `}
         >
-          {t(item.label) + (item.key === "all" ? `  (${unreadCount})` : "")}
+          {t(item.label) + (item.key === "all" && unreadCount > 0 ? `  (${unreadCount})` : "")}
         </div>
       </div>
     );
@@ -257,7 +259,7 @@ const Notice = () => {
         </div>
         <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] [filter:drop-shadow(0px_1px_1px_var(--border-color4))] border border-[var(--border-color4)]">
           <div className="text-[20px] font-[500] text-[var(--text-color5)]">
-            {t("notice.all")}
+            {t(title)}
           </div>
           <List
             pagination={pagination}
