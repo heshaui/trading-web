@@ -14,6 +14,7 @@ import PhoneCodeSelector from "@/components/PhoneCodeSelector";
 import { useRouter } from "next/router";
 import styles from "../styles/login.module.css";
 import { useTranslation } from "next-i18next";
+import { windowOpen } from "@/utils/windowOpen";
 
 const fromStyle: CSSProperties = {
   borderRadius: "5px",
@@ -39,6 +40,7 @@ function RegisterPhone() {
   const router = useRouter();
   const { setLoginState } = useLoginStateContext();
   const { registerType } = useRegisterTypeContext();
+  const allConfig = store.getKvConfigAll();
 
   const [form] = Form.useForm();
 
@@ -154,7 +156,13 @@ function RegisterPhone() {
     setPhoneCodeInputValue(filteredValue);
     form.setFieldsValue({ phoneNumber: filteredValue });
   };
-
+  const goLink = (type: 'user' | 'policy') => {
+    if (type === 'user') {
+      windowOpen(allConfig?.user_agreement_url || '');
+    } else {
+      windowOpen(allConfig?.privacy_policy_url || '');
+    }
+  }
   if (registerType !== RegisterTypeEnum.PHONE) return null;
 
   return (
@@ -182,7 +190,7 @@ function RegisterPhone() {
         }}
       >
         <Form style={fromStyle} name="login" size="large" form={form}>
-          <div className={`${styles.title_color} mb-5 font-16 font-w-500`}>
+          <div className={`${styles.title_color} mb-3 font-16 font-w-500`}>
             {/* 手机号 */}
             {t("phoneTitle")}
           </div>
@@ -206,7 +214,7 @@ function RegisterPhone() {
               </Form.Item>
             </div>
           </Form.Item>
-          <div className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500`}>
+          <div className={`${styles.title_color} mb-3 mt-5 font-16 font-w-500`}>
             {/* 密码 */}
             {t("passwordTitle")}
           </div>
@@ -221,25 +229,23 @@ function RegisterPhone() {
               onChange={handlePasswordChange}
               onFocus={showRule}
               onBlur={hideRule}
-              // prefix={
-              // 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
-              // }
+            // prefix={
+            // 	<Iconify icon="solar:lock-password-linear" className="icon-color" />
+            // }
             />
           </Form.Item>
           {showRules && (
             <div className={`mt-1`}>
               {showLengthCheck && (
                 <div
-                  className={`font-12 font-w-400 ${styles.ruleItem} ${
-                    lengthValid ? styles.tip_title : styles.tip_color
-                  }`}
+                  className={`font-12 font-w-400 ${styles.ruleItem} ${lengthValid ? styles.tip_title : styles.tip_color
+                    }`}
                 >
                   <Iconify
                     icon="iconoir:check-circle-solid"
                     size={16}
-                    className={`mr-1 ${
-                      lengthValid ? styles.tip_title : styles.tip_color
-                    }`}
+                    className={`mr-1 ${lengthValid ? styles.tip_title : styles.tip_color
+                      }`}
                   />
                   {/* 8-100个字符 */}
                   {t("registerForm.passwordRule1")}
@@ -247,16 +253,14 @@ function RegisterPhone() {
               )}
               {showNumCheck && (
                 <div
-                  className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${
-                    numValid ? styles.tip_title : styles.tip_color
-                  }`}
+                  className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${numValid ? styles.tip_title : styles.tip_color
+                    }`}
                 >
                   <Iconify
                     icon="iconoir:check-circle-solid"
                     size={16}
-                    className={`mr-1 ${
-                      numValid ? styles.tip_title : styles.tip_color
-                    }`}
+                    className={`mr-1 ${numValid ? styles.tip_title : styles.tip_color
+                      }`}
                   />
                   {/* 至少包含一个数字 */}
                   {t("registerForm.passwordnum")}
@@ -264,16 +268,14 @@ function RegisterPhone() {
               )}
               {showCharCheck && (
                 <div
-                  className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${
-                    charValid ? styles.tip_title : styles.tip_color
-                  }`}
+                  className={`font-12 mt-0_5 font-w-400 ${styles.ruleItem} ${charValid ? styles.tip_title : styles.tip_color
+                    }`}
                 >
                   <Iconify
                     icon="iconoir:check-circle-solid"
                     size={16}
-                    className={`mr-1 ${
-                      charValid ? styles.tip_title : styles.tip_color
-                    }`}
+                    className={`mr-1 ${charValid ? styles.tip_title : styles.tip_color
+                      }`}
                   />
                   {/* 至少包含一个大写字母 */}
                   {t("registerForm.passwordletter")}
@@ -283,7 +285,7 @@ function RegisterPhone() {
           )}
 
           <div
-            className={`${styles.title_color} mb-5 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
+            className={`${styles.title_color} mb-3 mt-5 font-16 font-w-500 flex-x algin-center  cursor-pointer`}
           >
             {/* 推荐人的邀请码(选填) */}
             {t("registerForm.refereeTitle")}
@@ -310,29 +312,26 @@ function RegisterPhone() {
               />
             </Form.Item>
           )}
-          <ConfigProvider
-            theme={{
-              token: {
-                colorPrimary: "var(--theme-color)",
-              },
-            }}
+          <Form.Item
+            noStyle
+            name="agree"
+            valuePropName="checked"
+            rules={[{ required: false }]}
           >
-            <Form.Item
-              noStyle
-              name="agree"
-              valuePropName="checked"
-              rules={[{ required: false }]}
-            >
-              <Checkbox className="custom-checkbox  text-color-default ">
-                <p className={`${styles.title_color}`}>
-                  {/* 我已阅读并同意 */}
-                  {t("agree")}{" "}
-                  <span className="text-color">{t("protocol")}</span> {t("and")}{" "}
-                  <span className="text-color">{t("policy")}</span>
-                </p>
-              </Checkbox>
-            </Form.Item>
-          </ConfigProvider>
+            <Checkbox className="custom-checkbox  text-color-default ">
+              <p className={`${styles.title_color}`}>
+                {/* 我已阅读并同意 */}
+                {t("agree")}&nbsp;
+                <button type="button" className="text-color" onClick={(event) => {
+                  event.stopPropagation();
+                  goLink('user')
+                }}>{t('protocol')}</button>&nbsp;{t('and')}&nbsp;<button type="button" className="text-color" onClick={(event) => {
+                  event.stopPropagation();
+                  goLink('policy')
+                }}>{t('policy')}</button>
+              </p>
+            </Checkbox>
+          </Form.Item>
         </Form>
         {/* <Button type="primary" htmlType="submit" className="w-full button-color login-button mt-8" loading={loading}
 				onClick={onFinish}>
