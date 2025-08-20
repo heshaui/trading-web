@@ -144,6 +144,17 @@
   background-color: #f5f7fa;
 }
 
+.symbol_item.selected {
+  background-color: rgba(24, 144, 255, 0.08);
+  border-left: 3px solid var(--theme-color);
+  padding-left: 13px;
+}
+
+.symbol_item.selected .symbol_name {
+  color: var(--theme-color);
+  font-weight: 700;
+}
+
 .symbol_item:last-child {
   border-bottom: none;
 }
@@ -281,29 +292,29 @@
     max-width: 320px;
     max-height: 80vh;
   }
-  
+
   .search_container {
     padding: 12px 12px 8px 12px;
   }
-  
+
   .tabs_list {
     padding: 0 12px;
   }
-  
+
   .symbol_item {
     padding: 10px 12px;
   }
-  
+
   .symbol_name {
     font-size: 13px;
   }
-  
+
   .symbol_price {
     font-size: 13px;
   }
-  
+
   .symbol_change {
     font-size: 11px;
     min-width: 50px;
   }
-} 
+}

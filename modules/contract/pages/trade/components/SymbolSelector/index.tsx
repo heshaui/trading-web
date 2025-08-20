@@ -66,9 +66,10 @@ const SymbolItem: React.FC<{
   item: SymbolData;
   onSymbolClick: (item: SymbolData) => void;
   onToggleFavorite: (symbol: string) => void;
-}> = ({ item, onSymbolClick, onToggleFavorite }) => (
+  isSelected: boolean;
+}> = ({ item, onSymbolClick, onToggleFavorite, isSelected }) => (
   <div
-    className={styles.symbol_item}
+    className={`${styles.symbol_item} ${isSelected ? styles.selected : ''}`}
     onClick={() => onSymbolClick(item)}
   >
     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -107,8 +108,17 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 }) => {
   const { t } = useTranslation(["spot", "contract"]);
   const [searchValue, setSearchValue] = useState('');
-  const [activeTab, setActiveTab] = useState('usd-contract');
   const [dropdownVisible, setDropdownVisible] = useState(false);
+
+  // 根据当前选中的合约确定默认标签页
+  const getDefaultTab = () => {
+    if (typeof currentSymbol === 'object' && currentSymbol) {
+      return isUSDTMargined(currentSymbol) ? 'usd-contract' : 'coin-contract';
+    }
+    return 'usd-contract'; // 默认选择U本位合约
+  };
+
+  const [activeTab, setActiveTab] = useState(getDefaultTab);
 
   const handleTabClick = (key: string) => {
     setActiveTab(key);
@@ -118,6 +128,22 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     onSymbolSelect(item);
     setDropdownVisible(false);
   };
+
+  // 检查某个合约是否被选中
+  const isSymbolSelected = (item: SymbolData) => {
+    if (typeof currentSymbol === 'object' && currentSymbol) {
+      return currentSymbol.id === item.id;
+    }
+    return false;
+  };
+
+  // 当currentSymbol改变时，更新activeTab
+  React.useEffect(() => {
+    if (typeof currentSymbol === 'object' && currentSymbol) {
+      const newTab = isUSDTMargined(currentSymbol) ? 'usd-contract' : 'coin-contract';
+      setActiveTab(newTab);
+    }
+  }, [currentSymbol]);
 
   const filteredSymbols = (type: 'USD' | 'COIN') => {
     return symbolList
@@ -161,6 +187,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                     item={item}
                     onSymbolClick={handleSymbolClick}
                     onToggleFavorite={onToggleFavorite}
+                    isSelected={isSymbolSelected(item)}
                   />
                 ))}
               </div>
@@ -173,6 +200,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                     item={item}
                     onSymbolClick={handleSymbolClick}
                     onToggleFavorite={onToggleFavorite}
+                    isSelected={isSymbolSelected(item)}
                   />
                 ))}
               </div>
