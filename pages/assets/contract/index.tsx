@@ -28,6 +28,10 @@ import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import appStore from "@/store";
 import MaskableAmount from "@/components/MaskableAmount";
 import { highlightText } from "@/utils/highlight";
+import FundTransferModal from "@/modules/contract/pages/trade/components/FundTransferModal";
+import { encryptData } from "@/hooks/user-encrypt";
+import { getUserBalanceAll, transferAll } from "@/services/assets";
+import { toast } from "sonner";
 
 interface ContractAccountItem {
   symbol: string; // 币种
@@ -55,6 +59,9 @@ const Contract = observer(() => {
   const [hideSmallAssets, setHideSmallAssets] = useState(false); // 隐藏小额资产
   const [searchKeyword, setSearchKeyword] = useState(""); // 搜索关键词
 
+  const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
+  const [contractAssets, setContractAssets] = useState<any[]>([]); // 合约账户数据
+
   // 当前显示的币种
   const [showCoin, setShowCoin] = useState({
     number: "0.00091761",
@@ -63,7 +70,7 @@ const Contract = observer(() => {
   });
 
   // 划转弹窗
-  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [showFundTransferModal, setShowFundTransferModal] = useState(false);
   // 当前选中行
   const [record, setRecord] = useState<ContractAccountItem | null>(null);
 
@@ -176,7 +183,7 @@ const Contract = observer(() => {
             className="text-[var(--theme-color)] cursor-pointer"
             onClick={() => {
               setRecord(record);
-              setTransferModalOpen(true);
+              setShowFundTransferModal(true);
             }}
           >
             {t("account.transfer")}
@@ -245,10 +252,63 @@ const Contract = observer(() => {
     }
   };
 
+  const onBalanceUpdate = () => {
+    getContractBalance();
+    getSpotBalance();
+  };
+
+  // 处理资金划转确认
+  const handleFundTransferConfirm = async (transferData: any) => {
+    const dataEncrypt = await encryptData(transferData);
+    const res = await transferAll(dataEncrypt);
+    console.log("res:", res);
+    if (res.code === "0" && res.data) {
+      toast.success("划转成功");
+      // 通知父组件更新余额
+    } else {
+      toast.error("划转失败");
+    }
+    onBalanceUpdate();
+  };
+  // 获取合约账户余额
+  const getContractBalance = async () => {
+    try {
+      const accountList = await appStore.loadContractAssets();
+      setContractAssets(accountList);
+      console.log("Contract assets accountList:", accountList);
+    } catch (error) {
+      console.error("Failed to load contract assets:", error);
+    }
+  };
+
+  // 获取现货账户余额
+  const getSpotBalance = async () => {
+    try {
+      const res = await getUserBalanceAll();
+      console.log("getUserBalanceAll response:", res);
+      console.log("getUserBalanceAll res.data:", res.data);
+      console.log("getUserBalanceAll res.data type:", typeof res.data);
+
+      if (res.code === "0" && Array.isArray(res.data)) {
+        setSpotBalance(res.data);
+      } else {
+        console.error("获取现货余额失败:", res);
+        setSpotBalance([]);
+      }
+    } catch (error) {
+      console.error("获取现货余额异常:", error);
+      setSpotBalance([]);
+    }
+  };
+
+
+
   useEffect(() => {
     fetchData();
     const amountShow = appStore.getBanlanceShow();
     setShowAmount(amountShow);
+    getContractBalance();
+    getSpotBalance();
   }, []);
 
   // 是否是客户端渲染
@@ -460,6 +520,13 @@ const Contract = observer(() => {
           </div>
         </div>
       </ConfigProvider>
+      <FundTransferModal
+        visible={showFundTransferModal}
+        spotBalance={spotBalance}
+        contractBalance={contractAssets}
+        onClose={() => setShowFundTransferModal(false)}
+        onConfirm={handleFundTransferConfirm}
+      />
     </>
   );
 });

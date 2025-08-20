@@ -15,7 +15,11 @@ import ContractKlineChart from "./components/ContractKlineChart";
 import WebSocketService from "@/utils/websocket";
 import WaterfallLayout, { WaterfallItem } from "@/components/WaterfallLayout";
 import appStore from "@/store";
-import { createCoId, createOrder, getPublicMarketInfo } from "@/services/contract";
+import {
+  createCoId,
+  createOrder,
+  getPublicMarketInfo,
+} from "@/services/contract";
 
 import { getUserBalanceAll } from "@/services/assets";
 import { useAuth } from "@/context/AuthContext";
@@ -76,7 +80,6 @@ const TradePage = () => {
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
-
 
   // 获取现货账户余额
   const getSpotBalance = async () => {
@@ -215,11 +218,21 @@ const TradePage = () => {
       height: 284,
       content: <RealtimeTrade orderBookData={orderBookData} />,
     },
-    ...(isLoggedIn ? [{
-      columnSpan: 1,
-      height: 190,
-      content: <ContractAsset />,
-    }] : []),
+    ...(isLoggedIn
+      ? [
+        {
+          columnSpan: 1,
+          height: 190,
+          content: (
+            <ContractAsset
+              spotBalance={spotBalance}
+              contractBalance={contractAssets}
+              onBalanceUpdate={getContractBalance}
+            />
+          ),
+        },
+      ]
+      : []),
     {
       columnSpan: 4,
       minHeight: 400,
@@ -249,7 +262,6 @@ const TradePage = () => {
 
   // 获取币种列表
   useEffect(() => {
-
     if (publicInfo.contractList) {
       setSymbolList(publicInfo.contractList);
     }
@@ -313,7 +325,6 @@ const TradePage = () => {
       event: "sub",
       params: {
         channel: "market_e_btcusdt_kline_1day",
-
       },
     };
 
