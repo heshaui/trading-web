@@ -400,7 +400,7 @@ const TradePage = () => {
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (
