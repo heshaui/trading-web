@@ -291,11 +291,11 @@ const TradePage = () => {
 
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
 
-    const event = {
-      event: "sub",
-      params: { channel: "market_e_btcusdt_depth_step0" },
-      cb_id: "btcusdt",
-    };
+    // const event = {
+    //   event: "sub",
+    //   params: { channel: "market_e_btcusdt_depth_step0" },
+    //   cb_id: "btcusdt",
+    // };
 
 
     const event1 = {
@@ -307,35 +307,35 @@ const TradePage = () => {
       },
     };
 
-    const event2 = {
-      event: "sub",
-      params: {
-        channel: "market_e_btcusdt_trade_ticker",
-        cb_id: "btcusdt",
-      },
-    };
-    const event3 = {
-      event: "sub",
-      params: {
-        channel: "market_price_e_btcusdt",
-        cb_id: "btcusdt",
-      },
-    };
-    const event4 = {
-      event: "sub",
-      params: {
-        channel: "market_e_btcusdt_ticker",
-        cb_id: "btcusdt",
-      },
-    };
-    const event5 = {
-      event: "sub",
-      params: {
-        channel: "market_e_btcusdt_trade_ticker",
-        cb_id: "btcusdt",
-        top: 100
-      },
-    };
+    // const event2 = {
+    //   event: "sub",
+    //   params: {
+    //     channel: "market_e_btcusdt_trade_ticker",
+    //     cb_id: "btcusdt",
+    //   },
+    // };
+    // const event3 = {
+    //   event: "sub",
+    //   params: {
+    //     channel: "market_price_e_btcusdt",
+    //     cb_id: "btcusdt",
+    //   },
+    // };
+    // const event4 = {
+    //   event: "sub",
+    //   params: {
+    //     channel: "market_e_btcusdt_ticker",
+    //     cb_id: "btcusdt",
+    //   },
+    // };
+    // const event5 = {
+    //   event: "sub",
+    //   params: {
+    //     channel: "market_e_btcusdt_trade_ticker",
+    //     cb_id: "btcusdt",
+    //     top: 100
+    //   },
+    // };
 
     // 消息处理回调
     const handleMessage = (message: string) => {
@@ -386,12 +386,12 @@ const TradePage = () => {
 
     // 连接成功后发送订阅消息
     ws.setOnConnectedCallback(() => {
-      ws.send(JSON.stringify(event));
+      // ws.send(JSON.stringify(event));
       ws.send(JSON.stringify(event1));
-      ws.send(JSON.stringify(event2));
-      ws.send(JSON.stringify(event3));
-      ws.send(JSON.stringify(event4));
-      ws.send(JSON.stringify(event5));
+      // ws.send(JSON.stringify(event2));
+      // ws.send(JSON.stringify(event3));
+      // ws.send(JSON.stringify(event4));
+      // ws.send(JSON.stringify(event5));
     });
 
     // 建立连接
