@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import Menu from "@/components/bulletin/Menu";
 import DetailsComponent from "@/components/bulletin/Details";
 import { useEffect, useState } from "react";
 import {
@@ -171,10 +170,7 @@ const Details = () => {
       >
         <div
           className={`text-[16px] font-[500] 
-              ${activeKey === item.id
-              ? "text-[#FFF]"
-              : "text-[#676867]"
-            }`}
+              ${activeKey === item.id ? "text-[#FFF]" : "text-[#676867]"}`}
         >
           {item.languageContent}
         </div>
@@ -219,14 +215,12 @@ const Details = () => {
         {/* 底部 */}
         <div className="flex justify-center gap-[20px] p-[20px_120px] flex-1">
           {/* 左侧菜单 */}
-          <div className="min-w-[264px] min-h-[593px] bg-[var(--background18)] text-[var(--text-color6)] rounded-[8px] relative overflow-hidde border border-[var(--border-color4)]">
-            <Menu
-              menuData={menuData}
-              renderItem={renderItem}
-              loading={menuLoading}
-            />
+          <div className="min-w-[264px] bg-[var(--background18)] text-[var(--text-color6)] rounded-[8px]  p-[20px]  border-[0.5px] border-[var(--border-color4)]">
+            {menuData?.map((item) => {
+              return renderItem(item);
+            })}
           </div>
-          <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] border border-[var(--border-color4)]">
+          <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] border-[0.5px] border-[var(--border-color4)]">
             {/* 标题 */}
             <div className="text-[20px] font-[500] text-[var(--text-color5)] mb-[10px]">
               <div className="mb-[10px]"> {t("notice.center")}</div>
@@ -260,10 +254,7 @@ export default Details;
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", [
-        "notice",
-        "common",
-      ])),
+      ...(await serverSideTranslations(locale || "en", ["notice", "common"])),
     },
   };
 };
