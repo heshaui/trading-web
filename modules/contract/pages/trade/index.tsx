@@ -298,8 +298,17 @@ const TradePage = () => {
     };
 
 
+    // const event1 = {
+    //   event: "sub",
+    //   params: {
+    //     channel: "market_e_btcusdt_kline_1min",
+    //     cb_id: "btcusdt",
+
+    //   },
+    // };
+
     const event1 = {
-      event: "sub",
+      event: "req",
       params: {
         channel: "market_e_btcusdt_kline_1min",
         cb_id: "btcusdt",
