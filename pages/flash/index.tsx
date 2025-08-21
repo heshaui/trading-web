@@ -163,9 +163,16 @@ const FlashPage: NextPage = () => {
         : availableCoins[1]?.coinName || availableCoins[0]?.coinName || "";
 
       // 确保 quoteCoin 与 baseCoin 不同
-      if (validQuoteCoin === baseCoin && availableCoins.length > 1) {
+      // 获取当前应该使用的 baseCoin 值
+      const currentBaseCoin = availableCoins.find(
+        (coin) => coin.coinName === config.baseCoin
+      )
+        ? config.baseCoin
+        : availableCoins[0]?.coinName || "";
+
+      if (validQuoteCoin === currentBaseCoin && availableCoins.length > 1) {
         validQuoteCoin =
-          availableCoins.find((coin) => coin.coinName !== baseCoin)?.coinName ||
+          availableCoins.find((coin) => coin.coinName !== currentBaseCoin)?.coinName ||
           "";
       }
 
@@ -177,7 +184,7 @@ const FlashPage: NextPage = () => {
       }
       setQuteCoin(validQuoteCoin);
     } catch (error) { }
-  }, [coinList, baseCoin, configData]);
+  }, [coinList, configData]);
 
   const getPreTrade = useCallback(async () => {
     if (!baseCoin || !quteCoin) {
