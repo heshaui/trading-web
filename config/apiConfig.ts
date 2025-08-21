@@ -49,8 +49,9 @@ export const KV_KEYS = [
 
 export const ROUTER_KEY_ASSETS = {
   WITHDRAW_MONEY: "/assets/spot/withdrawMoney", //提现页面
-  TOP_UP: "/assets/spot/topUp", //充值页面
+  TOP_UP: "/assets/spot/topUp", //现货充值页面
   ADDADRESS: "/assets/address", //添加地址页面
+  CONTRACT_TOP_UP: "/assets/contract/topUp", //合约充值页面
 
   FINANCIAL_ACCOUNT: "/assets/financial", //理财账户
   CONTRACT_ACCOUNT: "/assets/contract", //合约账户

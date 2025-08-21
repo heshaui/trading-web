@@ -79,9 +79,9 @@ const Details = () => {
         )?.languageContent;
         if (curMenu) {
           setBreadcrumbItems([
-            { title: t("bulletinCenter.menu.all") },
+            { title: t("notice.menu.notice") },
             { title: curMenu },
-            { title: t("bulletinCenter.menu.article") },
+            { title: t("notice.article") },
           ]);
         }
       }
@@ -141,7 +141,7 @@ const Details = () => {
     setActiveKey(item.id);
 
     setBreadcrumbItems([
-      { title: t("bulletinCenter.menu.all") },
+      { title: t("notice.menu.notice") },
       { title: item.languageContent },
     ]);
     setCurSelectType(SelectType.List);
@@ -152,7 +152,7 @@ const Details = () => {
   const handleListClick = (item: any) => {
     setBreadcrumbItems([
       ...(breadcrumbItems || []),
-      { title: t("bulletinCenter.menu.article") },
+      { title: t("notice.article") },
     ]);
     setCurSelectType(SelectType.Details);
 
@@ -173,7 +173,7 @@ const Details = () => {
           className={`text-[16px] font-[500] 
               ${activeKey === item.id
               ? "text-[#FFF]"
-              : "text-[var(--text-color5)]"
+              : "text-[#676867]"
             }`}
         >
           {item.languageContent}
@@ -195,7 +195,7 @@ const Details = () => {
       theme={{
         components: {
           Breadcrumb: {
-            itemColor: "var(--text-color6)",
+            itemColor: "#676867",
           },
         },
       }}

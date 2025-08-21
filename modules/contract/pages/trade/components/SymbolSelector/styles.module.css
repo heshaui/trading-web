@@ -145,8 +145,7 @@
 }
 
 .symbol_item.selected {
-  background-color: rgba(24, 144, 255, 0.08);
-  border-left: 3px solid var(--theme-color);
+  background-color: var(--background10);
   padding-left: 13px;
 }
 
