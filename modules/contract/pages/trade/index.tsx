@@ -353,14 +353,7 @@ const TradePage = () => {
     //   },
     // };
 
-    const event1 = {
-      event: "req",
-      params: {
-        channel: "market_e_btcusdt_kline_1day",
-        cb_id: "btcusdt",
 
-      },
-    };
 
     const event2 = {
       event: "sub",
@@ -391,6 +384,38 @@ const TradePage = () => {
         top: 100
       },
     };
+    const event1 = {
+      event: "req",
+      params: {
+        channel: "market_e_btcusdt_kline_1day",
+        cb_id: "btcusdt",
+
+      },
+    };
+
+    const event6 = {
+      event: "sub",
+      params: {
+        channel: "kline_history_e_btcusdt_1day",
+        cb_id: "btcusdt",
+      }
+    }
+    const event7 = {
+      event: "req",
+      params: {
+        channel: "kline_history_e_btcusdt_1day",
+        cb_id: "btcusdt",
+      }
+    }
+
+    const event8 = {
+      event: "sub",
+      params: {
+        channel: "market_e_btcusdt_kline_1day",
+        cb_id: "btcusdt",
+
+      },
+    };
 
     // 消息处理回调
     const handleMessage = (message: string) => {
@@ -418,9 +443,11 @@ const TradePage = () => {
           // 处理K线数据
           console.log("收到K线数据:", data);
           const klineResponse = data as KlineResponse;
+
           if (klineResponse.event_rep === "rep" && klineResponse.data && Array.isArray(klineResponse.data)) {
-            console.log("K线数据条数:", klineResponse.data.length);
-            console.log("K线数据样本:", klineResponse.data.slice(0, 3));
+            // 处理历史K线数据
+            console.log("📊 处理历史K线数据条数:", klineResponse.data.length);
+            console.log("📊 历史K线数据样本:", klineResponse.data.slice(0, 3));
 
             // 转换数据格式为TradingView期望的格式
             const convertedKlineData = klineResponse.data.map(item => ({
@@ -431,16 +458,7 @@ const TradePage = () => {
               close: item.close,
               volume: item.vol
             }));
-
-            console.log("转换后的K线数据样本:", convertedKlineData.slice(0, 3));
-
-            // 添加详细的调试信息
-            console.log("🔍 详细调试信息:");
-            console.log("- 原始数据长度:", klineResponse.data.length);
-            console.log("- 转换后数据长度:", convertedKlineData.length);
-            console.log("- 第一条原始数据:", klineResponse.data[0]);
-            console.log("- 第一条转换后数据:", convertedKlineData[0]);
-            console.log("- 最后一条转换后数据:", convertedKlineData[convertedKlineData.length - 1]);
+            console.log("📊 转换后的历史数据:", convertedKlineData.length, "条");
 
             setKlineData(convertedKlineData);
 
@@ -455,6 +473,39 @@ const TradePage = () => {
                 volume24h: klineResponse.data.reduce((sum, k) => sum + k.vol, 0).toString(),
               }));
             }
+          } else if (klineResponse.tick && typeof klineResponse.tick === 'object') {
+            // 处理实时K线数据更新
+            console.log("📊 收到实时K线tick数据:", klineResponse.tick);
+
+            const tickData = klineResponse.tick as KlineDataItem;
+
+            // 转换实时数据为统一格式
+            const realtimeTick = {
+              time: new Date(tickData.ds).getTime(),
+              open: tickData.open,
+              high: tickData.high,
+              low: tickData.low,
+              close: tickData.close,
+              volume: tickData.vol
+            };
+
+            // 更新klineData状态，将实时数据作为WebSocket原始格式传递给TradingView
+            setKlineData(prevData => {
+              // 创建一个包含原始WebSocket数据的对象，TradingView组件会处理这个格式
+              const realtimeUpdate = {
+                ...data, // 保持原始WebSocket数据结构
+                timestamp: Date.now() // 添加时间戳确保React检测到变化
+              };
+
+              console.log("📊 传递实时数据给TradingView:", realtimeUpdate);
+              return realtimeUpdate as any;
+            });
+
+            // 更新价格数据
+            setPriceData((prevPriceData: any) => ({
+              ...prevPriceData,
+              price: tickData.close.toString(),
+            }));
           }
         } else if (data.channel === "market_e_btcusdt_depth_step0") {
           // 处理OrderBook深度数据
@@ -482,10 +533,13 @@ const TradePage = () => {
     ws.setOnConnectedCallback(() => {
       ws.send(JSON.stringify(event));
       ws.send(JSON.stringify(event1));
-      ws.send(JSON.stringify(event2));
-      ws.send(JSON.stringify(event3));
-      ws.send(JSON.stringify(event4));
-      ws.send(JSON.stringify(event5));
+      // ws.send(JSON.stringify(event2));
+      // ws.send(JSON.stringify(event3));
+      // ws.send(JSON.stringify(event4));
+      // ws.send(JSON.stringify(event5));
+      ws.send(JSON.stringify(event6));
+      ws.send(JSON.stringify(event7));
+      ws.send(JSON.stringify(event8));
     });
 
     // 建立连接
