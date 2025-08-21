@@ -321,6 +321,21 @@ const TradePage = () => {
         cb_id: "btcusdt",
       },
     };
+    const event4 = {
+      event: "sub",
+      params: {
+        channel: "market_e_btcusdt_ticker",
+        cb_id: "btcusdt",
+      },
+    };
+    const event5 = {
+      event: "sub",
+      params: {
+        channel: "market_e_btcusdt_trade_ticker",
+        cb_id: "btcusdt",
+        top: 100
+      },
+    };
 
     // 消息处理回调
     const handleMessage = (message: string) => {
@@ -375,6 +390,8 @@ const TradePage = () => {
       ws.send(JSON.stringify(event1));
       ws.send(JSON.stringify(event2));
       ws.send(JSON.stringify(event3));
+      ws.send(JSON.stringify(event4));
+      ws.send(JSON.stringify(event5));
     });
 
     // 建立连接
