@@ -36,6 +36,39 @@ interface ContractAsset {
   totalMarginRate: string;
 }
 
+// 原始K线数据项接口
+interface KlineDataItem {
+  amount: number;
+  close: number;
+  ds: string; // 时间字符串 "2025-08-21 11:58:00"
+  high: number;
+  id: number;
+  low: number;
+  open: number;
+  tradeId: number;
+  vol: number;
+}
+
+// 转换后的K线数据项接口（用于TradingView）
+interface ConvertedKlineItem {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+// K线WebSocket响应接口
+interface KlineResponse {
+  event_rep: string;
+  channel: string;
+  data: KlineDataItem[];
+  tick: null;
+  ts: number;
+  status: string;
+}
+
 // 币种数据类型 - 与SymbolSelector组件保持一致
 interface SymbolData {
   id: number;
@@ -78,6 +111,7 @@ const TradePage = () => {
   const [publicInfo, setPublicInfo] = useState<any>({}); // 公共数据
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]); // 币种列表
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
+  const [klineData, setKlineData] = useState<ConvertedKlineItem[]>([]); // K线数据
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
 
@@ -211,7 +245,7 @@ const TradePage = () => {
     {
       columnSpan: 3,
       height: 604,
-      content: <ContractKlineChart currentContractInfo={currentContractInfo} />,
+      content: <ContractKlineChart currentContractInfo={currentContractInfo} klineData={klineData} />,
     },
     {
       columnSpan: 1,
@@ -322,7 +356,7 @@ const TradePage = () => {
     const event1 = {
       event: "req",
       params: {
-        channel: "market_e_btcusdt_kline_1min",
+        channel: "market_e_btcusdt_kline_1day",
         cb_id: "btcusdt",
 
       },
@@ -380,9 +414,48 @@ const TradePage = () => {
         console.log("解析后的WebSocket消息:", data);
 
         // 这里可以处理接收到的数据，比如更新价格数据
-        if (data.channel === "market_btcusdt_kline_1min") {
+        if (data.channel === "market_e_btcusdt_kline_1day") {
           // 处理K线数据
-          setPriceData(data);
+          console.log("收到K线数据:", data);
+          const klineResponse = data as KlineResponse;
+          if (klineResponse.event_rep === "rep" && klineResponse.data && Array.isArray(klineResponse.data)) {
+            console.log("K线数据条数:", klineResponse.data.length);
+            console.log("K线数据样本:", klineResponse.data.slice(0, 3));
+
+            // 转换数据格式为TradingView期望的格式
+            const convertedKlineData = klineResponse.data.map(item => ({
+              time: new Date(item.ds).getTime(),
+              open: item.open,
+              high: item.high,
+              low: item.low,
+              close: item.close,
+              volume: item.vol
+            }));
+
+            console.log("转换后的K线数据样本:", convertedKlineData.slice(0, 3));
+
+            // 添加详细的调试信息
+            console.log("🔍 详细调试信息:");
+            console.log("- 原始数据长度:", klineResponse.data.length);
+            console.log("- 转换后数据长度:", convertedKlineData.length);
+            console.log("- 第一条原始数据:", klineResponse.data[0]);
+            console.log("- 第一条转换后数据:", convertedKlineData[0]);
+            console.log("- 最后一条转换后数据:", convertedKlineData[convertedKlineData.length - 1]);
+
+            setKlineData(convertedKlineData);
+
+            // 更新最新价格数据（使用最后一条K线数据）
+            const latestKline = klineResponse.data[klineResponse.data.length - 1];
+            if (latestKline) {
+              setPriceData((prevPriceData: any) => ({
+                ...prevPriceData,
+                price: latestKline.close.toString(),
+                high24h: Math.max(...klineResponse.data.map(k => k.high)).toString(),
+                low24h: Math.min(...klineResponse.data.map(k => k.low)).toString(),
+                volume24h: klineResponse.data.reduce((sum, k) => sum + k.vol, 0).toString(),
+              }));
+            }
+          }
         } else if (data.channel === "market_e_btcusdt_depth_step0") {
           // 处理OrderBook深度数据
           console.log("收到OrderBook数据:", data);
