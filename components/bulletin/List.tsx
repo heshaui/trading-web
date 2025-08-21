@@ -25,6 +25,7 @@ const List = ({
         },
         token: {
           colorSplit: "var(--border-color4)",
+          lineWidth: 0.5,
         },
       }}
     >
