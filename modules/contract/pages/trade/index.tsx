@@ -290,37 +290,35 @@ const TradePage = () => {
     if (!publicInfo.wsUrl) return;
 
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
-    // const event = {
-    //   "event": "sub",
-    //   "params": {
-    //     "channel": "market_btcusdt_kline_1min",
-    //     "cb_id": "btcusdt",
-    //   }
-    // };
+
     const event = {
       event: "sub",
       params: { channel: "market_e_btcusdt_depth_step0" },
+      cb_id: "btcusdt",
     };
 
-    // const event = {
-    //   "event": "sub",
-    //   "params": {
-    //     "channel": "market_btcusdt_depth_step0",
-    //     "cb_id": "btcusdt",
-    //   }
-    // };
-    const event2 = {
+
+    const event1 = {
       event: "sub",
       params: {
-        channel: "market_e_btcusdt_kline_1day",
+        channel: "market_e_btcusdt_kline_1min",
+        cb_id: "btcusdt",
 
       },
     };
 
-    const event3 = {
+    const event2 = {
       event: "sub",
       params: {
         channel: "market_e_btcusdt_trade_ticker",
+        cb_id: "btcusdt",
+      },
+    };
+    const event3 = {
+      event: "sub",
+      params: {
+        channel: "market_price_e_btcusdt",
+        cb_id: "btcusdt",
       },
     };
 
@@ -374,6 +372,7 @@ const TradePage = () => {
     // 连接成功后发送订阅消息
     ws.setOnConnectedCallback(() => {
       ws.send(JSON.stringify(event));
+      ws.send(JSON.stringify(event1));
       ws.send(JSON.stringify(event2));
       ws.send(JSON.stringify(event3));
     });
