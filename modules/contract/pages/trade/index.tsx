@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 
@@ -70,6 +70,7 @@ const TradePage = () => {
   const { t } = useTranslation(["contract", "spot", "common"]);
 
   const { isLoggedIn } = useAuth();
+  const orderListRef = useRef<any>(null);
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [orderBookData, setOrderBookData] = useState<any>(null); // 订单簿数据
   const [isClient, setIsClient] = useState(false); // 是否是客户端
@@ -137,6 +138,8 @@ const TradePage = () => {
 
     if (res.code === "0") {
       toast.success("订单提交成功");
+      orderListRef.current.getOrdinaryCommission();
+      orderListRef.current.getPosition();
     } else {
       toast.error(res.msg);
     }
@@ -203,7 +206,7 @@ const TradePage = () => {
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
           spotBalance={spotBalance}
           contractBalance={contractAssets}
-          onOrderSubmit={handleOrderSubmit}
+          onOrderSubmit={handleOrderSubmit} // 父组件的订单提交函数
           onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
         />
       ),
@@ -236,7 +239,7 @@ const TradePage = () => {
     {
       columnSpan: 4,
       minHeight: 400,
-      content: <OrderList />,
+      content: <OrderList ref={orderListRef} />,
     },
     {
       columnSpan: 1,
