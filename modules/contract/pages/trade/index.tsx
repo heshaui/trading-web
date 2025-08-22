@@ -248,7 +248,7 @@ const TradePage = () => {
     {
       columnSpan: 3,
       height: 60,
-      content: <ContractHeader mockPriceData={mockPriceData} />,
+      content: <ContractHeader mockPriceData={priceData || mockPriceData} />,
     },
     {
       columnSpan: 1,
@@ -260,8 +260,8 @@ const TradePage = () => {
       minHeight: 522,
       content: (
         <ContractTradingPanel
-          symbol={mockPriceData.symbol}
-          lastPrice={parseFloat(mockPriceData.price.replace(/,/g, ""))}
+          symbol={currentContractInfo.symbol || mockPriceData.symbol}
+          lastPrice={parseFloat((priceData?.price || mockPriceData.price).toString().replace(/,/g, ""))}
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
           spotBalance={spotBalance}
           contractBalance={contractAssets}
@@ -355,13 +355,47 @@ const TradePage = () => {
     initializeClientData();
   }, []);
 
+  // 监听store中currentContractInfo的变化
+  useEffect(() => {
+    const checkContractInfoChange = () => {
+      const storeContractInfo = appStore.getCurrentContractInfo();
+      // 只有当store中的合约信息与当前state不同时才更新
+      if (storeContractInfo && storeContractInfo.id !== currentContractInfo.id) {
+        console.log("检测到合约切换:", storeContractInfo);
+
+        // 清理旧的数据状态
+        setOrderBookData(null);
+        setPriceData(null);
+        setKlineData(null);
+
+        // 更新合约信息
+        setCurrentContractInfo(storeContractInfo);
+
+        // 重新获取账户余额（因为可能需要不同的保证金币种）
+        getContractBalance();
+      }
+    };
+
+    // 使用轮询方式检查store变化（简单方案）
+    const interval = setInterval(checkContractInfoChange, 100);
+
+    return () => clearInterval(interval);
+  }, [currentContractInfo.id]);
+
   // WebSocket连接和数据订阅
   useEffect(() => {
     // 检查必要的数据是否已准备好
     if (!publicInfo.wsUrl || !currentContractInfo.id || !currentContractInfo.contractType || !currentContractInfo.symbol) {
+      console.log("WebSocket连接条件不满足:", {
+        wsUrl: !!publicInfo.wsUrl,
+        contractId: !!currentContractInfo.id,
+        contractType: !!currentContractInfo.contractType,
+        symbol: !!currentContractInfo.symbol
+      });
       return;
     }
 
+    console.log("开始建立WebSocket连接，合约信息:", currentContractInfo);
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
 
     // 获取当前时间间隔对应的WebSocket格式
@@ -453,7 +487,7 @@ const TradePage = () => {
         console.log("解析后的WebSocket消息:", data);
 
         // 处理K线数据 - 动态检查不同时间间隔的K线数据
-        if (data.channel && data.channel.includes("market_e_btcusdt_kline_")) {
+        if (data.channel && data.channel.includes("_kline_")) {
           console.log("收到K线数据:", data);
           // 直接传递原始WebSocket数据给TradingView组件处理
           setKlineData(data);
@@ -476,7 +510,7 @@ const TradePage = () => {
               price: data.tick.close.toString(),
             }));
           }
-        } else if (data.channel === "market_e_btcusdt_depth_step0") {
+        } else if (data.channel && data.channel.includes("_depth_step0")) {
           // 处理OrderBook深度数据
           console.log("收到OrderBook数据:", data);
           if (data.tick) {
@@ -515,6 +549,7 @@ const TradePage = () => {
 
     // 清理函数
     return () => {
+      console.log("关闭WebSocket连接");
       ws.close();
     };
   }, [publicInfo.wsUrl, currentContractInfo, currentTimeInterval]);
@@ -528,6 +563,7 @@ const TradePage = () => {
     <>
       {/* 瀑布流布局 */}
       <div className="bg-[var(--background14)] min-w-[1440px]">
+
         <WaterfallLayout items={items} gap={4} />
       </div>
 

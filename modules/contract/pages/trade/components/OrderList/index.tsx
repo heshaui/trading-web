@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { observer } from 'mobx-react-lite';
 import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
 import {
@@ -130,7 +131,7 @@ interface TradeHistory {
   createTime: number;
 }
 
-const OrderList = forwardRef((props, ref) => {
+const OrderList = observer(forwardRef((props, ref) => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
   // 当前tab
@@ -1410,7 +1411,7 @@ const OrderList = forwardRef((props, ref) => {
       />
     </>
   );
-});
+}));
 
 OrderList.displayName = 'OrderList';
 

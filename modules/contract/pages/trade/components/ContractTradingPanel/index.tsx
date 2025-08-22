@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { observer } from 'mobx-react-lite';
 import {
   Button,
   Input,
@@ -44,7 +45,7 @@ interface ContractTradingPanelProps {
   onBalanceUpdate?: () => void; // 新增余额更新回调
 }
 
-const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
+const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   symbol = "BTCUSDT",
   lastPrice = "",
   availableBalance = 0,
@@ -838,6 +839,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = ({
       </div>
     </ConfigProvider>
   );
-};
+});
 
 export default ContractTradingPanel;
