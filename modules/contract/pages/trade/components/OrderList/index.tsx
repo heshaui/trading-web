@@ -195,7 +195,12 @@ const OrderList = forwardRef((props, ref) => {
     const res = await getAssetsList({
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
-    console.log(res);
+    if (res.code === "0") {
+      setPositions(res.data.list);
+    } else {
+      setPositions([]);
+      message.error(res.msg);
+    }
   }, []);
 
   // 获取普通委托(当前委托)
@@ -1182,7 +1187,7 @@ const OrderList = forwardRef((props, ref) => {
   const tabItems = [
     {
       key: "position",
-      label: `仓位(${filterDataBySymbol(positions).length})`,
+      label: `仓位(${filterDataBySymbol(positions)?.length || 0})`,
       children: (
         <Table<Position>
           scroll={{ x: "max-content" }}
@@ -1292,7 +1297,6 @@ const OrderList = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
-      getOrdinaryCommissionNumber();
       const map = {
         position: () => getPosition(),
         openOrders: () => getOrdinaryCommission(),
@@ -1314,8 +1318,13 @@ const OrderList = forwardRef((props, ref) => {
     getHistoryCommission,
     getProfitLoss,
     getTradeHistory,
-    getOrdinaryCommissionNumber,
   ]);
+
+  useEffect(() => {
+    if (currentContractInfo?.id && isLoggedIn) {
+      getOrdinaryCommissionNumber();
+    }
+  }, [currentContractInfo?.id, isLoggedIn, getOrdinaryCommissionNumber]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
