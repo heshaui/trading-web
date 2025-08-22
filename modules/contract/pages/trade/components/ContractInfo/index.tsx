@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react-lite';
 import appStore from "@/store";
 /**
  * base: 基础币种
@@ -23,7 +24,7 @@ import appStore from "@/store";
  * sort: 排序
  * symbol: 合约符号
  */
-const ContractInfo = () => {
+const ContractInfo = observer(() => {
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
   console.info(currentContractInfo, "0000000000000000000000");
@@ -64,6 +65,6 @@ const ContractInfo = () => {
       </div>
     </div>
   );
-};
+});
 
 export default ContractInfo;

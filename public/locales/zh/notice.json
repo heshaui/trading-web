@@ -1,7 +1,8 @@
 {
   "notice": {
-    "center": "公共中心",
+    "center": "公告中心",
     "all": "全部公告",
+    "article": "文章",
     "menu": {
       "notice": "公告",
       "account": "账户",

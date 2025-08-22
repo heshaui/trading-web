@@ -594,3 +594,18 @@ export const getTradeInfo = async (params: any) => {
     throw error;
   }
 };
+
+// 获取普通委托数量
+export const getCurrentOrderNum = async (params: any) => {
+  try {
+    const response = await request<any>("/fe-co-api/order/current_order_list", {
+      method: "POST",
+      headers: formatHeaders(),
+      body: JSON.stringify(params),
+    });
+    return response;
+  } catch (error) {
+    console.error("获取普通委托数量失败:", error);
+    throw error;
+  }
+};

@@ -964,7 +964,10 @@ class AppStore {
   setPublicInfo(info: any) {
     this.publicInfo = info;
 
-    // 如果 currentContractInfo 为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
+    // 首先尝试从本地存储恢复合约信息
+    this.initCurrentContractInfoFromStorage();
+
+    // 如果 currentContractInfo 仍为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
     if (
       !this.currentContractInfo ||
       Object.keys(this.currentContractInfo).length === 0
@@ -975,6 +978,13 @@ class AppStore {
         info.contractList.length > 0
       ) {
         this.currentContractInfo = info.contractList[0];
+        // 新设置的默认合约也要持久化
+        if (isBrowser()) {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO,
+            JSON.stringify(this.currentContractInfo)
+          );
+        }
       }
     }
 
@@ -992,6 +1002,14 @@ class AppStore {
     this.currentContractInfo = this.publicInfo?.contractList?.find(
       (item: any) => item.id === contractId
     );
+
+    // 持久化到本地存储
+    if (isBrowser() && this.currentContractInfo) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO,
+        JSON.stringify(this.currentContractInfo)
+      );
+    }
   }
 
   // 获取当前合约信息
@@ -1002,6 +1020,38 @@ class AppStore {
   // 清除当前合约信息
   clearCurrentContractInfo() {
     this.currentContractInfo = {};
+    if (isBrowser()) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO);
+    }
+  }
+
+  // 从本地存储初始化当前合约信息
+  initCurrentContractInfoFromStorage() {
+    if (!isBrowser()) return;
+
+    try {
+      const storedInfo = localStorage.getItem(
+        LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO
+      );
+      if (storedInfo) {
+        const parsedInfo = JSON.parse(storedInfo);
+        // 验证存储的合约信息是否仍然有效（在当前的合约列表中存在）
+        if (this.publicInfo?.contractList && parsedInfo?.id) {
+          const isValid = this.publicInfo.contractList.some(
+            (item: any) => item.id === parsedInfo.id
+          );
+          if (isValid) {
+            this.currentContractInfo = parsedInfo;
+          } else {
+            // 如果存储的合约信息无效，清除它
+            localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error loading current contract info from storage:", error);
+      localStorage.removeItem(LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO);
+    }
   }
 
   // 用户合约配置相关方法
