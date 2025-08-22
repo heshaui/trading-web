@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 
@@ -114,6 +114,7 @@ const TradePage = () => {
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
   const [klineData, setKlineData] = useState<any>(null); // K线数据
   const [currentTimeInterval, setCurrentTimeInterval] = useState<string>("1day"); // 当前时间间隔
+  const [wsInstance, setWsInstance] = useState<WebSocketService | null>(null); // WebSocket实例
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
 
@@ -122,32 +123,30 @@ const TradePage = () => {
   const getSpotBalance = async () => {
     try {
       const res = await getUserBalanceAll();
-      console.log("getUserBalanceAll response:", res);
-      console.log("getUserBalanceAll res.data:", res.data);
-      console.log("getUserBalanceAll res.data type:", typeof res.data);
+
 
       if (res.code === "0" && Array.isArray(res.data)) {
         setSpotBalance(res.data);
       } else {
-        console.error("获取现货余额失败:", res);
+
         setSpotBalance([]);
       }
     } catch (error) {
-      console.error("获取现货余额异常:", error);
+
       setSpotBalance([]);
     }
   };
 
   // 获取合约账户余额
-  const getContractBalance = async () => {
+  const getContractBalance = useCallback(async () => {
     try {
       const accountList = await appStore.loadContractAssets();
       setContractAssets(accountList);
-      console.log("Contract assets accountList:", accountList);
+
     } catch (error) {
-      console.error("Failed to load contract assets:", error);
+
     }
-  };
+  }, []);
 
   // 获取特定币种的资产信息
   const getAssetBySymbol = (symbol: string): ContractAsset | undefined => {
@@ -219,36 +218,201 @@ const TradePage = () => {
     return intervalMap[interval] || "1day";
   };
 
+  // 发送WebSocket取消订阅消息
+  const sendUnsubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string) => {
+    if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
+      return;
+    }
+
+    const wsTimeInterval = convertTimeInterval(timeInterval);
+    console.log("发送取消订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval);
+
+    // 取消订单簿数据订阅
+    const unsubDepthEvent = {
+      event: "unsub",
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
+      cb_id: contractInfo.symbol.toLowerCase(),
+    };
+
+    // 取消交易数据订阅
+    const unsubTradeEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 取消价格数据订阅
+    const unsubPriceEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_price_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 取消Ticker数据订阅
+    const unsubTickerEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 取消实时交易数据订阅
+    const unsubRealtimeTradeEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+        top: 100
+      },
+    };
+
+    // 取消K线数据订阅
+    const unsubKlineSubEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 发送所有取消订阅消息
+    ws.send(JSON.stringify(unsubDepthEvent));
+    ws.send(JSON.stringify(unsubTradeEvent));
+    ws.send(JSON.stringify(unsubPriceEvent));
+    ws.send(JSON.stringify(unsubTickerEvent));
+    ws.send(JSON.stringify(unsubRealtimeTradeEvent));
+    ws.send(JSON.stringify(unsubKlineSubEvent));
+
+    console.log("已发送取消订阅消息:", {
+      depth: unsubDepthEvent.params.channel,
+      kline: unsubKlineSubEvent.params.channel
+    });
+  }, []);
+
+  // 发送新的订阅消息
+  const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string) => {
+    const wsTimeInterval = convertTimeInterval(timeInterval);
+    console.log("发送订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval);
+
+    // 订单簿数据
+    const depthEvent = {
+      event: "sub",
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
+      cb_id: contractInfo.symbol.toLowerCase(),
+    };
+
+    // 交易数据
+    const tradeEvent = {
+      event: "sub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 价格数据
+    const priceEvent = {
+      event: "sub",
+      params: {
+        channel: `market_price_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // Ticker数据
+    const tickerEvent = {
+      event: "sub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 实时交易数据
+    const realtimeTradeEvent = {
+      event: "sub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+        top: 100
+      },
+    };
+
+    // K线数据请求（获取历史数据）
+    const klineReqEvent = {
+      event: "req",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // K线数据订阅（获取实时更新）
+    const klineSubEvent = {
+      event: "sub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 发送所有订阅消息
+    ws.send(JSON.stringify(depthEvent));
+    ws.send(JSON.stringify(tradeEvent));
+    ws.send(JSON.stringify(priceEvent));
+    ws.send(JSON.stringify(tickerEvent));
+    ws.send(JSON.stringify(realtimeTradeEvent));
+    ws.send(JSON.stringify(klineReqEvent));
+    ws.send(JSON.stringify(klineSubEvent));
+
+    console.log("已发送订阅消息:", {
+      depth: depthEvent.params.channel,
+      kline: klineSubEvent.params.channel
+    });
+  }, []);
+
+  // 发送WebSocket订阅消息
+  const sendSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, shouldUnsubscribeFirst: boolean = false) => {
+    if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
+      console.log("合约信息不完整，无法发送订阅:", contractInfo);
+      return;
+    }
+
+    // 如果需要先取消订阅，则先发送取消订阅消息
+    if (shouldUnsubscribeFirst) {
+      sendUnsubscriptions(ws, contractInfo, timeInterval);
+      // 等待一小段时间确保取消订阅消息被处理
+      setTimeout(() => {
+        sendNewSubscriptions(ws, contractInfo, timeInterval);
+      }, 100);
+    } else {
+      sendNewSubscriptions(ws, contractInfo, timeInterval);
+    }
+  }, [sendUnsubscriptions, sendNewSubscriptions]);
+
   // 处理时间间隔变化
   const handleTimeIntervalChange = (interval: string) => {
     console.log("时间间隔变化:", interval);
     setCurrentTimeInterval(interval);
-    // 这里可以添加其他逻辑，比如重新订阅WebSocket或更新K线数据
+
+    // 如果WebSocket已连接且合约信息完整，重新发送K线订阅
+    if (wsInstance && currentContractInfo.id) {
+      sendSubscriptions(wsInstance, currentContractInfo, interval, true);  // 时间间隔变化时也先取消旧订阅
+    }
   };
 
-  // 模拟价格数据
-  const mockPriceData = {
-    symbol: "BTCUSDT",
-    price: "0",
-    priceUsd: "0",
-    changePercent: "0",
-    change24h: "0",
-    high24h: "0",
-    low24h: "0",
-    volume24h: "0",
-    markPrice: "0",
-    indexPrice: "0",
-    fundingRate: "0",
-    fundingCountdown: "00:00:00",
-    volume24hUSD: "0",
-    isUp: true,
-  };
+
 
   const items: WaterfallItem[] = [
     {
       columnSpan: 3,
       height: 60,
-      content: <ContractHeader mockPriceData={priceData || mockPriceData} />,
+      content: <ContractHeader priceData={priceData} />,
     },
     {
       columnSpan: 1,
@@ -260,8 +424,8 @@ const TradePage = () => {
       minHeight: 522,
       content: (
         <ContractTradingPanel
-          symbol={currentContractInfo.symbol || mockPriceData.symbol}
-          lastPrice={parseFloat((priceData?.price || mockPriceData.price).toString().replace(/,/g, ""))}
+          symbol={currentContractInfo.symbol}
+          lastPrice={parseFloat((priceData?.price))}
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
           spotBalance={spotBalance}
           contractBalance={contractAssets}
@@ -353,7 +517,7 @@ const TradePage = () => {
     };
 
     initializeClientData();
-  }, []);
+  }, [getContractBalance]);
 
   // 监听store中currentContractInfo的变化
   useEffect(() => {
@@ -371,6 +535,14 @@ const TradePage = () => {
         // 更新合约信息
         setCurrentContractInfo(storeContractInfo);
 
+        // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
+        if (wsInstance) {
+          console.log("合约切换：使用现有WebSocket连接重新发送订阅");
+          sendSubscriptions(wsInstance, storeContractInfo, currentTimeInterval, true);  // 先取消旧订阅
+        } else {
+          console.log("合约切换：WebSocket未连接，等待连接建立");
+        }
+
         // 重新获取账户余额（因为可能需要不同的保证金币种）
         getContractBalance();
       }
@@ -380,107 +552,27 @@ const TradePage = () => {
     const interval = setInterval(checkContractInfoChange, 100);
 
     return () => clearInterval(interval);
-  }, [currentContractInfo.id]);
+  }, [currentContractInfo.id, wsInstance, currentTimeInterval, sendSubscriptions, getContractBalance]);
 
-  // WebSocket连接和数据订阅
+  // WebSocket连接管理（只负责建立连接）
   useEffect(() => {
-    // 检查必要的数据是否已准备好
-    if (!publicInfo.wsUrl || !currentContractInfo.id || !currentContractInfo.contractType || !currentContractInfo.symbol) {
-      console.log("WebSocket连接条件不满足:", {
-        wsUrl: !!publicInfo.wsUrl,
-        contractId: !!currentContractInfo.id,
-        contractType: !!currentContractInfo.contractType,
-        symbol: !!currentContractInfo.symbol
-      });
+    // 只需要检查WebSocket URL是否存在
+    if (!publicInfo.wsUrl) {
+      console.log("WebSocket URL未准备好");
       return;
     }
 
-    console.log("开始建立WebSocket连接，合约信息:", currentContractInfo);
+    console.log("建立WebSocket连接，URL:", publicInfo.wsUrl);
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
-
-    // 获取当前时间间隔对应的WebSocket格式
-    const wsTimeInterval = convertTimeInterval(currentTimeInterval);
-    console.log("WebSocket订阅时间间隔:", wsTimeInterval);
-    console.log("currentContractInfo:", currentContractInfo);
-    // 订单簿数据
-    const depthEvent = {
-      event: "sub",
-      // params: { channel: "market_e_btcusdt_depth_step0" },
-      params: { channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
-      cb_id: "btcusdt",
-    };
-
-    // 交易数据
-    const tradeEvent = {
-      event: "sub",
-      params: {
-        // channel: "market_e_btcusdt_trade_ticker",
-        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
-        cb_id: "btcusdt",
-      },
-    };
-
-    // 价格数据
-    const priceEvent = {
-      event: "sub",
-      params: {
-        // channel: "market_price_e_btcusdt",
-        channel: `market_price_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}`,
-        cb_id: "btcusdt",
-      },
-    };
-
-    // Ticker数据
-    const tickerEvent = {
-      event: "sub",
-      params: {
-        // channel: "market_e_btcusdt_ticker",
-        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_ticker`,
-        cb_id: "btcusdt",
-      },
-    };
-
-    // 实时交易数据
-    const realtimeTradeEvent = {
-      event: "sub",
-      params: {
-        // channel: "market_e_btcusdt_trade_ticker",
-        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
-        cb_id: "btcusdt",
-        top: 100
-      },
-    };
-
-    // K线数据请求（获取历史数据）
-    const klineReqEvent = {
-      event: "req",
-      params: {
-        // channel: `market_e_btcusdt_kline_${wsTimeInterval}`,
-        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
-        cb_id: "btcusdt",
-      },
-    };
-
-    // K线数据订阅（获取实时更新）
-    const klineSubEvent = {
-      event: "sub",
-      params: {
-        // channel: `market_e_btcusdt_kline_${wsTimeInterval}`,
-        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
-        cb_id: "btcusdt",
-      },
-    };
+    setWsInstance(ws);
 
     // 消息处理回调
     const handleMessage = (message: string) => {
       try {
-
-
         // 如果消息看起来像是乱码，尝试打印十六进制
         if (message.includes("�") || message.length < 10) {
           const encoder = new TextEncoder();
           const bytes = encoder.encode(message);
-
         }
 
         const data = JSON.parse(message);
@@ -532,16 +624,16 @@ const TradePage = () => {
       console.error("WebSocket连接错误:", error);
     };
 
-    // 连接成功后发送订阅消息
+    // 连接成功后的回调
     ws.setOnConnectedCallback(() => {
-      ws.send(JSON.stringify(depthEvent));
-      ws.send(JSON.stringify(tradeEvent));
-      ws.send(JSON.stringify(priceEvent));
-      ws.send(JSON.stringify(tickerEvent));
-      ws.send(JSON.stringify(realtimeTradeEvent));
-      ws.send(JSON.stringify(klineReqEvent));
-      ws.send(JSON.stringify(klineSubEvent));
-      console.log("已订阅K线数据:", klineSubEvent.params.channel);
+      console.log("WebSocket连接成功");
+      // 如果合约信息已经准备好，立即发送订阅
+      if (currentContractInfo.id && currentContractInfo.contractType && currentContractInfo.symbol) {
+        console.log("WebSocket连接成功且合约信息已准备好，立即发送订阅");
+        sendSubscriptions(ws, currentContractInfo, currentTimeInterval);
+      } else {
+        console.log("WebSocket连接成功，但合约信息尚未准备好，等待合约信息");
+      }
     });
 
     // 建立连接
@@ -549,10 +641,19 @@ const TradePage = () => {
 
     // 清理函数
     return () => {
-      console.log("关闭WebSocket连接");
+      console.log("清理WebSocket连接");
+      setWsInstance(null);
       ws.close();
     };
-  }, [publicInfo.wsUrl, currentContractInfo, currentTimeInterval]);
+  }, [publicInfo.wsUrl, currentContractInfo, currentTimeInterval, sendSubscriptions]);
+
+  // 当合约信息准备好且WebSocket已连接时，发送初始订阅
+  useEffect(() => {
+    if (wsInstance && currentContractInfo.id && currentContractInfo.contractType && currentContractInfo.symbol) {
+      console.log("WebSocket已连接且合约信息准备好，发送初始订阅");
+      sendSubscriptions(wsInstance, currentContractInfo, currentTimeInterval);
+    }
+  }, [wsInstance, currentContractInfo, currentTimeInterval, sendSubscriptions]);
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {

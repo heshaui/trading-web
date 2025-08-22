@@ -93,20 +93,27 @@ const Tradingview: React.ForwardRefRenderFunction<
     // 创建图表函数
     const createChart = useCallback(() => {
       if (!chartContainerRef.current || tvWidget || initCompletedRef.current) {
+        console.log("创建图表被跳过:", {
+          hasContainer: !!chartContainerRef.current,
+          hasTvWidget: !!tvWidget,
+          initCompleted: initCompletedRef.current
+        });
         return;
       }
+
+      console.log("开始创建TradingView图表");
 
       try {
         const tvTimeInterval = convertTimeInterval(timeInterval);
         const chartSymbol = symbol || "BTC_USDT_1";
 
-        // 使用当前最新的klineData
-        const currentData = klineData || wsDataRef.current;
+        // 使用当前最新的klineData，如果没有数据则传null让TradingView显示"No data"
+        const currentData = klineData || wsDataRef.current || null;
         console.log("🎯 创建datafeed，使用数据:", {
           hasCurrentData: !!currentData,
           dataType: typeof currentData,
           dataKeys: currentData && typeof currentData === 'object' ? Object.keys(currentData) : null,
-          dataSource: currentData === klineData ? 'klineData' : 'wsDataRef.current'
+          dataSource: currentData === klineData ? 'klineData' : (currentData === wsDataRef.current ? 'wsDataRef.current' : 'null')
         });
 
         const datafeed = createDatafeed(
@@ -165,17 +172,29 @@ const Tradingview: React.ForwardRefRenderFunction<
           },
         };
 
+        console.log("创建TradingView widget实例");
         const newWidget = new widget(widgetOptions as any);
+        console.log("TradingView widget创建成功，设置状态");
         setTvWidget(newWidget);
 
         newWidget.onChartReady(() => {
-          newWidget.chart().setChartType(chartType);
-          newWidget.chart().createStudy("Volume", false, false, {
-            "volume.color.0": "#00FF00",
-            "volume.color.1": "#FF0000",
-            "volume.transparency": 30,
-            "volume.width": 1,
-          });
+          console.log("TradingView图表已准备好");
+          try {
+            if (newWidget && newWidget.chart && typeof newWidget.chart === 'function') {
+              const chart = newWidget.chart();
+              if (chart && typeof chart.setChartType === 'function' && typeof chart.createStudy === 'function') {
+                chart.setChartType(chartType);
+                chart.createStudy("Volume", false, false, {
+                  "volume.color.0": "#00FF00",
+                  "volume.color.1": "#FF0000",
+                  "volume.transparency": 30,
+                  "volume.width": 1,
+                });
+              }
+            }
+          } catch (error) {
+            console.error("图表初始化时出错:", error);
+          }
         });
 
         initCompletedRef.current = true;
@@ -194,22 +213,6 @@ const Tradingview: React.ForwardRefRenderFunction<
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [symbol, timeInterval, chartType, klineData, isDayMode]); // 移除不必要的依赖
 
-    // 重建图表函数
-    const recreateChart = useCallback(() => {
-      if (tvWidget) {
-        try {
-          tvWidget.remove();
-          setTvWidget(null);
-          initCompletedRef.current = false;
-          setTimeout(createChart, 100);
-        } catch (e) {
-
-        }
-      } else {
-        createChart();
-      }
-    }, [tvWidget, createChart]);
-
     // 主要的初始化和依赖监听
     useEffect(() => {
       // 更新数据引用
@@ -221,16 +224,40 @@ const Tradingview: React.ForwardRefRenderFunction<
 
       // 如果主题变化，重建图表
       if (prevThemeRef.current !== null && prevThemeRef.current !== isDayMode) {
-        recreateChart();
-      } else if (!tvWidget) {
+        console.log("主题变化，重建图表");
+        if (tvWidget) {
+          try {
+            if (tvWidget.remove && typeof tvWidget.remove === 'function') {
+              tvWidget.remove();
+            }
+            setTvWidget(null);
+            initCompletedRef.current = false;
+          } catch (e) {
+            console.error("移除图表时出错:", e);
+          }
+        }
+        setTimeout(() => createChart(), 100);
+      } else if (!tvWidget && !initCompletedRef.current) {
         // 首次创建图表
         console.log("🎯 首次创建图表，当前数据状态:", {
           hasKlineData: !!klineData,
           klineDataType: typeof klineData,
-          klineDataKeys: klineData && typeof klineData === 'object' ? Object.keys(klineData) : null
+          klineDataKeys: klineData && typeof klineData === 'object' ? Object.keys(klineData) : null,
+          hasSymbol: !!symbol,
+          symbol: symbol,
+          timeInterval: timeInterval,
+          hasContainer: !!chartContainerRef.current
         });
         // 始终创建图表，即使没有数据（TradingView会显示"no data"但至少有图表）
-        setTimeout(createChart, 100);
+        setTimeout(() => {
+          console.log("定时器触发，调用createChart");
+          createChart();
+        }, 100);
+      } else {
+        console.log("跳过图表创建:", {
+          hasTvWidget: !!tvWidget,
+          initCompleted: initCompletedRef.current
+        });
       }
 
       prevThemeRef.current = isDayMode;
@@ -238,28 +265,41 @@ const Tradingview: React.ForwardRefRenderFunction<
       return () => {
         if (tvWidget) {
           try {
-            tvWidget.remove();
+            if (tvWidget.remove && typeof tvWidget.remove === 'function') {
+              tvWidget.remove();
+            }
             initCompletedRef.current = false;
           } catch (e) {
-
+            console.error("清理图表时出错:", e);
           }
           setTvWidget(null);
         }
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [symbol, timeInterval, chartType, isDayMode, klineData]); // 手动控制依赖
+      // eslint-disable-next-line react-hooks/exhaustive-deps  
+    }, [symbol, timeInterval, chartType, isDayMode]); // 移除klineData依赖，避免频繁重建
 
-    // 监听主题变化事件
+    // 监听主题变化事件 - 直接处理，避免循环依赖
     useEffect(() => {
       const handleThemeChange = () => {
-        recreateChart();
+        if (tvWidget) {
+          try {
+            if (tvWidget.remove && typeof tvWidget.remove === 'function') {
+              tvWidget.remove();
+            }
+            setTvWidget(null);
+            initCompletedRef.current = false;
+          } catch (e) {
+            console.error("主题变化时移除图表出错:", e);
+          }
+        }
+        setTimeout(() => createChart(), 100);
       };
 
       window.addEventListener("themeChange", handleThemeChange);
       return () => {
         window.removeEventListener("themeChange", handleThemeChange);
       };
-    }, [recreateChart]);
+    }, [tvWidget, createChart]);
 
     // 已在上面的初始化函数中处理了主题变化的逻辑
 
@@ -290,11 +330,20 @@ const Tradingview: React.ForwardRefRenderFunction<
     const toggleModal = () => setShowModal(!showModal);
 
     const setChartInterval = (interval: string) => {
-      if (tvWidget) {
-        const tvInterval = convertTimeInterval(interval);
-        tvWidget.chart().setResolution(tvInterval);
-        setTradTime(interval);
-        setShowIntervalDialog(false);
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.setResolution === 'function') {
+            const tvInterval = convertTimeInterval(interval);
+            chart.setResolution(tvInterval);
+            setTradTime(interval);
+            setShowIntervalDialog(false);
+          }
+        } catch (error) {
+          console.error("设置图表时间间隔时出错:", error);
+        }
+      } else {
+        console.warn("设置时间间隔失败: 图表未准备好");
       }
     };
     //手动添加指标
@@ -338,8 +387,17 @@ const Tradingview: React.ForwardRefRenderFunction<
 
     //图表截图
     const handleChartScreenshot = () => {
-      if (tvWidget) {
-        tvWidget.chart().executeActionById("screenshot");
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.executeActionById === 'function') {
+            chart.executeActionById("screenshot");
+          }
+        } catch (error) {
+          console.error("截图时出错:", error);
+        }
+      } else {
+        console.warn("图表截图失败: 图表未准备好");
       }
     };
 
@@ -360,35 +418,62 @@ const Tradingview: React.ForwardRefRenderFunction<
 
     //技术指标搜索
     const handleAddIndicator = () => {
-      if (tvWidget) {
-        tvWidget.chart().executeActionById("insertIndicator");
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.executeActionById === 'function') {
+            chart.executeActionById("insertIndicator");
+          }
+        } catch (error) {
+          console.error("添加指标时出错:", error);
+        }
+      } else {
+        console.warn("添加指标失败: 图表未准备好");
       }
     };
 
     //成交量分布
     const addVolumeDistribution = () => {
-      if (tvWidget) {
-        tvWidget
-          .chart()
-          .createStudy("Volume Profile Visible Range", false, false, [
-            /* ... 参数 ... */
-          ]);
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.createStudy === 'function') {
+            chart.createStudy("Volume Profile Visible Range", false, false, [
+              /* ... 参数 ... */
+            ]);
+          }
+        } catch (error) {
+          console.error("添加成交量分布时出错:", error);
+        }
+      } else {
+        console.warn("添加成交量分布失败: 图表未准备好");
       }
     };
 
     //重置图表
     const resetChart = () => {
-      if (tvWidget) {
-        tvWidget.chart().removeAllShapes();
-        tvWidget
-          .chart()
-          .getAllStudies()
-          .forEach((study: any) => {
-            // 移除指标
-            if (study.name != "Volume") {
-              tvWidget.chart().removeEntity(study.id);
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.removeAllShapes === 'function' && typeof chart.getAllStudies === 'function') {
+            chart.removeAllShapes();
+            const studies = chart.getAllStudies();
+            if (Array.isArray(studies)) {
+              studies.forEach((study: any) => {
+                // 移除指标
+                if (study && study.name && study.name !== "Volume" && study.id) {
+                  if (typeof chart.removeEntity === 'function') {
+                    chart.removeEntity(study.id);
+                  }
+                }
+              });
             }
-          });
+          }
+        } catch (error) {
+          console.error("重置图表时出错:", error);
+        }
+      } else {
+        console.warn("重置图表失败: 图表未准备好或已被销毁");
       }
     };
 
@@ -402,9 +487,18 @@ const Tradingview: React.ForwardRefRenderFunction<
     }));
 
     const setChartType = (typeCode: number) => {
-      if (tvWidget) {
-        tvWidget.chart().setChartType(typeCode);
-        setShowModal(false);
+      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+        try {
+          const chart = tvWidget.chart();
+          if (chart && typeof chart.setChartType === 'function') {
+            chart.setChartType(typeCode);
+            setShowModal(false);
+          }
+        } catch (error) {
+          console.error("设置图表类型时出错:", error);
+        }
+      } else {
+        console.warn("设置图表类型失败: 图表未准备好");
       }
     };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import SymbolSelector from "../SymbolSelector";
 import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
-const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
+const ContractHeader = ({ priceData }: { priceData: any }) => {
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
@@ -53,20 +53,20 @@ const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
       <div className="flex gap-[24px] ml-[16px]">
         <div className="flex flex-col">
           <div
-            className={`font-500 text-[14px] ${mockPriceData.isUp
+            className={`font-500 text-[14px] ${priceData?.isUp
               ? "text-[var(--success-color)]"
               : "text-[var(--error-color)]"
               }`}
           >
-            {mockPriceData.price}
+            {priceData?.price}
           </div>
           <div
-            className={`text-[12px] font-500 ${mockPriceData.isUp
+            className={`text-[12px] font-500 ${priceData?.isUp
               ? "text-[var(--success-color)]"
               : "text-[var(--error-color)]"
               }`}
           >
-            {mockPriceData.changePercent}
+            {priceData?.changePercent}
           </div>
         </div>
         <div className="flex flex-col">
@@ -74,7 +74,7 @@ const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
             标记价格
           </span>
           <span
-            className={`text-[var(--text-color5)] font-500 text-[12px] ${mockPriceData.isUp
+            className={`text-[var(--text-color5)] font-500 text-[12px] ${priceData?.isUp
               ? "text-[var(--success-color)]"
               : "text-[var(--error-color)]"
               }`}
@@ -103,7 +103,7 @@ const ContractHeader = ({ mockPriceData }: { mockPriceData: any }) => {
             24H 成交量
           </span>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
-            {mockPriceData.volume24hUSD}
+            {priceData?.volume24hUSD}
           </span>
         </div>
         {/* <div className="flex flex-col">

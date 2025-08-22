@@ -34,25 +34,15 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [refreshKey, setRefreshKey] = useState(0); // 强制刷新key
   const [availableBalance] = useState(11111555503.012312338123); // 可用余额
   const coinList = appStore.getCoinList();
-  console.log('coinList', coinList);
-  console.log('spotBalance', spotBalance);
-  console.log('contractBalance', contractBalance);
+
 
   // 监听币种和账户变化，更新可用余额
   useEffect(() => {
     // 当币种或账户变化时，重新计算可用余额
     const currentBalance = fromAccount === 'spot' ? getSpotBalance() : getContractBalance();
-    console.log(`当前${fromAccount === 'spot' ? '现货' : '合约'}账户${selectedCoin}余额:`, currentBalance);
+
   }, [selectedCoin, fromAccount, spotBalance, contractBalance]);
 
-  // 调试信息 - 在每次渲染时输出
-  console.log('FundTransferModal Render Debug:', {
-    selectedCoin,
-    fromAccount,
-    toAccount,
-    spotBalance,
-    contractBalanceLength: Array.isArray(contractBalance) ? contractBalance.length : 'not array'
-  });
 
   // 币种选项
   // const coinOptions = [
@@ -69,31 +59,31 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
   // 获取指定币种的余额
   const getBalance = (balanceList: any[], coinName: string) => {
-    console.log('getBalance called with:', { balanceList, coinName });
+
 
     if (!Array.isArray(balanceList) || balanceList.length === 0) {
-      console.log('balanceList is not array or empty');
+
       return 0;
     }
 
     const balanceItem = balanceList.find((item: any) => {
       const matches = item.coinName === coinName || item.symbol === coinName;
-      console.log('Checking item:', item, 'matches:', matches);
+
       return matches;
     });
 
-    console.log('Found balanceItem:', balanceItem);
+
 
     if (balanceItem) {
       const balance = balanceItem.balance || balanceItem.canUseAmount || 0;
-      console.log('Raw balance value:', balance);
+
       // 确保balance是数字类型
       const numericBalance = typeof balance === 'number' ? balance : parseFloat(balance) || 0;
-      console.log('Numeric balance:', numericBalance);
+
       return Number(numericBalance.toFixed(4));
     }
 
-    console.log('No balance item found for coinName:', coinName);
+
     return 0;
   };
 
@@ -114,17 +104,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
     return amount > 0 && amount <= currentBalance;
   };
 
-  // 调试信息
-  console.log('FundTransferModal Debug Info:', {
-    selectedCoin,
-    fromAccount,
-    toAccount,
-    transferAmount,
-    spotBalance: getSpotBalance(),
-    contractBalance: getContractBalance(),
-    hasEnoughBalance: hasEnoughBalance(),
-    isFormValid: transferAmount && Number(transferAmount) > 0 && hasEnoughBalance()
-  });
+
 
   // 处理关闭
   const handleCancel = () => {

@@ -132,6 +132,23 @@ const ContractKlineChart = ({
     getDepthMapData();
   }, [getDepthMapData]);
 
+  // 监听合约变化，重置图表
+  useEffect(() => {
+    if (currentContractInfo && currentContractInfo.id) {
+      console.log("合约变化，设置当前交易对:", currentContractInfo);
+      setCurrentPair(currentContractInfo);
+
+      // 如果TradingView组件存在且有resetChart方法，调用它来重置图表
+      if (tradingviewRef.current && typeof tradingviewRef.current.resetChart === 'function') {
+        try {
+          tradingviewRef.current.resetChart();
+        } catch (error) {
+          console.error("调用resetChart时出错:", error);
+        }
+      }
+    }
+  }, [currentContractInfo.id]);
+
   return (
     <div className="bg-[var(--background9)] h-[100%]">
       <div className="flex-1 00%]">
@@ -291,7 +308,7 @@ const ContractKlineChart = ({
         {activeChartType === "basic" && (
           <TradingView
             ref={tradingviewRef}
-            symbol={currentPair?.symbol || "BTCUSDT"}
+            symbol={currentContractInfo?.symbol || currentPair?.symbol || "BTCUSDT"}
             showLeftToolbar={false}
             chartType={chartDisplayType}
             timeInterval={timeInterval}

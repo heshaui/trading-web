@@ -39,19 +39,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
       const { asks, buys } = orderBookData.tick;
 
       // 调试信息
-      console.log("OrderBook组件 - 原始数据:", { asks, buys });
-      console.log(
-        "asks类型:",
-        typeof asks,
-        "asks是否为数组:",
-        Array.isArray(asks)
-      );
-      console.log(
-        "buys类型:",
-        typeof buys,
-        "buys是否为数组:",
-        Array.isArray(buys)
-      );
+
 
       // 根据显示模式决定显示数量：both模式显示6条，单独模式显示12条
       const displayCount = colorMode === "both" ? 6 : 12;

@@ -105,16 +105,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
 
-  console.log("currentContractInfo:", currentContractInfo);
-  console.log("ContractTradingPanel userConfig:", userConfig);
-  console.log("ContractTradingPanel props - spotBalance:", spotBalance);
-  console.log("ContractTradingPanel props - contractBalance:", contractBalance);
-  console.log("ContractTradingPanel props - availableBalance:", availableBalance);
+
 
   // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
   useEffect(() => {
     if (userConfig?.nowLevel && userConfig.nowLevel !== leverageLevel) {
-      console.log('ContractTradingPanel: 同步杠杆值', userConfig.nowLevel, '当前值:', leverageLevel);
+
       setLeverageLevel(userConfig.nowLevel);
     }
   }, [userConfig?.nowLevel]); // 移除 leverageLevel 依赖，避免无限循环
