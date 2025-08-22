@@ -736,7 +736,7 @@ export default function MarketData() {
         style: {
           paddingLeft: "20px",
           fontSize: "14px",
-          paddingRight:0
+          paddingRight: 0
         },
       }),
       // width: 150,
@@ -892,7 +892,7 @@ export default function MarketData() {
         style: {
           paddingLeft: "20px",
           fontSize: "14px",
-          paddingRight:0
+          paddingRight: 0
         },
       }),
       render: (text, record, index) => {

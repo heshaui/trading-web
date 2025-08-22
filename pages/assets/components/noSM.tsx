@@ -9,7 +9,7 @@ type NoUseComProps = {
 }
 const NoUseCom = ({ type }: NoUseComProps) => {
     const { isDayMode } = useThemeMode(); // 使用 hook
-const { t } = useTranslation('assets');
+    const { t } = useTranslation('assets');
     const router = useRouter()
 
     return <>
@@ -77,6 +77,32 @@ const { t } = useTranslation('assets');
                     <span className={`${styles.tip_color} font-w-400 font-14 mt-1`}>
                         {/* 交易所禁止提现，如有问题请与客服联系！ */}
                         {t('assetsAccount.button.tip3')}
+                    </span>
+                </p>
+            </div>
+        </div>}
+        {/* 充值禁止 */}
+        {type === '4' && <div
+            className={`${styles.card_bgc2} w-full mb-10 flex-x justify-between align-center`}
+        >
+            <div className={`flex-x align-center ${styles.card_content}`}>
+                <Image
+                    src={"/images/assets/assets_account/icon_nosm_2.png"}
+                    alt="logo"
+                    width={80}
+                    height={74}
+                    className={`${styles.icon_sm} mr-6`}
+                />
+                <p className="flex-y">
+                    <span className={` font-w-500 font-18`}>
+                        {/* 充值功能暂不可用 */}
+                        {t("assetsAccount.button.topuptip1")}
+                    </span>
+                    <span
+                        className={`${styles.tip_color} font-w-400 font-14 mt-1`}
+                    >
+                        {/* 交易所充值功能暂不可用，如有问题请与客服联系！ */}
+                        {t("assetsAccount.button.tip4")}
                     </span>
                 </p>
             </div>

@@ -193,6 +193,26 @@
     border-radius: 53px;
  }
 
+ .qrCode_box{
+    border-radius: 8px;
+    border: 1px solid var(--border-color5);
+ }
+ .qr_code{
+    /* width: 100px;
+    height: 100px; */
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color5);
+ }
+ .modal_box {
+    border-radius: 8px;
+    position: absolute;
+    inset: 0;               /* 等价于 top:0; right:0; bottom:0; left:0 */
+    background: #0C0D0CCC; /* 半透明 */
+    z-index: 20;            /* 高于内容 */
+    pointer-events: auto;   /* 阻断底层点击 */
+  }
+
 @media (max-width: 680px) {
     .card_mt {
         margin-top: 24px;
@@ -224,6 +244,6 @@
 
 }
 
-@media (max-width: 980px) {}
+/* @media (max-width: 980px) {}
 
-@media (min-width: 1680px) {}
+@media (min-width: 1680px) {} */

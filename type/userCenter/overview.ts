@@ -90,7 +90,11 @@ export interface UserInfoType {
     famousAphorisms: string,
     securityIntensity: number,
     remark: string | null,
-    googleCode: boolean
+    googleCode: boolean,
+    verifiedWithdrawalStatus: number,
+    unverifiedWithdrawalStatus: number,
+    unverifiedRechargeStatus: number,
+    verifiedRechargeStatus: number,
 }
 export interface inviteInfoType {
     inviteCode: string,
