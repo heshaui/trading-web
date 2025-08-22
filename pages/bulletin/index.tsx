@@ -91,7 +91,7 @@ const Notice = () => {
       label: "notice.menu.assets",
     },
     {
-      key: "trading",
+      key: "transaction",
       svg: (
         <SvgIcon width={24} height={24} viewBox="0 0 24 24">
           <path
@@ -206,6 +206,11 @@ const Notice = () => {
     // 切换类型时重置到第一页
     setPagination((prev) => ({ ...prev, pageNo: 1 }));
     setTitle(item.key === "all" ? "notice.all" : item.label);
+    // 重置table数据
+    setDataSource({
+      list: [],
+      count: 0,
+    });
   };
   // 渲染菜单项
   const renderItem = (item: MenuData) => {
