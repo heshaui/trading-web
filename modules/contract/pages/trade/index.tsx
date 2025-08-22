@@ -562,7 +562,7 @@ const TradePage = () => {
   return (
     <>
       {/* 瀑布流布局 */}
-      <div className="bg-[var(--background14)]">
+      <div className="bg-[var(--background14)] min-w-[1440px]">
         <WaterfallLayout items={items} gap={4} />
       </div>
 
