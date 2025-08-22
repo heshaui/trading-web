@@ -111,9 +111,11 @@ const TradePage = () => {
   const [publicInfo, setPublicInfo] = useState<any>({}); // 公共数据
   const [symbolList, setSymbolList] = useState<SymbolData[]>([]); // 币种列表
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
-  const [klineData, setKlineData] = useState<ConvertedKlineItem[]>([]); // K线数据
+  const [klineData, setKlineData] = useState<any>(null); // K线数据
+  const [currentTimeInterval, setCurrentTimeInterval] = useState<string>("1day"); // 当前时间间隔
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
+
 
   // 获取现货账户余额
   const getSpotBalance = async () => {
@@ -198,6 +200,29 @@ const TradePage = () => {
     }
   };
 
+  // 转换时间间隔格式：从组件格式转换为WebSocket格式
+  const convertTimeInterval = (interval: string): string => {
+    const intervalMap: { [key: string]: string } = {
+      "1m": "1min",
+      "5m": "5min",
+      "15m": "15min",
+      "30m": "30min",
+      "1h": "60min",
+      "1day": "1day",
+      "1D": "1day",
+      "1W": "1week",
+      "1M": "1month",
+    };
+    return intervalMap[interval] || "1day";
+  };
+
+  // 处理时间间隔变化
+  const handleTimeIntervalChange = (interval: string) => {
+    console.log("时间间隔变化:", interval);
+    setCurrentTimeInterval(interval);
+    // 这里可以添加其他逻辑，比如重新订阅WebSocket或更新K线数据
+  };
+
   // 模拟价格数据
   const mockPriceData = {
     symbol: "BTCUSDT",
@@ -245,7 +270,13 @@ const TradePage = () => {
     {
       columnSpan: 3,
       height: 604,
-      content: <ContractKlineChart currentContractInfo={currentContractInfo} klineData={klineData} />,
+      content: (
+        <ContractKlineChart
+          currentContractInfo={currentContractInfo}
+          klineData={klineData}
+          onTimeIntervalChange={handleTimeIntervalChange}
+        />
+      ),
     },
     {
       columnSpan: 1,
@@ -331,180 +362,124 @@ const TradePage = () => {
     loadUserConfig();
   }, [publicInfo, currentContractInfo.id]);
 
-  // 获取订单簿数据
+  // 获取订单簿数据和K线数据
   useEffect(() => {
     if (!publicInfo.wsUrl) return;
 
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
 
-    const event = {
+    // 获取当前时间间隔对应的WebSocket格式
+    const wsTimeInterval = convertTimeInterval(currentTimeInterval);
+    console.log("WebSocket订阅时间间隔:", wsTimeInterval);
+
+    const currentContractInfo = appStore.getCurrentContractInfo();
+    console.log("currentContractInfo:", currentContractInfo);
+    // 订单簿数据
+    const depthEvent = {
       event: "sub",
-      params: { channel: "market_e_btcusdt_depth_step0" },
+      // params: { channel: "market_e_btcusdt_depth_step0" },
+      params: { channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
       cb_id: "btcusdt",
     };
 
-
-    // const event1 = {
-    //   event: "sub",
-    //   params: {
-    //     channel: "market_e_btcusdt_kline_1min",
-    //     cb_id: "btcusdt",
-
-    //   },
-    // };
-
-
-
-    const event2 = {
+    // 交易数据
+    const tradeEvent = {
       event: "sub",
       params: {
-        channel: "market_e_btcusdt_trade_ticker",
+        // channel: "market_e_btcusdt_trade_ticker",
+        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
         cb_id: "btcusdt",
       },
     };
-    const event3 = {
+
+    // 价格数据
+    const priceEvent = {
       event: "sub",
       params: {
-        channel: "market_price_e_btcusdt",
+        // channel: "market_price_e_btcusdt",
+        channel: `market_price_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}`,
         cb_id: "btcusdt",
       },
     };
-    const event4 = {
+
+    // Ticker数据
+    const tickerEvent = {
       event: "sub",
       params: {
-        channel: "market_e_btcusdt_ticker",
+        // channel: "market_e_btcusdt_ticker",
+        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_ticker`,
         cb_id: "btcusdt",
       },
     };
-    const event5 = {
+
+    // 实时交易数据
+    const realtimeTradeEvent = {
       event: "sub",
       params: {
-        channel: "market_e_btcusdt_trade_ticker",
+        // channel: "market_e_btcusdt_trade_ticker",
+        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
         cb_id: "btcusdt",
         top: 100
       },
     };
-    const event1 = {
+
+    // K线数据请求（获取历史数据）
+    const klineReqEvent = {
       event: "req",
       params: {
-        channel: "market_e_btcusdt_kline_1day",
+        // channel: `market_e_btcusdt_kline_${wsTimeInterval}`,
+        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
         cb_id: "btcusdt",
-
       },
     };
 
-    const event6 = {
+    // K线数据订阅（获取实时更新）
+    const klineSubEvent = {
       event: "sub",
       params: {
-        channel: "kline_history_e_btcusdt_1day",
+        // channel: `market_e_btcusdt_kline_${wsTimeInterval}`,
+        channel: `market_${currentContractInfo.contractType.toLowerCase()}_${currentContractInfo.symbol.replace("-", "").toLowerCase()}_kline_${wsTimeInterval}`,
         cb_id: "btcusdt",
-      }
-    }
-    const event7 = {
-      event: "req",
-      params: {
-        channel: "kline_history_e_btcusdt_1day",
-        cb_id: "btcusdt",
-      }
-    }
-
-    const event8 = {
-      event: "sub",
-      params: {
-        channel: "market_e_btcusdt_kline_1day",
-        cb_id: "btcusdt",
-
       },
     };
 
     // 消息处理回调
     const handleMessage = (message: string) => {
       try {
-        console.log("收到原始消息长度:", message.length);
-        console.log("消息前100字符:", message.substring(0, 100));
+
 
         // 如果消息看起来像是乱码，尝试打印十六进制
         if (message.includes("�") || message.length < 10) {
-          console.log("消息可能是二进制数据，十六进制表示:");
           const encoder = new TextEncoder();
           const bytes = encoder.encode(message);
-          console.log(
-            Array.from(bytes.slice(0, 20))
-              .map((b) => "0x" + b.toString(16).padStart(2, "0"))
-              .join(" ")
-          );
+
         }
 
         const data = JSON.parse(message);
         console.log("解析后的WebSocket消息:", data);
 
-        // 这里可以处理接收到的数据，比如更新价格数据
-        if (data.channel === "market_e_btcusdt_kline_1day") {
-          // 处理K线数据
+        // 处理K线数据 - 动态检查不同时间间隔的K线数据
+        if (data.channel && data.channel.includes("market_e_btcusdt_kline_")) {
           console.log("收到K线数据:", data);
-          const klineResponse = data as KlineResponse;
+          // 直接传递原始WebSocket数据给TradingView组件处理
+          setKlineData(data);
 
-          if (klineResponse.event_rep === "rep" && klineResponse.data && Array.isArray(klineResponse.data)) {
-            // 处理历史K线数据
-            console.log("📊 处理历史K线数据条数:", klineResponse.data.length);
-            console.log("📊 历史K线数据样本:", klineResponse.data.slice(0, 3));
-
-            // 转换数据格式为TradingView期望的格式
-            const convertedKlineData = klineResponse.data.map(item => ({
-              time: new Date(item.ds).getTime(),
-              open: item.open,
-              high: item.high,
-              low: item.low,
-              close: item.close,
-              volume: item.vol
-            }));
-            console.log("📊 转换后的历史数据:", convertedKlineData.length, "条");
-
-            setKlineData(convertedKlineData);
-
-            // 更新最新价格数据（使用最后一条K线数据）
-            const latestKline = klineResponse.data[klineResponse.data.length - 1];
+          // 更新价格数据
+          if (data.event_rep === "rep" && data.data && Array.isArray(data.data)) {
+            const latestKline = data.data[data.data.length - 1];
             if (latestKline) {
               setPriceData((prevPriceData: any) => ({
                 ...prevPriceData,
                 price: latestKline.close.toString(),
-                high24h: Math.max(...klineResponse.data.map(k => k.high)).toString(),
-                low24h: Math.min(...klineResponse.data.map(k => k.low)).toString(),
-                volume24h: klineResponse.data.reduce((sum, k) => sum + k.vol, 0).toString(),
+                high24h: Math.max(...data.data.map((k: any) => k.high)).toString(),
+                low24h: Math.min(...data.data.map((k: any) => k.low)).toString(),
+                volume24h: data.data.reduce((sum: number, k: any) => sum + k.vol, 0).toString(),
               }));
             }
-          } else if (klineResponse.tick && typeof klineResponse.tick === 'object') {
-            // 处理实时K线数据更新
-            console.log("📊 收到实时K线tick数据:", klineResponse.tick);
-
-            const tickData = klineResponse.tick as KlineDataItem;
-
-            // 转换实时数据为统一格式
-            const realtimeTick = {
-              time: new Date(tickData.ds).getTime(),
-              open: tickData.open,
-              high: tickData.high,
-              low: tickData.low,
-              close: tickData.close,
-              volume: tickData.vol
-            };
-
-            // 更新klineData状态，将实时数据作为WebSocket原始格式传递给TradingView
-            setKlineData(prevData => {
-              // 创建一个包含原始WebSocket数据的对象，TradingView组件会处理这个格式
-              const realtimeUpdate = {
-                ...data, // 保持原始WebSocket数据结构
-                timestamp: Date.now() // 添加时间戳确保React检测到变化
-              };
-
-              console.log("📊 传递实时数据给TradingView:", realtimeUpdate);
-              return realtimeUpdate as any;
-            });
-
-            // 更新价格数据
+          } else if (data.tick && typeof data.tick === 'object') {
             setPriceData((prevPriceData: any) => ({
               ...prevPriceData,
-              price: tickData.close.toString(),
+              price: data.tick.close.toString(),
             }));
           }
         } else if (data.channel === "market_e_btcusdt_depth_step0") {
@@ -531,15 +506,14 @@ const TradePage = () => {
 
     // 连接成功后发送订阅消息
     ws.setOnConnectedCallback(() => {
-      ws.send(JSON.stringify(event));
-      ws.send(JSON.stringify(event1));
-      // ws.send(JSON.stringify(event2));
-      // ws.send(JSON.stringify(event3));
-      // ws.send(JSON.stringify(event4));
-      // ws.send(JSON.stringify(event5));
-      ws.send(JSON.stringify(event6));
-      ws.send(JSON.stringify(event7));
-      ws.send(JSON.stringify(event8));
+      ws.send(JSON.stringify(depthEvent));
+      ws.send(JSON.stringify(tradeEvent));
+      ws.send(JSON.stringify(priceEvent));
+      ws.send(JSON.stringify(tickerEvent));
+      ws.send(JSON.stringify(realtimeTradeEvent));
+      ws.send(JSON.stringify(klineReqEvent));
+      ws.send(JSON.stringify(klineSubEvent));
+      console.log("已订阅K线数据:", klineSubEvent.params.channel);
     });
 
     // 建立连接
@@ -549,7 +523,7 @@ const TradePage = () => {
     return () => {
       ws.close();
     };
-  }, [publicInfo]);
+  }, [publicInfo, currentTimeInterval]); // 添加currentTimeInterval依赖
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {

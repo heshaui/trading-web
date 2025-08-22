@@ -18,9 +18,11 @@ interface TradingviewRefHandle {
 const ContractKlineChart = ({
   currentContractInfo,
   klineData,
+  onTimeIntervalChange,
 }: {
   currentContractInfo: any;
   klineData?: any[];
+  onTimeIntervalChange?: (interval: string) => void;
 }) => {
   const { t } = useTranslation(["contract", "spot", "common"]);
   const tradingviewRef = useRef<TradingviewRefHandle>(null);
@@ -30,25 +32,20 @@ const ContractKlineChart = ({
   const [chartDisplayType, setChartDisplayType] = useState<number>(1);
   const [activeChartType, setActiveChartType] = useState<string>("basic");
   const [chartType, setChartType] = useState<any[]>([]);
-  const [dayData, setDayData] = useState<any[]>(["15m", "1h", "4h", "1D"]);
-
+  const [dayData, setDayData] = useState<any[]>(["5m", "15m", "1h", "1D"]);
   const [timeIntervalOptions, setTimeIntervalOptions] = useState<any[]>([
     "1m",
     "5m",
     "15m",
     "30m",
     "1h",
-    "2h",
-    "4h",
-    "6h",
-    "8h",
-    "12h",
     "1D",
-    "3D",
     "1W",
     "1M",
-    "1Y",
   ]);
+  const [defaultDayData] = useState<any[]>(["5m", "15m", "1h", "1D"]);
+
+
   const [depthData, setDepthData] = useState<any>(null);
   const chartTypeItems: MenuProps["items"] = [
     {
@@ -93,6 +90,24 @@ const ContractKlineChart = ({
     setChartDisplayType(Number(e.key));
   };
 
+  const handleTimeIntervalChange = (interval: string) => {
+    setTimeInterval(interval);
+
+    // 如果选择的时间间隔不在默认的dayData中，则替换最后一个元素
+    if (!defaultDayData.includes(interval)) {
+      const newDayData = [...defaultDayData.slice(0, 3), interval];
+      setDayData(newDayData);
+    } else {
+      // 如果选择的是默认值，恢复原始的dayData
+      setDayData([...defaultDayData]);
+    }
+
+    // 通知父组件时间间隔变化
+    if (onTimeIntervalChange) {
+      onTimeIntervalChange(interval);
+    }
+  };
+
   const getDepthMapData = useCallback(async () => {
     if (!currentContractInfo.symbol) return;
     const res = await getDepthMap({
@@ -125,7 +140,7 @@ const ContractKlineChart = ({
               <Button
                 key={index}
                 type={timeInterval === item ? "primary" : "text"}
-                onClick={() => setTimeInterval(item)}
+                onClick={() => handleTimeIntervalChange(item)}
                 style={{
                   fontSize: "12px",
                   background:
@@ -137,7 +152,7 @@ const ContractKlineChart = ({
                 }}
               >
                 {item}
-                {item === "1D" && (
+                {index === dayData.length - 1 && (
                   <Dropdown
                     trigger={["hover"]}
                     placement="bottomRight"
@@ -148,7 +163,7 @@ const ContractKlineChart = ({
                             key={option}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setTimeInterval(option);
+                              handleTimeIntervalChange(option);
                             }}
                             className="p-[10px] text-center rounded-[5px] cursor-pointer text-[12px]"
                             style={{
@@ -274,10 +289,11 @@ const ContractKlineChart = ({
         {/* K线图容器 */}
         {activeChartType === "basic" && (
           <TradingView
+            ref={tradingviewRef}
             symbol={currentPair?.symbol || "BTCUSDT"}
             showLeftToolbar={false}
-            chartType={9}
-            timeInterval="15m"
+            chartType={chartDisplayType}
+            timeInterval={timeInterval}
             klineData={klineData}
           />
         )}
