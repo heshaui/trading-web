@@ -179,7 +179,11 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             onChange={handleTabClick}
             tabBarStyle={{ margin: 0 }}
           >
-            <Tabs.TabPane key="usd-contract" tab="U本位合约">
+            <Tabs.TabPane tab='币本位合约'></Tabs.TabPane>
+            <Tabs.TabPane tab='U本位合约'></Tabs.TabPane>
+            <Tabs.TabPane tab='混合合约'></Tabs.TabPane>
+            <Tabs.TabPane tab='模拟合约'></Tabs.TabPane>
+            {/* <Tabs.TabPane key="usd-contract" tab="U本位合约">
               <div className={styles.symbol_list}>
                 {filteredSymbols('USD').map(item => (
                   <SymbolItem
@@ -204,7 +208,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                   />
                 ))}
               </div>
-            </Tabs.TabPane>
+            </Tabs.TabPane>*/}
           </Tabs>
         </div>
       </div>
