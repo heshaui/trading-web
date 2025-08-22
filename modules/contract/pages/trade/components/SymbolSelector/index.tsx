@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown, Input, Tabs, Space } from "antd";
 import { SearchOutlined } from '@ant-design/icons';
 import { useTranslation } from "next-i18next";
@@ -100,6 +100,25 @@ const SymbolItem: React.FC<{
   </div>
 );
 
+// 根据合约类型分类的工具函数
+const getContractCategory = (item: SymbolData) => {
+  if (item.contractType === 'E') {
+    switch (item.contractSide) {
+      case 1:
+        return 'usdt'; // USDT合约
+      case 0:
+        return 'coin'; // 币本位合约
+      case 2:
+        return 'mix'; // 混合合约
+      default:
+        return 'unknown';
+    }
+  } else if (item.contractType === 'S') {
+    return 'sim'; // 模拟合约
+  }
+  return 'unknown';
+};
+
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   currentSymbol = "",
   onSymbolSelect,
@@ -110,15 +129,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  // 根据当前选中的合约确定默认标签页
-  const getDefaultTab = () => {
-    if (typeof currentSymbol === 'object' && currentSymbol) {
-      return isUSDTMargined(currentSymbol) ? 'usd-contract' : 'coin-contract';
-    }
-    return 'usd-contract'; // 默认选择U本位合约
-  };
-
-  const [activeTab, setActiveTab] = useState(getDefaultTab);
+  const [activeTab, setActiveTab] = useState('usd-contract');
 
   const handleTabClick = (key: string) => {
     setActiveTab(key);
@@ -137,26 +148,126 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     return false;
   };
 
-  // 当currentSymbol改变时，更新activeTab
-  React.useEffect(() => {
-    if (typeof currentSymbol === 'object' && currentSymbol) {
-      const newTab = isUSDTMargined(currentSymbol) ? 'usd-contract' : 'coin-contract';
-      setActiveTab(newTab);
-    }
-  }, [currentSymbol]);
+  // 当currentSymbol或symbolList改变时，更新activeTab
+  useEffect(() => {
+    // 检查哪些合约类型有数据
+    const getAvailableTypes = () => {
+      const types = ['coin', 'usdt', 'mix', 'sim'];
+      return types.filter(type => {
+        const symbols = symbolList.filter(item => getContractCategory(item) === type);
+        return symbols.length > 0;
+      });
+    };
 
-  const filteredSymbols = (type: 'USD' | 'COIN') => {
-    return symbolList
-      .filter(item => {
-        // 使用函数判断合约类型
-        return type === 'USD' ? isUSDTMargined(item) : isCoinMargined(item);
-      })
-      .filter(item =>
-        searchValue === '' ||
+    // 获取第一个有数据的tab key
+    const getFirstAvailableTab = () => {
+      const availableTypes = getAvailableTypes();
+      const typeToKeyMap = {
+        'coin': 'coin-contract',
+        'usdt': 'usd-contract',
+        'mix': 'mix-contract',
+        'sim': 'sim-contract'
+      };
+
+      return availableTypes.length > 0 ? typeToKeyMap[availableTypes[0] as keyof typeof typeToKeyMap] : 'usd-contract';
+    };
+
+    // 根据当前选中的合约确定默认标签页
+    const getDefaultTab = () => {
+      if (typeof currentSymbol === 'object' && currentSymbol) {
+        const category = getContractCategory(currentSymbol);
+        const typeToKeyMap = {
+          'usdt': 'usd-contract',
+          'coin': 'coin-contract',
+          'mix': 'mix-contract',
+          'sim': 'sim-contract'
+        };
+
+        const targetTab = typeToKeyMap[category as keyof typeof typeToKeyMap];
+        // 检查目标tab是否有数据，如果有就返回，否则返回第一个有数据的tab
+        const availableTypes = getAvailableTypes();
+        const availableTabs = availableTypes.map(type => typeToKeyMap[type as keyof typeof typeToKeyMap]);
+
+        if (targetTab && availableTabs.includes(targetTab)) {
+          return targetTab;
+        }
+      }
+
+      // 如果没有当前选中的合约或当前合约类型没有数据，返回第一个有数据的tab
+      return getFirstAvailableTab();
+    };
+
+    setActiveTab(getDefaultTab());
+  }, [currentSymbol, symbolList]);
+
+  // 根据类别过滤合约
+  const filteredSymbols = (category: string) => {
+    let filtered = symbolList.filter(item => {
+      const itemCategory = getContractCategory(item);
+      return itemCategory === category;
+    });
+
+    // 如果有搜索关键词，进一步过滤
+    if (searchValue) {
+      filtered = filtered.filter(item =>
         item.base.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.quote.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.symbol.toLowerCase().includes(searchValue.toLowerCase())
+        item.contractName.toLowerCase().includes(searchValue.toLowerCase())
       );
+    }
+
+    return filtered;
+  };
+
+  // 检查哪些合约类型有数据
+  const getAvailableContractTypes = () => {
+    const types = ['coin', 'usdt', 'mix', 'sim'];
+    return types.filter(type => {
+      const symbols = symbolList.filter(item => getContractCategory(item) === type);
+      return symbols.length > 0;
+    });
+  };
+
+  // 获取第一个有数据的tab key
+  const getFirstAvailableTab = () => {
+    const availableTypes = getAvailableContractTypes();
+    const typeToKeyMap = {
+      'coin': 'coin-contract',
+      'usdt': 'usd-contract',
+      'mix': 'mix-contract',
+      'sim': 'sim-contract'
+    };
+
+    return availableTypes.length > 0 ? typeToKeyMap[availableTypes[0] as keyof typeof typeToKeyMap] : 'usd-contract';
+  };
+
+  // 渲染动态的Tab.TabPane
+  const renderTabPanes = () => {
+    const availableTypes = getAvailableContractTypes();
+    const tabConfig = [
+      { key: 'coin-contract', type: 'coin', label: '币本位合约' },
+      { key: 'usd-contract', type: 'usdt', label: 'U本位合约' },
+      { key: 'mix-contract', type: 'mix', label: '混合合约' },
+      { key: 'sim-contract', type: 'sim', label: '模拟合约' }
+    ];
+
+    return tabConfig
+      .filter(config => availableTypes.includes(config.type))
+      .map(config => (
+        <Tabs.TabPane tab={config.label} key={config.key}>
+          <div className={styles.symbol_list}>
+            {filteredSymbols(config.type).map(item => (
+              <SymbolItem
+                key={item.id}
+                item={item}
+                onSymbolClick={handleSymbolClick}
+                onToggleFavorite={onToggleFavorite}
+                isSelected={isSymbolSelected(item)}
+              />
+            ))}
+          </div>
+        </Tabs.TabPane>
+      ));
   };
 
   const dropdownContent = (
@@ -179,32 +290,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             onChange={handleTabClick}
             tabBarStyle={{ margin: 0 }}
           >
-            <Tabs.TabPane key="usd-contract" tab="U本位合约">
-              <div className={styles.symbol_list}>
-                {filteredSymbols('USD').map(item => (
-                  <SymbolItem
-                    key={item.id}
-                    item={item}
-                    onSymbolClick={handleSymbolClick}
-                    onToggleFavorite={onToggleFavorite}
-                    isSelected={isSymbolSelected(item)}
-                  />
-                ))}
-              </div>
-            </Tabs.TabPane>
-            <Tabs.TabPane key="coin-contract" tab="币本位合约">
-              <div className={styles.symbol_list}>
-                {filteredSymbols('COIN').map(item => (
-                  <SymbolItem
-                    key={item.id}
-                    item={item}
-                    onSymbolClick={handleSymbolClick}
-                    onToggleFavorite={onToggleFavorite}
-                    isSelected={isSymbolSelected(item)}
-                  />
-                ))}
-              </div>
-            </Tabs.TabPane>
+            {renderTabPanes()}
           </Tabs>
         </div>
       </div>

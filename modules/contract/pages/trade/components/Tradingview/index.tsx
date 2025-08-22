@@ -4,6 +4,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
+  useCallback,
 } from "react";
 import { widget } from "@/public/charting_library";
 import "@/styles/components/Tradingview.module.css";
@@ -61,6 +62,7 @@ const Tradingview: React.ForwardRefRenderFunction<
   },
   ref
 ) => {
+    console.log("klineData___", klineData);
     const timezone = jstz.determine();
     const { isDayMode } = useThemeMode();
     const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -89,7 +91,7 @@ const Tradingview: React.ForwardRefRenderFunction<
     const prevThemeRef = useRef<boolean | null>(null);
 
     // 创建图表函数
-    const createChart = () => {
+    const createChart = useCallback(() => {
       if (!chartContainerRef.current || tvWidget || initCompletedRef.current) {
         return;
       }
@@ -98,8 +100,17 @@ const Tradingview: React.ForwardRefRenderFunction<
         const tvTimeInterval = convertTimeInterval(timeInterval);
         const chartSymbol = symbol || "BTC_USDT_1";
 
+        // 使用当前最新的klineData
+        const currentData = klineData || wsDataRef.current;
+        console.log("🎯 创建datafeed，使用数据:", {
+          hasCurrentData: !!currentData,
+          dataType: typeof currentData,
+          dataKeys: currentData && typeof currentData === 'object' ? Object.keys(currentData) : null,
+          dataSource: currentData === klineData ? 'klineData' : 'wsDataRef.current'
+        });
+
         const datafeed = createDatafeed(
-          wsDataRef.current,
+          currentData,
           tvTimeInterval,
           chartSymbol
         );
@@ -180,10 +191,11 @@ const Tradingview: React.ForwardRefRenderFunction<
       } catch (error) {
 
       }
-    };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [symbol, timeInterval, chartType, klineData, isDayMode]); // 移除不必要的依赖
 
     // 重建图表函数
-    const recreateChart = () => {
+    const recreateChart = useCallback(() => {
       if (tvWidget) {
         try {
           tvWidget.remove();
@@ -196,12 +208,14 @@ const Tradingview: React.ForwardRefRenderFunction<
       } else {
         createChart();
       }
-    };
+    }, [tvWidget, createChart]);
 
     // 主要的初始化和依赖监听
     useEffect(() => {
       // 更新数据引用
-      if (klineData && klineData.length > 0) {
+      if (klineData && Array.isArray(klineData) && klineData.length > 0) {
+        console.log("🔄 更新wsDataRef，数据长度:", klineData.length);
+        console.log("🔄 第一条数据示例:", klineData[0]);
         wsDataRef.current = klineData;
       }
 
@@ -210,6 +224,12 @@ const Tradingview: React.ForwardRefRenderFunction<
         recreateChart();
       } else if (!tvWidget) {
         // 首次创建图表
+        console.log("🎯 首次创建图表，当前数据状态:", {
+          hasKlineData: !!klineData,
+          klineDataType: typeof klineData,
+          klineDataKeys: klineData && typeof klineData === 'object' ? Object.keys(klineData) : null
+        });
+        // 始终创建图表，即使没有数据（TradingView会显示"no data"但至少有图表）
         setTimeout(createChart, 100);
       }
 
@@ -226,7 +246,8 @@ const Tradingview: React.ForwardRefRenderFunction<
           setTvWidget(null);
         }
       };
-    }, [symbol, timeInterval, chartType, isDayMode]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [symbol, timeInterval, chartType, isDayMode, klineData]); // 手动控制依赖
 
     // 监听主题变化事件
     useEffect(() => {
@@ -238,100 +259,32 @@ const Tradingview: React.ForwardRefRenderFunction<
       return () => {
         window.removeEventListener("themeChange", handleThemeChange);
       };
-    }, []);
+    }, [recreateChart]);
 
     // 已在上面的初始化函数中处理了主题变化的逻辑
 
     // 单独处理WebSocket数据更新
     useEffect(() => {
-      if (!tvWidget || !klineData) return;
+      if (!klineData) return;
 
-      // 仅在klineData有值时才进行处理
-      if (Array.isArray(klineData) && klineData.length === 0) return;
-      if (klineData && typeof klineData === 'object' && !klineData.data && !klineData.tick) return;
+      console.log("📊 收到新的klineData:", klineData);
 
-      // 更新引用但不重新初始化图表
+      // 更新引用
       wsDataRef.current = klineData;
 
-      console.log("TradingView接收到klineData:", klineData);
-      console.log("klineData类型检查:", {
-        isArray: Array.isArray(klineData),
-        length: klineData?.length,
-        hasData: klineData?.data,
-        type: klineData?.type,
-        firstItem: Array.isArray(klineData) ? klineData[0] : null
-      });
-
-      // 每次收到新数据时，强制更新图表
-      if (window.__handleTradingViewUpdate) {
-        console.log("🔄 准备更新图表数据:", klineData);
-
-        // 处理新的WebSocket数据格式
-        if (klineData.event_rep !== undefined) {
-          console.log("📊 检测到新WebSocket格式数据", {
-            event_rep: klineData.event_rep,
-            hasData: !!klineData.data,
-            hasTick: !!klineData.tick,
-            channel: klineData.channel
-          });
-
-          if (klineData.event_rep === "rep" && Array.isArray(klineData.data) && klineData.data.length > 0) {
-            // 历史数据格式
-            console.log("📊 处理历史数据格式:", klineData.data.length, "条");
-            window.__handleTradingViewUpdate(klineData);
-          } else if (klineData.tick && typeof klineData.tick === 'object') {
-            // 实时数据格式
-            console.log("📊 处理实时tick数据:", klineData.tick);
-            console.log("📊 tick数据详情:", {
-              id: klineData.tick.id,
-              time: new Date(klineData.tick.id * 1000).toISOString(),
-              close: klineData.tick.close,
-              volume: klineData.tick.vol
-            });
-            window.__handleTradingViewUpdate(klineData);
-          } else {
-            console.log("⚠️ 新WebSocket格式但无有效数据:", {
-              event_rep: klineData.event_rep,
-              hasData: !!klineData.data,
-              hasTick: !!klineData.tick
-            });
-          }
-        }
-        // 兼容旧格式
-        else if (
-          klineData.type === "kline" &&
-          Array.isArray(klineData.data) &&
-          klineData.data.length > 0
-        ) {
-          console.log("处理旧格式klineData.type === 'kline'");
-          window.__handleTradingViewUpdate({
-            ...klineData,
-            timestamp: Date.now(),
-          });
-        } else if (Array.isArray(klineData) && klineData.length > 0) {
-          console.log("处理Array格式的klineData", "数据长度:", klineData.length);
-
-          // 检查数组中的数据格式
-          const firstItem = klineData[0];
-          if (firstItem && typeof firstItem === 'object' && 'time' in firstItem) {
-            console.log("检测到已转换的K线数据格式");
-            window.__handleTradingViewUpdate({
-              type: "kline",
-              data: klineData,
-              timestamp: Date.now(),
-            });
-          } else {
-            console.log("处理原始数组格式");
-            window.__handleTradingViewUpdate([...klineData]);
-          }
-        } else {
-          console.log("处理单个数据点对象格式");
-          window.__handleTradingViewUpdate({
-            ...klineData,
-            timestamp: Date.now(),
-          });
-        }
+      // 如果tvWidget不存在，说明图表还没创建，数据已经在wsDataRef中，创建时会使用
+      if (!tvWidget) {
+        console.log("📊 tvWidget不存在，等待图表创建");
+        return;
       }
+
+      // 处理WebSocket数据更新
+      if (window.__handleTradingViewUpdate) {
+        console.log("📊 调用TradingView更新函数");
+        // 直接传递WebSocket数据，让datafeed处理
+        window.__handleTradingViewUpdate(klineData);
+      }
+
     }, [klineData, tvWidget]);
 
     const toggleModal = () => setShowModal(!showModal);
@@ -461,6 +414,8 @@ const Tradingview: React.ForwardRefRenderFunction<
       symbol: string
     ) => {
       const subscribers: any = {};
+      let getBarsRetryCount = 0; // 添加重试计数器
+      const maxRetries = 3; // 最大重试次数
 
       // 清理全局状态，确保每次创建datafeed时都有干净的状态
       if (window.__tradingViewUpdateBar) {
@@ -592,6 +547,21 @@ const Tradingview: React.ForwardRefRenderFunction<
               low = Number(kline.low || 0);
               close = Number(kline.close || 0);
               volume = Number(kline.volume || 0);
+            }
+            // 检查是否是从API来的格式 {ds, open, high, low, close, vol}
+            else if (kline.ds !== undefined && kline.ds !== null) {
+              console.log("📊 检测到API数据格式:", {
+                ds: kline.ds,
+                dsType: typeof kline.ds,
+                convertedTime: new Date(kline.ds).getTime()
+              });
+              time = new Date(kline.ds).getTime(); // ds 是日期字符串，转换为毫秒时间戳
+              open = Number(kline.open || 0);
+              high = Number(kline.high || 0);
+              low = Number(kline.low || 0);
+              close = Number(kline.close || 0);
+              volume = Number(kline.vol || 0);
+              console.log("📊 API数据转换后的数值:", { time, open, high, low, close, volume });
             }
             // 检查是否是原始WebSocket格式 {id, open, high, low, close, vol}
             else if (kline.id !== undefined && kline.id !== null) {
@@ -873,12 +843,14 @@ const Tradingview: React.ForwardRefRenderFunction<
 
           subscribers[listenerGUID] = onRealtimeCallback;
 
-          // 处理初始K线数据 - 支持新的数据格式
-          if (initialData && Array.isArray(initialData) && initialData.length > 0) {
-            console.log("📊 处理初始数据数组格式:", initialData.length, "条");
+          // 处理初始K线数据 - 支持WebSocket数据格式
+          if (initialData && initialData.event_rep === "rep" && Array.isArray(initialData.data) && initialData.data.length > 0) {
+            console.log("📊 处理WebSocket历史数据格式:", initialData.data.length, "条");
 
-            // 处理数组格式的初始数据（可能是对象数组或旧的数组数组）
-            const sortedData = [...initialData].sort((a, b) => {
+            const wsKlineData = initialData.data;
+
+            // 处理WebSocket数据格式的初始数据
+            const sortedData = [...wsKlineData].sort((a, b) => {
               let timeA: number;
               let timeB: number;
 
@@ -886,6 +858,9 @@ const Tradingview: React.ForwardRefRenderFunction<
               if (a.time !== undefined) {
                 // 已转换格式 {time, open, high, low, close, volume}
                 timeA = Number(a.time);
+              } else if (a.ds !== undefined) {
+                // API格式 {ds, open, high, low, close, vol}
+                timeA = new Date(a.ds).getTime();
               } else if (a.id !== undefined) {
                 // 原始WebSocket格式 {id, open, high, low, close, vol}
                 timeA = a.id * 1000;
@@ -898,6 +873,8 @@ const Tradingview: React.ForwardRefRenderFunction<
 
               if (b.time !== undefined) {
                 timeB = Number(b.time);
+              } else if (b.ds !== undefined) {
+                timeB = new Date(b.ds).getTime();
               } else if (b.id !== undefined) {
                 timeB = b.id * 1000;
               } else if (Array.isArray(b)) {
@@ -925,6 +902,9 @@ const Tradingview: React.ForwardRefRenderFunction<
               if (kline.time !== undefined) {
                 // 已转换格式
                 time = Number(kline.time);
+              } else if (kline.ds !== undefined) {
+                // API格式
+                time = new Date(kline.ds).getTime();
               } else if (kline.id !== undefined) {
                 // 原始WebSocket格式
                 time = kline.id * 1000;
@@ -962,7 +942,92 @@ const Tradingview: React.ForwardRefRenderFunction<
               }
             });
 
-            console.log("✅ 初始数据处理完成，时间追踪器:", safeTimeToISO(timeTracker.lastBarTime));
+            console.log("✅ WebSocket初始数据处理完成，时间追踪器:", safeTimeToISO(timeTracker.lastBarTime));
+          } else if (initialData && Array.isArray(initialData) && initialData.length > 0) {
+            // 处理传统数组格式的初始数据
+            console.log("📊 处理传统数组格式的初始数据:", initialData.length, "条");
+
+            const sortedData = [...initialData].sort((a, b) => {
+              let timeA: number;
+              let timeB: number;
+
+              // 判断数据格式并提取时间
+              if (a.time !== undefined) {
+                timeA = Number(a.time);
+              } else if (a.ds !== undefined) {
+                timeA = new Date(a.ds).getTime();
+              } else if (a.id !== undefined) {
+                timeA = a.id * 1000;
+              } else if (Array.isArray(a)) {
+                timeA = formatTimeValue(a[0]);
+              } else {
+                timeA = 0;
+              }
+
+              if (b.time !== undefined) {
+                timeB = Number(b.time);
+              } else if (b.ds !== undefined) {
+                timeB = new Date(b.ds).getTime();
+              } else if (b.id !== undefined) {
+                timeB = b.id * 1000;
+              } else if (Array.isArray(b)) {
+                timeB = formatTimeValue(b[0]);
+              } else {
+                timeB = 0;
+              }
+
+              return timeA - timeB;
+            });
+
+            console.log("📊 排序后的传统数组数据:", sortedData.length, "条");
+
+            // 重置时间追踪器
+            timeTracker.lastBarTime = 0;
+
+            // 去重处理
+            const deduplicatedData: any[] = [];
+            const timeSet = new Set<number>();
+
+            sortedData.forEach((kline: any) => {
+              let time: number;
+
+              if (kline.time !== undefined) {
+                time = Number(kline.time);
+              } else if (kline.ds !== undefined) {
+                time = new Date(kline.ds).getTime();
+              } else if (kline.id !== undefined) {
+                time = kline.id * 1000;
+              } else if (Array.isArray(kline)) {
+                time = formatTimeValue(kline[0]);
+              } else {
+                console.warn("⚠️ 无法提取时间戳的数据格式:", kline);
+                return;
+              }
+
+              if (!timeSet.has(time)) {
+                timeSet.add(time);
+                deduplicatedData.push(kline);
+              } else {
+                console.warn("⚠️ 发现重复时间戳，跳过:", {
+                  原始数据: kline,
+                  格式化时间: safeTimeToISO(time)
+                });
+              }
+            });
+
+            console.log("📊 去重后的传统数组数据:", deduplicatedData.length, "条");
+
+            deduplicatedData.forEach((kline: any, index: number) => {
+              const bar = convertKlineToBar(kline);
+              if (bar) {
+                console.log(`📈 处理传统数组数据 ${index + 1}:`, bar);
+
+                timeTracker.lastBarTime = Math.max(timeTracker.lastBarTime, bar.time);
+                onRealtimeCallback(bar);
+              }
+            });
+
+            console.log("✅ 传统数组初始数据处理完成，时间追踪器:", safeTimeToISO(timeTracker.lastBarTime));
           } else if (
             // 兼容旧格式: initialData.type === "kline"
             initialData &&
@@ -979,6 +1044,8 @@ const Tradingview: React.ForwardRefRenderFunction<
               // 判断数据格式并提取时间
               if (a.time !== undefined) {
                 timeA = Number(a.time);
+              } else if (a.ds !== undefined) {
+                timeA = new Date(a.ds).getTime();
               } else if (a.id !== undefined) {
                 timeA = a.id * 1000;
               } else if (Array.isArray(a)) {
@@ -989,6 +1056,8 @@ const Tradingview: React.ForwardRefRenderFunction<
 
               if (b.time !== undefined) {
                 timeB = Number(b.time);
+              } else if (b.ds !== undefined) {
+                timeB = new Date(b.ds).getTime();
               } else if (b.id !== undefined) {
                 timeB = b.id * 1000;
               } else if (Array.isArray(b)) {
@@ -1011,6 +1080,8 @@ const Tradingview: React.ForwardRefRenderFunction<
               // 根据数据格式提取时间
               if (kline.time !== undefined) {
                 time = Number(kline.time);
+              } else if (kline.ds !== undefined) {
+                time = new Date(kline.ds).getTime();
               } else if (kline.id !== undefined) {
                 time = kline.id * 1000;
               } else if (Array.isArray(kline)) {
@@ -1034,7 +1105,8 @@ const Tradingview: React.ForwardRefRenderFunction<
               }
             });
           } else {
-            console.log("⚠️ 没有初始历史数据或数据格式不正确");
+            console.log("⚠️ subscribeBars: 没有初始历史数据，等待实时数据");
+            // 没有初始数据时，不需要处理，等待实时数据通过WebSocket更新
           }
         },
 
@@ -1108,15 +1180,19 @@ const Tradingview: React.ForwardRefRenderFunction<
             resolution,
             from: new Date(periodParams.from * 1000).toISOString(),
             to: new Date(periodParams.to * 1000).toISOString(),
-            hasInitialData: !!initialData && Array.isArray(initialData) && initialData.length > 0
+            hasInitialData: !!initialData && Array.isArray(initialData) && initialData.length > 0,
+            initialDataLength: Array.isArray(initialData) ? initialData.length : 0,
+            initialDataSample: Array.isArray(initialData) && initialData.length > 0 ? initialData[0] : null
           });
 
-          // 如果有初始数据，使用初始数据
-          if (initialData && Array.isArray(initialData) && initialData.length > 0) {
-            console.log("📊 使用初始数据提供历史K线:", initialData.length, "条");
+          // 处理WebSocket历史数据格式
+          if (initialData && initialData.event_rep === "rep" && Array.isArray(initialData.data) && initialData.data.length > 0) {
+            getBarsRetryCount = 0; // 有数据时重置重试计数器
+            console.log("📊 使用WebSocket历史数据提供K线:", initialData.data.length, "条");
+            console.log("📊 WebSocket数据示例:", initialData.data.slice(0, 2));
 
             const bars: any[] = [];
-            initialData.forEach((kline: any) => {
+            initialData.data.forEach((kline: any, index: number) => {
               const bar = convertKlineToBar(kline);
               if (bar) {
                 // 检查时间范围
@@ -1124,18 +1200,89 @@ const Tradingview: React.ForwardRefRenderFunction<
                 if (barTime >= periodParams.from && barTime <= periodParams.to) {
                   bars.push(bar);
                 }
+
+                // 调试前几条数据
+                if (index < 3) {
+                  console.log(`📊 转换WebSocket数据 ${index + 1}:`, {
+                    原始: kline,
+                    转换后: bar,
+                    时间范围检查: {
+                      barTime,
+                      from: periodParams.from,
+                      to: periodParams.to,
+                      inRange: barTime >= periodParams.from && barTime <= periodParams.to
+                    }
+                  });
+                }
+              } else {
+                console.warn(`⚠️ 转换WebSocket第${index + 1}条数据失败:`, kline);
               }
             });
 
             // 按时间排序
             bars.sort((a, b) => a.time - b.time);
 
-            console.log("📊 返回历史数据:", bars.length, "条");
+            console.log("📊 返回WebSocket历史数据:", bars.length, "条");
+            console.log("📊 返回数据示例:", bars.slice(0, 2));
+
+            // 如果有数据则正常返回，如果没有数据则标记为noData避免重复请求
+            onHistoryCallback(bars, { noData: bars.length === 0 });
+          }
+          // 处理传统数组格式
+          else if (initialData && Array.isArray(initialData) && initialData.length > 0) {
+            getBarsRetryCount = 0; // 有数据时重置重试计数器
+            console.log("📊 使用传统数组数据提供历史K线:", initialData.length, "条");
+            console.log("📊 传统数组数据示例:", initialData.slice(0, 2));
+
+            const bars: any[] = [];
+            initialData.forEach((kline: any, index: number) => {
+              const bar = convertKlineToBar(kline);
+              if (bar) {
+                // 检查时间范围
+                const barTime = bar.time / 1000; // 转换为秒
+                if (barTime >= periodParams.from && barTime <= periodParams.to) {
+                  bars.push(bar);
+                }
+
+                // 调试前几条数据
+                if (index < 3) {
+                  console.log(`📊 转换数据 ${index + 1}:`, {
+                    原始: kline,
+                    转换后: bar,
+                    时间范围检查: {
+                      barTime,
+                      from: periodParams.from,
+                      to: periodParams.to,
+                      inRange: barTime >= periodParams.from && barTime <= periodParams.to
+                    }
+                  });
+                }
+              } else {
+                console.warn(`⚠️ 转换第${index + 1}条数据失败:`, kline);
+              }
+            });
+
+            // 按时间排序
+            bars.sort((a, b) => a.time - b.time);
+
+            console.log("📊 返回传统数组历史数据:", bars.length, "条");
+            console.log("📊 返回数据示例:", bars.slice(0, 2));
+
+            // 如果有数据则正常返回，如果没有数据则标记为noData避免重复请求
             onHistoryCallback(bars, { noData: bars.length === 0 });
           } else {
-            console.log("📊 没有初始数据，返回空数据");
-            // 没有初始数据时，返回空数据但不标记为noData，以便后续可以通过实时数据更新
-            onHistoryCallback([], { noData: false });
+            getBarsRetryCount++;
+            console.log(`📊 没有初始数据，重试次数: ${getBarsRetryCount}/${maxRetries}`);
+
+            // 如果还在重试范围内，返回空数据但允许重试
+            if (getBarsRetryCount < maxRetries) {
+              console.log("📊 允许继续重试获取数据");
+              onHistoryCallback([], { noData: false });
+            } else {
+              console.log("📊 达到最大重试次数，停止请求");
+              // 达到最大重试次数后，标记为noData停止请求
+              onHistoryCallback([], { noData: true });
+            }
           }
         },
       };
