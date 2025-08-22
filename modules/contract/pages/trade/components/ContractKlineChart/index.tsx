@@ -17,8 +17,10 @@ interface TradingviewRefHandle {
 
 const ContractKlineChart = ({
   currentContractInfo,
+  klineData,
 }: {
   currentContractInfo: any;
+  klineData?: any[];
 }) => {
   const { t } = useTranslation(["contract", "spot", "common"]);
   const tradingviewRef = useRef<TradingviewRefHandle>(null);
@@ -276,6 +278,7 @@ const ContractKlineChart = ({
             showLeftToolbar={false}
             chartType={9}
             timeInterval="15m"
+            klineData={klineData}
           />
         )}
         {activeChartType === "depth" && <DepthChart data={depthData} />}
