@@ -293,6 +293,7 @@ const OrderList = forwardRef((props, ref) => {
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
     if (res.code === "0") {
+      console.log(res.data.count, "普通委托数量");
       setOrdinaryCommissionNumber(res.data.count);
     } else {
       message.error(res.msg);
@@ -1205,7 +1206,7 @@ const OrderList = forwardRef((props, ref) => {
     },
     {
       key: "openOrders",
-      label: `普通委托(${filterDataBySymbol(ordinaryCommission).length})`,
+      label: `普通委托(${ordinaryCommissionNumber})`,
       children: (
         <Table<OrdinaryCommission>
           scroll={{ x: "max-content" }}
