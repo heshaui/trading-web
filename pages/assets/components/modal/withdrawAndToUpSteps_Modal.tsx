@@ -1,5 +1,5 @@
 import { Modal, ConfigProvider, Form, Input, Steps, QRCode } from "antd";
-import type { ModalProps,StepProps } from "antd";
+import type { ModalProps, StepProps } from "antd";
 import styles from "../styles/steps.module.css";
 import { Iconify } from "@/components/icon/index";
 import { useState, useEffect } from "react";
@@ -7,9 +7,10 @@ import { useTranslation } from "next-i18next";
 type Props = {
   open: boolean;
   onCancel: () => void;
+  type?: 'withdraw' | 'topUp'
 };
 
-function WithdrawStepsModal({ open, onCancel, }: Props) {
+function WithdrawStepsModal({ open, onCancel, type = 'withdraw' }: Props) {
   const { t } = useTranslation('assets');
 
   const [current, setCurrent] = useState(3);
@@ -25,9 +26,9 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
       ),
       status: 'process',
       description: (
-          <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
-            {t("withdrawSteps.stepTip1")}
-          </p>
+        <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
+          {t("withdrawSteps.stepTip1")}
+        </p>
       ),
     },
     {
@@ -39,9 +40,9 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
       ),
       status: 'process',
       description: (
-          <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
-            {t("withdrawSteps.stepTip2")}
-          </p>
+        <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
+          {t("withdrawSteps.stepTip2")}
+        </p>
       ),
     },
     {
@@ -54,8 +55,8 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
       status: 'process',
       description: (
         <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
-        {t("withdrawSteps.stepTip3")}
-      </p>
+          {t("withdrawSteps.stepTip3")}
+        </p>
       ),
     },
     {
@@ -67,12 +68,73 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
       ),
       description: (
         <p className={`${styles.tip_color}  font-12 font-w-400`}>
-        {t("withdrawSteps.stepTip4")}
-      </p>
+          {t("withdrawSteps.stepTip4")}
+        </p>
       ),
     },
   ];
-
+  const toUpSteps: StepProps[] = [
+    {
+      title: (
+        <p className={`${styles.tip_title}`}>
+          {/* 选择币种和网络 */}
+          {t("toUpSteps.stepTitle1")}
+        </p>
+      ),
+      status: 'process',
+      description: (
+        <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
+          {/* 选择需要充值的币种和网络，请确保您选择的网络与提款平台网络一致，否则将造成资产损失。 */}
+          {t("toUpSteps.stepTip1")}
+        </p>
+      ),
+    },
+    {
+      title: (
+        <p className={`${styles.tip_title}`}>
+          {/* 获取充值地址 */}
+          {t("toUpSteps.stepTitle2")}
+        </p>
+      ),
+      status: 'process',
+      description: (
+        <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
+          {/* 复制充值地址，或使用扫描充值二维码，确保双方的网络
+          一致；如有Memo请填写Memo信息。 */}
+          {t("toUpSteps.stepTip2")}
+        </p>
+      ),
+    },
+    {
+      title: (
+        <p className={`${styles.tip_title}`}>
+          {/* 发起提现 */}
+          {t("toUpSteps.stepTitle3")}
+        </p>
+      ),
+      status: 'process',
+      description: (
+        <p className={`${styles.tip_color} ${styles.steps_box} font-12 font-w-400`}>
+          {/* 在提现平台检查地址，并发起提现。 */}
+          {t("toUpSteps.stepTip3")}
+        </p>
+      ),
+    },
+    {
+      title: (
+        <p className={`${styles.tip_title}`}>
+          {/* 订单查看 */}
+          {t("toUpSteps.stepTitle4")}
+        </p>
+      ),
+      description: (
+        <p className={`${styles.tip_color}  font-12 font-w-400`}>
+          {/* 区块确认后，我们会为您入账，资产直接转入现货账户。 */}
+          {t("toUpSteps.stepTip4")}
+        </p>
+      ),
+    },
+  ];
 
   const ModalFooter: ModalProps["footer"] = () => {
     return (<></>
@@ -99,7 +161,7 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
         title={
           <p className={`${styles.title}`}>
             {/* 如何提现数字货币 */}
-            {t("withdrawSteps.title")}
+            {type === 'withdraw' ? t("withdrawSteps.title") : t("toUpSteps.title")}
           </p>
         }
         centered
@@ -119,7 +181,7 @@ function WithdrawStepsModal({ open, onCancel, }: Props) {
             direction="vertical"
             current={current}
             labelPlacement="vertical"
-            items={steps}
+            items={type === 'withdraw' ? steps : toUpSteps}
             className="withdraw_steps"
           />
           {/* {items[current].content} */}

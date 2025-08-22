@@ -287,7 +287,7 @@ const WithdrawMoneyPage = observer(() => {
   // 历史币种快捷键
   const setFormCoin = async (coinId: string | number) => {
     // 1. 首先检查用户权限
-    if (isallowWithdraw) {
+    if (isNotAllowWithdraw) {
       return toast.error(t("withdrawMoney.function"));
     }
 
@@ -1505,7 +1505,7 @@ const WithdrawMoneyPage = observer(() => {
     localStorage.removeItem("coinSearchHistory");
     setSearchHistory([]);
   };
-  const isallowWithdraw = useMemo(() => {
+  const isNotAllowWithdraw = useMemo(() => {
     // const verified11 = currentUserInfo?.verifiedWithdrawalStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
     const verified10 = userInfo?.verifiedWithdrawalStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedWithdrawalStatus
     // const unverifie10 = userInfo?.unverifiedWithdrawalStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
@@ -1522,7 +1522,7 @@ const WithdrawMoneyPage = observer(() => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("coinSearchHistory");
-      if (isallowWithdraw) return
+      if (isNotAllowWithdraw) return
       if (saved && coinSelect.length > 0) {
         const history = JSON.parse(saved).filter((item: any) => {
           return coinSelect.some((coin: any) => coin.coinId === item.coinId || coin.coinName === item.coinName)
@@ -1530,7 +1530,7 @@ const WithdrawMoneyPage = observer(() => {
         setSearchHistory(history);
       }
     }
-  }, [coinSelect, userInfo, isallowWithdraw]);
+  }, [coinSelect, userInfo, isNotAllowWithdraw]);
 
   return (
     <ResetStateProvider>
@@ -1617,7 +1617,7 @@ const WithdrawMoneyPage = observer(() => {
                 >
                   <Form
                     form={form}
-                    disabled={isallowWithdraw}
+                    disabled={isNotAllowWithdraw}
                   >
                     <Steps
                       direction="vertical"
