@@ -13,6 +13,7 @@ interface TradingviewRefHandle {
   resetChart: () => void;
   toggleFullScreen: () => void;
   addVolumeDistribution: () => void;
+  handleChartScreenshot: () => void;
 }
 
 const ContractKlineChart = ({

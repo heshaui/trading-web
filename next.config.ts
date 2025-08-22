@@ -1,18 +1,26 @@
 import type { NextConfig } from "next";
-const moduleName = process.env.NEXT_PUBLIC_MODULE || 'shared'; // 默认值改为 'shared'
+const moduleName = process.env.NEXT_PUBLIC_MODULE || "shared"; // 默认值改为 'shared'
 
-import { i18n } from './next-i18next.config';
+import { i18n } from "./next-i18next.config";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',  
-})
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const TerserPlugin = require('terser-webpack-plugin');
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 // const { i18n } = require('./next-i18next.config');
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
+  // 在生产环境中移除 console 语句
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+  },
   transpilePackages: [
     // antd & deps
     "@ant-design",
@@ -57,22 +65,7 @@ const nextConfig: NextConfig = {
         fs: false, // 禁用 fs 模块
       };
     }
-    
-    // 在生产环境中移除 console 语句
-    if (!dev) {
-      config.optimization.minimizer = config.optimization.minimizer || [];
-      config.optimization.minimizer.push(
-        new TerserPlugin({
-          terserOptions: {
-            compress: {
-              drop_console: true, // 移除 console.log
-              drop_debugger: true, // 移除 debugger
-            },
-          },
-        })
-      );
-    }
-    
+
     config.module.rules.push({
       test: /\.m?js$/, // 匹配所有的 `.mjs` 和 `.js` 文件
       resolve: {
@@ -108,41 +101,41 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/ambit-user-web/:path*", // 匹配所有 /ambit-user-web/xxx 请求
-        destination: "http://ljx.imbit.work/ambit-user-web/:path*" // 代理到目标服务器
+        destination: "http://ljx.imbit.work/ambit-user-web/:path*", // 代理到目标服务器
       },
       {
         source: "/ambit-oss/:path*", // 匹配所有 zs/xxx 请求
-        destination: "http://ljx.imbit.work/ambit-oss/:path*" // 代理到目标服务器
+        destination: "http://ljx.imbit.work/ambit-oss/:path*", // 代理到目标服务器
       },
       {
         source: "/ambit-assets-web/:path*", // 匹配所有 zs/xxx 请求
-        destination: "http://ljx.imbit.work/ambit-assets-web/:path*" // 代理到目标服务器
+        destination: "http://ljx.imbit.work/ambit-assets-web/:path*", // 代理到目标服务器
       },
       {
         source: "/fe-co-api/:path*", // 合约模块 - 强制转发到 futures.imbit.work
-        destination: "https://futures.imbit.work/fe-co-api/:path*" // 强制代理到目标服务器
-      }
-      
+        destination: "https://futures.imbit.work/fe-co-api/:path*", // 强制代理到目标服务器
+      },
     ];
   },
   i18n,
   async redirects() {
     // 如果环境变量是共享首页，不执行跳转
-    if (moduleName === 'spot') {
-      return [{ source: '/', destination: '/spot', permanent: true }];
-    } else if (moduleName === 'contract') {
-      return [{ source: '/', destination: '/contract', permanent: true }];
-    } else if (moduleName === 'otc') {
-      return [{ source: '/', destination: '/otc', permanent: true }];
+    if (moduleName === "spot") {
+      return [{ source: "/", destination: "/spot", permanent: true }];
+    } else if (moduleName === "contract") {
+      return [{ source: "/", destination: "/contract", permanent: true }];
+    } else if (moduleName === "otc") {
+      return [{ source: "/", destination: "/otc", permanent: true }];
     }
     // 不跳转，显示共享首页
     return [];
   },
   images: {
-    domains: ['meta2025.oss-ap-northeast-2.aliyuncs.com',
-       'example.com',
-       'metawave.oss-cn-hongkong.aliyuncs.com'
-      ],
+    domains: [
+      "meta2025.oss-ap-northeast-2.aliyuncs.com",
+      "example.com",
+      "metawave.oss-cn-hongkong.aliyuncs.com",
+    ],
   },
 };
 

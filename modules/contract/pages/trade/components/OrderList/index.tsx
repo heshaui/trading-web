@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
 import {
@@ -9,6 +9,7 @@ import {
   getTradeInfo,
   getAssetsList,
   cancelOrder,
+  getCurrentOrderNum,
 } from "@/services/contract";
 import styles from "@/styles/components/Table.module.css";
 import {
@@ -129,7 +130,7 @@ interface TradeHistory {
   createTime: number;
 }
 
-const OrderList: React.FC = () => {
+const OrderList = forwardRef((props, ref) => {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(false);
   // 当前tab
@@ -162,6 +163,8 @@ const OrderList: React.FC = () => {
   const [ordinaryCommission, setOrdinaryCommission] = useState<
     OrdinaryCommission[]
   >([]);
+  // 普通委托数量
+  const [ordinaryCommissionNumber, setOrdinaryCommissionNumber] = useState(0);
   // 条件委托
   const [conditionalCommission, setConditionalCommission] = useState<
     ConditionalCommission[]
@@ -192,7 +195,12 @@ const OrderList: React.FC = () => {
     const res = await getAssetsList({
       uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
     });
-    console.log(res);
+    if (res.code === "0") {
+      setPositions(res.data.list);
+    } else {
+      setPositions([]);
+      message.error(res.msg);
+    }
   }, []);
 
   // 获取普通委托(当前委托)
@@ -277,6 +285,19 @@ const OrderList: React.FC = () => {
       console.log(error);
     }
   }
+
+  // 获取普通委托数量
+  const getOrdinaryCommissionNumber = useCallback(async () => {
+    const res = await getCurrentOrderNum({
+      contractId: currentContractInfo?.id,
+      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    if (res.code === "0") {
+      setOrdinaryCommissionNumber(res.data.count);
+    } else {
+      message.error(res.msg);
+    }
+  }, [currentContractInfo?.id]);
 
   // 仓位: 合约,数量,成本价,标记价格,预估强平价,保证金,保证金率,未实现盈亏/收益率,快速平仓,反向开仓,止盈止损
   const positionColumns = [
@@ -1155,10 +1176,18 @@ const OrderList: React.FC = () => {
     },
   ];
 
+  // 暴露方法给父组件
+  useImperativeHandle(ref, () => ({
+    // 获取仓位
+    getPosition,
+    // 获取普通委托
+    getOrdinaryCommission,
+  }));
+
   const tabItems = [
     {
       key: "position",
-      label: `仓位(${filterDataBySymbol(positions).length})`,
+      label: `仓位(${filterDataBySymbol(positions)?.length || 0})`,
       children: (
         <Table<Position>
           scroll={{ x: "max-content" }}
@@ -1192,24 +1221,24 @@ const OrderList: React.FC = () => {
         />
       ),
     },
-    {
-      key: "conditionalOrders",
-      label: `条件委托(${filterDataBySymbol(conditionalCommission).length})`,
-      children: (
-        <Table<any>
-          scroll={{ x: "max-content" }}
-          className={styles.table}
-          columns={conditionalColumns}
-          dataSource={filterDataBySymbol(conditionalCommission)}
-          rowKey="id"
-          pagination={false}
-          loading={loading}
-          locale={{
-            emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
-          }}
-        />
-      ),
-    },
+    // {
+    //   key: "conditionalOrders",
+    //   label: `条件委托(${filterDataBySymbol(conditionalCommission).length})`,
+    //   children: (
+    //     <Table<any>
+    //       scroll={{ x: "max-content" }}
+    //       className={styles.table}
+    //       columns={conditionalColumns}
+    //       dataSource={filterDataBySymbol(conditionalCommission)}
+    //       rowKey="id"
+    //       pagination={false}
+    //       loading={loading}
+    //       locale={{
+    //         emptyText: isLoggedIn ? <NoData height="266px" /> : <NoLogin />,
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       key: "orderHistory",
       label: `历史委托`,
@@ -1290,6 +1319,12 @@ const OrderList: React.FC = () => {
     getProfitLoss,
     getTradeHistory,
   ]);
+
+  useEffect(() => {
+    if (currentContractInfo?.id && isLoggedIn) {
+      getOrdinaryCommissionNumber();
+    }
+  }, [currentContractInfo?.id, isLoggedIn, getOrdinaryCommissionNumber]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -1374,6 +1409,8 @@ const OrderList: React.FC = () => {
       />
     </>
   );
-};
+});
+
+OrderList.displayName = 'OrderList';
 
 export default OrderList;

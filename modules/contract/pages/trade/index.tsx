@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 
@@ -103,6 +103,7 @@ const TradePage = () => {
   const { t } = useTranslation(["contract", "spot", "common"]);
 
   const { isLoggedIn } = useAuth();
+  const orderListRef = useRef<any>(null);
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [orderBookData, setOrderBookData] = useState<any>(null); // 订单簿数据
   const [isClient, setIsClient] = useState(false); // 是否是客户端
@@ -173,6 +174,8 @@ const TradePage = () => {
 
     if (res.code === "0") {
       toast.success("订单提交成功");
+      orderListRef.current.getOrdinaryCommission();
+      orderListRef.current.getPosition();
     } else {
       toast.error(res.msg);
     }
@@ -262,7 +265,7 @@ const TradePage = () => {
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
           spotBalance={spotBalance}
           contractBalance={contractAssets}
-          onOrderSubmit={handleOrderSubmit}
+          onOrderSubmit={handleOrderSubmit} // 父组件的订单提交函数
           onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
         />
       ),
@@ -301,7 +304,7 @@ const TradePage = () => {
     {
       columnSpan: 4,
       minHeight: 400,
-      content: <OrderList />,
+      content: <OrderList ref={orderListRef} />,
     },
     {
       columnSpan: 1,
@@ -310,69 +313,60 @@ const TradePage = () => {
     },
   ];
 
-  // 获取公共数据
+  // 初始化数据和客户端状态
   useEffect(() => {
-    setIsClient(true);
+    const initializeClientData = async () => {
+      setIsClient(true);
 
-    // 只在客户端执行
-    if (typeof window !== "undefined") {
-      const info = appStore.getPublicInfo();
-      setPublicInfo(info);
+      // 只在客户端执行
+      if (typeof window !== "undefined") {
+        // 获取公共数据
+        const info = appStore.getPublicInfo();
+        setPublicInfo(info);
 
-      if (info.contractList) {
-        setSymbolList(info.contractList);
-      }
-    }
-  }, []);
+        if (info.contractList) {
+          setSymbolList(info.contractList);
+        }
 
-  // 获取币种列表
-  useEffect(() => {
-    if (publicInfo.contractList) {
-      setSymbolList(publicInfo.contractList);
-    }
-  }, [publicInfo]);
+        // 获取当前合约信息
+        const contractInfo = appStore.getCurrentContractInfo();
+        setCurrentContractInfo(contractInfo);
 
-  // 安全获取当前合约信息
-  useEffect(() => {
-    if (isClient && typeof window !== "undefined") {
-      const contractInfo = appStore.getCurrentContractInfo();
-      setCurrentContractInfo(contractInfo);
-    }
-  }, [isClient]);
+        // 获取账户余额
+        getContractBalance();
+        getSpotBalance();
 
-  // 获取合约账户余额
-  useEffect(() => {
-    getContractBalance();
-    getSpotBalance();
-  }, []);
-
-  // 获取用户合约配置
-  useEffect(() => {
-    const loadUserConfig = async () => {
-      if (publicInfo.contractList) {
-        const userConfig = await appStore.loadUserConfig({
-          contractId: currentContractInfo.id,
-        });
-        if (userConfig && userConfig.openContract !== 1) {
-          setShowRiskDisclosure(true);
+        // 获取用户合约配置
+        if (info.contractList && contractInfo.id) {
+          try {
+            const userConfig = await appStore.loadUserConfig({
+              contractId: contractInfo.id,
+            });
+            if (userConfig && userConfig.openContract !== 1) {
+              setShowRiskDisclosure(true);
+            }
+          } catch (error) {
+            console.error("获取用户合约配置失败:", error);
+          }
         }
       }
     };
 
-    loadUserConfig();
-  }, [publicInfo, currentContractInfo.id]);
+    initializeClientData();
+  }, []);
 
-  // 获取订单簿数据和K线数据
+  // WebSocket连接和数据订阅
   useEffect(() => {
-    if (!publicInfo.wsUrl) return;
+    // 检查必要的数据是否已准备好
+    if (!publicInfo.wsUrl || !currentContractInfo.id || !currentContractInfo.contractType || !currentContractInfo.symbol) {
+      return;
+    }
 
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
 
     // 获取当前时间间隔对应的WebSocket格式
     const wsTimeInterval = convertTimeInterval(currentTimeInterval);
     console.log("WebSocket订阅时间间隔:", wsTimeInterval);
-
-    const currentContractInfo = appStore.getCurrentContractInfo();
     console.log("currentContractInfo:", currentContractInfo);
     // 订单簿数据
     const depthEvent = {
@@ -523,7 +517,7 @@ const TradePage = () => {
     return () => {
       ws.close();
     };
-  }, [publicInfo, currentTimeInterval]); // 添加currentTimeInterval依赖
+  }, [publicInfo.wsUrl, currentContractInfo, currentTimeInterval]);
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
@@ -533,7 +527,7 @@ const TradePage = () => {
   return (
     <>
       {/* 瀑布流布局 */}
-      <div className="bg-[var(--background14)]">
+      <div className="bg-[var(--background14)] min-w-[1440px]">
         <WaterfallLayout items={items} gap={4} />
       </div>
 

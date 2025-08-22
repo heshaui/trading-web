@@ -30,7 +30,7 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate }: Contra
     onBalanceUpdate?.();
   };
   return (
-    <div>
+    <>
       <FundTransferModal
         visible={showFundTransferModal}
         spotBalance={spotBalance}
@@ -76,7 +76,7 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate }: Contra
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
