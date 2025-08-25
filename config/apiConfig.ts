@@ -44,6 +44,7 @@ export const KV_KEYS = [
   "flash_img", //闪兑配置
   "user_agreement", //用户协议
   "privacy_policy", //隐私政策
+  "financial", //理财配置
   // 可以根据需要添加更多配置项
 ];
 

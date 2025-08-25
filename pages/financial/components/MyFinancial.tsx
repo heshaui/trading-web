@@ -14,7 +14,6 @@ import {
   FunctionSwitchStatusEnum,
 } from "@/services/financial";
 import { useRouter } from "next/router";
-import { createStyles } from "antd-style";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import appStore from "@/store";
 import BigNumber from "bignumber.js";
@@ -25,12 +24,15 @@ const MyFinancial = observer(() => {
   const { t } = useTranslation(["financial"]);
   const router = useRouter();
   const { styles } = modalStyle();
+  const flashConfigData = appStore.getKvConfig("financial");
+  const langKey = appStore.getLang() || "en_US";
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const rateData = appStore.getRateData();
   const { isLoggedIn } = useAuth();
   const { isDayMode } = useThemeMode(); // 使用 hook
   const financialConfig = appStore.financialConfig;
 
+  console.log(flashConfigData, "flashConfigData");
   const [current, setCurrent] = useState<{
     accuracy: number | null;
     symbol: string;
@@ -57,18 +59,32 @@ const MyFinancial = observer(() => {
 
   // 背景图片内容
   const [bgContent, setBgContent] = useState<any>({
-    languageCode: "",
-    mainTitle: t("financial.default.mainTitle"),
-    subTitle: t("financial.default.subTitle"),
-    backgroundImage: "",
+    languageCode: langKey,
+    mainTitle:
+      flashConfigData && flashConfigData[langKey]
+        ? flashConfigData[langKey].title
+        : t("financial.default.mainTitle"),
+    subTitle:
+      flashConfigData && flashConfigData[langKey]
+        ? flashConfigData[langKey].subTitle
+        : t("financial.default.subTitle"),
+    backgroundImage:
+      flashConfigData && flashConfigData[langKey]
+        ? flashConfigData[langKey].img
+        : "",
   });
 
   // 初始化背景图片
   const initBackgroundImage = async () => {
     try {
-      const res = await getBackgroundImageConfig();
-      if (res.code === "0") {
-        setBgContent(res.data);
+      const { data, code } = await getBackgroundImageConfig();
+      if (code === "0") {
+        setBgContent({
+          languageCode: data.languageCode,
+          mainTitle: data.mainTitle,
+          subTitle: data.subTitle,
+          backgroundImage: data.backgroundImage,
+        });
       }
     } catch (error) {
       console.error("Failed to load background image config:", error);
@@ -132,12 +148,11 @@ const MyFinancial = observer(() => {
       <div
         className="flex flex-ai-center flex-jc-between py-[94px] gap-[40px] flex-wrap min-h-[412px]"
         style={{
-          backgroundImage: `url(${
-            bgContent.backgroundImage ||
+          backgroundImage: `url(${bgContent.backgroundImage ||
             (isDayMode
               ? "/images/financial/bg.png"
               : "/images/financial/bg-dark.png")
-          })`,
+            })`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -153,7 +168,7 @@ const MyFinancial = observer(() => {
             </div>
             {financialConfig?.isDisplayBackground &&
               financialConfig.isDisplayBackground ===
-                FunctionEnabledStatusEnum.OPEN && (
+              FunctionEnabledStatusEnum.OPEN && (
                 <div
                   className="font-w-400 text-[22px] text-[color:var(--theme-color)] cursor-pointer"
                   onClick={openProblem}
@@ -166,7 +181,7 @@ const MyFinancial = observer(() => {
           {/* 右侧内容-我的资产 */}
           {financialConfig?.isDisplayAssets &&
             financialConfig.isDisplayAssets ===
-              FunctionEnabledStatusEnum.OPEN && (
+            FunctionEnabledStatusEnum.OPEN && (
               <div className="w-[471px] rounded-[16px] bg-[var(--background12)] shadow-[0px_0px_36px_0px_rgba(165,165,165,0.2)] p-[24px_20px] text-[var(--text-color5)]">
                 <div
                   className={` flex flex-ai-center flex-jc-between mb-[40px]`}
@@ -276,15 +291,15 @@ const MyFinancial = observer(() => {
                                 // 有汇率的存在
                                 current.rate
                                   ? // 有精度存在
-                                    current.accuracy
+                                  current.accuracy
                                     ? new BigNumber(myAmount.holdings)
-                                        .times(new BigNumber(current.rate))
-                                        .toFixed(Number(current.accuracy))
+                                      .times(new BigNumber(current.rate))
+                                      .toFixed(Number(current.accuracy))
                                     : new BigNumber(myAmount.holdings)
-                                        .times(new BigNumber(current.rate))
-                                        .toString()
+                                      .times(new BigNumber(current.rate))
+                                      .toString()
                                   : // 有汇率的存在
-                                    myAmount.holdings
+                                  myAmount.holdings
                               }
                             </div>
                           </div>
@@ -312,15 +327,15 @@ const MyFinancial = observer(() => {
                                 // 有汇率的存在
                                 current.rate
                                   ? // 有精度存在
-                                    current.accuracy
+                                  current.accuracy
                                     ? new BigNumber(myAmount.totalRevenue)
-                                        .times(new BigNumber(current.rate))
-                                        .toFixed(Number(current.accuracy))
+                                      .times(new BigNumber(current.rate))
+                                      .toFixed(Number(current.accuracy))
                                     : new BigNumber(myAmount.totalRevenue)
-                                        .times(new BigNumber(current.rate))
-                                        .toString()
+                                      .times(new BigNumber(current.rate))
+                                      .toString()
                                   : // 没有汇率的存在
-                                    myAmount.totalRevenue
+                                  myAmount.totalRevenue
                               }
                             </div>
                           </div>
@@ -348,15 +363,15 @@ const MyFinancial = observer(() => {
                                 // 有汇率的存在
                                 current.rate
                                   ? // 有精度存在
-                                    current.accuracy
+                                  current.accuracy
                                     ? new BigNumber(myAmount.lastRevenue)
-                                        .times(new BigNumber(current.rate))
-                                        .toFixed(Number(current.accuracy))
+                                      .times(new BigNumber(current.rate))
+                                      .toFixed(Number(current.accuracy))
                                     : new BigNumber(myAmount.lastRevenue)
-                                        .times(new BigNumber(current.rate))
-                                        .toString()
+                                      .times(new BigNumber(current.rate))
+                                      .toString()
                                   : // 没有汇率的存在
-                                    myAmount.lastRevenue
+                                  myAmount.lastRevenue
                               }
                             </div>
                           </div>
