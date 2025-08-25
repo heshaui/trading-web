@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 import styles from "./style/index.module.css";
@@ -9,22 +9,36 @@ interface OrderBookItem {
   price: number;
   amount: number;
   total: number;
+  cumulativeAmount: number; // 累积数量
+  cumulativeTotal: number; // 累积总额
+}
+
+// WebSocket 数据类型定义
+interface OrderBookTick {
+  asks: [number, number][]; // [价格, 数量]
+  buys: [number, number][];
+  lastPrice?: number; // 最新成交价
+  priceChange?: number; // 24h涨跌幅
+}
+
+interface OrderBookData {
+  tick: OrderBookTick;
 }
 
 interface OrderBookProps {
-  orderBookData?: any;
+  orderBookData?: OrderBookData;
 }
 
 interface TradeItem {
   price: number;
   amount: number;
-  time: string;
+  timestamp: number; // 使用时间戳而非字符串
   side: "buy" | "sell";
 }
 
 interface RealtimeTradeProps {
   tradeData?: any;
-  orderBookData?: any; // 暂时使用orderBookData模拟
+  orderBookData?: OrderBookData; // 暂时使用orderBookData模拟
 }
 
 // 委托列表组件
@@ -33,18 +47,15 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>(2);
 
-  // 处理WebSocket数据，如果没有数据则使用模拟数据
-  const processOrderBookData = () => {
+  // 使用 useMemo 优化性能，处理WebSocket数据
+  const { sellOrders, buyOrders, currentPrice, priceChange } = useMemo(() => {
     if (orderBookData?.tick) {
-      const { asks, buys } = orderBookData.tick;
-
-      // 调试信息
-
+      const { asks, buys, lastPrice, priceChange } = orderBookData.tick;
 
       // 根据显示模式决定显示数量：both模式显示6条，单独模式显示12条
       const displayCount = colorMode === "both" ? 6 : 12;
 
-      // 处理卖单数据 (asks) - 按价格从高到低排序
+      // 处理卖单数据 (asks) - 按价格从低到高排序（最优卖价在前）
       const processedSellOrders: OrderBookItem[] =
         asks && Array.isArray(asks)
           ? asks
@@ -54,16 +65,28 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
                 price,
                 amount,
                 total: price * amount,
+                cumulativeAmount: 0, // 稍后计算
+                cumulativeTotal: 0,
               };
             })
             .filter(
               (item: OrderBookItem) => item.price > 0 && item.amount > 0
             )
-            .sort((a, b) => b.price - a.price) // 卖单价格从高到低
+            .sort((a, b) => a.price - b.price) // 卖单价格从低到高（最优卖价在前）
             .slice(0, displayCount) // 根据模式显示不同数量
           : [];
 
-      // 处理买单数据 (buys) - 按价格从高到低排序
+      // 计算卖单累积深度
+      let sellCumulativeAmount = 0;
+      let sellCumulativeTotal = 0;
+      processedSellOrders.forEach((order) => {
+        sellCumulativeAmount += order.amount;
+        sellCumulativeTotal += order.total;
+        order.cumulativeAmount = sellCumulativeAmount;
+        order.cumulativeTotal = sellCumulativeTotal;
+      });
+
+      // 处理买单数据 (buys) - 按价格从高到低排序（最优买价在前）
       const processedBuyOrders: OrderBookItem[] =
         buys && Array.isArray(buys)
           ? buys
@@ -73,18 +96,35 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
                 price,
                 amount,
                 total: price * amount,
+                cumulativeAmount: 0, // 稍后计算
+                cumulativeTotal: 0,
               };
             })
             .filter(
               (item: OrderBookItem) => item.price > 0 && item.amount > 0
             )
-            .sort((a, b) => b.price - a.price) // 买单价格从高到低
+            .sort((a, b) => b.price - a.price) // 买单价格从高到低（最优买价在前）
             .slice(0, displayCount) // 根据模式显示不同数量
           : [];
+
+      // 计算买单累积深度
+      let buyCumulativeAmount = 0;
+      let buyCumulativeTotal = 0;
+      processedBuyOrders.forEach((order) => {
+        buyCumulativeAmount += order.amount;
+        buyCumulativeTotal += order.total;
+        order.cumulativeAmount = buyCumulativeAmount;
+        order.cumulativeTotal = buyCumulativeTotal;
+      });
+
+      // 如果需要反转卖单显示顺序（UI上从高到低显示）
+      processedSellOrders.reverse();
 
       return {
         sellOrders: processedSellOrders,
         buyOrders: processedBuyOrders,
+        currentPrice: lastPrice || (processedSellOrders[0]?.price || 0 + processedBuyOrders[0]?.price || 0) / 2,
+        priceChange: priceChange || 0,
       };
     }
 
@@ -92,20 +132,20 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
     return {
       sellOrders: [],
       buyOrders: [],
+      currentPrice: 0,
+      priceChange: 0,
     };
-  };
-
-  const { sellOrders, buyOrders } = processOrderBookData();
+  }, [orderBookData, colorMode]);
 
   const formatNumber = (num: number, decimals: number = precision) => {
     return num.toFixed(decimals);
   };
 
-  // 计算百分比宽度
-  const calculatePercentWidth = (orders: OrderBookItem[], currentTotal: number): number => {
+  // 计算百分比宽度（基于累积深度）
+  const calculatePercentWidth = (orders: OrderBookItem[], cumulativeTotal: number): number => {
     if (orders.length === 0) return 0;
-    const maxTotal = Math.max(...orders.map(order => order.total));
-    return maxTotal > 0 ? (currentTotal / maxTotal) * 100 : 0;
+    const maxCumulativeTotal = Math.max(...orders.map(order => order.cumulativeTotal));
+    return maxCumulativeTotal > 0 ? (cumulativeTotal / maxCumulativeTotal) * 100 : 0;
   };
 
   const getSellPriceColor = () => {
@@ -189,15 +229,16 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
             {renderColorModeButtons()}
             <Select
               size="small"
-              style={{ width: 60 }}
+              style={{ width: 80 }}
               value={precision}
               onChange={setPrecision}
               className="w-20"
             >
               <Option value={0}>0</Option>
-              <Option value={1}>0.1</Option>
-              <Option value={2}>0.5</Option>
-              <Option value={3}>1</Option>
+              <Option value={1}>0.0</Option>
+              <Option value={2}>0.00</Option>
+              <Option value={3}>0.000</Option>
+              <Option value={4}>0.0000</Option>
             </Select>
           </div>
         </div>
@@ -213,17 +254,17 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           {(colorMode === "both" || colorMode === "sell") && (
             <div className="flex flex-col gap-[9px] overflow-y-auto">
               {sellOrders.length > 0 ? (
-                sellOrders.map((order, index) => {
-                  const percentWidth = calculatePercentWidth(sellOrders, order.total);
+                sellOrders.map((order) => {
+                  const percentWidth = calculatePercentWidth(sellOrders, order.cumulativeTotal);
                   return (
                     <div
-                      key={index}
+                      key={`sell-${order.price}`}
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
                       <div className={`flex-1 text-left ${getSellPriceColor()}`}>
                         {formatNumber(order.price)}
                       </div>
-                      <div className="flex-1 text-right" style={{ color: "#000" }}>
+                      <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
                         {formatNumber(order.amount, 3)}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
@@ -256,10 +297,14 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           )}
 
           {/* 当前价格显示 - 只在 both 模式下显示 */}
-          {colorMode === "both" && (
+          {colorMode === "both" && currentPrice > 0 && (
             <div className="flex justify-between items-center my-[10px]">
-              <div className="text-xl font-semibold text-red-500">50120.5</div>
-              <div className="text-xs text-green-500">+0.12%</div>
+              <div className={`text-xl font-semibold ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {formatNumber(currentPrice)}
+              </div>
+              <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+              </div>
             </div>
           )}
 
@@ -267,17 +312,17 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
           {(colorMode === "both" || colorMode === "buy") && (
             <div className="flex flex-col gap-[9px] overflow-y-auto">
               {buyOrders.length > 0 ? (
-                buyOrders.map((order, index) => {
-                  const percentWidth = calculatePercentWidth(buyOrders, order.total);
+                buyOrders.map((order) => {
+                  const percentWidth = calculatePercentWidth(buyOrders, order.cumulativeTotal);
                   return (
                     <div
-                      key={index}
+                      key={`buy-${order.price}`}
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
                       <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
                         {formatNumber(order.price)}
                       </div>
-                      <div className="flex-1 text-right" style={{ color: "#000" }}>
+                      <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
                         {formatNumber(order.amount, 3)}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
@@ -322,12 +367,12 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode] = useState<"both" | "buy" | "sell">("both");
 
-  // 处理实时成交数据，暂时使用orderBookData模拟
-  const processTradeData = () => {
+  // 使用 useMemo 优化性能，处理实时成交数据
+  const trades = useMemo(() => {
     if (orderBookData?.tick) {
       const { asks, buys } = orderBookData.tick;
 
-      // 合并买卖单数据作为成交记录
+      // 合并买卖单数据作为成交记录（临时模拟，实际应使用真实成交数据）
       const allTrades: TradeItem[] = [];
 
       if (asks && Array.isArray(asks)) {
@@ -336,7 +381,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
           allTrades.push({
             price,
             amount,
-            time: new Date(Date.now() - index * 1000).toLocaleTimeString(),
+            timestamp: Date.now() - index * 1000, // 使用时间戳
             side: "sell",
           });
         });
@@ -348,27 +393,32 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
           allTrades.push({
             price,
             amount,
-            time: new Date(
-              Date.now() - (index + 5) * 1000
-            ).toLocaleTimeString(),
+            timestamp: Date.now() - (index + 5) * 1000, // 使用时间戳
             side: "buy",
           });
         });
       }
 
-      // 按时间排序（最新的在前）
+      // 按时间戳排序（最新的在前）
       return allTrades
-        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+        .sort((a, b) => b.timestamp - a.timestamp)
         .slice(0, 10);
     }
 
     return [];
-  };
-
-  const trades = processTradeData();
+  }, [orderBookData]);
 
   const formatNumber = (num: number, decimals: number = 2) => {
     return num.toFixed(decimals);
+  };
+
+  // 格式化时间显示
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
   };
 
   const getPriceColor = (side: "buy" | "sell") => {
@@ -398,20 +448,22 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
 
         <div className="flex flex-col gap-[9px] overflow-y-auto">
           {trades.length > 0 ? (
-            trades.map((trade, index) => (
+            trades.map((trade) => (
               <div
-                key={index}
-                className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer  hover:bg-gray-50"
+                key={`trade-${trade.timestamp}-${trade.price}`}
+                className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50"
               >
                 <div
                   className={`flex-1 text-left ${getPriceColor(trade.side)}`}
                 >
                   {formatNumber(trade.price)}
                 </div>
-                <div className="flex-1 text-right" style={{ color: "#000" }}>
+                <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
                   {formatNumber(trade.amount, 3)}
                 </div>
-                <div className="flex-1 text-right" style={{ color: "#000" }}>{trade.time}</div>
+                <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
+                  {formatTime(trade.timestamp)}
+                </div>
               </div>
             ))
           ) : (

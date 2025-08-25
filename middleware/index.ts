@@ -122,10 +122,10 @@ export const useAuthGuard = ({
     //     }
     // }
     // 检查是否是禁止访问的路径
-    if (checkForbiddenPath(currentPath)) {
-      // 触发 Next.js 的 404
-      router.push("/not-found-page");
-      return;
-    }
+    // if (checkForbiddenPath(currentPath)) {
+    //   // 触发 Next.js 的 404
+    //   router.push("/not-found-page");
+    //   return;
+    // }
   }, [isLoggedIn, router.pathname, isAuthChecking, router]);
 };
