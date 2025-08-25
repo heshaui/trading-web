@@ -1,7 +1,7 @@
 import React from "react";
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from "../styles/spotAccount.module.css";
-import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select, Form, QRCode, Button } from "antd";
+import { Input, Steps, Breadcrumb, ConfigProvider, Dropdown, Select, Form, QRCode, Button } from "antd";
 import { Iconify } from "@/components/icon";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -34,6 +34,7 @@ import {
 } from "@/type/assets/assetsAccount/toUp";
 import appStore from "@/store";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { DownOutlined } from "@ant-design/icons";
 
 const TopUpPage = () => {
   const { t } = useTranslation("assets");
@@ -55,7 +56,24 @@ const TopUpPage = () => {
   const [coinExtSelect, setCoinExtSelect] = useState<any>([]);
   const [coinExtLoading, setCoinExtLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState<any>({});
+  const [isMemo, setIsMemo] = useState(false); // 是否为memo币
 
+  // 下拉允许自由开关，倒计时与选中状态保持在内存，不依赖下拉是否开启
+  const [selectedProtocolId, setSelectedProtocolId] = useState<any>(undefined);
+  const [confirmRemainingMap, setConfirmRemainingMap] = useState<Record<string, number>>({});
+  const [protoOpen, setProtoOpen] = useState(false);
+  const protoWrapRef = useRef<HTMLDivElement | null>(null);
+
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+
+  const selectedProtocolLabel = useMemo(() => {
+    const currentValue = selectedProtocolId ?? form.getFieldValue('protocolId');
+    const opt = coinExtSelect.find((o: any) => o.value === currentValue);
+    if (!opt) return '';
+    if (typeof opt.label === 'string') return opt.label as string;
+    return `${opt?.protocol || "--"}(${opt?.protocolName || "--"})`;
+  }, [selectedProtocolId, coinExtSelect, form]);
 
 
   const isNotAllowToUp = useMemo(() => {
@@ -72,6 +90,20 @@ const TopUpPage = () => {
     return false
   }, [userInfo])
 
+
+  useEffect(() => {
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (!protoOpen) return;
+      const el = protoWrapRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setProtoOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [protoOpen]);
+
+
   const goSteps = (step: 1 | 2 | 3) => {
     if (step === 1) {
       setCurrent(0);
@@ -79,6 +111,7 @@ const TopUpPage = () => {
       form.resetFields(["protocolId", "address"]);
       setModalOpen(true)
       setWalletAddress({})
+      setIsMemo(false)
     } else if (step === 2) {
       setCurrent(1);
       form.resetFields(["protocolId"]);
@@ -187,22 +220,22 @@ const TopUpPage = () => {
     }
   }
   // 4.2币种对应的协议（网络）-通过币种协议获取网络id进行匹配
-  const getCoinExt = async (tenantId: number) => {
-    if (!tenantId) {
+  const getCoinExt = async (coinId: number) => {
+    if (!coinId) {
       setCoinExtSelect([]);
       return;
     }
 
     // 判断同币种不重复请求
-    if (coinIdHistory.toString() === tenantId.toString() || coinExtLoading)
+    if (coinIdHistory.toString() === coinId.toString() || coinExtLoading)
       return;
 
     setCoinExtSelect([]); //初始化
-    setCoinIdHistory(tenantId);
+    setCoinIdHistory(coinId);
     setCoinExtLoading(true);
 
     try {
-      const res = await getcoinExtList(tenantId);
+      const res = await getcoinExtList(coinId);
       if (res.code === "0") {
         const coinExtList = res.data.map((item: any) => {
           const protocol = coinExtAll.find(
@@ -213,6 +246,7 @@ const TopUpPage = () => {
             ...protocol,
             label: `${protocol?.protocol || "--"}(${protocol?.protocolName || "--"})`,
             value: protocol.symbol,
+            confirmCount: item.confirms && item.confirms > 0 ? item.confirms : 1,
           };
         })
           .filter((item: any) => {
@@ -277,6 +311,9 @@ const TopUpPage = () => {
     if (!selectedCoin) {
       return toast.error(t("withdrawMoney.setCoinError"));
     }
+    // 判断是否为memo币
+    const memoTag = selectedCoin.memoTag === 1
+    setIsMemo(memoTag)
     // 3. 设置表单值
     form.setFieldValue("coinName", coinId);
     // 4.   // 获取币种对应网络
@@ -291,6 +328,8 @@ const TopUpPage = () => {
 
     updateSearchHistory(option)
     goSteps(2);
+    const memoTag = option.memoTag === 1
+    setIsMemo(memoTag)
     // 获取币种对应网络
     await getCoinExt(option.coinId)
 
@@ -323,10 +362,60 @@ const TopUpPage = () => {
 
     goSteps(3);
   }
+  const handleProtocolSelect = (value: any, option: any) => {
+    const baseNew = option?.confirmCount ?? option?.data?.confirmCount ?? 1;
+    const newKey = String(value);
+
+    // 切换到相同选项：继续递减
+    if (selectedProtocolId === value) {
+      const currentRemain = (confirmRemainingMap[newKey] ?? baseNew);
+      const nextRemain = currentRemain - 1;
+      if (nextRemain <= 0) {
+        setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: 0 }));
+        form.setFieldValue('protocolId', value);
+        setSelectedProtocolId(value);
+        setProtoOpen(false);
+        chainChange(value, option?.data || option);
+        return;
+      }
+      setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: nextRemain }));
+      form.setFieldValue('protocolId', value);
+      goSteps(2);
+      return;
+    }
+
+    // 切换到不同选项：
+    // 1) 先把上一个选项的剩余次数恢复为其基础次数
+    if (selectedProtocolId !== undefined && selectedProtocolId !== null) {
+      const prevKey = String(selectedProtocolId);
+      const prevOpt = coinExtSelect.find((o: any) => String(o.value) === prevKey);
+      const prevBase = prevOpt?.confirmCount ?? 1;
+      setConfirmRemainingMap((prev) => ({ ...prev, [prevKey]: prevBase }));
+    }
+
+    // 2) 新选项立刻减 1（本次点击算一次确认）
+    const nextRemainNew = Math.max(baseNew - 1, 0);
+    if (nextRemainNew === 0) {
+      // 直接完成
+      setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: 0 }));
+      form.setFieldValue('protocolId', value);
+      setSelectedProtocolId(value);
+      setProtoOpen(false);
+      chainChange(value, option?.data || option);
+      return;
+    }
+
+    // 未完成：记录剩余次数并停留步骤 2
+    setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: nextRemainNew }));
+    setSelectedProtocolId(value);
+    form.setFieldValue('protocolId', value);
+    goSteps(2);
+  };
+
   // 6.查询钱包地址
   const getWalletAddressData = async (value: any) => {
     try {
-      const chainType = value.protocolId
+      const chainType = selectedProtocolId ?? value.protocolId ?? form.getFieldValue('protocolId')
       const res = await getWalletAddress(chainType)
       if (res.code === '0') {
         setWalletAddress(res.data)
@@ -345,7 +434,7 @@ const TopUpPage = () => {
   const fetchWalletAddress = async (value: any) => {
     try {
       const params = {
-        blockchain: value.protocolId,
+        blockchain: selectedProtocolId ?? value.protocolId ?? form.getFieldValue('protocolId'),
         label: value.coinName
       }
       const res = await createWalletAddress(params)
@@ -512,46 +601,50 @@ const TopUpPage = () => {
       title: <p className={`${styles.tip_title} `}>网络</p>,
       description: (
         <div className={`${styles.steps_item_content2} mt-2`}>
-          {current >= 1 && (<Form.Item name="protocolId" >
-            <Select
-              allowClear={false}
-              placeholder="请选择网络"
-              options={coinExtSelect}
-              className={`${styles.select_box} custom-select`}
-              optionRender={(option) => {
-                if (!option?.data) return null;
-                return (
-                  <div className="flex items-center py-1">
-                    <span className="text-text-color7">
-                      {option.data.protocolName}
-                    </span>&nbsp;
-                    <span className={styles.tip_color}>
-                      （{option.data.protocol}）
-                    </span>
-                  </div>
-                );
-              }}
-              dropdownRender={(menu) => (
-                <>
-                  <p
-                    className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-2_5 `}
-                  >
-                    <Iconify
-                      icon="ep:warning-filled"
-                      className="warning_color mr-1"
-                      size={16}
-                    />
-                    <span>
-                      请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。
-                    </span>
-                  </p>
-                  {menu}
-                </>
+          {current >= 1 && (
+
+            <Dropdown
+              open={protoOpen}
+              onOpenChange={setProtoOpen}
+              trigger={['click']}
+              placement="bottomLeft"
+              getPopupContainer={() => document.body}
+              dropdownRender={() => (
+                <div className="max-h-[260px] min-w-[180px] overflow-auto p-2 bg-[var(--background3)] rounded-[10px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
+                  {/* 自定义列表，onMouseDown 阻止默认并计数，不关闭 */}
+                  {coinExtSelect && coinExtSelect.length > 0 ? coinExtSelect.map((opt: any) => (
+                    <div
+                      key={opt.value}
+                      className="flex justify-between px-3 py-2 cursor-pointer"
+                      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
+                    >
+                      <div className="min-w-0">
+                        <p>{opt.protocolName}</p>
+                        <p className="text-[var(--text-color6)]">{opt.protocol}</p>
+                      </div>
+                      <div className="shrink-0">{(confirmRemainingMap[String(opt.value)] ?? (opt.confirmCount ?? 1))}次确认</div>
+                    </div>
+                  )) : <NoData />}
+                </div>
               )}
-              notFoundContent={<NoData />}
-              onChange={chainChange}
-            />
-          </Form.Item>
+            >
+              <div ref={triggerRef} className="relative">
+                {/* <Form.Item name="protocolId" noStyle> */}
+                <Input readOnly
+                  value={selectedProtocolLabel}
+                  placeholder="请选择网络"
+                  onClick={() => setProtoOpen(true)}
+                  className={`${styles.input_box5} modal-input`}
+                // suffix={<DownOutlined width={12} height={12} />}
+                />
+                {/* </Form.Item> */}
+                <DownOutlined
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--text-color6)]"
+                  style={{ color: "var(--text-color6)" }}
+                />
+              </div>
+
+            </Dropdown>
           )}
         </div>
       ),
@@ -559,7 +652,7 @@ const TopUpPage = () => {
     {
       title: <p className={`${styles.tip_title} `}>充值地址</p>,
       description: (
-        <div className={`${styles.steps_item_content3} mt-2 relative min-w-[370px]`} >
+        <div className={`${styles.steps_item_content3} mt-2 relative min-w-[400px]`} >
           {current >= 2 && (<>
             {/* 提示信息1 */}
             {/* <p
@@ -576,23 +669,27 @@ const TopUpPage = () => {
               </span>
             </p> */}
             {/* 充值地址 */}
-            <div className={`${styles.qrCode_box} px-5 py-5 flex-x align-center`} >
+            <div className={`${styles.qrCode_box} px-5 py-5 flex-x align-center`}  >
               <div className={`${styles.qr_code}`}>
-                <QRCode value={walletAddress?.addressType || '--'}
+                <QRCode value={walletAddress?.address || '--'}
                   color={isDayMode ? "#000" : "#fff"}
                   bgColor={isDayMode ? "#fff" : "#000"}
                   bordered={false}
                   size={86}
                 />
               </div>
-              <div className="ml-3 font-14">
+              <div className="ml-3 font-14 flex-1 min-w-0">
                 <p className={`${styles.tip_color2} font-w-400`}>充值地址</p>
-                <div className="flex-x align-center mt-2">
-                  <span className="mr-3">{walletAddress?.addressType || '--'}</span>
-                  <Iconify icon="mingcute:copy-2-line" size={20}
-                    onClick={() => {
-                      copyFn(walletAddress?.addressType || '')
-                    }} />
+                <div className="flex items-center mt-2">
+                  <span className="mr-3 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {walletAddress?.address || '--'}
+                  </span>
+                  <Iconify
+                    icon="mingcute:copy-2-line"
+                    size={20}
+                    className="shrink-0 ml-2 w-5 h-5"
+                    onClick={() => copyFn(walletAddress?.address || '')}
+                  />
                 </div>
               </div>
             </div>
@@ -715,7 +812,7 @@ const TopUpPage = () => {
                   components: {
                     Select: {
                       clearBg: "#ffffff",
-                      selectorBg: "var(--background7)",
+                      selectorBg: "var(--background7)", // select框背景色 //transparent
                       singleItemHeightLG: 50,
                       paddingXXS: 10, // 下拉框选项最小内边距
                       optionHeight: 40, //选项高度
