@@ -117,7 +117,7 @@ const TradePage = () => {
   const [wsInstance, setWsInstance] = useState<WebSocketService | null>(null); // WebSocket实例
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
-
+  const [realtimeTradeData, setRealtimeTradeData] = useState<any[]>([]); // 实时交易数据
 
   // 获取现货账户余额
   const getSpotBalance = async () => {
@@ -343,6 +343,16 @@ const TradePage = () => {
       },
     };
 
+    const realtimeTradeRepEvent = {
+      event: "req",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_trade_ticker`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+        top: 100
+      },
+    };
+
+
     // K线数据请求（获取历史数据）
     const klineReqEvent = {
       event: "req",
@@ -369,6 +379,7 @@ const TradePage = () => {
     ws.send(JSON.stringify(realtimeTradeEvent));
     ws.send(JSON.stringify(klineReqEvent));
     ws.send(JSON.stringify(klineSubEvent));
+    ws.send(JSON.stringify(realtimeTradeRepEvent));
 
     console.log("已发送订阅消息:", {
       depth: depthEvent.params.channel,
@@ -417,7 +428,7 @@ const TradePage = () => {
     {
       columnSpan: 1,
       height: 380,
-      content: <OrderBookList orderBookData={orderBookData} />,
+      content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
     },
     {
       columnSpan: 1,
@@ -448,7 +459,7 @@ const TradePage = () => {
     {
       columnSpan: 1,
       height: 284,
-      content: <RealtimeTrade orderBookData={orderBookData} />,
+      content: <RealtimeTrade orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
     },
     ...(isLoggedIn
       ? [
@@ -525,7 +536,7 @@ const TradePage = () => {
       const storeContractInfo = appStore.getCurrentContractInfo();
       // 只有当store中的合约信息与当前state不同时才更新
       if (storeContractInfo && storeContractInfo.id !== currentContractInfo.id) {
-        console.log("检测到合约切换:", storeContractInfo);
+
 
         // 清理旧的数据状态
         setOrderBookData(null);
@@ -537,10 +548,10 @@ const TradePage = () => {
 
         // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
         if (wsInstance) {
-          console.log("合约切换：使用现有WebSocket连接重新发送订阅");
+
           sendSubscriptions(wsInstance, storeContractInfo, currentTimeInterval, true);  // 先取消旧订阅
         } else {
-          console.log("合约切换：WebSocket未连接，等待连接建立");
+
         }
 
         // 重新获取账户余额（因为可能需要不同的保证金币种）
@@ -562,7 +573,7 @@ const TradePage = () => {
       return;
     }
 
-    console.log("建立WebSocket连接，URL:", publicInfo.wsUrl);
+
     const ws = new WebSocketService(publicInfo.wsUrl.replace(";", ""));
     setWsInstance(ws);
 
@@ -610,6 +621,25 @@ const TradePage = () => {
             console.log("卖单数据:", data.tick.asks);
           }
           setOrderBookData(data);
+        } else if (data.channel && data.channel.includes("_trade_ticker")) {
+          // 处理实时成交数据
+          console.log("收到实时交易数据:", data);
+          if (data.data && Array.isArray(data.data)) {
+            // 对数据按时间戳排序，最新的在前
+            const sortedData = data.data.sort((a: any, b: any) => b.ts - a.ts);
+            setRealtimeTradeData(sortedData);
+
+            // 更新最新价格
+            if (sortedData.length > 0) {
+              const latestTrade = sortedData[0];
+              setPriceData((prevPriceData: any) => ({
+                ...prevPriceData,
+                price: latestTrade.price,
+                lastSide: latestTrade.side, // 记录最新交易方向
+                lastTradeTime: latestTrade.ds,
+              }));
+            }
+          }
         }
       } catch (error) {
         console.error("解析WebSocket消息失败:", error);

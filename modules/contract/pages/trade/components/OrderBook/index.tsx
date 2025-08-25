@@ -27,22 +27,26 @@ interface OrderBookData {
 
 interface OrderBookProps {
   orderBookData?: OrderBookData;
+  realtimeTradeData?: TradeItem[];
 }
 
 interface TradeItem {
-  price: number;
-  amount: number;
-  timestamp: number; // 使用时间戳而非字符串
-  side: "buy" | "sell";
+  amount: string;
+  ds: string; // 时间字符串 "2025-08-25 14:31:28"
+  price: string;
+  side: "BUY" | "SELL";
+  ts: number; // 时间戳
+  vol: string;
 }
 
 interface RealtimeTradeProps {
   tradeData?: any;
-  orderBookData?: OrderBookData; // 暂时使用orderBookData模拟
+  orderBookData?: OrderBookData;
+  realtimeTradeData?: any;
 }
 
 // 委托列表组件
-const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
+const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>(2);
@@ -138,7 +142,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   }, [orderBookData, colorMode]);
 
   const formatNumber = (num: number, decimals: number = precision) => {
-    return num.toFixed(decimals);
+    return num
   };
 
   // 计算百分比宽度（基于累积深度）
@@ -303,7 +307,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
                 {formatNumber(currentPrice)}
               </div>
               <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+                {priceChange >= 0 ? '+' : ''}{priceChange}%
               </div>
             </div>
           )}
@@ -363,66 +367,44 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
 const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   tradeData,
   orderBookData,
+  realtimeTradeData,
 }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode] = useState<"both" | "buy" | "sell">("both");
 
   // 使用 useMemo 优化性能，处理实时成交数据
   const trades = useMemo(() => {
-    if (orderBookData?.tick) {
-      const { asks, buys } = orderBookData.tick;
-
-      // 合并买卖单数据作为成交记录（临时模拟，实际应使用真实成交数据）
-      const allTrades: TradeItem[] = [];
-
-      if (asks && Array.isArray(asks)) {
-        asks.slice(0, 5).forEach((item: [number, number], index: number) => {
-          const [price, amount] = item;
-          allTrades.push({
-            price,
-            amount,
-            timestamp: Date.now() - index * 1000, // 使用时间戳
-            side: "sell",
-          });
-        });
-      }
-
-      if (buys && Array.isArray(buys)) {
-        buys.slice(0, 5).forEach((item: [number, number], index: number) => {
-          const [price, amount] = item;
-          allTrades.push({
-            price,
-            amount,
-            timestamp: Date.now() - (index + 5) * 1000, // 使用时间戳
-            side: "buy",
-          });
-        });
-      }
-
-      // 按时间戳排序（最新的在前）
-      return allTrades
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .slice(0, 10);
+    // 只使用真实的实时成交数据
+    if (realtimeTradeData && Array.isArray(realtimeTradeData) && realtimeTradeData.length > 0) {
+      // 限制显示的数据量，只显示最新的50条记录
+      return realtimeTradeData.slice(0, 50);
     }
-
     return [];
-  }, [orderBookData]);
+  }, [realtimeTradeData]);
 
-  const formatNumber = (num: number, decimals: number = 2) => {
-    return num.toFixed(decimals);
+  const formatNumber = (num: string | number, decimals: number = 2) => {
+    const numValue = typeof num === 'string' ? parseFloat(num) : num;
+    return numValue
   };
 
   // 格式化时间显示
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
+  const formatTime = (timeStr: string) => {
+    try {
+      // 尝试解析时间字符串 "2025-08-25 14:31:28"
+      const date = new Date(timeStr);
+      return date.toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+    } catch {
+      // 如果解析失败，返回原字符串的时间部分
+      return timeStr.split(' ')[1] || timeStr;
+    }
   };
 
-  const getPriceColor = (side: "buy" | "sell") => {
-    if (side === "sell") {
+  const getPriceColor = (side: "BUY" | "SELL") => {
+    if (side === "SELL") {
       return colorMode === "both" || colorMode === "sell"
         ? "text-red-500"
         : "text-green-500";
@@ -446,28 +428,34 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
           <div className="flex-1 text-right">时间</div>
         </div>
 
-        <div className="flex flex-col gap-[9px] overflow-y-auto">
-          {trades.length > 0 ? (
-            trades.map((trade) => (
+        <div
+          className="flex flex-col gap-[9px] overflow-y-auto max-h-[240px]"
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(155, 155, 155, 0.5) transparent'
+          }}
+        >
+          {trades && trades.length > 0 ? (
+            trades.map((trade: TradeItem, index: number) => (
               <div
-                key={`trade-${trade.timestamp}-${trade.price}`}
-                className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50"
+                key={`trade-${trade.ts}-${index}`}
+                className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 px-1 py-1 rounded transition-colors duration-150"
               >
                 <div
-                  className={`flex-1 text-left ${getPriceColor(trade.side)}`}
+                  className={`flex-1 text-left ${getPriceColor(trade.side)} font-medium`}
                 >
                   {formatNumber(trade.price)}
                 </div>
                 <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
-                  {formatNumber(trade.amount, 3)}
+                  {formatNumber(trade.vol, 4)}
                 </div>
-                <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
-                  {formatTime(trade.timestamp)}
+                <div className="flex-1 text-right text-[11px]" style={{ color: "var(--text-color6)" }}>
+                  {formatTime(trade.ds)}
                 </div>
               </div>
             ))
           ) : (
-            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
+            <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center h-[100px]">
               暂无成交数据
             </div>
           )}

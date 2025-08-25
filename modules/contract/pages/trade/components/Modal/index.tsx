@@ -23,7 +23,7 @@ interface TradeItem {
 
 interface RealtimeTradeProps {
   tradeData?: any;
-  orderBookData?: any; // 暂时使用orderBookData模拟
+  orderBookData?: any;
 }
 
 // 委托列表组件
@@ -34,7 +34,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
   );
   const [precision, setPrecision] = useState<number>(2);
 
-  // 处理WebSocket数据，如果没有数据则使用模拟数据
+  // 处理WebSocket数据
   const processOrderBookData = () => {
     if (orderBookData?.tick) {
       const { asks, buys } = orderBookData.tick;
@@ -58,38 +58,38 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
       const processedSellOrders: OrderBookItem[] =
         asks && Array.isArray(asks)
           ? asks
-              .map((item: [number, number]) => {
-                const [price, amount] = item;
-                return {
-                  price,
-                  amount,
-                  total: price * amount,
-                };
-              })
-              .filter(
-                (item: OrderBookItem) => item.price > 0 && item.amount > 0
-              )
-              .sort((a, b) => b.price - a.price) // 卖单价格从高到低
-              .slice(0, 10) // 只显示前10条
+            .map((item: [number, number]) => {
+              const [price, amount] = item;
+              return {
+                price,
+                amount,
+                total: price * amount,
+              };
+            })
+            .filter(
+              (item: OrderBookItem) => item.price > 0 && item.amount > 0
+            )
+            .sort((a, b) => b.price - a.price) // 卖单价格从高到低
+            .slice(0, 10) // 只显示前10条
           : [];
 
       // 处理买单数据 (buys) - 按价格从高到低排序
       const processedBuyOrders: OrderBookItem[] =
         buys && Array.isArray(buys)
           ? buys
-              .map((item: [number, number]) => {
-                const [price, amount] = item;
-                return {
-                  price,
-                  amount,
-                  total: price * amount,
-                };
-              })
-              .filter(
-                (item: OrderBookItem) => item.price > 0 && item.amount > 0
-              )
-              .sort((a, b) => b.price - a.price) // 买单价格从高到低
-              .slice(0, 10) // 只显示前10条
+            .map((item: [number, number]) => {
+              const [price, amount] = item;
+              return {
+                price,
+                amount,
+                total: price * amount,
+              };
+            })
+            .filter(
+              (item: OrderBookItem) => item.price > 0 && item.amount > 0
+            )
+            .sort((a, b) => b.price - a.price) // 买单价格从高到低
+            .slice(0, 10) // 只显示前10条
           : [];
 
       return {
@@ -184,7 +184,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData }) => {
     <div className="p-[10px_16px]">
       <div className="flex flex-col gap-[8px] mb-[10px]">
         <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-          委托列表 {orderBookData ? "(实时)" : "(模拟)"}
+          委托列表
         </div>
         <div className="flex justify-between items-center gap-[8px]">
           {renderColorModeButtons()}
@@ -277,7 +277,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode] = useState<"red-green" | "green-red">("red-green");
 
-  // 处理实时成交数据，暂时使用orderBookData模拟
+  // 处理实时成交数据
   const processTradeData = () => {
     if (orderBookData?.tick) {
       const { asks, buys } = orderBookData.tick;
