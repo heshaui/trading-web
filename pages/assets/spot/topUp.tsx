@@ -267,7 +267,7 @@ const TopUpPage = () => {
       return; // 如果是同一个币种，直接返回，避免不必要的操作
     }
 
-    let currentCoinList = coinList;
+    const currentCoinList = coinList;
     if (coinList.length === 0) {
       getTopUpCoinAllList()
     }
