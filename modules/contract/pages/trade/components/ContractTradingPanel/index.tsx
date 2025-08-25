@@ -403,7 +403,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const handleFundTransferConfirm = async (transferData: any) => {
     const dataEncrypt = await encryptData(transferData);
     const res = await transferAll(dataEncrypt);
-    console.log("res:", res);
     if (res.code === "0" && res.data) {
       toast.success("划转成功");
       // 通知父组件更新余额

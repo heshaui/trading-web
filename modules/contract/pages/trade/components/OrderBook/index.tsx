@@ -52,7 +52,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   const [precision, setPrecision] = useState<number>(2);
 
   // 使用 useMemo 优化性能，处理WebSocket数据
-  const { sellOrders, buyOrders, currentPrice, priceChange } = useMemo(() => {
+  const { sellOrders, buyOrders, priceChange } = useMemo(() => {
     if (orderBookData?.tick) {
       const { asks, buys, lastPrice, priceChange } = orderBookData.tick;
 
@@ -127,7 +127,6 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
       return {
         sellOrders: processedSellOrders,
         buyOrders: processedBuyOrders,
-        currentPrice: lastPrice || (processedSellOrders[0]?.price || 0 + processedBuyOrders[0]?.price || 0) / 2,
         priceChange: priceChange || 0,
       };
     }
@@ -136,14 +135,11 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
     return {
       sellOrders: [],
       buyOrders: [],
-      currentPrice: 0,
       priceChange: 0,
     };
   }, [orderBookData, colorMode]);
 
-  const formatNumber = (num: number, decimals: number = precision) => {
-    return num
-  };
+
 
   // 计算百分比宽度（基于累积深度）
   const calculatePercentWidth = (orders: OrderBookItem[], cumulativeTotal: number): number => {
@@ -249,7 +245,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
           <div className="flex-1 text-left">价格</div>
-          <div className="flex-1 text-right">数量</div>
+          <div className="flex-1 text-center">数量</div>
           <div className="flex-1 text-right">总计</div>
         </div>
 
@@ -266,10 +262,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
                       <div className={`flex-1 text-left ${getSellPriceColor()}`}>
-                        {formatNumber(order.price)}
+                        {order.price}
                       </div>
-                      <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
-                        {formatNumber(order.amount, 3)}
+                      <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
+                        {order.amount}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
                         <div
@@ -286,7 +282,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                           }}
                         />
                         <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
-                          {formatNumber(order.total, 3)}
+                          {order.total}
                         </span>
                       </div>
                     </div>
@@ -301,10 +297,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
           )}
 
           {/* 当前价格显示 - 只在 both 模式下显示 */}
-          {colorMode === "both" && currentPrice > 0 && (
+          {colorMode === "both" && realtimeTradeData && realtimeTradeData.length > 0 && (
             <div className="flex justify-between items-center my-[10px]">
               <div className={`text-xl font-semibold ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {formatNumber(currentPrice)}
+                {realtimeTradeData[0].price}
               </div>
               <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {priceChange >= 0 ? '+' : ''}{priceChange}%
@@ -324,10 +320,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
                       <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
-                        {formatNumber(order.price)}
+                        {order.price}
                       </div>
-                      <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
-                        {formatNumber(order.amount, 3)}
+                      <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
+                        {order.amount}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
                         <div
@@ -344,7 +340,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                           }}
                         />
                         <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
-                          {formatNumber(order.total, 3)}
+                          {order.total}
                         </span>
                       </div>
                     </div>
@@ -382,10 +378,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
     return [];
   }, [realtimeTradeData]);
 
-  const formatNumber = (num: string | number, decimals: number = 2) => {
-    const numValue = typeof num === 'string' ? parseFloat(num) : num;
-    return numValue
-  };
+
 
   // 格式化时间显示
   const formatTime = (timeStr: string) => {
@@ -424,7 +417,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
           <div className="flex-1 text-left">价格</div>
-          <div className="flex-1 text-right">数量</div>
+          <div className="flex-1 text-center">数量</div>
           <div className="flex-1 text-right">时间</div>
         </div>
 
@@ -444,10 +437,10 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
                 <div
                   className={`flex-1 text-left ${getPriceColor(trade.side)} font-medium`}
                 >
-                  {formatNumber(trade.price)}
+                  {trade.price}
                 </div>
-                <div className="flex-1 text-right" style={{ color: "var(--text-color6)" }}>
-                  {formatNumber(trade.vol, 4)}
+                <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
+                  {trade.vol}
                 </div>
                 <div className="flex-1 text-right text-[11px]" style={{ color: "var(--text-color6)" }}>
                   {formatTime(trade.ds)}
