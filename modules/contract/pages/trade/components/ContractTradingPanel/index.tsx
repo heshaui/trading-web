@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { observer } from 'mobx-react-lite';
 import {
   Button,
@@ -37,22 +37,24 @@ const { Option } = Select;
 
 interface ContractTradingPanelProps {
   symbol?: string;
-  lastPrice?: number;
   availableBalance?: number;
   spotBalance?: any;
   contractBalance?: any;
   onOrderSubmit?: (orderData: any) => void;
   onBalanceUpdate?: () => void; // 新增余额更新回调
+  priceSetterRef?: React.MutableRefObject<((price: number) => void) | null>; // 新增价格设置器ref
+  priceData?: any; // 新增价格数据
 }
 
 const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
-  symbol = "BTCUSDT",
-  lastPrice = "",
+  symbol,
   availableBalance = 0,
   spotBalance,
   contractBalance,
   onOrderSubmit,
   onBalanceUpdate, // 解构新增的回调
+  priceSetterRef, // 解构价格设置器ref
+  priceData, // 解构价格数据
 }) => {
   // 确保所有Hooks在组件顶层按固定顺序调用
   const { t } = useTranslation(["contract"]);
@@ -62,7 +64,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
   const [leverageLevel, setLeverageLevel] = useState(1);
-  const [price, setPrice] = useState<string | number>(lastPrice);
+  const [price, setPrice] = useState<string | number>();
   const [quantity, setQuantity] = useState<string | number>();
   const [percentage, setPercentage] = useState(0);
   const [enableTPSL, setEnableTPSL] = useState(false);
@@ -107,14 +109,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
 
 
-  // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
-  useEffect(() => {
-    if (userConfig?.nowLevel && userConfig.nowLevel !== leverageLevel) {
-
-      setLeverageLevel(userConfig.nowLevel);
-    }
-  }, [userConfig?.nowLevel]); // 移除 leverageLevel 依赖，避免无限循环
-
   // 获取当前订单类型
   const getOrderType = () => {
     if (currentCategory === 1) return "limit";
@@ -126,7 +120,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const orderType = getOrderType();
 
   // 计算可买/可卖数量
-  const calculateMaxQuantity = () => {
+  const calculateMaxQuantity = useCallback(() => {
+    // 从priceData中获取最新价格
+    const lastPrice = priceData?.lastPrice || priceData?.close || 1;
     const lastPriceNum =
       typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
     const priceNum =
@@ -136,7 +132,63 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return (availableBalance * leverageLevel) / (lastPriceNum || 1);
     }
     return (availableBalance * leverageLevel) / (priceNum || 1);
-  };
+  }, [priceData, price, orderType, availableBalance, leverageLevel]);
+
+  // 实时验证函数
+  const validateField = useCallback((field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
+    if (!value || value.toString().trim() === "") {
+      return "此字段为必填项";
+    }
+
+    const numValue = parseFloat(value.toString());
+    if (isNaN(numValue)) {
+      return "请输入有效的数字";
+    }
+
+    if (numValue <= 0) {
+      return "数值必须大于0";
+    }
+
+    // 特定字段的额外验证
+    if (field === 'quantity') {
+      const maxQuantity = calculateMaxQuantity();
+      if (numValue > maxQuantity) {
+        return `数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`;
+      }
+    }
+
+    return undefined;
+  }, [calculateMaxQuantity, transactionType]);
+
+  // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
+  const handleSetPriceFromExternal = useCallback((newPrice: number) => {
+    const priceStr = newPrice.toString();
+    setPrice(priceStr);
+
+    // 验证新设置的价格
+    if (currentCategory === 1 || currentCategory === 3) {
+      const error = validateField('price', priceStr);
+      setValidationErrors(prev => ({
+        ...prev,
+        price: error
+      }));
+    }
+  }, [currentCategory, validateField]);
+
+  // 监听 userConfig.nowLevel 变化，同步更新本地 leverageLevel 状态
+  useEffect(() => {
+    if (userConfig?.nowLevel && userConfig.nowLevel !== leverageLevel) {
+
+      setLeverageLevel(userConfig.nowLevel);
+    }
+  }, [userConfig?.nowLevel, leverageLevel]);
+
+  // 将设置价格的函数暴露给父组件
+  useEffect(() => {
+    if (priceSetterRef) {
+      priceSetterRef.current = handleSetPriceFromExternal;
+    }
+  }, [priceSetterRef, handleSetPriceFromExternal]);
 
   // 处理百分比滑块变化
   const handlePercentageChange = (value: number) => {
@@ -191,7 +243,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     const orderData = {
       direction: transactionType === 1 ? 0 : 1, // 0: 买入, 1: 卖出
       type: currentCategory === 1 ? 1 : 0, // 1: 限价, 0: 市价
-      price: price,
+      price: price || 0,
       amount: quantity || 0,
       account:
         (typeof quantity === "string" ? parseFloat(quantity) : quantity || 0) *
@@ -271,32 +323,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     return true;
-  };
-
-  // 实时验证函数
-  const validateField = (field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
-    if (!value || value.toString().trim() === "") {
-      return "此字段为必填项";
-    }
-
-    const numValue = parseFloat(value.toString());
-    if (isNaN(numValue)) {
-      return "请输入有效的数字";
-    }
-
-    if (numValue <= 0) {
-      return "数值必须大于0";
-    }
-
-    // 特定字段的额外验证
-    if (field === 'quantity') {
-      const maxQuantity = calculateMaxQuantity();
-      if (numValue > maxQuantity) {
-        return `数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`;
-      }
-    }
-
-    return undefined;
   };
 
   // 处理价格输入变化

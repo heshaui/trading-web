@@ -28,6 +28,7 @@ interface OrderBookData {
 interface OrderBookProps {
   orderBookData?: OrderBookData;
   realtimeTradeData?: TradeItem[];
+  onPriceClick?: (price: number) => void; // 新增价格点击回调
 }
 
 interface TradeItem {
@@ -43,10 +44,11 @@ interface RealtimeTradeProps {
   tradeData?: any;
   orderBookData?: OrderBookData;
   realtimeTradeData?: any;
+  onPriceClick?: (price: number) => void; // 新增价格点击回调
 }
 
 // 委托列表组件
-const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData }) => {
+const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>(2);
@@ -261,7 +263,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                       key={`sell-${order.price}`}
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
-                      <div className={`flex-1 text-left ${getSellPriceColor()}`}>
+                      <div
+                        className={`flex-1 text-left ${getSellPriceColor()} cursor-pointer hover:opacity-80`}
+                        onClick={() => onPriceClick && onPriceClick(order.price)}
+                      >
                         {order.price}
                       </div>
                       <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
@@ -319,7 +324,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                       key={`buy-${order.price}`}
                       className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 relative"
                     >
-                      <div className={`flex-1 text-left ${getBuyPriceColor()}`}>
+                      <div
+                        className={`flex-1 text-left ${getBuyPriceColor()} cursor-pointer hover:opacity-80`}
+                        onClick={() => onPriceClick && onPriceClick(order.price)}
+                      >
                         {order.price}
                       </div>
                       <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
@@ -364,6 +372,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   tradeData,
   orderBookData,
   realtimeTradeData,
+  onPriceClick,
 }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode] = useState<"both" | "buy" | "sell">("both");
@@ -435,7 +444,8 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
                 className="flex text-[var(--text-color6)] font-[400] text-[12px] cursor-pointer hover:bg-gray-50 px-1 py-1 rounded transition-colors duration-150"
               >
                 <div
-                  className={`flex-1 text-left ${getPriceColor(trade.side)} font-medium`}
+                  className={`flex-1 text-left ${getPriceColor(trade.side)} font-medium cursor-pointer hover:opacity-80`}
+                  onClick={() => onPriceClick && onPriceClick(parseFloat(trade.price))}
                 >
                   {trade.price}
                 </div>
