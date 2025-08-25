@@ -158,7 +158,7 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                   />
                   <p className={`font-18 font-w-500 mt-5`}>{item.title}</p>
                   <p
-                    className={`font-14 font-w-400 mt-2_5 ${styles.tip_color}`}
+                    className={`font-14 font-w-400 mt-2_5 text-center ${styles.tip_color}`}
                   >
                     {item.desc}
                   </p>
@@ -193,17 +193,17 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                 {/* 第二步：好友成功注册后，在注册 14 天内累计充值不低于 100 USDT且完成实名认证。您就可以获取好友现货交易20%手续费返佣。您可在此页面追踪邀请进度和任务完成情况。 */}
                 {rewardRouter.isRealname == "1"
                   ? t("invite.ruleDesc31", {
-                      date: rewardRouter.validTime,
-                      count: rewardRouter.rechargeLimit,
-                      coinName: rewardRouter.coinName,
-                      rebateRatio: rewardRouter.rebateRatio,
-                    })
+                    date: rewardRouter.validTime,
+                    count: rewardRouter.rechargeLimit,
+                    coinName: rewardRouter.coinName,
+                    rebateRatio: rewardRouter.rebateRatio,
+                  })
                   : t("invite.ruleDesc32", {
-                      date: rewardRouter.validTime,
-                      count: rewardRouter.rechargeLimit,
-                      coinName: rewardRouter.coinName,
-                      rebateRatio: rewardRouter.rebateRatio,
-                    })}
+                    date: rewardRouter.validTime,
+                    count: rewardRouter.rechargeLimit,
+                    coinName: rewardRouter.coinName,
+                    rebateRatio: rewardRouter.rebateRatio,
+                  })}
               </li>
               <li className="flex align-base mt-6">
                 <Iconify
@@ -280,9 +280,9 @@ const InviteContent = ({ onReturn }: InviteContentProps) => {
                         ≈&nbsp;
                         {inviteCount?.accumulateMoney
                           ? getCoinRate(
-                              inviteCount?.coinName,
-                              inviteCount?.accumulateMoney
-                            ).coinRate
+                            inviteCount?.coinName,
+                            inviteCount?.accumulateMoney
+                          ).coinRate
                           : "0"}
                         &nbsp;USDT
                       </span>
