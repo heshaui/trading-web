@@ -175,6 +175,7 @@ const TradePage = () => {
       toast.success("订单提交成功");
       orderListRef.current.getOrdinaryCommission();
       orderListRef.current.getPosition();
+      orderListRef.current.getOrdinaryCommissionNumber();
     } else {
       toast.error(res.msg);
     }

@@ -1,17 +1,26 @@
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { observer } from 'mobx-react-lite';
-import { Tabs, Table, Switch, message, ConfigProvider, Tooltip } from "antd";
+import { Tabs, Table, Switch, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
 import {
-  getHistoryOrderList,
-  getCurrentOrderList,
-  getPlanOrderList,
-  getHistoryPositionList,
-  getTradeInfo,
-  getAssetsList,
-  cancelOrder,
-  getCurrentOrderNum,
-} from "@/services/contract";
+  usePosition,
+  useOrdinaryCommission,
+  useConditionalCommission,
+  useHistoryCommission,
+  useProfitLoss,
+  useTradeHistory,
+  Position,
+  OrdinaryCommission,
+  ConditionalCommission,
+  HistoryCommission,
+  TradeRecord,
+  TradeHistory,
+  Side,
+  PositionType,
+  Type,
+  Open,
+  Status,
+} from "./hooks";
 import styles from "@/styles/components/Table.module.css";
 import {
   SliderTheme,
@@ -29,115 +38,48 @@ import AdjustModal from "./components/AdjustModal";
 import TipModal from "./components/TipModal";
 import ConfirmModal from "./components/ConfirmModal";
 import PhaseModal from "./components/PhaseModal";
-import QuickClose from "./components/QuickClose";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 
-// 仓位
-interface Position {
-  id: string;
-  symbol: string;
-  side: "LONG" | "SHORT";
-  size: number;
-  entryPrice: number;
-  markPrice: number;
-  pnl: number;
-  pnlRate: number;
-  margin: number;
-  marginRate: number;
-  liquidationPrice: number;
-  createTime: number;
+// 映射对象
+const PositionTypeMap = {
+  [PositionType.CROSS_MARGIN]: "全仓",
+  [PositionType.ISOLATED_MARGIN]: "逐仓",
 }
 
-// 普通委托
-interface OrdinaryCommission {
-  symbol: string; // 合约名称
-  pricePrecision: number; // 价格精度
-  side: "BUY" | "SELL"; // 方向
-  positionType: 1; // 仓位类型
-  avgPrice: number; // 平均价格
-  tradeFee: number; // 交易手续费
-  type: 1; // 类型
-  mtime: number; // 修改时间
-  volume: number; // 数量
-  dealVolume: number; // 成交数量
-  price: number; // 价格
-  contractId: number; // 合约ID
-  ctime: number; // 创建时间
-  contractName: string; // 合约名称
-  id: string; // 订单ID
-  open: "OPEN" | "CLOSE"; // 开仓状态
-  status: 0 | 1; // 状态
+const SideMap = {
+  [Side.BUY]: "买",
+  [Side.SELL]: "卖",
 }
 
-// 条件委托
-interface ConditionalCommission {
-  id: string;
-  contractId: number;
-  symbol: string;
-  type: "LIMIT" | "MARKET" | "CONDITIONAL";
-  side: "BUY" | "SELL";
-  triggerPrice: number;
-  price: number;
-  size: number;
-  orderType: string;
-  onlyReduce: boolean;
-  createTime: number;
-  expireTime: number;
+const TypeMap = {
+  [Type.LIMIT]: '限价单',
+  [Type.MARKET]: '市价单',
+  [Type.POST_ONLY]: 'PostOnly',
+  [Type.FORCE_LIQUIDATION]: '强制减仓',
+  [Type.POSITION_MERGE]: '仓位合并'
 }
 
-// 历史委托
-interface HistoryCommission {
-  id: string;
-  symbol: string;
-  type: "LIMIT" | "MARKET" | "CONDITIONAL";
-  side: "BUY" | "SELL";
-  price: number;
-  size: number;
-  filled: number;
-  filledPrice: number;
-  tpsl: string;
-  status: string;
-  createTime: number;
-  profit: number;
-  fee: number;
+const OpenMap = {
+  [Open.OPEN]: '开仓',
+  [Open.CLOSE]: '平仓',
 }
 
-// 盈亏记录
-interface TradeRecord {
-  id: string;
-  symbol: string;
-  side: "BUY" | "SELL";
-  size: number;
-  price: number;
-  fee: number;
-  createTime: number;
-  openPrice: number;
-  realizedPnl: number;
-  fundingFee: number;
-  pnl: number;
-  closeTime: number;
+const StatusMap = {
+  [Status.PENDING]: '待成交',
+  [Status.NEW_ORDER]: '新订单',
+  [Status.FULLY_FILLED]: '完全成交',
+  [Status.PARTIALLY_FILLED]: '部分成交',
+  [Status.CANCELLED]: '已取消',
+  [Status.CANCELLING]: '待撤销',
+  [Status.ABNORMAL]: '已废弃',
+  [Status.PARTIALLY_FILLED_AND_CANCELLED]: '部分成交已撤销',
 }
 
-// 成交记录
-interface TradeHistory {
-  id: string;
-  symbol: string;
-  side: "BUY" | "SELL";
-  size: number;
-  filledPrice: number;
-  role: string;
-  fee: number;
-  createTime: number;
-}
 
-const OrderList = observer(forwardRef((props, ref) => {
+const OrderListComponent = (props: any, ref: any) => {
   const [isClient, setIsClient] = useState(false);
-  const [loading, setLoading] = useState(false);
-  // 当前tab
   const { isLoggedIn } = useAuth();
-  // tabs 切换
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState("position");
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [reverModalOpen, setReverModalOpen] = useState(false);
@@ -149,159 +91,74 @@ const OrderList = observer(forwardRef((props, ref) => {
     tip: "",
   });
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-
-  // 仅当前合约开关
   const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
-  // 取消中的订单ID集合
-  const [cancellingOrderIds, setCancellingOrderIds] = useState<Set<string>>(
-    new Set()
-  );
 
-  // table 数据
-  // 仓位
-  const [positions, setPositions] = useState<Position[]>([]);
-  // 普通委托
-  const [ordinaryCommission, setOrdinaryCommission] = useState<
-    OrdinaryCommission[]
-  >([]);
-  // 普通委托数量
-  const [ordinaryCommissionNumber, setOrdinaryCommissionNumber] = useState(0);
-  // 条件委托
-  const [conditionalCommission, setConditionalCommission] = useState<
-    ConditionalCommission[]
-  >([]);
-  // 历史委托
-  const [historyCommission, setHistoryCommission] = useState<
-    HistoryCommission[]
-  >([]);
-  // 盈亏记录
-  const [profitLoss, setProfitLoss] = useState<TradeRecord[]>([]);
-  // 成交记录
-  const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([]);
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
-  // 获取当前合约symbol用于过滤
   const currentSymbol = currentContractInfo?.symbol || "";
-  // 根据仅当前合约开关过滤数据
-  const filterDataBySymbol = <T extends { symbol?: string }>(
-    data: T[]
-  ): T[] => {
-    if (!onlyCurrentSymbol || !currentSymbol) return data;
-    return data.filter((item) => item.symbol === currentSymbol);
-  };
 
-  // 获取仓位
-  const getPosition = useCallback(async () => {
-    console.log("获取仓位");
-    const res = await getAssetsList({
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    if (res.code === "0") {
-      setPositions(res.data.list);
-    } else {
-      setPositions([]);
-      message.error(res.msg);
-    }
-  }, []);
+  // ============ 使用各种hooks ============
+  // 仓位
+  const {
+    loading: positionLoading,
+    getPosition,
+    getFilteredPositions,
+  } = usePosition({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 获取普通委托(当前委托)
-  const getOrdinaryCommission = useCallback(async () => {
-    try {
-      console.log("获取普通委托(当前委托)");
-      const { code, data, msg } = await getCurrentOrderList({
-        contractId: currentContractInfo?.id,
-        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-      });
-      if (code === "0") {
-        setOrdinaryCommission(data.orderList);
-      } else {
-        message.error(msg);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [currentContractInfo?.id]);
+  // 普通委托
+  const {
+    ordinaryCommissionNumber,
+    loading: ordinaryLoading,
+    getOrdinaryCommission,
+    getOrdinaryCommissionNumber,
+    handleCancelOrdinaryOrder,
+    getFilteredOrdinaryCommission,
+  } = useOrdinaryCommission({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 获取条件委托
-  const getConditionalCommission = useCallback(async () => {
-    console.log("获取条件委托");
-    const res = await getPlanOrderList({
-      contractId: currentContractInfo?.id,
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    console.log(res);
-  }, [currentContractInfo?.id]);
+  // 条件委托
+  const {
+    loading: conditionalLoading,
+    getConditionalCommission,
+  } = useConditionalCommission({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 获取历史委托
-  const getHistoryCommission = useCallback(async () => {
-    console.log("获取历史委托");
-    const res = await getHistoryOrderList({
-      contractId: currentContractInfo?.id,
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    console.log(res);
-  }, [currentContractInfo?.id]);
+  // 历史委托
+  const {
+    historyCommissionNumber,
+    loading: historyLoading,
+    getHistoryCommission,
+    getHistoryCommissionNumber,
+    getFilteredHistoryCommission,
+  } = useHistoryCommission({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 获取盈亏记录
-  const getProfitLoss = useCallback(async () => {
-    console.log("盈亏记录");
-    const res = await getHistoryPositionList({
-      contractId: currentContractInfo?.id,
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    console.log(res);
-  }, [currentContractInfo?.id]);
+  // 盈亏记录
+  const {
+    loading: profitLossLoading,
+    getProfitLoss,
+    getFilteredProfitLoss,
+  } = useProfitLoss({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 获取成交记录
-  const getTradeHistory = useCallback(async () => {
-    console.log("获取成交记录");
-    const res = await getTradeInfo({
-      contractId: currentContractInfo?.id,
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    console.log(res);
-  }, [currentContractInfo?.id]);
+  // 成交记录
+  const {
+    loading: tradeHistoryLoading,
+    getTradeHistory,
+    getFilteredTradeHistory,
+  } = useTradeHistory({
+    contractId: currentContractInfo?.id,
+  });
 
-  // 撤销订单
-  const handleCancelOrder = async (record: OrdinaryCommission | ConditionalCommission, type: "ordinary" | "conditional") => {
-    try {
-      const params = {
-        orderId: record.id, // 订单ID
-        contractId: record.contractId, // 合约ID
-        isConditionOrder: type === "ordinary" ? false : true, // 是否是条件单true表示是计划委托，false表示是普通委托
-      }
-      const res = await cancelOrder(params);
-      if (res.code === "0") {
-        message.success(res.msg);
-        // 刷新当前页面数据
-        if (type === "ordinary") {
-          getOrdinaryCommission();
-        } else {
-          getConditionalCommission();
-        }
-      } else {
-        message.error(res.msg);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // 获取综合loading状态
+  const loading = positionLoading || ordinaryLoading || conditionalLoading || historyLoading || profitLossLoading || tradeHistoryLoading;
 
-  // 获取普通委托数量
-  const getOrdinaryCommissionNumber = useCallback(async () => {
-    const res = await getCurrentOrderNum({
-      contractId: currentContractInfo?.id,
-      uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    });
-    if (res.code === "0") {
-      console.log(res.data.count, "普通委托数量");
-      setOrdinaryCommissionNumber(res.data.count);
-    } else {
-      message.error(res.msg);
-    }
-  }, [currentContractInfo?.id]);
-
-  // 仓位: 合约,数量,成本价,标记价格,预估强平价,保证金,保证金率,未实现盈亏/收益率,快速平仓,反向开仓,止盈止损
   const positionColumns = [
     {
       title: "合约",
@@ -463,8 +320,6 @@ const OrderList = observer(forwardRef((props, ref) => {
     //   ),
     // },
   ];
-
-  // 普通委托: 合约,方向,数量,完成度 ,委托价格,成交均价,类型,只减仓,止盈止损,时间,全撤
   // const ordinaryColumns = [
   //   {
   //     title: "合约",
@@ -598,7 +453,7 @@ const OrderList = observer(forwardRef((props, ref) => {
   //     },
   //   },
   // ];
-  // 根据接口来的普通委托 合约,价格精度,方向,仓位类型,平均价格,交易手续费,类型,修改时间,数量,成交数量,价格,合约ID,创建时间,合约名称,订单ID,开仓状态,状态
+  // ============ 普通委托相关列定义 ============
   const ordinaryColumns = [
     {
       title: "合约",
@@ -621,7 +476,7 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "side",
       key: "side",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.side}</div>
+        <div className="text-[12px] font-[500]">{SideMap[record.side]}</div>
       ),
     },
     {
@@ -629,7 +484,7 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "positionType",
       key: "positionType",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.positionType}</div>
+        <div className="text-[12px] font-[500]">{PositionTypeMap[record.positionType]}</div>
       ),
     },
     {
@@ -653,7 +508,7 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "type",
       key: "type",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.type}</div>
+        <div className="text-[12px] font-[500]">{TypeMap[record.type]}</div>
       ),
     },
     {
@@ -729,7 +584,7 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "open",
       key: "open",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.open}</div>
+        <div className="text-[12px] font-[500]">{OpenMap[record.open]}</div>
       ),
     },
     {
@@ -737,7 +592,7 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "status",
       key: "status",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.status}</div>
+        <div className="text-[12px] font-[500]">{StatusMap[record.status]}</div>
       ),
     },
     {
@@ -752,7 +607,7 @@ const OrderList = observer(forwardRef((props, ref) => {
         return (
           <Tooltip title="取消" placement="left" className="ml-auto">
             <SvgIcon
-              onClick={() => handleCancelOrder(record, "ordinary")}
+              onClick={() => handleCancelOrdinaryOrder(record)}
               width="24"
               height="24"
               viewBox="0 0 24 24"
@@ -768,130 +623,127 @@ const OrderList = observer(forwardRef((props, ref) => {
       },
     },
   ];
+  // const conditionalColumns = [
+  //   {
+  //     title: "合约",
+  //     dataIndex: "symbol",
+  //     key: "symbol",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.symbol}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "类型",
+  //     dataIndex: "type",
+  //     key: "type",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.type}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "方向",
+  //     dataIndex: "side",
+  //     key: "side",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <span
+  //         className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+  //           }`}
+  //       >
+  //         {record.side === "BUY" ? "买入" : "卖出"}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     title: "触发价格",
+  //     dataIndex: "triggerPrice",
+  //     key: "triggerPrice",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.triggerPrice}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "委托价格",
+  //     dataIndex: "price",
+  //     key: "price",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.price}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "委托数量",
+  //     dataIndex: "size",
+  //     key: "size",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.size} USDT</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "订单类型",
+  //     dataIndex: "orderType",
+  //     key: "orderType",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">{record.orderType}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "只减仓",
+  //     dataIndex: "onlyReduce",
+  //     key: "onlyReduce",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">
+  //         {record.onlyReduce ? "是" : "否"}
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "提交时间",
+  //     dataIndex: "createTime",
+  //     key: "createTime",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">
+  //         {dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss")}
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "过期时间",
+  //     dataIndex: "expireTime",
+  //     key: "expireTime",
+  //     render: (_: any, record: ConditionalCommission) => (
+  //       <div className="text-[12px] font-[500]">
+  //         {dayjs(record.expireTime).format("YYYY-MM-DD HH:mm:ss")}
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: (
+  //       <div className="text-[12px] font-[500] text-[var(--theme-color)] cursor-pointer">
+  //         全撤
+  //       </div>
+  //     ),
+  //     key: "action",
+  //     align: "right" as const,
+  //     render: (_: any, record: ConditionalCommission) => {
+  //       return (
+  //         <Tooltip title="取消" placement="left" className="ml-auto">
+  //           <SvgIcon
+  //             onClick={() => handleCancelConditionalOrder(record)}
+  //             width="24"
+  //             height="24"
+  //             viewBox="0 0 24 24"
+  //             className="text-[var(--theme-color)]"
+  //           >
+  //             <path
+  //               fill="currentColor"
+  //               d="M14.28 2C14.6998 2.00011 15.1088 2.13229 15.4493 2.37781C15.7898 2.62333 16.0444 2.96975 16.177 3.368L16.72 5H20C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7L19.997 7.071L19.13 19.214C19.0759 19.9706 18.7372 20.6786 18.182 21.1956C17.6269 21.7125 16.8965 21.9999 16.138 22H7.862C7.10346 21.9999 6.37311 21.7125 5.81797 21.1956C5.26283 20.6786 4.92411 19.9706 4.87 19.214L4.003 7.07C4.00119 7.04671 4.00019 7.02336 4 7C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H7.28L7.823 3.368C7.9557 2.96959 8.21043 2.62305 8.5511 2.37752C8.89176 2.13198 9.30107 1.9999 9.721 2H14.28ZM17.997 7H6.003L6.865 19.071C6.88295 19.3232 6.99577 19.5592 7.18076 19.7316C7.36574 19.904 7.60916 19.9999 7.862 20H16.138C16.3908 19.9999 16.6343 19.904 16.8192 19.7316C17.0042 19.5592 17.117 19.3232 17.135 19.071L17.997 7ZM10 10C10.2449 10 10.4813 10.09 10.6644 10.2527C10.8474 10.4155 10.9643 10.6397 10.993 10.883L11 11V16C10.9997 16.2549 10.9021 16.5 10.7272 16.6854C10.5522 16.8707 10.313 16.9822 10.0586 16.9972C9.80416 17.0121 9.55362 16.9293 9.35817 16.7657C9.16271 16.6021 9.0371 16.3701 9.007 16.117L9 16V11C9 10.7348 9.10536 10.4804 9.29289 10.2929C9.48043 10.1054 9.73478 10 10 10ZM14 10C14.2652 10 14.5196 10.1054 14.7071 10.2929C14.8946 10.4804 15 10.7348 15 11V16C15 16.2652 14.8946 16.5196 14.7071 16.7071C14.5196 16.8946 14.2652 17 14 17C13.7348 17 13.4804 16.8946 13.2929 16.7071C13.1054 16.5196 13 16.2652 13 16V11C13 10.7348 13.1054 10.4804 13.2929 10.2929C13.4804 10.1054 13.7348 10 14 10ZM14.28 4H9.72L9.387 5H14.613L14.28 4Z"
+  //             />
+  //           </SvgIcon>
+  //         </Tooltip>
+  //       );
+  //     },
+  //   },
+  // ];
 
-  // 条件委托: 合约,类型,方向,触发价格 ,委托价格,委托数量,订单类型,只减仓,提交时间,过期时间,全撤
-  const conditionalColumns = [
-    {
-      title: "合约",
-      dataIndex: "symbol",
-      key: "symbol",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.symbol}</div>
-      ),
-    },
-    {
-      title: "类型",
-      dataIndex: "type",
-      key: "type",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.type}</div>
-      ),
-    },
-    {
-      title: "方向",
-      dataIndex: "side",
-      key: "side",
-      render: (_: any, record: ConditionalCommission) => (
-        <span
-          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-            }`}
-        >
-          {record.side === "BUY" ? "买入" : "卖出"}
-        </span>
-      ),
-    },
-    {
-      title: "触发价格",
-      dataIndex: "triggerPrice",
-      key: "triggerPrice",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.triggerPrice}</div>
-      ),
-    },
-    {
-      title: "委托价格",
-      dataIndex: "price",
-      key: "price",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.price}</div>
-      ),
-    },
-    {
-      title: "委托数量",
-      dataIndex: "size",
-      key: "size",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.size} USDT</div>
-      ),
-    },
-    {
-      title: "订单类型",
-      dataIndex: "orderType",
-      key: "orderType",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">{record.orderType}</div>
-      ),
-    },
-    {
-      title: "只减仓",
-      dataIndex: "onlyReduce",
-      key: "onlyReduce",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">
-          {record.onlyReduce ? "是" : "否"}
-        </div>
-      ),
-    },
-    {
-      title: "提交时间",
-      dataIndex: "createTime",
-      key: "createTime",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">
-          {dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss")}
-        </div>
-      ),
-    },
-    {
-      title: "过期时间",
-      dataIndex: "expireTime",
-      key: "expireTime",
-      render: (_: any, record: ConditionalCommission) => (
-        <div className="text-[12px] font-[500]">
-          {dayjs(record.expireTime).format("YYYY-MM-DD HH:mm:ss")}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="text-[12px] font-[500] text-[var(--theme-color)] cursor-pointer">
-          全撤
-        </div>
-      ),
-      key: "action",
-      align: "right" as const,
-      render: (_: any, record: ConditionalCommission) => {
-        return (
-          <Tooltip title="取消" placement="left" className="ml-auto">
-            <SvgIcon
-              onClick={() => handleCancelOrder(record, "conditional")}
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              className="text-[var(--theme-color)]"
-            >
-              <path
-                fill="currentColor"
-                d="M14.28 2C14.6998 2.00011 15.1088 2.13229 15.4493 2.37781C15.7898 2.62333 16.0444 2.96975 16.177 3.368L16.72 5H20C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7L19.997 7.071L19.13 19.214C19.0759 19.9706 18.7372 20.6786 18.182 21.1956C17.6269 21.7125 16.8965 21.9999 16.138 22H7.862C7.10346 21.9999 6.37311 21.7125 5.81797 21.1956C5.26283 20.6786 4.92411 19.9706 4.87 19.214L4.003 7.07C4.00119 7.04671 4.00019 7.02336 4 7C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H7.28L7.823 3.368C7.9557 2.96959 8.21043 2.62305 8.5511 2.37752C8.89176 2.13198 9.30107 1.9999 9.721 2H14.28ZM17.997 7H6.003L6.865 19.071C6.88295 19.3232 6.99577 19.5592 7.18076 19.7316C7.36574 19.904 7.60916 19.9999 7.862 20H16.138C16.3908 19.9999 16.6343 19.904 16.8192 19.7316C17.0042 19.5592 17.117 19.3232 17.135 19.071L17.997 7ZM10 10C10.2449 10 10.4813 10.09 10.6644 10.2527C10.8474 10.4155 10.9643 10.6397 10.993 10.883L11 11V16C10.9997 16.2549 10.9021 16.5 10.7272 16.6854C10.5522 16.8707 10.313 16.9822 10.0586 16.9972C9.80416 17.0121 9.55362 16.9293 9.35817 16.7657C9.16271 16.6021 9.0371 16.3701 9.007 16.117L9 16V11C9 10.7348 9.10536 10.4804 9.29289 10.2929C9.48043 10.1054 9.73478 10 10 10ZM14 10C14.2652 10 14.5196 10.1054 14.7071 10.2929C14.8946 10.4804 15 10.7348 15 11V16C15 16.2652 14.8946 16.5196 14.7071 16.7071C14.5196 16.8946 14.2652 17 14 17C13.7348 17 13.4804 16.8946 13.2929 16.7071C13.1054 16.5196 13 16.2652 13 16V11C13 10.7348 13.1054 10.4804 13.2929 10.2929C13.4804 10.1054 13.7348 10 14 10ZM14.28 4H9.72L9.387 5H14.613L14.28 4Z"
-              />
-            </SvgIcon>
-          </Tooltip>
-        );
-      },
-    },
-  ];
-
-  // 历史委托: 合约,类型(强制减仓),方向,委托价格 ,委托数量,成交数量,成交均价,盈亏,手续费,止盈止损,状态,时间
   const historyColumns = [
     {
       title: "合约",
@@ -902,25 +754,11 @@ const OrderList = observer(forwardRef((props, ref) => {
       ),
     },
     {
-      title: "类型",
-      dataIndex: "type",
-      key: "type",
+      title: "价格精度",
+      dataIndex: "pricePrecision",
+      key: "pricePrecision",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500] flex items-center gap-[4px]">
-          <div>{record.type}</div>
-          <div
-            className="text-[var(--theme-color)] cursor-pointer"
-            onClick={() =>
-              setTipModal({
-                open: true,
-                title: "强制减仓",
-                tip: "BTCUSDT标记价格到达34,039.1，仓位保证金率大于或等于100%，触发强制平仓，仓位被系统接管。仓位被系统接管后，会以破产价格委托到市场上，若成交后有盈利，则盈利部分注入保险基金中。",
-              })
-            }
-          >
-            查看
-          </div>
-        </div>
+        <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
       ),
     },
     {
@@ -929,15 +767,76 @@ const OrderList = observer(forwardRef((props, ref) => {
       key: "side",
       render: (_: any, record: HistoryCommission) => (
         <span
-          className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
+          className={`${record.side === Side.BUY ? "text-[#4CAF50]" : "text-[#F44336]"
             }`}
         >
-          {record.side === "BUY" ? "买入" : "卖出"}
+          {SideMap[record.side]}
         </span>
       ),
     },
     {
-      title: "委托价格",
+      title: "仓位类型",
+      dataIndex: "positionType",
+      key: "positionType",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{PositionTypeMap[record.positionType]}</div>
+      ),
+    },
+    {
+      title: "平均价格",
+      dataIndex: "avgPrice",
+      key: "avgPrice",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.avgPrice}</div>
+      ),
+    },
+    {
+      title: "交易手续费",
+      dataIndex: "tradeFee",
+      key: "tradeFee",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.tradeFee}</div>
+      ),
+    },
+    {
+      title: "已实现盈亏",
+      dataIndex: "realizedAmount",
+      key: "realizedAmount",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.realizedAmount}</div>
+      ),
+    },
+    {
+      title: "类型",
+      dataIndex: "type",
+      key: "type",
+      render: (_: any, record: HistoryCommission) => (
+        <div
+          className={`text-[12px] font-[500] ${record.type === Type.LIMIT ? "text-[#4CAF50]" : "text-[#F44336]"
+            }`}
+        >
+          {TypeMap[record.type]}
+        </div>
+      ),
+    },
+    {
+      title: "数量",
+      dataIndex: "volume",
+      key: "volume",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.volume}</div>
+      ),
+    },
+    {
+      title: "成交数量",
+      dataIndex: "dealVolume",
+      key: "dealVolume",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.dealVolume}</div>
+      ),
+    },
+    {
+      title: "价格",
       dataIndex: "price",
       key: "price",
       render: (_: any, record: HistoryCommission) => (
@@ -945,56 +844,45 @@ const OrderList = observer(forwardRef((props, ref) => {
       ),
     },
     {
-      title: "委托数量",
-      dataIndex: "size",
-      key: "size",
+      title: "合约ID",
+      dataIndex: "contractId",
+      key: "contractId",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.size}</div>
-      ),
-    },
-    {
-      title: "成交数量",
-      dataIndex: "filled",
-      key: "filled",
-      render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.filled}</div>
-      ),
-    },
-    {
-      title: "成交均价",
-      dataIndex: "filledPrice",
-      key: "filledPrice",
-      render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.filledPrice}</div>
-      ),
-    },
-    {
-      title: "盈亏",
-      dataIndex: "profit",
-      key: "profit",
-      render: (_: any, record: HistoryCommission) => (
-        <div
-          className={`text-[12px] font-[500] ${record.profit >= 0 ? "text-[#4CAF50]" : "text-[#F44336]"
-            }`}
-        >
-          {record.profit} USDT
+        <div className="text-[12px] font-[500]">
+          {record.contractId}
         </div>
       ),
     },
     {
-      title: "手续费",
-      dataIndex: "fee",
-      key: "fee",
+      title: "创建时间",
+      dataIndex: "ctime",
+      key: "ctime",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.fee} USDT</div>
+        <div className="text-[12px] font-[500]">{dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}</div>
       ),
     },
     {
-      title: "止盈止损",
-      dataIndex: "tpsl",
-      key: "tpsl",
+      title: "合约名称",
+      dataIndex: "contractName",
+      key: "contractName",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.tpsl}</div>
+        <div className="text-[12px] font-[500]">{record.contractName}</div>
+      ),
+    },
+    {
+      title: "订单ID",
+      dataIndex: "id",
+      key: "id",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{record.id}</div>
+      ),
+    },
+    {
+      title: "开仓状态",
+      dataIndex: "open",
+      key: "open",
+      render: (_: any, record: HistoryCommission) => (
+        <div className="text-[12px] font-[500]">{OpenMap[record.open]}</div>
       ),
     },
     {
@@ -1002,22 +890,11 @@ const OrderList = observer(forwardRef((props, ref) => {
       dataIndex: "status",
       key: "status",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{record.status}</div>
-      ),
-    },
-    {
-      title: "时间",
-      dataIndex: "createTime",
-      key: "createTime",
-      render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">
-          {dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss")}
-        </div>
+        <div className="text-[12px] font-[500]">{StatusMap[record.status]}</div>
       ),
     },
   ];
 
-  // 盈亏记录: 合约,开仓均价,仓位数量,已实现盈亏,手续费,资金费用,仓位盈亏,分摊,平仓时间
   const tradeRecordColumns = [
     {
       title: "合约",
@@ -1112,7 +989,6 @@ const OrderList = observer(forwardRef((props, ref) => {
     },
   ];
 
-  // 成交记录: 合约,成交均价,方向,成交数量,角色,手续费,时间
   const tradeHistoryColumns = [
     {
       title: "合约",
@@ -1184,18 +1060,22 @@ const OrderList = observer(forwardRef((props, ref) => {
     getPosition,
     // 获取普通委托
     getOrdinaryCommission,
+    // 获取普通委托数量
+    getOrdinaryCommissionNumber,
+    // 获取历史委托数量
+    getHistoryCommissionNumber,
   }));
 
   const tabItems = [
     {
       key: "position",
-      label: `仓位(${filterDataBySymbol(positions)?.length || 0})`,
+      label: `仓位`,
       children: (
         <Table<Position>
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={positionColumns}
-          dataSource={filterDataBySymbol(positions)}
+          dataSource={getFilteredPositions(currentSymbol, onlyCurrentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1213,7 +1093,7 @@ const OrderList = observer(forwardRef((props, ref) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={ordinaryColumns}
-          dataSource={filterDataBySymbol(ordinaryCommission)}
+          dataSource={getFilteredOrdinaryCommission(currentSymbol, onlyCurrentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1231,7 +1111,7 @@ const OrderList = observer(forwardRef((props, ref) => {
     //       scroll={{ x: "max-content" }}
     //       className={styles.table}
     //       columns={conditionalColumns}
-    //       dataSource={filterDataBySymbol(conditionalCommission)}
+    //       dataSource={getFilteredConditionalCommission(currentSymbol, onlyCurrentSymbol)}
     //       rowKey="id"
     //       pagination={false}
     //       loading={loading}
@@ -1243,13 +1123,13 @@ const OrderList = observer(forwardRef((props, ref) => {
     // },
     {
       key: "orderHistory",
-      label: `历史委托`,
+      label: `历史委托(${historyCommissionNumber})`,
       children: (
         <Table<any>
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={historyColumns}
-          dataSource={filterDataBySymbol(historyCommission)}
+          dataSource={getFilteredHistoryCommission(currentSymbol, onlyCurrentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1267,7 +1147,7 @@ const OrderList = observer(forwardRef((props, ref) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={tradeRecordColumns}
-          dataSource={filterDataBySymbol(profitLoss)}
+          dataSource={getFilteredProfitLoss(currentSymbol, onlyCurrentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1285,7 +1165,7 @@ const OrderList = observer(forwardRef((props, ref) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={tradeHistoryColumns}
-          dataSource={filterDataBySymbol(tradeHistory)}
+          dataSource={getFilteredTradeHistory(currentSymbol, onlyCurrentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1297,6 +1177,15 @@ const OrderList = observer(forwardRef((props, ref) => {
     },
   ];
 
+  // 切换合约或登录状态时，获取数量信息（用于tab标签显示）
+  useEffect(() => {
+    if (currentContractInfo?.id && isLoggedIn) {
+      getOrdinaryCommissionNumber();
+      getHistoryCommissionNumber();
+    }
+  }, [currentContractInfo?.id, isLoggedIn, getOrdinaryCommissionNumber, getHistoryCommissionNumber]);
+
+  // 切换tab或合约时，只获取当前tab对应的表格数据
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       const map = {
@@ -1321,12 +1210,6 @@ const OrderList = observer(forwardRef((props, ref) => {
     getProfitLoss,
     getTradeHistory,
   ]);
-
-  useEffect(() => {
-    if (currentContractInfo?.id && isLoggedIn) {
-      getOrdinaryCommissionNumber();
-    }
-  }, [currentContractInfo?.id, isLoggedIn, getOrdinaryCommissionNumber]);
 
   useEffect(() => {
     setIsClient(true); // 标记为客户端渲染
@@ -1411,8 +1294,9 @@ const OrderList = observer(forwardRef((props, ref) => {
       />
     </>
   );
-}));
+};
 
+const OrderList = observer(forwardRef(OrderListComponent));
 OrderList.displayName = 'OrderList';
 
 export default OrderList;
