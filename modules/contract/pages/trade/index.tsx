@@ -175,9 +175,12 @@ const TradePage = () => {
 
     if (res.code === "0") {
       toast.success("订单提交成功");
-      orderListRef.current.getOrdinaryCommission();
+      // 更新仓位
       orderListRef.current.getPosition();
-      orderListRef.current.getOrdinaryCommissionNumber();
+      // 更新普通委托
+      orderListRef.current.getOrdinaryCommission();
+      // 更新历史委托
+      orderListRef.current.getHistoryCommission();
     } else {
       toast.error(res.msg);
     }

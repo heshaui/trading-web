@@ -1,11 +1,7 @@
 import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
-import {
-  getCurrentOrderList,
-  getCurrentOrderNum,
-  cancelOrder,
-} from "@/services/contract";
+import { getCurrentOrderList, cancelOrder } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../index";
 
 // 普通委托接口
@@ -55,6 +51,7 @@ export const useOrdinaryCommission = (
         });
         if (code === "0") {
           setOrdinaryCommission(data.orderList);
+          setOrdinaryCommissionNumber(data.count);
         } else {
           message.error(msg);
         }
@@ -62,27 +59,6 @@ export const useOrdinaryCommission = (
         console.error("获取普通委托失败:", error);
       } finally {
         setLoading(false);
-      }
-    },
-    [contractId]
-  );
-
-  // 获取普通委托数量
-  const getOrdinaryCommissionNumber = useCallback(
-    async (overrideContractId?: number) => {
-      try {
-        const res = await getCurrentOrderNum({
-          contractId: overrideContractId ?? contractId,
-          uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-        });
-        if (res.code === "0") {
-          console.log(res.data.count, "普通委托数量");
-          setOrdinaryCommissionNumber(res.data.count);
-        } else {
-          message.error(res.msg);
-        }
-      } catch (error) {
-        console.error("获取普通委托数量失败:", error);
       }
     },
     [contractId]
@@ -126,7 +102,6 @@ export const useOrdinaryCommission = (
     ordinaryCommissionNumber,
     loading,
     getOrdinaryCommission,
-    getOrdinaryCommissionNumber,
     handleCancelOrdinaryOrder,
     getFilteredOrdinaryCommission,
   };
