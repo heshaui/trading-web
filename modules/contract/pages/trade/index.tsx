@@ -116,6 +116,7 @@ const TradePage = () => {
   const [klineData, setKlineData] = useState<any>(null); // K线数据
   const [currentTimeInterval, setCurrentTimeInterval] = useState<string>("1day"); // 当前时间间隔
   const [wsInstance, setWsInstance] = useState<WebSocketService | null>(null); // WebSocket实例
+  const [depthPrecision, setDepthPrecision] = useState<number>(0); // 深度精度
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
   const [realtimeTradeData, setRealtimeTradeData] = useState<any[]>([]); // 实时交易数据
@@ -221,18 +222,18 @@ const TradePage = () => {
   };
 
   // 发送WebSocket取消订阅消息
-  const sendUnsubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string) => {
+  const sendUnsubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = depthPrecision) => {
     if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
       return;
     }
 
     const wsTimeInterval = convertTimeInterval(timeInterval);
-    console.log("发送取消订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval);
+    console.log("发送取消订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval, "精度:", precision);
 
     // 取消订单簿数据订阅
     const unsubDepthEvent = {
       event: "unsub",
-      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step${precision}` },
       cb_id: contractInfo.symbol.toLowerCase(),
     };
 
@@ -294,17 +295,17 @@ const TradePage = () => {
       depth: unsubDepthEvent.params.channel,
       kline: unsubKlineSubEvent.params.channel
     });
-  }, []);
+  }, [depthPrecision]);
 
   // 发送新的订阅消息
-  const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string) => {
+  const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
-    console.log("发送订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval);
+    console.log("发送订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval, "精度:", precision);
 
     // 订单簿数据
     const depthEvent = {
       event: "sub",
-      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step0` },
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step${precision}` },
       cb_id: contractInfo.symbol.toLowerCase(),
     };
 
@@ -390,7 +391,7 @@ const TradePage = () => {
   }, []);
 
   // 发送WebSocket订阅消息
-  const sendSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, shouldUnsubscribeFirst: boolean = false) => {
+  const sendSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, shouldUnsubscribeFirst: boolean = false, precision: number = depthPrecision) => {
     if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
       console.log("合约信息不完整，无法发送订阅:", contractInfo);
       return;
@@ -398,15 +399,15 @@ const TradePage = () => {
 
     // 如果需要先取消订阅，则先发送取消订阅消息
     if (shouldUnsubscribeFirst) {
-      sendUnsubscriptions(ws, contractInfo, timeInterval);
+      sendUnsubscriptions(ws, contractInfo, timeInterval, precision);
       // 等待一小段时间确保取消订阅消息被处理
       setTimeout(() => {
-        sendNewSubscriptions(ws, contractInfo, timeInterval);
+        sendNewSubscriptions(ws, contractInfo, timeInterval, precision);
       }, 100);
     } else {
-      sendNewSubscriptions(ws, contractInfo, timeInterval);
+      sendNewSubscriptions(ws, contractInfo, timeInterval, precision);
     }
-  }, [sendUnsubscriptions, sendNewSubscriptions]);
+  }, [sendUnsubscriptions, sendNewSubscriptions, depthPrecision]);
 
   // 处理时间间隔变化
   const handleTimeIntervalChange = (interval: string) => {
@@ -416,6 +417,17 @@ const TradePage = () => {
     // 如果WebSocket已连接且合约信息完整，重新发送K线订阅
     if (wsInstance && currentContractInfo.id) {
       sendSubscriptions(wsInstance, currentContractInfo, interval, true);  // 时间间隔变化时也先取消旧订阅
+    }
+  };
+
+  // 处理深度精度变化
+  const handleDepthPrecisionChange = (precision: number) => {
+    console.log("深度精度变化:", precision);
+    setDepthPrecision(precision);
+
+    // 如果WebSocket已连接且合约信息完整，重新发送深度订阅
+    if (wsInstance && currentContractInfo.id) {
+      sendSubscriptions(wsInstance, currentContractInfo, currentTimeInterval, true, precision);  // 精度变化时先取消旧订阅
     }
   };
 
@@ -439,7 +451,7 @@ const TradePage = () => {
       id: 2,
       columnSpan: 1,
       height: 380,
-      content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} onPriceClick={handlePriceClick} />,
+      content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} onPriceClick={handlePriceClick} onPrecisionChange={handleDepthPrecisionChange} />,
     },
     {
       id: 3,

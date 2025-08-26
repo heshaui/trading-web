@@ -2,7 +2,8 @@ import React, { useState, useMemo } from "react";
 import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 import styles from "./style/index.module.css";
-
+import appStore from "@/store";
+const { currentContractInfo } = appStore
 const { Option } = Select;
 
 interface OrderBookItem {
@@ -29,6 +30,7 @@ interface OrderBookProps {
   orderBookData?: OrderBookData;
   realtimeTradeData?: TradeItem[];
   onPriceClick?: (price: number) => void; // 新增价格点击回调
+  onPrecisionChange?: (precision: number) => void; // 新增精度变化回调
 }
 
 interface TradeItem {
@@ -48,10 +50,19 @@ interface RealtimeTradeProps {
 }
 
 // 委托列表组件
-const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick }) => {
+const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick, onPrecisionChange }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
-  const [precision, setPrecision] = useState<number>(2);
+  const [precision, setPrecision] = useState<number>();
+
+  // 处理精度变化
+  const handlePrecisionChange = (newPrecision: number) => {
+    setPrecision(newPrecision);
+    // 通知父组件精度变化
+    if (onPrecisionChange) {
+      onPrecisionChange(newPrecision);
+    }
+  };
 
   // 使用 useMemo 优化性能，处理WebSocket数据
   const { sellOrders, buyOrders, priceChange } = useMemo(() => {
@@ -233,14 +244,12 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
               size="small"
               style={{ width: 80 }}
               value={precision}
-              onChange={setPrecision}
+              onChange={handlePrecisionChange}
               className="w-20"
             >
-              <Option value={0}>0</Option>
-              <Option value={1}>0.0</Option>
-              <Option value={2}>0.00</Option>
-              <Option value={3}>0.000</Option>
-              <Option value={4}>0.0000</Option>
+              {currentContractInfo.coinResultVo.depth.map((item: any, index: number) => (
+                <Option key={index} value={item}>{item}</Option>
+              ))}
             </Select>
           </div>
         </div>
