@@ -294,16 +294,13 @@ const TradePage = () => {
     ws.send(JSON.stringify(unsubRealtimeTradeEvent));
     ws.send(JSON.stringify(unsubKlineSubEvent));
 
-    console.log("已发送取消订阅消息:", {
-      depth: unsubDepthEvent.params.channel,
-      kline: unsubKlineSubEvent.params.channel
-    });
+
   }, [depthPrecision]);
 
   // 发送新的订阅消息
   const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
-    console.log("发送订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval, "精度:", precision);
+
 
     // 订单簿数据
     const depthEvent = {
@@ -387,16 +384,13 @@ const TradePage = () => {
     ws.send(JSON.stringify(klineSubEvent));
     ws.send(JSON.stringify(realtimeTradeRepEvent));
 
-    console.log("已发送订阅消息:", {
-      depth: depthEvent.params.channel,
-      kline: klineSubEvent.params.channel
-    });
+
   }, []);
 
   // 发送WebSocket订阅消息
   const sendSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, shouldUnsubscribeFirst: boolean = false, precision: number = depthPrecision) => {
     if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
-      console.log("合约信息不完整，无法发送订阅:", contractInfo);
+
       return;
     }
 
@@ -414,7 +408,7 @@ const TradePage = () => {
 
   // 处理时间间隔变化
   const handleTimeIntervalChange = (interval: string) => {
-    console.log("时间间隔变化:", interval);
+
     setCurrentTimeInterval(interval);
 
     // 如果WebSocket已连接且合约信息完整，重新发送K线订阅
@@ -425,7 +419,7 @@ const TradePage = () => {
 
   // 处理深度精度变化
   const handleDepthPrecisionChange = (precision: number) => {
-    console.log("深度精度变化:", precision);
+
     setDepthPrecision(precision);
 
     // 如果WebSocket已连接且合约信息完整，重新发送深度订阅
