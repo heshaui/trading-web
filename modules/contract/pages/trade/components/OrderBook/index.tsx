@@ -29,6 +29,7 @@ interface OrderBookProps {
   orderBookData?: OrderBookData;
   realtimeTradeData?: TradeItem[];
   onPriceClick?: (price: number) => void; // 新增价格点击回调
+  style?: React.CSSProperties;
 }
 
 interface TradeItem {
@@ -45,10 +46,11 @@ interface RealtimeTradeProps {
   orderBookData?: OrderBookData;
   realtimeTradeData?: any;
   onPriceClick?: (price: number) => void; // 新增价格点击回调
+  style?: React.CSSProperties;
 }
 
 // 委托列表组件
-const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick }) => {
+const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick, style }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>(2);
@@ -221,7 +223,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   };
 
   return (
-    <div className="bg-[var(--background9)] h-[100%]">
+    <div style={style} className="bg-[var(--background9)]">
       <div className="p-[10px_16px]">
         <div className="flex flex-col gap-[8px] mb-[10px]">
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
@@ -373,6 +375,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   orderBookData,
   realtimeTradeData,
   onPriceClick,
+  style
 }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode] = useState<"both" | "buy" | "sell">("both");
@@ -418,7 +421,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
   };
 
   return (
-    <div className="bg-[var(--background9)] h-[100%]">
+    <div className="bg-[var(--background9)]" style={style}>
       <div className="p-[10px_16px]">
         <div className="text-[var(--text-color5)] font-[500] text-[14px] mb-[10px]">
           实时成交

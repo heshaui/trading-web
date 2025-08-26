@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import SymbolSelector from "../SymbolSelector";
 import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
-const ContractHeader = ({ priceData }: { priceData: any }) => {
+const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CSSProperties }) => {
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
@@ -42,7 +42,7 @@ const ContractHeader = ({ priceData }: { priceData: any }) => {
   }, [currentContractInfo]);
 
   return (
-    <div className="flex items-center px-[16px] h-[100%] bg-[var(--background9)]">
+    <div style={style} className="flex items-center px-[16px] h-[100%] bg-[var(--background9)]">
       <SymbolSelector
         currentSymbol={currentSymbol}
         onSymbolSelect={handleSymbolSelect}
