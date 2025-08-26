@@ -6,45 +6,7 @@ import {
   getCurrentOrderNum,
   cancelOrder,
 } from "@/services/contract";
-
-// 方向枚举
-enum Side {
-  BUY = "BUY",
-  SELL = "SELL",
-}
-
-// 仓位类型枚举
-enum PositionType {
-  CROSS_MARGIN = 1, // 全仓
-  ISOLATED_MARGIN = 2, // 逐仓
-}
-
-// 类型枚举
-enum Type {
-  LIMIT = 1, // 限价单
-  MARKET = 2, // 市价单
-  POST_ONLY = 3, // PostOnly
-  FORCE_LIQUIDATION = 4, // 强制减仓
-  POSITION_MERGE = 5, // 仓位合并
-}
-
-// 开仓状态枚举
-enum Open {
-  OPEN = "OPEN", // 开仓
-  CLOSE = "CLOSE", // 平仓
-}
-
-// 状态枚举
-enum Status {
-  PENDING = 0, // 待成交
-  NEW_ORDER = 1, // 新订单
-  FULLY_FILLED = 2, // 完全成交
-  PARTIALLY_FILLED = 3, // 部分成交
-  CANCELLED = 4, // 已取消
-  CANCELLING = 5, // 待撤销
-  ABNORMAL = 6, // 已废弃
-  PARTIALLY_FILLED_AND_CANCELLED = 7, // 部分成交已撤销
-}
+import { Side, PositionType, Type, Open, Status } from "../index";
 
 // 普通委托接口
 interface OrdinaryCommission {
@@ -171,4 +133,3 @@ export const useOrdinaryCommission = (
 };
 
 export type { OrdinaryCommission };
-export { Side, PositionType, Type, Open, Status };

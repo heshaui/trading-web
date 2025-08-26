@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, ReactNode, useCallback } from "react";
 
 export interface WaterfallItem {
-  id?: string;
+  id?: number;
   columnSpan: number;
   height?: number;
   minHeight?: number;

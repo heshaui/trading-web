@@ -4,7 +4,7 @@ import Document, { Head, Html, Main, NextScript } from 'next/document';
 import type { DocumentContext } from 'next/document';
 import { ServerStyleSheet } from "styled-components";
 const MyDocument = () => (
-  <Html lang="en" className='min-w-[1440px]'>
+  <Html lang="en">
     <Head />
     <body>
       <Main />

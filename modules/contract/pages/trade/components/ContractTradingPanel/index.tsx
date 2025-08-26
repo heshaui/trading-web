@@ -714,7 +714,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   onClick={() => handleSubmit("BUY")}
                   block
                   shape="round"
-                  className=" text-[16px] font-[400] text-[#FFF]"
+                  className=" text-[16px] font-[400] text-[#FFF] w-[144px]"
                   style={{
                     background: "#00C788",
                   }}
@@ -727,7 +727,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   type="primary"
                   size="large"
                   onClick={() => handleSubmit("SELL")}
-                  className=" text-[16px] font-[400] text-[#FFF]"
+                  className=" text-[16px] font-[400] text-[#FFF] w-[144px]"
                   style={{
                     background: "#FF4D4F",
                   }}

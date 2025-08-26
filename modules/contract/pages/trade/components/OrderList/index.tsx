@@ -1,5 +1,10 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { observer } from 'mobx-react-lite';
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { observer } from "mobx-react-lite";
 import { Tabs, Table, Switch, ConfigProvider, Tooltip } from "antd";
 import appStore from "@/store";
 import {
@@ -15,11 +20,6 @@ import {
   HistoryCommission,
   TradeRecord,
   TradeHistory,
-  Side,
-  PositionType,
-  Type,
-  Open,
-  Status,
 } from "./hooks";
 import styles from "@/styles/components/Table.module.css";
 import {
@@ -39,43 +39,90 @@ import TipModal from "./components/TipModal";
 import ConfirmModal from "./components/ConfirmModal";
 import PhaseModal from "./components/PhaseModal";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/router";
+
+// 方向枚举
+export enum Side {
+  BUY = "BUY",
+  SELL = "SELL",
+}
+
+// 仓位类型枚举
+export enum PositionType {
+  CROSS_MARGIN = 1, // 全仓
+  ISOLATED_MARGIN = 2, // 逐仓
+}
+
+// 类型枚举
+export enum Type {
+  LIMIT = 1, // 限价单
+  MARKET = 2, // 市价单
+  POST_ONLY = 3, // PostOnly
+  FORCE_LIQUIDATION = 4, // 强制减仓
+  POSITION_MERGE = 5, // 仓位合并
+}
+
+// 开仓状态枚举
+export enum Open {
+  OPEN = "OPEN", // 开仓
+  CLOSE = "CLOSE", // 平仓
+}
+
+// 状态枚举
+export enum Status {
+  PENDING = 0, // 待成交
+  NEW_ORDER = 1, // 新订单
+  FULLY_FILLED = 2, // 完全成交
+  PARTIALLY_FILLED = 3, // 部分成交
+  CANCELLED = 4, // 已取消
+  CANCELLING = 5, // 待撤销
+  ABNORMAL = 6, // 已废弃
+  PARTIALLY_FILLED_AND_CANCELLED = 7, // 部分成交已撤销
+}
+
+export enum Role {
+  MAKER = "MAKER",
+  TAKER = "TAKER",
+}
 
 // 映射对象
 const PositionTypeMap = {
   [PositionType.CROSS_MARGIN]: "全仓",
   [PositionType.ISOLATED_MARGIN]: "逐仓",
-}
+};
 
 const SideMap = {
   [Side.BUY]: "买",
   [Side.SELL]: "卖",
-}
+};
 
 const TypeMap = {
-  [Type.LIMIT]: '限价单',
-  [Type.MARKET]: '市价单',
-  [Type.POST_ONLY]: 'PostOnly',
-  [Type.FORCE_LIQUIDATION]: '强制减仓',
-  [Type.POSITION_MERGE]: '仓位合并'
-}
+  [Type.LIMIT]: "限价单",
+  [Type.MARKET]: "市价单",
+  [Type.POST_ONLY]: "PostOnly",
+  [Type.FORCE_LIQUIDATION]: "强制减仓",
+  [Type.POSITION_MERGE]: "仓位合并",
+};
 
 const OpenMap = {
-  [Open.OPEN]: '开仓',
-  [Open.CLOSE]: '平仓',
-}
+  [Open.OPEN]: "开仓",
+  [Open.CLOSE]: "平仓",
+};
 
 const StatusMap = {
-  [Status.PENDING]: '待成交',
-  [Status.NEW_ORDER]: '新订单',
-  [Status.FULLY_FILLED]: '完全成交',
-  [Status.PARTIALLY_FILLED]: '部分成交',
-  [Status.CANCELLED]: '已取消',
-  [Status.CANCELLING]: '待撤销',
-  [Status.ABNORMAL]: '已废弃',
-  [Status.PARTIALLY_FILLED_AND_CANCELLED]: '部分成交已撤销',
-}
+  [Status.PENDING]: "待成交",
+  [Status.NEW_ORDER]: "新订单",
+  [Status.FULLY_FILLED]: "完全成交",
+  [Status.PARTIALLY_FILLED]: "部分成交",
+  [Status.CANCELLED]: "已取消",
+  [Status.CANCELLING]: "待撤销",
+  [Status.ABNORMAL]: "已废弃",
+  [Status.PARTIALLY_FILLED_AND_CANCELLED]: "部分成交已撤销",
+};
 
+const RoleMap = {
+  [Role.MAKER]: "Maker",
+  [Role.TAKER]: "Taker",
+};
 
 const OrderListComponent = (props: any, ref: any) => {
   const [isClient, setIsClient] = useState(false);
@@ -120,12 +167,10 @@ const OrderListComponent = (props: any, ref: any) => {
   });
 
   // 条件委托
-  const {
-    loading: conditionalLoading,
-    getConditionalCommission,
-  } = useConditionalCommission({
-    contractId: currentContractInfo?.id,
-  });
+  const { loading: conditionalLoading, getConditionalCommission } =
+    useConditionalCommission({
+      contractId: currentContractInfo?.id,
+    });
 
   // 历史委托
   const {
@@ -157,88 +202,96 @@ const OrderListComponent = (props: any, ref: any) => {
   });
 
   // 获取综合loading状态
-  const loading = positionLoading || ordinaryLoading || conditionalLoading || historyLoading || profitLossLoading || tradeHistoryLoading;
+  const loading =
+    positionLoading ||
+    ordinaryLoading ||
+    conditionalLoading ||
+    historyLoading ||
+    profitLossLoading ||
+    tradeHistoryLoading;
 
+  // 仓位列表
   const positionColumns = [
     {
-      title: "合约",
+      title: "仓位ID",
+      dataIndex: "id",
+      key: "id",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.id}</div>
+      ),
+    },
+    {
+      title: "合约ID",
+      dataIndex: "contractId",
+      key: "contractId",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">
+          {record.contractId}
+        </div>
+      ),
+    },
+    {
+      title: "合约名称",
+      dataIndex: "contractName",
+      key: "contractName",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.contractName}</div>
+      ),
+    },
+    {
+      title: "合约符号",
       dataIndex: "symbol",
       key: "symbol",
       render: (_: any, record: Position) => (
-        <div
-          className="text-[12px] font-[500] cursor-pointer"
-          onClick={() =>
-            setTipModal({
-              open: true,
-              title: "自动减仓",
-              tip: "该指标代表你在自动减仓序列的排序。若指示灯全部亮起，发生平仓事件后，您的持仓可能会被减少。",
-            })
-          }
-        >
-          {record.symbol}
-        </div>
+        <div className="text-[12px] font-[500]">{record.symbol}</div>
       ),
     },
     {
-      title: "数量",
-      dataIndex: "size",
-      key: "size",
+      title: "仓位数量",
+      dataIndex: "positionVolume",
+      key: "positionVolume",
       render: (_: any, record: Position) => (
-        <div
-          className={`text-[12px] font-[500] ${record.side === "LONG" ? "text-[#4CAF50]" : "text-[#F44336]"
-            }`}
-        >
-          {record.size} USDT
-        </div>
+        <div className="text-[12px] font-[500]">{record.positionVolume}</div>
       ),
     },
     {
-      title: "成本价",
-      dataIndex: "entryPrice",
-      key: "entryPrice",
+      title: "可平仓数量",
+      dataIndex: "canCloseVolume",
+      key: "canCloseVolume",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.entryPrice} USDT</div>
+        <div className="text-[12px] font-[500]">{record.canCloseVolume}</div>
       ),
     },
     {
-      title: "标记价格",
-      dataIndex: "markPrice",
-      key: "markPrice",
+      title: "开仓均价",
+      dataIndex: "openAvgPrice",
+      key: "openAvgPrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.markPrice}</div>
+        <div className="text-[12px] font-[500]">{record.openAvgPrice}</div>
       ),
     },
     {
-      title: "预估强平价",
-      dataIndex: "liquidationPrice",
-      key: "liquidationPrice",
+      title: "指数价格",
+      dataIndex: "indexPrice",
+      key: "indexPrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.liquidationPrice}</div>
+        <div className="text-[12px] font-[500]">{record.indexPrice}</div>
       ),
     },
     {
-      title: "保证金",
-      dataIndex: "margin",
-      key: "margin",
+      title: "平仓均价",
+      dataIndex: "reducePrice",
+      key: "reducePrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
-          <div>{record.margin}</div>
-          <div className="flex items-center gap-[4px] ">
-            <div>USDT</div>
-            <SvgIcon
-              onClick={() => setAdjustModalOpen(true)}
-              className="text-[var(--text-color5)] flex items-center cursor-pointer"
-              width={18}
-              height={18}
-              viewBox="0 0 18 18"
-            >
-              <path
-                d="M9 1.5C13.1422 1.5 16.5 4.85775 16.5 9C16.5 13.1422 13.1422 16.5 9 16.5C4.85775 16.5 1.5 13.1422 1.5 9C1.5 4.85775 4.85775 1.5 9 1.5ZM9 3C7.4087 3 5.88258 3.63214 4.75736 4.75736C3.63214 5.88258 3 7.4087 3 9C3 10.5913 3.63214 12.1174 4.75736 13.2426C5.88258 14.3679 7.4087 15 9 15C10.5913 15 12.1174 14.3679 13.2426 13.2426C14.3679 12.1174 15 10.5913 15 9C15 7.4087 14.3679 5.88258 13.2426 4.75736C12.1174 3.63214 10.5913 3 9 3ZM9 5.25C9.19891 5.25 9.38968 5.32902 9.53033 5.46967C9.67098 5.61032 9.75 5.80109 9.75 6V8.25H12C12.1989 8.25 12.3897 8.32902 12.5303 8.46967C12.671 8.61032 12.75 8.80109 12.75 9C12.75 9.19891 12.671 9.38968 12.5303 9.53033C12.3897 9.67098 12.1989 9.75 12 9.75H9.75V12C9.75 12.1989 9.67098 12.3897 9.53033 12.5303C9.38968 12.671 9.19891 12.75 9 12.75C8.80109 12.75 8.61032 12.671 8.46967 12.5303C8.32902 12.3897 8.25 12.1989 8.25 12V9.75H6C5.80109 9.75 5.61032 9.67098 5.46967 9.53033C5.32902 9.38968 5.25 9.19891 5.25 9C5.25 8.80109 5.32902 8.61032 5.46967 8.46967C5.61032 8.32902 5.80109 8.25 6 8.25H8.25V6C8.25 5.80109 8.32902 5.61032 8.46967 5.46967C8.61032 5.32902 8.80109 5.25 9 5.25Z"
-                fill="currentColor"
-              />
-            </SvgIcon>
-          </div>
-        </div>
+        <div className="text-[12px] font-[500]">{record.reducePrice}</div>
+      ),
+    },
+    {
+      title: "持仓金额",
+      dataIndex: "holdAmount",
+      key: "holdAmount",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.holdAmount}</div>
       ),
     },
     {
@@ -246,80 +299,107 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "marginRate",
       key: "marginRate",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.marginRate} %</div>
+        <div className="text-[12px] font-[500]">{record.marginRate}</div>
       ),
     },
     {
-      title: "未实现盈亏/收益率",
-      dataIndex: "pnl",
-      key: "pnl",
+      title: "已实现盈亏",
+      dataIndex: "realizedAmount",
+      key: "realizedAmount",
       render: (_: any, record: Position) => (
-        <div className="font-[500] text-[12px]">
-          <div className="flex items-center gap-[4px]">
-            <div
-              className={record.pnl >= 0 ? "text-[#4CAF50]" : "text-[#F44336]"}
-            >
-              {record.pnl}
-            </div>
-            <div className="text-[var(--text-color5)]">USDT</div>
-            <SvgIcon
-              onClick={() => setPhaseModalOpen(true)}
-              width={18}
-              height={18}
-              viewBox="0 0 18 18"
-              className="text-[var(--text-color6)]"
-            >
-              <path
-                d="M14.625 4.40072L8.23034 10.764C7.95507 11.0379 7.50988 11.0368 7.23596 10.7616C6.96206 10.4863 6.96315 10.0411 7.23843 9.76721L13.6621 3.375H11.0039C10.6156 3.375 10.3008 3.06019 10.3008 2.67188C10.3008 2.28356 10.6156 1.96875 11.0039 1.96875H14.0625C15.1498 1.96875 16.0312 2.85019 16.0312 3.9375V6.99609C16.0312 7.38441 15.7164 7.69922 15.3281 7.69922C14.9398 7.69922 14.625 7.38441 14.625 6.99609V4.40072ZM14.625 10.3757C14.625 9.98735 14.9398 9.67256 15.3281 9.67256C15.7164 9.67256 16.0312 9.98735 16.0312 10.3757V14.0625C16.0312 15.1498 15.1498 16.0312 14.0625 16.0312H3.9375C2.85019 16.0312 1.96875 15.1498 1.96875 14.0625V3.9375C1.96875 2.85019 2.85019 1.96875 3.9375 1.96875H7.62434C8.01264 1.96875 8.32746 2.28356 8.32746 2.67188C8.32746 3.06019 8.01264 3.375 7.62434 3.375H3.9375C3.62684 3.375 3.375 3.62684 3.375 3.9375V14.0625C3.375 14.3732 3.62684 14.625 3.9375 14.625H14.0625C14.3732 14.625 14.625 14.3732 14.625 14.0625V10.3757Z"
-                fill="currentColor"
-              />
-            </SvgIcon>
-          </div>
-          <div
-            className={
-              record.pnlRate >= 0 ? "text-[#4CAF50]" : "text-[#F44336]"
-            }
-          >
-            {record.pnlRate}%
-          </div>
-        </div>
+        <div className="text-[12px] font-[500]">{record.realizedAmount}</div>
       ),
     },
-    // {
-    //   title: "快速平仓",
-    //   key: "quickClose",
-    //   render: () => <QuickClose />,
-    // },
-    // {
-    //   title: "反向开仓",
-    //   key: "reverseOpen",
-    //   render: () => (
-    //     <span
-    //       onClick={() => setReverModalOpen(true)}
-    //       className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px] text-[12px] font-[500] whitespace-nowrap"
-    //     >
-    //       反向开仓
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   title: "止盈止损",
-    //   key: "tpsl",
-    //   render: () => (
-    //     <SvgIcon
-    //       className="text-[var(--theme-color)]"
-    //       onClick={() => setStopModalOpen(true)}
-    //     >
-    //       <path
-    //         fillRule="evenodd"
-    //         clipRule="evenodd"
-    //         d="M12.5431 2.27249C12.2618 1.99129 11.8803 1.83331 11.4826 1.83331C11.0848 1.83331 10.7034 1.99129 10.4221 2.27249L2.68657 10.008C2.40525 10.2892 2.24716 10.6707 2.24707 11.0685V14.9932C2.24707 15.411 2.58682 15.7507 3.00457 15.7507L15.0001 15.75C15.199 15.75 15.3897 15.671 15.5304 15.5303C15.6711 15.3897 15.7501 15.1989 15.7501 15C15.7501 14.8011 15.6711 14.6103 15.5304 14.4697C15.3897 14.329 15.199 14.25 15.0001 14.25H9.05107L15.7253 7.57574C16.0065 7.29445 16.1645 6.91299 16.1645 6.51524C16.1645 6.1175 16.0065 5.73603 15.7253 5.45474L12.5431 2.27249ZM6.93007 14.25L14.6648 6.51524L11.4826 3.33299L3.74707 11.0685V14.25H6.93007Z"
-    //         fill="currentColor"
-    //       />
-    //     </SvgIcon>
-    //   ),
-    // },
+    {
+      title: "收益率",
+      dataIndex: "returnRate",
+      key: "returnRate",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.returnRate}</div>
+      ),
+    },
+    {
+      title: "订单方向",
+      dataIndex: "orderSide",
+      key: "orderSide",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{SideMap[record.orderSide]}</div>
+      ),
+    },
+    {
+      title: "仓位类型",
+      dataIndex: "positionType",
+      key: "positionType",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{PositionTypeMap[record.positionType]}</div>
+      ),
+    },
+    {
+      title: "可用金额",
+      dataIndex: "canUseAmount",
+      key: "canUseAmount",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.canUseAmount}</div>
+      ),
+    },
+    {
+      title: "可减保证金金额",
+      dataIndex: "canSubMarginAmount",
+      key: "canSubMarginAmount",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.canSubMarginAmount}</div>
+      ),
+    },
+    {
+      title: "开仓已实现盈亏",
+      dataIndex: "openRealizedAmount",
+      key: "openRealizedAmount",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.openRealizedAmount}</div>
+      ),
+    },
+    {
+      title: "维持保证金率",
+      dataIndex: "keepRate",
+      key: "keepRate",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.keepRate}</div>
+      ),
+    },
+    {
+      title: "最大手续费率",
+      dataIndex: "maxFeeRate",
+      key: "maxFeeRate",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.maxFeeRate}</div>
+      ),
+    },
+    {
+      title: "未实现盈亏",
+      dataIndex: "unRealizedAmount",
+      key: "unRealizedAmount",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.unRealizedAmount}</div>
+      ),
+    },
+    {
+      title: "杠杆倍数",
+      dataIndex: "leverageLevel",
+      key: "leverageLevel",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
+      ),
+    },
+    {
+      title: "仓位余额",
+      dataIndex: "positionBalance",
+      key: "positionBalance",
+      render: (_: any, record: Position) => (
+        <div className="text-[12px] font-[500]">{record.positionBalance}</div>
+      ),
+    },
   ];
+  // 普通委托列表
   // const ordinaryColumns = [
   //   {
   //     title: "合约",
@@ -454,6 +534,7 @@ const OrderListComponent = (props: any, ref: any) => {
   //   },
   // ];
   // ============ 普通委托相关列定义 ============
+  // 普通委托列表
   const ordinaryColumns = [
     {
       title: "合约",
@@ -484,7 +565,9 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "positionType",
       key: "positionType",
       render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{PositionTypeMap[record.positionType]}</div>
+        <div className="text-[12px] font-[500]">
+          {PositionTypeMap[record.positionType]}
+        </div>
       ),
     },
     {
@@ -623,6 +706,7 @@ const OrderListComponent = (props: any, ref: any) => {
       },
     },
   ];
+  // 条件委托列表
   // const conditionalColumns = [
   //   {
   //     title: "合约",
@@ -744,6 +828,7 @@ const OrderListComponent = (props: any, ref: any) => {
   //   },
   // ];
 
+  // 历史委托列表
   const historyColumns = [
     {
       title: "合约",
@@ -779,7 +864,9 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "positionType",
       key: "positionType",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{PositionTypeMap[record.positionType]}</div>
+        <div className="text-[12px] font-[500]">
+          {PositionTypeMap[record.positionType]}
+        </div>
       ),
     },
     {
@@ -848,9 +935,7 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "contractId",
       key: "contractId",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">
-          {record.contractId}
-        </div>
+        <div className="text-[12px] font-[500]">{record.contractId}</div>
       ),
     },
     {
@@ -858,7 +943,9 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "ctime",
       key: "ctime",
       render: (_: any, record: HistoryCommission) => (
-        <div className="text-[12px] font-[500]">{dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}</div>
+        <div className="text-[12px] font-[500]">
+          {dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}
+        </div>
       ),
     },
     {
@@ -895,6 +982,7 @@ const OrderListComponent = (props: any, ref: any) => {
     },
   ];
 
+  // 盈亏记录列表
   const tradeRecordColumns = [
     {
       title: "合约",
@@ -989,6 +1077,7 @@ const OrderListComponent = (props: any, ref: any) => {
     },
   ];
 
+  // 成交历史列表
   const tradeHistoryColumns = [
     {
       title: "合约",
@@ -999,11 +1088,11 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      title: "成交均价",
-      dataIndex: "filledPrice",
-      key: "filledPrice",
+      title: "价格精度",
+      dataIndex: "pricePrecision",
+      key: "pricePrecision",
       render: (_: any, record: TradeHistory) => (
-        <div className="text-[12px] font-[500]">{record.filledPrice}</div>
+        <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
       ),
     },
     {
@@ -1015,16 +1104,8 @@ const OrderListComponent = (props: any, ref: any) => {
           className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
             }`}
         >
-          {record.side === "BUY" ? "买入" : "卖出"}
+          {SideMap[record.side]}
         </span>
-      ),
-    },
-    {
-      title: "成交数量",
-      dataIndex: "size",
-      key: "size",
-      render: (_: any, record: TradeHistory) => (
-        <div className="text-[12px] font-[500]">{record.size}</div>
       ),
     },
     {
@@ -1032,7 +1113,7 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "role",
       key: "role",
       render: (_: any, record: TradeHistory) => (
-        <div className="text-[12px] font-[500]">{record.role}</div>
+        <div className="text-[12px] font-[500]">{RoleMap[record.role]}</div>
       ),
     },
     {
@@ -1040,16 +1121,82 @@ const OrderListComponent = (props: any, ref: any) => {
       dataIndex: "fee",
       key: "fee",
       render: (_: any, record: TradeHistory) => (
-        <div className="text-[12px] font-[500]">{record.fee} USDT</div>
+        <div className="text-[12px] font-[500]">{record.fee}</div>
       ),
     },
     {
-      title: "时间",
-      dataIndex: "createTime",
-      key: "createTime",
+      title: "手续费币种精度",
+      dataIndex: "feeCoinPrecision",
+      key: "feeCoinPrecision",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.feeCoinPrecision}</div>
+      ),
+    },
+    {
+      title: "数量",
+      dataIndex: "volume",
+      key: "volume",
       align: "right" as const,
       render: (_: any, record: TradeHistory) => (
-        <div className="text-[12px] font-[500]">{record.createTime}</div>
+        <div className="text-[12px] font-[500]">{record.volume}</div>
+      ),
+    },
+    {
+      title: "手续费币种",
+      dataIndex: "feeCoin",
+      key: "feeCoin",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.feeCoin}</div>
+      ),
+    },
+    {
+      title: "价格",
+      dataIndex: "price",
+      key: "price",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.price}</div>
+      ),
+    },
+    {
+      title: "合约ID",
+      dataIndex: "contractId",
+      key: "contractId",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.contractId}</div>
+      ),
+    },
+    {
+      title: "创建时间",
+      dataIndex: "ctime",
+      key: "ctime",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">
+          {dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}
+        </div>
+      ),
+    },
+    {
+      title: "合约名称",
+      dataIndex: "contractName",
+      key: "contractName",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.contractName}</div>
+      ),
+    },
+    {
+      title: "订单ID",
+      dataIndex: "id",
+      key: "id",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{record.id}</div>
+      ),
+    },
+    {
+      title: "开仓状态",
+      dataIndex: "open",
+      key: "open",
+      render: (_: any, record: TradeHistory) => (
+        <div className="text-[12px] font-[500]">{OpenMap[record.open]}</div>
       ),
     },
   ];
@@ -1093,7 +1240,10 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={ordinaryColumns}
-          dataSource={getFilteredOrdinaryCommission(currentSymbol, onlyCurrentSymbol)}
+          dataSource={getFilteredOrdinaryCommission(
+            currentSymbol,
+            onlyCurrentSymbol
+          )}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1129,7 +1279,10 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={historyColumns}
-          dataSource={getFilteredHistoryCommission(currentSymbol, onlyCurrentSymbol)}
+          dataSource={getFilteredHistoryCommission(
+            currentSymbol,
+            onlyCurrentSymbol
+          )}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -1183,7 +1336,12 @@ const OrderListComponent = (props: any, ref: any) => {
       getOrdinaryCommissionNumber();
       getHistoryCommissionNumber();
     }
-  }, [currentContractInfo?.id, isLoggedIn, getOrdinaryCommissionNumber, getHistoryCommissionNumber]);
+  }, [
+    currentContractInfo?.id,
+    isLoggedIn,
+    getOrdinaryCommissionNumber,
+    getHistoryCommissionNumber,
+  ]);
 
   // 切换tab或合约时，只获取当前tab对应的表格数据
   useEffect(() => {
@@ -1297,6 +1455,6 @@ const OrderListComponent = (props: any, ref: any) => {
 };
 
 const OrderList = observer(forwardRef(OrderListComponent));
-OrderList.displayName = 'OrderList';
+OrderList.displayName = "OrderList";
 
 export default OrderList;

@@ -2,21 +2,33 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
 import { getAssetsList } from "@/services/contract";
+import { Side, PositionType } from "../index";
 
 // 仓位接口
 interface Position {
-  id: string;
-  symbol: string;
-  side: "LONG" | "SHORT";
-  size: number;
-  entryPrice: number;
-  markPrice: number;
-  pnl: number;
-  pnlRate: number;
-  margin: number;
-  marginRate: number;
-  liquidationPrice: number;
-  createTime: number;
+  id: number; // 仓位ID
+  contractId: number; // 合约ID
+  contractName: string; // 合约名称
+  symbol: string; // 合约符号
+  positionVolume: number; // 仓位数量
+  canCloseVolume: number; // 可平仓数量
+  openAvgPrice: number; // 开仓均价
+  indexPrice: number; // 指数价格
+  reducePrice: number; // 平仓均价
+  holdAmount: number; // 持仓金额
+  marginRate: number; // 保证金率
+  realizedAmount: number; // 已实现盈亏
+  returnRate: number; // 收益率
+  orderSide: Side; // 订单方向
+  positionType: PositionType; // 仓位类型
+  canUseAmount: number; // 可用金额
+  canSubMarginAmount: number; // 可减保证金金额
+  openRealizedAmount: number; // 开仓已实现盈亏
+  keepRate: number; // 维持保证金率
+  maxFeeRate: number; // 最大手续费率
+  unRealizedAmount: number; // 未实现盈亏
+  leverageLevel: number; // 杠杆倍数
+  positionBalance: number; // 仓位余额
 }
 
 interface UsePositionOptions {
@@ -37,7 +49,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
       if (res.code === "0") {
-        setPositions(res.data.list);
+        setPositions(res.data.positionList);
       } else {
         setPositions([]);
         message.error(res.msg);

@@ -2,17 +2,24 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
 import { getTradeInfo } from "@/services/contract";
+import { Open, Side, Role } from "../index";
 
 // 成交记录接口
 interface TradeHistory {
-  id: string;
-  symbol: string;
-  side: "BUY" | "SELL";
-  size: number;
-  filledPrice: number;
-  role: string;
-  fee: number;
-  createTime: number;
+  symbol: string; // 合约
+  pricePrecision: number; // 价格精度
+  side: Side; // 方向
+  role: Role; // 角色
+  fee: number; // 手续费
+  feeCoinPrecision: number; // 手续费币种精度
+  volume: number; // 数量
+  feeCoin: string; // 手续费币种
+  price: number; // 价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: Open; // 状态
 }
 
 interface UseTradeHistoryOptions {
@@ -35,7 +42,7 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
           uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         });
         if (res.code === "0") {
-          setTradeHistory(res.data?.list || []);
+          setTradeHistory(res.data?.tradeList || []);
         } else {
           message.error(res.msg);
         }

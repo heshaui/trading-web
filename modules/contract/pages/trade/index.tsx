@@ -422,16 +422,19 @@ const TradePage = () => {
 
   const items: WaterfallItem[] = [
     {
+      id: 1,
       columnSpan: 3,
       height: 60,
       content: <ContractHeader priceData={priceData} />,
     },
     {
+      id: 2,
       columnSpan: 1,
       height: 380,
       content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
     },
     {
+      id: 3,
       columnSpan: 1,
       minHeight: 522,
       content: (
@@ -447,6 +450,7 @@ const TradePage = () => {
       ),
     },
     {
+      id: 4,
       columnSpan: 3,
       height: 604,
       content: (
@@ -458,6 +462,7 @@ const TradePage = () => {
       ),
     },
     {
+      id: 5,
       columnSpan: 1,
       height: 284,
       content: <RealtimeTrade orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
@@ -465,6 +470,7 @@ const TradePage = () => {
     ...(isLoggedIn
       ? [
         {
+          id: 6,
           columnSpan: 1,
           height: 190,
           content: (
@@ -478,11 +484,13 @@ const TradePage = () => {
       ]
       : []),
     {
+      id: 7,
       columnSpan: 4,
       minHeight: 400,
       content: <OrderList ref={orderListRef} />,
     },
     {
+      id: 8,
       columnSpan: 1,
       height: 300,
       content: <ContractInfo />,
@@ -694,7 +702,7 @@ const TradePage = () => {
   return (
     <>
       {/* 瀑布流布局 */}
-      <div className="bg-[var(--background14)] min-w-[1440px]">
+      <div className="bg-[var(--background14)] overflow-x-auto min-w-[1440px]">
 
         <WaterfallLayout items={items} gap={4} />
       </div>

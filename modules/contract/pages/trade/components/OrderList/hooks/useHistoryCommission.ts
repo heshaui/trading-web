@@ -2,13 +2,7 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
 import { getHistoryOrderList, getHistoryOrderNum } from "@/services/contract";
-import {
-  Side,
-  PositionType,
-  Type,
-  Open,
-  Status,
-} from "./useOrdinaryCommission";
+import { Side, PositionType, Type, Open, Status } from "../index";
 
 // 历史委托接口
 interface HistoryCommission {
