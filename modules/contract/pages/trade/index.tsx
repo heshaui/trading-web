@@ -736,7 +736,7 @@ const TradePage = () => {
         </div>
 
         {/* 交易面板  */}
-        <div style={{ gridArea: "tradeForm" }}>
+        <div className="flex flex-col gap-[4px]" style={{ gridArea: "tradeForm" }}>
           <ContractTradingPanel
             symbol={currentContractInfo.symbol}
             availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
