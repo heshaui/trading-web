@@ -6,7 +6,7 @@ import React, {
   useImperativeHandle,
   useCallback,
 } from "react";
-import { widget } from "@/public/charting_library";
+import { widget } from "@/public/charting_library/charting_library";
 import "@/styles/components/Tradingview.module.css";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import jstz from 'jstz';

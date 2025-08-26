@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
-import { getHistoryOrderList, getHistoryOrderNum } from "@/services/contract";
+import { getHistoryOrderList } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../index";
 
 // 历史委托接口
@@ -52,6 +52,7 @@ export const useHistoryCommission = (
         });
         if (code === "0") {
           setHistoryCommission(data.orderList);
+          setHistoryCommissionNumber(data.count);
         } else {
           message.error(msg);
         }
@@ -59,26 +60,6 @@ export const useHistoryCommission = (
         console.error("获取历史委托失败:", error);
       } finally {
         setLoading(false);
-      }
-    },
-    [contractId]
-  );
-
-  // 获取历史委托数量
-  const getHistoryCommissionNumber = useCallback(
-    async (overrideContractId?: number) => {
-      try {
-        const res = await getHistoryOrderNum({
-          contractId: overrideContractId ?? contractId,
-          uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-        });
-        if (res.code === "0") {
-          setHistoryCommissionNumber(res.data.count);
-        } else {
-          message.error(res.msg);
-        }
-      } catch (error) {
-        console.error("获取历史委托数量失败:", error);
       }
     },
     [contractId]
@@ -98,7 +79,6 @@ export const useHistoryCommission = (
     historyCommissionNumber,
     loading,
     getHistoryCommission,
-    getHistoryCommissionNumber,
     getFilteredHistoryCommission,
   };
 };
