@@ -11,9 +11,10 @@ interface ContractAssetProps {
   spotBalance: any;
   contractBalance: any;
   onBalanceUpdate?: () => void;
+  style?: React.CSSProperties;
 }
 
-const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate }: ContractAssetProps) => {
+const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate, style }: ContractAssetProps) => {
   const [showFundTransferModal, setShowFundTransferModal] = useState(false);
 
   // 处理资金划转确认
@@ -38,7 +39,7 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate }: Contra
         onClose={() => setShowFundTransferModal(false)}
         onConfirm={handleFundTransferConfirm}
       />
-      <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)] h-[100%]">
+      <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)]" style={style}>
         <div className="text-[var(--text-color5)] font-[500] mb-[16px]">资产</div>
         <div className="flex flex-col gap-[10px] mb-[14px]">
           <div className="flex justify-between items-center">

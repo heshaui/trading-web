@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
 import { getAssetsList } from "@/services/contract";
-import { Side, PositionType } from "../index";
+import { Side, PositionType } from "../configs/columns";
 
 // 仓位接口
 interface Position {

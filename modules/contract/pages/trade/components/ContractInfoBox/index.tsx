@@ -24,12 +24,12 @@ import appStore from "@/store";
  * sort: 排序
  * symbol: 合约符号
  */
-const ContractInfo = observer(() => {
+const ContractInfo = observer(({ style }: { style?: React.CSSProperties }) => {
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
   console.info(currentContractInfo, "0000000000000000000000");
   return (
-    <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)] h-[100%]">
+    <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)]" style={style} >
       <div className="text-[var(--text-color5)] font-[500] mb-[16px]">
         合约信息
       </div>

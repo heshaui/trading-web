@@ -20,10 +20,12 @@ const ContractKlineChart = ({
   currentContractInfo,
   klineData,
   onTimeIntervalChange,
+  style
 }: {
   currentContractInfo: any;
   klineData?: any[];
   onTimeIntervalChange?: (interval: string) => void;
+  style?: React.CSSProperties;
 }) => {
   const { t } = useTranslation(["contract", "spot", "common"]);
   const tradingviewRef = useRef<TradingviewRefHandle>(null);
@@ -150,7 +152,7 @@ const ContractKlineChart = ({
   }, [currentContractInfo.id]);
 
   return (
-    <div className="bg-[var(--background9)] h-[100%]">
+    <div className="bg-[var(--background9)] h-[100%]" style={style}>
       <div className="flex-1 00%]">
         <div className="flex justify-between items-center p-[8px_16px] border-b-[1px_solid_var(--border-color1)]">
           <div className="flex items-center">

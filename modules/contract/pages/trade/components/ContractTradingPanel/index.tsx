@@ -38,6 +38,7 @@ interface ContractTradingPanelProps {
   onBalanceUpdate?: () => void; // 新增余额更新回调
   priceSetterRef?: React.MutableRefObject<((price: number) => void) | null>; // 新增价格设置器ref
   priceData?: any; // 新增价格数据
+  style?: React.CSSProperties;
 }
 
 const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
@@ -49,6 +50,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   onBalanceUpdate, // 解构新增的回调
   priceSetterRef, // 解构价格设置器ref
   priceData, // 解构价格数据
+  style,
 }) => {
   // 确保所有Hooks在组件顶层按固定顺序调用
   const { t } = useTranslation(["contract"]);
@@ -468,7 +470,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         },
       }}
     >
-      <div className="bg-[var(--background9)] h-[100%]">
+      <div className="bg-[var(--background9)]" style={style}>
         <div className="p-[10px_16px]">
           {/* 顶部工具栏 */}
           <div className="flex items-center justify-between mb-[16px]">
