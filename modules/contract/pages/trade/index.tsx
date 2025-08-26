@@ -104,6 +104,7 @@ const TradePage = () => {
 
   const { isLoggedIn } = useAuth();
   const orderListRef = useRef<any>(null);
+  const priceSetterRef = useRef<((price: number) => void) | null>(null); // 价格设置函数ref
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [orderBookData, setOrderBookData] = useState<any>(null); // 订单簿数据
   const [isClient, setIsClient] = useState(false); // 是否是客户端
@@ -156,7 +157,7 @@ const TradePage = () => {
 
   // 获取USDT资产可用余额，用于交易面板
   const getAvailableUSDTBalance = (): number => {
-    const usdtAsset = getAssetBySymbol("USDT");
+    const usdtAsset = getAssetBySymbol(currentContractInfo.marginCoin);
     return parseFloat(usdtAsset?.canUseAmount || "0");
   };
 
@@ -418,6 +419,13 @@ const TradePage = () => {
     }
   };
 
+  // 处理价格点击事件
+  const handlePriceClick = (price: number) => {
+    if (priceSetterRef.current) {
+      priceSetterRef.current(price);
+    }
+  };
+
 
 
   const items: WaterfallItem[] = [
@@ -431,7 +439,7 @@ const TradePage = () => {
       id: 2,
       columnSpan: 1,
       height: 380,
-      content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
+      content: <OrderBookList orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} onPriceClick={handlePriceClick} />,
     },
     {
       id: 3,
@@ -440,12 +448,13 @@ const TradePage = () => {
       content: (
         <ContractTradingPanel
           symbol={currentContractInfo.symbol}
-          lastPrice={parseFloat((priceData?.price))}
           availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
           spotBalance={spotBalance}
           contractBalance={contractAssets}
           onOrderSubmit={handleOrderSubmit} // 父组件的订单提交函数
           onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
+          priceSetterRef={priceSetterRef} // 传递价格设置器ref
+          priceData={priceData} // 传递价格数据
         />
       ),
     },
@@ -465,7 +474,7 @@ const TradePage = () => {
       id: 5,
       columnSpan: 1,
       height: 284,
-      content: <RealtimeTrade orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} />,
+      content: <RealtimeTrade orderBookData={orderBookData} realtimeTradeData={realtimeTradeData} onPriceClick={handlePriceClick} />,
     },
     ...(isLoggedIn
       ? [

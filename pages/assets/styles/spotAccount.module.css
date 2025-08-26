@@ -91,7 +91,9 @@
 .input_box:focus,
 .input_box:focus-within,
 .input_box3:focus,
-.input_box3:focus-within {
+.input_box3:focus-within,
+.input_box5:focus,
+.input_box5:focus-within {
    border-color: var(--text-color3) !important;
    box-shadow: none !important;
    /* box-shadow: 0 0 0 1px var(--text_color3) !important; */
@@ -99,14 +101,18 @@
 
 /* 鼠标聚焦且移出样式 */
 .input_box:focus:not(:hover),
-.input_box3:focus-within:not(:hover){
+.input_box3:focus-within:not(:hover),
+.input_box5:focus:not(:hover),
+.input_box5:focus-within:not(:hover)
+{
     background-color: var(--homeground5);
     color: #fff;
     box-shadow: none !important;
 }
 /* 鼠标滑过 */
 .input_box:hover,
-.input_box3:hover{
+.input_box3:hover,
+.input_box5:hover{
     border-color: var(--text-color3);
 }
 
@@ -123,7 +129,13 @@
     background:transparent !important;
     color: var(--text-color6) !important;
 }
-
+.input_box5{
+    /* width: 38vw ; */
+    min-width: 250px;
+    height: 50px !important;
+    background: var(--background7) !important;
+    color: var(--text-color6) !important;
+}
 
 .input_box4 {
     width: 188px !important;
@@ -238,7 +250,7 @@
         width: 100%;
     }
     .steps_item_content, .steps_item_content2, .steps_item_content3,
-    .card_bgc3,.select_box,.input_box3,.steps_item_content3{
+    .card_bgc3,.select_box,.input_box3,.input_box5,.steps_item_content3{
         width: 100% ;
     }
 
