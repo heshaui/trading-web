@@ -575,7 +575,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
             <div className="flex items-center mb-[10px] text-[14px] text-[var(--text-color5)] gap-[4px]">
               <div className="flex items-center gap-[8px]">
                 <span>可用:</span>
-                <span>{availableBalance.toFixed(2)} USDT</span>
+                {/* {JSON.stringify(currentContractInfo)} */}
+                <span>{availableBalance.toFixed(2)} {currentContractInfo.marginCoin}</span>
               </div>
               <Iconify
                 icon="mdi:swap-horizontal"
@@ -664,11 +665,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
                     <span>可买</span>
-                    <span>0 USDT</span>
+                    <span>0 {currentContractInfo.marginCoin}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
                     <span>可卖</span>
-                    <span>0 USDT</span>
+                    <span>0 {currentContractInfo.marginCoin}</span>
                   </div>
                 </div>
               </div>
@@ -783,11 +784,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
                 <div className="flex gap-[4px]">
                   <span>成本</span>
-                  <span>0 USDT</span>
+                  <span>0 {currentContractInfo.marginCoin}</span>
                 </div>
                 <div className="flex gap-[4px]">
                   <span>成本</span>
-                  <span>0 USDT</span>
+                  <span>0 {currentContractInfo.marginCoin}</span>
                 </div>
               </div>
             </Form>

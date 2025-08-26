@@ -157,7 +157,7 @@ const TradePage = () => {
 
   // 获取USDT资产可用余额，用于交易面板
   const getAvailableUSDTBalance = (): number => {
-    const usdtAsset = getAssetBySymbol("USDT");
+    const usdtAsset = getAssetBySymbol(currentContractInfo.marginCoin);
     return parseFloat(usdtAsset?.canUseAmount || "0");
   };
 

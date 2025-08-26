@@ -34,10 +34,10 @@ const ContractHeader = ({ priceData }: { priceData: any }) => {
 
   useEffect(() => {
     if (currentContractInfo?.id) {
-      // const interval = setInterval(() => {
-      //   getMarketInfo(currentContractInfo.id);
-      // }, 5000);
-      // return () => clearInterval(interval);
+      const interval = setInterval(() => {
+        getMarketInfo(currentContractInfo.id);
+      }, 5000);
+      return () => clearInterval(interval);
     }
   }, [currentContractInfo]);
 

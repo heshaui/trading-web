@@ -5,7 +5,7 @@ import { FullscreenOutlined } from "@ant-design/icons";
 import { Image } from "antd";
 import { useTranslation } from "react-i18next";
 import TradingView from "../Tradingview";
-import DepthChart from "@/components/DepthChart";
+import DepthChart from "../DepthChart";
 import { getDepthMap } from "@/services/contract";
 
 interface TradingviewRefHandle {
