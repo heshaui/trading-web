@@ -39,6 +39,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   const { contractId } = options;
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
+  const [positionNumber, setPositionNumber] = useState(0);
 
   // 获取仓位数据
   const getPosition = useCallback(async () => {
@@ -50,6 +51,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
       });
       if (res.code === "0") {
         setPositions(res.data.positionList);
+        setPositionNumber(res.data.positionList.length);
       } else {
         setPositions([]);
         message.error(res.msg);
@@ -74,6 +76,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   return {
     positions,
     loading,
+    positionNumber,
     getPosition,
     getFilteredPositions,
   };
