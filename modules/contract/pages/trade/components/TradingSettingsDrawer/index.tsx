@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, Button, Switch, Radio } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
@@ -21,16 +21,55 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
   const [reverseConfirm, setReverseConfirm] = useState(true);
   const [isShow, setIsShow] = useState(false);
 
+  // 组件装载时从 localStorage 读取设置
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem('tradingSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        setPositionMode(settings.positionMode || 'hedge');
+        setContractUnit(settings.contractUnit || '张');
+        setOrderValidity(settings.orderValidity || '14天');
+        setPreOrderConfirm(settings.preOrderConfirm !== false); // 默认为true
+        setReverseConfirm(settings.reverseConfirm !== false); // 默认为true
+      }
+    } catch (error) {
+      console.error('读取交易设置失败:', error);
+    }
+  }, []);
+
   const handleConfirm = () => {
-    // 保存设置
-    console.log('Settings saved:', {
-      positionMode,
-      contractUnit,
-      orderValidity,
-      preOrderConfirm,
-      reverseConfirm
-    });
-    onClose();
+    try {
+      // 保存设置到 localStorage
+      const settings = {
+        positionMode,
+        contractUnit,
+        orderValidity,
+        preOrderConfirm,
+        reverseConfirm,
+        updatedAt: Date.now()
+      };
+      localStorage.setItem('tradingSettings', JSON.stringify(settings));
+      
+      // 同步更新旧的 localStorage 键（保持向后兼容）
+      localStorage.setItem('dontShowOrderConfirm', (!preOrderConfirm).toString());
+      
+      console.log('Settings saved:', settings);
+      onClose();
+    } catch (error) {
+      console.error('保存交易设置失败:', error);
+    }
+  };
+  
+  // 实时同步下单前确认设置
+  const handlePreOrderConfirmChange = (checked: boolean) => {
+    setPreOrderConfirm(checked);
+    // 立即同步到 localStorage 以便下单时能实时获取
+    try {
+      localStorage.setItem('dontShowOrderConfirm', (!checked).toString());
+    } catch (error) {
+      console.error('同步下单确认设置失败:', error);
+    }
   };
 
   // 获取合约单位显示文本
@@ -190,7 +229,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
               <span className={styles.confirmLabel}>{t('tradingSettings.preOrderConfirm')}</span>
               <Switch
                 checked={preOrderConfirm}
-                onChange={setPreOrderConfirm}
+                onChange={handlePreOrderConfirmChange}
                 className={`${styles.confirmSwitch} ${preOrderConfirm ? styles.switchChecked : ''}`}
               />
             </div>

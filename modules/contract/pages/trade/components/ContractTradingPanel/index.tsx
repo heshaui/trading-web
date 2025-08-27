@@ -297,6 +297,25 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     setShowTradingSettingsDrawer(true);
   };
 
+  // 检查是否应该跳过下单确认
+  const getShouldSkipConfirm = (): boolean => {
+    try {
+      // 优先检查新的设置格式
+      const savedSettings = localStorage.getItem('tradingSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        return !settings.preOrderConfirm; // preOrderConfirm为false时跳过确认
+      }
+      
+      // 兼容旧的设置格式
+      return localStorage.getItem("dontShowOrderConfirm") === "true";
+    } catch (error) {
+      console.error('读取下单确认设置失败:', error);
+      // 出错时默认显示确认框
+      return false;
+    }
+  };
+
   // 处理订单提交
   const handleSubmit = (side: "BUY" | "SELL") => {
     // 表单验证
@@ -304,12 +323,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return;
     }
 
-    // 检查用户是否选择不再提醒
-    const dontShowConfirm =
-      localStorage.getItem("dontShowOrderConfirm") === "true";
     setSide(side);
+    
+    // 检查用户的下单确认设置
+    const shouldSkipConfirm = getShouldSkipConfirm();
 
-    if (dontShowConfirm) {
+    if (shouldSkipConfirm) {
       // 直接执行下单，不显示确认框
       const orderData = {
         direction: transactionType === 1 ? 0 : 1,

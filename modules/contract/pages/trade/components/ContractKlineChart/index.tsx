@@ -118,7 +118,7 @@ const ContractKlineChart = ({
       contractId: currentContractInfo.id,
     });
     console.log("res:", res);
-    setDepthData(res);
+    setDepthData(res.data);
   }, [currentContractInfo.symbol, currentContractInfo.id]);
 
   // 初始化图表类型选项

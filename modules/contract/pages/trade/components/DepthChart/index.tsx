@@ -1,21 +1,21 @@
 "use client";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
-import { useTranslation } from "next-i18next";
 
 interface DepthChartProps {
   data: {
-    bids: [number, number][];
-    asks: [number, number][];
+    buys?: [number, number, number][];
+    bids?: [number, number][];
+    asks: [number, number, number][];
+    middle?: number;
     spot_log_last_seq?: number;
-  }; // 修改为对象类型
+  };
 }
 
 const DepthChart = ({ data }: DepthChartProps) => {
-  const { t } = useTranslation(["common"]);
 
   // 检查数据是否有效
-  if (!data || !data.bids || !data.asks) {
+  if (!data || !data.asks) {
     return (
       <div
         style={{
@@ -28,6 +28,12 @@ const DepthChart = ({ data }: DepthChartProps) => {
       ></div>
     );
   }
+
+  // 数据格式转换：将后端数据转为组件期望格式
+  const bidsData: [number, number][] = data.buys 
+    ? data.buys.map(([price, quantity]) => [price, quantity])
+    : data.bids || [];
+  const asksData: [number, number][] = data.asks.map(([price, quantity]) => [price, quantity]);
 
   // 处理深度数据，计算累积数量
   const processDepthData = (data: [number, number][], isBid: boolean) => {
@@ -43,23 +49,32 @@ const DepthChart = ({ data }: DepthChartProps) => {
     });
   };
 
-  const processedBids = processDepthData(data.bids, true);
-  const processedAsks = processDepthData(data.asks, false);
+  const processedBids = processDepthData(bidsData, true);
+  const processedAsks = processDepthData(asksData, false);
 
   // 计算基准价格和x轴显示范围
   const calculatePriceRange = () => {
-    if (data.bids.length === 0 && data.asks.length === 0) {
-      return { midPrice: 50000, minPrice: 49000, maxPrice: 51000 };
+    if (bidsData.length === 0 && asksData.length === 0) {
+      // 如果有中间价，使用中间价作为参考
+      const basePrice = data.middle || 50000;
+      return { 
+        midPrice: basePrice, 
+        minPrice: basePrice - 1000, 
+        maxPrice: basePrice + 1000 
+      };
     }
 
     // 获取最高买价和最低卖价
     const highestBid =
-      data.bids.length > 0 ? Math.max(...data.bids.map((bid) => bid[0])) : 0;
+      bidsData.length > 0 ? Math.max(...bidsData.map((bid) => bid[0])) : 0;
     const lowestAsk =
-      data.asks.length > 0 ? Math.min(...data.asks.map((ask) => ask[0])) : 0;
+      asksData.length > 0 ? Math.min(...asksData.map((ask) => ask[0])) : 0;
 
     let midPrice;
-    if (highestBid === 0) {
+    if (data.middle) {
+      // 优先使用后端提供的中间价
+      midPrice = data.middle;
+    } else if (highestBid === 0) {
       midPrice = lowestAsk;
     } else if (lowestAsk === 0) {
       midPrice = highestBid;
@@ -69,8 +84,8 @@ const DepthChart = ({ data }: DepthChartProps) => {
 
     // 计算所有价格的范围
     const allPrices = [
-      ...data.bids.map((bid) => bid[0]),
-      ...data.asks.map((ask) => ask[0]),
+      ...bidsData.map((bid) => bid[0]),
+      ...asksData.map((ask) => ask[0]),
     ];
     const minDataPrice = Math.min(...allPrices);
     const maxDataPrice = Math.max(...allPrices);
@@ -86,7 +101,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
     };
   };
 
-  const { midPrice, minPrice, maxPrice } = calculatePriceRange();
+  const { minPrice, maxPrice } = calculatePriceRange();
 
   // ECharts 配置项
   const option = {
@@ -161,7 +176,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
     },
     series: [
       {
-        name: t("depthChart.buyOrders") || "买单",
+        name: "买单",
         type: "line",
         data: processedBids,
         step: "after", // 改为 after 以正确显示深度图的阶梯效果
@@ -179,7 +194,7 @@ const DepthChart = ({ data }: DepthChartProps) => {
         symbol: "none",
       },
       {
-        name: t("depthChart.sellOrders") || "卖单",
+        name: "卖单",
         type: "line",
         data: processedAsks,
         step: "after", // 改为 after 以正确显示深度图的阶梯效果

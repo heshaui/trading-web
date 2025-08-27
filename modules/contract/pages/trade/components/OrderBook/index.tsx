@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 import styles from "./style/index.module.css";
@@ -56,6 +56,18 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>();
+
+  // 组件装载时设置默认精度
+  useEffect(() => {
+    if (currentContractInfo.coinResultVo?.depth && currentContractInfo.coinResultVo.depth.length > 0 && precision === undefined) {
+      const defaultPrecision = currentContractInfo.coinResultVo.depth[0];
+      setPrecision(defaultPrecision);
+      // 通知父组件默认精度
+      if (onPrecisionChange) {
+        onPrecisionChange(defaultPrecision);
+      }
+    }
+  }, [currentContractInfo.coinResultVo?.depth, precision, onPrecisionChange]);
 
   // 处理精度变化
   const handlePrecisionChange = (newPrecision: number) => {
@@ -244,14 +256,16 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
             {renderColorModeButtons()}
             <Select
               size="small"
-              style={{ width: 80 }}
+              style={{ width: 50, border: 'none', boxShadow: 'none' }}
               value={precision}
               onChange={handlePrecisionChange}
               className="w-20"
+              placeholder="精度"
+              variant="borderless"
             >
-              {currentContractInfo.coinResultVo.depth.map((item: any, index: number) => (
+              {currentContractInfo.coinResultVo?.depth?.map((item: any, index: number) => (
                 <Option key={index} value={item}>{item}</Option>
-              ))}
+              )) || []}
             </Select>
           </div>
         </div>
