@@ -408,5 +408,15 @@
     "transfer": "划转",
     "deposit": "充值",
     "notOpenYet": "暂未开放"
+  },
+  "contractInfo": {
+    "title": "合约信息",
+    "contractId": "合约代号",
+    "deliveryDate": "交割日期",
+    "contractTarget": "合约标的",
+    "marginCoin": "保证金币种",
+    "contractValue": "合约面值",
+    "minPriceChange": "最小价格变动单位",
+    "minMaintainMarginRate": "最低维持保证金率"
   }
 }

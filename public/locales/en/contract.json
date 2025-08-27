@@ -408,5 +408,15 @@
     "transfer": "Transfer",
     "deposit": "Deposit",
     "notOpenYet": "Not Available Yet"
+  },
+  "contractInfo": {
+    "title": "Contract Info",
+    "contractId": "Contract ID",
+    "deliveryDate": "Delivery Date",
+    "contractTarget": "Contract Target",
+    "marginCoin": "Margin Coin",
+    "contractValue": "Contract Value",
+    "minPriceChange": "Min Price Change",
+    "minMaintainMarginRate": "Min Maintain Margin Rate"
   }
 }

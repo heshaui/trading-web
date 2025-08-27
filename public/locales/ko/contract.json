@@ -408,5 +408,15 @@
     "transfer": "이체",
     "deposit": "입금",
     "notOpenYet": "아직 사용 불가"
+  },
+  "contractInfo": {
+    "title": "계약 정보",
+    "contractId": "계약 ID",
+    "deliveryDate": "청산 일자",
+    "contractTarget": "계약 대상",
+    "marginCoin": "증거금 코인",
+    "contractValue": "계약 가치",
+    "minPriceChange": "최소 가격 변동",
+    "minMaintainMarginRate": "최소 유지 증거금률"
   }
 }

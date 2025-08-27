@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import appStore from "@/store";
+import { useTranslation } from 'react-i18next';
 /**
  * base: 基础币种
  * brokerId: 经纪商ID
@@ -25,41 +26,42 @@ import appStore from "@/store";
  * symbol: 合约符号
  */
 const ContractInfo = observer(({ style }: { style?: React.CSSProperties }) => {
+  const { t } = useTranslation(["contract"]);
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
   console.info(currentContractInfo, "0000000000000000000000");
   return (
     <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)]" style={style} >
       <div className="text-[var(--text-color5)] font-[500] mb-[16px]">
-        合约信息
+        {t("contractInfo.title")}
       </div>
       <div className="flex flex-col gap-[10px]">
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">合约代号</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.contractId")}</div>
           <div className="text-[var(--text-color5)]">{currentContractInfo?.symbol}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">交割日期</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.deliveryDate")}</div>
           <div className="text-[var(--text-color5)]">永续</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">合约标的</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.contractTarget")}</div>
           <div className="text-[var(--text-color5)]">{currentContractInfo?.symbol} 指数</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">保证金币种</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.marginCoin")}</div>
           <div className="text-[var(--text-color5)]">{currentContractInfo?.quote}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">合约面值</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.contractValue")}</div>
           <div className="text-[var(--text-color5)]">{currentContractInfo?.multiplier} {currentContractInfo?.multiplierCoin}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">最小价格变动单位</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.minPriceChange")}</div>
           <div className="text-[var(--text-color5)]">{'--'} {currentContractInfo?.quote}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-[var(--text-color6)]">最低维持保证金率</div>
+          <div className="text-[var(--text-color6)]">{t("contractInfo.minMaintainMarginRate")}</div>
           <div className="text-[var(--text-color5)]">{'--'} %</div>
         </div>
       </div>
