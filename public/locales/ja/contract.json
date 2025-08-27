@@ -161,7 +161,15 @@
     "openMargin": "建玉証拠金",
     "profit": "収益額",
     "returnRate": "収益率",
-    "disclaimer": "*計算結果は参考用です。実際の取引では手数料、資金調達率などの要因により結果が異なる場合があります"
+    "disclaimer": "*計算結果は参考用です。実際の取引では手数料、資金調達率などの要因により結果が異なる場合があります",
+    "marginMode": "証拠金モード",
+    "crossMargin": "クロス",
+    "isolatedMargin": "分離",
+    "targetReturnRate": "目標収益率",
+    "positionSize": "ポジションサイズ",
+    "availableBalance": "利用可能残高",
+    "liquidationPrice": "強制決済価格",
+    "selectMarginMode": "証拠金モードを選択"
   },
   "tradingSettings": {
     "title": "取引設定",

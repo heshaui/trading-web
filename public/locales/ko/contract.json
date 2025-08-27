@@ -111,7 +111,12 @@
     "openMargin": "초기 증거금",
     "profit": "수익/손실",
     "returnRate": "수익률",
-    "disclaimer": "*계산 결과는 참고용이며, 수수료, 펀딩 비율 등으로 인해 실제 결과와 다를 수 있습니다."
+    "disclaimer": "*계산 결과는 참고용이며, 수수료, 펀딩 비율 등으로 인해 실제 결과와 다를 수 있습니다.",
+    "targetReturnRate": "목표 수익률",
+    "positionSize": "포지션 크기",
+    "availableBalance": "사용 가능 잔고",
+    "liquidationPrice": "강제 청산 가격",
+    "selectMarginMode": "증거금 모드 선택"
   },
   "tradingSettings": {
     "title": "거래 설정",

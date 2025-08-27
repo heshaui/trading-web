@@ -111,7 +111,15 @@
     "openMargin": "Initial Margin",
     "profit": "Profit/Loss",
     "returnRate": "ROI",
-    "disclaimer": "*Calculation is for reference only. Actual results may vary due to fees, funding rates, etc."
+    "disclaimer": "*Calculation is for reference only. Actual results may vary due to fees, funding rates, etc.",
+    "marginMode": "Margin Mode",
+    "crossMargin": "Cross",
+    "isolatedMargin": "Isolated",
+    "targetReturnRate": "Target ROI",
+    "positionSize": "Position Size",
+    "availableBalance": "Available Balance",
+    "liquidationPrice": "Liquidation Price",
+    "selectMarginMode": "Select Margin Mode"
   },
   "tradingSettings": {
     "title": "Trading Settings",

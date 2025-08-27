@@ -118,7 +118,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 格式化数字显示 - 如果小数点后都是0则显示整数
   const formatNumber = useCallback((num: number, precision: number = 4) => {
     if (num === 0) return "0";
-    
+
     const fixed = num.toFixed(precision);
     // 移除末尾的0和小数点
     const formatted = fixed.replace(/\.?0+$/, "");
@@ -128,15 +128,15 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 计算可买/可卖数量
   const calculateMaxQuantity = useCallback((side?: "BUY" | "SELL") => {
     if (availableBalance <= 0 || leverageLevel <= 0) return 0;
-    
+
     // 获取合约信息
     const contractInfo = currentContractInfo;
     const faceValue = contractInfo?.multiplier || 1; // 面值
     const marginRate = contractInfo?.marginRate || 1; // 保证金汇率
     const contractSide = contractInfo?.contractSide; // 1: 正向合约, 2: 反向合约
-    
+
     let calculationPrice = 0;
-    
+
     // 根据订单类型和方向确定价格
     if (orderType === "limit") {
       // 限价单使用输入的价格
@@ -148,7 +148,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       const lastPrice = priceData?.lastPrice || priceData?.close || 1;
       const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
       const askPrice = priceData?.askPrice || lastPrice; // 卖一价
-      
+
       if (side === "BUY") {
         // 买入使用卖一价
         calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
@@ -160,13 +160,13 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         calculationPrice = typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
       }
     }
-    
+
     if (calculationPrice <= 0) return 0;
-    
+
     // 计算最大数量
     let maxQuantity = 0;
     const totalBalance = availableBalance * leverageLevel * marginRate;
-    
+
     if (contractSide === 2) {
       // 反向合约：可用余额 * 杠杆 * 价格 / 面值
       maxQuantity = totalBalance * calculationPrice / faceValue;
@@ -174,7 +174,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       // 正向合约：可用余额 * 杠杆 / (面值 * 价格)
       maxQuantity = totalBalance / (faceValue * calculationPrice);
     }
-    
+
     return Math.max(0, maxQuantity);
   }, [priceData, price, orderType, availableBalance, leverageLevel, currentContractInfo]);
 
@@ -202,7 +202,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       const lastPrice = priceData?.lastPrice || priceData?.close || 1;
       const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
       const askPrice = priceData?.askPrice || lastPrice; // 卖一价
-      
+
       if (side === "BUY") {
         // 做多使用卖一价（买入时需要支付卖方的价格）
         calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
@@ -726,7 +726,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   onChange={handleQuantityChange}
                   placeholder={t("tradingPanel.orderQuantity")}
                   className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.quantity ? styles.inputError : ''}`}
-                  suffix="USDT"
+                  suffix="张"
                 />
                 {validationErrors.quantity && (
                   <span className={styles.errorText}>{validationErrors.quantity}</span>
