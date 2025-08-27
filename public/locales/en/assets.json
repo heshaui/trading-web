@@ -69,7 +69,8 @@
       "tip4": "Exchange deposit function is currently unavailable, please contact customer service if you have any questions!",
       "toAuthentication": "Verify Now",
       "flash": "Flash Swap",
-      "financial": "Financial"
+      "financial": "Financial",
+      "topuptip2": "Deposits are prohibited by the exchange. For any inquiries, please contact customer service!"
     },
     "title2": "Bill Details",
     "assets": "Spot Assets",

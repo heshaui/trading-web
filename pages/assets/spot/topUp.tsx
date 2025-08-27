@@ -65,7 +65,7 @@ const TopUpPage = () => {
   const protoWrapRef = useRef<HTMLDivElement | null>(null);
 
   const triggerRef = useRef<HTMLDivElement>(null);
-
+  const allConfig = appStore.getKvConfigAll()
 
   const selectedProtocolLabel = useMemo(() => {
     const currentValue = selectedProtocolId ?? form.getFieldValue('protocolId');
@@ -86,8 +86,8 @@ const TopUpPage = () => {
     // const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
     const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
       (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
-    // return needsKyc || needsMerchantRecharge
-    return false
+    return needsKyc || needsMerchantRecharge
+    // return false
   }, [userInfo])
 
 
@@ -271,6 +271,7 @@ const TopUpPage = () => {
     setSearchHistory([]);
   };
   const updateSearchHistory = (option: any) => {
+    setCoinInfo(option)
     // 更新历史记录
     const newHistoryItem = {
       value: option.value,
@@ -357,6 +358,7 @@ const TopUpPage = () => {
   const chainChange = async (value: number, option: any) => {
     const chainInfoAssign = Object.assign({}, coinInfo, option)
     setCoinInfo(chainInfoAssign)
+    // console.log(chainInfoAssign, 999);
     // getChainTypeDeatil(option.chainType)
     getChainTypeDeatil(option.symbol) //钱包网络对应代币-4.2已判断代币对应网络 可不用
 
@@ -471,7 +473,10 @@ const TopUpPage = () => {
   }, [coinList, userInfo, isNotAllowToUp]);
   const steps = [
     {
-      title: <p className={`${styles.tip_title} `}>充值币种</p>,
+      title: <p className={`${styles.tip_title} `}>
+        {/* 充值币种 */}
+        {t("toUpSteps.rechargeCoin")}
+      </p>,
       description: (
         <div className={`${styles.steps_item_content} mt-2`}>
           {current >= 0 && (
@@ -598,7 +603,10 @@ const TopUpPage = () => {
       ),
     },
     {
-      title: <p className={`${styles.tip_title} `}>网络</p>,
+      title: <p className={`${styles.tip_title} `}>
+        {/* 网络 */}
+        {t("toUpSteps.network")}
+      </p>,
       description: (
         <div className={`${styles.steps_item_content2} mt-2`}>
           {current >= 1 && (
@@ -632,7 +640,7 @@ const TopUpPage = () => {
                 {/* <Form.Item name="protocolId" noStyle> */}
                 <Input readOnly
                   value={selectedProtocolLabel}
-                  placeholder="请选择网络"
+                  placeholder={t("toUpSteps.placeholder")}
                   onClick={() => setProtoOpen(true)}
                   className={`${styles.input_box5} modal-input`}
                 // suffix={<DownOutlined width={12} height={12} />}
@@ -650,7 +658,10 @@ const TopUpPage = () => {
       ),
     },
     {
-      title: <p className={`${styles.tip_title} `}>充值地址</p>,
+      title: <p className={`${styles.tip_title} `}>
+        {/* 充值地址 */}
+        {t("toUpSteps.rechargeAddress")}
+      </p>,
       description: (
         <div className={`${styles.steps_item_content3} mt-2 relative min-w-[400px]`} >
           {current >= 2 && (<>
@@ -679,7 +690,10 @@ const TopUpPage = () => {
                 />
               </div>
               <div className="ml-3 font-14 flex-1 min-w-0">
-                <p className={`${styles.tip_color2} font-w-400`}>充值地址</p>
+                <p className={`${styles.tip_color2} font-w-400`}>
+                  {/* 充值地址 */}
+                  {t("toUpSteps.rechargeAddress")}
+                </p>
                 <div className="flex items-center mt-2">
                   <span className="mr-3 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {walletAddress?.address || '--'}
@@ -703,7 +717,11 @@ const TopUpPage = () => {
                 size={16}
               />
               <span>
-                请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。
+                {/* 请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。 */}
+                {t("toUpSteps.networkWarning", {
+                  platformName:
+                    allConfig?.tenant_cache_name || "--",
+                })}
                 {/* {t("withdrawMoney.networkWarning2", {
                   platformName:
                     allConfig?.tenant_cache_name || "--",
@@ -735,29 +753,40 @@ const TopUpPage = () => {
             {/* 充值信息 */}
             <ul className={`${styles.qrCode_box} ${styles.tip_color} px-5 py-5  mt-5`} >
               <li className="flex-x algin-center  justify-between">
-                最小充值
-                <span className={`${styles.title_color}`}>0.001USDT</span>
+                {/* 最小充值 */}
+                {t("toUpSteps.minRecharge")}
+                <span className={`${styles.title_color}`}>
+                  {/* 0.001USDT */}
+                  {coinInfo?.minRecharge || 0}{coinInfo?.coinName || '--'}
+                </span>
               </li>
               <li className="flex-x algin-center mt-5 mb-5  justify-between">
-                将资金充入
-                <span className={`${styles.title_color}`}>现货账户</span>
+                {/* 将资金充入 */}
+                {t("toUpSteps.rechargeTo")}
+                <span className={`${styles.title_color}`}>
+                  {/* 现货账户 */}
+                  {t("toUpSteps.rechargeTo2")}
+                </span>
               </li>
               <li className="flex-x algin-center  justify-between">
-                区块确认次数
-                <span className={`${styles.title_color}`}>14次</span>
+                {/* 区块确认次数 */}
+                {t("toUpSteps.confirmCount")}
+                <span className={`${styles.title_color}`}>{coinInfo?.confirmCount || 1}{t("toUpSteps.confirmCountTip3")}</span>
               </li>
             </ul>
           </>)}
-          {modalOpen && <div className={`${styles.modal_box} flex-y-cc `} >
+          {modalOpen && current >= 2 && <div className={`${styles.modal_box} flex-y-cc `} >
             <Image src="/images/pubic_icon/icon_address.svg" alt="modal" width={160} height={160} />
             <div className="text-[#fff] text-[20px] font-w-500">
-              正确填写地址和MEMO才可以充值到账
+              {/* 正确填写地址和MEMO才可以充值到账 */}
+              {t("toUpSteps.memoTip1")}
             </div>
             <div className="text-[#D9D9D9] text-[14px] font-w-400 w-[350px] text-center mt-4">
-              充值时必须要填写充值地址和标签，这是您账户的唯一标
-              识，不填或填错将导致您的资产丢失。
+              {/* 充值时必须要填写充值地址和标签，这是您账户的唯一标
+              识，不填或填错将导致您的资产丢失。 */}
+              {t("toUpSteps.memoTip2")}
             </div>
-            <Button className="default_btn mt-[30px] rounded-[36px]  py-[8px] px-[24px]"
+            <Button className="default_btn mt-[30px] !rounded-[36px] !h-[36px] px-[24px]"
               htmlType="submit"
               onClick={() => {
                 form.validateFields().then((values) => {
@@ -765,7 +794,10 @@ const TopUpPage = () => {
                 })
               }}
             // loading={true}
-            >好的，请显示地址</Button>
+            >
+              {/* 好的，请显示地址 */}
+              {t("toUpSteps.memoTip3")}
+            </Button>
           </div>}
         </div>
       ),
@@ -802,7 +834,19 @@ const TopUpPage = () => {
         </div>
 
         <div className={`${styles.card_box}  mt-6  `}>
-          <NoUseCom type="4" />
+          {(() => {
+            // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
+            const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
+            // const unverifie10 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
+            const unverifie11 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedRechargeStatus
+
+            const needsKyc = verified10 && userInfo?.unverifiedRechargeStatus !== 1
+            // const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
+            const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
+              (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
+
+            return needsMerchantRecharge ? <NoUseCom type="5" /> : needsKyc ? <NoUseCom type="1" /> : <></>
+          })()}
           <div
             className={` w-full flex-x justify-between ${styles.card_content2}`}
           >
@@ -855,9 +899,9 @@ const TopUpPage = () => {
             </div>
             <TopUpSteps type="topUp" />
           </div>
-          <div className={`${styles.table_box} w-full `}>
+          {/* <div className={`${styles.table_box} w-full `}>
             <RechargeTable />
-          </div>
+          </div> */}
         </div>
 
       </div>
