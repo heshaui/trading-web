@@ -19,8 +19,10 @@
   "limitOrder": "限价",
   "marketOrder": "市价",
   "stopOrder": "条件",
-  "buy": "开仓",
-  "sell": "平仓",
+  "buy": "买",
+  "sell": "卖",
+  "open": "开仓",
+  "close": "平仓",
   "buyLong": "买入开多",
   "sellShort": "卖出开空",
   "price": "委托价格",
@@ -111,15 +113,43 @@
     "returnRate": "回报率",
     "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差"
   },
+  "tradingSettings": {
+    "title": "交易设置",
+    "confirm": "确定",
+    "positionType": "持仓类型",
+    "positionTypeNote": "（持有任何合约仓位/有挂单时不可更改持仓类型）",
+    "singlePosition": "单向持仓",
+    "singlePositionDesc": "单向持仓模式下，一个合约只允许持有一个方向的仓位",
+    "hedgePosition": "双向持仓",
+    "hedgePositionDesc": "双向持仓模式下，一个合约可允许同时持有多空两个方向的仓位，并且同一合约下不同方向仓位风险对冲",
+    "contractUnit": "合约单位",
+    "orderValidity": "条件单/止盈止损有效期",
+    "preOrderConfirm": "下单前弹窗确认",
+    "reverseConfirm": "反向开仓弹窗确认",
+    "units": {
+      "sheet": "张",
+      "btc": "BTC",
+      "usdt": "USDT"
+    },
+    "validity": {
+      "24h": "24H",
+      "7days": "7天",
+      "14days": "14天",
+      "longTerm": "长期有效"
+    }
+  },
   "riskDisclosure": {
     "title": "合约交易风险确认书",
     "cancel": "取消",
-    "confirm": "确认并开通合约交易",
+    "confirm": "确认",
     "content": {
-      "paragraph1": "合约交易是一种高风险的金融衍生品交易，可能导致您的全部投资损失。在参与合约交易前，请确保您已充分了解合约交易的风险和机制。",
-      "paragraph2": "合约交易具有高杠杆特性，小幅价格波动可能导致巨大的损失。市场价格可能受到多种因素影响，包括但不限于市场情绪、政策变化、技术故障等。",
-      "paragraph3": "您应当具备相应的风险承受能力和专业知识，仅使用您能够承受损失的资金进行交易。请谨慎评估您的财务状况和风险承受能力。",
-      "paragraph4": "平台不对因市场波动、系统故障、网络延迟等原因造成的损失承担责任。您应当自行承担交易风险，并对您的交易决策负责。"
+      "paragraph1": "一、当您在合约市场进行交易时，若因市场走势对您不利产生亏损，导致您的持仓保证金不足。本交易所合约将会按照系统约定对您的持仓进行强平委托并披露强平明细，请您留意。",
+      "paragraph2": "二、请您务必认真阅读并遵守本交易所的业务规则。了解合约机制和运行原理，了解市场的各种风险，合理安排资金进行交易。",
+      "paragraph3": "三、在某些极端的市场行情下，您可能会难以或无法将持有的未平仓合约平仓。例如，当你的盈利在整个合约市场中有效杠杆PnL中排位第一，且保险基金不足以垫付亏损方的穿仓损失情况下。",
+      "paragraph4": "四、由于当地法律、法规、政策的变化、合约交易所交易规则的修改、紧急措施的出台等原因，本交易所会提前披露声明，您持有的未平仓合约可能无法继续持有，但持仓保证金和盈利的结余平台仍会兑现！",
+      "paragraph5": "五、由于非本交易所所能控制的原因，例如：地震、水灾、火灾等不可抗力因素或者计算机系统、通讯系统故障等，可能造成您的指令无法成交或者无法全部成交，您可能会承担由此导致的损失。",
+      "paragraph6": "六、"套期保值"交易同投机交易一样，同样面临价格波动引起的风险。请您提前了解相关机制。",
+      "paragraph7": "七、若您账号借给非本人操作，将可能会影响到您的合约保证金安全性。请务必保证个人账户安全。"
     }
   },
   "loadFailed": "加载失败",
@@ -143,5 +173,140 @@
     "walletBalance": "钱包余额",
     "transfer": "划转",
     "coin": "币种"
+  },
+  "orderSubmitSuccess": "订单提交成功",
+  "contractOpenSuccess": "合约交易已开通",
+  "tradingPanel": {
+    "crossMargin": "全仓",
+    "isolatedMargin": "逐仓",
+    "calculator": "计算器",
+    "openPosition": "开仓",
+    "closePosition": "平仓",
+    "limitOrder": "限价",
+    "marketOrder": "市价",
+    "conditionalOrder": "条件",
+    "available": "可用",
+    "triggerPrice": "触发价格",
+    "orderPrice": "委托价格",
+    "orderQuantity": "委托数量",
+    "marketPrice": "市价",
+    "canBuy": "可买",
+    "canSell": "可卖",
+    "advancedSettings": "高级设置",
+    "buyLong": "买入开多",
+    "sellShort": "卖出开空",
+    "buyClose": "买入平空",
+    "sellClose": "卖出平多",
+    "cost": "成本",
+    "transferSuccess": "划转成功",
+    "transferFailed": "划转失败",
+    "validation": {
+      "required": "此字段为必填项",
+      "invalidNumber": "请输入有效的数字",
+      "mustBePositive": "数值必须大于0",
+      "exceedsMaxQuantity": "数量超过最大可{{action}}数量",
+      "enterTriggerPrice": "请输入触发价格",
+      "triggerPriceMustBePositive": "触发价格必须大于0",
+      "enterOrderPrice": "请输入委托价格",
+      "orderPriceMustBePositive": "委托价格必须大于0",
+      "enterOrderQuantity": "请输入委托数量",
+      "orderQuantityMustBePositive": "委托数量必须大于0",
+      "insufficientBalance": "可用余额不足",
+      "invalidLeverage": "杠杆倍数无效",
+      "quantityExceedsMax": "委托数量超过最大可{{action}}数量",
+      "solveErrorsFirst": "请先解决表单验证错误",
+      "solveFollowingProblems": "请解决以下问题后重试："
+    }
+  },
+  "contractHeader": {
+    "markPrice": "标记价格",
+    "indexPrice": "指数价格",
+    "fundingRate": "资金费率/倒计时",
+    "volume24h": "24H 成交量",
+    "turnover24h": "24H 成交额(USD)"
+  },
+  "orderBookList": {
+    "title": "委托列表",
+    "price": "价格",
+    "amount": "数量",
+    "total": "总计",
+    "noSellOrders": "暂无卖单数据",
+    "noBuyOrders": "暂无买单数据"
+  },
+  "realtimeTrade": {
+    "title": "实时成交",
+    "price": "价格",
+    "amount": "数量",
+    "time": "时间",
+    "noTradeData": "暂无成交数据"
+  },
+  "symbolSelector": {
+    "selectContract": "选择合约",
+    "coinContract": "币本位合约",
+    "usdtContract": "U本位合约",
+    "mixContract": "混合合约",
+    "simContract": "模拟合约"
+  },
+  "marginMode": {
+    "title": "保证金模式",
+    "settingSuccess": "设置成功",
+    "crossDescription": "全仓保证金模式: 所有仓位共用合约账户中的保证金来避免仓位被强平。在强平事件中，交易者可能会损失所有的保证金和仓位。",
+    "isolatedDescription": "逐仓保证金模式:一定数量保证金被分配到仓位上。如果仓位保证金亏损到低于维持保证金的水平，仓位将被强平。在逐仓模式下，您可以为这个仓位添加和减少保证金。",
+    "setTo": "设置为{{mode}}模式"
+  },
+  "leverageModal": {
+    "contractLeverage": "合约杠杆",
+    "supportRange": "当前持仓支持杠杆范围【{{min}}-{{max}}】",
+    "riskWarning": "选择高杠杆会增加强行平仓风险",
+    "positionLimit": "持仓上限",
+    "confirm": "确认",
+    "settingSuccess": "杠杆设置成功",
+    "settingFailed": "杠杆设置失败",
+    "settingFailedRetry": "杠杆设置失败，请重试"
+  },
+  "fundTransfer": {
+    "title": "资金划转",
+    "from": "从",
+    "to": "划转到",
+    "spotAccount": "现货账户",
+    "contractAccount": "合约账户",
+    "coin": "币种",
+    "amount": "数量",
+    "available": "可用",
+    "max": "最大",
+    "confirm": "确认",
+    "minAmount": "最少10",
+    "transferSuccess": "转账成功",
+    "transferFailed": "转账失败",
+    "insufficientBalance": "余额不足",
+    "enterValidAmount": "请输入有效的转账数量"
+  },
+  "contractAsset": {
+    "title": "资产",
+    "totalEquity": "总权益",
+    "walletBalance": "钱包余额",
+    "unrealizedPnl": "未实现盈亏",
+    "transfer": "划转",
+    "deposit": "充值",
+    "notOpenYet": "暂未开放"
+  },
+  "calculator": {
+    "title": "计算器",
+    "profitTab": "收益",
+    "closePriceTab": "平仓价格",
+    "liquidationTab": "强平价格",
+    "buyLong": "买入开多",
+    "sellShort": "卖出开空",
+    "leverage": "杠杆",
+    "maxPosition": "当前杠杆最高可持有头寸数",
+    "openPrice": "开仓价格",
+    "closePrice": "平仓价格",
+    "quantity": "数量",
+    "calculate": "计算",
+    "result": "计算结果",
+    "openMargin": "开仓保证金",
+    "profit": "收益额",
+    "returnRate": "回报率",
+    "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差"
   }
 }

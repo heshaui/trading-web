@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Button } from 'antd';
+import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import { marginModelEdit } from '@/services/contract';
@@ -23,21 +24,22 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
   onModeChange,
   symbol = 'BTCUSDT'
 }) => {
+  const { t } = useTranslation(['contract']);
   const [selectedMode, setSelectedMode] = React.useState<1 | 2>(2); // 默认选择逐仓
   const { currentContractInfo } = appStore;
   const handleConfirm = async () => {
-  
+
     onClose();
-  const res = await marginModelEdit({
-    marginModel: selectedMode,
-    contractId: currentContractInfo.id,
-  });
-  console.log(res);
+    const res = await marginModelEdit({
+      marginModel: selectedMode,
+      contractId: currentContractInfo.id,
+    });
+    console.log(res);
     if (res.code === '0') {
       onModeChange(selectedMode);
       onClose();
-      toast.success('设置成功');
-    }else{
+      toast.success(t('marginMode.settingSuccess'));
+    } else {
       toast.error(res.msg);
     }
   };
@@ -53,33 +55,33 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
     >
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>{symbol}保证金模式</h3>
+          <h3 className={styles.modalTitle}>{symbol}{t('marginMode.title')}</h3>
         </div>
         <div className={styles.modeSelector}>
           <div className={`${styles.slideIndicator} ${selectedMode === 2 ? styles.slideRight : styles.slideLeft}`}></div>
-          <div 
+          <div
             className={`${styles.modeTab} ${selectedMode === 1 ? styles.activeTab : ''}`}
             onClick={() => setSelectedMode(1)}
           >
-            全仓
+            {t('crossMargin')}
           </div>
-          <div 
+          <div
             className={`${styles.modeTab} ${selectedMode === 2 ? styles.activeTab : ''}`}
             onClick={() => setSelectedMode(2)}
           >
-            逐仓
+            {t('isolatedMargin')}
           </div>
         </div>
 
         {selectedMode === 2 && (
           <div className={styles.modeDescription}>
-            逐仓保证金模式:一定数量保证金被分配到仓位上。如果仓位保证金亏损到低于维持保证金的水平，仓位将被强平。在逐仓模式下，您可以为这个仓位添加和减少保证金。
+            {t('marginMode.isolatedDescription')}
           </div>
         )}
         {
           selectedMode === 1 && (
             <div className={styles.modeDescription}>
-              全仓保证金模式: 所有仓位共用合约账户中的保证金来避免仓位被强平。在强平事件中，交易者可能会损失所有的保证金和仓位。
+              {t('marginMode.crossDescription')}
             </div>
           )
         }
@@ -92,7 +94,7 @@ const MarginModeModal: React.FC<MarginModeModalProps> = ({
             onClick={handleConfirm}
             className={styles.confirmBtn}
           >
-            设置为{selectedMode === 1 ? '全仓' : '逐仓'}模式
+            {t('marginMode.setTo', { mode: selectedMode === 1 ? t('crossMargin') : t('isolatedMargin') })}
           </Button>
         </div>
       </div>

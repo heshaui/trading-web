@@ -6,6 +6,7 @@ import { transferAll } from "@/services/assets";
 import { toast } from "sonner";
 import router from "next/router";
 import { ROUTER_KEY_ASSETS } from "@/config/apiConfig";
+import { useTranslation } from "next-i18next";
 
 interface ContractAssetProps {
   spotBalance: any;
@@ -16,6 +17,7 @@ interface ContractAssetProps {
 
 const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate, style }: ContractAssetProps) => {
   const [showFundTransferModal, setShowFundTransferModal] = useState(false);
+  const { t } = useTranslation(['contract']);
 
   // 处理资金划转确认
   const handleFundTransferConfirm = async (transferData: any) => {
@@ -23,10 +25,10 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate, style }:
     const res = await transferAll(dataEncrypt);
     console.log("res:", res);
     if (res.code === "0" && res.data) {
-      toast.success("划转成功");
+      toast.success(t('fundTransfer.transferSuccess'));
       // 通知父组件更新余额
     } else {
-      toast.error("划转失败");
+      toast.error(t('fundTransfer.transferFailed'));
     }
     onBalanceUpdate?.();
   };
@@ -40,18 +42,18 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate, style }:
         onConfirm={handleFundTransferConfirm}
       />
       <div className="p-[10px_16px] text-[14px] font-[400] bg-[var(--background9)]" style={style}>
-        <div className="text-[var(--text-color5)] font-[500] mb-[16px]">资产</div>
+        <div className="text-[var(--text-color5)] font-[500] mb-[16px]">{t('contractAsset.title')}</div>
         <div className="flex flex-col gap-[10px] mb-[14px]">
           <div className="flex justify-between items-center">
-            <div className="text-[var(--text-color6)]">总权益</div>
+            <div className="text-[var(--text-color6)]">{t('contractAsset.totalEquity')}</div>
             <div className="text-[var(--text-color5)]">0.00 USDT</div>
           </div>
           <div className="flex justify-between items-center">
-            <div className="text-[var(--text-color6)]">钱包余额</div>
+            <div className="text-[var(--text-color6)]">{t('contractAsset.walletBalance')}</div>
             <div className="text-[var(--text-color5)]">0.00 USDT</div>
           </div>
           <div className="flex justify-between items-center">
-            <div className="text-[var(--text-color6)]">未实现盈亏</div>
+            <div className="text-[var(--text-color6)]">{t('contractAsset.unrealizedPnl')}</div>
             <div className="text-[var(--text-color5)]">0.00 USDT</div>
           </div>
         </div>
@@ -63,17 +65,17 @@ const ContractAsset = ({ spotBalance, contractBalance, onBalanceUpdate, style }:
             shape="round"
             style={{ background: "var(--btncolor6)" }}
           >
-            划转
+            {t('contractAsset.transfer')}
           </Button>
           <Button
             // onClick={() => router.push(ROUTER_KEY_ASSETS.CONTRACT_TOP_UP)}
-            onClick={() => toast.error("暂未开放")}
+            onClick={() => toast.error(t('contractAsset.notOpenYet'))}
             type="primary"
             className="w-[144px] h-[32px] text-[var(--text-color5)] font-[500]"
             shape="round"
             style={{ background: "var(--btncolor6)" }}
           >
-            充值
+            {t('contractAsset.deposit')}
           </Button>
         </div>
       </div>
