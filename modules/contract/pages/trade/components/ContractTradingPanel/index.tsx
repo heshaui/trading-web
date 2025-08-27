@@ -779,11 +779,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="mb-[16px]">
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
-                    <span>{t("tradingPanel.canBuy")}</span>
+                    <span style={{color:'#00C788'}}>{t("tradingPanel.canBuy")}</span>
                     <span>{formatNumber(calculateMaxQuantity("BUY"), currentContractInfo?.volfix || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
-                    <span>{t("tradingPanel.canSell")}</span>
+                    <span  style={{color:'#FF4D4F'}}>{t("tradingPanel.canSell")}</span>
                     <span>{formatNumber(calculateMaxQuantity("SELL"), currentContractInfo?.volfix || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                 </div>
