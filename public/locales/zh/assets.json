@@ -69,7 +69,8 @@
       "tip4": "交易所充值功能暂不可用，如有问题请与客服联系！",
       "toAuthentication": "立即认证",
       "flash": "闪兑",
-      "financial": "理财"
+      "financial": "理财",
+      "topuptip2": "交易所禁止充值，如有问题请与客服联系！"
     },
     "title2": "账单明细",
     "assets": "现货资产",
@@ -298,6 +299,21 @@
     "stepTitle3": "发起提现",
     "stepTip3": "在提现平台检查地址，并发起提现。",
     "stepTitle4": "订单查看",
-    "stepTip4": "区块确认后，我们会为您入账，资产直接转入现货账户。"
+    "stepTip4": "区块确认后，我们会为您入账，资产直接转入现货账户。",
+    "network": "网络",
+    "rechargeCoin": "充值币种",
+    "minRecharge": "最小充值",
+    "confirmCount": "区块确认次数",
+    "confirmCountTip": "次确认",
+    "confirmCountTip2": "{{confirmCount}}次确认",
+    "confirmCountTip3": "次",
+    "placeholder": "请选择网络",
+    "rechargeAddress": "充值地址",
+    "networkWarning": "请注意，这里仅展示了{{platformName}}平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。",
+    "rechargeTo": "将资金充入",
+    "rechargeTo2": "现货账户",
+    "memoTip1": "正确填写地址和MEMO才可以充值到账",
+    "memoTip2": "充值时必须要填写充值地址和标签，这是您账户的唯一标识，不填或填错将导致您的资产丢失。",
+    "memoTip3": "好的，请显示地址"
   }
 }
