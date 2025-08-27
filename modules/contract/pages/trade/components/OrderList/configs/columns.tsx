@@ -113,22 +113,22 @@ export const createPositionColumns = ({
   onQuickClose,
 }: PositionColumnConfig) => {
   return [
-    {
-      title: t("order.positionColumn.positionId"),
-      dataIndex: "id",
-      key: "id",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.id}</div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.contractId"),
-      dataIndex: "contractId",
-      key: "contractId",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.contractId}</div>
-      ),
-    },
+    // {
+    //   title: t("order.positionColumn.positionId"),
+    //   dataIndex: "id",
+    //   key: "id",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.id}</div>
+    //   ),
+    // },
+    // {
+    //   title: t("order.positionColumn.contractId"),
+    //   dataIndex: "contractId",
+    //   key: "contractId",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+    //   ),
+    // },
     {
       title: t("order.positionColumn.contractName"),
       dataIndex: "contractName",
@@ -379,14 +379,14 @@ export const createOrdinaryColumns = ({
         <div className="text-[12px] font-[500]">{record.symbol}</div>
       ),
     },
-    {
-      title: t("order.ordinaryColumn.pricePrecision"),
-      dataIndex: "pricePrecision",
-      key: "pricePrecision",
-      render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-      ),
-    },
+    // {
+    //   title: t("order.ordinaryColumn.pricePrecision"),
+    //   dataIndex: "pricePrecision",
+    //   key: "pricePrecision",
+    //   render: (_: any, record: OrdinaryCommission) => (
+    //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+    //   ),
+    // },
     {
       title: t("order.ordinaryColumn.side"),
       dataIndex: "side",
@@ -468,14 +468,14 @@ export const createOrdinaryColumns = ({
         <div className="text-[12px] font-[500]">{record.price}</div>
       ),
     },
-    {
-      title: t("order.ordinaryColumn.contractId"),
-      dataIndex: "contractId",
-      key: "contractId",
-      render: (_: any, record: OrdinaryCommission) => (
-        <div className="text-[12px] font-[500]">{record.contractId}</div>
-      ),
-    },
+    // {
+    //   title: t("order.ordinaryColumn.contractId"),
+    //   dataIndex: "contractId",
+    //   key: "contractId",
+    //   render: (_: any, record: OrdinaryCommission) => (
+    //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+    //   ),
+    // },
     {
       title: t("order.ordinaryColumn.ctime"),
       dataIndex: "ctime",
@@ -565,14 +565,14 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.symbol}</div>
     ),
   },
-  {
-    title: t("order.historyColumn.pricePrecision"),
-    dataIndex: "pricePrecision",
-    key: "pricePrecision",
-    render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-    ),
-  },
+  // {
+  //   title: t("order.historyColumn.pricePrecision"),
+  //   dataIndex: "pricePrecision",
+  //   key: "pricePrecision",
+  //   render: (_: any, record: HistoryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+  //   ),
+  // },
   {
     title: t("order.historyColumn.side"),
     dataIndex: "side",
@@ -664,14 +664,14 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.price}</div>
     ),
   },
-  {
-    title: t("order.historyColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.historyColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: HistoryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
   {
     title: t("order.historyColumn.ctime"),
     dataIndex: "ctime",
@@ -839,14 +839,14 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.symbol}</div>
     ),
   },
-  {
-    title: t("order.tradeHistoryColumn.pricePrecision"),
-    dataIndex: "pricePrecision",
-    key: "pricePrecision",
-    render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeHistoryColumn.pricePrecision"),
+  //   dataIndex: "pricePrecision",
+  //   key: "pricePrecision",
+  //   render: (_: any, record: TradeHistory) => (
+  //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+  //   ),
+  // },
   {
     title: t("order.tradeHistoryColumn.side"),
     dataIndex: "side",
@@ -909,14 +909,14 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.price}</div>
     ),
   },
-  {
-    title: t("order.tradeHistoryColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeHistoryColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: TradeHistory) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
   {
     title: t("order.tradeHistoryColumn.ctime"),
     dataIndex: "ctime",
