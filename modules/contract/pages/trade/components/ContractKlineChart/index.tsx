@@ -307,10 +307,10 @@ const ContractKlineChart = ({
         </div>
 
         {/* K线图容器 */}
-        {activeChartType === "basic" && (
+        {activeChartType === "basic" && klineData && (
           <TradingView
             ref={tradingviewRef}
-            symbol={currentContractInfo?.symbol || currentPair?.symbol || "BTCUSDT"}
+            symbol={currentContractInfo?.symbol || currentPair?.symbol}
             showLeftToolbar={false}
             chartType={chartDisplayType}
             timeInterval={timeInterval}
