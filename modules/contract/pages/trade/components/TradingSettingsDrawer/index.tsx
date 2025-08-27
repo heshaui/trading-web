@@ -33,9 +33,39 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
     onClose();
   };
 
+  // 获取合约单位显示文本
+  const getContractUnitText = (unit: string) => {
+    switch (unit) {
+      case '张':
+        return t('tradingSettings.units.sheet');
+      case 'BTC':
+        return t('tradingSettings.units.btc');
+      case 'USDT':
+        return t('tradingSettings.units.usdt');
+      default:
+        return unit;
+    }
+  };
+
+  // 获取有效期显示文本
+  const getValidityText = (period: string) => {
+    switch (period) {
+      case '24H':
+        return t('tradingSettings.validity.24h');
+      case '7天':
+        return t('tradingSettings.validity.7days');
+      case '14天':
+        return t('tradingSettings.validity.14days');
+      case '长期有效':
+        return t('tradingSettings.validity.longTerm');
+      default:
+        return period;
+    }
+  };
+
   return (
     <Drawer
-      title="交易设置"
+      title={t('tradingSettings.title')}
       placement="right"
       width={420}
       onClose={onClose}
@@ -51,7 +81,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
             className={styles.confirmBtn}
             block
           >
-            确定
+            {t('tradingSettings.confirm')}
           </Button>
         </div>
       }
@@ -61,9 +91,9 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
         {isShow && (
           <div className={styles.settingSection}>
             <div className={styles.sectionTitle}>
-              <span>持仓类型：</span>
+              <span>{t('tradingSettings.positionType')}：</span>
               <span className={styles.sectionNote}>
-                （持有任何合约仓位/有挂单时不可更改持仓类型）
+                {t('tradingSettings.positionTypeNote')}
               </span>
             </div>
 
@@ -77,9 +107,9 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                     {positionMode === 'single' && <div className={styles.radioInner} />}
                   </div>
                   <div className={styles.modeContent}>
-                    <span className={styles.modeTitle}>单向持仓</span>
+                    <span className={styles.modeTitle}>{t('tradingSettings.singlePosition')}</span>
                     <div className={styles.modeDescription}>
-                      单向持仓模式下，一个合约只允许持有一个方向的仓位
+                      {t('tradingSettings.singlePositionDesc')}
                     </div>
                   </div>
                 </div>
@@ -94,9 +124,9 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                     {positionMode === 'hedge' && <div className={styles.radioInner} />}
                   </div>
                   <div className={styles.modeContent}>
-                    <span className={styles.modeTitle}>双向持仓</span>
+                    <span className={styles.modeTitle}>{t('tradingSettings.hedgePosition')}</span>
                     <div className={styles.modeDescription}>
-                      双向持仓模式下，一个合约可允许同时持有多空两个方向的仓位，并且同一合约下不同方向仓位风险对冲
+                      {t('tradingSettings.hedgePositionDesc')}
                     </div>
                   </div>
                 </div>
@@ -109,7 +139,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
         {isShow && (
           <div className={styles.settingSection}>
             <div className={styles.sectionTitle}>
-              <span>合约单位：</span>
+              <span>{t('tradingSettings.contractUnit')}：</span>
             </div>
 
             <div className={styles.contractUnits}>
@@ -122,7 +152,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                   <div className={`${styles.radioButton} ${contractUnit === unit ? styles.radioChecked : ''}`}>
                     {contractUnit === unit && <div className={styles.radioInner} />}
                   </div>
-                  <span className={styles.unitLabel}>{unit}</span>
+                  <span className={styles.unitLabel}>{getContractUnitText(unit)}</span>
                 </div>
               ))}
             </div>
@@ -133,7 +163,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
         {isShow && (
           <div className={styles.settingSection}>
             <div className={styles.sectionTitle}>
-              <span>条件单/止盈止损有效期：</span>
+              <span>{t('tradingSettings.orderValidity')}：</span>
             </div>
 
             <div className={styles.validityOptions}>
@@ -146,7 +176,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
                   <div className={`${styles.radioButton} ${orderValidity === period ? styles.radioChecked : ''}`}>
                     {orderValidity === period && <div className={styles.radioInner} />}
                   </div>
-                  <span className={styles.validityLabel}>{period}</span>
+                  <span className={styles.validityLabel}>{getValidityText(period)}</span>
                 </div>
               ))}
             </div>
@@ -157,7 +187,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
 
           <div className={styles.confirmOptions}>
             <div className={styles.confirmOption}>
-              <span className={styles.confirmLabel}>下单前弹窗确认</span>
+              <span className={styles.confirmLabel}>{t('tradingSettings.preOrderConfirm')}</span>
               <Switch
                 checked={preOrderConfirm}
                 onChange={setPreOrderConfirm}
@@ -166,7 +196,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
             </div>
             {isShow && (
               <div className={styles.confirmOption}>
-                <span className={styles.confirmLabel}>反向开仓弹窗确认</span>
+                <span className={styles.confirmLabel}>{t('tradingSettings.reverseConfirm')}</span>
                 <Switch
                   checked={reverseConfirm}
                   onChange={setReverseConfirm}

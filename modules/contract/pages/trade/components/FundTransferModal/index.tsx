@@ -151,7 +151,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
   // 获取账户显示名称
   const getAccountName = (accountType: 'spot' | 'contract') => {
-    return accountType === 'spot' ? '现货账户' : '合约账户';
+    return accountType === 'spot' ? t('fundTransfer.spotAccount') : t('fundTransfer.contractAccount');
   };
 
   return (
@@ -160,7 +160,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
       open={visible}
       title={
         <div className={styles.modalHeader}>
-          <span className={styles.modalTitle}>资金划转</span>
+          <span className={styles.modalTitle}>{t('fundTransfer.title')}</span>
           <Button
             type="text"
             icon={<Iconify icon="mdi:close" />}
@@ -181,7 +181,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
         {/* 账户选择区域 */}
         <div className={styles.accountSection}>
           <div className={styles.accountItem}>
-            <label className={styles.accountLabel}>从</label>
+            <label className={styles.accountLabel}>{t('fundTransfer.from')}</label>
             <Select
               value={fromAccount}
               onChange={(value) => {
@@ -196,8 +196,8 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               size="large"
               suffixIcon={<Iconify icon="mdi:chevron-down" />}
             >
-              <Option value="spot">现货账户</Option>
-              <Option value="contract">合约账户</Option>
+              <Option value="spot">{t('fundTransfer.spotAccount')}</Option>
+              <Option value="contract">{t('fundTransfer.contractAccount')}</Option>
             </Select>
           </div>
 
@@ -212,7 +212,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
           </div>
 
           <div className={styles.accountItem}>
-            <label className={styles.accountLabel}>划转到</label>
+            <label className={styles.accountLabel}>{t('fundTransfer.to')}</label>
             <Select
               value={toAccount}
               onChange={(value) => {
@@ -225,20 +225,20 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               size="large"
               suffixIcon={<Iconify icon="mdi:chevron-down" />}
             >
-              <Option value="spot">现货账户</Option>
-              <Option value="contract">合约账户</Option>
+              <Option value="spot">{t('fundTransfer.spotAccount')}</Option>
+              <Option value="contract">{t('fundTransfer.contractAccount')}</Option>
             </Select>
           </div>
         </div>
         <div className={styles.availableBalance} key={`balance-${refreshKey}`}>
           <div>
-            <span>可用: </span>
+            <span>{t('fundTransfer.available')}: </span>
             <span className={styles.balanceAmount}>
               {fromAccount === 'spot' ? getSpotBalance() : getContractBalance()} {selectedCoin}
             </span>
           </div>
           <div>
-            <span>可用: </span>
+            <span>{t('fundTransfer.available')}: </span>
             <span className={styles.balanceAmount}>
               {toAccount === 'spot' ? getSpotBalance() : getContractBalance()} {selectedCoin}
             </span>
@@ -247,7 +247,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
         {/* 币种选择 */}
         <div className={styles.formItem}>
-          <label className={styles.formLabel}>币种</label>
+          <label className={styles.formLabel}>{t('fundTransfer.coin')}</label>
           <Select
             value={selectedCoin}
             onChange={(value) => {
@@ -277,12 +277,12 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
         {/* 数量输入 */}
         <div className={styles.formItem}>
-          <label className={styles.formLabel}>数量</label>
+          <label className={styles.formLabel}>{t('fundTransfer.amount')}</label>
           <div className={styles.amountInputWrapper}>
             <Input
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
-              placeholder="最少10"
+              placeholder={t('fundTransfer.minAmount')}
               className={styles.amountInput}
               size="large"
               suffix={
@@ -294,7 +294,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                     onClick={handleMaxAmount}
                     className={styles.maxButton}
                   >
-                    最大
+                    {t('fundTransfer.max')}
                   </Button>
                 </div>
               }
@@ -312,9 +312,9 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
           disabled={!transferAmount || Number(transferAmount) <= 0 || !hasEnoughBalance()}
           className={styles.confirmButton}
           block
-          title={!transferAmount || Number(transferAmount) <= 0 ? "请输入有效的转账数量" : !hasEnoughBalance() ? "余额不足" : ""}
+          title={!transferAmount || Number(transferAmount) <= 0 ? t('fundTransfer.enterValidAmount') : !hasEnoughBalance() ? t('fundTransfer.insufficientBalance') : ""}
         >
-          确认
+          {t('fundTransfer.confirm')}
         </Button>
       </div>
     </Modal>

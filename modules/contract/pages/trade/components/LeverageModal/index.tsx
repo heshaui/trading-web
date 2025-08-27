@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Slider, InputNumber } from 'antd';
+import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import appStore from '@/store';
@@ -25,6 +26,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   symbol = 'BTCUSDT',
   positionLimit = 0
 }) => {
+  const { t } = useTranslation(['contract']);
   const [tempLeverage, setTempLeverage] = useState(currentLeverage);
   const ContractInfo = appStore.currentContractInfo;
   const maxLeverage = ContractInfo.maxLever;
@@ -49,7 +51,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       });
 
       if (res.code === '0') {
-        toast.success('杠杆设置成功');
+        toast.success(t('leverageModal.settingSuccess'));
 
         // 立即更新 store 中的 userConfig.nowLevel，确保 UI 立即响应
         const currentUserConfig = appStore.getUserConfig();
@@ -67,11 +69,11 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         // 最后关闭模态框
         onClose();
       } else {
-        toast.error(res.message || '杠杆设置失败');
+        toast.error(res.message || t('leverageModal.settingFailed'));
       }
     } catch (error) {
       console.error('杠杆设置失败:', error);
-      toast.error('杠杆设置失败，请重试');
+      toast.error(t('leverageModal.settingFailedRetry'));
     }
   };
 
@@ -98,12 +100,12 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
       <div className={styles.modalContent}>
         {/* 标题 */}
         <div className={styles.title}>
-          {symbol} 合约杠杆
+          {symbol} {t('leverageModal.contractLeverage')}
         </div>
 
         {/* 当前持仓支持杠杆范围 */}
         <div className={styles.supportRange}>
-          当前持仓支持杠杆范围【1-{maxLeverage}】
+          {t('leverageModal.supportRange', { min: 1, max: maxLeverage })}
         </div>
 
         {/* 杠杆输入区域 */}
@@ -134,12 +136,12 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 
         {/* 风险提示 */}
         <div className={styles.riskWarning}>
-          选择高杠杆会增加强行平仓风险
+          {t('leverageModal.riskWarning')}
         </div>
 
         {/* 持仓上限 */}
         <div className={styles.positionLimit}>
-          <span className={styles.limitLabel}>持仓上限</span>
+          <span className={styles.limitLabel}>{t('leverageModal.positionLimit')}</span>
           <span className={styles.limitValue}>{positionLimit.toLocaleString()}USDT</span>
         </div>
 
@@ -152,7 +154,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
           className={styles.confirmButton}
           block
         >
-          确认
+          {t('leverageModal.confirm')}
         </Button>
       </div>
     </Modal>

@@ -245,10 +245,10 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   const renderTabPanes = () => {
     const availableTypes = getAvailableContractTypes();
     const tabConfig = [
-      { key: 'coin-contract', type: 'coin', label: '币本位合约' },
-      { key: 'usd-contract', type: 'usdt', label: 'U本位合约' },
-      { key: 'mix-contract', type: 'mix', label: '混合合约' },
-      { key: 'sim-contract', type: 'sim', label: '模拟合约' }
+      { key: 'coin-contract', type: 'coin', label: t('contract:symbolSelector.coinContract') },
+      { key: 'usd-contract', type: 'usdt', label: t('contract:symbolSelector.usdtContract') },
+      { key: 'mix-contract', type: 'mix', label: t('contract:symbolSelector.mixContract') },
+      { key: 'sim-contract', type: 'sim', label: t('contract:symbolSelector.simContract') }
     ];
 
     return tabConfig
@@ -311,7 +311,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             ? currentSymbol
             : currentSymbol?.base && currentSymbol?.quote
               ? `${currentSymbol.base}/${currentSymbol.quote}`
-              : '选择合约'
+              : t('contract:symbolSelector.selectContract')
           }
         </span>
         <Iconify icon="mdi:chevron-down" />
