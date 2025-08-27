@@ -48,7 +48,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   // State definitions
   const [categoryType, setCategoryType] = useState('1');
   const [sideType, setSideType] = useState(1);
-  const [leverage, setLeverage] = useState(75);
+  const [leverage, setLeverage] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
   const [openMargin, setOpenMargin] = useState<string>('0 USDT');
   const [revenue, setRevenue] = useState<string>('0 USDT');
@@ -112,7 +112,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
     if (isShow) {
       setIsClosing(false);
       initForm();
-      setLeverage(75);
+      setLeverage(1);
     }
   }, [isShow]);
 
@@ -330,6 +330,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
               activeKey={categoryType}
               onChange={handleTabChange}
               items={tabItems}
+             
             />
           </div>
 
@@ -350,11 +351,13 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
           )}
 
           {/* 买入/卖出切换 */}
-          <div className={styles.categorySelectBox}>
+          <div className={styles.categorySelectBox}
+          style={{ borderColor: sideType === 1 ? '#00C788' : '#FF4D4F' }}
+          >
             <em
               className={styles.tabActiveBg}
               style={{
-                left: sideType === 1 ? '0' : '50%',
+                left: sideType === 1 ? '4px' : 'calc(50% + 2px)',
                 backgroundColor: sideType === 1 ? '#00C788' : '#FF4D4F'
               }}
             />
@@ -380,23 +383,16 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
 
           {/* 杠杆滑块 */}
           <div className={styles.leverageSection}>
-            <div className={styles.leverageHeader}>
-              <span className={styles.leverageLabel}>{t('calculator.leverage')}</span>
-              <span className={styles.leverageValue}>{leverage}x</span>
-            </div>
             <Slider
               min={1}
               max={125}
               value={leverage}
               onChange={(value) => setLeverage(value)}
               marks={leverageMarks}
-              // className={styles.leverageSlider}
-              trackStyle={{ backgroundColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
-              handleStyle={{ borderColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
             />
-            <div className={styles.maxPosition}>
+            {/* <div className={styles.maxPosition}>
               {t('calculator.maxPosition')} <span className={styles.maxNumber}>0 {coUnit}</span>
-            </div>
+            </div> */}
           </div>
 
           {/* 表单输入 */}
@@ -457,7 +453,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
                 {marginMode === 1 && (
                   <Form.Item name="availableBalance">
                     <Input
-                      suffix={contractInfo?.marginCoin || 'USDT'}
+                      suffix={contractInfo?.marginCoin}
                       placeholder={t('calculator.availableBalance')}
                       className={styles.calculatorInput}
                       value={availableBalance}
@@ -494,6 +490,9 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             disabled={!formVerify()}
             onClick={submit}
             className={styles.calculateBtn}
+            style={{
+              marginBottom:'20px'
+            }}
           >
             {t('calculator.calculate')}
           </Button>

@@ -10,6 +10,7 @@ import {
   ConfigProvider,
   Segmented,
   Dropdown,
+  Image,
 } from "antd";
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";
@@ -615,7 +616,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <Button
                 type="text"
                 size="small"
-                icon={<Iconify icon="mdi:calculator" width={20} height={20} />}
+                icon={<Image src="/images/contract/icon_calendar.svg" alt="calculator" width={20} height={20} preview={false} />}
                 className="border-none text-[var(--text-color6)]"
                 onClick={() => setShowCalculator(true)}
                 title={t("tradingPanel.calculator")}
@@ -624,7 +625,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 type="text"
                 size="small"
                 onClick={handleSettings}
-                icon={<Iconify icon="mdi:cog-outline" width={20} height={20} />}
+                icon={<Image src="/images/contract/setting.png" alt="calculator" width={20} height={20} preview={false} />}
                 className="border-none text-[var(--text-color6)]"
               />
             </div>
@@ -745,7 +746,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   onChange={handleQuantityChange}
                   placeholder={t("tradingPanel.orderQuantity")}
                   className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.quantity ? styles.inputError : ''}`}
-                  suffix="张"
+                  suffix={t("tradingPanel.unit")}
                 />
                 {validationErrors.quantity && (
                   <span className={styles.errorText}>{validationErrors.quantity}</span>
@@ -825,7 +826,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         </div> 2027-07-29 zyj暂时注释*/}
 
               {/* 高级设置 */}
-              <div className="flex items-center mb-[22px] gap-[4px]">
+              {/* <div className="flex items-center mb-[22px] gap-[4px]">
                 <span className="text-[14px] text-[var(--text-color6)] font-[400]">
                   {t("tradingPanel.advancedSettings")}
                 </span>
@@ -844,7 +845,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     <Iconify icon="mdi:chevron-down" />
                   </Space>
                 </Dropdown>
-              </div>
+              </div> 2027-08-28 zyj暂时注释*/}
 
               {/* 提交按钮 */}
               <div className="mb-[10px] flex justify-between gap-[12px]">

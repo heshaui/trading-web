@@ -316,6 +316,7 @@
     "triggerPrice": "Trigger Price",
     "orderPrice": "Order Price",
     "orderQuantity": "Quantity",
+    "unit": "Cont",
     "marketPrice": "Market Price",
     "canBuy": "Can Buy",
     "canSell": "Can Sell",

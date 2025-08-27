@@ -260,7 +260,6 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
               value={precision}
               onChange={handlePrecisionChange}
               className="w-20"
-              placeholder="精度"
               variant="borderless"
             >
               {currentContractInfo.coinResultVo?.depth?.map((item: any, index: number) => (

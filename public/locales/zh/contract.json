@@ -316,6 +316,7 @@
     "triggerPrice": "触发价格",
     "orderPrice": "委托价格",
     "orderQuantity": "委托数量",
+    "unit": "张",
     "marketPrice": "市价",
     "canBuy": "可买",
     "canSell": "可卖",
