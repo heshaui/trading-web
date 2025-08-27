@@ -137,7 +137,11 @@ const ContractKlineChart = ({
   // 监听合约变化，重置图表
   useEffect(() => {
     if (currentContractInfo && currentContractInfo.id) {
-      console.log("合约变化，设置当前交易对:", currentContractInfo);
+      console.log("合约变化，设置当前交易对:", {
+        id: currentContractInfo.id,
+        contractName: currentContractInfo.contractName,
+        symbol: currentContractInfo.symbol
+      });
       setCurrentPair(currentContractInfo);
 
       // 如果TradingView组件存在且有resetChart方法，调用它来重置图表
@@ -149,7 +153,7 @@ const ContractKlineChart = ({
         }
       }
     }
-  }, [currentContractInfo.id]);
+  }, [currentContractInfo.id, currentContractInfo.contractName]); // 使用contractName判断合约切换
 
   return (
     <div className="bg-[var(--background9)] h-[100%]" style={style}>
@@ -307,15 +311,39 @@ const ContractKlineChart = ({
         </div>
 
         {/* K线图容器 */}
-        {activeChartType === "basic" && klineData && (
-          <TradingView
-            ref={tradingviewRef}
-            symbol={currentContractInfo?.symbol || currentPair?.symbol}
-            showLeftToolbar={false}
-            chartType={chartDisplayType}
-            timeInterval={timeInterval}
-            klineData={klineData}
-          />
+        {activeChartType === "basic" && (
+          <>
+            {console.log("🎯 ==========ContractKlineChart渲染检查==========")}
+            {console.log("🎯 图表类型:", activeChartType)}
+            {console.log("🎯 当前合约信息:", currentContractInfo)}
+            {console.log("🎯 当前交易对:", currentPair)}
+            {console.log("🎯 传递给TradingView的symbol:", currentContractInfo?.symbol || currentPair?.symbol)}
+            {console.log("🎯 合约信息检查:", {
+              currentContractInfo: !!currentContractInfo,
+              contractName: currentContractInfo?.contractName,
+              symbol: currentContractInfo?.symbol,
+              currentPair: !!currentPair,
+              pairContractName: currentPair?.contractName,
+              pairSymbol: currentPair?.symbol
+            })}
+            {console.log("🎯 K线数据:", {
+              hasKlineData: !!klineData,
+              klineDataType: typeof klineData,
+              klineDataLength: Array.isArray(klineData) ? klineData.length : 'not array',
+              klineDataChannel: klineData?.channel,
+              klineDataSample: Array.isArray(klineData) && klineData.length > 0 ? klineData[0] : 
+                               (klineData?.data && klineData.data.length > 0 ? klineData.data[0] : 'no sample')
+            })}
+            {console.log("🎯 ================================================")}
+            <TradingView
+              ref={tradingviewRef}
+              symbol={currentContractInfo?.symbol || currentPair?.symbol}
+              showLeftToolbar={false}
+              chartType={chartDisplayType}
+              timeInterval={timeInterval}
+              klineData={klineData}
+            />
+          </>
         )}
         {activeChartType === "depth" && <DepthChart data={depthData} />}
       </div>

@@ -10,9 +10,16 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
   const [marketInfo, setMarketInfo] = useState<any>(null);
   const handleSymbolSelect = (symbol: any) => {
-
+    console.log("🎯 ==========handleSymbolSelect被调用==========");
+    console.log("🎯 选中的合约:", symbol);
+    console.log("🎯 旧的合约:", currentSymbol);
+    console.log("🎯 调用appStore.setCurrentContractInfo，参数:", symbol.id);
+    
     appStore.setCurrentContractInfo(symbol.id);
     setCurrentSymbol(symbol);
+    
+    console.log("🎯 Store更新后的合约信息:", appStore.getCurrentContractInfo());
+    console.log("🎯 ============================================");
   };
 
   const handleToggleFavorite = (symbol: any) => {
