@@ -47,6 +47,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
       setLoading(true);
       console.log("获取仓位");
       const res = await getAssetsList({
+        contractId: contractId,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
       if (res.code === "0") {
@@ -62,7 +63,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [contractId]);
 
   // 根据symbol过滤仓位数据
   const getFilteredPositions = useCallback(
