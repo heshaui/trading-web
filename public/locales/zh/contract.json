@@ -264,7 +264,7 @@
       "crossMargin": "全仓",
       "isolatedMargin": "逐仓",
       "buy": "开多",
-      "sell": "开空",
+      "sell": "平多",
       "limit": "限价单",
       "market": "市价单",
       "forceLiquidation": "强制减仓",

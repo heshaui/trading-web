@@ -102,7 +102,7 @@ interface PositionColumnConfig {
   onQuickClose?: (
     record: Position,
     type: "market" | "limit",
-    volume?: number
+    price?: number
   ) => void;
 }
 /**
@@ -139,7 +139,12 @@ export const createPositionColumns = ({
             <div className="w-[2px] h-[11px]" style={{ backgroundColor: SideMap[record.orderSide].color }}></div>
             <div> {record.contractName}</div>
           </div>
-          <div></div>
+          <div className="flex gap-[5px]">
+            {/* 仓位类型 */}
+            <div>  {t(PositionTypeMap[record.positionType])}</div>
+            {/* 杠杆 */}
+            <div> {record.leverageLevel}x</div>
+          </div>
         </div>
       ),
     },

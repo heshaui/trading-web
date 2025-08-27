@@ -77,7 +77,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   // 快速平仓
   const quickClose = useCallback(
     // market: 市价平仓, limit: 限价平仓
-    async (record: Position, type: "market" | "limit", price: number) => {
+    async (record: Position, type: "market" | "limit", price?: number) => {
       try {
         const { canCloseVolume } = record;
         // 请输入价格
