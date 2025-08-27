@@ -42,9 +42,11 @@ import TipModal from "./components/TipModal";
 import ConfirmModal from "./components/ConfirmModal";
 import PhaseModal from "./components/PhaseModal";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 // 订单列表组件
 const OrderListComponent = (props: any, ref: any) => {
+  const { t } = useTranslation(["contract"]);
   const [isClient, setIsClient] = useState(false);
   const { isLoggedIn } = useAuth();
   const [activeTab, setActiveTab] = useState("position");
@@ -71,6 +73,7 @@ const OrderListComponent = (props: any, ref: any) => {
     getPosition,
     getFilteredPositions,
     positionNumber,
+    quickClose,
   } = usePosition({
     contractId: currentContractInfo?.id,
   });
@@ -130,13 +133,23 @@ const OrderListComponent = (props: any, ref: any) => {
     tradeHistoryLoading;
 
   // ============ 各种表格的列配置 ============
-  const positionColumns = createPositionColumns();
+  const positionColumns = createPositionColumns({
+    t,
+    onQuickClose: quickClose,
+  });
   const ordinaryColumns = createOrdinaryColumns({
+    t,
     onCancelOrder: handleCancelOrdinaryOrder,
   });
-  const historyColumns = createHistoryColumns();
-  const tradeRecordColumns = createTradeRecordColumns();
-  const tradeHistoryColumns = createTradeHistoryColumns();
+  const historyColumns = createHistoryColumns({
+    t,
+  });
+  const tradeRecordColumns = createTradeRecordColumns({
+    t,
+  });
+  const tradeHistoryColumns = createTradeHistoryColumns({
+    t,
+  });
 
 
   // 暴露方法给父组件
@@ -153,7 +166,7 @@ const OrderListComponent = (props: any, ref: any) => {
   const tabItems = [
     {
       key: "position",
-      label: `仓位(${positionNumber})`,
+      label: `${t("order.position")}(${positionNumber})`,
       children: (
         <Table<Position>
           scroll={{ x: "max-content" }}
@@ -171,7 +184,7 @@ const OrderListComponent = (props: any, ref: any) => {
     },
     {
       key: "openOrders",
-      label: `普通委托(${ordinaryCommissionNumber})`,
+      label: `${t("order.currentCommission")}(${ordinaryCommissionNumber})`,
       children: (
         <Table<OrdinaryCommission>
           scroll={{ x: "max-content" }}
@@ -210,7 +223,7 @@ const OrderListComponent = (props: any, ref: any) => {
     // },
     {
       key: "orderHistory",
-      label: `历史委托(${historyCommissionNumber})`,
+      label: `${t("order.historyCommission")}(${historyCommissionNumber})`,
       children: (
         <Table<any>
           scroll={{ x: "max-content" }}
@@ -231,7 +244,7 @@ const OrderListComponent = (props: any, ref: any) => {
     },
     {
       key: "profitLoss",
-      label: `盈亏记录`,
+      label: `${t("order.profitLoss")}`,
       children: (
         <Table<TradeRecord>
           scroll={{ x: "max-content" }}
@@ -249,7 +262,7 @@ const OrderListComponent = (props: any, ref: any) => {
     },
     {
       key: "tradeHistory",
-      label: `成交记录`,
+      label: `${t("order.tradeHistory")}`,
       children: (
         <Table<TradeHistory>
           scroll={{ x: "max-content" }}

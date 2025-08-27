@@ -74,12 +74,25 @@ export const usePosition = (options: UsePositionOptions = {}) => {
     [positions]
   );
 
+  // 快速平仓
+  const quickClose = useCallback(
+    async (record: Position, type: "market" | "limit") => {
+      try {
+        console.log("快速平仓", record, type);
+      } catch (error) {
+        console.error("快速平仓失败:", error);
+      }
+    },
+    []
+  );
+
   return {
     positions,
     loading,
     positionNumber,
     getPosition,
     getFilteredPositions,
+    quickClose,
   };
 };
 
