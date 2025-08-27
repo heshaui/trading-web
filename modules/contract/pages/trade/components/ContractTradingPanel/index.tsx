@@ -133,28 +133,28 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 实时验证函数
   const validateField = useCallback((field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
     if (!value || value.toString().trim() === "") {
-      return "此字段为必填项";
+      return t("tradingPanel.validation.required");
     }
 
     const numValue = parseFloat(value.toString());
     if (isNaN(numValue)) {
-      return "请输入有效的数字";
+      return t("tradingPanel.validation.invalidNumber");
     }
 
     if (numValue <= 0) {
-      return "数值必须大于0";
+      return t("tradingPanel.validation.mustBePositive");
     }
 
     // 特定字段的额外验证
     if (field === 'quantity') {
       const maxQuantity = calculateMaxQuantity();
       if (numValue > maxQuantity) {
-        return `数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`;
+        return t("tradingPanel.validation.exceedsMaxQuantity", { action: transactionType === 1 ? t("buy") : t("sell") });
       }
     }
 
     return undefined;
-  }, [calculateMaxQuantity, transactionType]);
+  }, [calculateMaxQuantity, transactionType, t]);
 
   // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
   const handleSetPriceFromExternal = useCallback((newPrice: number) => {
@@ -265,12 +265,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     // 验证触发价格（条件单必填）
     if (currentCategory === 3) {
       if (!triggerPrice || triggerPrice.trim() === "") {
-        toast.error("请输入触发价格");
+        toast.error(t("tradingPanel.validation.enterTriggerPrice"));
         return false;
       }
       const triggerPriceNum = parseFloat(triggerPrice);
       if (isNaN(triggerPriceNum) || triggerPriceNum <= 0) {
-        toast.error("触发价格必须大于0");
+        toast.error(t("tradingPanel.validation.triggerPriceMustBePositive"));
         return false;
       }
     }
@@ -278,43 +278,43 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     // 验证委托价格（限价单和条件单必填）
     if (currentCategory === 1 || currentCategory === 3) {
       if (!price || price.toString().trim() === "") {
-        toast.error("请输入委托价格");
+        toast.error(t("tradingPanel.validation.enterOrderPrice"));
         return false;
       }
       const priceNum = parseFloat(price.toString());
       if (isNaN(priceNum) || priceNum <= 0) {
-        toast.error("委托价格必须大于0");
+        toast.error(t("tradingPanel.validation.orderPriceMustBePositive"));
         return false;
       }
     }
 
     // 验证委托数量
     if (!quantity || quantity.toString().trim() === "") {
-      toast.error("请输入委托数量");
+      toast.error(t("tradingPanel.validation.enterOrderQuantity"));
       return false;
     }
     const quantityNum = parseFloat(quantity.toString());
     if (isNaN(quantityNum) || quantityNum <= 0) {
-      toast.error("委托数量必须大于0");
+      toast.error(t("tradingPanel.validation.orderQuantityMustBePositive"));
       return false;
     }
 
     // 验证可用余额
     if (availableBalance <= 0) {
-      toast.error("可用余额不足");
+      toast.error(t("tradingPanel.validation.insufficientBalance"));
       return false;
     }
 
     // 验证杠杆倍数
     if (leverageLevel <= 0 || leverageLevel > 125) {
-      toast.error("杠杆倍数无效");
+      toast.error(t("tradingPanel.validation.invalidLeverage"));
       return false;
     }
 
     // 验证数量是否超过可买/可卖数量
     const maxQuantity = calculateMaxQuantity();
     if (quantityNum > maxQuantity) {
-      toast.error(`委托数量超过最大可${transactionType === 1 ? '买' : '卖'}数量`);
+      toast.error(t("tradingPanel.validation.quantityExceedsMax", { action: transactionType === 1 ? t("buy") : t("sell") }));
       return false;
     }
 
@@ -426,19 +426,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     const dataEncrypt = await encryptData(transferData);
     const res = await transferAll(dataEncrypt);
     if (res.code === "0" && res.data) {
-      toast.success("划转成功");
+      toast.success(t("tradingPanel.transferSuccess"));
       // 通知父组件更新余额
     } else {
-      toast.error("划转失败");
+      toast.error(t("tradingPanel.transferFailed"));
     }
     onBalanceUpdate?.();
   };
 
   // 订单类型标签
   const orderTypeTabs = [
-    { key: 1, label: "限价" },
-    { key: 2, label: "市价" },
-    // { key: 3, label: '条件' } 2027-07-29 zyj暂时注释
+    { key: 1, label: t("tradingPanel.limitOrder") },
+    { key: 2, label: t("tradingPanel.marketOrder") },
+    // { key: 3, label: t("tradingPanel.conditionalOrder") } 2027-07-29 zyj暂时注释
   ];
 
   return (
@@ -481,7 +481,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 className="h-[28px] w-[72px] rounded-[23px] text-[var(--text-color5)] bg-[var(--background14)] border-none text-[12px]"
                 onClick={() => setShowMarginModeModal(true)}
               >
-                {marginModel === 1 ? "全仓" : "逐仓"}
+                {marginModel === 1 ? t("tradingPanel.crossMargin") : t("tradingPanel.isolatedMargin")}
               </Button>
               <Button
                 size="small"
@@ -500,7 +500,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 icon={<Iconify icon="mdi:calculator" width={20} height={20} />}
                 className="border-none text-[var(--text-color6)]"
                 onClick={() => setShowCalculator(true)}
-                title="计算器"
+                title={t("tradingPanel.calculator")}
               />
               <Button
                 type="text"
@@ -522,7 +522,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   label: (
                     <div className="h-[44px] flex items-center justify-center">
                       {" "}
-                      开仓
+                      {t("tradingPanel.openPosition")}
                     </div>
                   ),
                   value: 1,
@@ -531,7 +531,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   label: (
                     <div className="h-[44px] flex items-center justify-center">
                       {" "}
-                      平仓
+                      {t("tradingPanel.closePosition")}
                     </div>
                   ),
                   value: 2,
@@ -570,7 +570,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
             {/* 可用余额 */}
             <div className="flex items-center mb-[10px] text-[14px] text-[var(--text-color5)] gap-[4px]">
               <div className="flex items-center gap-[8px]">
-                <span>可用:</span>
+                <span>{t("tradingPanel.available")}:</span>
                 {/* {JSON.stringify(currentContractInfo)} */}
                 <span>{availableBalance.toFixed(2)} {currentContractInfo.marginCoin}</span>
               </div>
@@ -590,7 +590,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                       <Input
                         value={triggerPrice}
                         onChange={handleTriggerPriceChange}
-                        placeholder="触发价格"
+                        placeholder={t("tradingPanel.triggerPrice")}
                         className={`w-[100%] h-[32px] p-[0_12px] border-none text-[var(--text-color5)] font-[12px] rounded-[6px] bg-[#F5F5F5] ${validationErrors.triggerPrice ? styles.inputError : ''}`}
                         suffix="USDT"
                       />
@@ -608,12 +608,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   <Input
                     value={price}
                     onChange={handlePriceChange}
-                    placeholder="委托价格"
+                    placeholder={t("tradingPanel.orderPrice")}
                     className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.price ? styles.inputError : ''}`}
                     suffix="USDT"
                     style={{ width: currentCategory === 3 ? "80%" : "100%" }}
                   />
-                  {currentCategory === 3 && <Button type="text">市价</Button>}
+                  {currentCategory === 3 && <Button type="text">{t("tradingPanel.marketPrice")}</Button>}
                   {validationErrors.price && (
                     <span className={styles.errorText}>{validationErrors.price}</span>
                   )}
@@ -625,7 +625,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 <Input
                   value={quantity}
                   onChange={handleQuantityChange}
-                  placeholder="委托数量"
+                  placeholder={t("tradingPanel.orderQuantity")}
                   className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.quantity ? styles.inputError : ''}`}
                   suffix="USDT"
                 />
@@ -660,11 +660,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="mb-[16px]">
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
-                    <span>可买</span>
+                    <span>{t("tradingPanel.canBuy")}</span>
                     <span>0 {currentContractInfo.marginCoin}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
-                    <span>可卖</span>
+                    <span>{t("tradingPanel.canSell")}</span>
                     <span>0 {currentContractInfo.marginCoin}</span>
                   </div>
                 </div>
@@ -709,7 +709,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               {/* 高级设置 */}
               <div className="flex items-center mb-[22px] gap-[4px]">
                 <span className="text-[14px] text-[var(--text-color6)] font-[400]">
-                  高级设置
+                  {t("tradingPanel.advancedSettings")}
                 </span>
                 <Dropdown
                   trigger={["click"]}
@@ -741,9 +741,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     background: "#00C788",
                   }}
                   disabled={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors])}
-                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? "请先解决表单验证错误" : ""}
+                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? t("tradingPanel.validation.solveErrorsFirst") : ""}
                 >
-                  {transactionType === 1 ? "买入开多" : "买入平空"}
+                  {transactionType === 1 ? t("tradingPanel.buyLong") : t("tradingPanel.buyClose")}
                 </Button>
                 <Button
                   type="primary"
@@ -756,9 +756,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   block
                   shape="round"
                   disabled={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors])}
-                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? "请先解决表单验证错误" : ""}
+                  title={Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) ? t("tradingPanel.validation.solveErrorsFirst") : ""}
                 >
-                  {transactionType === 2 ? "卖出平多" : "卖出开空"}
+                  {transactionType === 2 ? t("tradingPanel.sellClose") : t("tradingPanel.sellShort")}
                 </Button>
               </div>
 
@@ -766,7 +766,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               {Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) && (
                 <div className={styles.validationError}>
                   <div className={styles.validationErrorTitle}>
-                    请解决以下问题后重试：
+                    {t("tradingPanel.validation.solveFollowingProblems")}
                   </div>
                   <ul className={styles.validationErrorList}>
                     {Object.entries(validationErrors).map(([key, error]) =>
@@ -779,11 +779,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               {/* 成本显示 */}
               <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
                 <div className="flex gap-[4px]">
-                  <span>成本</span>
+                  <span>{t("tradingPanel.cost")}</span>
                   <span>0 {currentContractInfo.marginCoin}</span>
                 </div>
                 <div className="flex gap-[4px]">
-                  <span>成本</span>
+                  <span>{t("tradingPanel.cost")}</span>
                   <span>0 {currentContractInfo.marginCoin}</span>
                 </div>
               </div>

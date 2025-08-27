@@ -168,7 +168,7 @@ const TradePage = () => {
     const res = await createOrder(params);
 
     if (res.code === "0") {
-      toast.success("订单提交成功");
+      toast.success(t("contract:orderSubmitSuccess"));
       // 更新仓位
       orderListRef.current.getPosition();
       // 更新普通委托
@@ -195,7 +195,7 @@ const TradePage = () => {
         openContract: 1,
       });
       if (res.code === "0") {
-        toast.success("合约交易已开通");
+        toast.success(t("contract:contractOpenSuccess"));
       }
     } catch (error) {
       console.error("开通合约交易失败:", error);

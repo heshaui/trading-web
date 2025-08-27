@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, Slider, Tabs } from 'antd';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from 'next-i18next';
 import appStore from '@/store';
 import styles from './calculator.module.css';
 import { CloseOutlined } from '@ant-design/icons';
@@ -28,6 +29,7 @@ interface FormData {
 
 const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProps) => {
   const [form] = Form.useForm();
+  const { t } = useTranslation(['contract']);
 
   // MobX store access
   const futureStore = appStore.getCurrentContractInfo();
@@ -52,9 +54,9 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   const [revenue, setRevenue] = useState<string>('0 USDT');
   const [returnRate, setReturnRate] = useState<string>('0%');
   const [formData, setFormData] = useState<FormData>({
-    formData_1: { title: '开仓价格', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
-    formData_2: { title: '平仓价格', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
-    formData_3: { title: '数量', units: coUnit, fix: volfix, errorText: null, value: null, isShow: true },
+    formData_1: { title: t('calculator.openPrice'), units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
+    formData_2: { title: t('calculator.closePrice'), units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
+    formData_3: { title: t('calculator.quantity'), units: coUnit, fix: volfix, errorText: null, value: null, isShow: true },
   });
 
   // 杠杆标记点
@@ -71,15 +73,15 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   const tabItems = [
     {
       key: '1',
-      label: '收益',
+      label: t('calculator.profitTab'),
     },
     {
       key: '2',
-      label: '平仓价格',
+      label: t('calculator.closePriceTab'),
     },
     {
       key: '3',
-      label: '强平价格',
+      label: t('calculator.liquidationTab'),
     },
   ];
 
@@ -102,6 +104,15 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       setLeverage(75);
     }
   }, [isShow]);
+
+  // 当语言变化时，更新表单数据的标题
+  useEffect(() => {
+    setFormData({
+      formData_1: { ...formData.formData_1, title: t('calculator.openPrice') },
+      formData_2: { ...formData.formData_2, title: t('calculator.closePrice') },
+      formData_3: { ...formData.formData_3, title: t('calculator.quantity') },
+    });
+  }, [t]);
 
   if (!isShow) {
     return null;
@@ -169,7 +180,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       <div className={`${styles.calculatorModeBox} ${isClosing ? styles.slideOut : ''}`}>
         {/* 标题栏 */}
         <div className={styles.calculatorHeader}>
-          <h4 className={styles.calculatorTitle}>计算器</h4>
+          <h4 className={styles.calculatorTitle}>{t('calculator.title')}</h4>
           <Button
             type="text"
             size="small"
@@ -204,7 +215,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             }}
             onClick={() => switchType('sideType', 1)}
           >
-            买入开多
+            {t('calculator.buyLong')}
           </span>
           <span
             className={styles.tab}
@@ -213,14 +224,14 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             }}
             onClick={() => switchType('sideType', 2)}
           >
-            卖出开空
+            {t('calculator.sellShort')}
           </span>
         </div>
 
         {/* 杠杆滑块 */}
         <div className={styles.leverageSection}>
           <div className={styles.leverageHeader}>
-            <span className={styles.leverageLabel}>杠杆</span>
+            <span className={styles.leverageLabel}>{t('calculator.leverage')}</span>
             <span className={styles.leverageValue}>{leverage}x</span>
           </div>
           <Slider
@@ -234,7 +245,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
             handleStyle={{ borderColor: sideType === 1 ? '#22c55e' : '#ef4444' }}
           />
           <div className={styles.maxPosition}>
-            当前杠杆最高可持有头寸数 <span className={styles.maxNumber}>0 {coUnit}</span>
+            {t('calculator.maxPosition')} <span className={styles.maxNumber}>0 {coUnit}</span>
           </div>
         </div>
 
@@ -272,30 +283,30 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
           onClick={submit}
           className={styles.calculateBtn}
         >
-          计算
+          {t('calculator.calculate')}
         </Button>
 
         {/* 计算结果 */}
         <div className={styles.resultSection}>
-          <div className={styles.resultTitle}>计算结果</div>
+          <div className={styles.resultTitle}>{t('calculator.result')}</div>
           {categoryType === '1' && (
             <>
               <div className={styles.resultItem}>
-                <span className={styles.resultLabel}>开仓保证金</span>
+                <span className={styles.resultLabel}>{t('calculator.openMargin')}</span>
                 <span className={styles.resultValue}>{openMargin}</span>
               </div>
               <div className={styles.resultItem}>
-                <span className={styles.resultLabel}>收益额</span>
+                <span className={styles.resultLabel}>{t('calculator.profit')}</span>
                 <span className={styles.resultValue}>{revenue}</span>
               </div>
               <div className={styles.resultItem}>
-                <span className={styles.resultLabel}>回报率</span>
+                <span className={styles.resultLabel}>{t('calculator.returnRate')}</span>
                 <span className={styles.resultValue}>{returnRate}</span>
               </div>
             </>
           )}
           <p className={styles.disclaimer}>
-            *计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差
+            {t('calculator.disclaimer')}
           </p>
         </div>
       </div>
