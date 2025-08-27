@@ -307,15 +307,31 @@ const ContractKlineChart = ({
         </div>
 
         {/* K线图容器 */}
-        {activeChartType === "basic" && klineData && (
-          <TradingView
-            ref={tradingviewRef}
-            symbol={currentContractInfo?.symbol || currentPair?.symbol}
-            showLeftToolbar={false}
-            chartType={chartDisplayType}
-            timeInterval={timeInterval}
-            klineData={klineData}
-          />
+        {activeChartType === "basic" && (
+          <>
+            {console.log("🎯 ==========ContractKlineChart渲染检查==========")}
+            {console.log("🎯 图表类型:", activeChartType)}
+            {console.log("🎯 当前合约信息:", currentContractInfo)}
+            {console.log("🎯 当前交易对:", currentPair)}
+            {console.log("🎯 传递给TradingView的symbol:", currentContractInfo?.symbol || currentPair?.symbol)}
+            {console.log("🎯 K线数据:", {
+              hasKlineData: !!klineData,
+              klineDataType: typeof klineData,
+              klineDataLength: Array.isArray(klineData) ? klineData.length : 'not array',
+              klineDataChannel: klineData?.channel,
+              klineDataSample: Array.isArray(klineData) && klineData.length > 0 ? klineData[0] : 
+                               (klineData?.data && klineData.data.length > 0 ? klineData.data[0] : 'no sample')
+            })}
+            {console.log("🎯 ================================================")}
+            <TradingView
+              ref={tradingviewRef}
+              symbol={currentContractInfo?.symbol || currentPair?.symbol}
+              showLeftToolbar={false}
+              chartType={chartDisplayType}
+              timeInterval={timeInterval}
+              klineData={klineData}
+            />
+          </>
         )}
         {activeChartType === "depth" && <DepthChart data={depthData} />}
       </div>
