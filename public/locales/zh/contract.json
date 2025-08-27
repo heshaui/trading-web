@@ -154,6 +154,7 @@
   },
   "loadFailed": "加载失败",
   "order": {
+    "onlyCurrentSymbol": "仅当前合约",
     "title": "合约订单",
     "position": "仓位",
     "currentCommission": "当前委托",

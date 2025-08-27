@@ -154,6 +154,7 @@
   },
   "loadFailed": "로드 실패",
   "order": {
+    "onlyCurrentSymbol": "현재 계약만",
     "title": "계약 주문",
     "position": "포지션",
     "currentCommission": "현재 미체결",

@@ -355,7 +355,7 @@ const OrderListComponent = (props: any, ref: any) => {
                 {/* 当前合约 */}
                 <div className="flex items-center gap-[8px]">
                   <Switch size="small" onChange={setOnlyCurrentSymbol} />
-                  <div className="text-[var(--text-color5)]">仅当前合约</div>
+                  <div className="text-[var(--text-color5)]">{t("order.onlyCurrentSymbol")}</div>
                 </div>
                 {/* 一键全平 */}
                 {/* {activeTab === "position" && (

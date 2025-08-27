@@ -154,6 +154,7 @@
   },
   "loadFailed": "Load Failed",
   "order": {
+    "onlyCurrentSymbol": "Only Current Contract",
     "title": "Contract Order",
     "position": "Position",
     "currentCommission": "Current Order",
