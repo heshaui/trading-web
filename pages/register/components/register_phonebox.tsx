@@ -156,11 +156,12 @@ function RegisterPhone() {
     setPhoneCodeInputValue(filteredValue);
     form.setFieldsValue({ phoneNumber: filteredValue });
   };
+
   const goLink = (type: 'user' | 'policy') => {
     if (type === 'user') {
-      windowOpen(allConfig?.user_agreement_url || '');
+      windowOpen(allConfig?.user_agreement || '');
     } else {
-      windowOpen(allConfig?.privacy_policy_url || '');
+      windowOpen(allConfig?.privacy_policy || '');
     }
   }
   if (registerType !== RegisterTypeEnum.PHONE) return null;

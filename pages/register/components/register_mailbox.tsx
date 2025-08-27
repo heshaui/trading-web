@@ -182,10 +182,11 @@ export default function RegisterMail() {
 
     const goLink = (type: 'user' | 'policy') => {
         if (type === 'user') {
-            windowOpen(allConfig?.user_agreement_url || '');
+            windowOpen(allConfig?.user_agreement || '');
         } else {
-            windowOpen(allConfig?.privacy_policy_url || '');
+            windowOpen(allConfig?.privacy_policy || '');
         }
+
     }
 
     if (registerType !== RegisterTypeEnum.EMAIL) return null;
@@ -333,9 +334,11 @@ export default function RegisterMail() {
                                 {/* 我已阅读并同意 */}
                                 {t('agree')}&nbsp;<button type="button" className="text-color" onClick={(event) => {
                                     event.stopPropagation();
+                                    event.preventDefault();
                                     goLink('user')
                                 }}>{t('protocol')}</button>&nbsp;{t('and')}&nbsp;<button type="button" className="text-color" onClick={(event) => {
                                     event.stopPropagation();
+                                    event.preventDefault();
                                     goLink('policy')
                                 }}>{t('policy')}</button>
                             </p>
