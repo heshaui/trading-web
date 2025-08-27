@@ -13,25 +13,57 @@ import { OrderTypeEnum } from "./type";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum DirectionEnum {
-  Pinduo = 1,
-  Kongduo = 2,
-  Pingkong = 3,
+enum SideEnum {
+  BUY = "BUY",
+  SELL = "SELL",
 }
-const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
-  [DirectionEnum.Pinduo]: {
-    text: "平多",
-    color: "#FF4D4F",
+
+export enum Type {
+  LIMIT = 1, // 限价单
+  MARKET = 2, // 市价单
+  POST_ONLY = 3, // PostOnly
+  FORCE_LIQUIDATION = 4, // 强制减仓
+  POSITION_MERGE = 5, // 仓位合并
+}
+
+const TypeMap = {
+  [Type.LIMIT]: "order.common.limit",
+  [Type.MARKET]: "order.common.market",
+  [Type.POST_ONLY]: "order.common.postOnly",
+  [Type.FORCE_LIQUIDATION]: "order.common.forceLiquidation",
+  [Type.POSITION_MERGE]: "order.common.positionMerge",
+};
+const SideMap = {
+  [SideEnum.BUY]: {
+    text: "order.common.buy",
+    color: "#4CAF50",
   },
-  [DirectionEnum.Kongduo]: {
-    text: "开空",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Pingkong]: {
-    text: "开多",
-    color: "#00C788",
+  [SideEnum.SELL]: {
+    text: "order.common.sell",
+    color: "#F44336",
   },
 };
+
+interface CurrentCommissionColumns {
+  symbol: string;
+  pricePrecision: number;
+  side: SideEnum;
+  positionType: number;
+  avgPrice: number;
+  tradeFee: number;
+  type: Type;
+  mtime: number;
+  volume: number;
+  dealVolume: number;
+  price: number;
+  contractId: number;
+  ctime: number;
+  contractName: string;
+  id: string;
+  open: string;
+  status: number;
+}
+
 // 当前委托
 const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
   const { t } = useTranslation(["contract"]);
@@ -43,7 +75,17 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
   const contractId = useWatch("contractId", form);
 
   const [tableLoading, setTableLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<any[]>([]);
+  const [dataSource, setDataSource] = useState<{
+    orderList: any[];
+    count: number;
+  }>({
+    orderList: [],
+    count: 0,
+  });
+  const [pageParams, setPageParams] = useState({
+    page: 1,
+    limit: 10,
+  });
   // 取消订单
   const cancelOrder = (record: any) => {
     console.log("取消订单", record);
@@ -63,14 +105,17 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
         contractId === NULL_PLACEHOLDER ? "" : contractId;
 
       const res = await getCurrentOrderList({
-        limit: 10,
-        page: 1,
+        limit: pageParams.limit,
+        page: pageParams.page,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         type: paramsType,
         contractId: paramsContractId,
       });
       if (res.code === "0") {
-        setDataSource(res.data.list);
+        setDataSource({
+          orderList: res.data.orderList,
+          count: res.data.count,
+        });
       } else {
         message.error(res.msg);
       }
@@ -80,18 +125,18 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     } finally {
       setTableLoading(false);
     }
-  }, [type, contractId]);
+  }, [type, contractId, pageParams]);
   // 列表项
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<CurrentCommissionColumns> = [
     // 合约
     {
       title: t("symbol"),
-      dataIndex: "name",
-      key: "name",
-      render: (_: any, record: any) => {
+      dataIndex: "symbol",
+      key: "symbol",
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.name}
+            {record.symbol}
           </div>
         );
       },
@@ -99,13 +144,13 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     // 时间
     {
       title: t("time"),
-      dataIndex: "time",
-      key: "time",
+      dataIndex: "mtime",
+      key: "mtime",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.time}
+            {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
           </div>
         );
       },
@@ -116,10 +161,10 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "type",
       key: "type",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.type}
+            {t(TypeMap[record.type])}
           </div>
         );
       },
@@ -127,16 +172,16 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     // 方向
     {
       title: t("side"),
-      dataIndex: "direction",
-      key: "direction",
-      render: (_: any, record: any) => {
-        const direction = record.direction as DirectionEnum;
+      dataIndex: "side",
+      key: "side",
+      render: (_: any, record: CurrentCommissionColumns) => {
+        const side = record.side as SideEnum;
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: directionMap[direction].color }}
+            style={{ color: SideMap[side].color }}
           >
-            {directionMap[direction].text}
+            {t(SideMap[side].text)}
           </div>
         );
       },
@@ -147,7 +192,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "price",
       key: "price",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.price || "--"}
@@ -158,13 +203,13 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     // 委托数量
     {
       title: t("orderAmount"),
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "volume",
+      key: "volume",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.number || "--"}
+            {record.volume || "--"}
           </div>
         );
       },
@@ -172,13 +217,13 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     // 成交数量
     {
       title: t("filledAmount"),
-      dataIndex: "number2",
-      key: "number2",
+      dataIndex: "dealVolume",
+      key: "dealVolume",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.number2 || "--"}
+            {record.dealVolume || "--"}
           </div>
         );
       },
@@ -186,51 +231,51 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
     // 成交均价
     {
       title: t("avgPrice"),
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "avgPrice",
+      key: "avgPrice",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.price2 || "--"}
+            {record.avgPrice || "--"}
           </div>
         );
       },
     },
     // 只减仓
-    {
-      title: t("reduceOnly"),
-      dataIndex: "only",
-      key: "only",
-      align: "right",
-      render: (_: any, record: any) => {
-        return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.only || "--"}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: t("reduceOnly"),
+    //   dataIndex: "positionType",
+    //   key: "positionType",
+    //   align: "right",
+    //   render: (_: any, record: CurrentCommissionColumns) => {
+    //     return (
+    //       <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+    //         {record.positionType || "--"}
+    //       </div>
+    //     );
+    //   },
+    // },
     // 止盈止损
-    {
-      title: t("tpsl"),
-      dataIndex: "stop",
-      key: "stop",
-      align: "right",
-      render: (_: any, record: any) => {
-        return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.stop || "--"}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: t("tpsl"),
+    //   dataIndex: "stop",
+    //   key: "stop",
+    //   align: "right",
+    //   render: (_: any, record: CurrentCommissionColumns) => {
+    //     return (
+    //       <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+    //         {record.stop || "--"}
+    //       </div>
+    //     );
+    //   },
+    // },
     // 操作
     {
       title: <div className="text-[#FF5F1F]">{t("allCancel")}</div>,
       dataIndex: "operation",
       key: "operation",
-      render: (_: any, record: any) => {
+      render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <SvgIcon
             width={24}
@@ -341,8 +386,19 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
         className={styles.table}
         rowKey="id"
         columns={columns}
-        dataSource={dataSource}
+        dataSource={dataSource.orderList}
         loading={tableLoading}
+        pagination={{
+          pageSize: pageParams.limit,
+          current: pageParams.page,
+          total: dataSource.count,
+          onChange: (page, pageSize) => {
+            setPageParams({
+              page,
+              limit: pageSize,
+            });
+          },
+        }}
         locale={{ emptyText: <NoData height="45vh" /> }}
       />
     </div>

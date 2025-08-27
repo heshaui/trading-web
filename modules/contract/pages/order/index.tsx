@@ -29,11 +29,11 @@ const ContractOrder = () => {
       children: <CurrentCommission activeKey={activeKey} />,
     },
     // 计划委托 PlanCommission
-    {
-      key: "2",
-      label: t("order.planCommission"),
-      children: <PlanCommission activeKey={activeKey} />,
-    },
+    // {
+    //   key: "2",
+    //   label: t("order.planCommission"),
+    //   children: <PlanCommission activeKey={activeKey} />,
+    // },
     // 历史委托 HistoryCommission
     {
       key: "3",
@@ -41,11 +41,11 @@ const ContractOrder = () => {
       children: <HistoryCommission activeKey={activeKey} />,
     },
     // 历史计划委托 HistoryPlanCommission
-    {
-      key: "4",
-      label: t("order.historyPlanCommission"),
-      children: <HistoryPlanCommission activeKey={activeKey} />,
-    },
+    // {
+    //   key: "4",
+    //   label: t("order.historyPlanCommission"),
+    //   children: <HistoryPlanCommission activeKey={activeKey} />,
+    // },
     // 历史成交 HistoryDeal
     {
       key: "5",

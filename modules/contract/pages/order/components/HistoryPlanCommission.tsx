@@ -217,7 +217,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
         endTime: paramsTime[1].valueOf(),
       });
       if (res.code === "0") {
-        setDataSource(res.data.list);
+        setDataSource(res.data.tradeHisList);
       } else {
         message.error(res.msg);
       }
