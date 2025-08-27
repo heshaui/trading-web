@@ -238,7 +238,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
       <div className="p-[10px_16px]">
         <div className="flex flex-col gap-[8px] mb-[10px]">
           <div className="text-[var(--text-color5)] font-[500] text-[14px]">
-            委托列表
+            {t("contract:orderBookList.title")}
           </div>
           <div className="flex justify-between items-center gap-[8px]">
             {renderColorModeButtons()}
@@ -257,9 +257,9 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
         </div>
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
-          <div className="flex-1 text-left">价格</div>
-          <div className="flex-1 text-center">数量</div>
-          <div className="flex-1 text-right">总计</div>
+          <div className="flex-1 text-left">{t("contract:orderBookList.price")}</div>
+          <div className="flex-1 text-center">{t("contract:orderBookList.amount")}</div>
+          <div className="flex-1 text-right">{t("contract:orderBookList.total")}</div>
         </div>
 
         <div className="flex flex-col overflow-hidden">
@@ -306,7 +306,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                 })
               ) : (
                 <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-                  暂无卖单数据
+                  {t("contract:orderBookList.noSellOrders")}
                 </div>
               )}
             </div>
@@ -367,7 +367,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                 })
               ) : (
                 <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center">
-                  暂无买单数据
+                  {t("contract:orderBookList.noBuyOrders")}
                 </div>
               )}
             </div>
@@ -433,13 +433,13 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
     <div className="bg-[var(--background9)]" style={style}>
       <div className="p-[10px_16px]">
         <div className="text-[var(--text-color5)] font-[500] text-[14px] mb-[10px]">
-          实时成交
+          {t("contract:realtimeTrade.title")}
         </div>
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
-          <div className="flex-1 text-left">价格</div>
-          <div className="flex-1 text-center">数量</div>
-          <div className="flex-1 text-right">时间</div>
+          <div className="flex-1 text-left">{t("contract:realtimeTrade.price")}</div>
+          <div className="flex-1 text-center">{t("contract:realtimeTrade.amount")}</div>
+          <div className="flex-1 text-right">{t("contract:realtimeTrade.time")}</div>
         </div>
 
         <div
@@ -471,7 +471,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
             ))
           ) : (
             <div className="flex items-center justify-center text-[var(--text-color6)] font-[400] text-[12px] text-center h-[100px]">
-              暂无成交数据
+              {t("contract:realtimeTrade.noTradeData")}
             </div>
           )}
         </div>

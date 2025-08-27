@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "next-i18next";
 import SymbolSelector from "../SymbolSelector";
 import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
 const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CSSProperties }) => {
+  const { t } = useTranslation(["contract"]);
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
@@ -19,7 +21,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
 
   const getMarketInfo = async (id: number) => {
     const res = await getPublicMarketInfo({ contractId: id });
-    console.log("公共市场信息:", res);
+    console.log("Public market info:", res);
     if (res.code === '0') {
       setMarketInfo(res.data);
     }
@@ -71,7 +73,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
         </div>
         <div className="flex flex-col">
           <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-            标记价格
+            {t("contractHeader.markPrice")}
           </span>
           <span
             className={`text-[var(--text-color5)] font-500 text-[12px] ${priceData?.isUp
@@ -84,7 +86,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
         </div>
         <div className="flex flex-col">
           <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-            指数价格
+            {t("contractHeader.indexPrice")}
           </span>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
             {marketInfo?.indexPrice}
@@ -92,7 +94,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
         </div>
         <div className="flex flex-col">
           <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-            资金费率/倒计时
+            {t("contractHeader.fundingRate")}
           </span>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
             {marketInfo?.currentFundRate}
@@ -100,7 +102,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
         </div>
         <div className="flex flex-col">
           <span className="text-[12px] text-[var(--text-color6)] font-[400]">
-            24H 成交量
+            {t("contractHeader.volume24h")}
           </span>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
             {priceData?.volume24hUSD}
