@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
-import { getAssetsList } from "@/services/contract";
+import { createOrder, getAssetsList } from "@/services/contract";
 import { Side, PositionType } from "../configs/columns";
 
 // 仓位接口
@@ -76,14 +76,41 @@ export const usePosition = (options: UsePositionOptions = {}) => {
 
   // 快速平仓
   const quickClose = useCallback(
-    async (record: Position, type: "market" | "limit") => {
+    // market: 市价平仓, limit: 限价平仓
+    async (record: Position, type: "market" | "limit", volume?: number) => {
       try {
-        console.log("快速平仓", record, type);
+        const params = {
+          positionType: record.positionType, // 持仓类型(1 全仓，2 仓逐)
+          side: record.orderSide, // 订单方向
+          leverageLevel: record.leverageLevel, // 杠杆倍数
+          price: type === "market" ? 0 : volume, // 下单价格(市价单传0)
+          volume: record.canCloseVolume, // 下单数量(开仓 市价单：开仓价值)
+          triggerPrice: "", // 触发价格
+          open: "CLOSE", // 开平仓方向(open 开仓，close 平仓)
+          type: type === "market" ? 2 : 1, // 订单类型 (1 limit， 2 market，)
+          isConditionOrder: false, // 是否是条件单
+          // expireTime: this.expireTime, // 到期时间
+          isOto: false, // 是否止盈止损单
+          takerProfitTrigger: null, // 止盈触发价
+          takerProfitPrice: type === "market" ? 0 : null, // 止盈委托价格（0为市价）
+          takerProfitType: 2, // 止盈类型
+          stopLossTrigger: null, // 止损触发价格
+          stopLossPrice: type === "market" ? 0 : null, // 止损委托价格（0为市价）
+          stopLossType: 2, // 止损类型
+          marginModel: 1, //保证金
+        };
+        const { code, msg } = await createOrder(params);
+        if (code === "0") {
+          message.success(msg);
+          getPosition();
+        } else {
+          message.error(msg);
+        }
       } catch (error) {
         console.error("快速平仓失败:", error);
       }
     },
-    []
+    [getPosition]
   );
 
   return {
