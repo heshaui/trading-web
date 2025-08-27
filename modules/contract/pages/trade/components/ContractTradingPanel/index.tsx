@@ -924,7 +924,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               currentLeverage={leverageLevel}
               onLeverageChange={handleLeverageChange}
               symbol={symbol}
-              maxLeverage={125}
               positionLimit={815.4018}
             />
 
