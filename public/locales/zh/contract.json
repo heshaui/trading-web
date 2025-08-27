@@ -111,7 +111,15 @@
     "openMargin": "开仓保证金",
     "profit": "收益额",
     "returnRate": "回报率",
-    "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差"
+    "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差",
+    "marginMode": "保证金模式",
+    "crossMargin": "全仓",
+    "isolatedMargin": "逐仓",
+    "targetReturnRate": "目标回报率",
+    "positionSize": "仓位数量",
+    "availableBalance": "可用余额",
+    "liquidationPrice": "强平价格",
+    "selectMarginMode": "请选择保证金模式"
   },
   "tradingSettings": {
     "title": "交易设置",
