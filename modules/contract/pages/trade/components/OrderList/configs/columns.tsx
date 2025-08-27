@@ -56,8 +56,14 @@ const PositionTypeMap = {
 };
 
 const SideMap = {
-  [Side.BUY]: "买",
-  [Side.SELL]: "卖",
+  [Side.BUY]: {
+    text: "开多",
+    color: "#4CAF50",
+  },
+  [Side.SELL]: {
+    text: "开空",
+    color: "#F44336",
+  },
 };
 
 const TypeMap = {
@@ -93,8 +99,6 @@ const RoleMap = {
 interface ColumnConfig {
   onCancelOrder?: (record: OrdinaryCommission) => void;
 }
-
-
 
 /**
  * 仓位列表配置
@@ -137,7 +141,12 @@ export const createPositionColumns = () => [
     dataIndex: "positionVolume",
     key: "positionVolume",
     render: (_: any, record: Position) => (
-      <div className="text-[12px] font-[500]">{record.positionVolume}</div>
+      <div
+        className="text-[12px] font-[500]"
+        style={{ color: SideMap[record.orderSide].color }}
+      >
+        {record.positionVolume} {record.symbol.split("-")[1]}
+      </div>
     ),
   },
   {
@@ -193,7 +202,19 @@ export const createPositionColumns = () => [
     dataIndex: "realizedAmount",
     key: "realizedAmount",
     render: (_: any, record: Position) => (
-      <div className="text-[12px] font-[500]">{record.realizedAmount}</div>
+      <div
+        className="text-[12px] font-[500]"
+        style={{
+          color:
+            record.realizedAmount > 0
+              ? "#4CAF50"
+              : record.realizedAmount < 0
+                ? "#F44336"
+                : "",
+        }}
+      >
+        {record.realizedAmount}
+      </div>
     ),
   },
   {
@@ -209,7 +230,12 @@ export const createPositionColumns = () => [
     dataIndex: "orderSide",
     key: "orderSide",
     render: (_: any, record: Position) => (
-      <div className="text-[12px] font-[500]">{SideMap[record.orderSide]}</div>
+      <div
+        className="text-[12px] font-[500]"
+        style={{ color: SideMap[record.orderSide].color }}
+      >
+        {SideMap[record.orderSide].text}
+      </div>
     ),
   },
   {
@@ -314,10 +340,10 @@ export const createOrdinaryColumns = (config: ColumnConfig = {}) => [
     key: "side",
     render: (_: any, record: OrdinaryCommission) => (
       <div
-        className={`text-[12px] font-[500] ${record.side === Side.BUY ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+        className={`text-[12px] font-[500]`}
+        style={{ color: SideMap[record.side].color }}
       >
-        {SideMap[record.side]}
+        {SideMap[record.side].text}
       </div>
     ),
   },
@@ -493,12 +519,12 @@ export const createHistoryColumns = () => [
     dataIndex: "side",
     key: "side",
     render: (_: any, record: HistoryCommission) => (
-      <span
-        className={`${record.side === Side.BUY ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+      <div
+        className="text-[12px] font-[500]"
+        style={{ color: SideMap[record.side].color }}
       >
-        {SideMap[record.side]}
-      </span>
+        {SideMap[record.side].text}
+      </div>
     ),
   },
   {
@@ -532,7 +558,19 @@ export const createHistoryColumns = () => [
     dataIndex: "realizedAmount",
     key: "realizedAmount",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.realizedAmount}</div>
+      <div
+        className="text-[12px] font-[500]"
+        style={{
+          color:
+            record.realizedAmount > 0
+              ? "#4CAF50"
+              : record.realizedAmount < 0
+                ? "#F44336"
+                : "",
+        }}
+      >
+        {record.realizedAmount}
+      </div>
     ),
   },
   {
@@ -540,12 +578,7 @@ export const createHistoryColumns = () => [
     dataIndex: "type",
     key: "type",
     render: (_: any, record: HistoryCommission) => (
-      <div
-        className={`text-[12px] font-[500] ${record.type === Type.LIMIT ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
-      >
-        {TypeMap[record.type]}
-      </div>
+      <div className="text-[12px] font-[500]">{TypeMap[record.type]}</div>
     ),
   },
   {
@@ -660,7 +693,19 @@ export const createTradeRecordColumns = () => [
     dataIndex: "realizedPnl",
     key: "realizedPnl",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.realizedPnl}</div>
+      <div
+        className="text-[12px] font-[500]"
+        style={{
+          color:
+            record.realizedPnl > 0
+              ? "#4CAF50"
+              : record.realizedPnl < 0
+                ? "#F44336"
+                : "",
+        }}
+      >
+        {record.realizedPnl}
+      </div>
     ),
   },
   {
@@ -746,12 +791,12 @@ export const createTradeHistoryColumns = () => [
     dataIndex: "side",
     key: "side",
     render: (_: any, record: TradeHistory) => (
-      <span
-        className={`${record.side === "BUY" ? "text-[#4CAF50]" : "text-[#F44336]"
-          }`}
+      <div
+        className="text-[12px] font-[500]"
+        style={{ color: SideMap[record.side].color }}
       >
-        {SideMap[record.side]}
-      </span>
+        {SideMap[record.side].text}
+      </div>
     ),
   },
   {
