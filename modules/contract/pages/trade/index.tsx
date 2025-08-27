@@ -302,6 +302,14 @@ const TradePage = () => {
   // 发送新的订阅消息
   const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
+    
+    console.log("📡 发送新合约订阅消息:", {
+      合约: contractInfo.symbol,
+      合约ID: contractInfo.id,
+      合约类型: contractInfo.contractType,
+      时间间隔: timeInterval,
+      WebSocket时间间隔: wsTimeInterval
+    });
 
     // 订单簿数据
     const depthEvent = {
@@ -521,6 +529,7 @@ const TradePage = () => {
 
         // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
         if (wsInstance) {
+          console.log("🔄 WebSocket已连接，重新订阅新合约数据");
           sendSubscriptions(
             wsInstance,
             storeContractInfo,

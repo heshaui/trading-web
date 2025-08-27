@@ -124,7 +124,11 @@ const Tradingview: React.ForwardRefRenderFunction<
 
       try {
         const tvTimeInterval = convertTimeInterval(timeInterval);
-        const chartSymbol = symbol || "BTC_USDT_1";
+        // 为每个合约创建唯一的symbol标识，包含时间戳避免缓存冲突
+        const uniqueTimestamp = Date.now();
+        const chartSymbol = symbol ? `${symbol.replace("-", "_")}_${uniqueTimestamp}` : `BTC_USDT_${uniqueTimestamp}`;
+        
+        console.log("📊 创建图表使用的唯一symbol:", chartSymbol);
 
         // 优先使用从父组件传递的klineData，其次使用wsDataRef中的缓存数据
         let currentData = klineData || wsDataRef.current;
@@ -142,17 +146,23 @@ const Tradingview: React.ForwardRefRenderFunction<
           sampleData: currentData && Array.isArray(currentData) && currentData.length > 0 ? currentData[0] : 'no sample data'
         });
 
-        // 如果没有任何数据，图表将显示"No data"状态，等待WebSocket数据
+        // 检查数据状态，但即使没有数据也创建图表
         if (!currentData || (Array.isArray(currentData) && currentData.length === 0) || 
             (currentData.event_rep === "rep" && (!currentData.data || currentData.data.length === 0))) {
-          console.log("⚠️ 没有从父组件接收到K线数据，等待WebSocket数据流");
-          currentData = null; // 不使用写死的数据，让组件等待真实的WebSocket数据
+          console.log("⚠️ 没有初始K线数据，创建空图表等待WebSocket数据流");
+          // 创建一个空的数据结构，让TradingView能正常初始化
+          currentData = { 
+            event_rep: "rep", 
+            data: [], 
+            channel: `market_${symbol?.toLowerCase().replace("-", "")}_kline_1day` 
+          };
         }
 
         const datafeed = createDatafeed(
           currentData,
           tvTimeInterval,
-          chartSymbol
+          chartSymbol,
+          symbol  // 传递原始symbol用于数据匹配
         );
 
         const disabledFeatures = [
@@ -614,14 +624,18 @@ const Tradingview: React.ForwardRefRenderFunction<
     const createDatafeed = (
       initialData: any,
       tvTimeInterval: string,
-      symbol: string
+      uniqueSymbol: string,
+      originalSymbol?: string  // 原始symbol用于数据匹配
     ) => {
       const subscribers: any = {};
       let getBarsRetryCount = 0; // 添加重试计数器
       const maxRetries = 3; // 最大重试次数
 
       // 清理全局状态，确保每次创建datafeed时都有干净的状态
-      console.log("🧹 清理TradingView全局状态，为新合约准备:", symbol);
+      console.log("🧹 清理TradingView全局状态，为新合约准备:", {
+        uniqueSymbol,
+        originalSymbol
+      });
       if (window.__tradingViewUpdateBar) {
         delete window.__tradingViewUpdateBar;
       }
@@ -823,20 +837,42 @@ const Tradingview: React.ForwardRefRenderFunction<
         if (!data) return;
 
         try {
-          console.log("📊 接收到WebSocket数据，当前图表合约:", symbol, "数据:", data);
+          console.log("📊 接收到WebSocket数据:", {
+            uniqueSymbol,
+            originalSymbol,
+            数据通道: data.channel
+          });
 
           // 检查数据是否属于当前合约，避免处理错误合约的数据
-          if (data.channel && symbol) {
+          // 使用originalSymbol进行匹配，而不是uniqueSymbol
+          if (data.channel && originalSymbol) {
             const channelSymbol = data.channel.toLowerCase();
-            const currentSymbol = symbol.toLowerCase().replace("-", "").replace("_", "");
+            // 从原始symbol中提取匹配用的标识，支持多种格式转换
+            // 例如: "BTC-USDT" → "btcusdt", "BTCUSDT" → "btcusdt"
+            const matchSymbol = originalSymbol
+              .replace(/-/g, "")  // 移除横杠
+              .replace(/_/g, "")  // 移除下划线
+              .toLowerCase();     // 转为小写
             
-            if (!channelSymbol.includes(currentSymbol)) {
+            console.log("🔍 数据合约匹配检查:", {
+              数据通道: data.channel,
+              通道小写: channelSymbol,
+              原始合约: originalSymbol,
+              匹配用标识: matchSymbol,
+              匹配检查: `通道是否包含"${matchSymbol}"`,
+              匹配结果: channelSymbol.includes(matchSymbol)
+            });
+            
+            if (!channelSymbol.includes(matchSymbol)) {
               console.log("⚠️ 数据不属于当前合约，跳过处理:", {
                 数据通道: data.channel,
-                当前合约: symbol,
-                转换后的合约标识: currentSymbol
+                原始合约: originalSymbol,
+                匹配标识: matchSymbol,
+                为什么不匹配: `通道"${channelSymbol}"不包含标识"${matchSymbol}"`
               });
               return;
+            } else {
+              console.log("✅ 数据合约匹配成功，继续处理");
             }
           }
 
@@ -1316,14 +1352,20 @@ const Tradingview: React.ForwardRefRenderFunction<
           onSymbolResolvedCallback: any,
           onResolveErrorCallback: any
         ) => {
+          // 从唯一symbol中提取原始symbol信息
           const symbolParts = symbolName.split("_");
           const baseSymbol = symbolParts[0] || "BTC";
+          const quoteSymbol = symbolParts[1] || "USDT";
+          
+          // 使用原始symbol名称作为描述
+          const originalSymbol = symbol || `${baseSymbol}-${quoteSymbol}`;
+          console.log("🏷️ 解析symbol:", { symbolName, originalSymbol, baseSymbol, quoteSymbol });
 
           setTimeout(
             () =>
               onSymbolResolvedCallback({
-                name: symbolName,
-                description: `${baseSymbol}/USDT`,
+                name: symbolName, // 使用唯一的symbol name
+                description: `${baseSymbol}/${quoteSymbol}`,
                 type: "crypto",
                 session: "24x7",
                 timezone: timezone.name(),
@@ -1363,14 +1405,20 @@ const Tradingview: React.ForwardRefRenderFunction<
           onHistoryCallback: any,
           onErrorCallback: any
         ) => {
-          console.log("📊 getBars被调用:", {
-            symbol: symbolInfo.name,
+          console.log("📊 ========== getBars被调用 ==========");
+          console.log("📊 请求参数:", {
+            uniqueSymbol: symbolInfo.name,
+            originalSymbol: symbol,
             resolution,
             from: new Date(periodParams.from * 1000).toISOString(),
             to: new Date(periodParams.to * 1000).toISOString(),
-            hasInitialData: !!initialData && Array.isArray(initialData) && initialData.length > 0,
-            initialDataLength: Array.isArray(initialData) ? initialData.length : 0,
-            initialDataSample: Array.isArray(initialData) && initialData.length > 0 ? initialData[0] : null
+            firstDataRequest: periodParams.firstDataRequest
+          });
+          console.log("📊 数据状态:", {
+            hasInitialData: !!initialData,
+            initialDataType: typeof initialData,
+            isWebSocketFormat: initialData?.event_rep === "rep",
+            dataLength: initialData?.data?.length || 0
           });
 
           // 处理WebSocket历史数据格式
@@ -1460,18 +1508,9 @@ const Tradingview: React.ForwardRefRenderFunction<
             // 如果有数据则正常返回，如果没有数据则标记为noData避免重复请求
             onHistoryCallback(bars, { noData: bars.length === 0 });
           } else {
-            getBarsRetryCount++;
-            console.log(`📊 没有初始数据，重试次数: ${getBarsRetryCount}/${maxRetries}`);
-
-            // 如果还在重试范围内，返回空数据但允许重试
-            if (getBarsRetryCount < maxRetries) {
-              console.log("📊 允许继续重试获取数据");
-              onHistoryCallback([], { noData: false });
-            } else {
-              console.log("📊 达到最大重试次数，停止请求");
-              // 达到最大重试次数后，标记为noData停止请求
-              onHistoryCallback([], { noData: true });
-            }
+            console.log("📊 没有初始数据，创建空图表等待实时数据");
+            // 直接返回空数据，但不标记为noData，让图表正常显示等待状态
+            onHistoryCallback([], { noData: false });
           }
         },
       };
