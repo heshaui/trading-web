@@ -724,7 +724,7 @@ const TradePage = () => {
             "order order tradeForm"
           `,
           gridTemplateColumns: `minmax(712px,1fr) minmax(240px,300px) minmax(320px,356px)`,
-          gridTemplateRows: `68px 511px minmax(255px,auto)`,
+          gridTemplateRows: `68px 596px minmax(255px,auto)`,
         }}
         className="relative bg-[var(--background14)] overflow-x-auto"
       >
