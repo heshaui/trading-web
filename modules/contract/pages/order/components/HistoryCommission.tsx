@@ -18,24 +18,24 @@ const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
 
 interface HistoryCommissionColumns {
-  symbol: string;
-  pricePrecision: number;
-  side: SideEnum;
-  positionType: number;
-  avgPrice: number;
-  tradeFee: number;
-  realizedAmount: number;
-  type: Type;
-  mtime: number;
-  volume: number;
-  dealVolume: number;
-  price: number;
-  contractId: number;
-  ctime: number;
-  contractName: string;
-  id: string;
-  open: string;
-  status: Status;
+  symbol: string; // 合约
+  pricePrecision: number; // 价格精度
+  side: SideEnum; // 方向
+  positionType: number; // 仓位类型
+  avgPrice: number; // 平均成交价
+  tradeFee: number; // 交易手续费
+  realizedAmount: number; // 已实现盈亏
+  type: Type; // 订单类型
+  mtime: number; // 时间
+  volume: number; // 委托数量
+  dealVolume: number; // 成交数量
+  price: number; // 委托价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: string; // 开仓方向
+  status: Status; // 状态
 }
 // 历史委托
 const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
@@ -161,13 +161,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 委托价格
     {
       title: t("orderPrice"),
-      dataIndex: "pricePrecision",
-      key: "pricePrecision",
+      dataIndex: "price",
+      key: "price",
       align: "right",
       render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.pricePrecision}
+            {record.price}
           </div>
         );
       },
