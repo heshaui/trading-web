@@ -17,20 +17,20 @@ const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
 
 interface HistoryDealCustoms {
-  contractId: number;
-  contractName: string;
-  ctime: number;
-  fee: number;
-  feeCoin: string;
-  feeCoinPrecision: number;
-  id: string;
-  open: string;
-  price: number;
-  pricePrecision: number;
-  role: string;
-  side: SideEnum;
-  symbol: string;
-  volume: number;
+  contractId: number; // 合约ID
+  contractName: string; // 合约名称
+  ctime: number; // 创建时间
+  fee: number; // 手续费
+  feeCoin: string; // 手续费币种
+  feeCoinPrecision: number; // 手续费币种精度
+  id: string; // 订单ID
+  open: string; // 开仓方向
+  price: number; // 成交价格
+  pricePrecision: number; // 价格精度
+  role: string; // 角色
+  side: SideEnum; // 方向
+  symbol: string; // 合约
+  volume: number; // 成交数量
 }
 
 
@@ -130,7 +130,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.pricePrecision}
+            {record.price}
           </div>
         );
       },
@@ -144,7 +144,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.feeCoinPrecision}
+            {record.fee}
           </div>
         );
       },
