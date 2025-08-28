@@ -9,28 +9,12 @@ import dayjs from "dayjs";
 import { getPlanOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
+import { SideEnum, SideMap } from "./type";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum DirectionEnum {
-  Pinduo = 1,
-  Kongduo = 2,
-  Pingkong = 3,
-}
-const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
-  [DirectionEnum.Pinduo]: {
-    text: "平多",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Kongduo]: {
-    text: "开空",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Pingkong]: {
-    text: "开多",
-    color: "#00C788",
-  },
-};
+
+
 // 计划委托
 const PlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
@@ -141,13 +125,13 @@ const PlanCommission = ({ activeKey }: { activeKey: string }) => {
       key: "direction",
       align: "right",
       render: (_: any, record: any) => {
-        const direction = record.direction as DirectionEnum;
+        const direction = record.direction as SideEnum;
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: directionMap[direction].color }}
+            style={{ color: SideMap[direction].color }}
           >
-            {directionMap[direction].text}
+            {t(SideMap[direction].text)}
           </div>
         );
       },

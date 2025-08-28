@@ -9,40 +9,10 @@ import { getCurrentOrderList } from "@/services/contract";
 import dayjs from "dayjs";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
-import { OrderTypeEnum } from "./type";
+import {  SideEnum, SideMap, Type, TypeMap } from "./type";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum SideEnum {
-  BUY = "BUY",
-  SELL = "SELL",
-}
-
-export enum Type {
-  LIMIT = 1, // 限价单
-  MARKET = 2, // 市价单
-  POST_ONLY = 3, // PostOnly
-  FORCE_LIQUIDATION = 4, // 强制减仓
-  POSITION_MERGE = 5, // 仓位合并
-}
-
-const TypeMap = {
-  [Type.LIMIT]: "order.common.limit",
-  [Type.MARKET]: "order.common.market",
-  [Type.POST_ONLY]: "order.common.postOnly",
-  [Type.FORCE_LIQUIDATION]: "order.common.forceLiquidation",
-  [Type.POSITION_MERGE]: "order.common.positionMerge",
-};
-const SideMap = {
-  [SideEnum.BUY]: {
-    text: "order.common.buy",
-    color: "#4CAF50",
-  },
-  [SideEnum.SELL]: {
-    text: "order.common.sell",
-    color: "#F44336",
-  },
-};
 
 interface CurrentCommissionColumns {
   symbol: string;
@@ -356,14 +326,29 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
                 },
                 // 限价单
                 {
-                  label: t("priceLimitOrder"),
-                  value: OrderTypeEnum.LIMIT,
+                  label: t("order.common.limit"),
+                  value: Type.LIMIT,
+                },
+                // 市价单
+                {
+                  label: t("order.common.market"),
+                  value: Type.MARKET,
                 },
                 // PostOnly
-                {
-                  label: "PostOnly",
-                  value: OrderTypeEnum.POST_ONLY,
-                },
+                // {
+                //   label: 'PostOnly',
+                //   value: Type.POST_ONLY,
+                // },
+                // // 强制减仓
+                // {
+                //   label: t("order.common.forceLiquidation"),
+                //   value: Type.FORCE_LIQUIDATION,
+                // },
+                // // 仓位合并
+                // {
+                //   label: t("order.common.positionMerge"),
+                //   value: Type.POSITION_MERGE,
+                // },
               ]}
               onChange={(value) => {
                 // 当点击 allowClear 或选择"全部"时，设置为 NULL_PLACEHOLDER
