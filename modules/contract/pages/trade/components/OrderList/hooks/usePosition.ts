@@ -46,6 +46,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
   const [positionNumber, setPositionNumber] = useState(0);
+  // 币对精度
 
   // 获取仓位数据
   const getPosition = useCallback(async () => {
