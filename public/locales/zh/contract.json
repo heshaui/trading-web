@@ -199,7 +199,13 @@
       "leverageLevel": "杠杆倍数",
       "positionBalance": "仓位余额",
       "marketClose": "市价平仓",
-      "limitClose": "限价平仓"
+      "limitClose": "限价平仓",
+      "price": "价格",
+      "quantity": "数量",
+      "marketCloseBtn": "市价平",
+      "limitCloseBtn": "限价平",
+      "marketTab": "市价",
+      "limitTab": "限价"
     },
     "ordinaryColumn": {
       "symbol": "合约",

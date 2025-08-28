@@ -35,6 +35,12 @@ interface UsePositionOptions {
   contractId?: number;
 }
 
+export interface QuickCloseParams {
+  type: "market" | "limit";
+  price?: number;
+  volume?: number;
+}
+
 export const usePosition = (options: UsePositionOptions = {}) => {
   const { contractId } = options;
   const [positions, setPositions] = useState<Position[]>([]);
@@ -77,9 +83,15 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   // 快速平仓
   const quickClose = useCallback(
     // market: 市价平仓, limit: 限价平仓
-    async (record: Position, type: "market" | "limit", price?: number) => {
+    async (record: Position, params: QuickCloseParams) => {
+      const { type, price, volume } = params;
       try {
-        const { canCloseVolume } = record;
+        // 请输入数量
+        if (!volume) {
+          message.error("请输入数量");
+          return;
+        }
+
         // 请输入价格
         if (type === "limit" && !price) {
           message.error("请输入价格");
@@ -92,7 +104,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
           side: record.orderSide === "SELL" ? "BUY" : "SELL", // 买卖方向（buy 买入，sell 卖出）
           leverageLevel: record.leverageLevel, // 杠杆倍数
           price: type === "market" ? 0 : price, // 平仓价格(市价单传0)
-          volume: canCloseVolume, // 平仓数量
+          volume, // 平仓数量
           open: "CLOSE", // 开平仓方向(open 开仓，close 平仓)
           type: type === "market" ? 2 : 1, // 订单类型 (1 limit， 2 market)
           triggerPrice: null, // 触发价格

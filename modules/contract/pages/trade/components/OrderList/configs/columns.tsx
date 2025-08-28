@@ -8,6 +8,7 @@ import {
   HistoryCommission,
   TradeRecord,
   TradeHistory,
+  QuickCloseParams,
 } from "../hooks";
 import { TFunction } from "i18next";
 import QuickClose from "../components/QuickClose";
@@ -100,11 +101,9 @@ const RoleMap = {
 
 interface PositionColumnConfig {
   t: TFunction;
-  onQuickClose?: (
+  onQuickClose: (
     record: Position,
-    type: "market" | "limit",
-    price?: number,
-    volume?: number
+    params: QuickCloseParams
   ) => void;
 }
 /**
@@ -188,7 +187,8 @@ export const createPositionColumns = ({
       key: "canCloseVolume",
       render: (_: any, record: Position) => (
         <QuickClose
-          onQuickClose={(type, price) => onQuickClose?.(record, type, price)}
+          record={record}
+          onQuickClose={onQuickClose}
         />
       ),
     },
