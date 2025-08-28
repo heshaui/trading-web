@@ -103,7 +103,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
-
+  const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
 
 
   // 获取当前订单类型
@@ -244,8 +244,25 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return t("tradingPanel.validation.mustBePositive");
     }
 
+    // 价格精度验证
+    if ((field === 'price' || field === 'triggerPrice') && symbolPricePrecision !== undefined) {
+      const valueStr = value.toString();
+      const decimalIndex = valueStr.indexOf('.');
+      if (decimalIndex !== -1) {
+        const decimalPlaces = valueStr.length - decimalIndex - 1;
+        if (decimalPlaces > symbolPricePrecision) {
+          return t("tradingPanel.validation.exceedsPricePrecision", { precision: symbolPricePrecision });
+        }
+      }
+    }
+
     // 特定字段的额外验证
     if (field === 'quantity') {
+      // 验证是否为正整数
+      if (!Number.isInteger(numValue)) {
+        return t("tradingPanel.validation.mustBeInteger");
+      }
+      
       const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
       if (numValue > maxQuantity) {
         return t("tradingPanel.validation.exceedsMaxQuantity", { action: transactionType === 1 ? t("buy") : t("sell") });
@@ -253,7 +270,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     return undefined;
-  }, [calculateMaxQuantity, transactionType, t]);
+  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, t]);
 
   // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
   const handleSetPriceFromExternal = useCallback((newPrice: number) => {
@@ -442,7 +459,16 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理价格输入变化
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 限制价格精度
+    if (symbolPricePrecision !== undefined) {
+      const decimalIndex = value.indexOf('.');
+      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > symbolPricePrecision) {
+        value = value.substring(0, decimalIndex + symbolPricePrecision + 1);
+      }
+    }
+    
     setPrice(value);
 
     // 实时验证
@@ -457,20 +483,46 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理数量输入变化
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 只允许输入数字，不允许小数点
+    value = value.replace(/[^\d]/g, '');
+    
+    // 如果为空或者为0开头的多位数，则处理为空或去掉前导0
+    if (value === '' || (value.length > 1 && value.startsWith('0'))) {
+      value = value.replace(/^0+/, '') || '';
+    }
+    
     setQuantity(value);
 
     // 实时验证
-    const error = validateField('quantity', value);
-    setValidationErrors(prev => ({
-      ...prev,
-      quantity: error
-    }));
+    if (value) {
+      const error = validateField('quantity', value);
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: error
+      }));
+    } else {
+      // 清除数量字段的验证错误
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: undefined
+      }));
+    }
   };
 
   // 处理触发价格输入变化
   const handleTriggerPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 限制触发价格精度
+    if (symbolPricePrecision !== undefined) {
+      const decimalIndex = value.indexOf('.');
+      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > symbolPricePrecision) {
+        value = value.substring(0, decimalIndex + symbolPricePrecision + 1);
+      }
+    }
+    
     setTriggerPrice(value);
 
     // 实时验证
