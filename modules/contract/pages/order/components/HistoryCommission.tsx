@@ -9,25 +9,13 @@ import dayjs from "dayjs";
 import { getHistoryOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
-import { OrderTypeEnum } from "./type";
+import { SideEnum, SideMap, Status, StatusMap, Type, TypeMap } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum SideEnum {
-  "SELL" = "SELL",
-  "BUY" = "BUY",
-}
-const SideMap = {
-  [SideEnum.BUY]: {
-    text: "order.common.buy",
-    color: "#4CAF50",
-  },
-  [SideEnum.SELL]: {
-    text: "order.common.sell",
-    color: "#F44336",
-  },
-};
+
+
 
 interface HistoryCommissionColumns {
   symbol: string;
@@ -37,7 +25,7 @@ interface HistoryCommissionColumns {
   avgPrice: number;
   tradeFee: number;
   realizedAmount: number;
-  type: number;
+  type: Type;
   mtime: number;
   volume: number;
   dealVolume: number;
@@ -47,7 +35,7 @@ interface HistoryCommissionColumns {
   contractName: string;
   id: string;
   open: string;
-  status: number;
+  status: Status;
 }
 // 历史委托
 const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
@@ -148,7 +136,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.type}
+            {t(TypeMap[record.type])}
           </div>
         );
       },
@@ -277,7 +265,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.status}
+            {t(StatusMap[record.status])}
           </div>
         );
       },
@@ -364,24 +352,29 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
                 },
                 // 限价单
                 {
-                  label: t("priceLimitOrder"),
-                  value: OrderTypeEnum.LIMIT,
+                  label: t("order.common.limit"),
+                  value: Type.LIMIT,
                 },
                 // 市价单
                 {
-                  label: t("marketPrice"),
-                  value: OrderTypeEnum.MARKET,
+                  label: t("order.common.market"),
+                  value: Type.MARKET,
                 },
-                // PostOnly
-                {
-                  label: "PostOnly",
-                  value: OrderTypeEnum.POST_ONLY,
-                },
-                // IOC
-                {
-                  label: "IOC",
-                  value: OrderTypeEnum.IOC,
-                },
+                // // PostOnly
+                // {
+                //   label: "PostOnly",
+                //   value: Type.POST_ONLY,
+                // },
+                // 强制减仓
+                // {
+                //   label: t("order.common.forceLiquidation"),
+                //   value: Type.FORCE_LIQUIDATION,
+                // },
+                // 仓位合并
+                // {
+                //   label: t("order.common.positionMerge"),
+                //   value: Type.POSITION_MERGE,
+                // },
               ]}
               onChange={(value) => {
                 const newValue =

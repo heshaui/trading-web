@@ -9,23 +9,12 @@ import { NoData } from "@/components/noData";
 import { getHistoryTradeList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
+import { SideEnum, SideMap } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
-enum SideEnum {
-  'SELL' = 'SELL',
-  'BUY' = 'BUY',
-}
-const SideMap = {
-  [SideEnum.BUY]: {
-    text: "order.common.buy",
-    color: "#4CAF50",
-  },
-  [SideEnum.SELL]: {
-    text: "order.common.sell",
-    color: "#F44336",
-  },
-};
+
+
 
 interface HistoryDealCustoms {
   contractId: number;
