@@ -258,6 +258,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
     // 特定字段的额外验证
     if (field === 'quantity') {
+      // 验证是否为正整数
+      if (!Number.isInteger(numValue)) {
+        return t("tradingPanel.validation.mustBeInteger");
+      }
+      
       const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
       if (numValue > maxQuantity) {
         return t("tradingPanel.validation.exceedsMaxQuantity", { action: transactionType === 1 ? t("buy") : t("sell") });
@@ -478,15 +483,32 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理数量输入变化
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 只允许输入数字，不允许小数点
+    value = value.replace(/[^\d]/g, '');
+    
+    // 如果为空或者为0开头的多位数，则处理为空或去掉前导0
+    if (value === '' || (value.length > 1 && value.startsWith('0'))) {
+      value = value.replace(/^0+/, '') || '';
+    }
+    
     setQuantity(value);
 
     // 实时验证
-    const error = validateField('quantity', value);
-    setValidationErrors(prev => ({
-      ...prev,
-      quantity: error
-    }));
+    if (value) {
+      const error = validateField('quantity', value);
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: error
+      }));
+    } else {
+      // 清除数量字段的验证错误
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: undefined
+      }));
+    }
   };
 
   // 处理触发价格输入变化
