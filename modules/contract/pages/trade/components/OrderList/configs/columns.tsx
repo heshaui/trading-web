@@ -12,6 +12,7 @@ import {
 } from "../hooks";
 import { TFunction } from "i18next";
 import QuickClose from "../components/QuickClose";
+import BigNumber from "bignumber.js"; 
 // 方向枚举
 export enum Side {
   BUY = "BUY",
@@ -130,6 +131,7 @@ export const createPositionColumns = ({
     //     <div className="text-[12px] font-[500]">{record.contractId}</div>
     //   ),
     // },
+    // 合约名称 
     {
       title: t("order.positionColumn.contractName"),
       dataIndex: "contractName",
@@ -152,6 +154,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
+    // 合约符号 
     {
       title: t("order.positionColumn.symbol"),
       dataIndex: "symbol",
@@ -160,6 +163,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.symbol}</div>
       ),
     },
+    // 仓位数量   
     {
       title: t("order.positionColumn.positionVolume"),
       dataIndex: "positionVolume",
@@ -173,6 +177,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
+    // 可平仓数量 
     {
       title: t("order.positionColumn.canCloseVolume"),
       dataIndex: "canCloseVolume",
@@ -181,6 +186,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.canCloseVolume}</div>
       ),
     },
+    // 快速平仓 
     {
       title: t("order.positionColumn.quickClose"),
       dataIndex: "canCloseVolume",
@@ -192,6 +198,7 @@ export const createPositionColumns = ({
         />
       ),
     },
+    // 开仓均价 
     {
       title: t("order.positionColumn.openAvgPrice"),
       dataIndex: "openAvgPrice",
@@ -200,6 +207,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.openAvgPrice}</div>
       ),
     },
+    // 指数价格 
     {
       title: t("order.positionColumn.indexPrice"),
       dataIndex: "indexPrice",
@@ -208,6 +216,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.indexPrice}</div>
       ),
     },
+    // 减仓价格 
     {
       title: t("order.positionColumn.reducePrice"),
       dataIndex: "reducePrice",
@@ -216,6 +225,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.reducePrice}</div>
       ),
     },
+    // 持仓数量 
     {
       title: t("order.positionColumn.holdAmount"),
       dataIndex: "holdAmount",
@@ -224,6 +234,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.holdAmount}</div>
       ),
     },
+    // 保证金率 
     {
       title: t("order.positionColumn.marginRate"),
       dataIndex: "marginRate",
@@ -232,6 +243,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.marginRate}</div>
       ),
     },
+    // 已实现盈亏 
     {
       title: t("order.positionColumn.realizedAmount"),
       dataIndex: "realizedAmount",
@@ -252,6 +264,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
+    // 收益率 
     {
       title: t("order.positionColumn.returnRate"),
       dataIndex: "returnRate",
@@ -260,6 +273,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.returnRate}</div>
       ),
     },
+    // 方向 
     {
       title: t("order.positionColumn.orderSide"),
       dataIndex: "orderSide",
@@ -273,34 +287,38 @@ export const createPositionColumns = ({
         </div>
       ),
     },
-    {
-      title: t("order.positionColumn.positionType"),
-      dataIndex: "positionType",
-      key: "positionType",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
-          {t(PositionTypeMap[record.positionType])}
-        </div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.canUseAmount"),
-      dataIndex: "canUseAmount",
-      key: "canUseAmount",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.canUseAmount}</div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.canSubMarginAmount"),
-      dataIndex: "canSubMarginAmount",
-      key: "canSubMarginAmount",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
-          {record.canSubMarginAmount}
-        </div>
-      ),
-    },
+    // 仓位类型 
+    // {
+    //   title: t("order.positionColumn.positionType"),
+    //   dataIndex: "positionType",
+    //   key: "positionType",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">
+    //       {t(PositionTypeMap[record.positionType])}
+    //     </div>
+    //   ),
+    // },
+    // 可用余额 
+    // {
+    //   title: t("order.positionColumn.canUseAmount"),
+    //   dataIndex: "canUseAmount",
+    //   key: "canUseAmount",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.canUseAmount}</div>
+    //   ),
+    // },
+    // 可减保证金 
+    // {
+    //   title: t("order.positionColumn.canSubMarginAmount"),
+    //   dataIndex: "canSubMarginAmount",
+    //   key: "canSubMarginAmount",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">
+    //       {record.canSubMarginAmount}
+    //     </div>
+    //   ),
+    // },
+    // 开仓已实现盈亏 
     {
       title: t("order.positionColumn.openRealizedAmount"),
       dataIndex: "openRealizedAmount",
@@ -311,6 +329,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
+    // 持仓比例 
     {
       title: t("order.positionColumn.keepRate"),
       dataIndex: "keepRate",
@@ -319,6 +338,7 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.keepRate}</div>
       ),
     },
+    // 最大手续费率 
     {
       title: t("order.positionColumn.maxFeeRate"),
       dataIndex: "maxFeeRate",
@@ -327,22 +347,25 @@ export const createPositionColumns = ({
         <div className="text-[12px] font-[500]">{record.maxFeeRate}</div>
       ),
     },
+    // 未实现盈亏 
     {
       title: t("order.positionColumn.unRealizedAmount"),
       dataIndex: "unRealizedAmount",
       key: "unRealizedAmount",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.unRealizedAmount}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.unRealizedAmount).toFormat()}</div>
       ),
     },
-    {
-      title: t("order.positionColumn.leverageLevel"),
-      dataIndex: "leverageLevel",
-      key: "leverageLevel",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
-      ),
-    },
+    // 杠杆 
+    // {
+    //   title: t("order.positionColumn.leverageLevel"),
+    //   dataIndex: "leverageLevel",
+    //   key: "leverageLevel",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
+    //   ),
+    // },
+    // 仓位余额 
     {
       title: t("order.positionColumn.positionBalance"),
       dataIndex: "positionBalance",
