@@ -242,15 +242,20 @@
       "status": "状态"
     },
     "tradeRecordColumn": {
-      "symbol": "合约",
-      "openPrice": "开仓均价",
-      "size": "仓位数量",
-      "realizedPnl": "已实现盈亏",
-      "fee": "手续费",
-      "fundingFee": "资金费用",
-      "pnl": "仓位盈亏",
-      "share": "分摊",
-      "closeTime": "平仓时间"
+      "openAvgPrice": "开仓均价",
+      "positionType": "仓位类型",
+      "realizedAmount": "已实现盈亏",
+      "positionVolume": "仓位数量",
+      "leverageLevel": "杠杆倍数",
+      "openPrice": "开仓价格",
+      "settleProfit": "结算盈亏",
+      "mtime": "修改时间",
+      "orderSide": "订单方向",
+      "profitRealizedAmount": "盈亏",
+      "contractId": "合约ID",
+      "historyRealizedAmount": "历史已实现盈亏",
+      "ctime": "创建时间",
+      "id": "仓位ID"
     },
     "tradeHistoryColumn": {
       "symbol": "合约",

@@ -239,15 +239,20 @@
       "status": "상태"
     },
     "tradeRecordColumn": {
-      "symbol": "계약",
-      "openPrice": "평균 진입 가격",
-      "size": "포지션 수량",
-      "realizedPnl": "실현 손익",
-      "fee": "수수료",
-      "fundingFee": "펀딩 비용",
-      "pnl": "포지션 손익",
-      "share": "분담액",
-      "closeTime": "청산 시간"
+      "openAvgPrice": "평균 진입 가격",
+      "positionType": "포지션 유형",
+      "realizedAmount": "실현 손익",
+      "positionVolume": "포지션 수량",
+      "leverageLevel": "레버리지 배수",
+      "openPrice": "진입 가격",
+      "settleProfit": "청산 손익",
+      "mtime": "수정 시간",
+      "orderSide": "주문 방향",
+      "profitRealizedAmount": "손익",
+      "contractId": "계약 ID",
+      "historyRealizedAmount": "미실현 손익",
+      "ctime": "생성 시간",
+      "id": "포지션 ID"
     },
     "tradeHistoryColumn": {
       "symbol": "계약",

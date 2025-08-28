@@ -243,14 +243,20 @@
     },
     "tradeRecordColumn": {
       "symbol": "Contract",
-      "openPrice": "Open Average Price",
-      "size": "Position Volume",
-      "realizedPnl": "Realized P&L",
-      "fee": "Fee",
-      "fundingFee": "Funding Fee",
-      "pnl": "Position P&L",
-      "share": "Share",
-      "closeTime": "Close Time"
+      "openAvgPrice": "Open Average Price",
+      "positionType": "Position Type",
+      "realizedAmount": "Realized P&L",
+      "positionVolume": "Position Volume",
+      "leverageLevel": "Leverage Level",
+      "openPrice": "Open Price",
+      "settleProfit": "Settle Profit",
+      "mtime": "Modify Time",
+      "orderSide": "Order Side",
+      "profitRealizedAmount": "Profit Realized Amount",
+      "contractId": "Contract ID",
+      "historyRealizedAmount": "History Realized Amount",
+      "ctime": "Create Time",
+      "id": "Position ID"
     },
     "tradeHistoryColumn": {
       "symbol": "Contract",

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Tabs, InputNumber, Tooltip, Popover, Slider, Space } from "antd";
+import { Position } from "../hooks";
 
 interface CloseItemProps {
   show: boolean;
   onShowChange: (visible: boolean) => void;
   buttonText: string;
   type: "market" | "limit";
+  onQuickClose: (type: "market" | "limit", price?: number, volume?: number) => void;
 }
 
 const CloseItem: React.FC<CloseItemProps> = ({
@@ -13,7 +15,13 @@ const CloseItem: React.FC<CloseItemProps> = ({
   onShowChange,
   buttonText,
   type,
+  onQuickClose,
 }) => {
+
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [volume, setVolume] = useState<number | undefined>(undefined);
+
+
   return (
     <div className="flex items-center gap-[4px] flex-wrap text-[12px] font-[500]">
       <Tooltip trigger={["click"]} title="数量:595.29 USDT" open={show}>
@@ -47,6 +55,8 @@ const CloseItem: React.FC<CloseItemProps> = ({
                 onClick={() => onShowChange(true)}
                 size="small"
                 className="w-[92px]"
+                value={price}
+                onChange={(value) => setPrice(value ?? undefined)}
               />
             )}
             <InputNumber
@@ -54,18 +64,22 @@ const CloseItem: React.FC<CloseItemProps> = ({
               onClick={() => onShowChange(true)}
               size="small"
               className="w-[92px]"
+              value={volume}
+              onChange={(value) => setVolume(value ?? undefined)}
             />
           </Space>
         </Popover>
       </Tooltip>
-      <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]">
+      <div className="p-[4px_6px] cursor-pointer bg-[var(--background14)] rounded-[4px]" onClick={() => onQuickClose(type, price, volume)}>
         {buttonText}
       </div>
     </div>
   );
 };
 
-const QuickClose: React.FC = () => {
+const QuickClose: React.FC<{
+  onQuickClose: (type: "market" | "limit", price?: number, volume?: number) => void;
+}> = ({ onQuickClose }) => {
   const [showMarket, setShowMarket] = useState(false);
   const [showLimit, setShowLimit] = useState(false);
 
@@ -91,6 +105,7 @@ const QuickClose: React.FC = () => {
               show={showMarket}
               onShowChange={handleMarketPopoverChange}
               buttonText="市价平"
+              onQuickClose={onQuickClose}
             />
           ),
         },
@@ -103,6 +118,7 @@ const QuickClose: React.FC = () => {
               show={showLimit}
               onShowChange={handleLimitPopoverChange}
               buttonText="限价平"
+              onQuickClose={onQuickClose}
             />
           ),
         },

@@ -2,21 +2,25 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
 import { getHistoryPositionList } from "@/services/contract";
+import { PositionType, Side } from "../configs/columns";
 
 // 盈亏记录接口
 interface TradeRecord {
-  id: string;
-  symbol: string;
-  side: "BUY" | "SELL";
-  size: number;
-  price: number;
-  fee: number;
-  createTime: number;
-  openPrice: number;
-  realizedPnl: number;
-  fundingFee: number;
-  pnl: number;
-  closeTime: number;
+  openAvgPrice: number; // 开仓均价
+  positionType: PositionType; // 仓位类型
+  realizedAmount: number; // 已实现盈亏
+  positionVolume: number; // 仓位数量
+  leverageLevel: number; // 杠杆倍数
+  openPrice: number; // 开仓价格
+  settleProfit: number; // 结算盈亏
+  mtime: number; // 修改时间
+  orderSide: Side; // 订单方向
+  profitRealizedAmount: number; // 盈亏
+  contractId: number; // 合约ID
+  historyRealizedAmount: number; // 历史已实现盈亏
+  ctime: number; // 创建时间
+  id: number; // 仓位ID
+  closePrice: number; // 平仓价格
 }
 
 interface UseProfitLossOptions {
@@ -39,7 +43,7 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
           uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         });
         if (res.code === "0") {
-          setProfitLoss(res.data?.list || []);
+          setProfitLoss(res.data?.positionList || []);
         } else {
           message.error(res.msg);
         }
@@ -57,9 +61,9 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
   const getFilteredProfitLoss = useCallback(
     (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
       if (!onlyCurrentSymbol || !currentSymbol) return profitLoss;
-      return profitLoss.filter((item) => item.symbol === currentSymbol);
+      return profitLoss.filter((item) => item.contractId === contractId);
     },
-    [profitLoss]
+    [profitLoss, contractId]
   );
 
   return {
