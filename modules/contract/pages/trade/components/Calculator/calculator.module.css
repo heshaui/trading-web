@@ -29,7 +29,7 @@
 }
 
 .calculatorModeBox {
-  background: #ffffff;
+  background: var(--background9);
   padding: 0;
   width: 420px;
   height: 100vh;
@@ -80,7 +80,7 @@
   border-bottom: 1px solid #f0f0f0;
   position: sticky;
   top: 0;
-  background: #ffffff;
+  background:  var(--background9);
   z-index: 10;
 }
 
@@ -88,7 +88,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color:var(--text-color5);
 }
 
 .closeBtn {
@@ -195,7 +195,7 @@
   width: 20px;
   height: 20px;
   margin-top: -7px;
-  background: #ffffff;
+  background:  var(--background9);
   border-width: 3px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -236,7 +236,7 @@
 }
 
 .maxNumber {
-  color: #1a1a1a;
+  color:var(--text-color5);
   font-weight: 600;
 }
 
@@ -265,12 +265,12 @@
 
 .calculatorInput :global(.ant-input:hover) {
   border-color: #cccccc;
-  background: #ffffff;
+  background:  var(--background9);
 }
 
 .calculatorInput :global(.ant-input:focus) {
   border-color: #22c55e;
-  background: #ffffff;
+  background:  var(--background9);
   box-shadow: none;
 }
 
@@ -293,15 +293,15 @@
   border-radius: 12px;
   padding: 20px;
   margin: 0 24px 24px;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
+  background:  var(--background10);
+
 }
 
 .resultTitle {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #1a1a1a;
+  color: var(--text-color5);
 }
 
 .resultItem {
@@ -325,7 +325,7 @@
 .resultValue {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-color5);
 }
 
 .disclaimer {
