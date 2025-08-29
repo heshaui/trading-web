@@ -10,9 +10,10 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
   const [marketInfo, setMarketInfo] = useState<any>(null);
   const handleSymbolSelect = (symbol: any) => {
-
+    
     appStore.setCurrentContractInfo(symbol.id);
     setCurrentSymbol(symbol);
+
   };
 
   const handleToggleFavorite = (symbol: any) => {
@@ -21,12 +22,29 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
 
   const getMarketInfo = async (id: number) => {
     const res = await getPublicMarketInfo({ contractId: id });
-    console.log("Public market info:", res);
     if (res.code === '0') {
       setMarketInfo(res.data);
     }
   };
-
+   const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
+  
+  // 格式化价格显示，确保不超过symbolPricePrecision精度
+  const formatPriceWithPrecision = (price: number | string | null | undefined): string => {
+    if (!price || price === '' || price === null || price === undefined) return '--';
+    
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (isNaN(numPrice)) return '--';
+    
+    // 如果没有设置精度限制，返回原值
+    if (symbolPricePrecision === undefined || symbolPricePrecision === null) {
+      return numPrice.toString();
+    }
+    
+    // 格式化为指定精度，然后去掉末尾的0
+    const fixed = numPrice.toFixed(symbolPricePrecision);
+    return fixed.replace(/\.?0+$/, '');
+  };
+  
   // 同步 store 中的 currentContractInfo 到本地状态
   useEffect(() => {
     if (currentContractInfo && Object.keys(currentContractInfo).length > 0) {
@@ -60,7 +78,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
               : "text-[var(--error-color)]"
               }`}
           >
-            {priceData?.price}
+            {formatPriceWithPrecision(priceData?.price)}
           </div>
           <div
             className={`text-[12px] font-500 ${priceData?.isUp
@@ -81,7 +99,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
               : "text-[var(--error-color)]"
               }`}
           >
-            {marketInfo?.tagPrice}
+            {formatPriceWithPrecision(marketInfo?.tagPrice)}
           </span>
         </div>
         <div className="flex flex-col">
@@ -89,7 +107,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
             {t("contractHeader.indexPrice")}
           </span>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
-            {marketInfo?.indexPrice}
+            {formatPriceWithPrecision(marketInfo?.indexPrice)}
           </span>
         </div>
         <div className="flex flex-col">

@@ -10,6 +10,7 @@ import {
   ConfigProvider,
   Segmented,
   Dropdown,
+  Image,
 } from "antd";
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";
@@ -102,33 +103,138 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
-
-
-
+  const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
+  //限价最大成交金额
+  const maxLimitMoney=currentContractInfo.coinResultVo.maxLimitMoney
+  //限价最大成交量
+  const maxLimitVolume=currentContractInfo.coinResultVo.maxLimitVolume
+  //市价最大成交金额
+  const maxMarketMoney=currentContractInfo.coinResultVo.maxMarketMoney
+  //市价最大成交量
+  const maxMarketVolume=currentContractInfo.coinResultVo.maxMarketVolume
+  
   // 获取当前订单类型
-  const getOrderType = () => {
+  const getOrderType = useCallback(() => {
     if (currentCategory === 1) return "limit";
     if (currentCategory === 2) return "market";
     if (currentCategory === 3) return "conditional";
     return "limit";
-  };
+  }, [currentCategory]);
 
   const orderType = getOrderType();
 
-  // 计算可买/可卖数量
-  const calculateMaxQuantity = useCallback(() => {
-    // 从priceData中获取最新价格
-    const lastPrice = priceData?.lastPrice || priceData?.close || 1;
-    const lastPriceNum =
-      typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
-    const priceNum =
-      typeof price === "string" ? parseFloat(price as string) : price;
+  // 格式化数字显示 - 如果小数点后都是0则显示整数
+  const formatNumber = useCallback((num: number, precision: number = 4) => {
+    if (num === 0) return "0";
 
-    if (orderType === "market") {
-      return (availableBalance * leverageLevel) / (lastPriceNum || 1);
+    const fixed = num.toFixed(precision);
+    // 移除末尾的0和小数点
+    const formatted = fixed.replace(/\.?0+$/, "");
+    return formatted;
+  }, []);
+
+  // 计算可买/可卖数量
+  const calculateMaxQuantity = useCallback((side?: "BUY" | "SELL") => {
+    if (availableBalance <= 0 || leverageLevel <= 0) return 0;
+
+    // 获取合约信息
+    const contractInfo = currentContractInfo;
+    const faceValue = contractInfo?.multiplier || 1; // 面值
+    const marginRate = contractInfo?.marginRate || 1; // 保证金汇率
+    const contractSide = contractInfo?.contractSide; // 1: 正向合约, 2: 反向合约
+
+    let calculationPrice = 0;
+
+    // 根据订单类型和方向确定价格
+    if (orderType === "limit") {
+      // 限价单使用输入的价格
+      const priceNum = typeof price === "string" ? parseFloat(price as string) : price;
+      if (!priceNum || priceNum <= 0) return 0;
+      calculationPrice = priceNum;
+    } else {
+      // 市价单根据买卖方向使用不同价格
+      const lastPrice = priceData?.lastPrice || priceData?.close || 1;
+      const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
+      const askPrice = priceData?.askPrice || lastPrice; // 卖一价
+
+      if (side === "BUY") {
+        // 买入使用卖一价
+        calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
+      } else if (side === "SELL") {
+        // 卖出使用买一价
+        calculationPrice = typeof bidPrice === "string" ? parseFloat(bidPrice) : bidPrice;
+      } else {
+        // 默认使用最新价
+        calculationPrice = typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
+      }
     }
-    return (availableBalance * leverageLevel) / (priceNum || 1);
-  }, [priceData, price, orderType, availableBalance, leverageLevel]);
+
+    if (calculationPrice <= 0) return 0;
+
+    // 计算最大数量
+    let maxQuantity = 0;
+    const totalBalance = availableBalance * leverageLevel * marginRate;
+
+    if (contractSide === 2) {
+      // 反向合约：可用余额 * 杠杆 * 价格 / 面值
+      maxQuantity = totalBalance * calculationPrice / faceValue;
+    } else {
+      // 正向合约：可用余额 * 杠杆 / (面值 * 价格)
+      maxQuantity = totalBalance / (faceValue * calculationPrice);
+    }
+
+    return Math.max(0, maxQuantity);
+  }, [priceData, price, orderType, availableBalance, leverageLevel, currentContractInfo]);
+
+  // 计算成本 - 支持指定方向
+  const calculateCost = useCallback((side?: "BUY" | "SELL") => {
+    const quantityNum = typeof quantity === "string" ? parseFloat(quantity) : quantity;
+    const priceNum = typeof price === "string" ? parseFloat(price) : price;
+
+    if (!quantityNum || quantityNum <= 0) return 0;
+
+    // 获取合约信息
+    const contractInfo = currentContractInfo;
+    const faceValue = contractInfo?.multiplier || 1; // 面值
+    const marginRate = contractInfo?.marginRate || 1; // 保证金汇率，默认为1
+    const contractSide = contractInfo?.contractSide; // 1: 正向合约, 2: 反向合约
+
+    let cost = 0;
+    let calculationPrice = 0;
+
+    if (currentCategory === 1 || currentCategory === 3) { // 限价单或条件限价单
+      if (!priceNum || priceNum <= 0) return 0;
+      calculationPrice = priceNum;
+    } else if (currentCategory === 2) { // 市价单
+      // 市价单根据做多做空方向使用不同价格
+      const lastPrice = priceData?.lastPrice || priceData?.close || 1;
+      const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
+      const askPrice = priceData?.askPrice || lastPrice; // 卖一价
+
+      if (side === "BUY") {
+        // 做多使用卖一价（买入时需要支付卖方的价格）
+        calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
+      } else if (side === "SELL") {
+        // 做空使用买一价（卖出时按照买方的价格）
+        calculationPrice = typeof bidPrice === "string" ? parseFloat(bidPrice) : bidPrice;
+      } else {
+        // 默认使用最新价
+        calculationPrice = typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
+      }
+    }
+
+    if (calculationPrice > 0) {
+      if (contractSide === 2) {
+        // 反向合约：成本 = (张数 × 面值 ÷ 价格 ÷ 杠杆) × 保证金汇率
+        cost = (quantityNum * faceValue / calculationPrice / leverageLevel) * marginRate;
+      } else {
+        // 正向合约：成本 = (张数 × 面值 × 价格 ÷ 杠杆) × 保证金汇率
+        cost = (quantityNum * faceValue * calculationPrice / leverageLevel) * marginRate;
+      }
+    }
+
+    return cost;
+  }, [quantity, price, currentCategory, leverageLevel, currentContractInfo, priceData]);
 
   // 实时验证函数
   const validateField = useCallback((field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
@@ -145,16 +251,60 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return t("tradingPanel.validation.mustBePositive");
     }
 
+    // 价格精度验证
+    if ((field === 'price' || field === 'triggerPrice') && symbolPricePrecision !== undefined) {
+      const valueStr = value.toString();
+      const decimalIndex = valueStr.indexOf('.');
+      if (decimalIndex !== -1) {
+        const decimalPlaces = valueStr.length - decimalIndex - 1;
+        if (decimalPlaces > symbolPricePrecision) {
+          return t("tradingPanel.validation.exceedsPricePrecision", { precision: symbolPricePrecision });
+        }
+      }
+    }
+
     // 特定字段的额外验证
     if (field === 'quantity') {
-      const maxQuantity = calculateMaxQuantity();
+      // 验证是否为正整数
+      if (!Number.isInteger(numValue)) {
+        return t("tradingPanel.validation.mustBeInteger");
+      }
+      
+      // 验证最大成交量限制
+      const orderType = getOrderType();
+      if (orderType === 'limit' && maxLimitVolume && numValue > maxLimitVolume) {
+        return t("tradingPanel.validation.exceedsMaxLimitVolume", { max: maxLimitVolume });
+      }
+      if (orderType === 'market' && maxMarketVolume && numValue > maxMarketVolume) {
+        return t("tradingPanel.validation.exceedsMaxMarketVolume", { max: maxMarketVolume });
+      }
+      
+      const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
       if (numValue > maxQuantity) {
         return t("tradingPanel.validation.exceedsMaxQuantity", { action: transactionType === 1 ? t("buy") : t("sell") });
       }
     }
 
+    // 价格和数量组合验证 - 验证最大成交金额
+    if ((field === 'price' || field === 'quantity') && price && quantity) {
+      const priceNum = typeof price === 'string' ? parseFloat(price) : price;
+      const quantityNum = typeof quantity === 'string' ? parseFloat(quantity) : quantity;
+      
+      if (priceNum > 0 && quantityNum > 0) {
+        const orderAmount = priceNum * quantityNum;
+        const orderType = getOrderType();
+        
+        if (orderType === 'limit' && maxLimitMoney && orderAmount > maxLimitMoney) {
+          return t("tradingPanel.validation.exceedsMaxLimitAmount", { max: maxLimitMoney });
+        }
+        if (orderType === 'market' && maxMarketMoney && orderAmount > maxMarketMoney) {
+          return t("tradingPanel.validation.exceedsMaxMarketAmount", { max: maxMarketMoney });
+        }
+      }
+    }
+
     return undefined;
-  }, [calculateMaxQuantity, transactionType, t]);
+  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, getOrderType, maxLimitVolume, maxMarketVolume, maxLimitMoney, maxMarketMoney, price, quantity, t]);
 
   // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
   const handleSetPriceFromExternal = useCallback((newPrice: number) => {
@@ -189,13 +339,33 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 处理百分比滑块变化
   const handlePercentageChange = (value: number) => {
     setPercentage(value);
-    const maxQuantity = calculateMaxQuantity();
+    // 根据当前交易类型计算最大数量
+    const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
     const newQuantity = (maxQuantity * value) / 100;
     setQuantity(newQuantity);
   };
 
   const handleSettings = () => {
     setShowTradingSettingsDrawer(true);
+  };
+
+  // 检查是否应该跳过下单确认
+  const getShouldSkipConfirm = (): boolean => {
+    try {
+      // 优先检查新的设置格式
+      const savedSettings = localStorage.getItem('tradingSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        return !settings.preOrderConfirm; // preOrderConfirm为false时跳过确认
+      }
+      
+      // 兼容旧的设置格式
+      return localStorage.getItem("dontShowOrderConfirm") === "true";
+    } catch (error) {
+      console.error('读取下单确认设置失败:', error);
+      // 出错时默认显示确认框
+      return false;
+    }
   };
 
   // 处理订单提交
@@ -205,12 +375,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return;
     }
 
-    // 检查用户是否选择不再提醒
-    const dontShowConfirm =
-      localStorage.getItem("dontShowOrderConfirm") === "true";
     setSide(side);
+    
+    // 检查用户的下单确认设置
+    const shouldSkipConfirm = getShouldSkipConfirm();
 
-    if (dontShowConfirm) {
+    if (shouldSkipConfirm) {
       // 直接执行下单，不显示确认框
       const orderData = {
         direction: transactionType === 1 ? 0 : 1,
@@ -312,10 +482,44 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     // 验证数量是否超过可买/可卖数量
-    const maxQuantity = calculateMaxQuantity();
+    const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
     if (quantityNum > maxQuantity) {
       toast.error(t("tradingPanel.validation.quantityExceedsMax", { action: transactionType === 1 ? t("buy") : t("sell") }));
       return false;
+    }
+
+    // 验证最大成交量限制
+    const orderType = getOrderType();
+    if (orderType === 'limit' && maxLimitVolume && quantityNum > maxLimitVolume) {
+      toast.error(t("tradingPanel.validation.exceedsMaxLimitVolume", { max: maxLimitVolume }));
+      return false;
+    }
+    if (orderType === 'market' && maxMarketVolume && quantityNum > maxMarketVolume) {
+      toast.error(t("tradingPanel.validation.exceedsMaxMarketVolume", { max: maxMarketVolume }));
+      return false;
+    }
+
+    // 验证最大成交金额限制
+    if (currentCategory === 1 || currentCategory === 3) { // 限价单或条件单需要价格
+      const priceNum = parseFloat(price?.toString() || '0');
+      if (priceNum > 0) {
+        const orderAmount = priceNum * quantityNum;
+        if (orderType === 'limit' && maxLimitMoney && orderAmount > maxLimitMoney) {
+          toast.error(t("tradingPanel.validation.exceedsMaxLimitAmount", { max: maxLimitMoney }));
+          return false;
+        }
+      }
+    } else if (currentCategory === 2) { // 市价单
+      // 市价单使用市场价格估算
+      const lastPrice = priceData?.lastPrice || priceData?.close || 0;
+      const marketPrice = typeof lastPrice === 'string' ? parseFloat(lastPrice) : lastPrice;
+      if (marketPrice > 0) {
+        const orderAmount = marketPrice * quantityNum;
+        if (maxMarketMoney && orderAmount > maxMarketMoney) {
+          toast.error(t("tradingPanel.validation.exceedsMaxMarketAmount", { max: maxMarketMoney }));
+          return false;
+        }
+      }
     }
 
     return true;
@@ -323,7 +527,16 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理价格输入变化
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 限制价格精度
+    if (symbolPricePrecision !== undefined) {
+      const decimalIndex = value.indexOf('.');
+      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > symbolPricePrecision) {
+        value = value.substring(0, decimalIndex + symbolPricePrecision + 1);
+      }
+    }
+    
     setPrice(value);
 
     // 实时验证
@@ -338,20 +551,46 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理数量输入变化
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 只允许输入数字，不允许小数点
+    value = value.replace(/[^\d]/g, '');
+    
+    // 如果为空或者为0开头的多位数，则处理为空或去掉前导0
+    if (value === '' || (value.length > 1 && value.startsWith('0'))) {
+      value = value.replace(/^0+/, '') || '';
+    }
+    
     setQuantity(value);
 
     // 实时验证
-    const error = validateField('quantity', value);
-    setValidationErrors(prev => ({
-      ...prev,
-      quantity: error
-    }));
+    if (value) {
+      const error = validateField('quantity', value);
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: error
+      }));
+    } else {
+      // 清除数量字段的验证错误
+      setValidationErrors(prev => ({
+        ...prev,
+        quantity: undefined
+      }));
+    }
   };
 
   // 处理触发价格输入变化
   const handleTriggerPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    let value = e.target.value;
+    
+    // 限制触发价格精度
+    if (symbolPricePrecision !== undefined) {
+      const decimalIndex = value.indexOf('.');
+      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > symbolPricePrecision) {
+        value = value.substring(0, decimalIndex + symbolPricePrecision + 1);
+      }
+    }
+    
     setTriggerPrice(value);
 
     // 实时验证
@@ -497,7 +736,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <Button
                 type="text"
                 size="small"
-                icon={<Iconify icon="mdi:calculator" width={20} height={20} />}
+                icon={<Image src="/images/contract/icon_calendar.svg" alt="calculator" width={20} height={20} preview={false} />}
                 className="border-none text-[var(--text-color6)]"
                 onClick={() => setShowCalculator(true)}
                 title={t("tradingPanel.calculator")}
@@ -506,7 +745,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 type="text"
                 size="small"
                 onClick={handleSettings}
-                icon={<Iconify icon="mdi:cog-outline" width={20} height={20} />}
+                icon={<Image src="/images/contract/setting.png" alt="calculator" width={20} height={20} preview={false} />}
                 className="border-none text-[var(--text-color6)]"
               />
             </div>
@@ -627,7 +866,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   onChange={handleQuantityChange}
                   placeholder={t("tradingPanel.orderQuantity")}
                   className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.quantity ? styles.inputError : ''}`}
-                  suffix="USDT"
+                  suffix={t("tradingPanel.unit")}
                 />
                 {validationErrors.quantity && (
                   <span className={styles.errorText}>{validationErrors.quantity}</span>
@@ -660,12 +899,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="mb-[16px]">
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
-                    <span>{t("tradingPanel.canBuy")}</span>
-                    <span>0 {currentContractInfo.marginCoin}</span>
+                    <span style={{color:'#00C788'}}>{t("tradingPanel.canBuy")}</span>
+                    <span>{formatNumber(calculateMaxQuantity("BUY"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
-                    <span>{t("tradingPanel.canSell")}</span>
-                    <span>0 {currentContractInfo.marginCoin}</span>
+                    <span  style={{color:'#FF4D4F'}}>{t("tradingPanel.canSell")}</span>
+                    <span>{formatNumber(calculateMaxQuantity("SELL"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                 </div>
               </div>
@@ -707,7 +946,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         </div> 2027-07-29 zyj暂时注释*/}
 
               {/* 高级设置 */}
-              <div className="flex items-center mb-[22px] gap-[4px]">
+              {/* <div className="flex items-center mb-[22px] gap-[4px]">
                 <span className="text-[14px] text-[var(--text-color6)] font-[400]">
                   {t("tradingPanel.advancedSettings")}
                 </span>
@@ -726,7 +965,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     <Iconify icon="mdi:chevron-down" />
                   </Space>
                 </Dropdown>
-              </div>
+              </div> 2027-08-28 zyj暂时注释*/}
 
               {/* 提交按钮 */}
               <div className="mb-[10px] flex justify-between gap-[12px]">
@@ -780,11 +1019,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
                 <div className="flex gap-[4px]">
                   <span>{t("tradingPanel.cost")}</span>
-                  <span>0 {currentContractInfo.marginCoin}</span>
+                  <span>{formatNumber(calculateCost("BUY"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
                 </div>
                 <div className="flex gap-[4px]">
                   <span>{t("tradingPanel.cost")}</span>
-                  <span>0 {currentContractInfo.marginCoin}</span>
+                  <span>{formatNumber(calculateCost("SELL"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
                 </div>
               </div>
             </Form>
@@ -805,7 +1044,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               currentLeverage={leverageLevel}
               onLeverageChange={handleLeverageChange}
               symbol={symbol}
-              maxLeverage={125}
               positionLimit={815.4018}
             />
 

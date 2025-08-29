@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
-import { getAssetsList } from "@/services/contract";
+import { createOrder, getAssetsList } from "@/services/contract";
 import { Side, PositionType } from "../configs/columns";
 
 // 仓位接口
@@ -35,11 +35,18 @@ interface UsePositionOptions {
   contractId?: number;
 }
 
+export interface QuickCloseParams {
+  type: "market" | "limit";
+  price?: number;
+  volume?: number;
+}
+
 export const usePosition = (options: UsePositionOptions = {}) => {
   const { contractId } = options;
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
   const [positionNumber, setPositionNumber] = useState(0);
+  // 币对精度
 
   // 获取仓位数据
   const getPosition = useCallback(async () => {
@@ -76,14 +83,46 @@ export const usePosition = (options: UsePositionOptions = {}) => {
 
   // 快速平仓
   const quickClose = useCallback(
-    async (record: Position, type: "market" | "limit") => {
+    // market: 市价平仓, limit: 限价平仓
+    async (record: Position, params: QuickCloseParams) => {
+      const { type, price, volume } = params;
       try {
-        console.log("快速平仓", record, type);
+        // 请输入数量
+        if (!volume) {
+          message.error("请输入数量");
+          return;
+        }
+
+        // 请输入价格
+        if (type === "limit" && !price) {
+          message.error("请输入价格");
+          return;
+        }
+
+        const params = {
+          contractId: record.contractId, // 合约ID
+          positionType: record.positionType, // 持仓类型(1 全仓，2 仓逐)
+          side: record.orderSide === "SELL" ? "BUY" : "SELL", // 买卖方向（buy 买入，sell 卖出）
+          leverageLevel: record.leverageLevel, // 杠杆倍数
+          price: type === "market" ? 0 : price, // 平仓价格(市价单传0)
+          volume, // 平仓数量
+          open: "CLOSE", // 开平仓方向(open 开仓，close 平仓)
+          type: type === "market" ? 2 : 1, // 订单类型 (1 limit， 2 market)
+          triggerPrice: null, // 触发价格
+          isConditionOrder: false, // 是否是条件单
+        };
+        const { code, msg } = await createOrder(params);
+        if (code === "0") {
+          message.success(msg);
+          getPosition();
+        } else {
+          message.error(msg);
+        }
       } catch (error) {
         console.error("快速平仓失败:", error);
       }
     },
-    []
+    [getPosition]
   );
 
   return {

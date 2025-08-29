@@ -65,6 +65,7 @@ const OrderListComponent = (props: any, ref: any) => {
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
   const currentSymbol = currentContractInfo?.symbol || "";
+  const symbolPricePrecision = currentContractInfo?.coinResultVo.symbolPricePrecision;
 
   // ============ 使用各种hooks ============
   // 仓位
@@ -136,19 +137,24 @@ const OrderListComponent = (props: any, ref: any) => {
   const positionColumns = createPositionColumns({
     t,
     onQuickClose: quickClose,
+    symbolPricePrecision,
   });
   const ordinaryColumns = createOrdinaryColumns({
     t,
     onCancelOrder: handleCancelOrdinaryOrder,
+    symbolPricePrecision,
   });
   const historyColumns = createHistoryColumns({
     t,
+    symbolPricePrecision,
   });
   const tradeRecordColumns = createTradeRecordColumns({
     t,
+    symbolPricePrecision,
   });
   const tradeHistoryColumns = createTradeHistoryColumns({
     t,
+    symbolPricePrecision,
   });
 
 
@@ -355,7 +361,7 @@ const OrderListComponent = (props: any, ref: any) => {
                 {/* 当前合约 */}
                 <div className="flex items-center gap-[8px]">
                   <Switch size="small" onChange={setOnlyCurrentSymbol} />
-                  <div className="text-[var(--text-color5)]">仅当前合约</div>
+                  <div className="text-[var(--text-color5)]">{t("order.onlyCurrentSymbol")}</div>
                 </div>
                 {/* 一键全平 */}
                 {/* {activeTab === "position" && (

@@ -8,8 +8,11 @@ import {
   HistoryCommission,
   TradeRecord,
   TradeHistory,
+  QuickCloseParams,
 } from "../hooks";
 import { TFunction } from "i18next";
+import QuickClose from "../components/QuickClose";
+import BigNumber from "bignumber.js"; 
 // 方向枚举
 export enum Side {
   BUY = "BUY",
@@ -46,8 +49,8 @@ export enum Status {
 }
 // 角色枚举
 export enum Role {
-  MAKER = "MAKER",
-  TAKER = "TAKER",
+  MAKER = "maker",
+  TAKER = "taker",
 }
 
 // 映射对象
@@ -88,7 +91,8 @@ const StatusMap = {
   [Status.CANCELLED]: "order.common.cancelled",
   [Status.CANCELLING]: "order.common.cancelling",
   [Status.ABNORMAL]: "order.common.abnormal",
-  [Status.PARTIALLY_FILLED_AND_CANCELLED]: "order.common.partiallyFilledAndCancelled",
+  [Status.PARTIALLY_FILLED_AND_CANCELLED]:
+    "order.common.partiallyFilledAndCancelled",
 };
 
 const RoleMap = {
@@ -96,48 +100,63 @@ const RoleMap = {
   [Role.TAKER]: "Taker",
 };
 
-
-
-
 interface PositionColumnConfig {
   t: TFunction;
-  onQuickClose?: (record: Position, type: "market" | "limit") => void;
+  onQuickClose: (
+    record: Position,
+    params: QuickCloseParams
+  ) => void;
+  symbolPricePrecision?: number;
 }
 /**
  * 仓位列表配置
  */
-export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig) => {
+export const createPositionColumns = ({
+  t,
+  onQuickClose,
+  symbolPricePrecision,
+}: PositionColumnConfig) => {
   return [
-    {
-      title: t("order.positionColumn.positionId"),
-      dataIndex: "id",
-      key: "id",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.id}</div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.contractId"),
-      dataIndex: "contractId",
-      key: "contractId",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.contractId}</div>
-      ),
-    },
+    // {
+    //   title: t("order.positionColumn.positionId"),
+    //   dataIndex: "id",
+    //   key: "id",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.id}</div>
+    //   ),
+    // },
+    // {
+    //   title: t("order.positionColumn.contractId"),
+    //   dataIndex: "contractId",
+    //   key: "contractId",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+    //   ),
+    // },
+    // 合约名称 
     {
       title: t("order.positionColumn.contractName"),
       dataIndex: "contractName",
       key: "contractName",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500] flex gap-[5px]">
-          <div
-            className="w-[2px] h-[11px]"
-            style={{ backgroundColor: SideMap[record.orderSide].color }}
-          ></div>
-          {record.contractName}
+        <div className="text-[12px] font-[500]">
+          <div className="flex gap-[5px]">
+            <div
+              className="w-[2px] h-[11px]"
+              style={{ backgroundColor: SideMap[record.orderSide].color }}
+            ></div>
+            <div> {record.contractName}</div>
+          </div>
+          <div className="flex gap-[5px]">
+            {/* 仓位类型 */}
+            <div> {t(PositionTypeMap[record.positionType])}</div>
+            {/* 杠杆 */}
+            <div> {record.leverageLevel}x</div>
+          </div>
         </div>
       ),
     },
+    // 合约符号 
     {
       title: t("order.positionColumn.symbol"),
       dataIndex: "symbol",
@@ -146,6 +165,7 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
         <div className="text-[12px] font-[500]">{record.symbol}</div>
       ),
     },
+    // 仓位数量   
     {
       title: t("order.positionColumn.positionVolume"),
       dataIndex: "positionVolume",
@@ -159,6 +179,7 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
         </div>
       ),
     },
+    // 可平仓数量 
     {
       title: t("order.positionColumn.canCloseVolume"),
       dataIndex: "canCloseVolume",
@@ -167,61 +188,64 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
         <div className="text-[12px] font-[500]">{record.canCloseVolume}</div>
       ),
     },
+    // 快速平仓 
     {
       title: t("order.positionColumn.quickClose"),
       dataIndex: "canCloseVolume",
       key: "canCloseVolume",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500] flex gap-[5px]">
-          <Button size="small" onClick={() => onQuickClose?.(record, "market")}>
-            {t("order.positionColumn.marketClose")}
-          </Button>
-          <Button size="small" onClick={() => onQuickClose?.(record, "limit")}>
-            {t("order.positionColumn.limitClose")}
-          </Button>
-        </div>
+        <QuickClose
+          record={record}
+          onQuickClose={onQuickClose}
+        />
       ),
     },
+    // 开仓均价 
     {
       title: t("order.positionColumn.openAvgPrice"),
       dataIndex: "openAvgPrice",
       key: "openAvgPrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.openAvgPrice}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.openAvgPrice).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 指数价格 
     {
       title: t("order.positionColumn.indexPrice"),
       dataIndex: "indexPrice",
       key: "indexPrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.indexPrice}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.indexPrice).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 平仓均价	 
     {
       title: t("order.positionColumn.reducePrice"),
       dataIndex: "reducePrice",
       key: "reducePrice",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.reducePrice}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.reducePrice).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 持仓金额 
     {
       title: t("order.positionColumn.holdAmount"),
       dataIndex: "holdAmount",
       key: "holdAmount",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.holdAmount}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.holdAmount).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 保证金率 
     {
       title: t("order.positionColumn.marginRate"),
       dataIndex: "marginRate",
       key: "marginRate",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.marginRate}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.marginRate).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 已实现盈亏 
     {
       title: t("order.positionColumn.realizedAmount"),
       dataIndex: "realizedAmount",
@@ -234,22 +258,24 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
               record.realizedAmount > 0
                 ? "#4CAF50"
                 : record.realizedAmount < 0
-                  ? "#F44336"
-                  : "",
+                ? "#F44336"
+                : "",
           }}
         >
-          {record.realizedAmount}
+          {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}
         </div>
       ),
     },
+    // 收益率 
     {
       title: t("order.positionColumn.returnRate"),
       dataIndex: "returnRate",
       key: "returnRate",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.returnRate}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.returnRate).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 方向 
     {
       title: t("order.positionColumn.orderSide"),
       dataIndex: "orderSide",
@@ -263,78 +289,91 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
         </div>
       ),
     },
-    {
-      title: t("order.positionColumn.positionType"),
-      dataIndex: "positionType",
-      key: "positionType",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
-          {t(PositionTypeMap[record.positionType])}
-        </div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.canUseAmount"),
-      dataIndex: "canUseAmount",
-      key: "canUseAmount",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.canUseAmount}</div>
-      ),
-    },
-    {
-      title: t("order.positionColumn.canSubMarginAmount"),
-      dataIndex: "canSubMarginAmount",
-      key: "canSubMarginAmount",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.canSubMarginAmount}</div>
-      ),
-    },
+    // 仓位类型 
+    // {
+    //   title: t("order.positionColumn.positionType"),
+    //   dataIndex: "positionType",
+    //   key: "positionType",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">
+    //       {t(PositionTypeMap[record.positionType])}
+    //     </div>
+    //   ),
+    // },
+    // 可用余额 
+    // {
+    //   title: t("order.positionColumn.canUseAmount"),
+    //   dataIndex: "canUseAmount",
+    //   key: "canUseAmount",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.canUseAmount}</div>
+    //   ),
+    // },
+    // 可减保证金 
+    // {
+    //   title: t("order.positionColumn.canSubMarginAmount"),
+    //   dataIndex: "canSubMarginAmount",
+    //   key: "canSubMarginAmount",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">
+    //       {record.canSubMarginAmount}
+    //     </div>
+    //   ),
+    // },
+    // 开仓已实现盈亏 
     {
       title: t("order.positionColumn.openRealizedAmount"),
       dataIndex: "openRealizedAmount",
       key: "openRealizedAmount",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.openRealizedAmount}</div>
+        <div className="text-[12px] font-[500]">
+          {new BigNumber(record.openRealizedAmount).toFormat(symbolPricePrecision)}
+        </div>
       ),
     },
+    // 维持保证金率 
     {
       title: t("order.positionColumn.keepRate"),
       dataIndex: "keepRate",
       key: "keepRate",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.keepRate}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.keepRate).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 最大手续费率 
     {
       title: t("order.positionColumn.maxFeeRate"),
       dataIndex: "maxFeeRate",
       key: "maxFeeRate",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.maxFeeRate}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.maxFeeRate).toFormat(symbolPricePrecision)}</div>
       ),
     },
+    // 未实现盈亏 
     {
       title: t("order.positionColumn.unRealizedAmount"),
       dataIndex: "unRealizedAmount",
       key: "unRealizedAmount",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.unRealizedAmount}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.unRealizedAmount).toFormat(symbolPricePrecision)}</div>
       ),
     },
-    {
-      title: t("order.positionColumn.leverageLevel"),
-      dataIndex: "leverageLevel",
-      key: "leverageLevel",
-      render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
-      ),
-    },
+    // 杠杆 
+    // {
+    //   title: t("order.positionColumn.leverageLevel"),
+    //   dataIndex: "leverageLevel",
+    //   key: "leverageLevel",
+    //   render: (_: any, record: Position) => (
+    //     <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
+    //   ),
+    // },
+    // 仓位余额 
     {
       title: t("order.positionColumn.positionBalance"),
       dataIndex: "positionBalance",
       key: "positionBalance",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">{record.positionBalance}</div>
+        <div className="text-[12px] font-[500]">{new BigNumber(record.positionBalance).toFormat(symbolPricePrecision)}</div>
       ),
     },
   ];
@@ -343,12 +382,18 @@ export const createPositionColumns = ({ t, onQuickClose }: PositionColumnConfig)
 interface OrdinaryColumnConfig {
   t: TFunction;
   onCancelOrder?: (record: OrdinaryCommission) => void;
+  symbolPricePrecision?: number;
 }
 
 /**
  * 普通委托列表配置
  */
-export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig) => [
+export const createOrdinaryColumns = ({
+  t,
+  onCancelOrder,
+  symbolPricePrecision,
+}: OrdinaryColumnConfig) => [
+  // 合约符号 
   {
     title: t("order.ordinaryColumn.symbol"),
     dataIndex: "symbol",
@@ -357,14 +402,15 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{record.symbol}</div>
     ),
   },
-  {
-    title: t("order.ordinaryColumn.pricePrecision"),
-    dataIndex: "pricePrecision",
-    key: "pricePrecision",
-    render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-    ),
-  },
+  // {
+  //   title: t("order.ordinaryColumn.pricePrecision"),
+  //   dataIndex: "pricePrecision",
+  //   key: "pricePrecision",
+  //   render: (_: any, record: OrdinaryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+  //   ),
+  // },
+  // 方向 
   {
     title: t("order.ordinaryColumn.side"),
     dataIndex: "side",
@@ -378,6 +424,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       </div>
     ),
   },
+  // 仓位类型 
   {
     title: t("order.ordinaryColumn.positionType"),
     dataIndex: "positionType",
@@ -388,22 +435,25 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       </div>
     ),
   },
+  // 平均价格 
   {
     title: t("order.ordinaryColumn.avgPrice"),
     dataIndex: "avgPrice",
     key: "avgPrice",
     render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.avgPrice}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.avgPrice).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 手续费 
   {
     title: t("order.ordinaryColumn.tradeFee"),
     dataIndex: "tradeFee",
     key: "tradeFee",
     render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.tradeFee}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.tradeFee).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 类型 
   {
     title: t("order.ordinaryColumn.type"),
     dataIndex: "type",
@@ -412,6 +462,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{t(TypeMap[record.type])}</div>
     ),
   },
+  // 时间 
   {
     title: t("order.ordinaryColumn.mtime"),
     dataIndex: "mtime",
@@ -422,6 +473,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       </div>
     ),
   },
+  // 委托数量 
   {
     title: t("order.ordinaryColumn.volume"),
     dataIndex: "volume",
@@ -430,6 +482,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{record.volume}</div>
     ),
   },
+  // 成交数量 
   {
     title: t("order.ordinaryColumn.dealVolume"),
     dataIndex: "dealVolume",
@@ -438,22 +491,24 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{record.dealVolume}</div>
     ),
   },
+  // 价格 
   {
     title: t("order.ordinaryColumn.price"),
     dataIndex: "price",
     key: "price",
     render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.price}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.price).toFormat(symbolPricePrecision)}</div>
     ),
   },
-  {
-    title: t("order.ordinaryColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.ordinaryColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: OrdinaryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
+  // 创建时间 
   {
     title: t("order.ordinaryColumn.ctime"),
     dataIndex: "ctime",
@@ -464,6 +519,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       </div>
     ),
   },
+  // 合约名称 
   {
     title: t("order.ordinaryColumn.contractName"),
     dataIndex: "contractName",
@@ -472,6 +528,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{record.contractName}</div>
     ),
   },
+  // 订单ID 
   {
     title: t("order.ordinaryColumn.id"),
     dataIndex: "id",
@@ -480,6 +537,7 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{record.id}</div>
     ),
   },
+  // 状态 
   {
     title: t("order.ordinaryColumn.open"),
     dataIndex: "open",
@@ -488,14 +546,18 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
       <div className="text-[12px] font-[500]">{t(OpenMap[record.open])}</div>
     ),
   },
+  // 状态 
   {
     title: t("order.ordinaryColumn.status"),
     dataIndex: "status",
     key: "status",
     render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{t(StatusMap[record.status])}</div>
+      <div className="text-[12px] font-[500]">
+        {t(StatusMap[record.status])}
+      </div>
     ),
   },
+  // 取消 
   {
     title: (
       <div className="text-[12px] font-[500] text-[var(--theme-color)] cursor-pointer">
@@ -506,7 +568,11 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
     align: "right" as const,
     render: (_: any, record: OrdinaryCommission) => {
       return (
-        <Tooltip title={t("order.ordinaryColumn.cancel")} placement="left" className="ml-auto">
+        <Tooltip
+          title={t("order.ordinaryColumn.cancel")}
+          placement="left"
+          className="ml-auto"
+        >
           <SvgIcon
             onClick={() => onCancelOrder?.(record)}
             width="24"
@@ -528,7 +594,8 @@ export const createOrdinaryColumns = ({ t, onCancelOrder }: OrdinaryColumnConfig
 /**
  * 历史委托列表配置
  */
-export const createHistoryColumns = ({ t }: { t: TFunction }) => [
+export const createHistoryColumns = ({ t,symbolPricePrecision }: { t: TFunction,symbolPricePrecision?: number }) => [
+  // 合约符号 
   {
     title: t("order.historyColumn.symbol"),
     dataIndex: "symbol",
@@ -537,14 +604,15 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.symbol}</div>
     ),
   },
-  {
-    title: t("order.historyColumn.pricePrecision"),
-    dataIndex: "pricePrecision",
-    key: "pricePrecision",
-    render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-    ),
-  },
+  // {
+  //   title: t("order.historyColumn.pricePrecision"),
+  //   dataIndex: "pricePrecision",
+  //   key: "pricePrecision",
+  //   render: (_: any, record: HistoryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+  //   ),
+  // },
+  // 方向 
   {
     title: t("order.historyColumn.side"),
     dataIndex: "side",
@@ -558,6 +626,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       </div>
     ),
   },
+  // 仓位类型 
   {
     title: t("order.historyColumn.positionType"),
     dataIndex: "positionType",
@@ -568,22 +637,25 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       </div>
     ),
   },
+  // 平均价格 
   {
     title: t("order.historyColumn.avgPrice"),
     dataIndex: "avgPrice",
     key: "avgPrice",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.avgPrice}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.avgPrice).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 手续费 
   {
     title: t("order.historyColumn.tradeFee"),
     dataIndex: "tradeFee",
     key: "tradeFee",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.tradeFee}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.tradeFee).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 已实现盈亏 
   {
     title: t("order.historyColumn.realizedAmount"),
     dataIndex: "realizedAmount",
@@ -596,14 +668,15 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
             record.realizedAmount > 0
               ? "#4CAF50"
               : record.realizedAmount < 0
-                ? "#F44336"
-                : "",
+              ? "#F44336"
+              : "",
         }}
       >
-        {record.realizedAmount}
+        {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}
       </div>
     ),
   },
+  // 类型 
   {
     title: t("order.historyColumn.type"),
     dataIndex: "type",
@@ -612,6 +685,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{t(TypeMap[record.type])}</div>
     ),
   },
+  // 委托数量 
   {
     title: t("order.historyColumn.volume"),
     dataIndex: "volume",
@@ -620,6 +694,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.volume}</div>
     ),
   },
+  // 成交数量 
   {
     title: t("order.historyColumn.dealVolume"),
     dataIndex: "dealVolume",
@@ -628,22 +703,24 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.dealVolume}</div>
     ),
   },
+  // 价格 
   {
     title: t("order.historyColumn.price"),
     dataIndex: "price",
     key: "price",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.price}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.price).toFormat(symbolPricePrecision)}</div>
     ),
   },
-  {
-    title: t("order.historyColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.historyColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: HistoryCommission) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
+  // 创建时间 
   {
     title: t("order.historyColumn.ctime"),
     dataIndex: "ctime",
@@ -654,6 +731,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       </div>
     ),
   },
+  // 合约名称 
   {
     title: t("order.historyColumn.contractName"),
     dataIndex: "contractName",
@@ -662,6 +740,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.contractName}</div>
     ),
   },
+  // 订单ID 
   {
     title: t("order.historyColumn.id"),
     dataIndex: "id",
@@ -670,6 +749,7 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.id}</div>
     ),
   },
+  // 开仓 
   {
     title: t("order.historyColumn.open"),
     dataIndex: "open",
@@ -678,12 +758,15 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{t(OpenMap[record.open])}</div>
     ),
   },
+  // 状态 
   {
     title: t("order.historyColumn.status"),
     dataIndex: "status",
     key: "status",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{t(StatusMap[record.status])}</div>
+      <div className="text-[12px] font-[500]">
+        {t(StatusMap[record.status])}
+      </div>
     ),
   },
 ];
@@ -691,108 +774,158 @@ export const createHistoryColumns = ({ t }: { t: TFunction }) => [
 /**
  * 盈亏记录列表配置
  */
-export const createTradeRecordColumns = ({ t }: { t: TFunction }) => [
+export const createTradeRecordColumns = ({ t,symbolPricePrecision }: { t: TFunction,symbolPricePrecision?: number }) => [
+  // 开仓均价 
   {
-    title: t("order.tradeRecordColumn.symbol"),
-    dataIndex: "symbol",
-    key: "symbol",
+    title: t('order.tradeRecordColumn.openAvgPrice'),
+    dataIndex: "openAvgPrice",
+    key: "openAvgPrice",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500] flex items-center gap-[4px]">
-        <div className="text-[#00C788]">{record.symbol}</div>
-        <div>逐仓 50x</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.openAvgPrice).toFormat(symbolPricePrecision)}</div>
+    ),
+  },
+  // 仓位类型 
+  {
+    title: t('order.tradeRecordColumn.positionType'),
+    dataIndex: "positionType",
+    key: "positionType",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">
+        {t(PositionTypeMap[record.positionType])}
       </div>
     ),
   },
+  // 已实现盈亏 
   {
-    title: t("order.tradeRecordColumn.openPrice"),
-    dataIndex: "openPrice",
-    key: "openPrice",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.openPrice}</div>
-    ),
-  },
-  {
-    title: t("order.tradeRecordColumn.size"),
-    dataIndex: "size",
-    key: "size",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.size}</div>
-    ),
-  },
-  {
-    title: t("order.tradeRecordColumn.realizedPnl"),
-    dataIndex: "realizedPnl",
-    key: "realizedPnl",
+    title: t('order.tradeRecordColumn.realizedAmount'),
+    dataIndex: "realizedAmount",
+    key: "realizedAmount",
     render: (_: any, record: TradeRecord) => (
       <div
         className="text-[12px] font-[500]"
         style={{
           color:
-            record.realizedPnl > 0
+            record.realizedAmount > 0
               ? "#4CAF50"
-              : record.realizedPnl < 0
-                ? "#F44336"
-                : "",
+              : record.realizedAmount < 0
+              ? "#F44336"
+              : "",
         }}
       >
-        {record.realizedPnl}
+        {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}
       </div>
     ),
   },
+  // 持仓数量 
   {
-    title: t("order.tradeRecordColumn.fee"),
-    dataIndex: "fee",
-    key: "fee",
+    title: t('order.tradeRecordColumn.positionVolume'),
+    dataIndex: "positionVolume",
+    key: "positionVolume",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.fee} USDT</div>
+      <div className="text-[12px] font-[500]">{record.positionVolume}</div>
     ),
   },
+  // 杠杆倍数 
   {
-    title: t("order.tradeRecordColumn.fundingFee"),
-    dataIndex: "fundingFee",
-    key: "fundingFee",
+    title: t('order.tradeRecordColumn.leverageLevel'),
+    dataIndex: "leverageLevel",
+    key: "leverageLevel",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.fundingFee}</div>
+      <div className="text-[12px] font-[500]">{record.leverageLevel}</div>
     ),
   },
+  // 开仓价格 
   {
-    title: t("order.tradeRecordColumn.pnl"),
-    dataIndex: "pnl",
-    key: "pnl",
+    title: t('order.tradeRecordColumn.openPrice'),
+    dataIndex: "openPrice",
+    key: "openPrice",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500] flex items-center gap-[4px]">
-        <div>{record.pnl}</div>
-        <SvgIcon
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          className="text-[var(--text-color6)]"
-        >
-          <path
-            d="M14.625 4.40072L8.23034 10.764C7.95507 11.0379 7.50988 11.0368 7.23596 10.7616C6.96206 10.4863 6.96315 10.0411 7.23843 9.76721L13.6621 3.375H11.0039C10.6156 3.375 10.3008 3.06019 10.3008 2.67188C10.3008 2.28356 10.6156 1.96875 11.0039 1.96875H14.0625C15.1498 1.96875 16.0312 2.85019 16.0312 3.9375V6.99609C16.0312 7.38441 15.7164 7.69922 15.3281 7.69922C14.9398 7.69922 14.625 7.38441 14.625 6.99609V4.40072ZM14.625 10.3757C14.625 9.98735 14.9398 9.67256 15.3281 9.67256C15.7164 9.67256 16.0312 9.98735 16.0312 10.3757V14.0625C16.0312 15.1498 15.1498 16.0312 14.0625 16.0312H3.9375C2.85019 16.0312 1.96875 15.1498 1.96875 14.0625V3.9375C1.96875 2.85019 2.85019 1.96875 3.9375 1.96875H7.62434C8.01264 1.96875 8.32746 2.28356 8.32746 2.67188C8.32746 3.06019 8.01264 3.375 7.62434 3.375H3.9375C3.62684 3.375 3.375 3.62684 3.375 3.9375V14.0625C3.375 14.3732 3.62684 14.625 3.9375 14.625H14.0625C14.3732 14.625 14.625 14.3732 14.625 14.0625V10.3757Z"
-            fill="currentColor"
-          />
-        </SvgIcon>
-      </div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.openPrice).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 结算盈亏 
   {
-    title: t("order.tradeRecordColumn.pnl"),
-    dataIndex: "pnl",
-    key: "pnl_2",
+    title: t('order.tradeRecordColumn.settleProfit'),
+    dataIndex: "settleProfit",
+    key: "settleProfit",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.pnl}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.settleProfit).toFormat(symbolPricePrecision)}</div>
     ),
   },
+  // 创建时间 
   {
-    title: t("order.tradeRecordColumn.closeTime"),
-    dataIndex: "closeTime",
-    key: "closeTime",
-    align: "right" as const,
+    title: t('order.tradeRecordColumn.mtime'),
+    dataIndex: "mtime",
+    key: "mtime",
     render: (_: any, record: TradeRecord) => (
       <div className="text-[12px] font-[500]">
-        {dayjs(record.closeTime).format("YYYY-MM-DD HH:mm:ss")}
+        {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
       </div>
+    ),
+  },
+  // 方向 
+  {
+    title: t('order.tradeRecordColumn.orderSide'),
+    dataIndex: "orderSide",
+    key: "orderSide",
+    render: (_: any, record: TradeRecord) => (
+      <div
+        className="text-[12px] font-[500]"
+        style={{ color: SideMap[record.orderSide].color }}
+      >
+        {t(SideMap[record.orderSide].text)}
+      </div>
+    ),
+  },
+  // 已实现盈亏 
+  {
+    title: t('order.tradeRecordColumn.profitRealizedAmount'),
+    dataIndex: "profitRealizedAmount",
+    key: "profitRealizedAmount",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">
+        {new BigNumber(record.profitRealizedAmount).toFormat(symbolPricePrecision)}
+      </div>
+    ),
+  },
+  // 合约ID 
+  {
+    title: t('order.tradeRecordColumn.contractId'),
+    dataIndex: "contractId",
+    key: "contractId",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">{record.contractId}</div>
+    ),
+  },
+  // 历史已实现盈亏 
+  {
+    title: t('order.tradeRecordColumn.historyRealizedAmount'),
+    dataIndex: "historyRealizedAmount",
+    key: "historyRealizedAmount",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">
+        {new BigNumber(record.historyRealizedAmount).toFormat(symbolPricePrecision)}
+      </div>
+    ),
+  },
+  // 创建时间 
+  {
+    title: t('order.tradeRecordColumn.ctime'),
+    dataIndex: "ctime",
+    key: "ctime",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">
+        {dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}
+      </div>
+    ),
+  },
+  // 订单ID 
+  {
+    title: t('order.tradeRecordColumn.id'),
+    dataIndex: "id",
+    key: "id",
+    render: (_: any, record: TradeRecord) => (
+      <div className="text-[12px] font-[500]">{record.id}</div>
     ),
   },
 ];
@@ -800,7 +933,8 @@ export const createTradeRecordColumns = ({ t }: { t: TFunction }) => [
 /**
  * 成交历史列表配置
  */
-export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
+export const createTradeHistoryColumns = ({ t,symbolPricePrecision }: { t: TFunction,symbolPricePrecision?: number }) => [
+  // 合约符号 
   {
     title: t("order.tradeHistoryColumn.symbol"),
     dataIndex: "symbol",
@@ -809,14 +943,16 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.symbol}</div>
     ),
   },
-  {
-    title: t("order.tradeHistoryColumn.pricePrecision"),
-    dataIndex: "pricePrecision",
-    key: "pricePrecision",
-    render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
-    ),
-  },
+  // 方向 
+  // {
+  //   title: t("order.tradeHistoryColumn.pricePrecision"),
+  //   dataIndex: "pricePrecision",
+  //   key: "pricePrecision",
+  //   render: (_: any, record: TradeHistory) => (
+  //     <div className="text-[12px] font-[500]">{record.pricePrecision}</div>
+  //   ),
+  // },
+  // 角色 
   {
     title: t("order.tradeHistoryColumn.side"),
     dataIndex: "side",
@@ -830,6 +966,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       </div>
     ),
   },
+  // 角色 
   {
     title: t("order.tradeHistoryColumn.role"),
     dataIndex: "role",
@@ -838,14 +975,16 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{RoleMap[record.role]}</div>
     ),
   },
+  // 手续费 
   {
     title: t("order.tradeHistoryColumn.fee"),
     dataIndex: "fee",
     key: "fee",
     render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.fee}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.fee).toFormat(record.feeCoinPrecision)}</div>
     ),
   },
+  // 手续费精度 
   {
     title: t("order.tradeHistoryColumn.feeCoinPrecision"),
     dataIndex: "feeCoinPrecision",
@@ -854,6 +993,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.feeCoinPrecision}</div>
     ),
   },
+  // 委托数量 
   {
     title: t("order.tradeHistoryColumn.volume"),
     dataIndex: "volume",
@@ -863,6 +1003,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.volume}</div>
     ),
   },
+  // 手续费币种 
   {
     title: t("order.tradeHistoryColumn.feeCoin"),
     dataIndex: "feeCoin",
@@ -871,22 +1012,24 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.feeCoin}</div>
     ),
   },
+  // 价格 
   {
     title: t("order.tradeHistoryColumn.price"),
     dataIndex: "price",
     key: "price",
     render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.price}</div>
+      <div className="text-[12px] font-[500]">{new BigNumber(record.price).toFormat(symbolPricePrecision)}</div>
     ),
   },
-  {
-    title: t("order.tradeHistoryColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeHistoryColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: TradeHistory) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
+  // 创建时间 
   {
     title: t("order.tradeHistoryColumn.ctime"),
     dataIndex: "ctime",
@@ -897,6 +1040,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       </div>
     ),
   },
+  // 合约名称 
   {
     title: t("order.tradeHistoryColumn.contractName"),
     dataIndex: "contractName",
@@ -905,6 +1049,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.contractName}</div>
     ),
   },
+  // 订单ID 
   {
     title: t("order.tradeHistoryColumn.id"),
     dataIndex: "id",
@@ -913,6 +1058,7 @@ export const createTradeHistoryColumns = ({ t }: { t: TFunction }) => [
       <div className="text-[12px] font-[500]">{record.id}</div>
     ),
   },
+  // 状态 
   {
     title: t("order.tradeHistoryColumn.open"),
     dataIndex: "open",

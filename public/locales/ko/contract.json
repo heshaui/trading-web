@@ -111,7 +111,12 @@
     "openMargin": "초기 증거금",
     "profit": "수익/손실",
     "returnRate": "수익률",
-    "disclaimer": "*계산 결과는 참고용이며, 수수료, 펀딩 비율 등으로 인해 실제 결과와 다를 수 있습니다."
+    "disclaimer": "*계산 결과는 참고용이며, 수수료, 펀딩 비율 등으로 인해 실제 결과와 다를 수 있습니다.",
+    "targetReturnRate": "목표 수익률",
+    "positionSize": "포지션 크기",
+    "availableBalance": "사용 가능 잔고",
+    "liquidationPrice": "강제 청산 가격",
+    "selectMarginMode": "증거금 모드 선택"
   },
   "tradingSettings": {
     "title": "거래 설정",
@@ -154,6 +159,7 @@
   },
   "loadFailed": "로드 실패",
   "order": {
+    "onlyCurrentSymbol": "현재 계약만",
     "title": "계약 주문",
     "position": "포지션",
     "currentCommission": "현재 미체결",
@@ -190,7 +196,13 @@
       "leverageLevel": "레버리지 배수",
       "positionBalance": "포지션 잔액",
       "marketClose": "시장가 청산",
-      "limitClose": "지정가 청산"
+      "limitClose": "지정가 청산",
+      "price": "가격",
+      "quantity": "수량",
+      "marketCloseBtn": "시장가 청산",
+      "limitCloseBtn": "지정가 청산",
+      "marketTab": "시장가",
+      "limitTab": "지정가"
     },
     "ordinaryColumn": {
       "symbol": "계약",
@@ -233,15 +245,20 @@
       "status": "상태"
     },
     "tradeRecordColumn": {
-      "symbol": "계약",
-      "openPrice": "평균 진입 가격",
-      "size": "포지션 수량",
-      "realizedPnl": "실현 손익",
-      "fee": "수수료",
-      "fundingFee": "펀딩 비용",
-      "pnl": "포지션 손익",
-      "share": "분담액",
-      "closeTime": "청산 시간"
+      "openAvgPrice": "평균 진입 가격",
+      "positionType": "포지션 유형",
+      "realizedAmount": "실현 손익",
+      "positionVolume": "포지션 수량",
+      "leverageLevel": "레버리지 배수",
+      "openPrice": "진입 가격",
+      "settleProfit": "청산 손익",
+      "mtime": "수정 시간",
+      "orderSide": "주문 방향",
+      "profitRealizedAmount": "손익",
+      "contractId": "계약 ID",
+      "historyRealizedAmount": "미실현 손익",
+      "ctime": "생성 시간",
+      "id": "포지션 ID"
     },
     "tradeHistoryColumn": {
       "symbol": "계약",
@@ -407,5 +424,15 @@
     "transfer": "이체",
     "deposit": "입금",
     "notOpenYet": "아직 사용 불가"
+  },
+  "contractInfo": {
+    "title": "계약 정보",
+    "contractId": "계약 ID",
+    "deliveryDate": "청산 일자",
+    "contractTarget": "계약 대상",
+    "marginCoin": "증거금 코인",
+    "contractValue": "계약 가치",
+    "minPriceChange": "최소 가격 변동",
+    "minMaintainMarginRate": "최소 유지 증거금률"
   }
 }

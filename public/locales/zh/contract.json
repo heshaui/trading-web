@@ -111,7 +111,15 @@
     "openMargin": "开仓保证金",
     "profit": "收益额",
     "returnRate": "回报率",
-    "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差"
+    "disclaimer": "*计算结果仅供参考，实际操作中可能会因为手续费、资金费率等因素导致结果出现偏差",
+    "marginMode": "保证金模式",
+    "crossMargin": "全仓",
+    "isolatedMargin": "逐仓",
+    "targetReturnRate": "目标回报率",
+    "positionSize": "仓位数量",
+    "availableBalance": "可用余额",
+    "liquidationPrice": "强平价格",
+    "selectMarginMode": "请选择保证金模式"
   },
   "tradingSettings": {
     "title": "交易设置",
@@ -154,6 +162,7 @@
   },
   "loadFailed": "加载失败",
   "order": {
+    "onlyCurrentSymbol": "仅当前合约",
     "title": "合约订单",
     "position": "仓位",
     "currentCommission": "当前委托",
@@ -190,7 +199,13 @@
       "leverageLevel": "杠杆倍数",
       "positionBalance": "仓位余额",
       "marketClose": "市价平仓",
-      "limitClose": "限价平仓"
+      "limitClose": "限价平仓",
+      "price": "价格",
+      "quantity": "数量",
+      "marketCloseBtn": "市价平",
+      "limitCloseBtn": "限价平",
+      "marketTab": "市价",
+      "limitTab": "限价"
     },
     "ordinaryColumn": {
       "symbol": "合约",
@@ -233,15 +248,20 @@
       "status": "状态"
     },
     "tradeRecordColumn": {
-      "symbol": "合约",
-      "openPrice": "开仓均价",
-      "size": "仓位数量",
-      "realizedPnl": "已实现盈亏",
-      "fee": "手续费",
-      "fundingFee": "资金费用",
-      "pnl": "仓位盈亏",
-      "share": "分摊",
-      "closeTime": "平仓时间"
+      "openAvgPrice": "开仓均价",
+      "positionType": "仓位类型",
+      "realizedAmount": "已实现盈亏",
+      "positionVolume": "仓位数量",
+      "leverageLevel": "杠杆倍数",
+      "openPrice": "开仓价格",
+      "settleProfit": "结算盈亏",
+      "mtime": "修改时间",
+      "orderSide": "订单方向",
+      "profitRealizedAmount": "盈亏",
+      "contractId": "合约ID",
+      "historyRealizedAmount": "历史已实现盈亏",
+      "ctime": "创建时间",
+      "id": "仓位ID"
     },
     "tradeHistoryColumn": {
       "symbol": "合约",
@@ -263,7 +283,7 @@
       "crossMargin": "全仓",
       "isolatedMargin": "逐仓",
       "buy": "开多",
-      "sell": "开空",
+      "sell": "平多",
       "limit": "限价单",
       "market": "市价单",
       "forceLiquidation": "强制减仓",
@@ -307,6 +327,7 @@
     "triggerPrice": "触发价格",
     "orderPrice": "委托价格",
     "orderQuantity": "委托数量",
+    "unit": "张",
     "marketPrice": "市价",
     "canBuy": "可买",
     "canSell": "可卖",
@@ -407,5 +428,15 @@
     "transfer": "划转",
     "deposit": "充值",
     "notOpenYet": "暂未开放"
+  },
+  "contractInfo": {
+    "title": "合约信息",
+    "contractId": "合约代号",
+    "deliveryDate": "交割日期",
+    "contractTarget": "合约标的",
+    "marginCoin": "保证金币种",
+    "contractValue": "合约面值",
+    "minPriceChange": "最小价格变动单位",
+    "minMaintainMarginRate": "最低维持保证金率"
   }
 }

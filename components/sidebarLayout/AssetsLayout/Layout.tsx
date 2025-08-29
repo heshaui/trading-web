@@ -13,7 +13,7 @@ interface UserCenterLayoutProps {
 type MenuItem = Required<MenuProps>["items"][number];
 
 const UserCenterLayout: React.FC<UserCenterLayoutProps> = ({ children }) => {
-  const { t } = useTranslation("assets");
+  const { t } = useTranslation(["assets"]);
   const financialConfig = appStore.financialConfig;
   const contractConfig = appStore.contractConfig;
   // 菜单项定义

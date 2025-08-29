@@ -5,10 +5,12 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useCallback,
+  useMemo,
 } from "react";
-import { widget } from "@/public/charting_library/charting_library";
+import { widget } from "@/public/charting_library/charting_library.esm";
 import "@/styles/components/Tradingview.module.css";
 import { useThemeMode } from "@/hooks/useThemeMode";
+import { KlineDataConverter } from "@/utils/klineDataConverter";
 import jstz from 'jstz';
 
 export interface TradingviewProps {
@@ -62,64 +64,252 @@ const Tradingview: React.ForwardRefRenderFunction<
   },
   ref
 ) => {
-    console.log("klineData___", klineData);
     const timezone = jstz.determine();
     const { isDayMode } = useThemeMode();
+    
+    // 声明所有的 refs 和 state
     const chartContainerRef = useRef<HTMLDivElement>(null);
+    const wsDataRef = useRef(klineData);
+    const initCompletedRef = useRef(false);
+    const scrollContainer = useRef<HTMLUListElement>(null);
+    const prevThemeRef = useRef<boolean | null>(null);
+    
     const [tvWidget, setTvWidget] = useState<any>(null);
     const [showModal, setShowModal] = useState(false);
     const [showIntervalDialog, setShowIntervalDialog] = useState(false);
     const [tradTime, setTradTime] = useState("1D");
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(true);
 
-    const [intervals] = useState([
+    const intervals = useMemo(() => [
       "1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "D", "W", "M",
-    ]);
+    ], []);
 
-    const [lineType] = useState([
+    const lineType = useMemo(() => [
       { text: "Line", type: 8 },
       { text: "Bar", type: 1 },
       { text: "Candlestick", type: 9 },
       { text: "Area", type: 3 },
       { text: "Heikin Ashi", type: 13 },
-    ]);
+    ], []);
 
-    const wsDataRef = useRef(klineData);
-    const initCompletedRef = useRef(false);
-    const scrollContainer = useRef<HTMLUListElement>(null);
-    const [showLeftArrow, setShowLeftArrow] = useState(false);
-    const [showRightArrow, setShowRightArrow] = useState(true);
-    const prevThemeRef = useRef<boolean | null>(null);
+    // 调试日志
+    console.log("📊 ==========TradingView组件渲染==========");
+    console.log("📊 Tradingview组件接收到的klineData:", klineData);
+    console.log("📊 Tradingview组件props:", { symbol, chartType, timeInterval, isDayMode });
+    console.log("📊 当前图表widget实例:", !!tvWidget);
+    console.log("📊 初始化完成状态:", initCompletedRef.current);
+    console.log("📊 ==========================================");
 
-    // 创建图表函数
-    const createChart = useCallback(() => {
-      if (!chartContainerRef.current || tvWidget || initCompletedRef.current) {
-        console.log("创建图表被跳过:", {
-          hasContainer: !!chartContainerRef.current,
-          hasTvWidget: !!tvWidget,
-          initCompleted: initCompletedRef.current
-        });
+    // 强制创建图表函数，跳过状态检查
+    const forceCreateChart = useCallback(() => {
+      console.log("🚀 ========== 强制创建图表函数被调用 ==========");
+      console.log("🚀 当前状态:", {
+        hasContainer: !!chartContainerRef.current,
+        currentSymbol: symbol,
+        timeInterval: timeInterval
+      });
+      
+      if (!chartContainerRef.current) {
+        console.log("❌ 无法强制创建图表：容器不存在");
         return;
       }
 
-      console.log("开始创建TradingView图表");
-
+      console.log("✅ 强制开始创建TradingView图表，合约:", symbol);
+      
       try {
+        // 确保清理状态
+        initCompletedRef.current = false;
+        
         const tvTimeInterval = convertTimeInterval(timeInterval);
-        const chartSymbol = symbol || "BTC_USDT_1";
+        // 为每个合约创建唯一的symbol标识，包含时间戳避免缓存冲突
+        const uniqueTimestamp = Date.now();
+        const chartSymbol = symbol ? `${symbol.replace("-", "_")}_${uniqueTimestamp}` : `BTC_USDT_${uniqueTimestamp}`;
+        
+        console.log("📊 强制创建图表使用的唯一symbol:", chartSymbol);
 
-        // 使用当前最新的klineData，如果没有数据则传null让TradingView显示"No data"
-        const currentData = klineData || wsDataRef.current || null;
-        console.log("🎯 创建datafeed，使用数据:", {
-          hasCurrentData: !!currentData,
-          dataType: typeof currentData,
-          dataKeys: currentData && typeof currentData === 'object' ? Object.keys(currentData) : null,
-          dataSource: currentData === klineData ? 'klineData' : (currentData === wsDataRef.current ? 'wsDataRef.current' : 'null')
-        });
+        // 优先使用从父组件传递的klineData，其次使用wsDataRef中的缓存数据
+        let currentData = klineData || wsDataRef.current;
+        
+        // 检查数据状态，但即使没有数据也创建图表
+        if (!currentData || (Array.isArray(currentData) && currentData.length === 0) || 
+            (currentData.event_rep === "rep" && (!currentData.data || currentData.data.length === 0))) {
+          console.log("⚠️ 强制创建：没有初始K线数据，创建空图表等待WebSocket数据流");
+          // 创建一个空的数据结构，让TradingView能正常初始化
+          currentData = { 
+            event_rep: "rep", 
+            data: [], 
+            channel: `market_${symbol?.toLowerCase().replace("-", "")}_kline_1day` 
+          };
+        }
 
         const datafeed = createDatafeed(
           currentData,
           tvTimeInterval,
-          chartSymbol
+          chartSymbol,
+          symbol  // 传递原始symbol用于数据匹配
+        );
+
+        // 继续使用原来的配置...
+        const disabledFeatures = [
+          "header_widget",
+          "use_localstorage_for_settings",
+          "timeframes_toolbar",
+          "symbol_search",
+          "symbol_info",
+          "header_symbol_search",
+          "header_compare",
+          "compare_symbol",
+          "display_market_status",
+          "symbol_change",
+        ];
+
+        let lang = localStorage.getItem("lang") || "zh";
+        if (lang == "zh_CN") {
+          lang = "zh";
+        } else if (lang == "en_US") {
+          lang = "en";
+        } else if (lang == "ko_KR") {
+          lang = "ko";
+        } else if (lang == "vi_VN") {
+          lang = "vi";
+        } else {
+          lang = "en";
+        }
+        
+        const widgetOptions = {
+          symbol: chartSymbol,
+          datafeed: datafeed,
+          interval: tvTimeInterval,
+          container: chartContainerRef.current,
+          library_path: "/charting_library/",
+          locale: lang,
+          charts_storage_url: "http://saveload.tradingview.com",
+          charts_storage_api_version: "1.1",
+          client_id: "tradingview.com",
+          user_id: "public_user_id",
+          fullscreen: false,
+          autosize: true,
+          enabled_features: ["study_templates"],
+          timezone: timezone.name(),
+          debug: false,
+          theme: isDayMode ? "light" : "dark",
+          disabled_features: disabledFeatures,
+          overrides: {
+            "paneProperties.background": isDayMode ? "#ffffff" : "#000000",
+            "paneProperties.backgroundType": "solid",
+            toolbarBg: isDayMode ? "#ffffff" : "#000000",
+          },
+        };
+
+        console.log("强制创建TradingView widget实例");
+        
+        const newWidget = new widget(widgetOptions as any);
+        console.log("✅ TradingView widget实例强制创建成功");
+        setTvWidget(newWidget);
+        console.log("✅ 设置tvWidget状态完成");
+
+        newWidget.onChartReady(() => {
+          console.log("🎉 TradingView图表已准备好，合约:", symbol);
+          try {
+            if (newWidget && newWidget.chart && typeof newWidget.chart === 'function') {
+              const chart = newWidget.chart();
+              if (chart && typeof chart.setChartType === 'function' && typeof chart.createStudy === 'function') {
+                chart.setChartType(chartType);
+                chart.createStudy("Volume", false, false, {
+                  "volume.color.0": "#00FF00",
+                  "volume.color.1": "#FF0000",
+                  "volume.transparency": 30,
+                  "volume.width": 1,
+                });
+              }
+            }
+          } catch (error) {
+            console.error("图表初始化时出错:", error);
+          }
+        });
+
+        initCompletedRef.current = true;
+        console.log("✅ 设置initCompletedRef为true，图表初始化完成");
+
+        // 设置WebSocket更新处理
+        window.__tradingViewHandlersInitialized = true;
+        window.__handleTradingViewUpdate = (newData: any) => {
+          if (window.__tradingViewUpdateBar) {
+            window.__tradingViewUpdateBar(newData);
+          }
+        };
+
+      } catch (error) {
+        console.error("强制创建TradingView图表错误:", error);
+      }
+    }, [symbol, timeInterval, chartType, isDayMode, klineData, timezone]);
+
+    // 创建图表函数
+    const createChart = useCallback(() => {
+      console.log("🎯 ========== createChart函数被调用 ==========");
+      console.log("🎯 当前状态检查:", {
+        hasContainer: !!chartContainerRef.current,
+        hasTvWidget: !!tvWidget,
+        initCompleted: initCompletedRef.current,
+        currentSymbol: symbol
+      });
+      
+      // 更严格的条件检查，确保状态一致性
+      const hasValidWidget = tvWidget && typeof tvWidget.remove === 'function';
+      if (!chartContainerRef.current || hasValidWidget || initCompletedRef.current) {
+        console.log("❌ 创建图表被跳过，原因:", {
+          没有容器: !chartContainerRef.current,
+          已有图表: !!tvWidget,
+          有有效图表: hasValidWidget,
+          已初始化: initCompletedRef.current
+        });
+        return;
+      }
+
+      console.log("✅ 开始创建TradingView图表，合约:", symbol);
+
+      try {
+        const tvTimeInterval = convertTimeInterval(timeInterval);
+        // 为每个合约创建唯一的symbol标识，包含时间戳避免缓存冲突
+        const uniqueTimestamp = Date.now();
+        const chartSymbol = symbol ? `${symbol.replace("-", "_")}_${uniqueTimestamp}` : `BTC_USDT_${uniqueTimestamp}`;
+        
+        console.log("📊 创建图表使用的唯一symbol:", chartSymbol);
+
+        // 优先使用从父组件传递的klineData，其次使用wsDataRef中的缓存数据
+        let currentData = klineData || wsDataRef.current;
+        
+        console.log("🎯 创建datafeed前，原始数据检查:", {
+          hasKlineData: !!klineData,
+          klineDataType: typeof klineData,
+          klineDataLength: Array.isArray(klineData) ? klineData.length : 'not array',
+          hasWsDataRef: !!wsDataRef.current,
+          wsDataRefType: typeof wsDataRef.current,
+          wsDataRefLength: Array.isArray(wsDataRef.current) ? wsDataRef.current.length : 'not array',
+          finalCurrentData: !!currentData,
+          finalCurrentDataType: typeof currentData,
+          finalCurrentDataLength: Array.isArray(currentData) ? currentData.length : 'not array',
+          sampleData: currentData && Array.isArray(currentData) && currentData.length > 0 ? currentData[0] : 'no sample data'
+        });
+
+        // 检查数据状态，但即使没有数据也创建图表
+        if (!currentData || (Array.isArray(currentData) && currentData.length === 0) || 
+            (currentData.event_rep === "rep" && (!currentData.data || currentData.data.length === 0))) {
+          console.log("⚠️ 没有初始K线数据，创建空图表等待WebSocket数据流");
+          // 创建一个空的数据结构，让TradingView能正常初始化
+          currentData = { 
+            event_rep: "rep", 
+            data: [], 
+            channel: `market_${symbol?.toLowerCase().replace("-", "")}_kline_1day` 
+          };
+        }
+
+        const datafeed = createDatafeed(
+          currentData,
+          tvTimeInterval,
+          chartSymbol,
+          symbol  // 传递原始symbol用于数据匹配
         );
 
         const disabledFeatures = [
@@ -172,13 +362,23 @@ const Tradingview: React.ForwardRefRenderFunction<
           },
         };
 
-        console.log("创建TradingView widget实例");
+        console.log("创建TradingView widget实例，widgetOptions:", {
+          symbol: widgetOptions.symbol,
+          interval: widgetOptions.interval,
+          theme: widgetOptions.theme,
+          containerExists: !!widgetOptions.container,
+          containerOffsetWidth: widgetOptions.container?.offsetWidth,
+          containerOffsetHeight: widgetOptions.container?.offsetHeight,
+          hasDatafeed: !!widgetOptions.datafeed
+        });
+        
         const newWidget = new widget(widgetOptions as any);
-        console.log("TradingView widget创建成功，设置状态");
+        console.log("✅ TradingView widget实例创建成功");
         setTvWidget(newWidget);
+        console.log("✅ 设置tvWidget状态完成");
 
         newWidget.onChartReady(() => {
-          console.log("TradingView图表已准备好");
+          console.log("🎉 TradingView图表已准备好，合约:", symbol);
           try {
             if (newWidget && newWidget.chart && typeof newWidget.chart === 'function') {
               const chart = newWidget.chart();
@@ -198,6 +398,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         });
 
         initCompletedRef.current = true;
+        console.log("✅ 设置initCompletedRef为true，图表初始化完成");
 
         // 设置WebSocket更新处理
         window.__tradingViewHandlersInitialized = true;
@@ -208,23 +409,35 @@ const Tradingview: React.ForwardRefRenderFunction<
         };
 
       } catch (error) {
-
+        console.error("创建TradingView图表错误:", error);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [symbol, timeInterval, chartType, klineData, isDayMode]); // 移除不必要的依赖
+    }, [symbol, timeInterval, chartType, isDayMode]); // klineData通过wsDataRef处理，避免频繁重建
 
     // 主要的初始化和依赖监听
     useEffect(() => {
-      // 更新数据引用
-      if (klineData && Array.isArray(klineData) && klineData.length > 0) {
-        console.log("🔄 更新wsDataRef，数据长度:", klineData.length);
-        console.log("🔄 第一条数据示例:", klineData[0]);
+      // 更新数据引用 - 只要有klineData就更新，支持各种数据格式
+      if (klineData) {
+        console.log("🔄 从父组件更新wsDataRef数据:", {
+          type: typeof klineData,
+          isArray: Array.isArray(klineData),
+          arrayLength: Array.isArray(klineData) ? klineData.length : 'not array',
+          hasEventRep: klineData?.event_rep,
+          hasDataProperty: !!klineData?.data,
+          dataLength: klineData?.data?.length || 0,
+          hasTick: !!klineData?.tick,
+          currentSymbol: symbol,
+          klineChannel: klineData?.channel,
+          sample: Array.isArray(klineData) && klineData.length > 0 ? klineData[0] : 
+                  (klineData?.data && klineData.data.length > 0 ? klineData.data[0] : 
+                  (klineData?.tick ? klineData.tick : 'no sample'))
+        });
         wsDataRef.current = klineData;
       }
 
       // 如果主题变化，重建图表
       if (prevThemeRef.current !== null && prevThemeRef.current !== isDayMode) {
-        console.log("主题变化，重建图表");
+        console.log("🎨 主题变化，重建图表");
         if (tvWidget) {
           try {
             if (tvWidget.remove && typeof tvWidget.remove === 'function') {
@@ -236,27 +449,39 @@ const Tradingview: React.ForwardRefRenderFunction<
             console.error("移除图表时出错:", e);
           }
         }
-        setTimeout(() => createChart(), 100);
+        setTimeout(() => forceCreateChart(), 100);
       } else if (!tvWidget && !initCompletedRef.current) {
         // 首次创建图表
-        console.log("🎯 首次创建图表，当前数据状态:", {
+        console.log("🎯 首次创建图表，当前状态:", {
           hasKlineData: !!klineData,
           klineDataType: typeof klineData,
           klineDataKeys: klineData && typeof klineData === 'object' ? Object.keys(klineData) : null,
           hasSymbol: !!symbol,
           symbol: symbol,
           timeInterval: timeInterval,
-          hasContainer: !!chartContainerRef.current
+          hasContainer: !!chartContainerRef.current,
+          klineChannel: klineData?.channel
         });
-        // 始终创建图表，即使没有数据（TradingView会显示"no data"但至少有图表）
-        setTimeout(() => {
-          console.log("定时器触发，调用createChart");
-          createChart();
-        }, 100);
+        // 确保容器已经挂载后再创建图表
+        if (chartContainerRef.current) {
+          setTimeout(() => {
+            console.log("⏰ 定时器触发，首次强制创建图表");
+            forceCreateChart();
+          }, 100);
+        } else {
+          // 如果容器还没有挂载，等待下一次渲染
+          setTimeout(() => {
+            console.log("⏰ 容器未就绪，延迟强制创建图表");
+            if (chartContainerRef.current) {
+              forceCreateChart();
+            }
+          }, 300);
+        }
       } else {
-        console.log("跳过图表创建:", {
+        console.log("⏭️ 跳过图表创建:", {
           hasTvWidget: !!tvWidget,
-          initCompleted: initCompletedRef.current
+          initCompleted: initCompletedRef.current,
+          reason: tvWidget ? "已有图表实例" : "初始化未完成"
         });
       }
 
@@ -276,7 +501,83 @@ const Tradingview: React.ForwardRefRenderFunction<
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps  
-    }, [symbol, timeInterval, chartType, isDayMode]); // 移除klineData依赖，避免频繁重建
+    }, [symbol, timeInterval, chartType, isDayMode]);
+
+    // 专门监听symbol和timeInterval变化，在合约切换或时间间隔变化时重建图表
+    const prevSymbolRef = useRef<string | undefined>(symbol);
+    const prevTimeIntervalRef = useRef<string>(timeInterval);
+    useEffect(() => {
+      console.log("🔍 Symbol/TimeInterval变化检测useEffect触发:", {
+        prevSymbol: prevSymbolRef.current,
+        currentSymbol: symbol,
+        prevTimeInterval: prevTimeIntervalRef.current,
+        currentTimeInterval: timeInterval,
+        symbolChanged: prevSymbolRef.current && prevSymbolRef.current !== symbol && symbol,
+        timeIntervalChanged: prevTimeIntervalRef.current !== timeInterval,
+        hasTvWidget: !!tvWidget,
+        initCompleted: initCompletedRef.current
+      });
+      
+      // 检查symbol或timeInterval是否发生了变化
+      const symbolChanged = prevSymbolRef.current && prevSymbolRef.current !== symbol && symbol;
+      const timeIntervalChanged = prevTimeIntervalRef.current !== timeInterval && prevTimeIntervalRef.current !== undefined;
+      
+      if (symbolChanged || timeIntervalChanged) {
+        console.log("🔄 ========== 合约symbol或时间间隔发生变化，准备重建图表 ==========");
+        console.log("🔄 变化类型:", {
+          symbolChanged,
+          timeIntervalChanged,
+          变化详情: symbolChanged ? `${prevSymbolRef.current} -> ${symbol}` : `${prevTimeIntervalRef.current} -> ${timeInterval}`
+        });
+        console.log("🔄 变化详情:", {
+          旧symbol: prevSymbolRef.current,
+          新symbol: symbol,
+          有图表实例: !!tvWidget,
+          初始化完成: initCompletedRef.current
+        });
+
+        // 清理现有图表
+        if (tvWidget) {
+          try {
+            if (tvWidget.remove && typeof tvWidget.remove === 'function') {
+              tvWidget.remove();
+            }
+            console.log("✅ 清理旧图表实例完成");
+          } catch (e) {
+            console.error("移除图表时出错:", e);
+          }
+        }
+
+        // 立即重置状态和引用
+        setTvWidget(null);
+        initCompletedRef.current = false;
+        wsDataRef.current = null;
+        
+        // 重置全局时间追踪器，避免时间倒序问题
+        if (window.__tradingViewTimeTracker) {
+          window.__tradingViewTimeTracker.lastBarTime = 0;
+          console.log("🕐 重置时间追踪器，准备新数据");
+        }
+
+        // 延迟创建新图表，确保状态更新和旧图表完全清理
+        setTimeout(() => {
+          console.log("🆕 开始创建新图表:", symbol, "时间间隔:", timeInterval);
+          // 确保强制创建新图表
+          forceCreateChart();
+          console.log("🆕 新图表创建调用完成");
+        }, 300);
+      }
+
+      // 更新symbol和timeInterval引用
+      console.log("📝 更新引用:", {
+        prevSymbol: prevSymbolRef.current,
+        newSymbol: symbol,
+        prevTimeInterval: prevTimeIntervalRef.current,
+        newTimeInterval: timeInterval
+      });
+      prevSymbolRef.current = symbol;
+      prevTimeIntervalRef.current = timeInterval;
+    }, [symbol, timeInterval, tvWidget, forceCreateChart]);
 
     // 监听主题变化事件 - 直接处理，避免循环依赖
     useEffect(() => {
@@ -292,98 +593,99 @@ const Tradingview: React.ForwardRefRenderFunction<
             console.error("主题变化时移除图表出错:", e);
           }
         }
-        setTimeout(() => createChart(), 100);
+        setTimeout(() => forceCreateChart(), 100);
       };
 
       window.addEventListener("themeChange", handleThemeChange);
       return () => {
         window.removeEventListener("themeChange", handleThemeChange);
       };
-    }, [tvWidget, createChart]);
+    }, [tvWidget, forceCreateChart]);
 
     // 已在上面的初始化函数中处理了主题变化的逻辑
 
     // 单独处理WebSocket数据更新
     useEffect(() => {
-      if (!klineData) return;
+      // 只有当klineData存在且不为空时才处理
+      if (!klineData) {
+        console.log("📊 没有接收到父组件klineData，等待WebSocket数据");
+        return;
+      }
 
-      console.log("📊 收到新的klineData:", klineData);
+      console.log("📊 收到父组件传递的klineData:", {
+        type: typeof klineData,
+        isArray: Array.isArray(klineData),
+        length: Array.isArray(klineData) ? klineData.length : 'not array',
+        hasEventRep: klineData?.event_rep,
+        hasData: klineData?.data,
+        hasTick: klineData?.tick,
+        sample: Array.isArray(klineData) && klineData.length > 0 ? klineData[0] : 
+                (klineData?.data && klineData.data.length > 0 ? klineData.data[0] : 
+                (klineData?.tick ? klineData.tick : null))
+      });
 
-      // 更新引用
+      // 更新数据引用 - 始终更新，确保最新数据可用
       wsDataRef.current = klineData;
 
       // 如果tvWidget不存在，说明图表还没创建，数据已经在wsDataRef中，创建时会使用
       if (!tvWidget) {
-        console.log("📊 tvWidget不存在，等待图表创建");
+        console.log("📊 图表尚未创建，数据已保存到wsDataRef，等待图表初始化");
         return;
       }
 
-      // 处理WebSocket数据更新
+      // 处理WebSocket数据更新 - 只有在图表存在时才处理实时更新
       if (window.__handleTradingViewUpdate) {
-        console.log("📊 调用TradingView更新函数");
-        // 直接传递WebSocket数据，让datafeed处理
+        console.log("📊 图表已存在，调用TradingView数据更新函数");
+        // 直接传递父组件的WebSocket数据，让datafeed处理
         window.__handleTradingViewUpdate(klineData);
+      } else {
+        console.warn("📊 TradingView更新函数不存在，无法处理实时数据");
       }
 
     }, [klineData, tvWidget]);
 
     const toggleModal = () => setShowModal(!showModal);
 
-    const setChartInterval = (interval: string) => {
-      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+    const setChartInterval = useCallback((interval: string) => {
+      if (tvWidget?.chart) {
         try {
-          const chart = tvWidget.chart();
-          if (chart && typeof chart.setResolution === 'function') {
-            const tvInterval = convertTimeInterval(interval);
-            chart.setResolution(tvInterval);
-            setTradTime(interval);
-            setShowIntervalDialog(false);
-          }
+          const tvInterval = convertTimeInterval(interval);
+          tvWidget.chart().setResolution(tvInterval);
+          setTradTime(interval);
+          setShowIntervalDialog(false);
         } catch (error) {
           console.error("设置图表时间间隔时出错:", error);
         }
-      } else {
-        console.warn("设置时间间隔失败: 图表未准备好");
       }
-    };
-    //手动添加指标
-    const addIndicator = (studyName: string) => {
-      const studyMappings: any = {
-        "Moving Average": { name: "Moving Average" },
-        EMA: { name: "Moving Average Exponential" },
-        MACD: { name: "MACD" },
-        KDJ: { name: "Stochastic" }, // 更正为 Stochastic
-        BOLL: { name: "Bollinger Bands" },
-        "TD Sequential": { name: "TD Sequential" },
-        "RSI-S-I": { name: "Relative Strength Index" },
-        Stochastic: { name: "Stochastic" },
-        "S-RSI": { name: "Stochastic RSI" },
-        SMI: { name: "SMI" },
-        TRIX: { name: "TRIX" },
-        PO: { name: "Price Oscillator" },
-        PC: { name: "Price Channel" },
-        PVT: { name: "Price Volume Trend" },
-        CC: { name: "Commodity Channel Index" },
-        KST: { name: "Know Sure Thing" },
-        NV: { name: "Negative Volume Index" },
-        Momentum: { name: "Momentum" },
-        DM: { name: "Directional Movement" },
-        AO: { name: "Awesome Oscillator" },
-      };
+    }, [tvWidget]);
+    const studyMappings = useMemo(() => ({
+      "Moving Average": { name: "Moving Average" },
+      EMA: { name: "Moving Average Exponential" },
+      MACD: { name: "MACD" },
+      KDJ: { name: "Stochastic" },
+      BOLL: { name: "Bollinger Bands" },
+      "TD Sequential": { name: "TD Sequential" },
+      "RSI-S-I": { name: "Relative Strength Index" },
+      Stochastic: { name: "Stochastic" },
+      "S-RSI": { name: "Stochastic RSI" },
+      SMI: { name: "SMI" },
+      TRIX: { name: "TRIX" },
+      PO: { name: "Price Oscillator" },
+      PC: { name: "Price Channel" },
+      PVT: { name: "Price Volume Trend" },
+      CC: { name: "Commodity Channel Index" },
+      KST: { name: "Know Sure Thing" },
+      NV: { name: "Negative Volume Index" },
+      Momentum: { name: "Momentum" },
+      DM: { name: "Directional Movement" },
+      AO: { name: "Awesome Oscillator" },
+    } as Record<string, { name: string }>), []);
 
-      if (tvWidget && studyMappings[studyName]) {
-        const chart = tvWidget.chart();
-
-        chart.createStudy(
-          studyMappings[studyName].name,
-          false,
-          true,
-          [], // Params depending on the study
-          {}, // Overrides depending on the study
-          {} // Inputs depending on the study
-        );
+    const addIndicator = useCallback((studyName: string) => {
+      if (tvWidget?.chart && studyMappings[studyName]) {
+        tvWidget.chart().createStudy(studyMappings[studyName].name, false, true);
       }
-    };
+    }, [tvWidget, studyMappings]);
 
     //图表截图
     const handleChartScreenshot = () => {
@@ -486,37 +788,41 @@ const Tradingview: React.ForwardRefRenderFunction<
       toggleFullScreen,
     }));
 
-    const setChartType = (typeCode: number) => {
-      if (tvWidget && tvWidget.chart && typeof tvWidget.chart === 'function') {
+    const setChartType = useCallback((typeCode: number) => {
+      if (tvWidget?.chart) {
         try {
-          const chart = tvWidget.chart();
-          if (chart && typeof chart.setChartType === 'function') {
-            chart.setChartType(typeCode);
-            setShowModal(false);
-          }
+          tvWidget.chart().setChartType(typeCode);
+          setShowModal(false);
         } catch (error) {
           console.error("设置图表类型时出错:", error);
         }
-      } else {
-        console.warn("设置图表类型失败: 图表未准备好");
       }
-    };
+    }, [tvWidget]);
 
     const createDatafeed = (
       initialData: any,
       tvTimeInterval: string,
-      symbol: string
+      uniqueSymbol: string,
+      originalSymbol?: string  // 原始symbol用于数据匹配
     ) => {
       const subscribers: any = {};
       let getBarsRetryCount = 0; // 添加重试计数器
       const maxRetries = 3; // 最大重试次数
 
       // 清理全局状态，确保每次创建datafeed时都有干净的状态
+      console.log("🧹 清理TradingView全局状态，为新合约准备:", {
+        uniqueSymbol,
+        originalSymbol
+      });
       if (window.__tradingViewUpdateBar) {
         delete window.__tradingViewUpdateBar;
       }
       if (window.__handleTradingViewUpdate) {
         delete window.__handleTradingViewUpdate;
+      }
+      if (window.__tradingViewTimeTracker) {
+        window.__tradingViewTimeTracker.lastBarTime = 0;
+        console.log("🕐 重置全局时间追踪器");
       }
       window.__tradingViewHandlersInitialized = false;
 
@@ -615,7 +921,7 @@ const Tradingview: React.ForwardRefRenderFunction<
         }
       }
 
-      // 统一的K线数据转换函数 - 支持新的对象格式，增强错误处理
+      // 统一的K线数据转换函数
       const convertKlineToBar = (kline: any): any => {
         try {
           if (!kline) {
@@ -634,7 +940,6 @@ const Tradingview: React.ForwardRefRenderFunction<
 
             // 检查是否是已转换的格式 {time, open, high, low, close, volume}
             if (kline.time !== undefined && kline.time !== null) {
-              console.log("📊 检测到已转换的数据格式");
               time = Number(kline.time);
               open = Number(kline.open || 0);
               high = Number(kline.high || 0);
@@ -644,58 +949,34 @@ const Tradingview: React.ForwardRefRenderFunction<
             }
             // 检查是否是从API来的格式 {ds, open, high, low, close, vol}
             else if (kline.ds !== undefined && kline.ds !== null) {
-              console.log("📊 检测到API数据格式:", {
-                ds: kline.ds,
-                dsType: typeof kline.ds,
-                convertedTime: new Date(kline.ds).getTime()
-              });
-              time = new Date(kline.ds).getTime(); // ds 是日期字符串，转换为毫秒时间戳
+              time = new Date(kline.ds).getTime();
               open = Number(kline.open || 0);
               high = Number(kline.high || 0);
               low = Number(kline.low || 0);
               close = Number(kline.close || 0);
               volume = Number(kline.vol || 0);
-              console.log("📊 API数据转换后的数值:", { time, open, high, low, close, volume });
             }
             // 检查是否是原始WebSocket格式 {id, open, high, low, close, vol}
             else if (kline.id !== undefined && kline.id !== null) {
-              console.log("📊 检测到原始WebSocket数据格式:", {
-                id: kline.id,
-                rawTime: kline.id * 1000,
-                formattedTime: new Date(kline.id * 1000).toISOString()
-              });
-              time = formatTimeValue(kline.id * 1000); // id 是秒级时间戳，转换为毫秒
+              time = formatTimeValue(kline.id * 1000);
               open = Number(kline.open || 0);
               high = Number(kline.high || 0);
               low = Number(kline.low || 0);
               close = Number(kline.close || 0);
               volume = Number(kline.vol || 0);
-              console.log("📊 转换后的数值:", { time, open, high, low, close, volume });
             }
             else {
-              console.warn("⚠️ 对象格式K线数据缺少时间字段 (time 或 id):", kline);
+              console.warn("⚠️ 对象格式K线数据缺少时间字段:", kline);
               return null;
             }
 
             // 验证数值是否有效
             if (!isFinite(time) || !isFinite(open) || !isFinite(high) || !isFinite(low) || !isFinite(close) || !isFinite(volume)) {
-              console.warn("⚠️ 对象格式K线数据包含无效数值:", { time, open, high, low, close, volume });
+              console.warn("⚠️ K线数据包含无效数值:", { time, open, high, low, close, volume });
               return null;
             }
 
-            // 验证价格数据的合理性
-            if (high < low || high < open || high < close || low > open || low > close) {
-              console.warn("⚠️ 对象格式价格数据异常:", { time: safeTimeToISO(time), open, high, low, close, volume });
-            }
-
-            return {
-              time,
-              open,
-              high,
-              low,
-              close,
-              volume,
-            };
+            return { time, open, high, low, close, volume };
           }
 
           // 处理旧的数组格式（向后兼容）
@@ -707,25 +988,12 @@ const Tradingview: React.ForwardRefRenderFunction<
             const close = Number(kline[4] || 0);
             const volume = Number(kline[6] || 0);
 
-            // 验证数值是否有效
             if (!isFinite(open) || !isFinite(high) || !isFinite(low) || !isFinite(close) || !isFinite(volume)) {
               console.warn("⚠️ 数组格式K线数据包含无效数值:", { open, high, low, close, volume });
               return null;
             }
 
-            // 验证价格数据的合理性
-            if (high < low || high < open || high < close || low > open || low > close) {
-              console.warn("⚠️ 数组格式价格数据异常:", { time: safeTimeToISO(time), open, high, low, close, volume });
-            }
-
-            return {
-              time,
-              open,
-              high,
-              low,
-              close,
-              volume,
-            };
+            return { time, open, high, low, close, volume };
           }
 
           console.warn("⚠️ 无法识别的K线数据格式:", kline);
@@ -736,15 +1004,55 @@ const Tradingview: React.ForwardRefRenderFunction<
         }
       };
 
-      // 跟踪最后一个K线的时间，防止时间倒序
+      // 跟踪最后一个K线的时间，防止时间倒序 - 使用全局变量以便在合约切换时重置
       const timeTracker = { lastBarTime: 0 };
+      
+      // 将时间追踪器暴露到全局，以便在合约切换时能够重置
+      window.__tradingViewTimeTracker = timeTracker;
 
       // 更新实时数据处理函数 - 支持新的WebSocket数据格式
       window.__tradingViewUpdateBar = (data: any) => {
         if (!data) return;
 
         try {
-          console.log("📊 接收到WebSocket数据:", data);
+          console.log("📊 接收到WebSocket数据:", {
+            uniqueSymbol,
+            originalSymbol,
+            数据通道: data.channel
+          });
+
+          // 检查数据是否属于当前合约，避免处理错误合约的数据
+          // 使用originalSymbol进行匹配，而不是uniqueSymbol
+          if (data.channel && originalSymbol) {
+            const channelSymbol = data.channel.toLowerCase();
+            // 从原始symbol中提取匹配用的标识，支持多种格式转换
+            // 例如: "BTC-USDT" → "btcusdt", "BTCUSDT" → "btcusdt"
+            const matchSymbol = originalSymbol
+              .replace(/-/g, "")  // 移除横杠
+              .replace(/_/g, "")  // 移除下划线
+              .toLowerCase();     // 转为小写
+            
+            console.log("🔍 数据合约匹配检查:", {
+              数据通道: data.channel,
+              通道小写: channelSymbol,
+              原始合约: originalSymbol,
+              匹配用标识: matchSymbol,
+              匹配检查: `通道是否包含"${matchSymbol}"`,
+              匹配结果: channelSymbol.includes(matchSymbol)
+            });
+            
+            if (!channelSymbol.includes(matchSymbol)) {
+              console.log("⚠️ 数据不属于当前合约，跳过处理:", {
+                数据通道: data.channel,
+                原始合约: originalSymbol,
+                匹配标识: matchSymbol,
+                为什么不匹配: `通道"${channelSymbol}"不包含标识"${matchSymbol}"`
+              });
+              return;
+            } else {
+              console.log("✅ 数据合约匹配成功，继续处理");
+            }
+          }
 
           // 处理新的WebSocket数据格式
           // 格式1: 历史数据 - { event_rep: "rep", data: [...], tick: null }
@@ -1222,14 +1530,20 @@ const Tradingview: React.ForwardRefRenderFunction<
           onSymbolResolvedCallback: any,
           onResolveErrorCallback: any
         ) => {
+          // 从唯一symbol中提取原始symbol信息
           const symbolParts = symbolName.split("_");
           const baseSymbol = symbolParts[0] || "BTC";
+          const quoteSymbol = symbolParts[1] || "USDT";
+          
+          // 使用原始symbol名称作为描述
+          const originalSymbol = symbol || `${baseSymbol}-${quoteSymbol}`;
+          console.log("🏷️ 解析symbol:", { symbolName, originalSymbol, baseSymbol, quoteSymbol });
 
           setTimeout(
             () =>
               onSymbolResolvedCallback({
-                name: symbolName,
-                description: `${baseSymbol}/USDT`,
+                name: symbolName, // 使用唯一的symbol name
+                description: `${baseSymbol}/${quoteSymbol}`,
                 type: "crypto",
                 session: "24x7",
                 timezone: timezone.name(),
@@ -1269,14 +1583,20 @@ const Tradingview: React.ForwardRefRenderFunction<
           onHistoryCallback: any,
           onErrorCallback: any
         ) => {
-          console.log("📊 getBars被调用:", {
-            symbol: symbolInfo.name,
+          console.log("📊 ========== getBars被调用 ==========");
+          console.log("📊 请求参数:", {
+            uniqueSymbol: symbolInfo.name,
+            originalSymbol: symbol,
             resolution,
             from: new Date(periodParams.from * 1000).toISOString(),
             to: new Date(periodParams.to * 1000).toISOString(),
-            hasInitialData: !!initialData && Array.isArray(initialData) && initialData.length > 0,
-            initialDataLength: Array.isArray(initialData) ? initialData.length : 0,
-            initialDataSample: Array.isArray(initialData) && initialData.length > 0 ? initialData[0] : null
+            firstDataRequest: periodParams.firstDataRequest
+          });
+          console.log("📊 数据状态:", {
+            hasInitialData: !!initialData,
+            initialDataType: typeof initialData,
+            isWebSocketFormat: initialData?.event_rep === "rep",
+            dataLength: initialData?.data?.length || 0
           });
 
           // 处理WebSocket历史数据格式
@@ -1322,6 +1642,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             // 如果有数据则正常返回，如果没有数据则标记为noData避免重复请求
             onHistoryCallback(bars, { noData: bars.length === 0 });
           }
+
           // 处理传统数组格式
           else if (initialData && Array.isArray(initialData) && initialData.length > 0) {
             getBarsRetryCount = 0; // 有数据时重置重试计数器
@@ -1365,26 +1686,17 @@ const Tradingview: React.ForwardRefRenderFunction<
             // 如果有数据则正常返回，如果没有数据则标记为noData避免重复请求
             onHistoryCallback(bars, { noData: bars.length === 0 });
           } else {
-            getBarsRetryCount++;
-            console.log(`📊 没有初始数据，重试次数: ${getBarsRetryCount}/${maxRetries}`);
-
-            // 如果还在重试范围内，返回空数据但允许重试
-            if (getBarsRetryCount < maxRetries) {
-              console.log("📊 允许继续重试获取数据");
-              onHistoryCallback([], { noData: false });
-            } else {
-              console.log("📊 达到最大重试次数，停止请求");
-              // 达到最大重试次数后，标记为noData停止请求
-              onHistoryCallback([], { noData: true });
-            }
+            console.log("📊 没有初始数据，创建空图表等待实时数据");
+            // 直接返回空数据，但不标记为noData，让图表正常显示等待状态
+            onHistoryCallback([], { noData: false });
           }
         },
       };
     };
 
-    const scroll = (direction: "left" | "right") => {
+    const scroll = useCallback((direction: "left" | "right") => {
       if (scrollContainer.current) {
-        const scrollAmount = 200; // 可以根据需要调整滚动距离
+        const scrollAmount = 200;
         const newScrollLeft =
           direction === "left"
             ? scrollContainer.current.scrollLeft - scrollAmount
@@ -1395,15 +1707,15 @@ const Tradingview: React.ForwardRefRenderFunction<
           behavior: "smooth",
         });
       }
-    };
+    }, []);
 
-    const handleScroll = () => {
+    const handleScroll = useCallback(() => {
       if (scrollContainer.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainer.current;
         setShowLeftArrow(scrollLeft > 0);
-        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px 容差
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
       }
-    };
+    }, []);
 
     return (
       <div style={{ width: "100%", height: "100%" }}>
@@ -1456,6 +1768,7 @@ declare global {
     __tradingViewUpdateBar: any;
     __handleTradingViewUpdate: any;
     __tradingViewHandlersInitialized: boolean;
+    __tradingViewTimeTracker: { lastBarTime: number };
   }
 }
 

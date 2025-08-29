@@ -338,8 +338,8 @@ const Contract = observer(() => {
           {/* 内容 */}
           <div className="bg-[var(--btncolor7)] rounded-[8px] p-[20px] flex-1">
             {/* 头部数据 */}
-            <div className="min-h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end flex-wrap p-[30px] gap-[33%]">
-              {/* 总资产折合  */}
+            {/* <div className="min-h-[151px] bg-[var(--background14)] rounded-[8px] flex items-end flex-wrap p-[30px] gap-[33%]">
+
               <Skeleton
                 active
                 title={true}
@@ -427,7 +427,6 @@ const Contract = observer(() => {
                 </div>
               </Skeleton>
 
-              {/* 今日盈亏 */}
               <Skeleton
                 active
                 title={true}
@@ -473,11 +472,7 @@ const Contract = observer(() => {
                 </div>
               </Skeleton>
 
-              {/* 盈亏分析 */}
-              {/* <Button onClick={() => {}} type="primary" ghost shape="round">
-                {t("account.profitAnalysis")}
-              </Button> */}
-            </div>
+            </div> */}
             {/* 底部数据 */}
             <div>
               {/* 筛选 */}
@@ -534,7 +529,7 @@ const Contract = observer(() => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["common", "contract"])),
+      ...(await serverSideTranslations(locale || "en", ["common", "assets", "contract",])),
     },
   };
 };

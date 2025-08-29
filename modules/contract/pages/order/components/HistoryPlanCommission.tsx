@@ -9,29 +9,13 @@ import { Iconify } from "@/components/icon";
 import { getHistoryPlanOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
+import {  SideEnum, SideMap, Status, StatusMap, Type, TypeMap } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum DirectionEnum {
-  Pinduo = 1,
-  Kongduo = 2,
-  Pingkong = 3,
-}
-const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
-  [DirectionEnum.Pinduo]: {
-    text: "平多",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Kongduo]: {
-    text: "开空",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Pingkong]: {
-    text: "开多",
-    color: "#00C788",
-  },
-};
+
+
 // 历史计划委托
 const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
@@ -81,13 +65,13 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
       key: "direction",
       align: "right",
       render: (_: any, record: any) => {
-        const direction = record.direction as DirectionEnum;
+        const direction = record.direction as SideEnum;
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: directionMap[direction].color }}
+            style={{ color: SideMap[direction].color }}
           >
-            {directionMap[direction].text}
+            {t(SideMap[direction].text)}
           </div>
         );
       },
@@ -157,7 +141,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: any) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.status}
+            {t(StatusMap[record.status as Status])}
           </div>
         );
       },
@@ -217,7 +201,7 @@ const HistoryPlanCommission = ({ activeKey }: { activeKey: string }) => {
         endTime: paramsTime[1].valueOf(),
       });
       if (res.code === "0") {
-        setDataSource(res.data.list);
+        setDataSource(res.data.tradeHisList);
       } else {
         message.error(res.msg);
       }

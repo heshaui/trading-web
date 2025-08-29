@@ -1,45 +1,6 @@
 {
-  "i18n-ally.localesPaths": ["public/locales"],
-  "i18n-ally.keystyle": "nested",
-  "Lingma.DisplayLanguage": "简体中文",
-  "workbench.colorCustomizations": {
-    "activityBar.activeBackground": "#ff6433",
-    "activityBar.background": "#ff6433",
-    "activityBar.foreground": "#15202b",
-    "activityBar.inactiveForeground": "#15202b99",
-    "activityBarBadge.background": "#00ff3d",
-    "activityBarBadge.foreground": "#15202b",
-    "commandCenter.border": "#e7e7e799",
-    "sash.hoverBorder": "#ff6433",
-    "statusBar.background": "#ff3d00",
-    "statusBar.foreground": "#e7e7e7",
-    "statusBarItem.hoverBackground": "#ff6433",
-    "statusBarItem.remoteBackground": "#ff3d00",
-    "statusBarItem.remoteForeground": "#e7e7e7",
-    "titleBar.activeBackground": "#ff3d00",
-    "titleBar.activeForeground": "#e7e7e7",
-    "titleBar.inactiveBackground": "#ff3d0099",
-    "titleBar.inactiveForeground": "#e7e7e799"
-  },
-  "peacock.color": "#ff3d00",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always"
-  },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "vue",
-    "html",
-    "markdown"
-    // 根据你的项目添加其他文件类型
-  ],
-  // 如果你同时使用 Prettier，可以添加以下配置
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "prettier.eslintIntegration": true,
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+    "i18n-ally.localesPaths": [
+        "public/locales"
+    ],
+    "i18n-ally.keystyle": "nested"
 }

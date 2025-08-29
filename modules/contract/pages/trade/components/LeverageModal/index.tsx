@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Slider, InputNumber } from 'antd';
 import { useTranslation } from 'next-i18next';
 import { Iconify } from '@/components/icon';
@@ -14,7 +14,6 @@ interface LeverageModalProps {
   currentLeverage: number;
   onLeverageChange: (leverage: number) => void;
   symbol?: string;
-  maxLeverage?: number;
   positionLimit?: number;
 }
 
@@ -28,10 +27,14 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 }) => {
   const { t } = useTranslation(['contract']);
   const [tempLeverage, setTempLeverage] = useState(currentLeverage);
+  const [lastValidLimitValue, setLastValidLimitValue] = useState<number | null>(null);
   const ContractInfo = appStore.currentContractInfo;
+  console.log('ContractInfo',ContractInfo)
   const maxLeverage = ContractInfo.maxLever;
-  const { loadUserConfig } = useUserConfig();
 
+
+  const { loadUserConfig } = useUserConfig();
+  const currentUserConfig = appStore.getUserConfig();
 
   const handleSliderChange = (value: number) => {
     setTempLeverage(value);
@@ -40,6 +43,29 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   const handleInputChange = (value: number | null) => {
     if (value && value >= 1 && value <= maxLeverage) {
       setTempLeverage(value);
+    }
+  };
+
+  // 初始化最后有效值
+  useEffect(() => {
+    const initialValue = currentUserConfig.leverCeiling?.[currentLeverage];
+    if (initialValue !== undefined && initialValue !== null && lastValidLimitValue === null) {
+      setLastValidLimitValue(initialValue);
+    }
+  }, [currentUserConfig.leverCeiling, currentLeverage, lastValidLimitValue]);
+
+  // 获取要显示的持仓上限值
+  const getDisplayLimitValue = () => {
+    const currentValue = currentUserConfig.leverCeiling?.[tempLeverage];
+    if (currentValue !== undefined && currentValue !== null) {
+      // 如果当前杠杆有对应值，更新最后有效值并返回当前值
+      if (lastValidLimitValue !== currentValue) {
+        setLastValidLimitValue(currentValue);
+      }
+      return currentValue;
+    } else {
+      // 如果当前杠杆没有值，返回最后有效值
+      return lastValidLimitValue !== null ? lastValidLimitValue : (currentUserConfig.leverCeiling?.[currentLeverage] ?? '');
     }
   };
 
@@ -54,7 +80,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         toast.success(t('leverageModal.settingSuccess'));
 
         // 立即更新 store 中的 userConfig.nowLevel，确保 UI 立即响应
-        const currentUserConfig = appStore.getUserConfig();
+       
         appStore.setUserConfig({
           ...currentUserConfig,
           nowLevel: tempLeverage
@@ -142,7 +168,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         {/* 持仓上限 */}
         <div className={styles.positionLimit}>
           <span className={styles.limitLabel}>{t('leverageModal.positionLimit')}</span>
-          <span className={styles.limitValue}>{positionLimit.toLocaleString()}USDT</span>
+          <span className={styles.limitValue}>{getDisplayLimitValue()}USDT</span>
         </div>
 
         {/* 确认按钮 */}

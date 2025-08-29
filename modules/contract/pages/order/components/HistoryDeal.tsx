@@ -9,28 +9,34 @@ import { NoData } from "@/components/noData";
 import { getHistoryTradeList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
+import { SideEnum, SideMap } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
-enum DirectionEnum {
-  Pinduo = 1,
-  Kongduo = 2,
-  Pingkong = 3,
+
+
+
+interface HistoryDealCustoms {
+  contractId: number; // 合约ID
+  contractName: string; // 合约名称
+  ctime: number; // 创建时间
+  fee: number; // 手续费
+  feeCoin: string; // 手续费币种
+  feeCoinPrecision: number; // 手续费币种精度
+  id: string; // 订单ID
+  open: string; // 开仓方向
+  price: number; // 成交价格
+  pricePrecision: number; // 价格精度
+  role: string; // 角色
+  side: SideEnum; // 方向
+  symbol: string; // 合约
+  volume: number; // 成交数量
 }
-const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
-  [DirectionEnum.Pinduo]: {
-    text: "平多",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Kongduo]: {
-    text: "开空",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Pingkong]: {
-    text: "开多",
-    color: "#00C788",
-  },
-};
+
+
+
+
+
 // 历史成交
 const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
@@ -41,20 +47,31 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
   const contractId = useWatch("contractId", form);
   const time = useWatch("time", form);
 
-  const [dataSource, setDataSource] = useState<any[]>([]);
+  const [dataSource, setDataSource] = useState<{
+    tradeHisList: HistoryDealCustoms[];
+    count: number;
+  }>({
+    tradeHisList: [],
+    count: 0,
+  });
   const [tableLoading, setTableLoading] = useState(false);
 
+  const [pageParams, setPageParams] = useState({
+    page: 1,
+    limit: 10,
+  });
+
   // 列表项
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<HistoryDealCustoms> = [
     // 合约
     {
       title: t("symbol"),
-      dataIndex: "name",
-      key: "name",
-      render: (_: any, record: any) => {
+      dataIndex: "symbol",
+      key: "symbol",
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.name}
+            {record.symbol}
           </div>
         );
       },
@@ -62,17 +79,16 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     // 方向
     {
       title: t("side"),
-      dataIndex: "direction",
-      key: "direction",
+      dataIndex: "side",
+      key: "side",
       align: "right",
-      render: (_: any, record: any) => {
-        const direction = record.direction as DirectionEnum;
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: directionMap[direction].color }}
+            style={{ color: SideMap[record.side].color }}
           >
-            {directionMap[direction].text}
+            {t(SideMap[record.side].text)}
           </div>
         );
       },
@@ -83,7 +99,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "role",
       key: "role",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.role}
@@ -94,13 +110,13 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     // 成交数量
     {
       title: t("filledAmount"),
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "volume",
+      key: "volume",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.number}
+            {record.volume}
           </div>
         );
       },
@@ -111,7 +127,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "price",
       key: "price",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.price}
@@ -125,7 +141,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "fee",
       key: "fee",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.fee}
@@ -139,10 +155,10 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "time",
       key: "time",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.time}
+            {dayjs(record.ctime).format("YYYY-MM-DD HH:mm:ss")}
           </div>
         );
       },
@@ -164,15 +180,18 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
         : [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")];
 
       const res = await getHistoryTradeList({
-        limit: 10,
-        page: 1,
+        limit: pageParams.limit,
+        page: pageParams.page,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         contractId: paramsContractId,
         beginTime: paramsTime[0].valueOf(),
         endTime: paramsTime[1].valueOf(),
       });
       if (res.code === "0") {
-        setDataSource(res.data.list);
+        setDataSource({
+          tradeHisList: res.data.tradeHisList,
+          count: res.data.count,
+        });
       } else {
         message.error(res.msg);
       }
@@ -181,7 +200,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
     } finally {
       setTableLoading(false);
     }
-  }, [contractId, time]);
+  }, [contractId, time, pageParams]);
 
   // 获取列表
   useEffect(() => {
@@ -295,8 +314,19 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
         className={styles.table}
         rowKey="id"
         columns={columns}
-        dataSource={dataSource}
+        dataSource={dataSource.tradeHisList}
         loading={tableLoading}
+        pagination={{
+          pageSize: pageParams.limit,
+          current: pageParams.page,
+          total: dataSource.count,
+          onChange: (page, pageSize) => {
+            setPageParams({
+              page,
+              limit: pageSize,
+            });
+          },
+        }}
         locale={{ emptyText: <NoData height="45vh" /> }}
       />
     </div>

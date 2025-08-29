@@ -9,30 +9,34 @@ import dayjs from "dayjs";
 import { getHistoryOrderList } from "@/services/contract";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
-import { OrderTypeEnum } from "./type";
+import { SideEnum, SideMap, Status, StatusMap, Type, TypeMap } from "./type";
 const { RangePicker } = DatePicker;
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
 
-enum DirectionEnum {
-  Pinduo = 1,
-  Kongduo = 2,
-  Pingkong = 3,
+
+
+
+interface HistoryCommissionColumns {
+  symbol: string; // 合约
+  pricePrecision: number; // 价格精度
+  side: SideEnum; // 方向
+  positionType: number; // 仓位类型
+  avgPrice: number; // 平均成交价
+  tradeFee: number; // 交易手续费
+  realizedAmount: number; // 已实现盈亏
+  type: Type; // 订单类型
+  mtime: number; // 时间
+  volume: number; // 委托数量
+  dealVolume: number; // 成交数量
+  price: number; // 委托价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: string; // 开仓方向
+  status: Status; // 状态
 }
-const directionMap: Record<DirectionEnum, { text: string; color: string }> = {
-  [DirectionEnum.Pinduo]: {
-    text: "平多",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Kongduo]: {
-    text: "开空",
-    color: "#FF4D4F",
-  },
-  [DirectionEnum.Pingkong]: {
-    text: "开多",
-    color: "#00C788",
-  },
-};
 // 历史委托
 const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
   const [form] = Form.useForm();
@@ -44,59 +48,81 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
   const type = useWatch("type", form);
   const time = useWatch("time", form);
 
-  const [dataSource, setDataSource] = useState<any[]>([]);
+  const [dataSource, setDataSource] = useState<{
+    orderList: HistoryCommissionColumns[];
+    count: number;
+  }>({
+    orderList: [],
+    count: 0,
+  });
   const [tableLoading, setTableLoading] = useState(false);
 
+  // 当前页 每页多少条
+  const [pageParams, setPageParams] = useState({
+    page: 1,
+    limit: 10,
+  });
+
   // 获取列表
-  const fetchData = useCallback(async () => {
-    // 如果参数未定义则不执行请求
-    if (contractId === undefined || type === undefined || time === undefined) {
-      return;
-    }
-    // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
-    try {
-      setTableLoading(true);
-      const paramsContractId =
-        contractId === NULL_PLACEHOLDER || !contractId ? "" : contractId;
-
-      const paramsType = type === NULL_PLACEHOLDER || !type ? "" : type;
-
-      const paramsTime = time
-        ? [dayjs(time[0]).startOf("day"), dayjs(time[1]).endOf("day")]
-        : [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")];
-
-      const res = await getHistoryOrderList({
-        limit: 10,
-        page: 1,
-        uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-        type: paramsType,
-        contractId: paramsContractId,
-        beginTime: paramsTime[0].valueOf(),
-        endTime: paramsTime[1].valueOf(),
-      });
-      if (res.code === "0") {
-        setDataSource(res.data.list);
-      } else {
-        message.error(res.msg);
+  const fetchData = useCallback(
+    async (page: number, pageSize: number) => {
+      // 如果参数未定义则不执行请求
+      if (
+        contractId === undefined ||
+        type === undefined ||
+        time === undefined
+      ) {
+        return;
       }
-    } catch (error) {
-      console.log("error", error);
-    } finally {
-      setTableLoading(false);
-    }
-  }, [contractId, type, time]);
+      // 如果参数为空字符串则设置为 NULL_PLACEHOLDER
+      try {
+        setTableLoading(true);
+        const paramsContractId =
+          contractId === NULL_PLACEHOLDER || !contractId ? "" : contractId;
+
+        const paramsType = type === NULL_PLACEHOLDER || !type ? "" : type;
+
+        const paramsTime = time
+          ? [dayjs(time[0]).startOf("day"), dayjs(time[1]).endOf("day")]
+          : [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")];
+
+        const res = await getHistoryOrderList({
+          limit: pageParams.limit,
+          page: pageParams.page,
+          uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+          type: paramsType,
+          contractId: paramsContractId,
+          beginTime: paramsTime[0].valueOf(),
+          endTime: paramsTime[1].valueOf(),
+        });
+        if (res.code === "0") {
+          setDataSource({
+            orderList: res.data.orderList,
+            count: res.data.count,
+          });
+        } else {
+          message.error(res.msg);
+        }
+      } catch (error) {
+        console.log("error", error);
+      } finally {
+        setTableLoading(false);
+      }
+    },
+    [contractId, type, time, pageParams]
+  );
 
   // 列表项
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<HistoryCommissionColumns> = [
     // 合约
     {
       title: t("symbol"),
-      dataIndex: "name",
-      key: "name",
-      render: (_: any, record: any) => {
+      dataIndex: "symbol",
+      key: "symbol",
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.name}
+            {record.symbol}
           </div>
         );
       },
@@ -104,13 +130,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 订单类型
     {
       title: t("orderType"),
-      dataIndex: "orderType",
-      key: "orderType",
+      dataIndex: "type",
+      key: "type",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.orderType}
+            {t(TypeMap[record.type])}
           </div>
         );
       },
@@ -118,17 +144,16 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 方向
     {
       title: t("side"),
-      dataIndex: "direction",
-      key: "direction",
+      dataIndex: "side",
+      key: "side",
       align: "right",
-      render: (_: any, record: any) => {
-        const direction = record.direction as DirectionEnum;
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: directionMap[direction].color }}
+            style={{ color: SideMap[record.side].color }}
           >
-            {directionMap[direction].text}
+            {t(SideMap[record.side].text)}
           </div>
         );
       },
@@ -139,7 +164,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "price",
       key: "price",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
             {record.price}
@@ -150,13 +175,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 委托数量
     {
       title: t("orderAmount"),
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "volume",
+      key: "volume",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.number}
+            {record.volume}
           </div>
         );
       },
@@ -164,13 +189,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 成交数量
     {
       title: t("filledAmount"),
-      dataIndex: "number2",
-      key: "number2",
+      dataIndex: "dealVolume",
+      key: "dealVolume",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.number2}
+            {record.dealVolume}
           </div>
         );
       },
@@ -178,13 +203,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 成交均价
     {
       title: t("avgPrice"),
-      dataIndex: "price2",
-      key: "price2",
+      dataIndex: "avgPrice",
+      key: "avgPrice",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.price2}
+            {record.avgPrice}
           </div>
         );
       },
@@ -192,55 +217,55 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 手续费
     {
       title: t("fee"),
-      dataIndex: "fee",
-      key: "fee",
+      dataIndex: "tradeFee",
+      key: "tradeFee",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.fee}
+            {record.tradeFee}
           </div>
         );
       },
     },
     // 只减仓
-    {
-      title: t("reduceOnly"),
-      dataIndex: "only",
-      key: "only",
-      align: "right",
-      render: (_: any, record: any) => {
-        return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.only}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: t("reduceOnly"),
+    //   dataIndex: "reduceOnly",
+    //   key: "reduceOnly",
+    //   align: "right",
+    //   render: (_: any, record: HistoryCommissionColumns) => {
+    //     return (
+    //       <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+    //         {record.reduceOnly}
+    //       </div>
+    //     );
+    //   },
+    // },
     // 止盈止损
-    {
-      title: t("tpsl"),
-      dataIndex: "stop",
-      key: "stop",
-      align: "right",
-      render: (_: any, record: any) => {
-        return (
-          <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.stop}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: t("tpsl"),
+    //   dataIndex: "stopLoss",
+    //   key: "stopLoss",
+    //   align: "right",
+    //   render: (_: any, record: HistoryCommissionColumns) => {
+    //     return (
+    //       <div className="text-[14px] text-[var(--text-color5)] font-[500]">
+    //         {record.stopLoss}
+    //       </div>
+    //     );
+    //   },
+    // },
     // 状态
     {
       title: t("status"),
       dataIndex: "status",
       key: "status",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.status}
+            {t(StatusMap[record.status])}
           </div>
         );
       },
@@ -248,13 +273,13 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
     // 时间
     {
       title: t("time"),
-      dataIndex: "time",
-      key: "time",
+      dataIndex: "mtime",
+      key: "mtime",
       align: "right",
-      render: (_: any, record: any) => {
+      render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.time}
+            {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
           </div>
         );
       },
@@ -263,7 +288,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
 
   useEffect(() => {
     if (activeKey === "3") {
-      fetchData();
+      fetchData(pageParams.page, pageParams.limit);
     }
   }, [activeKey, fetchData]);
 
@@ -327,24 +352,29 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
                 },
                 // 限价单
                 {
-                  label: t("priceLimitOrder"),
-                  value: OrderTypeEnum.LIMIT,
+                  label: t("order.common.limit"),
+                  value: Type.LIMIT,
                 },
                 // 市价单
                 {
-                  label: t("marketPrice"),
-                  value: OrderTypeEnum.MARKET,
+                  label: t("order.common.market"),
+                  value: Type.MARKET,
                 },
-                // PostOnly
-                {
-                  label: "PostOnly",
-                  value: OrderTypeEnum.POST_ONLY,
-                },
-                // IOC
-                {
-                  label: "IOC",
-                  value: OrderTypeEnum.IOC,
-                },
+                // // PostOnly
+                // {
+                //   label: "PostOnly",
+                //   value: Type.POST_ONLY,
+                // },
+                // 强制减仓
+                // {
+                //   label: t("order.common.forceLiquidation"),
+                //   value: Type.FORCE_LIQUIDATION,
+                // },
+                // 仓位合并
+                // {
+                //   label: t("order.common.positionMerge"),
+                //   value: Type.POSITION_MERGE,
+                // },
               ]}
               onChange={(value) => {
                 const newValue =
@@ -417,9 +447,22 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
         className={styles.table}
         rowKey="id"
         columns={columns}
-        dataSource={dataSource}
+        dataSource={dataSource.orderList}
         loading={tableLoading}
-        locale={{ emptyText: <NoData height="45vh" /> }}
+        pagination={{
+          pageSize: pageParams.limit,
+          current: pageParams.page,
+          total: dataSource.count,
+          onChange: (page, pageSize) => {
+            setPageParams({
+              page,
+              limit: pageSize,
+            });
+          },
+        }}
+        locale={{
+          emptyText: <NoData height="45vh" />,
+        }}
       />
     </div>
   );

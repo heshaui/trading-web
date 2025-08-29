@@ -302,6 +302,14 @@ const TradePage = () => {
   // 发送新的订阅消息
   const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
+    
+    console.log("📡 发送新合约订阅消息:", {
+      合约: contractInfo.symbol,
+      合约ID: contractInfo.id,
+      合约类型: contractInfo.contractType,
+      时间间隔: timeInterval,
+      WebSocket时间间隔: wsTimeInterval
+    });
 
     // 订单簿数据
     const depthEvent = {
@@ -490,21 +498,38 @@ const TradePage = () => {
   useEffect(() => {
     const checkContractInfoChange = () => {
       const storeContractInfo = appStore.getCurrentContractInfo();
+      
+      // 添加详细的调试信息
+      if (Math.random() < 0.01) { // 每100次轮询打印一次状态，避免日志太多
+        console.log("🔍 轮询检查合约信息:", {
+          当前State合约ID: currentContractInfo.id,
+          Store合约ID: storeContractInfo?.id,
+          是否需要更新: storeContractInfo && storeContractInfo.id !== currentContractInfo.id
+        });
+      }
+      
       // 只有当store中的合约信息与当前state不同时才更新
       if (
         storeContractInfo &&
         storeContractInfo.id !== currentContractInfo.id
       ) {
+        console.log("🔄 ==========合约信息发生变化==========");
+        console.log("🔄 旧合约:", currentContractInfo);
+        console.log("🔄 新合约:", storeContractInfo);
+        
         // 清理旧的数据状态
+        console.log("🧹 清理旧数据状态");
         setOrderBookData(null);
         setPriceData(null);
         setKlineData(null);
 
         // 更新合约信息
+        console.log("📝 更新合约信息");
         setCurrentContractInfo(storeContractInfo);
 
         // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
         if (wsInstance) {
+          console.log("🔄 WebSocket已连接，重新订阅新合约数据");
           sendSubscriptions(
             wsInstance,
             storeContractInfo,
@@ -520,6 +545,7 @@ const TradePage = () => {
     };
 
     // 使用轮询方式检查store变化（简单方案）
+    console.log("📊 设置100ms轮询检查合约信息变化");
     const interval = setInterval(checkContractInfoChange, 100);
 
     return () => clearInterval(interval);
@@ -556,7 +582,12 @@ const TradePage = () => {
 
         // 处理K线数据 - 动态检查不同时间间隔的K线数据
         if (data.channel && data.channel.includes("_kline_")) {
-          console.log("收到K线数据:", data);
+          console.log("📈 ==========收到K线WebSocket数据==========");
+          console.log("📈 数据通道:", data.channel);
+          console.log("📈 当前合约:", currentContractInfo.symbol);
+          console.log("📈 完整数据:", data);
+          console.log("📈 ========================================");
+          
           // 直接传递原始WebSocket数据给TradingView组件处理
           setKlineData(data);
 
@@ -676,7 +707,7 @@ const TradePage = () => {
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
-    return <div></div>;
+    return  null;
   }
 
   return (
@@ -693,7 +724,7 @@ const TradePage = () => {
             "order order tradeForm"
           `,
           gridTemplateColumns: `minmax(712px,1fr) minmax(240px,300px) minmax(320px,356px)`,
-          gridTemplateRows: `68px 511px minmax(255px,auto)`,
+          gridTemplateRows: `68px 596px minmax(255px,auto)`,
         }}
         className="relative bg-[var(--background14)] overflow-x-auto"
       >

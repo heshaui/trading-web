@@ -111,7 +111,15 @@
     "openMargin": "Initial Margin",
     "profit": "Profit/Loss",
     "returnRate": "ROI",
-    "disclaimer": "*Calculation is for reference only. Actual results may vary due to fees, funding rates, etc."
+    "disclaimer": "*Calculation is for reference only. Actual results may vary due to fees, funding rates, etc.",
+    "marginMode": "Margin Mode",
+    "crossMargin": "Cross",
+    "isolatedMargin": "Isolated",
+    "targetReturnRate": "Target ROI",
+    "positionSize": "Position Size",
+    "availableBalance": "Available Balance",
+    "liquidationPrice": "Liquidation Price",
+    "selectMarginMode": "Select Margin Mode"
   },
   "tradingSettings": {
     "title": "Trading Settings",
@@ -154,6 +162,7 @@
   },
   "loadFailed": "Load Failed",
   "order": {
+    "onlyCurrentSymbol": "Only Current Contract",
     "title": "Contract Order",
     "position": "Position",
     "currentCommission": "Current Order",
@@ -190,7 +199,13 @@
       "leverageLevel": "Leverage Level",
       "positionBalance": "Position Balance",
       "marketClose": "Market Close",
-      "limitClose": "Limit Close"
+      "limitClose": "Limit Close",
+      "price": "Price",
+      "quantity": "Quantity",
+      "marketCloseBtn": "Market Close",
+      "limitCloseBtn": "Limit Close",
+      "marketTab": "Market",
+      "limitTab": "Limit"
     },
     "ordinaryColumn": {
       "symbol": "Contract",
@@ -234,14 +249,20 @@
     },
     "tradeRecordColumn": {
       "symbol": "Contract",
-      "openPrice": "Open Average Price",
-      "size": "Position Volume",
-      "realizedPnl": "Realized P&L",
-      "fee": "Fee",
-      "fundingFee": "Funding Fee",
-      "pnl": "Position P&L",
-      "share": "Share",
-      "closeTime": "Close Time"
+      "openAvgPrice": "Open Average Price",
+      "positionType": "Position Type",
+      "realizedAmount": "Realized P&L",
+      "positionVolume": "Position Volume",
+      "leverageLevel": "Leverage Level",
+      "openPrice": "Open Price",
+      "settleProfit": "Settle Profit",
+      "mtime": "Modify Time",
+      "orderSide": "Order Side",
+      "profitRealizedAmount": "Profit Realized Amount",
+      "contractId": "Contract ID",
+      "historyRealizedAmount": "History Realized Amount",
+      "ctime": "Create Time",
+      "id": "Position ID"
     },
     "tradeHistoryColumn": {
       "symbol": "Contract",
@@ -307,6 +328,7 @@
     "triggerPrice": "Trigger Price",
     "orderPrice": "Order Price",
     "orderQuantity": "Quantity",
+    "unit": "Cont",
     "marketPrice": "Market Price",
     "canBuy": "Can Buy",
     "canSell": "Can Sell",
@@ -407,5 +429,15 @@
     "transfer": "Transfer",
     "deposit": "Deposit",
     "notOpenYet": "Not Available Yet"
+  },
+  "contractInfo": {
+    "title": "Contract Info",
+    "contractId": "Contract ID",
+    "deliveryDate": "Delivery Date",
+    "contractTarget": "Contract Target",
+    "marginCoin": "Margin Coin",
+    "contractValue": "Contract Value",
+    "minPriceChange": "Min Price Change",
+    "minMaintainMarginRate": "Min Maintain Margin Rate"
   }
 }
