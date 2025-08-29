@@ -46,7 +46,7 @@ interface ContractAccountItem {
 }
 
 const Contract = observer(() => {
-  const { t } = useTranslation(["assets", "contract"]);
+  const { t } = useTranslation(["contract"]);
 
   const coinList = appStore.getCoinList();
   const [initTableData, setInitTableData] = useState<ContractAccountItem[]>([]); // 初始化表格数据
@@ -529,7 +529,7 @@ const Contract = observer(() => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale || "en", ["common", "assets", "contract"])),
+      ...(await serverSideTranslations(locale || "en", ["common", "assets", "contract",])),
     },
   };
 };
