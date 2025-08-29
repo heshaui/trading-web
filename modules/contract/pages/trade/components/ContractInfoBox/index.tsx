@@ -42,11 +42,11 @@ const ContractInfo = observer(({ style }: { style?: React.CSSProperties }) => {
         </div>
         <div className="flex justify-between items-center">
           <div className="text-[var(--text-color6)]">{t("contractInfo.deliveryDate")}</div>
-          <div className="text-[var(--text-color5)]">永续</div>
+          <div className="text-[var(--text-color5)]">{t("contractInfo.perpetual")}</div>
         </div>
         <div className="flex justify-between items-center">
           <div className="text-[var(--text-color6)]">{t("contractInfo.contractTarget")}</div>
-          <div className="text-[var(--text-color5)]">{currentContractInfo?.symbol} 指数</div>
+          <div className="text-[var(--text-color5)]">{currentContractInfo?.symbol} {t("contractInfo.index")}</div>
         </div>
         <div className="flex justify-between items-center">
           <div className="text-[var(--text-color6)]">{t("contractInfo.marginCoin")}</div>

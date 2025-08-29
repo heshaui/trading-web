@@ -433,6 +433,8 @@
     "marginCoin": "증거금 코인",
     "contractValue": "계약 가치",
     "minPriceChange": "최소 가격 변동",
-    "minMaintainMarginRate": "최소 유지 증거금률"
+    "minMaintainMarginRate": "최소 유지 증거금률",
+    "index": "지수",
+    "perpetual": "선물"
   }
 }
