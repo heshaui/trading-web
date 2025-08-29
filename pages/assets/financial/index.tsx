@@ -808,6 +808,7 @@ const Financial = observer(() => {
             </div>
             {/* 表格 */}
             <Tabs
+              indicator={{ size: 26 }}
               items={items}
               activeKey={String(activeKey)}
               tabBarStyle={{ padding: "0 20px", height: "72px" }}
