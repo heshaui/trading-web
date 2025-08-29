@@ -471,12 +471,11 @@ const TradePage = () => {
         const contractInfo = appStore.getCurrentContractInfo();
         setCurrentContractInfo(contractInfo);
 
-        // 获取账户余额
-        getContractBalance();
-        getSpotBalance();
-
-        // 获取用户合约配置
-        if (info.contractList && contractInfo.id) {
+        // 获取用户相关数据（需要登录）
+        if (info.contractList && contractInfo.id && isLoggedIn) {
+          // 获取账户余额
+          getContractBalance();
+          getSpotBalance();
           try {
             const userConfig = await appStore.loadUserConfig({
               contractId: contractInfo.id,
