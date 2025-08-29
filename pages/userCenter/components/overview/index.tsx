@@ -5,26 +5,27 @@ import { Iconify, SvgIcon } from "@/components/icon"
 import { CSSProperties, useState, useEffect } from "react";
 import { QRCode, Skeleton, Carousel } from "antd";
 import Image from 'next/image';
-import AssetsAreaChart from '../charts/AreaChart';
+// import AssetsAreaChart from '../charts/AreaChart';
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 import { encryptString } from '@/utils/encrypt';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import dayjs from 'dayjs';
-import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
+// import dayjs from 'dayjs';
+// import { getUserLoginLogList, getUserDeviceNoList } from '@/services/safeCenter';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useTranslation } from 'next-i18next';
 // import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 // import type { GetStaticProps } from 'next';
 import { getCarouselImageList } from '@/services/userCenter';
 import { getLoginInfo } from '@/services/overview';
-import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
+// import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 import { getKvObject } from '@/services/kv'
 import { LoginInfoType, LoginLogListType, carouselImageContentsType, CarouselPicType } from '@/type/userCenter/overview'
 import AssetsPage from "./assets"
 import InvitePage from "./invite"
 import SafeLogPage from "./safeLog"
 import EquipmentPage from "./equipment"
+import appStore from '@/store';
 
 const identityStyle: CSSProperties = {
     position: 'relative',
@@ -35,14 +36,14 @@ const identityStyle: CSSProperties = {
 };
 const OverviewPage: React.FC = () => {
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({} as LoginInfoType);
-    const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
-    const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
+    // const [loginLogList, setLoginLogList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
+    // const [userDeviceNoList, setUserDeviceNoList] = useState<LoginLogListType[]>([] as LoginLogListType[]);
     const [loadingSkeleton, setLoadingSkeleton] = useState(true)
     const [carouselPic, setCarouselPic] = useState<CarouselPicType[]>([] as CarouselPicType[]);
     const { t, i18n } = useTranslation('userCenter');
     const router = useRouter();
     const { copyFn } = useCopyToClipboard();
-    const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
+    // const BASE_URL = process.env.NEXT_PUBLIC_INVITE_BASE;
     const [useInvite, setUseInvite] = useState(false)
 
     const { isDayMode } = useThemeMode(); // 使用 hook
@@ -53,8 +54,9 @@ const OverviewPage: React.FC = () => {
             if (res.code === '0') {
                 setLoginInfo(res.data);
                 setLoadingSkeleton(false)
-                const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
-                localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, res.data)))
+                // const localUserInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY.USER_INFO) || '{}')
+                // localStorage.setItem(LOCAL_STORAGE_KEY.USER_INFO, JSON.stringify(Object.assign({}, localUserInfo, res.data)))
+                appStore.updateUserInfo(res.data)
             }
         } catch (error) {
             toast.error(String(error));
@@ -166,7 +168,7 @@ const OverviewPage: React.FC = () => {
         // 非激活状态使用图片
         if (!active) {
             return (
-                <Image 
+                <Image
                     src={isDayMode ? "/images/userCenter/safe/icon_none_day.png" :
                         "/images/userCenter/safe/icon_none_dark.png"}
                     width={21}
@@ -176,7 +178,7 @@ const OverviewPage: React.FC = () => {
                 />
             );
         }
-        
+
         // 激活状态使用 SVG
         return (
             <SvgIcon
@@ -189,7 +191,7 @@ const OverviewPage: React.FC = () => {
             </SvgIcon>
         );
     };
-    
+
     // 获取身份状态显示
     const getIdentityStatus = (status: number) => {
         if (!status || status < 1 || status > 3) return '';
@@ -350,7 +352,7 @@ const OverviewPage: React.FC = () => {
                     <div className={`${styles.card_bgc} ${styles.content_identity} flex-1 mr-6 mt-6 content_identity`}
                         style={{
                             ...identityStyle,
-                            backgroundImage:isDayMode ? "url('/images/userCenter/overview/icon_identity.png')":"url('/images/userCenter/overview/icon_identity_dark.png')",
+                            backgroundImage: isDayMode ? "url('/images/userCenter/overview/icon_identity.png')" : "url('/images/userCenter/overview/icon_identity_dark.png')",
                         }}>
                         <div className={`flex-row justify-between font-18 font-w-500`} >
                             {/* 身份认证 */}
