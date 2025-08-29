@@ -53,6 +53,7 @@ const ContractAsset = ({
   };
 
   useEffect(() => {
+    if(!contractBalance) return
     const balance = contractBalance.find((item: any) => item.symbol === "USDT");
     if (balance) {
       setAccountBalance(balance);
