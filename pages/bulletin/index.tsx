@@ -288,12 +288,12 @@ const Notice = () => {
       </div>
       {/* 底部 */}
       <div className="flex justify-center gap-[20px] p-[20px_120px] flex-1">
-        <div className="min-w-[264px] p-[20px] bg-[var(--background18)] text-[var(--text-color6)] rounded-[8px]  border-[0.5px] border-[var(--border-color4)]">
+        <div className="min-w-[264px] p-[20px] bg-[var(--background18)] text-[var(--text-color6)] rounded-[8px]">
           {menuData?.map((item) => {
             return renderItem(item);
           })}
         </div>
-        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px] border-[0.5px] border-[var(--border-color4)]">
+        <div className="flex-1  bg-[var(--background18)] rounded-[8px] p-[20px]">
           <div className="text-[20px] font-[500] text-[var(--text-color5)]">
             {t(title)}
           </div>

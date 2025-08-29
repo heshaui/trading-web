@@ -206,7 +206,7 @@ export const getThemeVariables = () => {
       "--background15": "#37373A",
       "--background16": "#4F4F4F",
       "--background17": "#0C0D0C",
-      "--background18": "#141414",
+      "--background18": "rgba(255, 255, 255, 0.08)",
       "--foreground": "#ededed",
       "--homeground": "#000000",
       "--homeground2": "#000000",
