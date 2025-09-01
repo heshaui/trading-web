@@ -27,7 +27,8 @@ import { encryptData } from "@/utils/encrypt";
 import styles from "./styles.module.css";
 import appStore from "@/store";
 import { useUserConfig } from "@/hooks/useUserConfig";
-
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/router";
 const { Option } = Select;
 
 interface ContractTradingPanelProps {
@@ -56,7 +57,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 确保所有Hooks在组件顶层按固定顺序调用
   const { t } = useTranslation(["contract"]);
   const [form] = Form.useForm();
-
+      const { isLoggedIn } = useAuth();
+       const router = useRouter();
   // 状态管理 - 按固定顺序声明所有状态
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
@@ -680,6 +682,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     // { key: 3, label: t("tradingPanel.conditionalOrder") } 2027-07-29 zyj暂时注释
   ];
 
+
+  const goLogin=async()=>{
+      router.push("/login");
+  }
   return (
     <ConfigProvider
       theme={{
@@ -969,7 +975,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
               {/* 提交按钮 */}
               <div className="mb-[10px] flex justify-between gap-[12px]">
-                <Button
+                {
+                  isLoggedIn&&<>
+                                    <Button
                   type="primary"
                   size="large"
                   onClick={() => handleSubmit("BUY")}
@@ -999,6 +1007,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 >
                   {transactionType === 2 ? t("tradingPanel.sellClose") : t("tradingPanel.sellShort")}
                 </Button>
+                  </>
+                }
+
+                {
+                  !isLoggedIn&&<Button type="primary"  shape="round" style={{width:'100%',height:'45px'}} onClick={goLogin}>
+                      {t("tradingPanel.loginOrRegister")}
+                </Button>
+                }
               </div>
 
               {/* 验证错误提示 */}
