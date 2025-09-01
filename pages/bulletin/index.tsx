@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 
 import {
   getBulletinMessageLogined,
-  getBulletinMessageUnreadCount,
+  getBulletinMessageUnreadIntro,
   getInformUserMessageList,
   readBulletinMessageLogined,
 } from "@/services/bulletinCenter";
@@ -29,7 +29,13 @@ const Notice = () => {
   const [menuLoading, setMenuLoading] = useState(false);
   const [activeKey, setActiveKey] = useState<MenuKey>("all");
   const [title, setTitle] = useState<string>("notice.all");
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [isUnread, setIsUnread] = useState<boolean>(false);
+  const [isClient, setIsClient] = useState(false);
+  // const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadInfo, setUnreadInfo] = useState<any>({
+    count: 0,
+    ids: [],
+  });
   const [loading, setLoading] = useState(false);
 
   //分页 pageNo, pageSize
@@ -103,13 +109,16 @@ const Notice = () => {
       label: "notice.menu.trading",
     },
   ];
-  // 获取未读数量
+
+  // 获取未读(ids,count)
   const getUnreadCount = async () => {
     try {
       setMenuLoading(true);
-      const res = await getBulletinMessageUnreadCount();
-      if (res.code === "0") {
-        setUnreadCount(res.data);
+      // const res = await getBulletinMessageUnreadCount();
+      const { code, data } = await getBulletinMessageUnreadIntro();
+      if (code === "0") {
+        // setUnreadCount(res.data);
+        setUnreadInfo(data);
       }
     } catch (error) {
       // Error handling
@@ -117,6 +126,7 @@ const Notice = () => {
       setMenuLoading(false);
     }
   };
+
   // 获取公告列表
   const getNoticeList = useCallback(
     async (key?: number) => {
@@ -128,32 +138,41 @@ const Notice = () => {
           pageSize: pagination.pageSize,
           languageCode: lang,
           classMenu: key,
+          onlyUnread: isUnread,
         });
         if (res.code === "0") {
           setDataSource({
             list: res.data.list,
             count: res.data.count,
           });
+        } else {
+          message.error(res.message);
         }
-      } catch (error) {
+      } catch (error: any) {
+        message.error(error?.message || "Failed to get notice list");
         console.log(error);
       } finally {
         setLoading(false);
       }
     },
-    [pagination.pageNo, pagination.pageSize]
+    [pagination.pageNo, pagination.pageSize, isUnread]
   );
-  // 批量已读
+
+  // 全部已读
   const readAll = async () => {
     try {
-      const res = await readBulletinMessageLogined();
-      if (res.code === "0") {
+      const { code, message: msg } = await readBulletinMessageLogined({
+        ids: unreadInfo.ids,
+      });
+      if (code === "0") {
+        getUnreadCount();
         getNoticeList();
       } else {
-        message.error(res.message);
+        message.error(msg);
       }
-    } catch (error) {
+    } catch (error: any) {
       // Error handling
+      message.error(error?.message || "Failed to read all messages");
     } finally {
       setLoading(false);
     }
@@ -179,6 +198,7 @@ const Notice = () => {
           languageCode: lang,
           pageNo: pagination.pageNo,
           pageSize: pagination.pageSize,
+          onlyUnread: isUnread,
         });
         if (code === "0") {
           const list = data.list.map((item: any) => ({
@@ -190,14 +210,18 @@ const Notice = () => {
             list,
             count: data.count,
           });
+        } else {
+          message.error(data.message);
         }
-      } catch (error) {
+      } catch (error: any) {
         // Error handling
+        message.error(error?.message || "Failed to get other type");
+        console.log(error);
       } finally {
         setLoading(false);
       }
     },
-    [pagination.pageNo, pagination.pageSize]
+    [pagination.pageNo, pagination.pageSize, isUnread]
   );
 
   // 切换类型
@@ -212,15 +236,17 @@ const Notice = () => {
       count: 0,
     });
   };
+
   // 渲染菜单项
   const renderItem = (item: MenuData) => {
     return (
       <div
         className={`h-[60px] flex items-center p-[18px_20px]
-        ${activeKey === item.key
+        ${
+          activeKey === item.key
             ? "bg-[var(--theme-color)] text-[#FFF]"
             : "text-[#A4A5AC]"
-          } 
+        } 
         cursor-pointer hover:bg-[var(--theme-05)] rounded-[8px] gap-[18px]`}
         key={item.key}
         onClick={() => handleChangeType(item)}
@@ -228,13 +254,20 @@ const Notice = () => {
         {item.svg}
         <div className="text-[16px] font-[500]">
           {t(item.label) +
-            (item.key === "all" && unreadCount > 0 ? `  (${unreadCount})` : "")}
+            (item.key === "all" && unreadInfo.count > 0
+              ? `  (${unreadInfo.count})`
+              : "")}
         </div>
       </div>
     );
   };
 
-  // 初始化获取未读数量
+  // 只看未读
+  const handleUnreadChange = async (e: any) => {
+    setIsUnread(e.target.checked);
+  };
+
+  // 初始化获取未读(ids,count)
   useEffect(() => {
     getUnreadCount();
   }, []);
@@ -246,17 +279,25 @@ const Notice = () => {
     } else {
       getOtherType(activeKey);
     }
-  }, [pagination.pageNo, activeKey, getNoticeList, getOtherType]);
+  }, [pagination.pageNo, activeKey, isUnread, getNoticeList, getOtherType]);
 
+  // 监听 type 变化
   useEffect(() => {
     if (type) {
       setActiveKey(String(type));
     }
   }, [type]);
+
+  useEffect(() => {
+    setIsClient(true); // 标记为客户端渲染
+  }, []);
+
+  if (!isClient) return null; // SSR 阶段不渲染
+
   return (
     <div className="bg-[var(--background17)]  min-h-[calc(100vh-80px)] flex flex-col">
       {/* 顶部 */}
-      <div className="h-[80px] p-[0px_120px] flex  justify-between items-center shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
+      <div className="px-[120px] py-[15px] flex  justify-between items-center flex-wrap gap-[15px] shadow-[inset_0_-0.5px_0_0_var(--border-color4)]">
         <div className="flex gap-[30px] items-center">
           <div className="text-[16px] font-[500] text-[var(--text-color5)] text-nowrap">
             {t("notice.top.notification")}
@@ -277,7 +318,13 @@ const Notice = () => {
           />
         </div>
         <div className="flex gap-[20px] items-center text-[14px]">
-          <Checkbox className="font-[400]">{t("notice.top.unread")}</Checkbox>
+          <Checkbox
+            className="font-[400]"
+            onChange={handleUnreadChange}
+            checked={isUnread}
+          >
+            {t("notice.top.unread")}
+          </Checkbox>
           <div
             className="cursor-pointer text-[var(--theme-color)] font-[500] "
             onClick={readAll}

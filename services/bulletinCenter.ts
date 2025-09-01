@@ -29,6 +29,7 @@ export function getBulletinMessageLogined(data: {
   classMenu?: number;
   pageNo?: number;
   pageSize?: number;
+  onlyUnread?: boolean;
 }) {
   return request<any>(
     `/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/list`,
@@ -60,10 +61,21 @@ export function readBulletinMessageLogined(data?: { ids: number[] }) {
     }
   );
 }
+
 // 获取公告未读数量
 export function getBulletinMessageUnreadCount() {
   return request<any>(
     `/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/unread-count`,
+    {
+      method: "GET",
+    }
+  );
+}
+
+// 获取公共未读信息(ids,count)
+export function getBulletinMessageUnreadIntro() {
+  return request<any>(
+    `/${API_MODULE_NAME.AMBIT_INFORM_WEB}/inform-web/v1/announcement/unread-info`,
     {
       method: "GET",
     }
