@@ -191,7 +191,8 @@
       "limitCloseBtn": "限价平",
       "marketTab": "市价",
       "limitTab": "限价",
-      "quickClose": "快速平仓"
+      "quickClose": "快速平仓",
+      "orderSide": "方向"
 
     },
     "ordinaryColumn": {

@@ -188,7 +188,8 @@
       "limitCloseBtn": "지정가 청산",
       "marketTab": "시장가",
       "limitTab": "지정가",
-      "quickClose": "빠른 청산"
+      "quickClose": "빠른 청산",
+      "orderSide": "방향"
     },
     "ordinaryColumn": {
       "symbol": "계약",

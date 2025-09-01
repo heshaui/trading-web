@@ -176,6 +176,20 @@ export const createPositionColumns = ({
         </div>
       ),
     },
+    // 方向
+    {
+      title: t("order.positionColumn.orderSide"),
+      dataIndex: "orderSide",
+      key: "orderSide",
+      render: (_: any, record: Position) => (
+        <div
+          className="text-[12px] font-[500]"
+          style={{ color: SideMap[record.orderSide].color }}
+        >
+          {t(SideMap[record.orderSide].text)}
+        </div>
+      ),
+    },
     // 仓位/可平(张)
     {
       title: t("order.positionColumn.positionVolume"),
@@ -306,20 +320,6 @@ export const createPositionColumns = ({
     //   render: (_: any, record: Position) => (
     //     <div className="text-[12px] font-[500]">
     //       {new BigNumber(record.returnRate).toFormat(symbolPricePrecision)}
-    //     </div>
-    //   ),
-    // },
-    // 方向
-    // {
-    //   title: t("order.positionColumn.orderSide"),
-    //   dataIndex: "orderSide",
-    //   key: "orderSide",
-    //   render: (_: any, record: Position) => (
-    //     <div
-    //       className="text-[12px] font-[500]"
-    //       style={{ color: SideMap[record.orderSide].color }}
-    //     >
-    //       {t(SideMap[record.orderSide].text)}
     //     </div>
     //   ),
     // },
