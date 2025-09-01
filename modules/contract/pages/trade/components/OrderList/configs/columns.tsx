@@ -268,8 +268,33 @@ export const createPositionColumns = ({
                 : "",
           }}
         >
-          {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}/
-          {new BigNumber(record.returnRate).toFormat(symbolPricePrecision)}%
+          <span
+            style={{
+              color:
+                record.realizedAmount > 0
+                  ? "#4CAF50"
+                  : record.realizedAmount < 0
+                  ? "#F44336"
+                  : "",
+            }}
+          >
+            {new BigNumber(record.realizedAmount).toFormat(
+              symbolPricePrecision
+            )}
+          </span>
+          /
+          <span
+            style={{
+              color:
+                record.returnRate > 0
+                  ? "#4CAF50"
+                  : record.returnRate < 0
+                  ? "#F44336"
+                  : "",
+            }}
+          >
+            {new BigNumber(record.returnRate).toFormat(symbolPricePrecision)}%
+          </span>
         </div>
       ),
     },
@@ -335,7 +360,17 @@ export const createPositionColumns = ({
       dataIndex: "openRealizedAmount",
       key: "openRealizedAmount",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
+        <div
+          className="text-[12px] font-[500]"
+          style={{
+            color:
+              record.openRealizedAmount > 0
+                ? "#4CAF50"
+                : record.openRealizedAmount < 0
+                ? "#F44336"
+                : "",
+          }}
+        >
           {new BigNumber(record.openRealizedAmount).toFormat(
             symbolPricePrecision
           )}
