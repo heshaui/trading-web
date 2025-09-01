@@ -152,9 +152,18 @@ const TradePage = () => {
 
   // 获取USDT资产可用余额，用于交易面板
   const getAvailableUSDTBalance = (): number => {
+    // 如果保证金币种还没有加载，返回0
+    if (!currentContractInfo.marginCoin) {
+      return 0;
+    }
     const usdtAsset = getAssetBySymbol(currentContractInfo.marginCoin);
     return parseFloat(usdtAsset?.canUseAmount || "0");
   };
+
+  // 使用useMemo来计算可用余额，确保在相关状态变化时重新计算
+  const availableBalance = React.useMemo(() => {
+    return getAvailableUSDTBalance();
+  }, [currentContractInfo.marginCoin, contractAssets]);
 
   // 处理订单提交
   const handleOrderSubmit = async (orderData: any) => {
@@ -491,7 +500,15 @@ const TradePage = () => {
     };
 
     initializeClientData();
-  }, [getContractBalance]);
+  }, [getContractBalance, isLoggedIn]);
+
+  // 确保在登录状态变化时重新加载余额
+  useEffect(() => {
+    if (isLoggedIn && currentContractInfo.id) {
+      getContractBalance();
+      getSpotBalance();
+    }
+  }, [isLoggedIn, currentContractInfo.id, getContractBalance]);
 
   // 监听store中currentContractInfo的变化
   useEffect(() => {
@@ -769,7 +786,7 @@ const TradePage = () => {
         <div className="flex flex-col gap-[4px]" style={{ gridArea: "tradeForm" }}>
           <ContractTradingPanel
             symbol={currentContractInfo.symbol}
-            availableBalance={getAvailableUSDTBalance()} // 使用真实的USDT可用余额
+            availableBalance={availableBalance} // 使用memoized的可用余额，确保状态变化时正确更新
             spotBalance={spotBalance}
             contractBalance={contractAssets}
             onOrderSubmit={handleOrderSubmit} // 父组件的订单提交函数
