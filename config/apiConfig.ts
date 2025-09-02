@@ -59,7 +59,7 @@ export const ROUTER_KEY_ASSETS = {
   SPOT_ACCOUNT: "/assets/spot", //现货账户
 };
 export const ROUTER_KEY_SPOT = {
-  INDEX: "/spotTrade", //现货交易页面
+  INDEX: "/exchange", //现货交易页面
   SPOT_ORDER: "/spotOrder", //现货订单
   FLASH_ORDER: "/flashOrder", //闪兑订单
   FINANCIAL_ORDER: "/financialOrder", //理财订单
