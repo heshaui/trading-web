@@ -5,18 +5,18 @@ import { getPlanOrderList, cancelOrder } from "@/services/contract";
 
 // 条件委托接口
 interface ConditionalCommission {
-  id: string;
-  contractId: number;
-  symbol: string;
-  type: "LIMIT" | "MARKET" | "CONDITIONAL";
-  side: "BUY" | "SELL";
-  triggerPrice: number;
-  price: number;
-  size: number;
-  orderType: string;
-  onlyReduce: boolean;
-  createTime: number;
-  expireTime: number;
+  id: string; // 订单ID
+  contractId: number; // 合约ID
+  symbol: string; // 合约
+  type: "LIMIT" | "MARKET" | "CONDITIONAL"; // 类型
+  side: "BUY" | "SELL"; // 方向
+  triggerPrice: number; // 触发价格
+  price: number; // 委托价格
+  size: number; // 委托数量
+  orderType: string; // 订单类型
+  onlyReduce: boolean; // 是否只减少
+  createTime: number; // 创建时间
+  expireTime: number; // 过期时间
 }
 
 interface UseConditionalCommissionOptions {

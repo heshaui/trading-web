@@ -325,7 +325,12 @@ const OrderListComponent = (props: any, ref: any) => {
       let intervalId: NodeJS.Timeout | null = null;
       if (activeTab === "position" || activeTab === "openOrders") {
         intervalId = setInterval(() => {
-          fn?.({ showLoading: false });
+          fn?.({ showLoading: false }).catch(() => {
+            if (intervalId) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+          });
         }, 800); // 轮询间隔为800毫秒
       }
 

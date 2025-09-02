@@ -6,23 +6,23 @@ import { Side, PositionType, Type, Open, Status } from "../configs/columns";
 
 // 普通委托接口
 interface OrdinaryCommission {
-  symbol: string;
-  pricePrecision: number;
-  side: Side;
-  positionType: PositionType;
-  avgPrice: number;
-  tradeFee: number;
-  type: Type;
-  mtime: number;
-  volume: number;
-  dealVolume: number;
-  price: number;
-  contractId: number;
-  ctime: number;
-  contractName: string;
-  id: string;
-  open: Open;
-  status: Status;
+  symbol: string; // 合约
+  pricePrecision: number; // 价格精度
+  side: Side; // 方向
+  positionType: PositionType; // 仓位类型 
+  avgPrice: number; // 平均价格
+  tradeFee: number; // 交易手续费
+  type: Type; // 类型
+  mtime: number; // 修改时间
+  volume: number; // 委托数量
+  dealVolume: number; // 成交数量
+  price: number; // 委托价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: Open; // 开仓方向
+  status: Status; // 状态
 }
 
 interface UseOrdinaryCommissionOptions {

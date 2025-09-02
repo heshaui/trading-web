@@ -6,24 +6,24 @@ import { Side, PositionType, Type, Open, Status } from "../configs/columns";
 
 // 历史委托接口
 interface HistoryCommission {
-  symbol: string;
-  pricePrecision: number;
-  side: Side;
-  positionType: PositionType;
-  avgPrice: number;
-  tradeFee: number;
-  realizedAmount: number;
-  type: Type;
-  mtime: number;
-  volume: number;
-  dealVolume: number;
-  price: number;
-  contractId: number;
-  ctime: number;
-  contractName: string;
-  id: string;
-  open: Open;
-  status: Status;
+  symbol: string; // 合约 
+  pricePrecision: number; // 价格精度
+  side: Side; // 方向
+  positionType: PositionType; // 仓位类型
+  avgPrice: number; // 平均价格
+  tradeFee: number; // 手续费
+  realizedAmount: number; // 已实现盈亏
+  type: Type; // 类型
+  mtime: number; // 修改时间
+  volume: number; // 委托数量
+  dealVolume: number; // 成交数量
+  price: number; // 委托价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: Open; // 开仓状态
+  status: Status; // 状态
 }
 
 interface UseHistoryCommissionOptions {
