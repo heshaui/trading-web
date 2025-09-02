@@ -191,7 +191,8 @@
       "limitCloseBtn": "Limit Close",
       "marketTab": "Market",
       "limitTab": "Limit",
-      "quickClose": "Quick Close"
+      "quickClose": "Quick Close",
+      "orderSide": "Side"
     },
     "ordinaryColumn": {
       "symbol": "Contract",
