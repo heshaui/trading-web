@@ -11,6 +11,7 @@ import {
   Segmented,
   Dropdown,
   Image,
+  theme,
 } from "antd";
 import { useTranslation } from "next-i18next";
 import { Iconify } from "@/components/icon";
@@ -1029,9 +1030,26 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 }
 
                 {
-                  !isLoggedIn&&<Button type="primary"  shape="round" style={{width:'100%',height:'45px'}} onClick={goLogin}>
-                      {t("tradingPanel.loginOrRegister")}
-                </Button>
+                  !isLoggedIn && (
+                    <div 
+                      className="w-full flex items-center justify-center gap-2 text-[16px] font-[400] cursor-pointer"
+                      style={{
+                        width: '100%',
+                        height: '45px',
+                        background: "var(--theme-color)",
+                        borderRadius: "22px",
+                        color: "#FFF"
+                      }}
+                    >
+                      <span onClick={goLogin} className="hover:opacity-80">
+                        {t("login")}
+                      </span>
+                      <span className="mx-1">/</span>
+                      <span onClick={() => router.push("/register")} className="hover:opacity-80">
+                        {t("register")}
+                      </span>
+                    </div>
+                  )
                 }
               </div>
 

@@ -1,4 +1,6 @@
 {
+  "login": "Login",
+  "register": "Register",
   "position": "Position",
   "openOrders": "Open Orders",
   "orderHistory": "Order History",

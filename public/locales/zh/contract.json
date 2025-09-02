@@ -1,4 +1,6 @@
 {
+  "login": "登录",
+  "register": "注册",
   "position": "持仓",
   "openOrders": "当前委托",
   "orderHistory": "历史委托",
