@@ -34,9 +34,9 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
 
   // 获取盈亏记录
   const getProfitLoss = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取盈亏记录");
         const res = await getHistoryPositionList({
           contractId: overrideContractId ?? contractId,
@@ -51,7 +51,7 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
       } catch (error) {
         console.error("获取盈亏记录失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]

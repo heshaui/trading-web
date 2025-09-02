@@ -42,9 +42,9 @@ export const useHistoryCommission = (
 
   // 获取历史委托列表
   const getHistoryCommission = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取历史委托");
         const { code, data, msg } = await getHistoryOrderList({
           contractId: overrideContractId ?? contractId,
@@ -59,7 +59,7 @@ export const useHistoryCommission = (
       } catch (error) {
         console.error("获取历史委托失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]

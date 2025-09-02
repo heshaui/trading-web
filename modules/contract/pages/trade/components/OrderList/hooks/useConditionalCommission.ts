@@ -34,9 +34,9 @@ export const useConditionalCommission = (
 
   // 获取条件委托列表
   const getConditionalCommission = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取条件委托");
         const res = await getPlanOrderList({
           contractId: (overrideContractId ?? contractId)?.toString(),
@@ -51,7 +51,7 @@ export const useConditionalCommission = (
       } catch (error) {
         console.error("获取条件委托失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]
@@ -70,7 +70,7 @@ export const useConditionalCommission = (
         if (res.code === "0") {
           message.success(res.msg);
           // 刷新数据
-          getConditionalCommission();
+          getConditionalCommission({showLoading: true});
         } else {
           message.error(res.msg);
         }
