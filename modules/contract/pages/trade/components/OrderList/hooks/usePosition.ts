@@ -51,9 +51,9 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   // 获取仓位数据
   const getPosition = useCallback(async ({ showLoading }: { showLoading?: boolean } = {}) => {
     try {
-      console.error("showLoading", showLoading);
+
       if (showLoading) setLoading(true);
-      console.log("获取仓位");
+
       const res = await getAssetsList({
         contractId: contractId,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),

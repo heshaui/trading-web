@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, use } from "react";
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
 
@@ -18,10 +18,13 @@ import {
   createCoId,
   createOrder,
   getPublicMarketInfo,
+
 } from "@/services/contract";
 
 import { getUserBalanceAll } from "@/services/assets";
 import { useAuth } from "@/context/AuthContext";
+
+
 
 interface ContractAsset {
   symbol: string;
@@ -101,9 +104,21 @@ interface SymbolData {
 const TradePage = () => {
   const { t } = useTranslation(["contract", "spot", "common"]);
 
+  // 从 localStorage 读取初始时间间隔，与 ContractKlineChart 保持一致
+  const getInitialTimeInterval = () => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('contract_kline_time_interval');
+      // 确保缓存的值是有效的，如果不是则使用默认值
+      const validIntervals = ["1m", "5m", "15m", "30m", "1h", "1D", "1W", "1M"];
+      return (cached && validIntervals.includes(cached)) ? cached : "1D";
+    }
+    return "1D";
+  };
+
   const { isLoggedIn } = useAuth();
   const orderListRef = useRef<any>(null);
   const priceSetterRef = useRef<((price: number) => void) | null>(null); // 价格设置函数ref
+  const currentTimeIntervalRef = useRef<string>(getInitialTimeInterval()); // 使用 ref 存储当前时间间隔
   const [showRiskDisclosure, setShowRiskDisclosure] = useState(false); // 风险确认书模态框
   const [orderBookData, setOrderBookData] = useState<any>(null); // 订单簿数据
   const [isClient, setIsClient] = useState(false); // 是否是客户端
@@ -114,18 +129,21 @@ const TradePage = () => {
   const [priceData, setPriceData] = useState<any>(null); // 价格数据
   const [klineData, setKlineData] = useState<any>(null); // K线数据
   const [currentTimeInterval, setCurrentTimeInterval] =
-    useState<string>("1day"); // 当前时间间隔
+    useState<string>(getInitialTimeInterval()); // 当前时间间隔
   const [wsInstance, setWsInstance] = useState<WebSocketService | null>(null); // WebSocket实例
   const [depthPrecision, setDepthPrecision] = useState<number>(0); // 深度精度
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
   const [realtimeTradeData, setRealtimeTradeData] = useState<any[]>([]); // 实时交易数据
 
+
   // 获取现货账户余额
   const getSpotBalance = async () => {
     try {
+     
       const res = await getUserBalanceAll();
-
+     
+   
       if (res.code === "0" && Array.isArray(res.data)) {
         setSpotBalance(res.data);
       } else {
@@ -234,7 +252,7 @@ const TradePage = () => {
     }
 
     const wsTimeInterval = convertTimeInterval(timeInterval);
-    console.log("发送取消订阅消息，合约:", contractInfo.symbol, "时间间隔:", wsTimeInterval, "精度:", precision);
+
 
     // 取消订单簿数据订阅
     const unsubDepthEvent = {
@@ -312,13 +330,7 @@ const TradePage = () => {
   const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
     
-    console.log("📡 发送新合约订阅消息:", {
-      合约: contractInfo.symbol,
-      合约ID: contractInfo.id,
-      合约类型: contractInfo.contractType,
-      时间间隔: timeInterval,
-      WebSocket时间间隔: wsTimeInterval
-    });
+
 
     // 订单簿数据
     const depthEvent = {
@@ -432,14 +444,67 @@ const TradePage = () => {
     }
   }, [sendUnsubscriptions, sendNewSubscriptions, depthPrecision]);
 
+  // 单独处理K线订阅（用于时间间隔切换）
+  const sendKlineSubscription = useCallback((ws: WebSocketService, contractInfo: any, oldInterval: string, newInterval: string) => {
+    if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
+      return;
+    }
+
+    const oldWsTimeInterval = convertTimeInterval(oldInterval);
+    const newWsTimeInterval = convertTimeInterval(newInterval);
+
+    // 1. 先取消旧的K线订阅
+    const unsubKlineEvent = {
+      event: "unsub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol
+          .replace("-", "")
+          .toLowerCase()}_kline_${oldWsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+    ws.send(JSON.stringify(unsubKlineEvent));
+
+    // 2. 发送新的K线订阅
+    // K线数据请求（获取历史数据）
+    const klineReqEvent = {
+      event: "req",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol
+          .replace("-", "")
+          .toLowerCase()}_kline_${newWsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // K线数据订阅（获取实时更新）
+    const klineSubEvent = {
+      event: "sub",
+      params: {
+        channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol
+          .replace("-", "")
+          .toLowerCase()}_kline_${newWsTimeInterval}`,
+        cb_id: contractInfo.symbol.toLowerCase(),
+      },
+    };
+
+    // 延迟发送新订阅，确保取消订阅先处理
+    setTimeout(() => {
+      ws.send(JSON.stringify(klineReqEvent));
+      ws.send(JSON.stringify(klineSubEvent));
+    }, 100);
+  }, []);
+
   // 处理时间间隔变化
   const handleTimeIntervalChange = (interval: string) => {
-
+    const oldInterval = currentTimeIntervalRef.current;
+    
     setCurrentTimeInterval(interval);
+    currentTimeIntervalRef.current = interval; // 更新 ref 值
 
-    // 如果WebSocket已连接且合约信息完整，重新发送K线订阅
+    // 如果WebSocket已连接且合约信息完整，只重新发送K线订阅
     if (wsInstance && currentContractInfo.id) {
-      sendSubscriptions(wsInstance, currentContractInfo, interval, true); // 时间间隔变化时也先取消旧订阅
+      sendKlineSubscription(wsInstance, currentContractInfo, oldInterval, interval);
     }
   };
 
@@ -450,7 +515,7 @@ const TradePage = () => {
 
     // 如果WebSocket已连接且合约信息完整，重新发送深度订阅
     if (wsInstance && currentContractInfo.id) {
-      sendSubscriptions(wsInstance, currentContractInfo, currentTimeInterval, true, precision);  // 精度变化时先取消旧订阅
+      sendSubscriptions(wsInstance, currentContractInfo, currentTimeIntervalRef.current, true, precision);  // 精度变化时先取消旧订阅
     }
   };
 
@@ -517,11 +582,7 @@ const TradePage = () => {
       
       // 添加详细的调试信息
       if (Math.random() < 0.01) { // 每100次轮询打印一次状态，避免日志太多
-        console.log("🔍 轮询检查合约信息:", {
-          当前State合约ID: currentContractInfo.id,
-          Store合约ID: storeContractInfo?.id,
-          是否需要更新: storeContractInfo && storeContractInfo.id !== currentContractInfo.id
-        });
+
       }
       
       // 只有当store中的合约信息与当前state不同时才更新
@@ -529,27 +590,21 @@ const TradePage = () => {
         storeContractInfo &&
         storeContractInfo.id !== currentContractInfo.id
       ) {
-        console.log("🔄 ==========合约信息发生变化==========");
-        console.log("🔄 旧合约:", currentContractInfo);
-        console.log("🔄 新合约:", storeContractInfo);
+
         
-        // 清理旧的数据状态
-        console.log("🧹 清理旧数据状态");
         setOrderBookData(null);
         setPriceData(null);
         setKlineData(null);
 
-        // 更新合约信息
-        console.log("📝 更新合约信息");
+
         setCurrentContractInfo(storeContractInfo);
 
         // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
         if (wsInstance) {
-          console.log("🔄 WebSocket已连接，重新订阅新合约数据");
           sendSubscriptions(
             wsInstance,
             storeContractInfo,
-            currentTimeInterval,
+            currentTimeIntervalRef.current,
             true
           ); // 先取消旧订阅
         } else {
@@ -561,14 +616,13 @@ const TradePage = () => {
     };
 
     // 使用轮询方式检查store变化（简单方案）
-    console.log("📊 设置100ms轮询检查合约信息变化");
+
     const interval = setInterval(checkContractInfoChange, 100);
 
     return () => clearInterval(interval);
   }, [
     currentContractInfo.id,
     wsInstance,
-    currentTimeInterval,
     sendSubscriptions,
     getContractBalance,
   ]);
@@ -577,7 +631,7 @@ const TradePage = () => {
   useEffect(() => {
     // 只需要检查WebSocket URL是否存在
     if (!publicInfo.wsUrl) {
-      console.log("WebSocket URL未准备好");
+
       return;
     }
 
@@ -594,16 +648,10 @@ const TradePage = () => {
         }
 
         const data = JSON.parse(message);
-        console.log("解析后的WebSocket消息:", data);
+
 
         // 处理K线数据 - 动态检查不同时间间隔的K线数据
         if (data.channel && data.channel.includes("_kline_")) {
-          console.log("📈 ==========收到K线WebSocket数据==========");
-          console.log("📈 数据通道:", data.channel);
-          console.log("📈 当前合约:", currentContractInfo.symbol);
-          console.log("📈 完整数据:", data);
-          console.log("📈 ========================================");
-          
           // 直接传递原始WebSocket数据给TradingView组件处理
           setKlineData(data);
 
@@ -637,15 +685,13 @@ const TradePage = () => {
           }
         } else if (data.channel && data.channel.includes("_depth_step0")) {
           // 处理OrderBook深度数据
-          console.log("收到OrderBook数据:", data);
+
           if (data.tick) {
-            console.log("买单数据:", data.tick.buys);
-            console.log("卖单数据:", data.tick.asks);
           }
           setOrderBookData(data);
         } else if (data.channel && data.channel.includes("_trade_ticker")) {
           // 处理实时成交数据
-          console.log("收到实时交易数据:", data);
+
           if (data.data && Array.isArray(data.data)) {
             // 对数据按时间戳排序，最新的在前
             const sortedData = data.data.sort((a: any, b: any) => b.ts - a.ts);
@@ -664,31 +710,28 @@ const TradePage = () => {
           }
         }
       } catch (error) {
-        console.error("解析WebSocket消息失败:", error);
-        console.log("原始消息:", message);
-        console.log("消息类型:", typeof message);
-        console.log("消息长度:", message.length);
+
       }
     };
 
     // 错误处理回调
     const handleError = (error: Event) => {
-      console.error("WebSocket连接错误:", error);
+
     };
 
     // 连接成功后的回调
     ws.setOnConnectedCallback(() => {
-      console.log("WebSocket连接成功");
+
       // 如果合约信息已经准备好，立即发送订阅
       if (
         currentContractInfo.id &&
         currentContractInfo.contractType &&
         currentContractInfo.symbol
       ) {
-        console.log("WebSocket连接成功且合约信息已准备好，立即发送订阅");
-        sendSubscriptions(ws, currentContractInfo, currentTimeInterval);
+
+        sendSubscriptions(ws, currentContractInfo, currentTimeIntervalRef.current);
       } else {
-        console.log("WebSocket连接成功，但合约信息尚未准备好，等待合约信息");
+
       }
     });
 
@@ -697,17 +740,18 @@ const TradePage = () => {
 
     // 清理函数
     return () => {
-      console.log("清理WebSocket连接");
+
       setWsInstance(null);
       ws.close();
     };
   }, [
     publicInfo.wsUrl,
     currentContractInfo,
-    currentTimeInterval,
     sendSubscriptions,
   ]);
+useEffect(()=>{
 
+})
   // 当合约信息准备好且WebSocket已连接时，发送初始订阅
   useEffect(() => {
     if (
@@ -716,10 +760,11 @@ const TradePage = () => {
       currentContractInfo.contractType &&
       currentContractInfo.symbol
     ) {
-      console.log("WebSocket已连接且合约信息准备好，发送初始订阅");
-      sendSubscriptions(wsInstance, currentContractInfo, currentTimeInterval);
+      // 只在WebSocket或合约信息变化时发送完整订阅
+      // 时间间隔变化由 handleTimeIntervalChange 单独处理
+      sendSubscriptions(wsInstance, currentContractInfo, currentTimeIntervalRef.current);
     }
-  }, [wsInstance, currentContractInfo, currentTimeInterval, sendSubscriptions]);
+  }, [wsInstance, currentContractInfo, sendSubscriptions]); // 移除 currentTimeInterval 依赖
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
