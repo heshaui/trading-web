@@ -29,7 +29,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   const [tempLeverage, setTempLeverage] = useState(currentLeverage);
   const [lastValidLimitValue, setLastValidLimitValue] = useState<number | null>(null);
   const ContractInfo = appStore.currentContractInfo;
-  console.log('ContractInfo',ContractInfo)
   const maxLeverage = ContractInfo.maxLever;
 
 
