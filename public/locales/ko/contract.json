@@ -327,6 +327,7 @@
       "invalidNumber": "유효한 숫자를 입력하세요",
       "mustBePositive": "0보다 커야 합니다",
       "exceedsMaxQuantity": "최대 {{action}} 가능 수량 초과",
+      "exceedsMaxLimitVolume": "지정가 주문 최대 거래량 {{max}} 초과",
       "enterTriggerPrice": "트리거 가격 입력",
       "triggerPriceMustBePositive": "트리거 가격은 0보다 커야 합니다",
       "enterOrderPrice": "주문 가격 입력",

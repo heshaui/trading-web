@@ -121,17 +121,17 @@ export default function RegisterMail() {
         }
         // 检查长度是否在 8 - 100 位之间
         if (value.length < 8 || value.length > 100) {
-            return Promise.reject();
+            return Promise.reject(new Error(t('registerForm.passwordRule1')));
         }
         // 检查是否包含数字
         const hasNumber = /.*\d+.*/
         if (!hasNumber.test(value)) {
-            return Promise.reject();
+            return Promise.reject(new Error(t('registerForm.passwordnum')));
         }
         // 检查是否包含大写字母
         const hasUpperCase = /.*[A-Z].*/
         if (!hasUpperCase.test(value)) {
-            return Promise.reject();
+            return Promise.reject(new Error(t('registerForm.passwordletter')));
         }
 
         return Promise.resolve();
