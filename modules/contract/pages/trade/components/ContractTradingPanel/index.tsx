@@ -836,7 +836,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               <div className="flex items-center gap-[8px]">
                 <span>{t("tradingPanel.available")}:</span>
                 {/* {JSON.stringify(currentContractInfo)} */}
-                <span>{availableBalance.toFixed(2)} {currentContractInfo.marginCoin}</span>
+                <span>{availableBalance.toFixed(symbolPricePrecision||2)} {currentContractInfo.marginCoin}</span>
               </div>
               <Iconify
                 icon="mdi:swap-horizontal"
