@@ -33,9 +33,9 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
 
   // 获取成交记录
   const getTradeHistory = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取成交记录");
         const res = await getTradeInfo({
           contractId: overrideContractId ?? contractId,
@@ -50,7 +50,7 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
       } catch (error) {
         console.error("获取成交记录失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]
