@@ -793,6 +793,7 @@ const TradePage = () => {
             onBalanceUpdate={getContractBalance} // 父组件的余额更新函数
             priceSetterRef={priceSetterRef} // 传递价格设置器ref
             priceData={priceData} // 传递价格数据
+            onShowRiskDisclosure={() => setShowRiskDisclosure(true)} // 传递风险确认书触发函数
           />
           {
             isLoggedIn && <ContractAsset
