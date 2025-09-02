@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner"; 
 import dayjs from "dayjs";
 import { getHistoryOrderList } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../configs/columns";
@@ -54,7 +54,7 @@ export const useHistoryCommission = (
           setHistoryCommission(data.orderList);
           setHistoryCommissionNumber(data.count);
         } else {
-          message.error(msg);
+          toast.error(msg);
         }
       } catch (error) {
         console.error("获取历史委托失败:", error);

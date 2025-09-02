@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getPlanOrderList, cancelOrder } from "@/services/contract";
 
@@ -45,7 +45,7 @@ export const useConditionalCommission = (
         if (res.code === "0") {
           setConditionalCommission(res.data?.orderList || []);
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
         console.log(res);
       } catch (error) {
@@ -68,11 +68,11 @@ export const useConditionalCommission = (
         };
         const res = await cancelOrder(params);
         if (res.code === "0") {
-          message.success(res.msg);
+          toast.success(res.msg);
           // 刷新数据
           getConditionalCommission({showLoading: true});
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
       } catch (error) {
         console.error("取消条件委托失败:", error);

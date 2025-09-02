@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getTradeInfo } from "@/services/contract";
 import { Open, Side, Role } from "../configs/columns";
@@ -44,7 +44,7 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
         if (res.code === "0") {
           setTradeHistory(res.data?.tradeList || []);
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
         console.log(res);
       } catch (error) {

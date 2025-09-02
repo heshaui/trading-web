@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getCurrentOrderList, cancelOrder } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../configs/columns";
@@ -53,7 +53,7 @@ export const useOrdinaryCommission = (
           setOrdinaryCommission(data.orderList);
           setOrdinaryCommissionNumber(data.count);
         } else {
-          message.error(msg);
+          toast.error(msg);
         }
       } catch (error) {
         console.error("获取普通委托失败:", error);
@@ -75,11 +75,11 @@ export const useOrdinaryCommission = (
         };
         const res = await cancelOrder(params);
         if (res.code === "0") {
-          message.success(res.msg);
+          toast.success(res.msg);
           // 刷新数据
           getOrdinaryCommission({showLoading: true});
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
       } catch (error) {
         console.error("取消普通委托失败:", error);

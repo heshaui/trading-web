@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { createOrder, getAssetsList } from "@/services/contract";
 import { Side, PositionType } from "../configs/columns";
@@ -63,7 +63,7 @@ export const usePosition = (options: UsePositionOptions = {}) => {
         setPositionNumber(res.data.positionList.length);
       } else {
         setPositions([]);
-        message.error(res.msg);
+        toast.error(res.msg);
       }
     } catch (error) {
       console.error("获取仓位失败:", error);
@@ -90,13 +90,13 @@ export const usePosition = (options: UsePositionOptions = {}) => {
       try {
         // 请输入数量
         if (!volume) {
-          message.error("请输入数量");
+          toast.error("请输入数量");
           return;
         }
 
         // 请输入价格
         if (type === "limit" && !price) {
-          message.error("请输入价格");
+          toast.error("请输入价格");
           return;
         }
 
@@ -114,10 +114,10 @@ export const usePosition = (options: UsePositionOptions = {}) => {
         };
         const { code, msg } = await createOrder(params);
         if (code === "0") {
-          message.success(msg);
+          toast.success(msg);
           getPosition();
         } else {
-          message.error(msg);
+          toast.error(msg);
         }
       } catch (error) {
         console.error("快速平仓失败:", error);

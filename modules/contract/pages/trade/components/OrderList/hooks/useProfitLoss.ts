@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getHistoryPositionList } from "@/services/contract";
 import { PositionType, Side } from "../configs/columns";
@@ -45,7 +45,7 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
         if (res.code === "0") {
           setProfitLoss(res.data?.positionList || []);
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
         console.log(res);
       } catch (error) {
