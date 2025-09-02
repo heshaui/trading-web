@@ -40,6 +40,7 @@ interface ContractTradingPanelProps {
   onBalanceUpdate?: () => void; // 新增余额更新回调
   priceSetterRef?: React.MutableRefObject<((price: number) => void) | null>; // 新增价格设置器ref
   priceData?: any; // 新增价格数据
+  onShowRiskDisclosure?: () => void; // 新增风险确认书触发回调
   style?: React.CSSProperties;
 }
 
@@ -52,6 +53,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   onBalanceUpdate, // 解构新增的回调
   priceSetterRef, // 解构价格设置器ref
   priceData, // 解构价格数据
+  onShowRiskDisclosure, // 解构风险确认书回调
   style,
 }) => {
   // 确保所有Hooks在组件顶层按固定顺序调用
@@ -372,9 +374,25 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理订单提交
   const handleSubmit = (side: "BUY" | "SELL") => {
+    // 检查用户是否登录
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
     // 表单验证
     if (!validateForm()) {
       return;
+    }
+
+    // 检查用户是否已开通合约交易
+    const userConfig = appStore.getUserConfig();
+    if (userConfig.openContract !== 1) {
+      // 用户未开通合约，触发风险确认书
+      if (onShowRiskDisclosure) {
+        onShowRiskDisclosure();
+        return;
+      }
     }
 
     setSide(side);
