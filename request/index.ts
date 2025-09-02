@@ -81,8 +81,12 @@ export async function request<T>(
       || data.code === '10118' //账户已冻结
       || data.code === '10132' //商户已过期
     ) {
-      toast.error(data.message);
-      logout();
+     
+      if(!url.includes('/fe-co-api')){
+         toast.error(data.message);
+        logout();
+      }
+      
     }
     return data;
   } catch (error) {
