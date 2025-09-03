@@ -426,12 +426,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return;
     }
 
-    // 表单验证
-    if (!validateForm()) {
-      return;
-    }
 
-    // 检查用户是否已开通合约交易
+        // 检查用户是否已开通合约交易
     const userConfig = appStore.getUserConfig();
     if (userConfig.openContract !== 1) {
       // 用户未开通合约，触发风险确认书
@@ -440,6 +436,13 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         return;
       }
     }
+
+
+    // 表单验证
+    if (!validateForm()) {
+      return;
+    }
+
 
     setSide(side);
     
