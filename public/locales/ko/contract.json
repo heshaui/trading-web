@@ -324,6 +324,7 @@
     "cost": "비용",
     "transferSuccess": "이체 성공",
     "transferFailed": "이체 실패",
+    "priceRange": "범위: {{minPrice}} - {{maxPrice}}",
     "validation": {
       "required": "필수 입력 항목입니다",
       "invalidNumber": "유효한 숫자를 입력하세요",
@@ -339,6 +340,7 @@
       "insufficientBalance": "잔액 부족",
       "invalidLeverage": "유효하지 않은 레버리지",
       "quantityExceedsMax": "최대 {{action}} 가능 수량 초과",
+      "priceOutOfRange": "가격 범위: {{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "먼저 검증 오류를 해결하세요",
       "solveFollowingProblems": "다음 문제를 해결한 후 다시 시도하세요:"
     }

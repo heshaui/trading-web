@@ -212,5 +212,11 @@
       "paragraph6": "6. 「ヘッジ取引」は投機取引と同様に、価格変動によるリスクに直面します。関連するメカニズムを事前に理解してください。",
       "paragraph7": "7. アカウントを本人以外に操作させる場合、先物証拠金の安全性に影響を与える可能性があります。個人アカウントの安全性を必ず確保してください。"
     }
+  },
+  "tradingPanel": {
+    "priceRange": "範囲：{{minPrice}} - {{maxPrice}}",
+    "validation": {
+      "priceOutOfRange": "価格範囲：{{minPrice}} - {{maxPrice}}"
+    }
   }
 }

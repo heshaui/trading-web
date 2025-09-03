@@ -330,6 +330,7 @@
     "transferSuccess": "Transfer Successful",
     "transferFailed": "Transfer Failed",
     "loginOrRegister": "Login or Register",
+    "priceRange": "Range: {{minPrice}} - {{maxPrice}}",
     "validation": {
       "required": "This field is required",
       "invalidNumber": "Please enter a valid number",
@@ -350,6 +351,7 @@
       "insufficientBalance": "Insufficient balance",
       "invalidLeverage": "Invalid leverage",
       "quantityExceedsMax": "Quantity exceeds max available to {{action}}",
+      "priceOutOfRange": "Price range: {{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "Please fix validation errors first",
       "solveFollowingProblems": "Please resolve the following issues and try again:"
     }

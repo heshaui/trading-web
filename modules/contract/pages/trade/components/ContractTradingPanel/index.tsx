@@ -108,16 +108,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
-  const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
-  //限价最大成交金额
-  const maxLimitMoney=currentContractInfo.coinResultVo.maxLimitMoney
-  //限价最大成交量
-  const maxLimitVolume=currentContractInfo.coinResultVo.maxLimitVolume
-  //市价最大成交金额
-  const maxMarketMoney=currentContractInfo.coinResultVo.maxMarketMoney
-  //市价最大成交量
-  const maxMarketVolume=currentContractInfo.coinResultVo.maxMarketVolume
   
+  const {symbolPricePrecision,priceRange,maxLimitMoney,maxLimitVolume,maxMarketMoney,maxMarketVolume} =currentContractInfo.coinResultVo
+
+  
+
   // 获取当前订单类型
   const getOrderType = useCallback(() => {
     if (currentCategory === 1) return "limit";
@@ -241,6 +236,41 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     return cost;
   }, [quantity, price, currentCategory, leverageLevel, currentContractInfo, priceData]);
 
+  // 根据activeNewPrice和priceRange计算允许的价格范围
+  const getPriceRangeInfo = () => {
+    const activeNewPrice = appStore.getActiveNewPrice();
+    const currentPrice = activeNewPrice?.price;
+    
+    console.log('计算价格范围:', { 
+      activeNewPrice, 
+      currentPrice, 
+      priceRange,
+      hasActiveNewPrice: !!activeNewPrice,
+      hasPriceRange: !!priceRange 
+    }); // 调试日志
+    
+    if (!currentPrice || !priceRange) {
+      console.log('价格范围无效:', { currentPrice, priceRange });
+      return { minPrice: 0, maxPrice: 0, currentPrice: 0, isValid: false };
+    }
+
+    const rangePercent = priceRange / 100; // 转换为小数
+    const minPrice = currentPrice * (1 - rangePercent);
+    const maxPrice = currentPrice * (1 + rangePercent);
+    
+    const result = { 
+      minPrice: Number(minPrice.toFixed(8)), 
+      maxPrice: Number(maxPrice.toFixed(8)), 
+      currentPrice: Number(currentPrice), 
+      isValid: true 
+    };
+    
+    console.log('价格范围计算结果:', result);
+    return result;
+  };
+
+  const priceRangeInfo = getPriceRangeInfo();
+
   // 实时验证函数
   const validateField = useCallback((field: 'price' | 'quantity' | 'triggerPrice', value: string | number): string | undefined => {
     if (!value || value.toString().trim() === "") {
@@ -264,6 +294,21 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         const decimalPlaces = valueStr.length - decimalIndex - 1;
         if (decimalPlaces > symbolPricePrecision) {
           return t("tradingPanel.validation.exceedsPricePrecision", { precision: symbolPricePrecision });
+        }
+      }
+    }
+
+    // 价格范围验证（仅限价格字段）
+    if (field === 'price') {
+      const currentPriceRangeInfo = getPriceRangeInfo();
+      if (currentPriceRangeInfo.isValid) {
+        const { minPrice, maxPrice } = currentPriceRangeInfo;
+        
+        if (numValue < minPrice || numValue > maxPrice) {
+          return t('tradingPanel.validation.priceOutOfRange', { 
+            minPrice, 
+            maxPrice 
+          }) || `价格范围：${minPrice} - ${maxPrice}`;
         }
       }
     }
@@ -309,7 +354,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     return undefined;
-  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, getOrderType, maxLimitVolume, maxMarketVolume, maxLimitMoney, maxMarketMoney, price, quantity, t]);
+  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, getOrderType, maxLimitVolume, maxMarketVolume, maxLimitMoney, maxMarketMoney, price, quantity, t, getPriceRangeInfo]);
 
   // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
   const handleSetPriceFromExternal = useCallback((newPrice: number) => {
@@ -882,6 +927,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   {validationErrors.price && (
                     <span className={styles.errorText}>{validationErrors.price}</span>
                   )}
+                  {!validationErrors.price && priceRangeInfo.isValid && currentCategory === 1 && (
+                    <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                      {t('tradingPanel.priceRange', { 
+                        minPrice: priceRangeInfo.minPrice, 
+                        maxPrice: priceRangeInfo.maxPrice 
+                      }) || `范围：${priceRangeInfo.minPrice} - ${priceRangeInfo.maxPrice}`}
+                    </div>
+                  )}
                 </Form.Item>
               )}
 
@@ -1055,7 +1108,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               </div>
 
               {/* 验证错误提示 */}
-              {Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) && (
+              {/* {Object.keys(validationErrors).some(key => validationErrors[key as keyof typeof validationErrors]) && (
                 <div className={styles.validationError}>
                   <div className={styles.validationErrorTitle}>
                     {t("tradingPanel.validation.solveFollowingProblems")}
@@ -1066,7 +1119,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     )}
                   </ul>
                 </div>
-              )}
+              )} */}
 
               {/* 成本显示 */}
               <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">

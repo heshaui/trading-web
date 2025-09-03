@@ -82,6 +82,9 @@ class AppStore {
   currentContractInfo: any = {};
   isLoadingPublicInfo: boolean = false;
 
+  // 添加最新价格数据状态
+  activeNewPrice: any = null;
+
   // 添加用户合约配置状态
   userConfig: UserConfigType = {};
   isLoadingUserConfig: boolean = false;
@@ -1265,6 +1268,23 @@ class AppStore {
   }
   getCountryList() {
     return this.countryList;
+  }
+
+  // 最新价格数据相关方法
+  setActiveNewPrice(priceData: any) {
+    runInAction(() => {
+      this.activeNewPrice = priceData;
+    });
+  }
+
+  getActiveNewPrice() {
+    return this.activeNewPrice;
+  }
+
+  clearActiveNewPrice() {
+    runInAction(() => {
+      this.activeNewPrice = null;
+    });
   }
 }
 

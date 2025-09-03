@@ -330,6 +330,7 @@
     "transferSuccess": "划转成功",
     "transferFailed": "划转失败",
     "loginOrRegister": "登录 或 注册",
+    "priceRange": "范围：{{minPrice}} - {{maxPrice}}",
     "validation": {
       "required": "此字段为必填项",
       "invalidNumber": "请输入有效的数字",
@@ -350,6 +351,7 @@
       "insufficientBalance": "可用余额不足",
       "invalidLeverage": "杠杆倍数无效",
       "quantityExceedsMax": "委托数量超过最大可{{action}}数量",
+      "priceOutOfRange": "价格范围：{{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "请先解决表单验证错误",
       "solveFollowingProblems": "请解决以下问题后重试："
     }

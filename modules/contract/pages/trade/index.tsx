@@ -691,7 +691,7 @@ const TradePage = () => {
           setOrderBookData(data);
         } else if (data.channel && data.channel.includes("_trade_ticker")) {
           // 处理实时成交数据
-
+          console.log("_trade_ticker",data)
           if (data.data && Array.isArray(data.data)) {
             // 对数据按时间戳排序，最新的在前
             const sortedData = data.data.sort((a: any, b: any) => b.ts - a.ts);
@@ -700,12 +700,24 @@ const TradePage = () => {
             // 更新最新价格
             if (sortedData.length > 0) {
               const latestTrade = sortedData[0];
+              const newPriceData = {
+                price: latestTrade.price,
+                lastSide: latestTrade.side,
+                lastTradeTime: latestTrade.ds,
+                symbol: currentContractInfo?.symbol,
+                contractId: currentContractInfo?.id,
+                timestamp: Date.now(),
+              };
+              
               setPriceData((prevPriceData: any) => ({
                 ...prevPriceData,
                 price: latestTrade.price,
                 lastSide: latestTrade.side, // 记录最新交易方向
                 lastTradeTime: latestTrade.ds,
               }));
+
+              // 更新store中的最新价格数据
+              appStore.setActiveNewPrice(newPriceData);
             }
           }
         }
