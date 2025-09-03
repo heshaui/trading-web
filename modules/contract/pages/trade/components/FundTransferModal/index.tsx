@@ -34,8 +34,8 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   const [refreshKey, setRefreshKey] = useState(0); // 强制刷新key
   const [availableBalance] = useState(11111555503.012312338123); // 可用余额
   const coinList = appStore.getCoinList();
-
-
+  const publicInfo=appStore.getPublicInfo()
+  const marginCoinList=publicInfo.marginCoinList
   // 监听币种和账户变化，更新可用余额
   useEffect(() => {
     // 当币种或账户变化时，重新计算可用余额
@@ -50,12 +50,14 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   //   { value: 'BTC', label: 'BTC', subLabel: 'Bitcoin' },
   //   { value: 'ETH', label: 'ETH', subLabel: 'Ethereum' }
   // ];
-  const coinOptions = coinList.map(coin => ({
-    id: coin.id,
-    value: coin.coinName,
-    label: coin.coinName,
-    icon: coin.iconUrl,
-  }));
+  const coinOptions = coinList
+    .filter(coin => marginCoinList.includes(coin.coinName))
+    .map(coin => ({
+      id: coin.id,
+      value: coin.coinName,
+      label: coin.coinName,
+      icon: coin.iconUrl,
+    }));
 
   // 获取指定币种的余额
   const getBalance = (balanceList: any[], coinName: string) => {
@@ -131,11 +133,19 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
   // 处理最大按钮
   const handleMaxAmount = () => {
     let maxAmount = 0;
-    if (fromAccount === 'spot') {
-      maxAmount = getSpotBalance();
-    } else {
-      maxAmount = getContractBalance();
+    const balanceList = fromAccount === 'spot' ? spotBalance : contractBalance;
+    
+    if (Array.isArray(balanceList) && balanceList.length > 0) {
+      const balanceItem = balanceList.find((item: any) => {
+        return item.coinName === selectedCoin || item.symbol === selectedCoin;
+      });
+      
+      if (balanceItem) {
+        const balance = balanceItem.balance || balanceItem.canUseAmount || 0;
+        maxAmount = typeof balance === 'number' ? balance : parseFloat(balance) || 0;
+      }
     }
+    
     setTransferAmount(maxAmount.toString());
   };
 
@@ -260,6 +270,14 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
             className={styles.coinSelect}
             size="large"
             suffixIcon={<Iconify icon="mdi:chevron-down" />}
+            showSearch
+            placeholder={t('fundTransfer.searchCoin') || '搜索币种'}
+            filterOption={(input, option) => {
+              const coinData = coinOptions.find(coin => coin.value === option?.value);
+              if (!coinData) return false;
+              const searchText = input.toLowerCase();
+              return coinData.label.toLowerCase().includes(searchText);
+            }}
           >
             {coinOptions.map(coin => (
               <Option key={coin.value} value={coin.value}>
@@ -268,7 +286,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
                     <Image src={coin.icon} alt={coin.label} width={20} height={20} preview={false} />
                   </div>
                   <div className={styles.coinInfo}>
-                    <span className={styles.coinSymbol}>{coin.label}</span>                    </div>
+                    <span className={styles.coinSymbol}>{coin.label}</span></div>
                 </div>
               </Option>
             ))}
@@ -282,7 +300,6 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
             <Input
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
-              placeholder={t('fundTransfer.minAmount')}
               className={styles.amountInput}
               size="large"
               suffix={

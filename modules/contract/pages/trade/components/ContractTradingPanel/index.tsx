@@ -683,6 +683,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
   // 处理资金划转确认
   const handleFundTransferConfirm = async (transferData: any) => {
+    console.log(transferData)
     const dataEncrypt = await encryptData(transferData);
     const res = await transferAll(dataEncrypt);
     if (res.code === "0" && res.data) {
