@@ -56,6 +56,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>();
+   const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
 
   // 组件装载时设置默认精度
   useEffect(() => {
@@ -291,10 +292,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                         className={`flex-1 text-left ${getSellPriceColor()} cursor-pointer hover:opacity-80`}
                         onClick={() => onPriceClick && onPriceClick(order.price)}
                       >
-                        {order.price}
+                        {order.price.toFixed(symbolPricePrecision)}
                       </div>
                       <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
-                        {order.amount}
+                        {order.amount.toFixed(symbolPricePrecision)}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
                         <div
@@ -311,7 +312,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                           }}
                         />
                         <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
-                          {order.total}
+                          {order.total.toFixed(symbolPricePrecision)}
                         </span>
                       </div>
                     </div>
@@ -329,7 +330,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
           {colorMode === "both" && realtimeTradeData && realtimeTradeData.length > 0 && (
             <div className="flex justify-between items-center my-[10px]">
               <div className={`text-xl font-semibold ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {realtimeTradeData[0].price}
+                {realtimeTradeData[0].price.toFixed(symbolPricePrecision)}
               </div>
               <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {priceChange >= 0 ? '+' : ''}{priceChange}%
@@ -352,10 +353,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                         className={`flex-1 text-left ${getBuyPriceColor()} cursor-pointer hover:opacity-80`}
                         onClick={() => onPriceClick && onPriceClick(order.price)}
                       >
-                        {order.price}
+                        {order.price.toFixed(symbolPricePrecision)}
                       </div>
                       <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
-                        {order.amount}
+                        {order.amount.toFixed(symbolPricePrecision)}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
                         <div
@@ -372,7 +373,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                           }}
                         />
                         <span style={{ position: "relative", zIndex: 1, color: "#000" }}>
-                          {order.total}
+                          {order.total.toFixed(symbolPricePrecision)}
                         </span>
                       </div>
                     </div>
