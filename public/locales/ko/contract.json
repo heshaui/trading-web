@@ -389,6 +389,9 @@
     "settingFailed": "설정 실패",
     "settingFailedRetry": "설정 실패, 다시 시도하세요"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "미체결 주문이 있어 레버리지를 조정할 수 없습니다"
+  },
   "fundTransfer": {
     "title": "자금 이체",
     "from": "출처",

@@ -400,6 +400,9 @@
     "settingFailed": "Update Failed",
     "settingFailedRetry": "Update failed, please retry"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "Cannot adjust leverage with open orders"
+  },
   "fundTransfer": {
     "title": "Transfer",
     "from": "From",

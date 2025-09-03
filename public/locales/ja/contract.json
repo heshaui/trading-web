@@ -118,6 +118,9 @@
     "settingFailed": "レバレッジ設定に失敗しました",
     "settingFailedRetry": "レバレッジ設定に失敗しました。再試行してください"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "この契約には注文があるため、レバレッジを調整できません"
+  },
   "fundTransfer": {
     "title": "資金振替",
     "from": "から",

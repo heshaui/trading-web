@@ -400,6 +400,9 @@
     "settingFailed": "杠杆设置失败",
     "settingFailedRetry": "杠杆设置失败，请重试"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "本合约有委托单不可调整杠杆"
+  },
   "fundTransfer": {
     "title": "资金划转",
     "from": "从",

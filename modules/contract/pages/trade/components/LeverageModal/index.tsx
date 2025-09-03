@@ -69,6 +69,10 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   };
 
   const handleConfirm = async () => {
+    // currentUserConfig
+    if(currentUserConfig.levelCanSwitch===0){
+      return toast.error(t('leverage.cannotAdjustWithOrders'));
+    }
     try {
       const res = await levelEdit({
         contractId: ContractInfo.id,
@@ -97,7 +101,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         toast.error(res.message || t('leverageModal.settingFailed'));
       }
     } catch (error) {
-      console.error('杠杆设置失败:', error);
       toast.error(t('leverageModal.settingFailedRetry'));
     }
   };
