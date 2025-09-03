@@ -49,21 +49,21 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   // 币对精度
 
   // 获取仓位数据
-  const getPosition = useCallback(async ({ showLoading }: { showLoading?: boolean } = {}) => {
+  const getPosition = useCallback(async ({ showLoading, showMessage = true }: { showLoading?: boolean, showMessage?: boolean } = {}) => {
     try {
 
       if (showLoading) setLoading(true);
 
-      const res = await getAssetsList({
+      const { code, data, msg } = await getAssetsList({
         contractId: contractId,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
-      if (res.code === "0") {
-        setPositions(res.data.positionList);
-        setPositionNumber(res.data.positionList.length);
+      if (code === "0") {
+        setPositions(data?.positionList || []);
+        setPositionNumber(data?.positionList?.length || 0);
       } else {
         setPositions([]);
-        toast.error(res.msg);
+        if (showMessage) toast.error(msg);
       }
     } catch (error) {
       console.error("获取仓位失败:", error);

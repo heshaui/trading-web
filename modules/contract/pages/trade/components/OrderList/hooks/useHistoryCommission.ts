@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
-import { toast } from "sonner"; 
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getHistoryOrderList } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../configs/columns";
 
 // 历史委托接口
 interface HistoryCommission {
-  symbol: string; // 合约 
+  symbol: string; // 合约
   pricePrecision: number; // 价格精度
   side: Side; // 方向
   positionType: PositionType; // 仓位类型
@@ -42,7 +42,15 @@ export const useHistoryCommission = (
 
   // 获取历史委托列表
   const getHistoryCommission = useCallback(
-    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
+    async ({
+      overrideContractId,
+      showLoading,
+      showMessage = true,
+    }: {
+      overrideContractId?: number;
+      showLoading?: boolean;
+      showMessage?: boolean;
+    }) => {
       try {
         if (showLoading) setLoading(true);
         console.log("获取历史委托");
@@ -54,7 +62,7 @@ export const useHistoryCommission = (
           setHistoryCommission(data.orderList);
           setHistoryCommissionNumber(data.count);
         } else {
-          toast.error(msg);
+          if (showMessage) toast.error(msg);
         }
       } catch (error) {
         console.error("获取历史委托失败:", error);

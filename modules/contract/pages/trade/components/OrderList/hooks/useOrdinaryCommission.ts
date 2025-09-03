@@ -41,7 +41,7 @@ export const useOrdinaryCommission = (
 
   // 获取普通委托列表
   const getOrdinaryCommission = useCallback(
-    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
+    async ({overrideContractId, showLoading, showMessage = true}: {overrideContractId?: number, showLoading?: boolean, showMessage?: boolean}) => {
       try {
         if (showLoading) setLoading(true);
         console.log("获取普通委托(当前委托)");
@@ -53,7 +53,7 @@ export const useOrdinaryCommission = (
           setOrdinaryCommission(data.orderList);
           setOrdinaryCommissionNumber(data.count);
         } else {
-          toast.error(msg);
+          if (showMessage) toast.error(msg);
         }
       } catch (error) {
         console.error("获取普通委托失败:", error);
@@ -76,7 +76,7 @@ export const useOrdinaryCommission = (
         const res = await cancelOrder(params);
         if (res.code === "0") {
           toast.success(res.msg);
-          // 刷新数据
+          // 刷新数据 
           getOrdinaryCommission({showLoading: true});
         } else {
           toast.error(res.msg);

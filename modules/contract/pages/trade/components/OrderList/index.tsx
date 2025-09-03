@@ -290,8 +290,8 @@ const OrderListComponent = (props: any, ref: any) => {
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       getPosition({ showLoading: false });
-      getOrdinaryCommission({ showLoading: false });
-      getHistoryCommission({ showLoading: false });
+      getOrdinaryCommission({ showLoading: false, showMessage: false });
+      getHistoryCommission({ showLoading: false, showMessage: false });
     }
   }, [
     currentContractInfo?.id,
@@ -305,34 +305,43 @@ const OrderListComponent = (props: any, ref: any) => {
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       const map = {
-        position: ({ showLoading }: { showLoading: boolean }) =>
-          getPosition({ showLoading }),
-        openOrders: ({ showLoading }: { showLoading: boolean }) =>
-          getOrdinaryCommission({ showLoading }),
-        conditionalOrders: ({ showLoading }: { showLoading: boolean }) =>
-          getConditionalCommission({ showLoading }),
-        orderHistory: ({ showLoading }: { showLoading: boolean }) =>
-          getHistoryCommission({ showLoading }),
+        position: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getPosition({ showLoading, showMessage }),
+
+        openOrders: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getOrdinaryCommission({ showLoading, showMessage }),
+
+        // 条件委托
+        // conditionalOrders: ({ showLoading }: { showLoading: boolean }) =>
+        //   getConditionalCommission({ showLoading }),
+
+        // 历史委托
+        orderHistory: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getHistoryCommission({ showLoading, showMessage }),
+
+        // 盈亏记录
         profitLoss: ({ showLoading }: { showLoading: boolean }) =>
           getProfitLoss({ showLoading }),
+
+        // 成交记录
         tradeHistory: ({ showLoading }: { showLoading: boolean }) =>
           getTradeHistory({ showLoading }),
       };
       const fn = map[activeTab as keyof typeof map];
-      fn?.({ showLoading: true });
-
       // 只有仓位和当前委托需要轮询
       let intervalId: NodeJS.Timeout | null = null;
-      if (activeTab === "position" || activeTab === "openOrders") {
-        intervalId = setInterval(() => {
-          fn?.({ showLoading: false }).catch(() => {
-            if (intervalId) {
-              clearInterval(intervalId);
-              intervalId = null;
-            }
-          });
-        }, 800); // 轮询间隔为800毫秒
-      }
+      fn?.({ showLoading: true, showMessage: false }).then(() => {
+        if (activeTab === "position" || activeTab === "openOrders") {
+          intervalId = setInterval(() => {
+            fn?.({ showLoading: false, showMessage: false }).catch(() => {
+              if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+              }
+            });
+          }, 800); // 轮询间隔为800毫秒
+        }
+      });
 
       // 清理定时器
       return () => {
