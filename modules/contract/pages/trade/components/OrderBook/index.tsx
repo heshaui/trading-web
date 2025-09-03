@@ -330,7 +330,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
           {colorMode === "both" && realtimeTradeData && realtimeTradeData.length > 0 && (
             <div className="flex justify-between items-center my-[10px]">
               <div className={`text-xl font-semibold ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {realtimeTradeData[0].price.toFixed(symbolPricePrecision)}
+                {Number(realtimeTradeData[0].price).toFixed(symbolPricePrecision)}
               </div>
               <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {priceChange >= 0 ? '+' : ''}{priceChange}%
