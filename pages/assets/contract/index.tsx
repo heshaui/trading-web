@@ -275,7 +275,6 @@ const Contract = observer(() => {
   };
   // 获取合约账户余额
   const getContractBalance = async () => {
-    alert(2)
     if(!isLoggedIn) return 
     try {
       const accountList = await appStore.loadContractAssets();
