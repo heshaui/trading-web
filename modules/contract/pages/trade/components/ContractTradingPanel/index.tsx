@@ -927,14 +927,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                   {validationErrors.price && (
                     <span className={styles.errorText}>{validationErrors.price}</span>
                   )}
-                  {!validationErrors.price && priceRangeInfo.isValid && currentCategory === 1 && (
-                    <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
-                      {t('tradingPanel.priceRange', { 
-                        minPrice: priceRangeInfo.minPrice, 
-                        maxPrice: priceRangeInfo.maxPrice 
-                      }) || `范围：${priceRangeInfo.minPrice} - ${priceRangeInfo.maxPrice}`}
-                    </div>
-                  )}
                 </Form.Item>
               )}
 
