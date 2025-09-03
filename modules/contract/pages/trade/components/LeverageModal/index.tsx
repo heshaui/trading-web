@@ -164,7 +164,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
 
         {/* 风险提示 */}
         {
-          tempLeverage>20&&
+          tempLeverage>=20&&
            <div className={styles.riskWarning}>
           {t('leverageModal.riskWarning')}
         </div>
