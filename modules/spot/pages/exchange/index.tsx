@@ -15,7 +15,7 @@ import SpotChartCoinInfo from "../components/spotChart_coinInfo";
 import Tradingview, { TradingviewRefHandle } from "@/components/Tradingview";
 import DepthChart from "@/components/DepthChart";
 import OrderBook from "@/components/OrderBook";
-import WebSocketService from "@/utils/websocket";
+import WebSocketService, { ConnectionState } from "@/utils/websocket";
 import { FullscreenOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import type { MenuProps } from "antd";
@@ -131,7 +131,7 @@ const ExchangePage = () => {
   };
   const getOrderWsData = useCallback(() => {
     // 如果已经有连接，不要重复创建
-    if (websocketRef.current) return;
+    if (websocketRef.current && websocketRef.current.connectionState === ConnectionState.OPEN) return;
 
     const websocket = new WebSocketService(
       `${process.env.NEXT_PUBLIC_WS_API_BASE
@@ -142,7 +142,16 @@ const ExchangePage = () => {
 
     websocket.connect((message: string) => {
       try {
+        // 心跳处理（纯文本或JSON）
+        if (typeof message === 'string' && (message.startsWith('ping') || message === '__ping__')) {
+          websocket.send(JSON.stringify({ type: '__pong__' }));
+          return;
+        }
         const data = JSON.parse(message);
+        if (data?.type === '__ping__') {
+          websocket.send(JSON.stringify({ type: '__pong__' }));
+          return;
+        }
         if (data.type === "__ping__") {
           return;
         }
@@ -161,12 +170,16 @@ const ExchangePage = () => {
           return combinedData.slice(0, maxEntries);
         });
       } catch (error) { }
+    }, (err) => {
+      // 出错时允许重建
+      websocketRef.current = null;
+      setTimeout(() => { try { getOrderWsData(); } catch {} }, 3000);
     });
   }, [currentPair]);
 
   const getWsDepthData = useCallback(() => {
     // 如果已经有连接，不要重复创建
-    if (depthWsRef.current) return;
+    if (depthWsRef.current && depthWsRef.current.connectionState === ConnectionState.OPEN) return;
 
     const websocket = new WebSocketService(
       `${process.env.NEXT_PUBLIC_WS_API_BASE
@@ -187,6 +200,9 @@ const ExchangePage = () => {
           message.includes("client")
         ) {
           // 处理系统消息
+          if (message.startsWith('ping')) {
+            websocket.send(JSON.stringify({ type: '__pong__' }));
+          }
           return;
         }
 
@@ -194,6 +210,10 @@ const ExchangePage = () => {
           return;
         }
         const data = JSON.parse(message);
+        if (data?.type === '__ping__') {
+          websocket.send(JSON.stringify({ type: '__pong__' }));
+          return;
+        }
         // 检查消息类型是否为depth
         if (data.type !== "depth") {
           return;
@@ -216,6 +236,9 @@ const ExchangePage = () => {
           return newDepthData;
         });
       } catch (error) { }
+    }, (err) => {
+      depthWsRef.current = null;
+      setTimeout(() => { try { getWsDepthData(); } catch {} }, 3000);
     });
   }, [currentPair]);
 
@@ -287,14 +310,23 @@ const ExchangePage = () => {
             message.includes("joined") ||
             message.includes("left")
           ) {
+            if (message.startsWith('ping')) {
+              websocket.send(JSON.stringify({ type: '__pong__' }));
+            }
             return;
           }
 
           const data = JSON.parse(message);
-
+          if (data?.type === '__ping__') {
+            websocket.send(JSON.stringify({ type: '__pong__' }));
+            return;
+          }
           setCoinData(data);
           updateKlineData(data);
         } catch (err) { }
+      }, (err) => {
+        klineWsRef.current = null;
+        setTimeout(() => { try { getKlineData(); } catch {} }, 3000);
       });
     } catch (err) { }
   }, [currentPair, timeInterval]);

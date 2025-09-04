@@ -166,6 +166,8 @@ function BindGoogleModal({ open, onCancel, type, onOk, acountInfo }: Props) {
                 padding: "6px",
                 minWidth: "68px",
               }}
+              color="#000"
+              bgColor="#fff"
               value={`${secretKey.codeUri || ""}`}
               size={68}
             />
