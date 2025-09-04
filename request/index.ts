@@ -1,4 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE;
+const CONTRACT_URL= process.env.NEXT_PUBLIC_WEB_CONTRACT_BASE;
 import { LOCAL_STORAGE_KEY } from '@/config/apiConfig';
 // import { useAuth } from '@/context/AuthContext';
 import router from 'next/router';
@@ -21,7 +22,7 @@ export async function request<T>(
   // 特殊处理：fe-co-api 强制转发到 futures.imbit.work
   let url: string;
   if (endpoint.startsWith('/fe-co-api/')) {
-    url = `https://futures.imbit.work${endpoint}`;
+    url = `${CONTRACT_URL}${endpoint}`;
   } else {
     url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
   }
@@ -80,8 +81,12 @@ export async function request<T>(
       || data.code === '10118' //账户已冻结
       || data.code === '10132' //商户已过期
     ) {
-      toast.error(data.message);
-      logout();
+     
+      if(!url.includes('/fe-co-api')){
+         toast.error(data.message);
+        logout();
+      }
+      
     }
     return data;
   } catch (error) {

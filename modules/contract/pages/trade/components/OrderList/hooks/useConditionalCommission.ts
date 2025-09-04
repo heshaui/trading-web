@@ -1,22 +1,22 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getPlanOrderList, cancelOrder } from "@/services/contract";
 
 // 条件委托接口
 interface ConditionalCommission {
-  id: string;
-  contractId: number;
-  symbol: string;
-  type: "LIMIT" | "MARKET" | "CONDITIONAL";
-  side: "BUY" | "SELL";
-  triggerPrice: number;
-  price: number;
-  size: number;
-  orderType: string;
-  onlyReduce: boolean;
-  createTime: number;
-  expireTime: number;
+  id: string; // 订单ID
+  contractId: number; // 合约ID
+  symbol: string; // 合约
+  type: "LIMIT" | "MARKET" | "CONDITIONAL"; // 类型
+  side: "BUY" | "SELL"; // 方向
+  triggerPrice: number; // 触发价格
+  price: number; // 委托价格
+  size: number; // 委托数量
+  orderType: string; // 订单类型
+  onlyReduce: boolean; // 是否只减少
+  createTime: number; // 创建时间
+  expireTime: number; // 过期时间
 }
 
 interface UseConditionalCommissionOptions {
@@ -34,9 +34,9 @@ export const useConditionalCommission = (
 
   // 获取条件委托列表
   const getConditionalCommission = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取条件委托");
         const res = await getPlanOrderList({
           contractId: (overrideContractId ?? contractId)?.toString(),
@@ -45,13 +45,13 @@ export const useConditionalCommission = (
         if (res.code === "0") {
           setConditionalCommission(res.data?.orderList || []);
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
         console.log(res);
       } catch (error) {
         console.error("获取条件委托失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]
@@ -68,11 +68,11 @@ export const useConditionalCommission = (
         };
         const res = await cancelOrder(params);
         if (res.code === "0") {
-          message.success(res.msg);
+          toast.success(res.msg);
           // 刷新数据
-          getConditionalCommission();
+          getConditionalCommission({showLoading: true});
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
       } catch (error) {
         console.error("取消条件委托失败:", error);

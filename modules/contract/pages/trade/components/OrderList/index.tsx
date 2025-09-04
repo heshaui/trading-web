@@ -65,7 +65,8 @@ const OrderListComponent = (props: any, ref: any) => {
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
   const currentSymbol = currentContractInfo?.symbol || "";
-  const symbolPricePrecision = currentContractInfo?.coinResultVo.symbolPricePrecision;
+  const symbolPricePrecision =
+    currentContractInfo?.coinResultVo.symbolPricePrecision;
 
   // ============ 使用各种hooks ============
   // 仓位
@@ -156,7 +157,6 @@ const OrderListComponent = (props: any, ref: any) => {
     t,
     symbolPricePrecision,
   });
-
 
   // 暴露方法给父组件
   useImperativeHandle(ref, () => ({
@@ -289,9 +289,9 @@ const OrderListComponent = (props: any, ref: any) => {
   // 切换合约或登录状态时，获取数量信息（用于tab标签显示）
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
-      getPosition();
-      getOrdinaryCommission();
-      getHistoryCommission();
+      getPosition({ showLoading: false });
+      getOrdinaryCommission({ showLoading: false, showMessage: false });
+      getHistoryCommission({ showLoading: false, showMessage: false });
     }
   }, [
     currentContractInfo?.id,
@@ -305,15 +305,50 @@ const OrderListComponent = (props: any, ref: any) => {
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       const map = {
-        position: () => getPosition(),
-        openOrders: () => getOrdinaryCommission(),
-        conditionalOrders: () => getConditionalCommission(),
-        orderHistory: () => getHistoryCommission(),
-        profitLoss: () => getProfitLoss(),
-        tradeHistory: () => getTradeHistory(),
+        position: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getPosition({ showLoading, showMessage }),
+
+        openOrders: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getOrdinaryCommission({ showLoading, showMessage }),
+
+        // 条件委托
+        // conditionalOrders: ({ showLoading }: { showLoading: boolean }) =>
+        //   getConditionalCommission({ showLoading }),
+
+        // 历史委托
+        orderHistory: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
+          getHistoryCommission({ showLoading, showMessage }),
+
+        // 盈亏记录
+        profitLoss: ({ showLoading }: { showLoading: boolean }) =>
+          getProfitLoss({ showLoading }),
+
+        // 成交记录
+        tradeHistory: ({ showLoading }: { showLoading: boolean }) =>
+          getTradeHistory({ showLoading }),
       };
       const fn = map[activeTab as keyof typeof map];
-      fn?.();
+      // 只有仓位和当前委托需要轮询
+      let intervalId: NodeJS.Timeout | null = null;
+      fn?.({ showLoading: true, showMessage: false }).then(() => {
+        if (activeTab === "position" || activeTab === "openOrders") {
+          intervalId = setInterval(() => {
+            fn?.({ showLoading: false, showMessage: false }).catch(() => {
+              if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+              }
+            });
+          }, 800); // 轮询间隔为800毫秒
+        }
+      });
+
+      // 清理定时器
+      return () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      };
     }
   }, [
     activeTab,
@@ -361,7 +396,9 @@ const OrderListComponent = (props: any, ref: any) => {
                 {/* 当前合约 */}
                 <div className="flex items-center gap-[8px]">
                   <Switch size="small" onChange={setOnlyCurrentSymbol} />
-                  <div className="text-[var(--text-color5)]">{t("order.onlyCurrentSymbol")}</div>
+                  <div className="text-[var(--text-color5)]">
+                    {t("order.onlyCurrentSymbol")}
+                  </div>
                 </div>
                 {/* 一键全平 */}
                 {/* {activeTab === "position" && (

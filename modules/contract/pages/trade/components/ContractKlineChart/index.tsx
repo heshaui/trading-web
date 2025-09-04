@@ -16,6 +16,8 @@ interface TradingviewRefHandle {
   handleChartScreenshot: () => void;
 }
 
+const KLINE_TIME_INTERVAL_KEY = 'contract_kline_time_interval';
+
 const ContractKlineChart = ({
   currentContractInfo,
   klineData,
@@ -31,11 +33,30 @@ const ContractKlineChart = ({
   const tradingviewRef = useRef<TradingviewRefHandle>(null);
 
   const [currentPair, setCurrentPair] = useState<any>(null);
-  const [timeInterval, setTimeInterval] = useState<string>("1D");
+  // 从 localStorage 读取缓存的时间间隔，如果没有则使用默认值 "1D"
+  const [timeInterval, setTimeInterval] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(KLINE_TIME_INTERVAL_KEY);
+      // 确保缓存的值是有效的，如果不是则使用默认值
+      const validIntervals = ["1m", "5m", "15m", "30m", "1h", "1D", "1W", "1M"];
+      return (cached && validIntervals.includes(cached)) ? cached : "1D";
+    }
+    return "1D";
+  });
   const [chartDisplayType, setChartDisplayType] = useState<number>(1);
   const [activeChartType, setActiveChartType] = useState<string>("basic");
   const [chartType, setChartType] = useState<any[]>([]);
-  const [dayData, setDayData] = useState<any[]>(["5m", "15m", "1h", "1D"]);
+  // 根据缓存的时间间隔初始化 dayData
+  const [dayData, setDayData] = useState<any[]>(() => {
+    const defaultData = ["5m", "15m", "1h", "1D"];
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(KLINE_TIME_INTERVAL_KEY);
+      if (cached && !defaultData.includes(cached)) {
+        return [...defaultData.slice(0, 3), cached];
+      }
+    }
+    return defaultData;
+  });
   const [timeIntervalOptions, setTimeIntervalOptions] = useState<any[]>([
     "1m",
     "5m",
@@ -95,6 +116,11 @@ const ContractKlineChart = ({
 
   const handleTimeIntervalChange = (interval: string) => {
     setTimeInterval(interval);
+    
+    // 保存到 localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(KLINE_TIME_INTERVAL_KEY, interval);
+    }
 
     // 如果选择的时间间隔不在默认的dayData中，则替换最后一个元素
     if (!defaultDayData.includes(interval)) {
@@ -117,7 +143,7 @@ const ContractKlineChart = ({
       symbol: currentContractInfo.symbol,
       contractId: currentContractInfo.id,
     });
-    console.log("res:", res);
+
     setDepthData(res.data);
   }, [currentContractInfo.symbol, currentContractInfo.id]);
 
@@ -130,6 +156,15 @@ const ContractKlineChart = ({
     ]);
   }, [t]);
 
+  // 组件挂载时，通知父组件当前的时间间隔（从缓存读取的值）
+  // 父组件已经从 localStorage 读取了初始值，这里不需要再次通知
+  // 避免触发不必要的订阅
+  // useEffect(() => {
+  //   if (onTimeIntervalChange && timeInterval) {
+  //     onTimeIntervalChange(timeInterval);
+  //   }
+  // }, []); // 只在组件挂载时执行一次
+
   useEffect(() => {
     getDepthMapData();
   }, [getDepthMapData]);
@@ -137,11 +172,7 @@ const ContractKlineChart = ({
   // 监听合约变化，重置图表
   useEffect(() => {
     if (currentContractInfo && currentContractInfo.id) {
-      console.log("合约变化，设置当前交易对:", {
-        id: currentContractInfo.id,
-        contractName: currentContractInfo.contractName,
-        symbol: currentContractInfo.symbol
-      });
+
       setCurrentPair(currentContractInfo);
 
       // 如果TradingView组件存在且有resetChart方法，调用它来重置图表
@@ -149,7 +180,7 @@ const ContractKlineChart = ({
         try {
           tradingviewRef.current.resetChart();
         } catch (error) {
-          console.error("调用resetChart时出错:", error);
+
         }
       }
     }

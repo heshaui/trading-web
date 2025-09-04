@@ -1,4 +1,6 @@
 {
+  "login": "Login",
+  "register": "Register",
   "position": "Position",
   "openOrders": "Open Orders",
   "orderHistory": "Order History",
@@ -174,30 +176,15 @@
     "profitLoss": "Profit and Loss Record",
     "tradeHistory": "Trade History",
     "positionColumn": {
-      "positionId": "Position ID",
-      "contractId": "Contract ID",
-      "contractName": "Contract Name",
-      "symbol": "Contract Symbol",
-      "positionVolume": "Position Volume",
-      "canCloseVolume": "Closable Volume",
-      "quickClose": "Quick Close",
-      "openAvgPrice": "Open Average Price",
-      "indexPrice": "Index Price",
-      "reducePrice": "Close Average Price",
-      "holdAmount": "Hold Amount",
-      "marginRate": "Margin Rate",
-      "realizedAmount": "Realized P&L",
-      "returnRate": "Return Rate",
-      "orderSide": "Order Side",
-      "positionType": "Position Type",
-      "canUseAmount": "Available Amount",
-      "canSubMarginAmount": "Reducible Margin Amount",
-      "openRealizedAmount": "Open Realized P&L",
-      "keepRate": "Maintenance Margin Rate",
-      "maxFeeRate": "Maximum Fee Rate",
-      "unRealizedAmount": "Unrealized P&L",
-      "leverageLevel": "Leverage Level",
-      "positionBalance": "Position Balance",
+      "contract": "Symbol",
+      "positionVolume": "Size/AVL.(Cont)",
+      "openAvgPrice": "Entry Price",
+      "indexPrice": "Mark Price",
+      "reducePrice":"Liq. Price",
+      "holdAmount": "Margin",
+      "marginRate": "Margin Ratio",
+      "realizedAmount": "PNL/ROI",
+      "openRealizedAmount": "Settled PNL",
       "marketClose": "Market Close",
       "limitClose": "Limit Close",
       "price": "Price",
@@ -205,7 +192,9 @@
       "marketCloseBtn": "Market Close",
       "limitCloseBtn": "Limit Close",
       "marketTab": "Market",
-      "limitTab": "Limit"
+      "limitTab": "Limit",
+      "quickClose": "Quick Close",
+      "orderSide": "Side"
     },
     "ordinaryColumn": {
       "symbol": "Contract",
@@ -340,11 +329,19 @@
     "cost": "Cost",
     "transferSuccess": "Transfer Successful",
     "transferFailed": "Transfer Failed",
+    "loginOrRegister": "Login or Register",
+    "priceRange": "Range: {{minPrice}} - {{maxPrice}}",
     "validation": {
       "required": "This field is required",
       "invalidNumber": "Please enter a valid number",
       "mustBePositive": "Value must be greater than 0",
+      "mustBeInteger": "Quantity must be a positive integer",
+      "exceedsPricePrecision": "Price precision cannot exceed {{precision}} decimal places",
       "exceedsMaxQuantity": "Quantity exceeds max available to {{action}}",
+      "exceedsMaxLimitVolume": "Quantity exceeds max limit order volume {{max}}",
+      "exceedsMaxMarketVolume": "Quantity exceeds max market order volume {{max}}",
+      "exceedsMaxLimitAmount": "Order amount exceeds max limit order amount {{max}}",
+      "exceedsMaxMarketAmount": "Order amount exceeds max market order amount {{max}}",
       "enterTriggerPrice": "Enter trigger price",
       "triggerPriceMustBePositive": "Trigger price must be > 0",
       "enterOrderPrice": "Enter order price",
@@ -354,6 +351,7 @@
       "insufficientBalance": "Insufficient balance",
       "invalidLeverage": "Invalid leverage",
       "quantityExceedsMax": "Quantity exceeds max available to {{action}}",
+      "priceOutOfRange": "Price range: {{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "Please fix validation errors first",
       "solveFollowingProblems": "Please resolve the following issues and try again:"
     }
@@ -404,6 +402,9 @@
     "settingFailed": "Update Failed",
     "settingFailedRetry": "Update failed, please retry"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "Cannot adjust leverage with open orders"
+  },
   "fundTransfer": {
     "title": "Transfer",
     "from": "From",
@@ -412,6 +413,7 @@
     "contractAccount": "Futures Account",
     "coin": "Coin",
     "amount": "Amount",
+    "transferAmount": "Transfer Amount",
     "available": "Available",
     "max": "Max",
     "confirm": "Confirm",
@@ -438,6 +440,8 @@
     "marginCoin": "Margin Coin",
     "contractValue": "Contract Value",
     "minPriceChange": "Min Price Change",
-    "minMaintainMarginRate": "Min Maintain Margin Rate"
+    "minMaintainMarginRate": "Min Maintain Margin Rate",
+    "index": "Index",
+    "perpetual": "Perpetual"
   }
 }

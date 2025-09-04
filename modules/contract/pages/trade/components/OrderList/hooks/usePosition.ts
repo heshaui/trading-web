@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { createOrder, getAssetsList } from "@/services/contract";
 import { Side, PositionType } from "../configs/columns";
@@ -49,26 +49,27 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   // 币对精度
 
   // 获取仓位数据
-  const getPosition = useCallback(async () => {
+  const getPosition = useCallback(async ({ showLoading, showMessage = true }: { showLoading?: boolean, showMessage?: boolean } = {}) => {
     try {
-      setLoading(true);
-      console.log("获取仓位");
-      const res = await getAssetsList({
+
+      if (showLoading) setLoading(true);
+
+      const { code, data, msg } = await getAssetsList({
         contractId: contractId,
         uaTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
-      if (res.code === "0") {
-        setPositions(res.data.positionList);
-        setPositionNumber(res.data.positionList.length);
+      if (code === "0") {
+        setPositions(data?.positionList || []);
+        setPositionNumber(data?.positionList?.length || 0);
       } else {
         setPositions([]);
-        message.error(res.msg);
+        if (showMessage) toast.error(msg);
       }
     } catch (error) {
       console.error("获取仓位失败:", error);
       setPositions([]);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, [contractId]);
 
@@ -89,13 +90,13 @@ export const usePosition = (options: UsePositionOptions = {}) => {
       try {
         // 请输入数量
         if (!volume) {
-          message.error("请输入数量");
+          toast.error("请输入数量");
           return;
         }
 
         // 请输入价格
         if (type === "limit" && !price) {
-          message.error("请输入价格");
+          toast.error("请输入价格");
           return;
         }
 
@@ -113,10 +114,10 @@ export const usePosition = (options: UsePositionOptions = {}) => {
         };
         const { code, msg } = await createOrder(params);
         if (code === "0") {
-          message.success(msg);
+          toast.success(msg);
           getPosition();
         } else {
-          message.error(msg);
+          toast.error(msg);
         }
       } catch (error) {
         console.error("快速平仓失败:", error);

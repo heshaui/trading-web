@@ -1,4 +1,6 @@
 {
+  "login": "登录",
+  "register": "注册",
   "position": "持仓",
   "openOrders": "当前委托",
   "orderHistory": "历史委托",
@@ -174,30 +176,15 @@
     "profitLoss": "盈亏记录",
     "tradeHistory": "成交记录",
     "positionColumn": {
-      "positionId": "仓位ID",
-      "contractId": "合约ID",
-      "contractName": "合约名称",
-      "symbol": "合约符号",
-      "positionVolume": "仓位数量",
-      "canCloseVolume": "可平仓数量",
-      "quickClose": "快速平仓",
-      "openAvgPrice": "开仓均价",
-      "indexPrice": "指数价格",
-      "reducePrice": "平仓均价",
-      "holdAmount": "持仓金额",
+      "contract": "合约",
+      "positionVolume": "仓位/可平(张)",
+      "openAvgPrice": "成本价",
+      "indexPrice": "标记价格",
+      "reducePrice":"预估强平价",
+      "holdAmount": "占用保证金",
       "marginRate": "保证金率",
-      "realizedAmount": "已实现盈亏",
-      "returnRate": "收益率",
-      "orderSide": "订单方向",
-      "positionType": "仓位类型",
-      "canUseAmount": "可用金额",
-      "canSubMarginAmount": "可减保证金金额",
+      "realizedAmount": "盈亏/收益率",
       "openRealizedAmount": "开仓已实现盈亏",
-      "keepRate": "维持保证金率",
-      "maxFeeRate": "最大手续费率",
-      "unRealizedAmount": "未实现盈亏",
-      "leverageLevel": "杠杆倍数",
-      "positionBalance": "仓位余额",
       "marketClose": "市价平仓",
       "limitClose": "限价平仓",
       "price": "价格",
@@ -205,7 +192,10 @@
       "marketCloseBtn": "市价平",
       "limitCloseBtn": "限价平",
       "marketTab": "市价",
-      "limitTab": "限价"
+      "limitTab": "限价",
+      "quickClose": "快速平仓",
+      "orderSide": "方向"
+
     },
     "ordinaryColumn": {
       "symbol": "合约",
@@ -339,11 +329,19 @@
     "cost": "成本",
     "transferSuccess": "划转成功",
     "transferFailed": "划转失败",
+    "loginOrRegister": "登录 或 注册",
+    "priceRange": "范围：{{minPrice}} - {{maxPrice}}",
     "validation": {
       "required": "此字段为必填项",
       "invalidNumber": "请输入有效的数字",
       "mustBePositive": "数值必须大于0",
+      "mustBeInteger": "数量必须为正整数",
+      "exceedsPricePrecision": "价格精度不能超过{{precision}}位小数",
       "exceedsMaxQuantity": "数量超过最大可{{action}}数量",
+      "exceedsMaxLimitVolume": "数量超过限价单最大成交量{{max}}",
+      "exceedsMaxMarketVolume": "数量超过市价单最大成交量{{max}}",
+      "exceedsMaxLimitAmount": "成交金额超过限价单最大成交金额{{max}}",
+      "exceedsMaxMarketAmount": "成交金额超过市价单最大成交金额{{max}}",
       "enterTriggerPrice": "请输入触发价格",
       "triggerPriceMustBePositive": "触发价格必须大于0",
       "enterOrderPrice": "请输入委托价格",
@@ -353,6 +351,7 @@
       "insufficientBalance": "可用余额不足",
       "invalidLeverage": "杠杆倍数无效",
       "quantityExceedsMax": "委托数量超过最大可{{action}}数量",
+      "priceOutOfRange": "价格范围：{{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "请先解决表单验证错误",
       "solveFollowingProblems": "请解决以下问题后重试："
     }
@@ -403,6 +402,9 @@
     "settingFailed": "杠杆设置失败",
     "settingFailedRetry": "杠杆设置失败，请重试"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "本合约有委托单不可调整杠杆"
+  },
   "fundTransfer": {
     "title": "资金划转",
     "from": "从",
@@ -411,7 +413,8 @@
     "contractAccount": "合约账户",
     "coin": "币种",
     "amount": "数量",
-    "available": "可用",
+    "transferAmount": "划转数量",
+    "available": "可转",
     "max": "最大",
     "confirm": "确认",
     "minAmount": "最少10",
@@ -437,6 +440,8 @@
     "marginCoin": "保证金币种",
     "contractValue": "合约面值",
     "minPriceChange": "最小价格变动单位",
-    "minMaintainMarginRate": "最低维持保证金率"
+    "minMaintainMarginRate": "最低维持保证金率",
+    "index": "指数",
+    "perpetual": "永续"
   }
 }

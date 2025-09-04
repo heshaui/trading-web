@@ -29,7 +29,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   const [tempLeverage, setTempLeverage] = useState(currentLeverage);
   const [lastValidLimitValue, setLastValidLimitValue] = useState<number | null>(null);
   const ContractInfo = appStore.currentContractInfo;
-  console.log('ContractInfo',ContractInfo)
   const maxLeverage = ContractInfo.maxLever;
 
 
@@ -70,6 +69,10 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
   };
 
   const handleConfirm = async () => {
+    // currentUserConfig
+    if(currentUserConfig.levelCanSwitch===0){
+      return toast.error(t('leverage.cannotAdjustWithOrders'));
+    }
     try {
       const res = await levelEdit({
         contractId: ContractInfo.id,
@@ -98,7 +101,6 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         toast.error(res.message || t('leverageModal.settingFailed'));
       }
     } catch (error) {
-      console.error('杠杆设置失败:', error);
       toast.error(t('leverageModal.settingFailedRetry'));
     }
   };
@@ -161,9 +163,13 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         </div>
 
         {/* 风险提示 */}
-        <div className={styles.riskWarning}>
+        {
+          tempLeverage>=20&&
+           <div className={styles.riskWarning}>
           {t('leverageModal.riskWarning')}
         </div>
+        }
+       
 
         {/* 持仓上限 */}
         <div className={styles.positionLimit}>

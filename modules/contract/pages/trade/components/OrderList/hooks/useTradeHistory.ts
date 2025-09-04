@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getTradeInfo } from "@/services/contract";
 import { Open, Side, Role } from "../configs/columns";
@@ -33,9 +33,9 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
 
   // 获取成交记录
   const getTradeHistory = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取成交记录");
         const res = await getTradeInfo({
           contractId: overrideContractId ?? contractId,
@@ -44,13 +44,13 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
         if (res.code === "0") {
           setTradeHistory(res.data?.tradeList || []);
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
         console.log(res);
       } catch (error) {
         console.error("获取成交记录失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]

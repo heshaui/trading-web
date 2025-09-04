@@ -32,6 +32,8 @@ import FundTransferModal from "@/modules/contract/pages/trade/components/FundTra
 import { encryptData } from "@/hooks/user-encrypt";
 import { getUserBalanceAll, transferAll } from "@/services/assets";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+
 
 interface ContractAccountItem {
   symbol: string; // 币种
@@ -47,7 +49,7 @@ interface ContractAccountItem {
 
 const Contract = observer(() => {
   const { t } = useTranslation(["contract"]);
-
+  const { isLoggedIn } = useAuth();
   const coinList = appStore.getCoinList();
   const [initTableData, setInitTableData] = useState<ContractAccountItem[]>([]); // 初始化表格数据
   const [tableData, setTableData] = useState<ContractAccountItem[]>([]); // 表格数据
@@ -233,6 +235,7 @@ const Contract = observer(() => {
   const fetchData = async () => {
     setTableLoading(true);
     setMyAmountLoading(true);
+    
     try {
       const res = await getContractFinancialRecords({
         onlyAccount: 1,
@@ -272,6 +275,7 @@ const Contract = observer(() => {
   };
   // 获取合约账户余额
   const getContractBalance = async () => {
+    if(!isLoggedIn) return 
     try {
       const accountList = await appStore.loadContractAssets();
       setContractAssets(accountList);
@@ -304,11 +308,14 @@ const Contract = observer(() => {
 
 
   useEffect(() => {
-    fetchData();
+    if(isLoggedIn){
+       fetchData();
+       getContractBalance();
+       getSpotBalance();
+    }
+   
     const amountShow = appStore.getBanlanceShow();
     setShowAmount(amountShow);
-    getContractBalance();
-    getSpotBalance();
   }, []);
 
   // 是否是客户端渲染

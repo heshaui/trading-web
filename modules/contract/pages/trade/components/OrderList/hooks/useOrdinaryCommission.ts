@@ -1,28 +1,28 @@
 import { useState, useCallback } from "react";
-import { message } from "antd";
+import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getCurrentOrderList, cancelOrder } from "@/services/contract";
 import { Side, PositionType, Type, Open, Status } from "../configs/columns";
 
 // 普通委托接口
 interface OrdinaryCommission {
-  symbol: string;
-  pricePrecision: number;
-  side: Side;
-  positionType: PositionType;
-  avgPrice: number;
-  tradeFee: number;
-  type: Type;
-  mtime: number;
-  volume: number;
-  dealVolume: number;
-  price: number;
-  contractId: number;
-  ctime: number;
-  contractName: string;
-  id: string;
-  open: Open;
-  status: Status;
+  symbol: string; // 合约
+  pricePrecision: number; // 价格精度
+  side: Side; // 方向
+  positionType: PositionType; // 仓位类型 
+  avgPrice: number; // 平均价格
+  tradeFee: number; // 交易手续费
+  type: Type; // 类型
+  mtime: number; // 修改时间
+  volume: number; // 委托数量
+  dealVolume: number; // 成交数量
+  price: number; // 委托价格
+  contractId: number; // 合约ID
+  ctime: number; // 创建时间
+  contractName: string; // 合约名称
+  id: string; // 订单ID
+  open: Open; // 开仓方向
+  status: Status; // 状态
 }
 
 interface UseOrdinaryCommissionOptions {
@@ -41,9 +41,9 @@ export const useOrdinaryCommission = (
 
   // 获取普通委托列表
   const getOrdinaryCommission = useCallback(
-    async (overrideContractId?: number) => {
+    async ({overrideContractId, showLoading, showMessage = true}: {overrideContractId?: number, showLoading?: boolean, showMessage?: boolean}) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         console.log("获取普通委托(当前委托)");
         const { code, data, msg } = await getCurrentOrderList({
           contractId: overrideContractId ?? contractId,
@@ -53,12 +53,12 @@ export const useOrdinaryCommission = (
           setOrdinaryCommission(data.orderList);
           setOrdinaryCommissionNumber(data.count);
         } else {
-          message.error(msg);
+          if (showMessage) toast.error(msg);
         }
       } catch (error) {
         console.error("获取普通委托失败:", error);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     },
     [contractId]
@@ -75,11 +75,11 @@ export const useOrdinaryCommission = (
         };
         const res = await cancelOrder(params);
         if (res.code === "0") {
-          message.success(res.msg);
-          // 刷新数据
-          getOrdinaryCommission();
+          toast.success(res.msg);
+          // 刷新数据 
+          getOrdinaryCommission({showLoading: true});
         } else {
-          message.error(res.msg);
+          toast.error(res.msg);
         }
       } catch (error) {
         console.error("取消普通委托失败:", error);

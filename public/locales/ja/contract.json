@@ -118,6 +118,9 @@
     "settingFailed": "レバレッジ設定に失敗しました",
     "settingFailedRetry": "レバレッジ設定に失敗しました。再試行してください"
   },
+  "leverage": {
+    "cannotAdjustWithOrders": "この契約には注文があるため、レバレッジを調整できません"
+  },
   "fundTransfer": {
     "title": "資金振替",
     "from": "から",
@@ -126,6 +129,7 @@
     "contractAccount": "先物口座",
     "coin": "コイン",
     "amount": "数量",
+    "transferAmount": "振替数量",
     "available": "利用可能",
     "max": "最大",
     "confirm": "確認",
@@ -208,6 +212,12 @@
       "paragraph5": "5. 当取引所が制御できない理由により、地震、水害、火災などの不可抗力要因やコンピュータシステム、通信システムの障害などにより、注文が約定されない、または完全に約定されない場合があり、その結果生じる損失を負担する場合があります。",
       "paragraph6": "6. 「ヘッジ取引」は投機取引と同様に、価格変動によるリスクに直面します。関連するメカニズムを事前に理解してください。",
       "paragraph7": "7. アカウントを本人以外に操作させる場合、先物証拠金の安全性に影響を与える可能性があります。個人アカウントの安全性を必ず確保してください。"
+    }
+  },
+  "tradingPanel": {
+    "priceRange": "範囲：{{minPrice}} - {{maxPrice}}",
+    "validation": {
+      "priceOutOfRange": "価格範囲：{{minPrice}} - {{maxPrice}}"
     }
   }
 }

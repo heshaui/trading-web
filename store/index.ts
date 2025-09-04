@@ -82,6 +82,9 @@ class AppStore {
   currentContractInfo: any = {};
   isLoadingPublicInfo: boolean = false;
 
+  // 添加最新价格数据状态
+  activeNewPrice: any = null;
+
   // 添加用户合约配置状态
   userConfig: UserConfigType = {};
   isLoadingUserConfig: boolean = false;
@@ -967,6 +970,29 @@ class AppStore {
     // 首先尝试从本地存储恢复合约信息
     this.initCurrentContractInfoFromStorage();
 
+    // 如果当前有合约信息，需要从新数据中找到对应的合约并更新为最新数据
+    if (
+      this.currentContractInfo &&
+      Object.keys(this.currentContractInfo).length > 0 &&
+      this.currentContractInfo.id &&
+      info?.contractList &&
+      Array.isArray(info.contractList)
+    ) {
+      const updatedContract = info.contractList.find(
+        (contract: any) => contract.id === this.currentContractInfo.id
+      );
+      if (updatedContract) {
+        this.currentContractInfo = updatedContract; // 使用最新数据更新
+        // 更新本地存储
+        if (isBrowser()) {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY.CURRENT_CONTRACT_INFO,
+            JSON.stringify(this.currentContractInfo)
+          );
+        }
+      }
+    }
+
     // 如果 currentContractInfo 仍为空且 publicInfo.contractList 存在且有数据，则设置第一个合约信息
     if (
       !this.currentContractInfo ||
@@ -1265,6 +1291,23 @@ class AppStore {
   }
   getCountryList() {
     return this.countryList;
+  }
+
+  // 最新价格数据相关方法
+  setActiveNewPrice(priceData: any) {
+    runInAction(() => {
+      this.activeNewPrice = priceData;
+    });
+  }
+
+  getActiveNewPrice() {
+    return this.activeNewPrice;
+  }
+
+  clearActiveNewPrice() {
+    runInAction(() => {
+      this.activeNewPrice = null;
+    });
   }
 }
 
