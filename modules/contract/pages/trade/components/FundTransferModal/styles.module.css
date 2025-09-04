@@ -91,19 +91,14 @@
 
 /* 交换按钮 */
 .swapButtonWrapper {
-  display: flex;
-  align-items: center;
-  padding-top: 20px;
+ 
+  padding-bottom: 5px;
+  font-size:18px
 }
 
 .swapButton {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #ff6b35 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+  color: var(--theme-color)!important;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
@@ -111,14 +106,9 @@
 }
 
 .swapButton:hover {
-  transform: scale(1.05);
-  background: #ff5722 !important;
+  transform: scale(1.40);
 }
 
-.swapButton :global(.anticon) {
-  color: white !important;
-  font-size: 18px;
-}
 
 /* 表单项 */
 .formItem {

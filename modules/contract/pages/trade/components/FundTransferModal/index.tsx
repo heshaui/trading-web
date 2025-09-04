@@ -213,12 +213,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
 
 
           <div className={styles.swapButtonWrapper}>
-            <Button
-              type="text"
-              icon={<Iconify icon="mdi:swap-horizontal" />}
-              onClick={handleAccountSwitch}
-              className={styles.swapButton}
-            />
+            <Iconify icon="mdi:swap-horizontal"  onClick={handleAccountSwitch} className={styles.swapButton}/>
           </div>
 
           <div className={styles.accountItem}>
