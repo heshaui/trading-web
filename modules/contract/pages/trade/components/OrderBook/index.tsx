@@ -356,7 +356,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                         {order.price.toFixed(symbolPricePrecision)}
                       </div>
                       <div className="flex-1 text-center" style={{ color: "var(--text-color6)" }}>
-                        {order.amount.toFixed(symbolPricePrecision)}
+                        {order.amount}
                       </div>
                       <div className="flex-1 text-right relative overflow-hidden">
                         <div
