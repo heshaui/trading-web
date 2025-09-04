@@ -272,8 +272,8 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
           <div className="flex-1 text-left">{t("contract:orderBookList.price")}</div>
-          <div className="flex-1 text-center">{t("contract:orderBookList.amount")}</div>
-          <div className="flex-1 text-right">{t("contract:orderBookList.total")}</div>
+          <div className="flex-1 text-center">{t("contract:orderBookList.amount")}({t("contract:tradingSettings.units.sheet")})</div>
+          <div className="flex-1 text-right">{t("contract:orderBookList.total")}({t("contract:tradingSettings.units.sheet")})</div>
         </div>
 
         <div className="flex flex-col overflow-hidden">
@@ -452,7 +452,7 @@ const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
 
         <div className="flex text-[var(--text-color6)] font-[400] text-[12px] mb-[8px]">
           <div className="flex-1 text-left">{t("contract:realtimeTrade.price")}</div>
-          <div className="flex-1 text-center">{t("contract:realtimeTrade.amount")}</div>
+          <div className="flex-1 text-center">{t("contract:realtimeTrade.amount")}({t("contract:tradingSettings.units.sheet")})</div>
           <div className="flex-1 text-right">{t("contract:realtimeTrade.time")}</div>
         </div>
 
