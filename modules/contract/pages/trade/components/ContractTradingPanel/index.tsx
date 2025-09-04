@@ -108,8 +108,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
-  
-  const {symbolPricePrecision,priceRange,maxLimitMoney,maxLimitVolume,maxMarketMoney,maxMarketVolume} =currentContractInfo.coinResultVo
+  console.log('currentContractInfo.coinResultVo',currentContractInfo.coinResultVo)
+  const {symbolPricePrecision,priceRange,maxLimitMoney,maxLimitVolume,maxMarketMoney,maxMarketVolume,minOrderVolume,minOrderMoney} =currentContractInfo.coinResultVo
+  console.log('maxLimitMoney',maxLimitMoney)
 
   
 
@@ -320,6 +321,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         return t("tradingPanel.validation.mustBeInteger");
       }
       
+      // 验证最小成交量限制
+      if (minOrderVolume && numValue < minOrderVolume) {
+        return t("tradingPanel.validation.belowMinVolume", { min: minOrderVolume }) || `最小委托数量: ${minOrderVolume}`;
+      }
+      
       // 验证最大成交量限制
       const orderType = getOrderType();
       if (orderType === 'limit' && maxLimitVolume && numValue > maxLimitVolume) {
@@ -331,11 +337,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       
       const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
       if (numValue > maxQuantity) {
-        return t("tradingPanel.validation.exceedsMaxQuantity", { action: transactionType === 1 ? t("buy") : t("sell") });
+        return t("tradingPanel.validation.exceedsBalance") || "购买金额超过可用余额";
       }
     }
 
-    // 价格和数量组合验证 - 验证最大成交金额
+    // 价格和数量组合验证 - 验证最小和最大成交金额
     if ((field === 'price' || field === 'quantity') && price && quantity) {
       const priceNum = typeof price === 'string' ? parseFloat(price) : price;
       const quantityNum = typeof quantity === 'string' ? parseFloat(quantity) : quantity;
@@ -344,6 +350,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
         const orderAmount = priceNum * quantityNum;
         const orderType = getOrderType();
         
+        // 验证最小成交金额
+        if (minOrderMoney && orderAmount < minOrderMoney) {
+          return t("tradingPanel.validation.belowMinAmount", { min: minOrderMoney }) || `最小委托金额: ${minOrderMoney}`;
+        }
+        
+        // 验证最大成交金额
         if (orderType === 'limit' && maxLimitMoney && orderAmount > maxLimitMoney) {
           return t("tradingPanel.validation.exceedsMaxLimitAmount", { max: maxLimitMoney });
         }
@@ -354,7 +366,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     return undefined;
-  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, getOrderType, maxLimitVolume, maxMarketVolume, maxLimitMoney, maxMarketMoney, price, quantity, t, getPriceRangeInfo]);
+  }, [calculateMaxQuantity, transactionType, symbolPricePrecision, getOrderType, maxLimitVolume, maxMarketVolume, maxLimitMoney, maxMarketMoney, minOrderVolume, minOrderMoney, price, quantity, t, getPriceRangeInfo]);
 
   // 处理外部设置价格 - 使用 useCallback 避免依赖项问题
   const handleSetPriceFromExternal = useCallback((newPrice: number) => {
@@ -538,6 +550,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return false;
     }
 
+    // 验证最小委托数量
+    if (minOrderVolume && quantityNum < minOrderVolume) {
+      toast.error(t("tradingPanel.validation.belowMinVolume", { min: minOrderVolume }) || `最小委托数量: ${minOrderVolume}`);
+      return false;
+    }
+
     // 验证可用余额
     if (availableBalance <= 0) {
       toast.error(t("tradingPanel.validation.insufficientBalance"));
@@ -550,10 +568,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return false;
     }
 
-    // 验证数量是否超过可买/可卖数量
+    // 验证数量是否超过余额限制
     const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
     if (quantityNum > maxQuantity) {
-      toast.error(t("tradingPanel.validation.quantityExceedsMax", { action: transactionType === 1 ? t("buy") : t("sell") }));
+      toast.error(t("tradingPanel.validation.exceedsBalance") || "购买金额超过可用余额");
       return false;
     }
 
@@ -568,11 +586,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return false;
     }
 
-    // 验证最大成交金额限制
+    // 验证最小和最大成交金额限制
     if (currentCategory === 1 || currentCategory === 3) { // 限价单或条件单需要价格
       const priceNum = parseFloat(price?.toString() || '0');
       if (priceNum > 0) {
         const orderAmount = priceNum * quantityNum;
+        
+        // 验证最小成交金额
+        if (minOrderMoney && orderAmount < minOrderMoney) {
+          toast.error(t("tradingPanel.validation.belowMinAmount", { min: minOrderMoney }) || `最小委托金额: ${minOrderMoney}`);
+          return false;
+        }
+        
+        // 验证最大成交金额
         if (orderType === 'limit' && maxLimitMoney && orderAmount > maxLimitMoney) {
           toast.error(t("tradingPanel.validation.exceedsMaxLimitAmount", { max: maxLimitMoney }));
           return false;
@@ -584,6 +610,14 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       const marketPrice = typeof lastPrice === 'string' ? parseFloat(lastPrice) : lastPrice;
       if (marketPrice > 0) {
         const orderAmount = marketPrice * quantityNum;
+        
+        // 验证最小成交金额
+        if (minOrderMoney && orderAmount < minOrderMoney) {
+          toast.error(t("tradingPanel.validation.belowMinAmount", { min: minOrderMoney }) || `最小委托金额: ${minOrderMoney}`);
+          return false;
+        }
+        
+        // 验证最大成交金额
         if (maxMarketMoney && orderAmount > maxMarketMoney) {
           toast.error(t("tradingPanel.validation.exceedsMaxMarketAmount", { max: maxMarketMoney }));
           return false;
