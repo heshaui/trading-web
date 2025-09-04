@@ -413,6 +413,7 @@
     "contractAccount": "Futures Account",
     "coin": "Coin",
     "amount": "Amount",
+    "transferAmount": "Transfer Amount",
     "available": "Available",
     "max": "Max",
     "confirm": "Confirm",

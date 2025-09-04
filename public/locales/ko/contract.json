@@ -402,6 +402,7 @@
     "contractAccount": "선물 계정",
     "coin": "코인",
     "amount": "수량",
+    "transferAmount": "이전 수량",
     "available": "사용 가능",
     "max": "최대",
     "confirm": "확인",

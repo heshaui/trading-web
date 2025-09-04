@@ -301,6 +301,7 @@ const FundTransferModal: React.FC<FundTransferModalProps> = ({
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
               className={styles.amountInput}
+              placeholder={t('fundTransfer.transferAmount') || '划转数量'}
               size="large"
               suffix={
                 <div className={styles.inputSuffix}>

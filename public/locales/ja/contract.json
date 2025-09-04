@@ -129,6 +129,7 @@
     "contractAccount": "先物口座",
     "coin": "コイン",
     "amount": "数量",
+    "transferAmount": "振替数量",
     "available": "利用可能",
     "max": "最大",
     "confirm": "確認",
