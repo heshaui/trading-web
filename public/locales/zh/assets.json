@@ -274,7 +274,9 @@
   },
   "recharge": {
     "rechargeStatus0": "充值中",
-    "rechargeStatus1": "充值完成"
+    "rechargeStatus1": "充值完成",
+    "credited": "已到账",
+    "pending": "未到账"
   },
   "select": {
     "pending": "待发放",

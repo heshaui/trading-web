@@ -73,7 +73,7 @@
       "tip4": "입금 기능이 비활성화되어 있습니다 고객센터에 문의하세요!",
       "toAuthentication": "지금 인증하기",
       "flash": "래시 스왑",
-       "financial": "투자 관리",
+      "financial": "투자 관리",
       "topuptip2": "거래소에서 입금이 금지되었습니다. 문의 사항이 있을 경우, 고객센터에 연락하세요！"
     },
     "title2": "거래 내역",
@@ -181,7 +181,6 @@
     "confirm": "확인",
     "operationFailed": "작업 실패",
     "withdrawConfirm": "출금 확인",
-
     "withdrawAmount": "출금 금액",
     "withdrawAddress": "출금 주소",
     "network": "네트워크",
@@ -275,7 +274,9 @@
   },
   "recharge": {
     "rechargeStatus0": "충전 중",
-    "rechargeStatus1": "충전 완료"
+    "rechargeStatus1": "충전 완료",
+    "credited": "입금 완료",
+    "pending": "입금 대기중"
   },
   "select": {
     "pending": "지급 대기",
