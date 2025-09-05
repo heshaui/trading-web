@@ -143,7 +143,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             "1h": "60min",
             "1D": "1day",
             "1W": "1week",
-            "1M": "1mon"
+            "1M": "1month"
           };
           const expectedInterval = intervalMap[timeInterval] || "1day";
           const expectedChannel = `market_${currentContractInfo.coType.toLowerCase()}_${symbol?.toLowerCase().replace("-", "")}_kline_${expectedInterval}`;
@@ -171,7 +171,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             "1h": "60min",
             "1D": "1day",
             "1W": "1week",
-            "1M": "1mon"
+            "1M": "1month"
           };
           const wsInterval = intervalMap[timeInterval] || "1day";
           currentData = { 
@@ -283,7 +283,7 @@ const Tradingview: React.ForwardRefRenderFunction<
               "1h": "60min",
               "1D": "1day",
               "1W": "1week",
-              "1M": "1mon"
+              "1M": "1month"
             };
             const expectedInterval = intervalMap[timeInterval] || "1day";
             const expectedChannel = `market_${currentContractInfo.coType.toLowerCase()}_${symbol?.toLowerCase().replace("-", "")}_kline_${expectedInterval}`;
@@ -345,7 +345,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             "1h": "60min",
             "1D": "1day",
             "1W": "1week",
-            "1M": "1mon"
+            "1M": "1month"
           };
           const expectedInterval = intervalMap[timeInterval] || "1day";
           const expectedChannel = `market_${currentContractInfo.coType.toLowerCase()}_${symbol?.toLowerCase().replace("-", "")}_kline_${expectedInterval}`;
@@ -373,7 +373,7 @@ const Tradingview: React.ForwardRefRenderFunction<
             "1h": "60min",
             "1D": "1day",
             "1W": "1week",
-            "1M": "1mon"
+            "1M": "1month"
           };
           const wsInterval = intervalMap[timeInterval] || "1day";
           currentData = { 
