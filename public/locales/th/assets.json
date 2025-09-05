@@ -274,7 +274,9 @@
     },
     "recharge": {
       "rechargeStatus0": "Recharging",
-      "rechargeStatus1": "Success"
+      "rechargeStatus1": "Success",
+      "credited": "credited",
+      "pending": "pending"
     },
     "select": {
       "pending": "Pending",

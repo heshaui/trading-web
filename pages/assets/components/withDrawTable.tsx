@@ -16,6 +16,7 @@ import { useResetStateContext } from '@/hooks/useStateProvider';
 import { encryptData } from '@/hooks/user-encrypt'
 import { ROUTER_KEY_ASSETS, LOCAL_STORAGE_KEY, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { roundDown } from '@/utils';
+// import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 interface DataType {
     withdrawalId: string,
     userId: number,
@@ -56,7 +57,7 @@ const WithdrawMoneyTable = ({ coinId }: Props) => {
     const [currentCoin, setCurrentCoin] = useState<any>(null);
     const [tableLoading, setTableLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>('');
-
+    // const { copyFn } = useCopyToClipboard();
     const paramdataRef = useRef({
         page: 1,
         pageSize: 10,
@@ -64,7 +65,41 @@ const WithdrawMoneyTable = ({ coinId }: Props) => {
     });
     const { resetState, setResetState } = useResetStateContext();
 
-
+    const getStatus = (status: number | string) => {
+        /* 0创建  
+           处理中 
+               1待审核
+               2审核通过
+               7处理失败
+               8钱包处理中
+               9钱包驳回 
+           拒绝
+               3审核拒绝
+           已撤销
+               4撤单完成
+               6正在撤单
+           已转出
+               5提现完成 */
+           const code = status === null || status === undefined ? '' : String(status).trim()
+           if (!code) return '--'
+           if (["0","1"].includes(code)) {
+               return t('assetsAccount.typelist.pending')
+           }
+           if ([ "2", "7", "8", "9"].includes(code)) {
+               return t('assetsAccount.typelist.processing')
+           }
+           if (code === "3") {
+               return t('assetsAccount.typelist.rejected')
+           }
+           if (["4", "6"].includes(code)) {
+               return t('assetsAccount.typelist.canceled2')
+           }
+           if (code === "5") {
+               return t('assetsAccount.typelist.completed2')
+           }
+           return code || '--'
+       }
+   
 
 
     const columns: ColumnsType<DataType> = [
@@ -194,40 +229,6 @@ const WithdrawMoneyTable = ({ coinId }: Props) => {
 
     }
 
-    const getStatus = (status: number | string) => {
-     /* 0创建  
-        处理中 
-            1待审核
-            2审核通过
-            7处理失败
-            8钱包处理中
-            9钱包驳回 
-        拒绝
-            3审核拒绝
-        已撤销
-            4撤单完成
-            6正在撤单
-        已转出
-            5提现完成 */
-        const code = status === null || status === undefined ? '' : String(status).trim()
-        if (!code) return '--'
-        if (["0","1"].includes(code)) {
-            return t('assetsAccount.typelist.pending')
-        }
-        if ([ "2", "7", "8", "9"].includes(code)) {
-            return t('assetsAccount.typelist.processing')
-        }
-        if (code === "3") {
-            return t('assetsAccount.typelist.rejected')
-        }
-        if (["4", "6"].includes(code)) {
-            return t('assetsAccount.typelist.canceled2')
-        }
-        if (code === "5") {
-            return t('assetsAccount.typelist.completed2')
-        }
-        return code || '--'
-    }
 
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
@@ -359,7 +360,7 @@ const WithdrawMoneyTable = ({ coinId }: Props) => {
                     columns={columns}
                     dataSource={tableData}
                     size="large"
-                    scroll={{ x: "max-content", y: 500 }}
+                    scroll={{ x: "max-content" }}
                     className={` table-box`}
                     pagination={{
                         position: ["bottomRight"],

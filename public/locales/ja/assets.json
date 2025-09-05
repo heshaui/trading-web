@@ -273,7 +273,9 @@
     },
     "recharge": {
         "rechargeStatus0": "充電中",
-        "rechargeStatus1": "充電完了"
+        "rechargeStatus1": "充電完了",
+         "credited": "入金済み",
+    "pending": "入金待ち"
     },
     "select": {
         "pending": "支給待ち",

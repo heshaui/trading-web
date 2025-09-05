@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect,useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import styles from '../styles/spotAccount.module.css'
 import { Input, Steps, Breadcrumb, ConfigProvider, Table, Select, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
@@ -13,6 +13,7 @@ import { RechargeDataType } from "@/type/assets/billDetails/table"
 import { useRouter } from 'next/router';
 import { ROUTER_KEY_SPOT } from '@/config/apiConfig';
 
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 type PropsType = {
     coinId: string
@@ -22,23 +23,24 @@ const RechargeTable = ({ coinId }: PropsType) => {
     const [tableData, setTableData] = useState<RechargeDataType[]>([]);
     const [tableLoading, setTableLoading] = useState(false);
     const router = useRouter();
+    const { copyFn } = useCopyToClipboard();
 
     const paramdataRef = useRef({
         page: 1,
         pageSize: 10,
         total: 0,
-        checked:false
+        checked: false
     });
     const getStatus = (status: number) => {
-        const statusText = Number(status)
-        switch (statusText) {
-            case 0:
-                return t('recharge.rechargeStatus0') //'充值中';
-            case 1:
-                return t('recharge.rechargeStatus1') //'充值完成'
-            default:
-                return statusText || '--'
-        }
+        const code = status === null || status === undefined ? '' : String(status).trim()
+           if (!code) return '--'
+           if (["0","1"].includes(code)) {
+               return t('recharge.credited')
+           }
+           if ([ "2"].includes(code)) {
+               return t('recharge.pending')
+           }
+           return code || '--'
     }
     const columns: ColumnsType<RechargeDataType> = [
         {
@@ -66,7 +68,18 @@ const RechargeTable = ({ coinId }: PropsType) => {
             align: "center",
             width: 158,
             render: (_status) => {
-                return <span >{_status || '--'}</span>;
+                return <div className="flex-x align-center justify-center">
+                <p className="max-w-[128px] overflow-hidden text-ellipsis whitespace-nowrap">{_status || '--'}</p> 
+                 {_status && <Iconify
+                    icon="mingcute:copy-2-line"
+                    className="ml-1 cursor-pointer hover_theme"
+                    size={18}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        copyFn(_status);
+                    }}
+                />}
+            </div>;
 
             },
         },
@@ -76,8 +89,19 @@ const RechargeTable = ({ coinId }: PropsType) => {
             dataIndex: "txHash",
             width: 128,
             align: "center",
-            render: (_ip) => {
-                return <span >{_ip || '--'}</span>;
+            render: (_txHash) => {
+                return <div className="flex-x align-center justify-center">
+                    <p className="max-w-[168px] overflow-hidden text-ellipsis whitespace-nowrap">{_txHash || '--'}</p> 
+                     {_txHash && <Iconify
+                        icon="mingcute:copy-2-line"
+                        className="ml-1 cursor-pointer hover_theme"
+                        size={18}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            copyFn(_txHash);
+                        }}
+                    />}
+                </div>;
             },
         },
         {
@@ -118,7 +142,7 @@ const RechargeTable = ({ coinId }: PropsType) => {
         const pageParam = {
             pageNo: paramdataRef.current.page,
             pageSize: paramdataRef.current.pageSize,
-            symbol: coinId&&paramdataRef.current.checked ? coinId : null,
+            symbol: coinId && paramdataRef.current.checked ? coinId : null,
             billType: "RECHARGE",
         };
         setTableLoading(true);
@@ -146,17 +170,17 @@ const RechargeTable = ({ coinId }: PropsType) => {
         if (e.target.checked) {
             if (coinId) {
                 // setTableData(initTableData.filter((item) => item?.symbol == coinId))
-                paramdataRef.current.checked=true // 确保选中状态更新
+                paramdataRef.current.checked = true // 确保选中状态更新
                 getBillDetails()
             } else {
                 // 如果没有有效的 coinId，则取消选中
-                paramdataRef.current.checked=false
+                paramdataRef.current.checked = false
                 // setTableData(initTableData)
                 toast.error(t('withdrawTable.onlyShowError'))
                 // getBillDetails()
             }
         } else {
-            paramdataRef.current.checked=false
+            paramdataRef.current.checked = false
             // setTableData(initTableData)
             getBillDetails()
         }
@@ -217,7 +241,7 @@ const RechargeTable = ({ coinId }: PropsType) => {
                 columns={columns}
                 dataSource={tableData}
                 size="large"
-                scroll={{ x: "max-content", y: 500 }}
+                scroll={{ x: "max-content" }}
                 className={` table-box`}
                 pagination={{
                     position: ["bottomRight"],
