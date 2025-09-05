@@ -33,7 +33,17 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
     total: 0,
     coinId: null
   })
-
+  const getStatus = (status: number) => {
+    const statusText =Number(status)
+    switch (statusText) {
+      case 0:
+        return t('recharge.rechargeStatus0') //'充值中';
+      case 1:
+        return t('recharge.rechargeStatus1') //'充值完成'
+      default:
+        return statusText||'--'
+    }
+  }
   const columns: ColumnsType<RechargeDataType> = [
     {
       title: t('assetsAccount.time'), //"时间",
@@ -107,17 +117,7 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
 
 
   ];
-  const getStatus = (status: number) => {
-    const statusText =Number(status)
-    switch (statusText) {
-      case 0:
-        return t('recharge.rechargeStatus0') //'充值中';
-      case 1:
-        return t('recharge.rechargeStatus1') //'充值完成'
-      default:
-        return statusText||'--'
-    }
-  }
+
   // const pageChange = async (page: number, pageSize: number) => {
   //   pageParam.current.page = page;
   //   pageParam.current.pageSize = pageSize;

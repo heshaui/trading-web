@@ -44,25 +44,24 @@ interface coinSelectType {
 }
 type Props = {
     coinId: number | string | any,
-    coinAll: coinSelectType[]
+    coinAll?: coinSelectType[]
 };
-const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
+const WithdrawMoneyTable = ({ coinId }: Props) => {
     const { t } = useTranslation(['assets']);
     const router = useRouter();
     const [tableData, setTableData] = useState<DataType[]>([]);
-    const [initTableData, setInitTableData] = useState<DataType[]>([]);
+    // const [initTableData, setInitTableData] = useState<DataType[]>([]);
     const [open, setOpen] = useState(false);
     const [total, setTotal] = useState(0);
-    const [checked, setChecked] = useState<boolean>(false);
     const [currentCoin, setCurrentCoin] = useState<any>(null);
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10
-    })
     const [tableLoading, setTableLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>('');
 
-    const paramdataRef = useRef(pageParam);
+    const paramdataRef = useRef({
+        page: 1,
+        pageSize: 10,
+        checked:false
+    });
     const { resetState, setResetState } = useResetStateContext();
 
 
@@ -218,26 +217,26 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
+            ...paramdataRef.current,
             page: page,
             pageSize: pageSize
         }
-        setPageParam(pageData)
         paramdataRef.current = pageData;
         await getWithdrawDepositListData()
     }
     const getWithdrawDepositListData = async () => {
         const pageParam = {
             pageNo: paramdataRef.current.page,
-            pageSize: paramdataRef.current.pageSize
+            pageSize: paramdataRef.current.pageSize,
+            coinId: coinId&&paramdataRef.current.checked ? coinId : null
         }
         setTableLoading(true)
         try {
             const res = await getWithdrawDepositList(pageParam)
-            setInitTableData(res.data.list)
-            if (coinId && checked) {
-                const tableData = res.data.list.filter((item: any) => item.coinId == coinId)
-                setTableData(tableData)
-                setTotal(tableData.length)
+            if (coinId && paramdataRef.current.checked) {
+                // const tableData = res.data.list.filter((item: any) => item.coinId == coinId)
+                setTableData(res.data.list)
+                setTotal(res.data.count)
             } else {
                 setTableData(res.data.list)
                 setTotal(res.data.count)
@@ -254,17 +253,19 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
         if (e.target.checked) {
             if (coinId) {
-                setTableData(initTableData.filter((item) => item.coinId == coinId))
-                setChecked(true) // 确保选中状态更新
+                // setTableData(initTableData.filter((item) => item.coinId == coinId))
+                paramdataRef.current.checked=true // 确保选中状态更新
+                getWithdrawDepositListData()
             } else {
                 // 如果没有有效的 coinId，则取消选中
-                setChecked(false)
-                setTableData(initTableData)
+                paramdataRef.current.checked=false 
+                // setTableData(initTableData)
                 toast.error(t('withdrawTable.onlyShowError'))
             }
         } else {
-            setChecked(false)
-            setTableData(initTableData)
+            paramdataRef.current.checked=false 
+            // setTableData(initTableData)
+            getWithdrawDepositListData()
         }
     }
     useEffect(() => {
@@ -324,7 +325,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                         <Checkbox
                             defaultChecked={false}
                             onChange={onlyShowChange}
-                            checked={checked}
+                            checked={paramdataRef.current.checked}
                         >
                             <span className={`${styles.title_color} font-14`}>
                                 {t('withdrawTable.onlyShow')}
@@ -351,6 +352,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                         showSizeChanger: true,
                         total: total,
                         size: "default",
+                        hideOnSinglePage: true,
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     loading={tableLoading}
