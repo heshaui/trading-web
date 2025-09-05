@@ -45,7 +45,11 @@
       "completed": "완료됨",
       "completed1": "전송 완료",
       "rejected": "거부됨",
-      "canceled": "사용자 취소"
+      "canceled": "사용자 취소",
+      "processing": "처리 중",
+      "rejected2": "심사 거절",
+      "canceled2": "취소됨",
+      "completed2": "전송 완료"
     },
     "button": {
       "withdraw": "출금",

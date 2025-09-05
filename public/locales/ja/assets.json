@@ -44,7 +44,11 @@
             "completed": "完了",
             "completed1": "転送済み",
             "rejected": "拒否",
-            "canceled": "ユーザーキャンセル"
+            "canceled": "ユーザーキャンセル",
+            "processing": "処理中",
+            "rejected2": "審査拒否",
+            "canceled2": "キャンセル",
+            "completed2": "転送済み"
         },
         "button": {
             "withdraw": "出金",

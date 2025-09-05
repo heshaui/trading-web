@@ -45,7 +45,11 @@
         "completed": "完成",
         "completed1": "已转出",
         "rejected": "拒绝 ",
-        "canceled": "用户撤销"
+        "canceled": "用户撤销",
+        "processing": "处理中 ",
+        "rejected2": "审核拒绝",
+        "canceled2": "已撤销",
+        "completed2": "已转出"
       },
       "button": {
         "withdraw": "提现",

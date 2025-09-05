@@ -45,7 +45,11 @@
         "completed": "Completed",
         "completed1": "Transferred",
         "rejected": "Rejected",
-        "canceled": "Canceled by User"
+        "canceled": "Canceled by User",
+        "processing": "Processing",
+        "rejected2": "Review Rejected",
+        "canceled2": "Canceled",
+        "completed2": "Transferred"
       },
       "button": {
         "withdraw": "Withdraw",
