@@ -321,6 +321,8 @@
     "marketPrice": "Market Price",
     "canBuy": "Can Buy",
     "canSell": "Can Sell",
+    "canCloseShort": "Closable Short",
+    "canCloseLong": "Closable Long",
     "advancedSettings": "Advanced",
     "buyLong": "Buy/Long",
     "sellShort": "Sell/Short",
@@ -351,6 +353,8 @@
       "insufficientBalance": "Insufficient balance",
       "invalidLeverage": "Invalid leverage",
       "quantityExceedsMax": "Quantity exceeds max available to {{action}}",
+      "exceedsBalance": "Quantity exceeds available balance",
+      "insufficientMargin": "Insufficient margin balance",
       "priceOutOfRange": "Price range: {{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "Please fix validation errors first",
       "solveFollowingProblems": "Please resolve the following issues and try again:"

@@ -46,6 +46,8 @@
   "fillOrKill": "全約定またはキャンセル",
   "canBuy": "買い可能",
   "canSell": "売り可能",
+  "canCloseShort": "ショート決済可",
+  "canCloseLong": "ロング決済可",
   "cost": "コスト",
   "advancedSettings": "詳細設定",
   "symbol": "契約",

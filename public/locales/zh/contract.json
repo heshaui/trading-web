@@ -321,6 +321,8 @@
     "marketPrice": "市价",
     "canBuy": "可买",
     "canSell": "可卖",
+    "canCloseShort": "可平空",
+    "canCloseLong": "可平多",
     "advancedSettings": "高级设置",
     "buyLong": "买入开多",
     "sellShort": "卖出开空",
@@ -351,6 +353,8 @@
       "insufficientBalance": "可用余额不足",
       "invalidLeverage": "杠杆倍数无效",
       "quantityExceedsMax": "委托数量超过最大可{{action}}数量",
+      "exceedsBalance": "数量超过可用余额",
+      "insufficientMargin": "保证金余额不足",
       "priceOutOfRange": "价格范围：{{minPrice}} - {{maxPrice}}",
       "solveErrorsFirst": "请先解决表单验证错误",
       "solveFollowingProblems": "请解决以下问题后重试："

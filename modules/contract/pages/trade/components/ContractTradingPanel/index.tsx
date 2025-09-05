@@ -140,6 +140,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const calculateMaxQuantity = useCallback((side?: "BUY" | "SELL") => {
     // 基础检查：必须有余额、杠杆、价格数据
     if (availableBalance <= 0 || leverageLevel <= 0 || !priceData?.price) return 0;
+    
+    // 如果是限价单或条件单，且价格为空，则返回0
+    if ((currentCategory === 1 || currentCategory === 3) && (!price || price.toString().trim() === "")) {
+      return 0;
+    }
 
     // 获取合约信息
     const contractInfo = currentContractInfo;
@@ -196,7 +201,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     }
 
     return Math.max(0, maxQuantity);
-  }, [priceData, orderBookData, availableBalance, leverageLevel, currentContractInfo]);
+  }, [priceData, orderBookData, availableBalance, leverageLevel, currentContractInfo, price, currentCategory]);
 
   // 根据表格实现成本计算 - 区分限价单和市价单
   const calculateCost = useCallback((side?: "BUY" | "SELL") => {
@@ -364,7 +369,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       
       const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
       if (numValue > maxQuantity) {
-        return t("tradingPanel.validation.exceedsBalance") || "购买金额超过可用余额";
+        return t("tradingPanel.validation.insufficientMargin") || "保证金余额不足";
       }
     }
 
@@ -598,7 +603,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     // 验证数量是否超过余额限制
     const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
     if (quantityNum > maxQuantity) {
-      toast.error(t("tradingPanel.validation.exceedsBalance") || "购买金额超过可用余额");
+      toast.error(t("tradingPanel.validation.insufficientMargin") || "保证金余额不足");
       return false;
     }
 
@@ -1035,15 +1040,15 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
                     <span style={{color:'#00C788'}}>
-                      {transactionType === 2 ? "可平空" : "可买"}
+                      {transactionType === 2 ? t('tradingPanel.canCloseShort') : t('tradingPanel.canBuy')}
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("BUY"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
+                    <span>{formatNumber(calculateMaxQuantity("BUY"), 0 )} {currentContractInfo.coUnit}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
                     <span style={{color:'#FF4D4F'}}>
-                      {transactionType === 2 ? "可平多" : "可卖"}
+                      {transactionType === 2 ? t('tradingPanel.canCloseLong') : t('tradingPanel.canSell')}
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("SELL"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
+                    <span>{formatNumber(calculateMaxQuantity("SELL"),0)} {currentContractInfo.coUnit}</span>
                   </div>
                 </div>
               </div>
@@ -1181,19 +1186,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 </div>
               )} */}
 
-              {/* 成本显示 - 只有在输入数量时才显示 */}
-              {quantity && parseFloat(String(quantity)) > 0 && (
+
+            
                 <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
                   <div className="flex gap-[4px]">
-                    <span>成本</span>
+                    <span>{t('tradingPanel.cost')}</span>
                     <span>{formatNumber(calculateCost("BUY"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
                   </div>
                   <div className="flex gap-[4px]">
-                    <span>成本</span>
+                     <span>{t('tradingPanel.cost')}</span>
                     <span>{formatNumber(calculateCost("SELL"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
                   </div>
                 </div>
-              )}
+
             </Form>
 
             {/* 保证金模式弹框 */}

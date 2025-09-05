@@ -46,6 +46,8 @@
   "fillOrKill": "全部成交或取消",
   "canBuy": "可買",
   "canSell": "可賣",
+  "canCloseShort": "可平空",
+  "canCloseLong": "可平多",
   "cost": "成本",
   "advancedSettings": "高級設置",
   "symbol": "合約",
