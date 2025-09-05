@@ -82,8 +82,8 @@ const RechargeTable = ({ coinId }: PropsType) => {
         },
         {
             title: t('assetsAccount.confirmations'),
-            key: "updateTime",
-            dataIndex: "updateTime",
+            key: "requiredConfirmations",
+            dataIndex: "requiredConfirmations",
             width: 128,
             align: "center",
             render: (_status) => {

@@ -143,26 +143,40 @@ export default function CashOutTable({ tableData, loading, onOk }: PropsType) {
 
 
   ];
-  const getStatus = (status: number) => {
-    const statusText = Number(status)
-    // 状态: 0-创建, 1-待审核, 2-审核通过, 3-审核拒绝, 4-用户撤销  5 提现完成
-    switch (statusText) {
-      case 0:
-        return t('withdrawTable.create') //'创建';
-      case 1:
-        return t('withdrawTable.pending') //'待审核'
-      case 2:
-        return t('withdrawTable.passed') //审核通过
-      case 3:
-        return t('withdrawTable.rejected') //'审核拒绝'
-      case 4:
-        return t('withdrawTable.canceled') //'用户撤销'
-      case 5:
-        return t('withdrawTable.completed') //'提现完成'
-      default:
-        return statusText || '--'
-    }
-  }
+  const getStatus = (status: number | string) => {
+    /* 0创建  
+       处理中 
+           1待审核
+           2审核通过
+           7处理失败
+           8钱包处理中
+           9钱包驳回 
+       拒绝
+           3审核拒绝
+       已撤销
+           4撤单完成
+           6正在撤单
+       已转出
+           5提现完成 */
+       const code = status === null || status === undefined ? '' : String(status).trim()
+       if (!code) return '--'
+       if (["0","1"].includes(code)) {
+           return t('assetsAccount.typelist.pending')
+       }
+       if ([ "2", "7", "8", "9"].includes(code)) {
+           return t('assetsAccount.typelist.processing')
+       }
+       if (code === "3") {
+           return t('assetsAccount.typelist.rejected')
+       }
+       if (["4", "6"].includes(code)) {
+           return t('assetsAccount.typelist.canceled2')
+       }
+       if (code === "5") {
+           return t('assetsAccount.typelist.completed2')
+       }
+       return code || '--'
+   }
 
      // 撤销提现
       const cancelWithdraw = async () => {
