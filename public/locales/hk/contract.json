@@ -88,5 +88,8 @@
     "settingSuccess": "槓桿設置成功",
     "settingFailed": "槓桿設置失敗",
     "settingFailedRetry": "槓桿設置失敗，請重試"
+  },
+  "tradingPanel": {
+    "unit": "張"
   }
 }

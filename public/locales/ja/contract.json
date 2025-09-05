@@ -217,6 +217,7 @@
     }
   },
   "tradingPanel": {
+    "unit": "枚",
     "priceRange": "範囲：{{minPrice}} - {{maxPrice}}",
     "validation": {
       "priceOutOfRange": "価格範囲：{{minPrice}} - {{maxPrice}}"

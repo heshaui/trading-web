@@ -320,6 +320,7 @@
     "canSell": "매도 가능",
     "canCloseShort": "숏 청산 가능",
     "canCloseLong": "롱 청산 가능",
+    "unit": "계약",
     "advancedSettings": "고급",
     "buyLong": "매수/롱",
     "sellShort": "매도/숏",

@@ -41,7 +41,7 @@ type Props = {
 
 
 function NicknameModal({ open, onCancel, onOk, orderInfo, modalData }: Props) {
-    const { t } = useTranslation(['spot']);
+    const { t } = useTranslation(['spot', 'contract']);
     const [noRemind, setNoRemind] = useState(false);
 
     const handCancel = () => {
@@ -169,17 +169,7 @@ function NicknameModal({ open, onCancel, onOk, orderInfo, modalData }: Props) {
                                     {/* 数量 */}
                                     {t('spot.modal.amount')}
                                 </p>
-                                <p className={`${styles.title_color}`}>{modalData?.amount}</p>
-                            </li>
-                        )}
-                        {/* 市价卖单不显示成交额 */}
-                        {!(modalData?.type === 0 && modalData?.direction === 1) && (
-                            <li className="flex-x align-center justify-between mt-3">
-                                <p>
-                                    {/* 成交额 */}
-                                    {t('spot.trade.amount2')}
-                                </p>
-                                <p className={`${styles.title_color}`}>{modalData?.account}</p>
+                                <p className={`${styles.title_color}`}>{modalData?.amount}{t('contract.tradingPanel.unit')}</p>
                             </li>
                         )}
                     </ul>
