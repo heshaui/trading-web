@@ -41,6 +41,7 @@ interface ContractTradingPanelProps {
   onBalanceUpdate?: () => void; // 新增余额更新回调
   priceSetterRef?: React.MutableRefObject<((price: number) => void) | null>; // 新增价格设置器ref
   priceData?: any; // 新增价格数据
+  orderBookData?: any; // 新增深度数据
   onShowRiskDisclosure?: () => void; // 新增风险确认书触发回调
   style?: React.CSSProperties;
 }
@@ -54,6 +55,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   onBalanceUpdate, // 解构新增的回调
   priceSetterRef, // 解构价格设置器ref
   priceData, // 解构价格数据
+  orderBookData, // 解构深度数据
   onShowRiskDisclosure, // 解构风险确认书回调
   style,
 }) => {
@@ -134,108 +136,133 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     return formatted;
   }, []);
 
-  // 计算可买/可卖数量
+  // 根据表格实现可买/可卖数量计算
   const calculateMaxQuantity = useCallback((side?: "BUY" | "SELL") => {
-    if (availableBalance <= 0 || leverageLevel <= 0) return 0;
+    // 基础检查：必须有余额、杠杆、价格数据
+    if (availableBalance <= 0 || leverageLevel <= 0 || !priceData?.price) return 0;
 
     // 获取合约信息
     const contractInfo = currentContractInfo;
-    const faceValue = contractInfo?.multiplier || 1; // 面值
-    const marginRate = contractInfo?.marginRate || 1; // 保证金汇率
-    const contractSide = contractInfo?.contractSide; // 1: 正向合约, 2: 反向合约
+    if (!contractInfo) return 0;
+    
+    const faceValue = contractInfo.multiplier || 1; // 面值(multiplier)
+    const marginRate = contractInfo.marginRate || 1; // 保证金汇率
+    const contractSide = contractInfo.contractSide; // 1: 正向合约, 0: 反向合约
+    const coUnitType = contractInfo.coUnitType || 2; // 1: 量(标的货币), 2: 张
 
     let calculationPrice = 0;
 
-    // 根据订单类型和方向确定价格
-    if (orderType === "limit") {
-      // 限价单使用输入的价格
-      const priceNum = typeof price === "string" ? parseFloat(price as string) : price;
-      if (!priceNum || priceNum <= 0) return 0;
-      calculationPrice = priceNum;
-    } else {
-      // 市价单根据买卖方向使用不同价格
-      const lastPrice = priceData?.lastPrice || priceData?.close || 1;
-      const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
-      const askPrice = priceData?.askPrice || lastPrice; // 卖一价
+    // 获取当前最新价格
+    const lastPrice = parseFloat(priceData.price);
+    if (!lastPrice || lastPrice <= 0) return 0;
 
-      if (side === "BUY") {
-        // 买入使用卖一价
-        calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
-      } else if (side === "SELL") {
-        // 卖出使用买一价
-        calculationPrice = typeof bidPrice === "string" ? parseFloat(bidPrice) : bidPrice;
-      } else {
-        // 默认使用最新价
-        calculationPrice = typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
-      }
+    // 从深度数据中获取真实的买一价和卖一价
+    const bidPrice = orderBookData?.tick?.buys?.[0]?.[0] ? 
+      parseFloat(orderBookData.tick.buys[0][0]) : lastPrice;
+    const askPrice = orderBookData?.tick?.asks?.[0]?.[0] ? 
+      parseFloat(orderBookData.tick.asks[0][0]) : lastPrice;
+
+    if (side === "BUY") {
+      calculationPrice = askPrice;
+    } else if (side === "SELL") {
+      calculationPrice = bidPrice;
+    } else {
+      calculationPrice = lastPrice;
     }
 
     if (calculationPrice <= 0) return 0;
 
-    // 计算最大数量
     let maxQuantity = 0;
-    const totalBalance = availableBalance * leverageLevel * marginRate;
 
-    if (contractSide === 2) {
-      // 反向合约：可用余额 * 杠杆 * 价格 / 面值
-      maxQuantity = totalBalance * calculationPrice / faceValue;
+    // 根据表格实现计算逻辑
+    if (contractSide === 1) {
+      // 正向合约
+      if (coUnitType === 2) {
+        // 数量单位: 张 - 公式: (余额×杠杆÷汇率)÷(价格×面值)
+        maxQuantity = (availableBalance * leverageLevel / marginRate) / (calculationPrice * faceValue);
+      } else {
+        // 数量单位: 量 - 公式: (余额×杠杆÷汇率)÷价格
+        maxQuantity = (availableBalance * leverageLevel / marginRate) / calculationPrice;
+      }
     } else {
-      // 正向合约：可用余额 * 杠杆 / (面值 * 价格)
-      maxQuantity = totalBalance / (faceValue * calculationPrice);
+      // 反向合约 (contractSide === 0)
+      if (coUnitType === 2) {
+        // 数量单位: 张 - 公式: (余额×杠杆×价格)÷面值
+        maxQuantity = (availableBalance * leverageLevel * calculationPrice) / faceValue;
+      } else {
+        // 数量单位: 量 - 公式: 余额×杠杆×价格
+        maxQuantity = availableBalance * leverageLevel * calculationPrice;
+      }
     }
 
     return Math.max(0, maxQuantity);
-  }, [priceData, price, orderType, availableBalance, leverageLevel, currentContractInfo]);
+  }, [priceData, orderBookData, availableBalance, leverageLevel, currentContractInfo]);
 
-  // 计算成本 - 支持指定方向
+  // 根据表格实现成本计算 - 区分限价单和市价单
   const calculateCost = useCallback((side?: "BUY" | "SELL") => {
     const quantityNum = typeof quantity === "string" ? parseFloat(quantity) : quantity;
-    const priceNum = typeof price === "string" ? parseFloat(price) : price;
-
+    
+    // 必须有输入数量才计算成本
     if (!quantityNum || quantityNum <= 0) return 0;
+    
+    // 必须有有效的价格数据和杠杆
+    if (!priceData?.price || !leverageLevel || leverageLevel <= 0) return 0;
 
     // 获取合约信息
     const contractInfo = currentContractInfo;
-    const faceValue = contractInfo?.multiplier || 1; // 面值
-    const marginRate = contractInfo?.marginRate || 1; // 保证金汇率，默认为1
-    const contractSide = contractInfo?.contractSide; // 1: 正向合约, 2: 反向合约
+    if (!contractInfo) return 0;
+    
+    const faceValue = contractInfo.multiplier || 1; // 面值(multiplier)
+    const marginRate = contractInfo.marginRate || 1; // 保证金汇率
+    const contractSide = contractInfo.contractSide; // 1: 正向合约, 0: 反向合约
+    const isMarketOrder = currentCategory === 2; // 是否为市价单
 
-    let cost = 0;
     let calculationPrice = 0;
 
-    if (currentCategory === 1 || currentCategory === 3) { // 限价单或条件限价单
-      if (!priceNum || priceNum <= 0) return 0;
-      calculationPrice = priceNum;
-    } else if (currentCategory === 2) { // 市价单
-      // 市价单根据做多做空方向使用不同价格
-      const lastPrice = priceData?.lastPrice || priceData?.close || 1;
-      const bidPrice = priceData?.bidPrice || lastPrice; // 买一价
-      const askPrice = priceData?.askPrice || lastPrice; // 卖一价
+    // 获取当前最新价格
+    const lastPrice = parseFloat(priceData.price);
+    if (!lastPrice || lastPrice <= 0) return 0;
+
+    // 限价单需要用实际价格，市价单可以用最新价估算
+    if (!isMarketOrder) {
+      // 限价单：从深度数据中获取真实的买一价和卖一价
+      const bidPrice = orderBookData?.tick?.buys?.[0]?.[0] ? 
+        parseFloat(orderBookData.tick.buys[0][0]) : lastPrice;
+      const askPrice = orderBookData?.tick?.asks?.[0]?.[0] ? 
+        parseFloat(orderBookData.tick.asks[0][0]) : lastPrice;
 
       if (side === "BUY") {
-        // 做多使用卖一价（买入时需要支付卖方的价格）
-        calculationPrice = typeof askPrice === "string" ? parseFloat(askPrice) : askPrice;
+        calculationPrice = askPrice;
       } else if (side === "SELL") {
-        // 做空使用买一价（卖出时按照买方的价格）
-        calculationPrice = typeof bidPrice === "string" ? parseFloat(bidPrice) : bidPrice;
+        calculationPrice = bidPrice;
       } else {
-        // 默认使用最新价
-        calculationPrice = typeof lastPrice === "string" ? parseFloat(lastPrice) : lastPrice;
+        calculationPrice = lastPrice;
       }
+    } else {
+      // 市价单：使用最新价
+      calculationPrice = lastPrice;
     }
 
-    if (calculationPrice > 0) {
-      if (contractSide === 2) {
-        // 反向合约：成本 = (张数 × 面值 ÷ 价格 ÷ 杠杆) × 保证金汇率
-        cost = (quantityNum * faceValue / calculationPrice / leverageLevel) * marginRate;
-      } else {
-        // 正向合约：成本 = (张数 × 面值 × 价格 ÷ 杠杆) × 保证金汇率
+    if (calculationPrice <= 0) return 0;
+
+    let cost = 0;
+
+    if (isMarketOrder) {
+      // 市价单成本公式: (量÷杠杆)×汇率
+      cost = (quantityNum / leverageLevel) * marginRate;
+    } else {
+      // 限价单成本公式
+      if (contractSide === 1) {
+        // 正向合约: (量×面值×价格÷杠杆)×汇率
         cost = (quantityNum * faceValue * calculationPrice / leverageLevel) * marginRate;
+      } else {
+        // 反向合约: (量×面值÷价格÷杠杆)×汇率
+        cost = (quantityNum * faceValue / calculationPrice / leverageLevel) * marginRate;
       }
     }
 
-    return cost;
-  }, [quantity, price, currentCategory, leverageLevel, currentContractInfo, priceData]);
+    return Math.max(0, cost);
+  }, [quantity, leverageLevel, currentContractInfo, priceData, orderBookData, currentCategory]);
 
   // 根据activeNewPrice和priceRange计算允许的价格范围
   const getPriceRangeInfo = () => {
@@ -1003,15 +1030,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 tooltip={{ formatter: (value) => `${value}%` }}
               />
 
-              {/* 可买/可卖数量显示 */}
+              {/* 可买/可卖数量显示 - 基于Vue2逻辑 */}
               <div className="mb-[16px]">
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
-                    <span style={{color:'#00C788'}}>{t("tradingPanel.canBuy")}</span>
+                    <span style={{color:'#00C788'}}>
+                      {transactionType === 2 ? "可平空" : "可买"}
+                    </span>
                     <span>{formatNumber(calculateMaxQuantity("BUY"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
-                    <span  style={{color:'#FF4D4F'}}>{t("tradingPanel.canSell")}</span>
+                    <span style={{color:'#FF4D4F'}}>
+                      {transactionType === 2 ? "可平多" : "可卖"}
+                    </span>
                     <span>{formatNumber(calculateMaxQuantity("SELL"), symbolPricePrecision || 4)} {currentContractInfo.coUnit}</span>
                   </div>
                 </div>
@@ -1150,17 +1181,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 </div>
               )} */}
 
-              {/* 成本显示 */}
-              <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
-                <div className="flex gap-[4px]">
-                  <span>{t("tradingPanel.cost")}</span>
-                  <span>{formatNumber(calculateCost("BUY"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
+              {/* 成本显示 - 只有在输入数量时才显示 */}
+              {quantity && parseFloat(String(quantity)) > 0 && (
+                <div className="flex items-center justify-between  font-[400] text-[14px] text-[var(--text-color6)]">
+                  <div className="flex gap-[4px]">
+                    <span>成本</span>
+                    <span>{formatNumber(calculateCost("BUY"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
+                  </div>
+                  <div className="flex gap-[4px]">
+                    <span>成本</span>
+                    <span>{formatNumber(calculateCost("SELL"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
+                  </div>
                 </div>
-                <div className="flex gap-[4px]">
-                  <span>{t("tradingPanel.cost")}</span>
-                  <span>{formatNumber(calculateCost("SELL"), symbolPricePrecision || 4)} {currentContractInfo.marginCoin}</span>
-                </div>
-              </div>
+              )}
             </Form>
 
             {/* 保证金模式弹框 */}
