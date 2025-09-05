@@ -1144,53 +1144,54 @@ const WithdrawMoneyPage = observer(() => {
                   open={dropdownOpen} // 控制下拉菜单的显示状态
                   options={filteredAddressOptions.map((item) => {
 
-                    const coinInfo = coinSelect.find(coinItem => coinItem.value === form.getFieldValue('tenantId'))
-                    // 检查当前地址的protocolName是否在coinExtSelect中存在
-                    const isProtocolSupported = coinExtSelect.some(
-                      (coinExt) =>
-                        (coinExt.protocolName === item.protocolName ||
-                          coinExt.protocol === item.protocolName ||
-                          coinExt.protocolId === item.protocolId)
-                        && (coinInfo?.coinId === item.coinId || coinInfo?.coinName === item.coinName)
-                    );
-
-                    return {
-                      ...item,
-                      key: item.id,
-                      disabled: !isProtocolSupported, // 如果协议不支持则禁用
-                      label: (
-                        <div
-                          className={`flex-y py-1 ${!isProtocolSupported ? "opacity-50" : ""
-                            }`}
-                          key={item.id}
-                        >
-                          <p
-                            className={`${styles.title_color} font-14 font-w-400`}
-                          >
-                            {item.addressTitle}
-                          </p>
-                          <p
-                            className={`${styles.tip_color2} font-14 font-w-400`}
-                          >
-                            {`${t("withdrawMoney.address")}：${item.addressName
+                      const coinInfo = coinSelect.find(coinItem => coinItem.value === form.getFieldValue('tenantId'))
+                      // 检查当前地址的protocolName是否在coinExtSelect中存在
+                      const isProtocolSupported = coinExtSelect.some(
+                        (coinExt) =>
+                          (coinExt.protocolName === item.protocolName ||
+                            coinExt.protocol === item.protocolName ||
+                            coinExt.protocolId === item.protocolId)
+                          && (coinInfo?.coinId === item.coinId || coinInfo?.coinName === item.coinName)
+                      );
+  
+                      return {
+                        ...item,
+                        key: item.id,
+                        disabled: !isProtocolSupported, // 如果协议不支持则禁用
+                        label: (
+                          <div
+                            className={`flex-y py-1 ${!isProtocolSupported ? "opacity-50" : ""
                               }`}
-                          </p>
-                          <p
-                            className={`${styles.tip_color2} font-14 font-w-400`}
+                            key={item.id}
                           >
-                            {`${t("withdrawMoney.network")}：${item.protocolName || "--"
-                              }`}
-                            {!isProtocolSupported && (
-                              <span className="ml-2 text-red-500 font-12">
-                                ({t("withdrawMoney.selectNetwork3Error")})
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      ),
-                      value: item.addressName,
-                    };
-                  })}
+                            <p
+                              className={`${styles.title_color} font-14 font-w-400`}
+                            >
+                              {item.addressTitle}
+                            </p>
+                            <p
+                              className={`${styles.tip_color2} font-14 font-w-400`}
+                            >
+                              {`${t("withdrawMoney.address")}：${item.addressName
+                                }`}
+                            </p>
+                            <p
+                              className={`${styles.tip_color2} font-14 font-w-400`}
+                            >
+                              {`${t("withdrawMoney.network")}：${item.protocolName || "--"
+                                }`}
+                              {!isProtocolSupported && (
+                                <span className="ml-2 text-red-500 font-12">
+                                  ({t("withdrawMoney.selectNetwork3Error")})
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        ),
+                        value: item.addressName,
+                      }
+                    }).filter(item => item.disabled !== true)
+                }
                   onFocus={(e) => {
                     // 在输入框聚焦时获取地址列表，但不显示下拉菜单
                     getUserAddressList();

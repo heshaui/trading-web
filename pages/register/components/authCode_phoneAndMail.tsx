@@ -113,9 +113,9 @@ function AuthCode() {
           const res = await getRegister(dataEncrypt);
           if (res.code === "0") {
             setRequestMsg(res.message);
-            // setToastType('success')
-            // setRepeatModalOPen(true)
-            goLoginPage();
+            setToastType('success')
+            setRepeatModalOPen(true)
+            // goLoginPage();
 
             // toast.success("注册成功")
           } else if (res.code === "10043") {

@@ -44,25 +44,24 @@ interface coinSelectType {
 }
 type Props = {
     coinId: number | string | any,
-    coinAll: coinSelectType[]
+    coinAll?: coinSelectType[]
 };
-const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
+const WithdrawMoneyTable = ({ coinId }: Props) => {
     const { t } = useTranslation(['assets']);
     const router = useRouter();
     const [tableData, setTableData] = useState<DataType[]>([]);
-    const [initTableData, setInitTableData] = useState<DataType[]>([]);
+    // const [initTableData, setInitTableData] = useState<DataType[]>([]);
     const [open, setOpen] = useState(false);
     const [total, setTotal] = useState(0);
-    const [checked, setChecked] = useState<boolean>(false);
     const [currentCoin, setCurrentCoin] = useState<any>(null);
-    const [pageParam, setPageParam] = useState({
-        page: 1,
-        pageSize: 10
-    })
     const [tableLoading, setTableLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>('');
 
-    const paramdataRef = useRef(pageParam);
+    const paramdataRef = useRef({
+        page: 1,
+        pageSize: 10,
+        checked: false
+    });
     const { resetState, setResetState } = useResetStateContext();
 
 
@@ -195,49 +194,63 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
     }
 
-    const getStatus = (status: number) => {
-        const statusText = Number(status)
-        // 状态: 0-创建, 1-待审核, 2-审核通过, 3-审核拒绝, 4-用户撤销  5 提现完成
-        switch (statusText) {
-          case 0:
-            return t('withdrawTable.create') //'创建';
-          case 1:
-            return t('withdrawTable.pending') //'待审核'
-          case 2:
-            return t('withdrawTable.passed') //审核通过
-          case 3:
-            return t('withdrawTable.rejected') //'审核拒绝'
-          case 4:
-            return t('withdrawTable.canceled') //'用户撤销'
-          case 5:
-            return t('withdrawTable.completed') //'提现完成'
-          default:
-            return statusText || '--'
+    const getStatus = (status: number | string) => {
+     /* 0创建  
+        处理中 
+            1待审核
+            2审核通过
+            7处理失败
+            8钱包处理中
+            9钱包驳回 
+        拒绝
+            3审核拒绝
+        已撤销
+            4撤单完成
+            6正在撤单
+        已转出
+            5提现完成 */
+        const code = status === null || status === undefined ? '' : String(status).trim()
+        if (!code) return '--'
+        if (["0","1"].includes(code)) {
+            return t('assetsAccount.typelist.pending')
         }
-      }
+        if ([ "2", "7", "8", "9"].includes(code)) {
+            return t('assetsAccount.typelist.processing')
+        }
+        if (code === "3") {
+            return t('assetsAccount.typelist.rejected')
+        }
+        if (["4", "6"].includes(code)) {
+            return t('assetsAccount.typelist.canceled2')
+        }
+        if (code === "5") {
+            return t('assetsAccount.typelist.completed2')
+        }
+        return code || '--'
+    }
 
     const pageChange = async (page: number, pageSize: number) => {
         const pageData = {
+            ...paramdataRef.current,
             page: page,
             pageSize: pageSize
         }
-        setPageParam(pageData)
         paramdataRef.current = pageData;
         await getWithdrawDepositListData()
     }
     const getWithdrawDepositListData = async () => {
         const pageParam = {
             pageNo: paramdataRef.current.page,
-            pageSize: paramdataRef.current.pageSize
+            pageSize: paramdataRef.current.pageSize,
+            coinId: coinId && paramdataRef.current.checked ? coinId : null
         }
         setTableLoading(true)
         try {
             const res = await getWithdrawDepositList(pageParam)
-            setInitTableData(res.data.list)
-            if (coinId && checked) {
-                const tableData = res.data.list.filter((item: any) => item.coinId == coinId)
-                setTableData(tableData)
-                setTotal(tableData.length)
+            if (coinId && paramdataRef.current.checked) {
+                // const tableData = res.data.list.filter((item: any) => item.coinId == coinId)
+                setTableData(res.data.list)
+                setTotal(res.data.count)
             } else {
                 setTableData(res.data.list)
                 setTotal(res.data.count)
@@ -254,17 +267,19 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
 
         if (e.target.checked) {
             if (coinId) {
-                setTableData(initTableData.filter((item) => item.coinId == coinId))
-                setChecked(true) // 确保选中状态更新
+                // setTableData(initTableData.filter((item) => item.coinId == coinId))
+                paramdataRef.current.checked = true // 确保选中状态更新
+                getWithdrawDepositListData()
             } else {
                 // 如果没有有效的 coinId，则取消选中
-                setChecked(false)
-                setTableData(initTableData)
+                paramdataRef.current.checked = false
+                // setTableData(initTableData)
                 toast.error(t('withdrawTable.onlyShowError'))
             }
         } else {
-            setChecked(false)
-            setTableData(initTableData)
+            paramdataRef.current.checked = false
+            // setTableData(initTableData)
+            getWithdrawDepositListData()
         }
     }
     useEffect(() => {
@@ -308,11 +323,11 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                             optionActiveBg: "transparent",
                             selectorBg: "transparent", //选框背景色
                         },
-                        
+
                     },
                     token: {
                         colorBgContainer: 'transparent',
-                      }
+                    }
                 }}
             >
                 <div className={`${styles.table_header} w-full my-4 flex align-center justify-between`}>
@@ -324,7 +339,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                         <Checkbox
                             defaultChecked={false}
                             onChange={onlyShowChange}
-                            checked={checked}
+                            checked={paramdataRef.current.checked}
                         >
                             <span className={`${styles.title_color} font-14`}>
                                 {t('withdrawTable.onlyShow')}
@@ -351,6 +366,7 @@ const WithdrawMoneyTable = ({ coinId, coinAll }: Props) => {
                         showSizeChanger: true,
                         total: total,
                         size: "default",
+                        hideOnSinglePage: true,
                         onChange: (page, pageSize) => pageChange(page, pageSize),
                     }}
                     loading={tableLoading}

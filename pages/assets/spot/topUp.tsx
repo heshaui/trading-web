@@ -899,9 +899,9 @@ const TopUpPage = () => {
             </div>
             <TopUpSteps type="topUp" />
           </div>
-          {/* <div className={`${styles.table_box} w-full `}>
-            <RechargeTable />
-          </div> */}
+          <div className={`${styles.table_box} w-full `}>
+            <RechargeTable coinId={coinInfo?.coinId ||form.getFieldValue('coinName')||''} />
+          </div>
         </div>
 
       </div>

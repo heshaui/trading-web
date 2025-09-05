@@ -41,7 +41,7 @@ import {
   YesterdayBalanceType,
 } from "@/type/assets/assetsAccount/assets";
 import { NoData } from "@/components/noData";
-import WebSocketService from "@/utils/websocket";
+import WebSocketService, { ConnectionState } from "@/utils/websocket";
 import { getToken } from "@/request";
 import { FunctionSwitchStatusEnum } from "@/services/financial";
 
@@ -589,7 +589,7 @@ const AssetsMainPage = observer(() => {
   // 设置WebSocket连接
   const setupBalanceWebSocket = useCallback(() => {
     // 如果已经有连接，不要重复创建
-    if (balanceDataRef.current) return;
+    if (balanceDataRef.current && balanceDataRef.current.connectionState === ConnectionState.OPEN) return;
     if (banlanceLoading) return;
 
     // 创建新的WebSocket连接
@@ -609,6 +609,11 @@ const AssetsMainPage = observer(() => {
         // console.log('收到WebSocket消息:', message);
 
         try {
+          // 处理纯文本心跳
+          if (typeof message === 'string' && (message.startsWith('ping') || message === '__ping__')) {
+            websocket.send(JSON.stringify({ type: '__pong__' }));
+            return;
+          }
           const data = JSON.parse(message);
           // console.log('解析后的数据:', data);
 
@@ -709,8 +714,16 @@ const AssetsMainPage = observer(() => {
           }
         } catch (error) {
           console.error("WebSocket数据处理错误:", error);
-          balanceDataRef.current = null;
+          // 保持连接由底层重连处理，不立即置空引用
         }
+      }, (err) => {
+        console.error('资产WebSocket连接错误:', err);
+        // 允许后续重建
+        balanceDataRef.current = null;
+        // 延迟重试，避免热循环
+        setTimeout(() => {
+          try { setupBalanceWebSocket(); } catch {}
+        }, 3000);
       });
     } catch (err) {
       console.error("创建资产WebSocket连接失败:", err);
