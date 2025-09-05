@@ -131,10 +131,14 @@
       "item6": "Withdrawal Steps Guide"
     },
     "notice": "Withdrawal Notice",
+    "notice2": "Deposit Notice",
     "noticeList": {
       "item1": "1. Please send the corresponding amount of cryptocurrency you need to withdraw to this address through a client or online wallet",
       "item2": "2. After sending, the system will automatically receive the corresponding amount in this transaction, and after confirmation, will withdraw the cryptocurrency to your account on this site. Confirmation of the corresponding amount takes about 30 minutes to 1 hour, please be patient.",
-      "item3": "3. The same address can be used for multiple withdrawals without affecting receipt"
+      "item3": "3. The same address can be used for multiple withdrawals without affecting receipt",
+      "item4": "1. Please send the corresponding amount of cryptocurrency you need to deposit to this address through a client or online wallet",
+      "item5": "2. After sending, the system will automatically receive the corresponding amount in this transaction, and after confirmation, will deposit the cryptocurrency to your account on this site. Confirmation of the corresponding amount takes about 30 minutes to 1 hour, please be patient.",
+      "item6": "3. The same address can be used for multiple deposits without affecting receipt"
     },
     "inputAmount": "Please Enter Withdrawal Amount",
     "invalidAmount": "Please Enter Valid Amount",
@@ -285,5 +289,31 @@
     "stepTip3": "Please confirm the withdrawal amount and fees.",
     "stepTitle4": "Order Review",
     "stepTip4": "After blockchain confirmation, your withdrawal information will be transferred to the deposit platform."
+  },
+  "toUpSteps": {
+    "title": "How to Deposit Cryptocurrency",
+    "stepTitle1": "Select Currency and Network",
+    "stepTip1": "Choose the currency and network you want to deposit. Please ensure that the network you select matches the withdrawal platform's network, otherwise it will cause asset loss.",
+    "stepTitle2": "Get Deposit Address",
+    "stepTip2": "Copy the deposit address, or use the scanned deposit QR code, ensure that the networks are consistent; if Memo, please fill in the Memo information.",
+    "stepTitle3": "Initiate Withdrawal",
+    "stepTip3": "Check the address on the withdrawal platform and initiate withdrawal.",
+    "stepTitle4": "Order Review",
+    "stepTip4": "After blockchain confirmation, we will deposit the funds into your account directly into your spot account.",
+    "network": "Network",
+    "rechargeCoin": "Deposit Currency",
+    "minRecharge": "Minimum Deposit",
+    "confirmCount": "Block Confirmations",
+    "confirmCountTip": "Confirmations",
+    "confirmCountTip2": "{{confirmCount}} Confirmations",
+    "confirmCountTip3": "Confirmations",
+    "placeholder": "Please Select Network",
+    "rechargeAddress": "Deposit Address",
+    "networkWarning": "Please note that only deposit networks supported by {{platformName}} platform are shown here. Using unsupported networks may result in asset loss.",
+    "rechargeTo": "Deposit to",
+    "rechargeTo2": "Spot Account",
+    "memoTip1": "Correctly fill in the address and MEMO to deposit to the account",
+    "memoTip2": "When depositing, you must fill in the deposit address and tag, which is your account's unique identifier, and not filling or filling it incorrectly will result in asset loss.",
+    "memoTip3": "OK, please display the address"
   }
 }
