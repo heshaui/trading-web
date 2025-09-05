@@ -34,15 +34,15 @@ export default function RechargeTable({ tableData,loading }: PropsType) {
     coinId: null
   })
   const getStatus = (status: number) => {
-    const statusText =Number(status)
-    switch (statusText) {
-      case 0:
-        return t('recharge.rechargeStatus0') //'充值中';
-      case 1:
-        return t('recharge.rechargeStatus1') //'充值完成'
-      default:
-        return statusText||'--'
+    const code = status === null || status === undefined ? '' : String(status).trim()
+    if (!code) return '--'
+    if (["0","1"].includes(code)) {
+        return t('recharge.credited')
     }
+    if ([ "2"].includes(code)) {
+        return t('recharge.pending')
+    }
+    return code || '--'
   }
   const columns: ColumnsType<RechargeDataType> = [
     {
