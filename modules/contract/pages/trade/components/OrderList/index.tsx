@@ -330,20 +330,19 @@ const OrderListComponent = (props: any, ref: any) => {
       const fn = map[activeTab as keyof typeof map];
       // 只有仓位和当前委托需要轮询
       let intervalId: NodeJS.Timeout | null = null;
-      fn?.({ showLoading: true, showMessage: false }).then(() => {
-        if (activeTab === "position" || activeTab === "openOrders") {
-          intervalId = setInterval(() => {
-            fn?.({ showLoading: false, showMessage: false }).catch(() => {
-              if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
+      if (activeTab === "position" || activeTab === "openOrders") {
+        const poll = () => {
+          fn?.({ showLoading: false, showMessage: false })
+            .finally(() => {
+              if (activeTab === "position" || activeTab === "openOrders") { // 检查当前是否仍是激活的 tab
+                intervalId = setTimeout(poll, 800); // 请求完成后再设置下一个定时器
               }
             });
-          }, 800); // 轮询间隔为800毫秒
-        }
-      });
+        };
+        intervalId = setTimeout(poll, 800); // 启动第一次轮询
+      }
 
-      // 清理定时器
+        // 清理定时器
       return () => {
         if (intervalId) {
           clearInterval(intervalId);
