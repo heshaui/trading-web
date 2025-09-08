@@ -72,7 +72,7 @@ const TopUpPage = () => {
     const opt = coinExtSelect.find((o: any) => o.value === currentValue);
     if (!opt) return '';
     if (typeof opt.label === 'string') return opt.label as string;
-    return `${opt?.protocol || "--"}(${opt?.protocolName || "--"})`;
+    return `${opt?.protocolName || "--"}(${opt?.protocol|| "--"})`;
   }, [selectedProtocolId, coinExtSelect, form]);
 
 
@@ -244,11 +244,11 @@ const TopUpPage = () => {
           return {
             ...item,
             ...protocol,
-            label: `${protocol?.protocol || "--"}(${protocol?.protocolName || "--"})`,
-            value: protocol.symbol,
+            label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"})`,
+            value: protocol?.symbol||null,
             confirmCount: item.confirms && item.confirms > 0 ? item.confirms : 1,
           };
-        })
+        }).filter((item: any) => item.value !== null)
           // .filter((item: any) => {
           //   const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
           //   return chainType
@@ -627,8 +627,8 @@ const TopUpPage = () => {
                       onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
                     >
                       <div className="min-w-0">
-                        <p>{opt.protocolName}</p>
-                        <p className="text-[var(--text-color6)]">{opt.protocol}</p>
+                        <p>{opt.coinName||'--'}</p>
+                        <p className="text-[var(--text-color6)]">{opt.protocolName||'--'}（{opt.protocol||'--'}）</p>
                       </div>
                       <div className="shrink-0">{(confirmRemainingMap[String(opt.value)] ?? (opt.confirmCount ?? 1))}次确认</div>
                     </div>

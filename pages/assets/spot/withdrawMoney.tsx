@@ -12,8 +12,8 @@ import {
   AutoComplete,
 } from "antd";
 import { Iconify } from "@/components/icon";
-import type { ColumnsType } from "antd/es/table";
-import dayjs from "dayjs";
+// import type { ColumnsType } from "antd/es/table";
+// import dayjs from "dayjs";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import Image from "next/image";
@@ -32,8 +32,8 @@ import {
   getUserBalanceAll,
 } from "@/services/assets";
 import { toast } from "sonner";
-import { cut, nul, division, countNum, withdrawFee } from "@/utils";
-import { getUserInfo } from "@/hooks/userInfo";
+import { cut, nul, division, countNum, withdrawFee ,roundDown} from "@/utils";
+// import { getUserInfo } from "@/hooks/userInfo";
 import TableBox from "../components/withDrawTable";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
@@ -404,7 +404,7 @@ const WithdrawMoneyPage = observer(() => {
       if (res.code === "0") {
         const protocolList = res.data.map((item: any) => ({
           ...item,
-          label: `${item?.protocol}(${item?.protocolName})`,
+          label: `${item?.protocolName}(${item?.protocol})`,
           value: item.id,
         }));
         setProtocolTypeList(protocolList);
@@ -440,7 +440,7 @@ const WithdrawMoneyPage = observer(() => {
           return {
             ...item,
             ...protocol,
-            label: `${protocol?.protocol || "--"}(${protocol?.protocolName || "--"
+            label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"
               })`,
             value: item.protocolId,
           };
@@ -907,7 +907,7 @@ const WithdrawMoneyPage = observer(() => {
     getUserALlLimitData();
   };
   // 手续费汇率-可用余额汇率（传baseCoinName）
-  const getWithdrawFee = (number: number, baseCoinName?: string) => {
+  const getWithdrawFee = (number: number, baseCoinName?: string,scaale:number|false=false) => {
     let coinName = "";
     if (baseCoinName) {
       coinName = baseCoinName || "";
@@ -926,7 +926,7 @@ const WithdrawMoneyPage = observer(() => {
       shortName,
       rate,
       symbol,
-      text: `${rate} ${shortName}`,
+      text: !scaale?`${rate} ${shortName}`:`${roundDown(rate,scaale)} ${shortName}`,
     };
   };
 
@@ -1024,7 +1024,8 @@ const WithdrawMoneyPage = observer(() => {
                             className={`${styles.tip_color} font-w-400 font-12`}
                           >{`≈${getWithdrawFee(
                             option.data.balance,
-                            option.data.coinName
+                            option.data.coinName,
+                            2
                           ).text
                             }`}</span>
                         </div>
@@ -1270,9 +1271,9 @@ const WithdrawMoneyPage = observer(() => {
                       return (
                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                           <p className={`flex-y `}>
-                            <span>{option.data.protocol}</span>
+                            <span>{option.data.coinName||'--'}</span>
                             <span className={`${styles.tip_color}`}>
-                              {option.data.protocolName}
+                              {option.data.protocolName||'--'}（{option.data.protocol||'--'}）
                             </span>
                           </p>
                           <p className={`${styles.tip_color2} `}>
