@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "next-i18next";
 import { Tooltip } from "antd";
 import SymbolSelector from "../SymbolSelector";
-import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
+import { useMarketInfo } from "@/hooks/useMarketInfo";
 const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CSSProperties }) => {
   const { t } = useTranslation(["contract"]);
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
-  const [marketInfo, setMarketInfo] = useState<any>(null);
+  const { marketInfo, loadMarketInfo } = useMarketInfo();
 
 
   const handleSymbolSelect = (symbol: any) => {
@@ -23,12 +23,6 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
     console.log("handleToggleFavorite", symbol);
   };
 
-  const getMarketInfo = async (id: number) => {
-    const res = await getPublicMarketInfo({ contractId: id });
-    if (res.code === '0') {
-      setMarketInfo(res.data);
-    }
-  };
    const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
   
   // 格式化价格显示，确保不超过symbolPricePrecision精度
@@ -58,11 +52,11 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
   useEffect(() => {
     if (currentContractInfo?.id) {
       const interval = setInterval(() => {
-        getMarketInfo(currentContractInfo.id);
+        loadMarketInfo(currentContractInfo.id);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [currentContractInfo]);
+  }, [currentContractInfo, loadMarketInfo]);
 
   return (
     <div style={style} className="flex items-center px-[16px] h-[100%] bg-[var(--background9)]">
@@ -104,7 +98,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
               : "text-[var(--error-color)]"
               }`}
           >
-            {formatPriceWithPrecision(marketInfo?.tagPrice)}
+             {formatPriceWithPrecision(marketInfo?.tagPrice)}
           </span>
         </div>
         <div className="flex flex-col">
@@ -124,7 +118,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
           </span>
           </Tooltip>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
-            {marketInfo?.currentFundRate}
+                {marketInfo?.currentFundRate}
           </span>
         </div>
         <div className="flex flex-col">

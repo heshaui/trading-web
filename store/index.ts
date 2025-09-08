@@ -25,6 +25,7 @@ import {
   getPublicInfo,
   getUserConfig,
   getAssetsList,
+  getPublicMarketInfo,
 } from "@/services/contract";
 import { UserConfigType } from "@/type/contract/userConfig";
 // const { isLoggedIn} = useAuth()
@@ -85,6 +86,10 @@ class AppStore {
   // 添加最新价格数据状态
   activeNewPrice: any = null;
 
+  // 添加市场信息状态
+  marketInfo: any = {};
+  isLoadingMarketInfo: boolean = false;
+
   // 添加用户合约配置状态
   userConfig: UserConfigType = {};
   isLoadingUserConfig: boolean = false;
@@ -128,6 +133,7 @@ class AppStore {
       this.initPublicInfoFromStorage(); // 初始化公共数据
       this.initUserConfigFromStorage(); // 初始化用户合约配置
       this.initContractAssetsFromStorage(); // 初始化合约资产
+      this.initMarketInfoFromStorage(); // 初始化市场信息
     }
   }
 
@@ -1041,6 +1047,61 @@ class AppStore {
   // 获取当前合约信息
   getCurrentContractInfo() {
     return this.currentContractInfo;
+  }
+
+  // 市场信息相关方法
+  async loadMarketInfo(contractId: number) {
+    try {
+      this.isLoadingMarketInfo = true;
+      const result = await getPublicMarketInfo({ contractId });
+      if (result.code === "0") {
+        runInAction(() => {
+          this.marketInfo = result.data;
+          // 持久化到本地存储
+          if (isBrowser()) {
+            localStorage.setItem(
+              LOCAL_STORAGE_KEY.MARKET_INFO,
+              JSON.stringify(this.marketInfo)
+            );
+          }
+        });
+        return result.data;
+      } else {
+        console.log(result.message || "Failed to load market info");
+      }
+    } catch (error) {
+      console.error("Error loading market info:", error);
+    } finally {
+      runInAction(() => {
+        this.isLoadingMarketInfo = false;
+      });
+    }
+  }
+
+  getMarketInfo() {
+    return this.marketInfo;
+  }
+
+  setMarketInfo(info: any) {
+    this.marketInfo = info;
+    if (isBrowser()) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY.MARKET_INFO,
+        JSON.stringify(info)
+      );
+    }
+  }
+
+  initMarketInfoFromStorage() {
+    if (!isBrowser()) return;
+    try {
+      const marketInfoJson = localStorage.getItem(LOCAL_STORAGE_KEY.MARKET_INFO);
+      if (marketInfoJson) {
+        this.marketInfo = JSON.parse(marketInfoJson);
+      }
+    } catch (error) {
+      console.error("Failed to load market info from storage:", error);
+    }
   }
 
   // 清除当前合约信息
