@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "next-i18next";
+import { Tooltip } from "antd";
 import SymbolSelector from "../SymbolSelector";
 import { getPublicMarketInfo } from "@/services/contract";
 import appStore from "@/store";
@@ -9,6 +10,8 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
   const [marketInfo, setMarketInfo] = useState<any>(null);
+
+
   const handleSymbolSelect = (symbol: any) => {
     
     appStore.setCurrentContractInfo(symbol.id);
@@ -90,9 +93,11 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+          <Tooltip title={t("contractHeader.tooltip.markPrice")}>
+          <span className="text-[12px] text-[var(--text-color6)] font-[400] underline decoration-dashed cursor-pointer">
             {t("contractHeader.markPrice")}
           </span>
+          </Tooltip>
           <span
             className={`text-[var(--text-color5)] font-500 text-[12px] ${priceData?.isUp
               ? "text-[var(--success-color)]"
@@ -103,17 +108,21 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+           <Tooltip title={t("contractHeader.tooltip.indexPrice")}>
+          <span className="text-[12px] text-[var(--text-color6)] font-[400] underline decoration-dashed cursor-pointer">
             {t("contractHeader.indexPrice")}
           </span>
+          </Tooltip>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
             {formatPriceWithPrecision(marketInfo?.indexPrice)}
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[12px] text-[var(--text-color6)] font-[400]">
+          <Tooltip title={t("contractHeader.tooltip.fundingRate")}>
+          <span className="text-[12px] text-[var(--text-color6)] font-[400] underline decoration-dashed cursor-pointer">
             {t("contractHeader.fundingRate")}
           </span>
+          </Tooltip>
           <span className="text-[var(--text-color5)] font-500 text-[12px]">
             {marketInfo?.currentFundRate}
           </span>

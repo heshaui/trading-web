@@ -89,6 +89,18 @@
     "settingFailed": "槓桿設置失敗",
     "settingFailedRetry": "槓桿設置失敗，請重試"
   },
+  "contractHeader": {
+    "markPrice": "標記價格",
+    "indexPrice": "指數價格",
+    "fundingRate": "資金費率/倒計時",
+    "volume24h": "24H 成交量",
+    "turnover24h": "24H 成交額(USD)",
+    "tooltip": {
+      "markPrice": "標記價格用於結算盈虧和觸發強制減倉。標記價格可能會偏離市場最新價格，以防因市場被惡意操縱造成損失。",
+      "indexPrice": "標的貨幣的市場公允現貨價格。",
+      "fundingRate": "費率為正，多頭倉位支付空頭倉位。費率為負，空頭倉位支付多頭倉位。預計本期多頭需支付給空頭持倉價值的0.0066%，實際資金費率以結算時間為準。"
+    }
+  },
   "tradingPanel": {
     "unit": "張"
   }

@@ -365,7 +365,12 @@
     "indexPrice": "Index Price",
     "fundingRate": "Funding Rate/Countdown",
     "volume24h": "24h Volume",
-    "turnover24h": "24h Turnover (USD)"
+    "turnover24h": "24h Turnover (USD)",
+    "tooltip": {
+      "markPrice": "Mark price is used to calculate PnL and trigger forced liquidation. The mark price may deviate from the market latest price to prevent losses caused by malicious market manipulation.",
+      "indexPrice": "The fair spot price of the underlying asset in the market.",
+      "fundingRate": "When the funding rate is positive, long positions pay short positions. When the funding rate is negative, short positions pay long positions. The estimated funding rate for this period is 0.0066% of the position value. The actual funding rate is subject to settlement time."
+    }
   },
   "orderBookList": {
     "title": "Order Book",
