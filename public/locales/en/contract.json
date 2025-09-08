@@ -127,6 +127,8 @@
   "tradingSettings": {
     "title": "Trading Settings",
     "confirm": "Confirm",
+    "editSuccess": "Settings updated successfully",
+    "editFailed": "Failed to update settings",
     "positionType": "Position Mode",
     "positionTypeNote": "(Cannot change when holding any positions or having open orders)",
     "singlePosition": "One-Way Mode",

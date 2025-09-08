@@ -572,6 +572,11 @@ const TradePage = () => {
         const contractInfo = appStore.getCurrentContractInfo();
         setCurrentContractInfo(contractInfo);
 
+        // 设置初始的depth精度
+        if (contractInfo.coinResultVo?.depth && contractInfo.coinResultVo.depth.length > 0) {
+          setDepthPrecision(contractInfo.coinResultVo.depth[0]);
+        }
+
         // 获取用户相关数据（需要登录）
         if (info.contractList && contractInfo.id && isLoggedIn) {
           // 获取账户余额
@@ -625,6 +630,11 @@ const TradePage = () => {
 
 
         setCurrentContractInfo(storeContractInfo);
+
+        // 更新depth精度为合约配置的第一个depth值
+        if (storeContractInfo.coinResultVo?.depth && storeContractInfo.coinResultVo.depth.length > 0) {
+          setDepthPrecision(storeContractInfo.coinResultVo.depth[0]);
+        }
 
         // 如果WebSocket已连接，重新发送订阅消息（不重新连接）
         if (wsInstance) {
@@ -714,6 +724,7 @@ const TradePage = () => {
 
           if (data.tick) {
           }
+          console.log("_depth_data",data)
           setOrderBookData(data);
         } else if (data.channel && data.channel.includes("_trade_ticker")) {
           // 处理实时成交数据
