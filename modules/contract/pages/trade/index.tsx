@@ -495,6 +495,33 @@ const TradePage = () => {
     }, 100);
   }, []);
 
+  // 单独处理深度精度订阅（用于精度切换）
+  const sendDepthSubscription = useCallback((ws: WebSocketService, contractInfo: any, oldPrecision: number, newPrecision: number) => {
+    if (!contractInfo.id || !contractInfo.contractType || !contractInfo.symbol) {
+      return;
+    }
+
+    // 1. 先取消旧的深度订阅
+    const unsubDepthEvent = {
+      event: "unsub",
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step${oldPrecision}` },
+      cb_id: contractInfo.symbol.toLowerCase(),
+    };
+    ws.send(JSON.stringify(unsubDepthEvent));
+
+    // 2. 发送新的深度订阅
+    const depthEvent = {
+      event: "sub",
+      params: { channel: `market_${contractInfo.contractType.toLowerCase()}_${contractInfo.symbol.replace("-", "").toLowerCase()}_depth_step${newPrecision}` },
+      cb_id: contractInfo.symbol.toLowerCase(),
+    };
+
+    // 延迟发送新订阅，确保取消订阅先处理
+    setTimeout(() => {
+      ws.send(JSON.stringify(depthEvent));
+    }, 100);
+  }, []);
+
   // 处理时间间隔变化
   const handleTimeIntervalChange = (interval: string) => {
     const oldInterval = currentTimeIntervalRef.current;
@@ -510,12 +537,12 @@ const TradePage = () => {
 
   // 处理深度精度变化
   const handleDepthPrecisionChange = (precision: number) => {
-
+    const oldPrecision = depthPrecision;
     setDepthPrecision(precision);
 
-    // 如果WebSocket已连接且合约信息完整，重新发送深度订阅
+    // 如果WebSocket已连接且合约信息完整，只重新发送深度订阅
     if (wsInstance && currentContractInfo.id) {
-      sendSubscriptions(wsInstance, currentContractInfo, currentTimeIntervalRef.current, true, precision);  // 精度变化时先取消旧订阅
+      sendDepthSubscription(wsInstance, currentContractInfo, oldPrecision, precision);
     }
   };
 
@@ -623,7 +650,6 @@ const TradePage = () => {
   }, [
     currentContractInfo.id,
     wsInstance,
-    sendSubscriptions,
     getContractBalance,
   ]);
 
@@ -683,7 +709,7 @@ const TradePage = () => {
               price: data.tick.close.toString(),
             }));
           }
-        } else if (data.channel && data.channel.includes("_depth_step0")) {
+        } else if (data.channel && data.channel.includes("_depth_")) {
           // 处理OrderBook深度数据
 
           if (data.tick) {
@@ -758,8 +784,9 @@ const TradePage = () => {
     };
   }, [
     publicInfo.wsUrl,
-    currentContractInfo,
-    sendSubscriptions,
+    currentContractInfo.id,
+    currentContractInfo.contractType,
+    currentContractInfo.symbol,
   ]);
 useEffect(()=>{
 
@@ -776,7 +803,7 @@ useEffect(()=>{
       // 时间间隔变化由 handleTimeIntervalChange 单独处理
       sendSubscriptions(wsInstance, currentContractInfo, currentTimeIntervalRef.current);
     }
-  }, [wsInstance, currentContractInfo, sendSubscriptions]); // 移除 currentTimeInterval 依赖
+  }, [wsInstance, currentContractInfo.id, currentContractInfo.contractType, currentContractInfo.symbol]); // 移除 currentTimeInterval 依赖
 
   // 如果不是客户端环境，返回加载中状态
   if (!isClient) {
@@ -830,6 +857,7 @@ useEffect(()=>{
             orderBookData={orderBookData}
             realtimeTradeData={realtimeTradeData}
             onPriceClick={handlePriceClick}
+            onPrecisionChange={handleDepthPrecisionChange}
           />
           <RealtimeTrade
             style={{ flex: 1 }}

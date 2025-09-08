@@ -185,18 +185,43 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       const closePrice = Number(values.formData_2);
       const volume = coUnitType === 2 ? Number(values.formData_3) * multiplier : Number(values.formData_3);
 
-      // 计算开仓保证金
-      const v1 = contractInfo.contractSide === 1 ? volume * openPrice : volume / openPrice;
-      const openMarginValue = v1 / leverage / contractInfo.marginRate;
+      // 计算名义价值和开仓保证金
+      let nominalValue = 0;
+      let openMarginValue = 0;
+      
+      if (contractInfo.contractSide === 1) {
+        // 正向合约 (如BTCUSDT)
+        nominalValue = volume * multiplier * openPrice; // 名义价值 = 数量 × 面值 × 开仓价格
+        openMarginValue = nominalValue / leverage; // 保证金 = 名义价值 / 杠杆
+      } else {
+        // 反向合约 (如BTCUSD) 
+        nominalValue = volume * multiplier; // 名义价值 = 数量 × 面值(BTC)
+        openMarginValue = nominalValue / (openPrice * leverage); // 保证金 = 名义价值 / (开仓价格 × 杠杆)
+      }
+      
       setOpenMargin(`${openMarginValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4)} ${contractInfo?.marginCoin || 'USDT'}`);
 
       // 计算收益额
-      const n2 = contractInfo.contractSide === 1 ? closePrice - openPrice : (1 / closePrice) - (1 / openPrice);
-      const n3 = (n2 * volume) / contractInfo.marginRate;
-      const revenueValue = sideType === 1 ? n3 : -n3;
+      let revenueValue = 0;
+      
+      if (contractInfo.contractSide === 1) {
+        // 正向合约收益 = (平仓价格 - 开仓价格) × 数量 × 面值
+        const priceDiff = closePrice - openPrice;
+        revenueValue = priceDiff * volume * multiplier;
+      } else {
+        // 反向合约收益 = 数量 × 面值 × (1/开仓价格 - 1/平仓价格)
+        const priceDiff = (1 / openPrice) - (1 / closePrice);
+        revenueValue = volume * multiplier * priceDiff;
+      }
+      
+      // 根据做多做空调整收益方向
+      if (sideType === 2) { // 做空
+        revenueValue = -revenueValue;
+      }
+      
       setRevenue(`${revenueValue.toFixed(contractInfo.coinResultVo?.marginCoinPrecision || 4)} ${contractInfo?.marginCoin || 'USDT'}`);
 
-      // 计算回报率
+      // 计算回报率 = (收益 / 保证金) × 100%
       const returnRateValue = openMarginValue > 0 ? (revenueValue / openMarginValue) * 100 : 0;
       setReturnRate(`${returnRateValue.toFixed(2)}%`);
     } else if (categoryType === '2') {
@@ -207,22 +232,22 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         let closePriceValue = 0;
 
         if (contractInfo.contractSide === 1) {
-          // 正向合约
+          // 正向合约 (如BTCUSDT)
           if (sideType === 1) {
-            // 做多：平仓价格 = 开仓价格 * (1 + 目标回报率 * 杠杆)
-            closePriceValue = openPrice * (1 + targetRate * leverage);
+            // 做多：平仓价格 = 开仓价格 × (1 + 目标回报率 / 杠杆)
+            closePriceValue = openPrice * (1 + targetRate / leverage);
           } else {
-            // 做空：平仓价格 = 开仓价格 * (1 - 目标回报率 * 杠杆)
-            closePriceValue = openPrice * (1 - targetRate * leverage);
+            // 做空：平仓价格 = 开仓价格 × (1 - 目标回报率 / 杠杆)
+            closePriceValue = openPrice * (1 - targetRate / leverage);
           }
         } else {
-          // 反向合约
+          // 反向合约 (如BTCUSD)
           if (sideType === 1) {
-            // 做多：1/平仓价格 = 1/开仓价格 - (目标回报率 * 杠杆) / 开仓价格
-            closePriceValue = 1 / (1 / openPrice - (targetRate * leverage) / openPrice);
+            // 做多：平仓价格 = 1 / (1/开仓价格 + 目标回报率/(杠杆×开仓价格))
+            closePriceValue = 1 / (1 / openPrice + targetRate / (leverage * openPrice));
           } else {
-            // 做空：1/平仓价格 = 1/开仓价格 + (目标回报率 * 杠杆) / 开仓价格
-            closePriceValue = 1 / (1 / openPrice + (targetRate * leverage) / openPrice);
+            // 做空：平仓价格 = 1 / (1/开仓价格 - 目标回报率/(杠杆×开仓价格))
+            closePriceValue = 1 / (1 / openPrice - targetRate / (leverage * openPrice));
           }
         }
 
@@ -240,54 +265,70 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         const maintenanceMarginRate = 0.005;
 
         if (contractInfo.contractSide === 1) {
-          // 正向合约
-          if (sideType === 1) {
-            // 做多强平价格
-            if (marginMode === 1) {
-              // 全仓：强平价格 = 开仓价格 * (1 - (可用余额 + 仓位保证金 * (1 - 维持保证金率)) / (仓位数量 * 面值))
-              const positionMargin = (position * multiplier * openPrice) / leverage;
-              const numerator = balance + positionMargin * (1 - maintenanceMarginRate);
-              liquidationPriceValue = openPrice * (1 - numerator / (position * multiplier));
-            } else {
-              // 逐仓：强平价格 = 开仓价格 * (1 - (1 - 维持保证金率) / 杠杆)
+          // 正向合约 (如BTCUSDT)
+          if (marginMode === 2) {
+            // 逐仓模式
+            if (sideType === 1) {
+              // 做多逐仓：强平价格 = 开仓价格 × (1 - (1 - 维持保证金率) / 杠杆)
               liquidationPriceValue = openPrice * (1 - (1 - maintenanceMarginRate) / leverage);
+            } else {
+              // 做空逐仓：强平价格 = 开仓价格 × (1 + (1 - 维持保证金率) / 杠杆)
+              liquidationPriceValue = openPrice * (1 + (1 - maintenanceMarginRate) / leverage);
             }
           } else {
-            // 做空强平价格
-            if (marginMode === 1) {
-              // 全仓做空计算
-              const positionMargin = (position * multiplier * openPrice) / leverage;
-              const numerator = balance + positionMargin * (1 - maintenanceMarginRate);
-              liquidationPriceValue = openPrice * (1 + numerator / (position * multiplier));
+            // 全仓模式 - 简化计算
+            const positionMargin = (position * multiplier * openPrice) / leverage;
+            const totalMargin = positionMargin + balance;
+            
+            if (sideType === 1) {
+              // 做多全仓：当账户权益不足以维持仓位时强平
+              const minEquity = position * multiplier * maintenanceMarginRate;
+              const maxLoss = totalMargin - minEquity;
+              liquidationPriceValue = openPrice - (maxLoss / (position * multiplier));
             } else {
-              // 逐仓：强平价格 = 开仓价格 * (1 + (1 - 维持保证金率) / 杠杆)
-              liquidationPriceValue = openPrice * (1 + (1 - maintenanceMarginRate) / leverage);
+              // 做空全仓
+              const minEquity = position * multiplier * maintenanceMarginRate;
+              const maxLoss = totalMargin - minEquity;
+              liquidationPriceValue = openPrice + (maxLoss / (position * multiplier));
             }
           }
         } else {
-          // 反向合约强平价格计算
-          if (sideType === 1) {
-            // 做多
-            if (marginMode === 1) {
-              const positionValue = position / openPrice;
-              const positionMargin = positionValue / leverage;
-              liquidationPriceValue = 1 / ((1 / openPrice) + (balance + positionMargin * (1 - maintenanceMarginRate)) / position);
-            } else {
+          // 反向合约 (如BTCUSD)
+          if (marginMode === 2) {
+            // 逐仓模式
+            if (sideType === 1) {
+              // 做多逐仓
               liquidationPriceValue = 1 / ((1 / openPrice) + (1 - maintenanceMarginRate) / (leverage * openPrice));
+            } else {
+              // 做空逐仓
+              liquidationPriceValue = 1 / ((1 / openPrice) - (1 - maintenanceMarginRate) / (leverage * openPrice));
             }
           } else {
-            // 做空
-            if (marginMode === 1) {
-              const positionValue = position / openPrice;
-              const positionMargin = positionValue / leverage;
-              liquidationPriceValue = 1 / ((1 / openPrice) - (balance + positionMargin * (1 - maintenanceMarginRate)) / position);
+            // 全仓模式 - 简化计算
+            const positionValue = position * multiplier; // 面值数量
+            const positionMargin = positionValue / (openPrice * leverage);
+            const totalMargin = positionMargin + balance;
+            
+            if (sideType === 1) {
+              // 做多全仓
+              const minEquity = positionValue * maintenanceMarginRate / openPrice;
+              const maxLoss = totalMargin - minEquity;
+              liquidationPriceValue = 1 / ((1 / openPrice) + (maxLoss / positionValue));
             } else {
-              liquidationPriceValue = 1 / ((1 / openPrice) - (1 - maintenanceMarginRate) / (leverage * openPrice));
+              // 做空全仓
+              const minEquity = positionValue * maintenanceMarginRate / openPrice;
+              const maxLoss = totalMargin - minEquity;
+              liquidationPriceValue = 1 / ((1 / openPrice) - (maxLoss / positionValue));
             }
           }
         }
 
-        setLiquidationPrice(`${liquidationPriceValue.toFixed(pricefix)} ${priceUnit}`);
+        // 确保强平价格为正数且合理
+        if (liquidationPriceValue > 0 && isFinite(liquidationPriceValue)) {
+          setLiquidationPrice(`${liquidationPriceValue.toFixed(pricefix)} ${priceUnit}`);
+        } else {
+          setLiquidationPrice(t('calculator.noLiquidation'));
+        }
       }
     }
   };

@@ -282,5 +282,8 @@
             "invalidLink": "유효하지 않은 링크",
             "popupBlocked": "위험한 링크!"
         }
+    },
+    "tradingPanel": {
+        "unit": "장"
     }
 }

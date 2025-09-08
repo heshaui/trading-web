@@ -87,6 +87,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const [side, setSide] = useState<"BUY" | "SELL">("BUY");
   // 新增触发价状态
   const [triggerPrice, setTriggerPrice] = useState<string>("");
+  // 下单确认设置状态
+  const [settingsUpdateTrigger, setSettingsUpdateTrigger] = useState(0);
   const [submitData, setSubmitData] = useState({}); //下单提交数据
   const [confirmData, setConfirmData] = useState({
     direction: 0,
@@ -110,9 +112,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 在所有Hooks声明之后获取store数据
   const currentContractInfo = appStore.getCurrentContractInfo();
   const { userConfig } = useUserConfig();
-  console.log('currentContractInfo.coinResultVo',currentContractInfo.coinResultVo)
   const {symbolPricePrecision,priceRange,maxLimitMoney,maxLimitVolume,maxMarketMoney,maxMarketVolume,minOrderVolume,minOrderMoney} =currentContractInfo.coinResultVo
-  console.log('maxLimitMoney',maxLimitMoney)
 
   
 
@@ -274,16 +274,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     const activeNewPrice = appStore.getActiveNewPrice();
     const currentPrice = activeNewPrice?.price;
     
-    console.log('计算价格范围:', { 
-      activeNewPrice, 
-      currentPrice, 
-      priceRange,
-      hasActiveNewPrice: !!activeNewPrice,
-      hasPriceRange: !!priceRange 
-    }); // 调试日志
+
     
     if (!currentPrice || !priceRange) {
-      console.log('价格范围无效:', { currentPrice, priceRange });
+
       return { minPrice: 0, maxPrice: 0, currentPrice: 0, isValid: false };
     }
 
@@ -298,7 +292,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       isValid: true 
     };
     
-    console.log('价格范围计算结果:', result);
+
     return result;
   };
 
@@ -444,23 +438,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   };
 
   // 检查是否应该跳过下单确认
-  const getShouldSkipConfirm = (): boolean => {
-    try {
-      // 优先检查新的设置格式
-      const savedSettings = localStorage.getItem('tradingSettings');
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        return !settings.preOrderConfirm; // preOrderConfirm为false时跳过确认
-      }
-      
-      // 兼容旧的设置格式
-      return localStorage.getItem("dontShowOrderConfirm") === "true";
-    } catch (error) {
-      console.error('读取下单确认设置失败:', error);
-      // 出错时默认显示确认框
-      return false;
-    }
-  };
+  const getShouldSkipConfirm = useCallback((): boolean => {
+    return localStorage.getItem("dontShowOrderConfirm") === "true";
+  }, [settingsUpdateTrigger]);
 
   // 处理订单提交
   const handleSubmit = (side: "BUY" | "SELL") => {
@@ -515,7 +495,8 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               ? "market"
               : "conditional",
       };
-      handleConfirmOrder(orderData, false);
+      // 直接提交订单，不需要调用handleConfirmOrder（避免重置设置）
+      onOrderSubmit?.(orderData);
       return;
     }
 
@@ -766,11 +747,11 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       marginModel: marginModel,
     };
 
-    // 如果用户选择不再提醒，可以在这里保存设置
-    if (dontRemind) {
-      // 保存到本地存储或全局状态
-      localStorage.setItem("dontShowOrderConfirm", "true");
-    }
+    // 保存设置
+    localStorage.setItem("dontShowOrderConfirm", dontRemind ? "true" : "false");
+    
+    // 触发设置更新
+    setSettingsUpdateTrigger(prev => prev + 1);
 
     onOrderSubmit?.(data);
     setShowOrderConfirmModal(false);
@@ -1250,9 +1231,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
               onCancel={() => {
                 setShowOrderConfirmModal(false);
               }}
-              onOk={(confirmed) => {
+              onOk={(confirmed, noRemind = false) => {
                 if (confirmed) {
-                  handleConfirmOrder(confirmData, false);
+                  handleConfirmOrder(confirmData, noRemind);
                 }
                 setShowOrderConfirmModal(false);
               }}

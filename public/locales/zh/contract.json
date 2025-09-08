@@ -121,7 +121,8 @@
     "positionSize": "仓位数量",
     "availableBalance": "可用余额",
     "liquidationPrice": "强平价格",
-    "selectMarginMode": "请选择保证金模式"
+    "selectMarginMode": "请选择保证金模式",
+    "noLiquidation": "不会被强制平仓"
   },
   "tradingSettings": {
     "title": "交易设置",
@@ -365,7 +366,12 @@
     "indexPrice": "指数价格",
     "fundingRate": "资金费率/倒计时",
     "volume24h": "24H 成交量",
-    "turnover24h": "24H 成交额(USD)"
+    "turnover24h": "24H 成交额(USD)",
+    "tooltip": {
+      "markPrice": "标记价格用于结算盈亏和触发强制减仓。标记价格可能会偏离市场最新价格，以防因市场被恶意操纵造成损失。",
+      "indexPrice": "标的货币的市场公允现货价格。",
+      "fundingRate": "费率为正，多头仓位支付空头仓位。费率为负，空头仓位支付多头仓位。预计本期多头需支付给空头持仓价值的0.0066%，实际资金费率以结算时间为准。"
+    }
   },
   "orderBookList": {
     "title": "委托列表",

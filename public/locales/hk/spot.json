@@ -279,9 +279,12 @@
             "hotRank": "热度排行",
             "marketRank": "市值排行",
             "maxSupplyMarket": "最大供应市值",
-            "invalidLink": "无效链接",
-            "popupBlocked": "风险链接！"
+            "invalidLink": "無效鏈接",
+            "popupBlocked": "風險鏈接！"
         }
         
+    },
+    "tradingPanel": {
+        "unit": "張"
     }
 }
