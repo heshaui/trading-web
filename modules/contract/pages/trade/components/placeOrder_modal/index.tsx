@@ -3,7 +3,7 @@ import { Modal, ConfigProvider, Checkbox } from "antd";
 import type { ModalProps } from "antd/es/modal/interface";
 import styles from './styles.module.css';
 import { Iconify } from "@/components/icon/index";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import {encryptData} from '@/utils/encrypt'
 import { useTranslation } from 'next-i18next';
 
@@ -34,32 +34,30 @@ type Props = {
     open: boolean;
     orderInfo?: orderInfoType;
     modalData?: any;
-    onOk: (event: boolean) => void;
+    onOk: (confirmed: boolean, noRemind?: boolean) => void;
     onCancel: () => void;
 };
 
 
 
 function NicknameModal({ open, onCancel, onOk, orderInfo, modalData }: Props) {
-    const { t } = useTranslation(['spot', 'contract']);
+    const { t } = useTranslation(['spot']);
     const [noRemind, setNoRemind] = useState(false);
 
-    const handCancel = () => {
+    // 读取设置状态
+    useEffect(() => {
+        if (open) {
+            const dontShow = localStorage.getItem("dontShowOrderConfirm") === "true";
+            setNoRemind(dontShow);
+        }
+    }, [open]);
 
+    const handCancel = () => {
         onCancel()
     };
 
     const handOk = async () => {
-        // 如果用户选择不再提醒，保存到本地存储
-        if (noRemind && modalData) {
-            if (modalData.type === 1) {
-                localStorage.setItem('limitOrderConfirm', 'false');
-            } else {
-                localStorage.setItem('marketOrderConfirm', 'false');
-            }
-        }
-
-        onOk(true)
+        onOk(true, noRemind)
     };
 
     // 处理复选框选中状态变化
@@ -169,7 +167,7 @@ function NicknameModal({ open, onCancel, onOk, orderInfo, modalData }: Props) {
                                     {/* 数量 */}
                                     {t('spot.modal.amount')}
                                 </p>
-                                <p className={`${styles.title_color}`}>{modalData?.amount}{t('contract.tradingPanel.unit')}</p>
+                                <p className={`${styles.title_color}`}>{modalData?.amount}{t('tradingPanel.unit')}</p>
                             </li>
                         )}
                     </ul>

@@ -285,5 +285,8 @@
             "invalidLink": "无效链接",
             "popupBlocked": "风险链接！"
         }
+    },
+    "tradingPanel": {
+        "unit": "张"
     }
 }

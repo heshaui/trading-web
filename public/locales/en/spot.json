@@ -285,5 +285,8 @@
             "invalidLink": "Invalid Link",
             "popupBlocked": "Risk Link!"
         }
+    },
+    "tradingPanel": {
+        "unit": "Cont"
     }
 }

@@ -32,11 +32,28 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
         setOrderValidity(settings.orderValidity || '14天');
         setPreOrderConfirm(settings.preOrderConfirm !== false); // 默认为true
         setReverseConfirm(settings.reverseConfirm !== false); // 默认为true
+      } else {
+        // 如果没有新格式设置，检查旧格式设置
+        const dontShowOrderConfirm = localStorage.getItem('dontShowOrderConfirm') === 'true';
+        setPreOrderConfirm(!dontShowOrderConfirm); // 转换逻辑：dontShow为true时，preOrderConfirm为false
       }
     } catch (error) {
       console.error('读取交易设置失败:', error);
     }
   }, []);
+
+  // 当抽屉打开时，重新读取设置以确保状态同步
+  useEffect(() => {
+    if (visible) {
+      try {
+        // 检查是否有其他地方修改了设置（比如placeOrder_modal）
+        const dontShowOrderConfirm = localStorage.getItem('dontShowOrderConfirm') === 'true';
+        setPreOrderConfirm(!dontShowOrderConfirm);
+      } catch (error) {
+        console.error('同步设置状态失败:', error);
+      }
+    }
+  }, [visible]);
 
   const handleConfirm = () => {
     try {
