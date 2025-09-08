@@ -757,9 +757,11 @@ const WithdrawMoneyPage = observer(() => {
   // 提现最小值获取，提现最大值获取  
   const getMinWithdraw = (type: 'min' | 'max') => {
     // 获取24h限额相关数据
-    const dailyMaxUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.max || 0) // 24h最大限额（USDT值转换为当前币种）
-    const dailyUsedUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.mix || 0) // 24h已使用额度（USDT值转换为当前币种）
-    const dailyRemainingLimit = Number(cut(dailyMaxUsdt, dailyUsedUsdt)) // 24h剩余额度
+    // const dailyMaxUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.max || 0) // 24h最大限额（USDT值转换为当前币种）
+    // const dailyUsedUsdt = getCoinRateData(coninInfo.coinName, userAllLimit.mix || 0) // 24h已使用额度（USDT值转换为当前币种）
+    // const dailyRemainingLimit = Number(cut(dailyMaxUsdt, dailyUsedUsdt)) // 24h剩余额度
+    const remainingLimit = Number(cut(Number(userAllLimit?.max|| 0),Number(userAllLimit.mix||0))) //24h剩余额度=24h最大限额-4h已使用额度
+    const dailyRemainingLimit = getCoinRateData(coninInfo.coinName,remainingLimit) // 24h剩余额度（USDT值转换为当前币种）
 
     // 获取基础数据
     const balance = Number(coninInfo.balance || 0) // 用户余额
@@ -786,7 +788,7 @@ const WithdrawMoneyPage = observer(() => {
       )
 
       // 确保最大值不为负数，并且不小于协议最小值（如果有余额的话）
-      const minRequirement = Math.max(protocolMinWithdraw, 0)
+      // const minRequirement = Math.max(protocolMinWithdraw, 0)
       return Math.max(actualMax, 0)
     }
   }
@@ -1424,7 +1426,7 @@ const WithdrawMoneyPage = observer(() => {
                     <p className={`${styles.title_color}`}>
                       {/* 10-10,000USDT */}
                       {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
-                      {coninInfo.minWithdraw || "0"}-
+                      {coninInfo?.minWithdraw || 0}-
                       {coninInfo.maxWithdraw || "0"}&nbsp;
                       {coninInfo.coinName || "--"}
                     </p>
@@ -1437,7 +1439,7 @@ const WithdrawMoneyPage = observer(() => {
                         {userAllLimit.mix
                           ? getCoinRateData(
                             coninInfo.coinName,
-                            userAllLimit.mix
+                            cut(Number(userAllLimit?.max|| 0),Number(userAllLimit.mix||0))
                           )
                           : "0"}
                       </span>

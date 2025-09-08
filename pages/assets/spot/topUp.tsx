@@ -204,21 +204,21 @@ const TopUpPage = () => {
       setCoinLoading(false);
     }
   }
-  // 2.获取钱包支持网络（链）
-  const getChainsAll = async () => {
-    const chainRes = await getTopUpChainsAll()
-    if (chainRes.code === '0') {
-      const chainList = chainRes.data.map((item: any) => {
-        return {
-          ...item,
-          label: item.chainName,
-          value: item.chainType
-        }
-      })
-      // console.log(chainList, chainRes.data, 999);
-      setChainTypeList(chainList)
-    }
-  }
+  // // 2.获取钱包支持网络（链）--弃用
+  // const getChainsAll = async () => {
+  //   const chainRes = await getTopUpChainsAll()
+  //   if (chainRes.code === '0') {
+  //     const chainList = chainRes.data.map((item: any) => {
+  //       return {
+  //         ...item,
+  //         label: item.chainName,
+  //         value: item.chainType
+  //       }
+  //     })
+  //     // console.log(chainList, chainRes.data, 999);
+  //     setChainTypeList(chainList)
+  //   }
+  // }
   // 4.2币种对应的协议（网络）-通过币种协议获取网络id进行匹配
   const getCoinExt = async (coinId: number) => {
     if (!coinId) {
@@ -249,11 +249,11 @@ const TopUpPage = () => {
             confirmCount: item.confirms && item.confirms > 0 ? item.confirms : 1,
           };
         })
-          .filter((item: any) => {
-            const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
-            return chainType
-          })
-        console.log('币种对应网络(链)', coinExtList, chainTypeList);
+          // .filter((item: any) => {
+          //   const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
+          //   return chainType
+          // })
+        // console.log('币种对应网络(链)', coinExtList, chainTypeList);
         setCoinExtSelect(coinExtList);
       } else {
         toast.error(res.message);
@@ -337,30 +337,30 @@ const TopUpPage = () => {
 
   }
   // 币种对应网络
-  const getChainTypeDeatil = async (chainType: string) => {
-    try {
-      const res = await getChainType(chainType);
-      if (res.code === '0') {
-        const chainRes = res.data.map((item: any) => {
-          return {
-            ...item,
-            label: item.chainName,
-            value: item.id,
-          }
-        })
-        // setChainTypeList(chainRes);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // const getChainTypeDeatil = async (chainType: string) => {
+  //   try {
+  //     const res = await getChainType(chainType);
+  //     if (res.code === '0') {
+  //       const chainRes = res.data.map((item: any) => {
+  //         return {
+  //           ...item,
+  //           label: item.chainName,
+  //           value: item.id,
+  //         }
+  //       })
+  //       // setChainTypeList(chainRes);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   // 5.网络选择
   const chainChange = async (value: number, option: any) => {
     const chainInfoAssign = Object.assign({}, coinInfo, option)
     setCoinInfo(chainInfoAssign)
     // console.log(chainInfoAssign, 999);
     // getChainTypeDeatil(option.chainType)
-    getChainTypeDeatil(option.symbol) //钱包网络对应代币-4.2已判断代币对应网络 可不用
+    // getChainTypeDeatil(option.symbol) //钱包网络对应代币-4.2已判断代币对应网络 可不用
 
     goSteps(3);
   }
@@ -456,7 +456,7 @@ const TopUpPage = () => {
   useEffect(() => {
     getTopUpCoinAllList();
     getCoinExtAllList();
-    getChainsAll();
+    // getChainsAll();
   }, [])
   // 添加 useEffect 来加载历史记录
   useEffect(() => {
