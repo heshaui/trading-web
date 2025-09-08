@@ -101,6 +101,34 @@
       "fundingRate": "費率為正，多頭倉位支付空頭倉位。費率為負，空頭倉位支付多頭倉位。預計本期多頭需支付給空頭持倉價值的0.0066%，實際資金費率以結算時間為準。"
     }
   },
+  "calculator": {
+    "title": "計算器",
+    "profitTab": "收益",
+    "closePriceTab": "平倉價格",
+    "liquidationTab": "強平價格",
+    "buyLong": "買入開多",
+    "sellShort": "賣出開空",
+    "leverage": "槓桿",
+    "maxPosition": "當前槓桿最高可持有頭寸數",
+    "openPrice": "開倉價格",
+    "closePrice": "平倉價格",
+    "quantity": "數量",
+    "calculate": "計算",
+    "result": "計算結果",
+    "openMargin": "開倉保證金",
+    "profit": "收益額",
+    "returnRate": "回報率",
+    "disclaimer": "*計算結果僅供參考，實際操作中可能會因為手續費、資金費率等因素導致結果出現偏差",
+    "marginMode": "保證金模式",
+    "crossMargin": "全倉",
+    "isolatedMargin": "逐倉",
+    "targetReturnRate": "目標回報率",
+    "positionSize": "倉位數量",
+    "availableBalance": "可用餘額",
+    "liquidationPrice": "強平價格",
+    "selectMarginMode": "請選擇保證金模式",
+    "noLiquidation": "不會被強制平倉"
+  },
   "tradingPanel": {
     "unit": "張"
   }

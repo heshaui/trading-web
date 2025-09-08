@@ -121,7 +121,8 @@
     "positionSize": "仓位数量",
     "availableBalance": "可用余额",
     "liquidationPrice": "强平价格",
-    "selectMarginMode": "请选择保证金模式"
+    "selectMarginMode": "请选择保证金模式",
+    "noLiquidation": "不会被强制平仓"
   },
   "tradingSettings": {
     "title": "交易设置",

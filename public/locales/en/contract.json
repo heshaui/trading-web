@@ -121,7 +121,8 @@
     "positionSize": "Position Size",
     "availableBalance": "Available Balance",
     "liquidationPrice": "Liquidation Price",
-    "selectMarginMode": "Select Margin Mode"
+    "selectMarginMode": "Select Margin Mode",
+    "noLiquidation": "No Liquidation Risk"
   },
   "tradingSettings": {
     "title": "Trading Settings",
