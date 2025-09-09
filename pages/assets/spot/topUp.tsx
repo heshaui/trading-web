@@ -627,7 +627,7 @@ const TopUpPage = () => {
                       onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
                     >
                       <div className="min-w-0">
-                        <p>{opt.coinName||'--'}</p>
+                        <p>{opt.symbol||'--'}</p>
                         <p className="text-[var(--text-color6)]">{opt.protocolName||'--'}（{opt.protocol||'--'}）</p>
                       </div>
                       <div className="shrink-0">{(confirmRemainingMap[String(opt.value)] ?? (opt.confirmCount ?? 1))}次确认</div>
