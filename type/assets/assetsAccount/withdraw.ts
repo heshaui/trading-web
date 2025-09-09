@@ -40,7 +40,8 @@ export interface coinExtSelectType {
     protocolName: string,
     browser: string,
     symbol: string,
-    chainId: number
+    chainId: number,
+    memoTag: number 
 }
 export interface addressSelectType {
     id: number,
@@ -100,7 +101,8 @@ export interface coinInfoType {
     minWithdraw: number, // 最小提币量-协议
     maxWithdraw: number, // 最大提币量-协议
     minRecharge: number,
-    confirms: number
+    confirms: number,
+    memoTag: number
 }
 export interface limitType {
     max: string,
