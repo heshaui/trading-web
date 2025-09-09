@@ -1274,7 +1274,7 @@ const WithdrawMoneyPage = observer(() => {
                       return (
                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                           <p className={`flex-y `}>
-                            <span>{option.data.coinName||'--'}</span>
+                            <span>{option.data.symbol||'--'}</span>
                             <span className={`${styles.tip_color}`}>
                               {option.data.protocolName||'--'}（{option.data.protocol||'--'}）
                             </span>
