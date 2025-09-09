@@ -261,8 +261,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       if (openPrice > 0 && position > 0) {
         let liquidationPriceValue = 0;
 
-        // 维持保证金率（通常为0.5%）
-        const maintenanceMarginRate = 0.005;
+        const maintenanceMarginRate = contractInfo.marginRate;
 
         if (contractInfo.contractSide === 1) {
           // 正向合约 (如BTCUSDT)
