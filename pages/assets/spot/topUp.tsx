@@ -168,7 +168,7 @@ const TopUpPage = () => {
       const res = await getProtocolTypeAll();
       if (res.code === '0') {
         const chainList = res.data.map((item: any) => {
-          return {
+        return {
             ...item,
             label: item.protocol,
             value: item.chainId,
@@ -496,11 +496,11 @@ const TopUpPage = () => {
                                     </div> */}
 
                         <div className="flex-x align-center font-14 font-w-400">
-                          <Image
+                        <Image
                             src={option.data.iconUrl}
                             alt={option.data.coinName}
-                            width={20}
-                            height={20}
+                          width={20}
+                          height={20}
                             className={styles.coninIcon}
                           />
                           &nbsp;
@@ -508,7 +508,7 @@ const TopUpPage = () => {
                           &nbsp;
                           <span className={styles.tip_color}>
                             {option.data.nameDefault}
-                          </span>
+                        </span>
                         </div>
                         {/* <div className="flex-y align-end font-14 font-w-500">
                           <span>{option.data.balance}</span>
@@ -563,8 +563,8 @@ const TopUpPage = () => {
                                     }}
                                   />
                                   {item.coinName}
-                                </button>
-                              ))}
+                            </button>
+                          ))}
                             </div>
                           ) : (
                             <p className="mt-2 mb-2_5">
@@ -594,7 +594,7 @@ const TopUpPage = () => {
                     className={`${styles.btn_style} cancel_btn5 mr-2`}
                     onClick={() => setFormCoin(item.value)}>
                     {item.coinName}
-                  </button>
+                </button>
                 ))}
               </div>
             </>
@@ -627,13 +627,13 @@ const TopUpPage = () => {
                       onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
                     >
                       <div className="min-w-0">
-                        <p>{opt.coinName||'--'}</p>
+                        <p>{opt.symbol||'--'}</p>
                         <p className="text-[var(--text-color6)]">{opt.protocolName||'--'}（{opt.protocol||'--'}）</p>
                       </div>
                       <div className="shrink-0">{(confirmRemainingMap[String(opt.value)] ?? (opt.confirmCount ?? 1))}次确认</div>
                     </div>
                   )) : <NoData />}
-                </div>
+                  </div>
               )}
             >
               <div ref={triggerRef} className="relative">
@@ -729,7 +729,7 @@ const TopUpPage = () => {
               </span>
             </p>
             {/* MEMO */}
-            {/* <div className={`${styles.qrCode_box} px-5 py-5 flex-x align-center mt-5`} >
+            {/*{coinInfo.memoTag===1 && <div className={`${styles.qrCode_box} px-5 py-5 flex-x align-center mt-5`} >
               <div className={`${styles.qr_code}`}>
                 <QRCode value="https://ant.design/"
                   color={isDayMode ? "#000" : "#fff"}
@@ -749,7 +749,7 @@ const TopUpPage = () => {
                 </div>
               </div>
 
-            </div> */}
+            </div> }*/}
             {/* 充值信息 */}
             <ul className={`${styles.qrCode_box} ${styles.tip_color} px-5 py-5  mt-5`} >
               <li className="flex-x algin-center  justify-between">
@@ -833,7 +833,7 @@ const TopUpPage = () => {
           />
         </div>
 
-        <div className={`${styles.card_box}  mt-6  `}>
+          <div className={`${styles.card_box}  mt-6  `}>
           {(() => {
             // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
             const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
@@ -847,24 +847,24 @@ const TopUpPage = () => {
 
             return needsMerchantRecharge ? <NoUseCom type="5" /> : needsKyc ? <NoUseCom type="1" /> : <></>
           })()}
-          <div
-            className={` w-full flex-x justify-between ${styles.card_content2}`}
-          >
-            <div className={`${styles.step_box}`}>
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Select: {
-                      clearBg: "#ffffff",
+            <div
+              className={` w-full flex-x justify-between ${styles.card_content2}`}
+            >
+              <div className={`${styles.step_box}`}>
+                <ConfigProvider
+                  theme={{
+                    components: {
+                      Select: {
+                        clearBg: "#ffffff",
                       selectorBg: "var(--background7)", // select框背景色 //transparent
-                      singleItemHeightLG: 50,
-                      paddingXXS: 10, // 下拉框选项最小内边距
-                      optionHeight: 40, //选项高度
-                      optionLineHeight: 2, //选项行高
-                    },
-                    Steps: {
-                      navArrowColor: "var(--text-color6)",
-                    },
+                        singleItemHeightLG: 50,
+                        paddingXXS: 10, // 下拉框选项最小内边距
+                        optionHeight: 40, //选项高度
+                        optionLineHeight: 2, //选项行高
+                      },
+                      Steps: {
+                        navArrowColor: "var(--text-color6)",
+                      },
                     Button: {
                       controlHeightLG: 50,
                       defaultBg: "var(--theme-color)",
@@ -883,9 +883,9 @@ const TopUpPage = () => {
                       defaultHoverBorderColor: "var(--theme-color)",
                       defaultHoverColor: "#fff",
                     },
-                  },
-                }}
-              >
+                    },
+                  }}
+                >
                 <Form form={form} disabled={isNotAllowToUp}>
                   <Steps
                     direction="vertical"
@@ -895,11 +895,11 @@ const TopUpPage = () => {
                     className="custom-steps"
                   />
                 </Form>
-              </ConfigProvider>
+                </ConfigProvider>
+              </div>
+              <TopUpSteps type="topUp" />
             </div>
-            <TopUpSteps type="topUp" />
-          </div>
-          <div className={`${styles.table_box} w-full `}>
+            <div className={`${styles.table_box} w-full `}>
             <RechargeTable coinId={coinInfo?.coinId ||form.getFieldValue('coinName')||''} />
           </div>
         </div>

@@ -102,8 +102,8 @@ const WithdrawMoneyPage = observer(() => {
   const [showMemo, setShowMemo] = useState(false);
 
   const [allowWithdraw, setAllowWithdraw] = useState(false);
-  const { resetState } = useResetStateContext();
-  const [addressInput, setAddressInput] = useState("");
+  // const { resetState } = useResetStateContext();
+  // const [addressInput, setAddressInput] = useState("");
   const [filteredAddressOptions, setFilteredAddressOptions] =
     useState(addressSelect);
 
@@ -111,7 +111,7 @@ const WithdrawMoneyPage = observer(() => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [userAllLimit, setUserAllLimit] = useState<limitType>({} as limitType);
-  const [btnSumbitError, setBtnSumbitError] = useState(false);
+  // const [btnSumbitError, setBtnSumbitError] = useState(false);
 
   // 在 useEffect 中获取用户信息
   useEffect(() => {
@@ -383,20 +383,20 @@ const WithdrawMoneyPage = observer(() => {
   };
 
   // 链名称(网络名称) - 已弃用，改为在币种选择时直接调用getCoinExt
-  const getCoinExtList = async () => {
-    const tenantId = form.getFieldValue("tenantId");
-    if (!tenantId) {
-      setCoinExtSelect([]);
-      return toast.error(t("assetsAccount.selectCoin"));
-    }
-    // 判断同币种不重复请求
-    if (coinIdHistory.toString() === tenantId.toString() || coinExtLoading)
-      return;
-    setCoinExtSelect([]); //初始化
-    setCoinIdHistory(tenantId);
-    // await getAllProtocolTypeList()
-    await getCoinExt(tenantId);
-  };
+  // const getCoinExtList = async () => {
+  //   const tenantId = form.getFieldValue("tenantId");
+  //   if (!tenantId) {
+  //     setCoinExtSelect([]);
+  //     return toast.error(t("assetsAccount.selectCoin"));
+  //   }
+  //   // 判断同币种不重复请求
+  //   if (coinIdHistory.toString() === tenantId.toString() || coinExtLoading)
+  //     return;
+  //   setCoinExtSelect([]); //初始化
+  //   setCoinIdHistory(tenantId);
+  //   // await getAllProtocolTypeList()
+  //   await getCoinExt(tenantId);
+  // };
   // 商户支持的币种协议(网络)-所有
   const getAllProtocolTypeList = async () => {
     try {
@@ -442,9 +442,9 @@ const WithdrawMoneyPage = observer(() => {
             ...protocol,
             label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"
               })`,
-            value: item.protocolId,
+            value: protocol?.id||null,
           };
-        });
+        }).filter((item: any) => item.value !== null)
         setCoinExtSelect(coinExtList);
       } else {
         toast.error(res.message);
@@ -616,12 +616,15 @@ const WithdrawMoneyPage = observer(() => {
     setAmountNum(getMinWithdraw("min") || 0);
     form.setFieldValue("amount", getMinWithdraw("min") || 0);
   };
-  const isMemo = () => {
-    // memoTag
-    const coinId = form.getFieldValue("tenantId");
-    const data = coinSelect.filter((item: any) => item.coinId == coinId);
-    return data[0]?.memoTag;
-  };
+  // memo币
+  const protocolIdWatch = Form.useWatch("protocolId", form);
+  const isMemo = useMemo(() => {
+    const opt = coinExtSelect.find((item: any) => {
+      const v = item?.value ?? item?.protocolId;
+      return String(v) === String(protocolIdWatch);
+    });
+    return Boolean(opt?.memoTag) || (Boolean(protocolIdWatch) && Boolean(coninInfo?.memoTag));
+  }, [protocolIdWatch, coinExtSelect, coninInfo?.memoTag]);
 
   // 金额
   const amountChange = (e: any) => {
@@ -726,24 +729,24 @@ const WithdrawMoneyPage = observer(() => {
   //         option.protocolName?.toLowerCase().includes(input.toLowerCase())
   //     );
   // };
-  const filterAddressOptions = (
-    inputValue: string,
-    option: addressSelectType | undefined
-  ): boolean => {
-    if (!option) return false; // 如果 option 为 undefined，直接返回 false
-    return (
-      option.addressName?.toLowerCase().includes(inputValue.toLowerCase()) ||
-      option.addressTitle?.toLowerCase().includes(inputValue.toLowerCase()) ||
-      option.protocolName?.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  };
+  // const filterAddressOptions = (
+  //   inputValue: string,
+  //   option: addressSelectType | undefined
+  // ): boolean => {
+  //   if (!option) return false; // 如果 option 为 undefined，直接返回 false
+  //   return (
+  //     option.addressName?.toLowerCase().includes(inputValue.toLowerCase()) ||
+  //     option.addressTitle?.toLowerCase().includes(inputValue.toLowerCase()) ||
+  //     option.protocolName?.toLowerCase().includes(inputValue.toLowerCase())
+  //   );
+  // };
 
   // 添加检查地址是否匹配的函数
-  const checkAddressMatch = (value: string) => {
-    if (!value) return;
-    const isMatch = addressSelect.some((item) => item.addressName === value);
-    setShowMemo(!isMatch); // 如果地址不匹配，显示 MEMO
-  };
+  // const checkAddressMatch = (value: string) => {
+  //   if (!value) return;
+  //   const isMatch = addressSelect.some((item) => item.addressName === value);
+  //   setShowMemo(!isMatch); // 如果地址不匹配，显示 MEMO
+  // };
   // 24h限额换算
   const getCoinRateData = (coinName: string, number: number | string) => {
     const { coinRate, price } = getCoinRate(
@@ -801,19 +804,19 @@ const WithdrawMoneyPage = observer(() => {
 
     // 检查是否为有效数字
     if (isNaN(amount)) {
-      setBtnSumbitError(true);
+      // setBtnSumbitError(true);
       return Promise.reject(t("withdrawMoney.invalidAmount"));
     }
 
     // 检查余额
     if (amount > coninInfo.balance) {
-      setBtnSumbitError(true);
+      // setBtnSumbitError(true);
       return Promise.reject(t("withdrawMoney.insufficientBalance"));
     }
 
     // 检查单笔最大限额
     if (amount > coninInfo.maxWithdraw) {
-      setBtnSumbitError(true);
+      // setBtnSumbitError(true);
       return Promise.reject(
         t("withdrawMoney.exceedMaxLimit3", { max: coninInfo.maxWithdraw })
       );
@@ -821,7 +824,7 @@ const WithdrawMoneyPage = observer(() => {
 
     // 检查单笔最小限额
     if (amount < coninInfo.minWithdraw) {
-      setBtnSumbitError(true);
+      // setBtnSumbitError(true);
       return Promise.reject(
         t("withdrawMoney.belowMinLimit3", { min: coninInfo.minWithdraw })
       );
@@ -834,7 +837,7 @@ const WithdrawMoneyPage = observer(() => {
     //     );
     // }
     if (amount > getCoinRateData(coninInfo.coinName, userAllLimit.max)) {
-      setBtnSumbitError(true);
+      // setBtnSumbitError(true);
       const max = getCoinRateData(coninInfo.coinName, userAllLimit.max);
       const min = getCoinRateData(coninInfo.coinName, userAllLimit.mix);
       return Promise.reject(
@@ -843,7 +846,7 @@ const WithdrawMoneyPage = observer(() => {
     }
 
     // 所有检查都通过
-    setBtnSumbitError(false);
+    // setBtnSumbitError(false);
     return Promise.resolve();
   };
 
@@ -1271,7 +1274,7 @@ const WithdrawMoneyPage = observer(() => {
                       return (
                         <div className="flex-x justify-between align-center py-1 font-14 font-w-400">
                           <p className={`flex-y `}>
-                            <span>{option.data.coinName||'--'}</span>
+                            <span>{option.data.symbol||'--'}</span>
                             <span className={`${styles.tip_color}`}>
                               {option.data.protocolName||'--'}（{option.data.protocol||'--'}）
                             </span>
@@ -1316,7 +1319,7 @@ const WithdrawMoneyPage = observer(() => {
                   />
                 </Form.Item>
                 {/* showMemo */}
-                {isMemo() ? (
+                {isMemo ? (
                   <p
                     className={`${styles.warning_box} font-12 font-w-400 flex align-start mb-1 mt-2_5`}
                   >
@@ -1332,7 +1335,7 @@ const WithdrawMoneyPage = observer(() => {
                   </p>
                 ) : null}
               </Form.Item>
-              {isMemo() ? (
+              {isMemo ? (
                 <Form.Item>
                   <Form.Item name="momo" noStyle>
                     <Input

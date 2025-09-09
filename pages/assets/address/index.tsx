@@ -317,13 +317,13 @@ const AddAdressPage = () => {
             <div className='flex justify-between align-center'>
                 <Breadcrumb items={[
                     {
-                        title: <Link href="/assets/assetsAccount"><span className={`${styles.tip_color}`}>
+                        title: <Link href="/assets/spot"><span className={`${styles.tip_color}`}>
                             {/* 现货账户 */}
                             {t('assets.assetsAccount')}
                         </span></Link>,
                     },
                     {
-                        title: <Link href="/assets/assetsAccount/withdrawMoney"><span className={`${styles.tip_color}`}>
+                        title: <Link href="/assets/spot/withdrawMoney"><span className={`${styles.tip_color}`}>
                             {/* 提现 */}
                             {t('assets.withdraw')}
                         </span></Link>,
