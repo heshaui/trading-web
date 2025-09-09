@@ -360,11 +360,6 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       if (orderType === 'market' && maxMarketVolume && numValue > maxMarketVolume) {
         return t("tradingPanel.validation.exceedsMaxMarketVolume", { max: maxMarketVolume });
       }
-      
-      const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
-      if (numValue > maxQuantity) {
-        return t("tradingPanel.validation.insufficientMargin") || "保证金余额不足";
-      }
     }
 
     // 价格和数量组合验证 - 验证最小和最大成交金额
@@ -581,12 +576,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       return false;
     }
 
-    // 验证数量是否超过余额限制
-    const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
-    if (quantityNum > maxQuantity) {
-      toast.error(t("tradingPanel.validation.insufficientMargin") || "保证金余额不足");
-      return false;
-    }
+    // // 验证数量是否超过余额限制
+    // const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
+    // if (quantityNum > maxQuantity) {
+    //   toast.error(t("tradingPanel.validation.insufficientMargin") || "保证金余额不足");
+    //   return false;
+    // }
 
     // 验证最大成交量限制
     const orderType = getOrderType();
