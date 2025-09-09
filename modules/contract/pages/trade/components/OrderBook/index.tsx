@@ -3,8 +3,10 @@ import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 import styles from "./style/index.module.css";
 import appStore from "@/store";
+import { useMarketInfo } from "@/hooks/useMarketInfo";
 const { currentContractInfo } = appStore
 const { Option } = Select;
+
 
 interface OrderBookItem {
   price: number;
@@ -57,7 +59,13 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>();
    const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
+   const { marketInfo, loadMarketInfo } = useMarketInfo();
 
+
+     // 使用Hook中的loadMarketInfo方法
+  const getMarketInfo = (id: number) => {
+    loadMarketInfo(id);
+  };
   // 组件装载时设置默认精度
   useEffect(() => {
     if (currentContractInfo.coinResultVo?.depth && currentContractInfo.coinResultVo.depth.length > 0 && precision === undefined) {
@@ -332,8 +340,9 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
               <div className={`text-xl font-semibold ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {Number(realtimeTradeData[0].price).toFixed(symbolPricePrecision)}
               </div>
-              <div className={`text-xs ${priceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {priceChange >= 0 ? '+' : ''}{priceChange}%
+              <div  className={`text-xs  ${styles.tagPrice}`}>
+                <Image src="/images/contract/Group.svg" style={{verticalAlign:'middle'}}></Image>
+                {Number(marketInfo.tagPrice).toFixed(symbolPricePrecision)}
               </div>
             </div>
           )}

@@ -127,6 +127,8 @@
   "tradingSettings": {
     "title": "交易设置",
     "confirm": "确定",
+    "editSuccess": "设置成功",
+    "editFailed": "设置失败",
     "positionType": "持仓类型",
     "positionTypeNote": "（持有任何合约仓位/有挂单时不可更改持仓类型）",
     "singlePosition": "单向持仓",

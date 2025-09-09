@@ -44,13 +44,13 @@ export const useHistoryCommission = (
   const getHistoryCommission = useCallback(
     async ({
       overrideContractId,
-      showLoading,
+      showLoading = false,
       showMessage = true,
     }: {
       overrideContractId?: number;
       showLoading?: boolean;
       showMessage?: boolean;
-    }) => {
+    } = {}) => { // 添加默认值 {}
       try {
         if (showLoading) setLoading(true);
         console.log("获取历史委托");

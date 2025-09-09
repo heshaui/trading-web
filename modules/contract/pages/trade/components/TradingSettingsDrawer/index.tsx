@@ -3,15 +3,21 @@ import { Drawer, Button, Switch, Radio } from 'antd';
 import { Iconify } from '@/components/icon';
 import styles from './styles.module.css';
 import { useTranslation } from 'next-i18next';
-
+import {editUserPageConfig} from "@/services/contract";
+import { toast } from 'sonner';
+import appStore from "@/store";
 interface TradingSettingsDrawerProps {
   visible: boolean;
   onClose: () => void;
+  editSuccessText?: string;
+  editFailedText?: string;
 }
 
 const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
   visible,
-  onClose
+  onClose,
+  editSuccessText,
+  editFailedText
 }) => {
   const { t } = useTranslation('contract');
   const [positionMode, setPositionMode] = useState<'single' | 'hedge'>('hedge');
@@ -20,6 +26,27 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
   const [preOrderConfirm, setPreOrderConfirm] = useState(true);
   const [reverseConfirm, setReverseConfirm] = useState(true);
   const [isShow, setIsShow] = useState(false);
+  const userConfig = appStore.getUserConfig();
+  
+  // 检查是否可以切换持仓模式
+  const canSwitchPositionMode = userConfig?.positionModelCanSwitch !== 0;
+  const handleEditUserPageConfig = async () => {
+    // 如果不能切换持仓模式，跳过API调用
+    if (!canSwitchPositionMode) {
+      return;
+    }
+    
+    const ContractInfo = appStore.getCurrentContractInfo();
+    const res = await editUserPageConfig({
+      contractId: ContractInfo.id,
+      positionModel: positionMode === 'single' ? 1 : 2,
+    });
+    if (res.code === '0') {
+      toast.success(editSuccessText || t('tradingSettings.editSuccess'));
+    } else {
+      toast.error(res.message || editFailedText || t('tradingSettings.editFailed'));
+    }
+  };
 
   // 组件装载时从 localStorage 读取设置
   useEffect(() => {
@@ -27,7 +54,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
       const savedSettings = localStorage.getItem('tradingSettings');
       if (savedSettings) {
         const settings = JSON.parse(savedSettings);
-        setPositionMode(settings.positionMode || 'hedge');
+        setPositionMode(settings.positionMode || userConfig.positionMode === 1 ? 'single' : 'hedge');
         setContractUnit(settings.contractUnit || '张');
         setOrderValidity(settings.orderValidity || '14天');
         setPreOrderConfirm(settings.preOrderConfirm !== false); // 默认为true
@@ -66,6 +93,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
         reverseConfirm,
         updatedAt: Date.now()
       };
+      handleEditUserPageConfig()
       localStorage.setItem('tradingSettings', JSON.stringify(settings));
       
       // 同步更新旧的 localStorage 键（保持向后兼容）
@@ -144,7 +172,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
     >
       <div className={styles.settingsContent}>
         {/* 持仓类型 */}
-        {isShow && (
+    
           <div className={styles.settingSection}>
             <div className={styles.sectionTitle}>
               <span>{t('tradingSettings.positionType')}：</span>
@@ -155,8 +183,9 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
 
             <div className={styles.positionModes}>
               <div
-                className={`${styles.positionMode} ${positionMode === 'single' ? styles.selectedMode : ''}`}
-                onClick={() => setPositionMode('single')}
+                className={`${styles.positionMode} ${positionMode === 'single' ? styles.selectedMode : ''} ${!canSwitchPositionMode ? styles.disabledMode : ''}`}
+                onClick={() => canSwitchPositionMode && setPositionMode('single')}
+                style={!canSwitchPositionMode ? { cursor: 'not-allowed', opacity: 0.5 } : {}}
               >
                 <div className={styles.radioWrapper}>
                   <div className={`${styles.radioButton} ${positionMode === 'single' ? styles.radioChecked : ''}`}>
@@ -172,8 +201,9 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
               </div>
 
               <div
-                className={`${styles.positionMode} ${positionMode === 'hedge' ? styles.selectedMode : ''}`}
-                onClick={() => setPositionMode('hedge')}
+                className={`${styles.positionMode} ${positionMode === 'hedge' ? styles.selectedMode : ''} ${!canSwitchPositionMode ? styles.disabledMode : ''}`}
+                onClick={() => canSwitchPositionMode && setPositionMode('hedge')}
+                style={!canSwitchPositionMode ? { cursor: 'not-allowed', opacity: 0.5 } : {}}
               >
                 <div className={styles.radioWrapper}>
                   <div className={`${styles.radioButton} ${positionMode === 'hedge' ? styles.radioChecked : ''}`}>
@@ -189,7 +219,7 @@ const TradingSettingsDrawer: React.FC<TradingSettingsDrawerProps> = ({
               </div>
             </div>
           </div>
-        )}
+
 
         {/* 合约单位 */}
         {isShow && (

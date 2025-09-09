@@ -1,3 +1,8 @@
 .background {
   border-radius: 2px;
 }
+
+.tagPrice{
+  color:var(--theme-color);
+  
+}
