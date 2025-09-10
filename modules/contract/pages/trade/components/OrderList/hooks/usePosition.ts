@@ -46,7 +46,6 @@ export const usePosition = (options: UsePositionOptions = {}) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
   const [positionNumber, setPositionNumber] = useState(0);
-  // 币对精度
 
   // 获取仓位数据
   const getPosition = useCallback(async ({ showLoading, showMessage = true }: { showLoading?: boolean, showMessage?: boolean } = {}) => {
@@ -73,14 +72,6 @@ export const usePosition = (options: UsePositionOptions = {}) => {
     }
   }, [contractId]);
 
-  // 根据symbol过滤仓位数据
-  const getFilteredPositions = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return positions;
-      return positions.filter((item) => item.symbol === currentSymbol);
-    },
-    [positions]
-  );
 
   // 快速平仓
   const quickClose = useCallback(
@@ -131,7 +122,6 @@ export const usePosition = (options: UsePositionOptions = {}) => {
     loading,
     positionNumber,
     getPosition,
-    getFilteredPositions,
     quickClose,
   };
 };

@@ -81,23 +81,12 @@ export const useConditionalCommission = (
     [getConditionalCommission]
   );
 
-  // 根据symbol过滤数据
-  const getFilteredConditionalCommission = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return conditionalCommission;
-      return conditionalCommission.filter(
-        (item) => item.symbol === currentSymbol
-      );
-    },
-    [conditionalCommission]
-  );
 
   return {
     conditionalCommission,
     loading,
     getConditionalCommission,
     handleCancelConditionalOrder,
-    getFilteredConditionalCommission,
   };
 };
 
