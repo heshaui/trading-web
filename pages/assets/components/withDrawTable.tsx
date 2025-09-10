@@ -347,7 +347,7 @@ const WithdrawMoneyTable = ({ coinId }: Props) => {
                             </span>
                         </Checkbox>
                         <button className='flex-x align-center font-16' onClick={() => {
-                            router.push(ROUTER_KEY_SPOT.BILL)
+                            router.push(`${ROUTER_KEY_SPOT.BILL}?cardType=WITHDRAW`)
                         }}>
                             {t('withdrawTable.more')}
                             <Iconify icon="mingcute:right-line" size={26} />
