@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { observer } from 'mobx-react-lite';
 import { Select, Tooltip, Image } from "antd";
 import { useTranslation } from "next-i18next";
 import styles from "./style/index.module.css";
 import appStore from "@/store";
 import { useMarketInfo } from "@/hooks/useMarketInfo";
-const { currentContractInfo } = appStore
 const { Option } = Select;
 
 
@@ -54,26 +54,24 @@ interface RealtimeTradeProps {
 }
 
 // 委托列表组件
-const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeData, onPriceClick, onPrecisionChange, style }) => {
+const OrderBookList: React.FC<OrderBookProps> = observer(({ orderBookData, realtimeTradeData, onPriceClick, onPrecisionChange, style }) => {
   const { t } = useTranslation(["contract", "spot"]);
   const [colorMode, setColorMode] = useState<"both" | "buy" | "sell">("both");
   const [precision, setPrecision] = useState<number>();
-   const symbolPricePrecision=currentContractInfo.coinResultVo.symbolPricePrecision
-   const { marketInfo, loadMarketInfo } = useMarketInfo();
-
-
-     // 使用Hook中的loadMarketInfo方法
-  const getMarketInfo = (id: number) => {
-    loadMarketInfo(id);
-  };
-  // 组件装载时设置默认精度
+  const { currentContractInfo } = appStore;
+  const symbolPricePrecision = currentContractInfo.coinResultVo.symbolPricePrecision;
+  const { marketInfo, loadMarketInfo } = useMarketInfo();
+  // 当合约信息变化时重新设置默认精度
   useEffect(() => {
-    if (currentContractInfo.coinResultVo?.depth && currentContractInfo.coinResultVo.depth.length > 0 && precision === undefined) {
+    if (currentContractInfo.coinResultVo?.depth && currentContractInfo.coinResultVo.depth.length > 0) {
       const defaultPrecision = currentContractInfo.coinResultVo.depth[0];
-      setPrecision(defaultPrecision);
-      // 通知父组件默认精度
-      if (onPrecisionChange) {
-        onPrecisionChange(defaultPrecision);
+      // 如果当前精度未设置，或者当前精度不在新的深度选项中，则重新设置
+      if (precision === undefined || !currentContractInfo.coinResultVo.depth.includes(precision)) {
+        setPrecision(defaultPrecision);
+        // 通知父组件默认精度
+        if (onPrecisionChange) {
+          onPrecisionChange(defaultPrecision);
+        }
       }
     }
   }, [currentContractInfo.coinResultVo?.depth, precision, onPrecisionChange]);
@@ -90,7 +88,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
   // 使用 useMemo 优化性能，处理WebSocket数据
   const { sellOrders, buyOrders, priceChange } = useMemo(() => {
     if (orderBookData?.tick) {
-      const { asks, buys, lastPrice, priceChange } = orderBookData.tick;
+      const { asks, buys, priceChange } = orderBookData.tick;
 
       // 根据显示模式决定显示数量：both模式显示6条，单独模式显示12条
       const displayCount = colorMode === "both" ? 6 : 12;
@@ -341,7 +339,7 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
                 {Number(realtimeTradeData[0].price).toFixed(symbolPricePrecision)}
               </div>
               <div  className={`text-xs  ${styles.tagPrice}`}>
-                <Image src="/images/contract/Group.svg" style={{verticalAlign:'middle'}}></Image>
+                <Image src="/images/contract/Group.svg" alt="" style={{verticalAlign:'middle'}}></Image>
                 {Number(marketInfo.tagPrice).toFixed(symbolPricePrecision)}
               </div>
             </div>
@@ -399,12 +397,10 @@ const OrderBookList: React.FC<OrderBookProps> = ({ orderBookData, realtimeTradeD
       </div>
     </div>
   );
-};
+});
 
 // 实时成交组件
 const RealtimeTrade: React.FC<RealtimeTradeProps> = ({
-  tradeData,
-  orderBookData,
   realtimeTradeData,
   onPriceClick,
   style

@@ -686,7 +686,7 @@ const TradePage = () => {
 
         const data = JSON.parse(message);
 
-
+        console.log("ws——————data",data)
         // 处理K线数据 - 动态检查不同时间间隔的K线数据
         if (data.channel && data.channel.includes("_kline_")) {
           // 直接传递原始WebSocket数据给TradingView组件处理
