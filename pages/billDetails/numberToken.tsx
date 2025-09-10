@@ -36,8 +36,10 @@ interface DataType {
 }
 const NumberToken = () => {
   const { t } = useTranslation(["assets"]);
-  const [tableData, setTableData] = useState<DataType[]>([]);
+  // const [tableData, setTableData] = useState<DataType[]>([]);
   const router = useRouter();
+  const {cardType} = router.query;
+
   const paramdataRef = useRef({
     page: 1,
     pageSize: 10,
@@ -50,7 +52,7 @@ const NumberToken = () => {
   const [rebateData, setRebateData] = useState<RebateDataType[]>([]);
 
   const [orderType, setOrderType] = useState("RECHARGE");
-  const [search, setSearch] = useState("");
+  // const [search, setSearch] = useState("");
 
   const [tableLoading, setTableLoading] = useState(false);
   const [coinSelect, setCoinSelect] = useState<coinSelectType[]>([]);
@@ -93,7 +95,7 @@ const NumberToken = () => {
     // setSearch(e.target.value)
     // paramdataRef.current.search = e.target.value
 
-    setSearch(value);
+    // setSearch(value);
     paramdataRef.current.search = value;
     searchChange();
   };
@@ -109,7 +111,7 @@ const NumberToken = () => {
     try {
       const res = await getOrderList(pageParam);
       if (res.code === "0") {
-        setTableData(res.data.list);
+        // setTableData(res.data.list);
         paramdataRef.current.total = res.data.count;
         if (paramdataRef.current.type === "RECHARGE") {
           setRechargeData(res.data.list);
@@ -163,6 +165,16 @@ const NumberToken = () => {
     getCoinAllData();
     getBillDetails();
   }, []);
+  
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (cardType && cardTypeSeelect.some((opt) => opt.value === cardType)) {
+      setOrderType(cardType as string);
+      paramdataRef.current.type = cardType as string;
+      searchChange();
+    }
+  }, [router.isReady, cardType]);
+  
 
   return (
     <>
@@ -217,7 +229,7 @@ const NumberToken = () => {
               options={cardTypeSeelect}
               className={`${styles.select_box} custom-select h-[50px]`}
               onChange={topUpTypeChange}
-              defaultValue={"RECHARGE"}
+              value={orderType}
             />
           </div>
           {/* 充值 */}
