@@ -76,6 +76,12 @@ const AssetsMainPage = observer(() => {
   const userInfo = appStore.getUserInfo();
   const balanceDataRef = useRef<WebSocketService | null>(null);
   const financialConfig = appStore.financialConfig;
+// 获取法币精度
+  const accuracy=useMemo(()=>{
+    const accuracyNum=rateData.find((item: any) => item.shortName === rateKey)?.accuracy;
+    return accuracyNum|| 2
+  },[rateKey,rateData])
+
   const columns: ColumnsType<DataType> = [
     {
       title: t("assetsAccount.currency"), //"币种",
@@ -121,12 +127,12 @@ const AssetsMainPage = observer(() => {
         const rateKeyName = rateKey.split("-")[0].trim();
 
         // 确保 rateKeyName 有值
-        const { ratetext } = getRate(record.coinName, text2, rateKeyName);
-
+        const { rate,symbol } = getRate(record.coinName, text2, rateKeyName);
+        // const accuracy = rateData.find((item: any) => item.shortName === rateKeyName)?.accuracy;
         return (
           <p className="flex-y align-end">
             <span>{text2 ? roundDown(text2, coin?.unitScale) : "0"}</span>
-            <span className="ltr-text">{record.coinName ? ratetext : ""}</span>
+            <span className="ltr-text">{symbol||'--'}{record.coinName ? roundDown(rate, accuracy||2) : ""}</span>
           </p>
         );
       },
@@ -205,11 +211,10 @@ const AssetsMainPage = observer(() => {
           {
             label: t("assetsAccount.button.flash"),
             key: "flash",
-            className: `${
-              coin?.isTradeConvert === 0
+            className: `${coin?.isTradeConvert === 0
                 ? styles.tip_color2
                 : styles.theme_color
-            } font-12 font-w-500`,
+              } font-12 font-w-500`,
             disabled: coin?.isTradeConvert === 0,
             onClick: () => goFlash(record.coinName),
           },
@@ -217,22 +222,21 @@ const AssetsMainPage = observer(() => {
           ...(financialConfig.financialSwitch ===
             FunctionSwitchStatusEnum.OPEN && record.isFinancialCoin === 1
             ? [
-                {
-                  label: t("assetsAccount.button.financial"),
-                  key: "financial",
-                  className: `${styles.theme_color} font-12 font-w-500`,
-                  onClick: () => goFinancial(record.coinName),
-                },
-              ]
+              {
+                label: t("assetsAccount.button.financial"),
+                key: "financial",
+                className: `${styles.theme_color} font-12 font-w-500`,
+                onClick: () => goFinancial(record.coinName),
+              },
+            ]
             : []),
           // 提现
           {
             label: t("assetsAccount.button.withdraw"),
             key: "withdraw",
             disabled: coin?.canWithdraw === 0,
-            className: `${
-              coin?.canWithdraw === 0 ? styles.tip_color2 : styles.theme_color
-            } font-12 font-w-500`,
+            className: `${coin?.canWithdraw === 0 ? styles.tip_color2 : styles.theme_color
+              } font-12 font-w-500`,
             onClick: () => getCoinList("1", record.coinId, coin?.canWithdraw),
           },
           // 充值
@@ -240,9 +244,8 @@ const AssetsMainPage = observer(() => {
             label: t("assetsAccount.button.deposit"),
             key: "deposit",
             disabled: coin?.canRecharge === 0,
-            className: `${
-              coin?.canRecharge === 0 ? styles.tip_color2 : styles.theme_color
-            } font-12 font-w-500`,
+            className: `${coin?.canRecharge === 0 ? styles.tip_color2 : styles.theme_color
+              } font-12 font-w-500`,
             onClick: () => getCoinList("2", record.coinId, coin?.canRecharge),
           },
           // 交易
@@ -250,9 +253,8 @@ const AssetsMainPage = observer(() => {
             label: t("assetsAccount.button.trade"),
             key: "trade",
             disabled: !coinPairData,
-            className: `${
-              !coinPairData ? styles.tip_color2 : styles.theme_color
-            } font-12 font-w-500`,
+            className: `${!coinPairData ? styles.tip_color2 : styles.theme_color
+              } font-12 font-w-500`,
             onClick: () =>
               getCoinList(
                 "3",
@@ -722,7 +724,7 @@ const AssetsMainPage = observer(() => {
         balanceDataRef.current = null;
         // 延迟重试，避免热循环
         setTimeout(() => {
-          try { setupBalanceWebSocket(); } catch {}
+          try { setupBalanceWebSocket(); } catch { }
         }, 3000);
       });
     } catch (err) {
@@ -870,13 +872,15 @@ const AssetsMainPage = observer(() => {
                     </span>
                     <span>
                       {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
-                      ≈ {balanceAll.usdBalance || 0}&nbsp;
+                      ≈ 
+                      {roundDown(balanceAll.usdBalance || 0, accuracy||2)}&nbsp;
                       {!rateKeyName ||
-                      rateKeyName === "" ||
-                      rateKeyName === "NaN"
+                        rateKeyName === "" ||
+                        rateKeyName === "NaN"
                         ? "--"
                         : rateKeyName}
                     </span>
+                    
                   </p>
                 </li>
               </Skeleton>
@@ -907,12 +911,12 @@ const AssetsMainPage = observer(() => {
                     <span>
                       ≈
                       {/* &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp; */}
-                      &nbsp;{todayProfitFiat || "0"}&nbsp;
+                      &nbsp;{roundDown(todayProfitFiat || 0, accuracy||2)}&nbsp;
                       {/* USD */}
                       {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                       {!rateKeyName ||
-                      rateKeyName === "" ||
-                      rateKeyName === "NaN"
+                        rateKeyName === "" ||
+                        rateKeyName === "NaN"
                         ? "--"
                         : rateKeyName}
                     </span>

@@ -386,28 +386,28 @@ class AppStore {
   // 从本地存储初始化 rate_key
   initRateKeyFromStorage() {
     if (!isBrowser()) return;
-
     try {
       // 首先尝试从 rate_key 获取
-      const rateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
-
+      const localRateKey = localStorage.getItem(LOCAL_STORAGE_KEY.RATE_KEY);
+      const rateData = localStorage.getItem(
+        LOCAL_STORAGE_KEY.RATE_DATA
+      );
+      const parsedData = JSON.parse(rateData || "[]");
+      const rateKey = parsedData?.find((item: any) => item.shortName === localRateKey)?.shortName;
       if (rateKey) {
         this.rateKey = rateKey;
         // return rateKey;
       } else {
         // 如果没有 rate_key，尝试从 key === "USD" 如果还是没有就 获取第一项
-        const rateData = localStorage.getItem(
-          LOCAL_STORAGE_KEY.CACHED_RATE_DATA
-        );
+
         if (rateData) {
-          const parsedData = JSON.parse(rateData);
 
           if (parsedData && parsedData.length > 0) {
-            const usdRate = parsedData.find((item: any) => item.key === "USD");
+            const usdRate = parsedData.find((item: any) => item.shortName === "USD");
             if (usdRate) {
-              this.rateKey = usdRate.key;
+              this.rateKey = usdRate.shortName;
             } else {
-              this.rateKey = parsedData[0].key;
+              this.rateKey = parsedData[0].shortName;
             }
             localStorage.setItem(LOCAL_STORAGE_KEY.RATE_KEY, this.rateKey);
             // return parsedData[0].span;
