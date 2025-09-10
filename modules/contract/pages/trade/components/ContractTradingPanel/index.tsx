@@ -965,7 +965,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     onChange={handlePriceChange}
                     placeholder={t("tradingPanel.orderPrice")}
                     className={`w-[100%] h-[50px] text-[var(--text-color5)] text-[14px] rounded-[6px] ${validationErrors.price ? styles.inputError : ''}`}
-                    suffix="USDT"
+                    suffix={currentContractInfo.quote}
                     style={{ width: currentCategory === 3 ? "80%" : "100%" }}
                   />
                   {currentCategory === 3 && <Button type="text">{t("tradingPanel.marketPrice")}</Button>}
