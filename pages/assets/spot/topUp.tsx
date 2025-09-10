@@ -452,6 +452,9 @@ const TopUpPage = () => {
     }
 
   }
+  const onCoinSearch = (value: string) => {
+    console.log(value,999);
+  }
 
   useEffect(() => {
     getTopUpCoinAllList();
@@ -486,6 +489,20 @@ const TopUpPage = () => {
                   allowClear={false}
                   placeholder={t("withdrawMoney.select")}
                   options={coinList || []} // 添加默认空数组
+                  showSearch
+                  filterOption={(input, option) => {
+                    // console.log(input,option,999);
+                    const data = (option && (option as any)) || {};
+                    const query = (input || '')
+                      .toLowerCase()
+                      .trim()
+                      .replace(/\s+/g, '');
+                    if (!query) return true;
+
+                    return data.coinName?.toLowerCase().includes(query)||
+                    data.nameDefault?.toLowerCase().includes(query) 
+                  }}
+                  onSearch={onCoinSearch}
                   className={`${styles.select_box} custom-select`}
                   optionRender={(option) => {
                     if (!option?.data) return null; // 添加空值检查

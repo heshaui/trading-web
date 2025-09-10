@@ -47,6 +47,7 @@ const LanguageMenu = observer(() => {
         key={item.key}
         style={{
           fontWeight: rateKey === item.key ? "500" : "400",
+          backgroundColor: rateKey === item.key ? "var(--background6)" : "transparent",
           cursor: "pointer",
           width: "100%",
         }}
@@ -74,6 +75,7 @@ const LanguageMenu = observer(() => {
         key={item.key}
         style={{
           fontWeight: langKey === item.key ? "500" : "400",
+          backgroundColor: langKey === item.key ? "var(--background6)" : "transparent",
           cursor: "pointer",
           width: "100%",
         }}
