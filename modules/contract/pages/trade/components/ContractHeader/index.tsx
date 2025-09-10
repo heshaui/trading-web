@@ -4,19 +4,25 @@ import { Tooltip } from "antd";
 import SymbolSelector from "../SymbolSelector";
 import appStore from "@/store";
 import { useMarketInfo } from "@/hooks/useMarketInfo";
+import { useUserConfig } from "@/hooks/useUserConfig";
 const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CSSProperties }) => {
   const { t } = useTranslation(["contract"]);
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
   const [currentSymbol, setCurrentSymbol] = useState<any>(currentContractInfo);
   const { marketInfo, loadMarketInfo } = useMarketInfo();
+  const { loadUserConfig } = useUserConfig();
 
 
   const handleSymbolSelect = (symbol: any) => {
     
     appStore.setCurrentContractInfo(symbol.id);
     setCurrentSymbol(symbol);
-
+    
+    // 重新加载用户配置，传递新的合约ID
+    loadUserConfig({
+      contractId: symbol.id,
+    });
   };
 
   const handleToggleFavorite = (symbol: any) => {

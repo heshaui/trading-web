@@ -114,7 +114,7 @@ const LeverageModal: React.FC<LeverageModalProps> = ({
         // 最后关闭模态框
         onClose();
       } else {
-        toast.error(res.message || t('leverageModal.settingFailed'));
+        toast.error(res.msg || t('leverageModal.settingFailed'));
       }
     } catch (error) {
       toast.error(t('leverageModal.settingFailedRetry'));
