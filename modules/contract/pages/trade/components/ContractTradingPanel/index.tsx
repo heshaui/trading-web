@@ -1016,15 +1016,15 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                 <div className="flex items-center justify-between text-[14px] text-[var(--text-color6)] font-[400]">
                   <div className="flex items-center gap-[4px]">
                     <span style={{color:'#00C788'}}>
-                      {transactionType === 2 ? t('tradingPanel.canCloseShort') : t('tradingPanel.canBuy')} {t("tradingPanel.unit")}
+                      {transactionType === 2 ? t('tradingPanel.canCloseShort') : t('tradingPanel.canBuy')}
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("BUY"), 0 )} {currentContractInfo.coUnit}</span>
+                    <span>{formatNumber(calculateMaxQuantity("BUY"), 0 )} {currentContractInfo.coUnit}  {t("tradingPanel.unit")}</span>
                   </div>
                   <div className="flex items-center gap-[4px]">
                     <span style={{color:'#FF4D4F'}}>
-                      {transactionType === 2 ? t('tradingPanel.canCloseLong') : t('tradingPanel.canSell')} {t("tradingPanel.unit")}
+                      {transactionType === 2 ? t('tradingPanel.canCloseLong') : t('tradingPanel.canSell')} 
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("SELL"),0)} {currentContractInfo.coUnit}</span>
+                    <span>{formatNumber(calculateMaxQuantity("SELL"),0)} {currentContractInfo.coUnit}  {t("tradingPanel.unit")}</span>
                   </div>
                 </div>
               </div>
