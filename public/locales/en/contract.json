@@ -122,7 +122,9 @@
     "availableBalance": "Available Balance",
     "liquidationPrice": "Liquidation Price",
     "selectMarginMode": "Select Margin Mode",
-    "noLiquidation": "No Liquidation Risk"
+    "noLiquidation": "No Liquidation Risk",
+    "positionTooLarge": "Position size exceeds maximum allowed",
+    "insufficientBalance": "Insufficient balance to open position"
   },
   "tradingSettings": {
     "title": "Trading Settings",

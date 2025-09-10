@@ -175,7 +175,9 @@
     "positionSize": "ポジションサイズ",
     "availableBalance": "利用可能残高",
     "liquidationPrice": "強制決済価格",
-    "selectMarginMode": "証拠金モードを選択"
+    "selectMarginMode": "証拠金モードを選択",
+    "positionTooLarge": "ポジションサイズが最大許容値を超えています",
+    "insufficientBalance": "ポジションを開くのに十分な残高がありません"
   },
   "tradingSettings": {
     "title": "取引設定",

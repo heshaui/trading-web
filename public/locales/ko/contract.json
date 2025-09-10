@@ -120,7 +120,9 @@
     "positionSize": "포지션 크기",
     "availableBalance": "사용 가능 잔고",
     "liquidationPrice": "강제 청산 가격",
-    "selectMarginMode": "증거금 모드 선택"
+    "selectMarginMode": "증거금 모드 선택",
+    "positionTooLarge": "포지션 크기가 최대 허용값을 초과했습니다",
+    "insufficientBalance": "포지션을 열기에 충분한 잔고가 없습니다"
   },
   "tradingSettings": {
     "title": "거래 설정",

@@ -123,7 +123,9 @@
     "liquidationPrice": "强平价格",
     "selectMarginMode": "请选择保证金模式",
     "noLiquidation": "不会被强制平仓",
-    "cannotAchieveReturn": "无法达到该收益率"
+    "cannotAchieveReturn": "无法达到该收益率",
+    "positionTooLarge": "仓位数量超过最大允许值",
+    "insufficientBalance": "可用余额不足以开仓"
   },
   "tradingSettings": {
     "title": "交易设置",

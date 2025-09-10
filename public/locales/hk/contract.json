@@ -127,7 +127,8 @@
     "availableBalance": "可用餘額",
     "liquidationPrice": "強平價格",
     "selectMarginMode": "請選擇保證金模式",
-    "noLiquidation": "不會被強制平倉"
+    "noLiquidation": "不會被強制平倉",
+    "positionTooLarge": "倉位數量超過最大允許值"
   },
   "tradingPanel": {
     "unit": "張"

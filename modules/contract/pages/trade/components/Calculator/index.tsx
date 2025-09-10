@@ -59,39 +59,44 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
   const [availableBalance, setAvailableBalance] = useState<string>(''); // 可用余额
   const [marginMode, setMarginMode] = useState<1 | 2>(1); // 保证金模式：1全仓，2逐仓
   const [liquidationPrice, setLiquidationPrice] = useState<string>('0 USDT'); // 计算出的强平价格
-  const [formData, setFormData] = useState<FormData>({
-    formData_1: { title: t('calculator.openPrice'), units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
-    formData_2: { title: t('calculator.closePrice'), units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
-    formData_3: { title: t('calculator.quantity'), units: coUnit, fix: volfix, errorText: null, value: null, isShow: true },
-  });
+  const [positionError, setPositionError] = useState<string>(''); // 仓位验证错误信息
+  const [formData, setFormData] = useState<FormData>(() => ({
+    formData_1: { title: '', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
+    formData_2: { title: '', units: priceUnit, fix: 8, errorText: null, value: null, isShow: true },
+    formData_3: { title: '', units: coUnit, fix: volfix, errorText: null, value: null, isShow: true },
+  }));
 
   // 杠杆标记点
-  const leverageMarks = {
+  const leverageMarks = React.useMemo(() => ({
     1: '1x',
     25: '25x',
     50: '50x',
     75: '75x',
     100: '100x',
     125: '125x'
-  };
+  }), []);
 
   // Tabs 配置
-  const tabItems = [
+  const profitTabLabel = t('calculator.profitTab');
+  const closePriceTabLabel = t('calculator.closePriceTab');
+  const liquidationTabLabel = t('calculator.liquidationTab');
+  
+  const tabItems = React.useMemo(() => [
     {
       key: '1',
-      label: t('calculator.profitTab'),
+      label: profitTabLabel,
     },
     {
       key: '2',
-      label: t('calculator.closePriceTab'),
+      label: closePriceTabLabel,
     },
     {
       key: '3',
-      label: t('calculator.liquidationTab'),
+      label: liquidationTabLabel,
     },
-  ];
+  ], [profitTabLabel, closePriceTabLabel, liquidationTabLabel]);
 
-  const initForm = () => {
+  const initForm = React.useCallback(() => {
     setOpenMargin('0 USDT');
     setRevenue('0 USDT');
     setReturnRate('0%');
@@ -100,13 +105,14 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
     setPositionSize('');
     setAvailableBalance('');
     setLiquidationPrice('0 USDT');
-    setFormData({
-      formData_1: { ...formData.formData_1, value: null, errorText: null },
-      formData_2: { ...formData.formData_2, value: null, errorText: null },
-      formData_3: { ...formData.formData_3, value: null, errorText: null },
-    });
+    setPositionError('');
+    setFormData(prev => ({
+      formData_1: { ...prev.formData_1, value: null, errorText: null },
+      formData_2: { ...prev.formData_2, value: null, errorText: null },
+      formData_3: { ...prev.formData_3, value: null, errorText: null },
+    }));
     form.resetFields();
-  };
+  }, [form]);
 
   useEffect(() => {
     if (isShow) {
@@ -114,20 +120,37 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       initForm();
       setLeverage(1);
     }
-  }, [isShow]);
+  }, [isShow, initForm]);
+
+  // 验证仓位数量是否可行
+  const validatePositionSize = React.useCallback((openPrice: number, position: number, balance: number) => {
+    if (openPrice <= 0 || position <= 0) return true;
+
+    let maxPosition = 0;
+    
+    if (contractInfo.contractSide === 1) {
+      // 正向合约：最大仓位 = (可用余额 × 杠杆) / (开仓价格 × 面值)
+      maxPosition = (balance * leverage) / (openPrice * multiplier);
+    } else {
+      // 反向合约：最大仓位 = (可用余额 × 杠杆 × 开仓价格) / 面值
+      maxPosition = (balance * leverage * openPrice) / multiplier;
+    }
+
+    return position <= maxPosition;
+  }, [leverage, multiplier, contractInfo.contractSide]);
 
   // 当语言变化时，更新表单数据的标题
+  const openPriceLabel = t('calculator.openPrice');
+  const closePriceLabel = t('calculator.closePrice');
+  const quantityLabel = t('calculator.quantity');
+  
   useEffect(() => {
-    setFormData({
-      formData_1: { ...formData.formData_1, title: t('calculator.openPrice') },
-      formData_2: { ...formData.formData_2, title: t('calculator.closePrice') },
-      formData_3: { ...formData.formData_3, title: t('calculator.quantity') },
-    });
-  }, [t]);
-
-  if (!isShow) {
-    return null;
-  }
+    setFormData(prev => ({
+      formData_1: { ...prev.formData_1, title: openPriceLabel },
+      formData_2: { ...prev.formData_2, title: closePriceLabel },
+      formData_3: { ...prev.formData_3, title: quantityLabel },
+    }));
+  }, [openPriceLabel, closePriceLabel, quantityLabel]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -136,48 +159,58 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
     }, 300);
   };
 
-  const switchType = (type: string, id: number) => {
+  const switchType = React.useCallback((type: string, id: number) => {
     if (type === 'sideType') setSideType(id);
     initForm();
-  };
+  }, [initForm]);
 
-  const handleTabChange = (key: string) => {
+  const handleTabChange = React.useCallback((key: string) => {
     setCategoryType(key);
     initForm();
-  };
+  }, [initForm]);
 
-  const changeInput = (key: keyof FormData, value: string) => {
+  const changeInput = React.useCallback((key: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [key]: { ...prev[key], value, errorText: value && Number(value) ? null : prev[key].errorText },
     }));
-  };
+  }, []);
 
-  const formVerify = () => {
+
+  const submit = React.useCallback(() => {
+    // 内联表单验证逻辑，避免循环依赖
     const values = form.getFieldsValue();
+    let isValid = false;
+    
     if (categoryType === '2') {
       // 平仓价格计算只需要开仓价格和目标回报率
-      return values.formData_1 && targetReturnRate;
-    }
-    if (categoryType === '3') {
+      isValid = values.formData_1 && targetReturnRate;
+    } else if (categoryType === '3') {
       // 强平价格计算需要开仓价格和仓位数量，全仓还需要可用余额
       const hasBasicFields = values.formData_1 && positionSize;
       if (marginMode === 1) {
         // 全仓模式还需要可用余额
-        return hasBasicFields && availableBalance;
+        if (!hasBasicFields || !availableBalance) {
+          isValid = false;
+        } else {
+          isValid = true;
+        }
+      } else {
+        // 逐仓模式只需要基本字段
+        isValid = hasBasicFields;
       }
-      // 逐仓模式只需要基本字段
-      return hasBasicFields;
+    } else {
+      // 其他计算需要开仓价格和平仓价格
+      if (!values.formData_1 || !values.formData_2) {
+        isValid = false;
+      } else if (categoryType !== '2' && !values.formData_3) {
+        isValid = false;
+      } else {
+        isValid = true;
+      }
     }
-    // 其他计算需要开仓价格和平仓价格
-    if (!values.formData_1 || !values.formData_2) return false;
-    if (categoryType !== '2' && !values.formData_3) return false;
-    return true;
-  };
-
-  const submit = () => {
-    if (!formVerify()) return;
-    const values = form.getFieldsValue();
+    
+    if (!isValid) return;
     const openPrice = Number(values.formData_1);
 
     if (categoryType === '1') {
@@ -264,6 +297,18 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
       const balance = marginMode === 1 ? Number(availableBalance) : 0;
 
       if (openPrice > 0 && position > 0) {
+        // 全仓模式下检查可用余额是否足够开仓
+        if (marginMode === 1) {
+          const requiredMargin = contractInfo.contractSide === 1 
+            ? (position * multiplier * openPrice) / leverage  // 正向合约
+            : (position * multiplier) / (openPrice * leverage); // 反向合约
+          
+          if (balance < requiredMargin) {
+            setLiquidationPrice(t('calculator.insufficientBalance') || '可用余额不足以开仓');
+            return;
+          }
+        }
+
         let liquidationPriceValue = 0;
 
         const maintenanceMarginRate = contractInfo.marginRate;
@@ -335,7 +380,34 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         }
       }
     }
-  };
+  }, [form, categoryType, sideType, leverage, coUnitType, multiplier, contractInfo, pricefix, priceUnit, t, targetReturnRate, positionSize, availableBalance, marginMode, validatePositionSize]);
+
+  // 计算按钮禁用状态，避免循环依赖
+  const isButtonDisabled = React.useMemo(() => {
+    const values = form.getFieldsValue();
+    if (categoryType === '2') {
+      // 平仓价格计算只需要开仓价格和目标回报率
+      return !(values.formData_1 && targetReturnRate);
+    }
+    if (categoryType === '3') {
+      // 强平价格计算需要开仓价格和仓位数量，全仓还需要可用余额
+      const hasBasicFields = values.formData_1 && positionSize;
+      if (marginMode === 1) {
+        // 全仓模式还需要可用余额
+        return !(hasBasicFields && availableBalance);
+      }
+      // 逐仓模式只需要基本字段
+      return !hasBasicFields;
+    }
+    // 其他计算需要开仓价格和平仓价格
+    if (!values.formData_1 || !values.formData_2) return true;
+    if (categoryType !== '2' && !values.formData_3) return true;
+    return false;
+  }, [form, categoryType, targetReturnRate, positionSize, marginMode, availableBalance]);
+
+  if (!isShow) {
+    return null;
+  }
 
   return (
     <ConfigProvider
@@ -375,7 +447,6 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
               activeKey={categoryType}
               onChange={handleTabChange}
               items={tabItems}
-             
             />
           </div>
 
@@ -486,13 +557,20 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
                     className={styles.calculatorInput}
                   />
                 </Form.Item>
-                <Form.Item name="positionSize">
+                <Form.Item 
+                  name="positionSize"
+                  validateStatus={positionError ? 'error' : ''}
+                  help={positionError}
+                >
                   <Input
                     suffix={coUnit}
                     placeholder={t('calculator.positionSize')}
                     className={styles.calculatorInput}
                     value={positionSize}
-                    onChange={(e) => setPositionSize(e.target.value)}
+                    onChange={(e) => {
+                      setPositionSize(e.target.value);
+                      setPositionError(''); // 输入时清除错误信息
+                    }}
                   />
                 </Form.Item>
                 {marginMode === 1 && (
@@ -532,7 +610,7 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
           <Button
             type="primary"
             shape="round"
-            disabled={!formVerify()}
+            disabled={isButtonDisabled}
             onClick={submit}
             className={styles.calculateBtn}
             style={{
