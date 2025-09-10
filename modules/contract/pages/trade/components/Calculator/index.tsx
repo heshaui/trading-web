@@ -251,7 +251,12 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
           }
         }
 
-        setCalculatedClosePrice(`${closePriceValue.toFixed(pricefix)} ${priceUnit}`);
+        // 检查计算结果是否有效
+        if (closePriceValue > 0 && isFinite(closePriceValue)) {
+          setCalculatedClosePrice(`${closePriceValue.toFixed(pricefix)} ${priceUnit}`);
+        } else {
+          setCalculatedClosePrice(t('calculator.cannotAchieveReturn'));
+        }
       }
     } else if (categoryType === '3') {
       // 强平价格计算

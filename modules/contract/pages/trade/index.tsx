@@ -627,6 +627,7 @@ const TradePage = () => {
         setOrderBookData(null);
         setPriceData(null);
         setKlineData(null);
+        setRealtimeTradeData([]);
 
 
         setCurrentContractInfo(storeContractInfo);

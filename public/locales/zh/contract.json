@@ -122,7 +122,8 @@
     "availableBalance": "可用余额",
     "liquidationPrice": "强平价格",
     "selectMarginMode": "请选择保证金模式",
-    "noLiquidation": "不会被强制平仓"
+    "noLiquidation": "不会被强制平仓",
+    "cannotAchieveReturn": "无法达到该收益率"
   },
   "tradingSettings": {
     "title": "交易设置",
