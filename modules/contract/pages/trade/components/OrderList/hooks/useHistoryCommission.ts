@@ -73,21 +73,11 @@ export const useHistoryCommission = (
     [contractId]
   );
 
-  // 根据symbol过滤数据
-  const getFilteredHistoryCommission = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return historyCommission;
-      return historyCommission.filter((item) => item.symbol === currentSymbol);
-    },
-    [historyCommission]
-  );
-
   return {
     historyCommission,
     historyCommissionNumber,
     loading,
     getHistoryCommission,
-    getFilteredHistoryCommission,
   };
 };
 

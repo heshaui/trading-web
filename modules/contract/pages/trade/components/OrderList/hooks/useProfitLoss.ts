@@ -57,20 +57,10 @@ export const useProfitLoss = (options: UseProfitLossOptions = {}) => {
     [contractId]
   );
 
-  // 根据symbol过滤数据
-  const getFilteredProfitLoss = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return profitLoss;
-      return profitLoss.filter((item) => item.contractId === contractId);
-    },
-    [profitLoss, contractId]
-  );
-
   return {
     profitLoss,
     loading,
     getProfitLoss,
-    getFilteredProfitLoss,
   };
 };
 

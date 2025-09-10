@@ -33,7 +33,13 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
 
   // 获取成交记录
   const getTradeHistory = useCallback(
-    async ({overrideContractId, showLoading}: {overrideContractId?: number, showLoading?: boolean}) => {
+    async ({
+      overrideContractId,
+      showLoading,
+    }: {
+      overrideContractId?: number;
+      showLoading?: boolean;
+    }) => {
       try {
         if (showLoading) setLoading(true);
         console.log("获取成交记录");
@@ -56,20 +62,10 @@ export const useTradeHistory = (options: UseTradeHistoryOptions = {}) => {
     [contractId]
   );
 
-  // 根据symbol过滤数据
-  const getFilteredTradeHistory = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return tradeHistory;
-      return tradeHistory.filter((item) => item.symbol === currentSymbol);
-    },
-    [tradeHistory]
-  );
-
   return {
     tradeHistory,
     loading,
     getTradeHistory,
-    getFilteredTradeHistory,
   };
 };
 

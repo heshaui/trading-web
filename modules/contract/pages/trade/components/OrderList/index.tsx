@@ -60,7 +60,12 @@ const OrderListComponent = (props: any, ref: any) => {
     tip: "",
   });
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(false);
+  const [onlyCurrentSymbol, setOnlyCurrentSymbol] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("onlyCurrentSymbol") === "true";
+    }
+    return false;
+  });
 
   // 获取当前合约信息
   const currentContractInfo = appStore.getCurrentContractInfo();
@@ -68,13 +73,18 @@ const OrderListComponent = (props: any, ref: any) => {
   const symbolPricePrecision =
     currentContractInfo?.coinResultVo.symbolPricePrecision;
 
+  const getFilteredList = (list:any[],onlyCurrentSymbol:boolean,currentSymbol:string) => {
+    if (!onlyCurrentSymbol || !currentSymbol) return list;
+    return list.filter((item) => item.symbol === currentSymbol);
+  };
+
   // ============ 使用各种hooks ============
   // 仓位
   const {
     loading: positionLoading,
     getPosition,
-    getFilteredPositions,
     positionNumber,
+    positions,
     quickClose,
   } = usePosition({
     contractId: currentContractInfo?.id,
@@ -86,7 +96,7 @@ const OrderListComponent = (props: any, ref: any) => {
     loading: ordinaryLoading,
     getOrdinaryCommission,
     handleCancelOrdinaryOrder,
-    getFilteredOrdinaryCommission,
+    ordinaryCommission,
   } = useOrdinaryCommission({
     contractId: currentContractInfo?.id,
   });
@@ -102,7 +112,7 @@ const OrderListComponent = (props: any, ref: any) => {
     historyCommissionNumber,
     loading: historyLoading,
     getHistoryCommission,
-    getFilteredHistoryCommission,
+    historyCommission,
   } = useHistoryCommission({
     contractId: currentContractInfo?.id,
   });
@@ -111,7 +121,7 @@ const OrderListComponent = (props: any, ref: any) => {
   const {
     loading: profitLossLoading,
     getProfitLoss,
-    getFilteredProfitLoss,
+    profitLoss,
   } = useProfitLoss({
     contractId: currentContractInfo?.id,
   });
@@ -120,7 +130,7 @@ const OrderListComponent = (props: any, ref: any) => {
   const {
     loading: tradeHistoryLoading,
     getTradeHistory,
-    getFilteredTradeHistory,
+    tradeHistory,
   } = useTradeHistory({
     contractId: currentContractInfo?.id,
   });
@@ -178,7 +188,7 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={positionColumns}
-          dataSource={getFilteredPositions(currentSymbol, onlyCurrentSymbol)}
+          dataSource={getFilteredList(positions, onlyCurrentSymbol, currentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -196,10 +206,7 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={ordinaryColumns}
-          dataSource={getFilteredOrdinaryCommission(
-            currentSymbol,
-            onlyCurrentSymbol
-          )}
+          dataSource={getFilteredList(ordinaryCommission, onlyCurrentSymbol, currentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -235,9 +242,10 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={historyColumns}
-          dataSource={getFilteredHistoryCommission(
-            currentSymbol,
-            onlyCurrentSymbol
+          dataSource={getFilteredList(
+            historyCommission,
+            onlyCurrentSymbol,
+            currentSymbol
           )}
           rowKey="id"
           pagination={false}
@@ -256,7 +264,7 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={tradeRecordColumns}
-          dataSource={getFilteredProfitLoss(currentSymbol, onlyCurrentSymbol)}
+          dataSource={getFilteredList(profitLoss, onlyCurrentSymbol, currentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -274,7 +282,7 @@ const OrderListComponent = (props: any, ref: any) => {
           scroll={{ x: "max-content" }}
           className={styles.table}
           columns={tradeHistoryColumns}
-          dataSource={getFilteredTradeHistory(currentSymbol, onlyCurrentSymbol)}
+          dataSource={getFilteredList(tradeHistory, onlyCurrentSymbol, currentSymbol)}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -305,19 +313,34 @@ const OrderListComponent = (props: any, ref: any) => {
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       const map = {
-        position: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
-          getPosition({ showLoading, showMessage }),
+        position: ({
+          showLoading,
+          showMessage,
+        }: {
+          showLoading: boolean;
+          showMessage: boolean;
+        }) => getPosition({ showLoading, showMessage }),
 
-        openOrders: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
-          getOrdinaryCommission({ showLoading, showMessage }),
+        openOrders: ({
+          showLoading,
+          showMessage,
+        }: {
+          showLoading: boolean;
+          showMessage: boolean;
+        }) => getOrdinaryCommission({ showLoading, showMessage }),
 
         // 条件委托
         // conditionalOrders: ({ showLoading }: { showLoading: boolean }) =>
         //   getConditionalCommission({ showLoading }),
 
         // 历史委托
-        orderHistory: ({ showLoading, showMessage }: { showLoading: boolean, showMessage: boolean }) =>
-          getHistoryCommission({ showLoading, showMessage }),
+        orderHistory: ({
+          showLoading,
+          showMessage,
+        }: {
+          showLoading: boolean;
+          showMessage: boolean;
+        }) => getHistoryCommission({ showLoading, showMessage }),
 
         // 盈亏记录
         profitLoss: ({ showLoading }: { showLoading: boolean }) =>
@@ -332,17 +355,17 @@ const OrderListComponent = (props: any, ref: any) => {
       let intervalId: NodeJS.Timeout | null = null;
       if (activeTab === "position" || activeTab === "openOrders") {
         const poll = () => {
-          fn?.({ showLoading: false, showMessage: false })
-            .finally(() => {
-              if (activeTab === "position" || activeTab === "openOrders") { // 检查当前是否仍是激活的 tab
-                intervalId = setTimeout(poll, 800); // 请求完成后再设置下一个定时器
-              }
-            });
+          fn?.({ showLoading: false, showMessage: false }).finally(() => {
+            if (activeTab === "position" || activeTab === "openOrders") {
+              // 检查当前是否仍是激活的 tab
+              intervalId = setTimeout(poll, 800); // 请求完成后再设置下一个定时器
+            }
+          });
         };
         intervalId = setTimeout(poll, 800); // 启动第一次轮询
       }
 
-        // 清理定时器
+      // 清理定时器
       return () => {
         if (intervalId) {
           clearInterval(intervalId);
@@ -394,7 +417,14 @@ const OrderListComponent = (props: any, ref: any) => {
               <div className="flex items-center gap-[20px] text-[14px] font-[400]">
                 {/* 当前合约 */}
                 <div className="flex items-center gap-[8px]">
-                  <Switch size="small" onChange={setOnlyCurrentSymbol} />
+                  <Switch
+                    size="small"
+                    checked={onlyCurrentSymbol}
+                    onChange={(e) => {
+                      localStorage.setItem("onlyCurrentSymbol", e.toString());
+                      setOnlyCurrentSymbol(e);
+                    }}
+                  />
                   <div className="text-[var(--text-color5)]">
                     {t("order.onlyCurrentSymbol")}
                   </div>

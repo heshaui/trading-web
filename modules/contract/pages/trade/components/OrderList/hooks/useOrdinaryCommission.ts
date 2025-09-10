@@ -9,7 +9,7 @@ interface OrdinaryCommission {
   symbol: string; // 合约
   pricePrecision: number; // 价格精度
   side: Side; // 方向
-  positionType: PositionType; // 仓位类型 
+  positionType: PositionType; // 仓位类型
   avgPrice: number; // 平均价格
   tradeFee: number; // 交易手续费
   type: Type; // 类型
@@ -41,13 +41,16 @@ export const useOrdinaryCommission = (
 
   // 获取普通委托列表
   const getOrdinaryCommission = useCallback(
-    async (params: {
-      overrideContractId?: number;
-      showLoading?: boolean;
-      showMessage?: boolean;
-    } = {}) => {  // 添加默认空对象
+    async (
+      params: {
+        overrideContractId?: number;
+        showLoading?: boolean;
+        showMessage?: boolean;
+      } = {}
+    ) => {
+      // 添加默认空对象
       try {
-        const { overrideContractId, showLoading, showMessage = true } = params;  // 从params解构
+        const { overrideContractId, showLoading, showMessage = true } = params; // 从params解构
         if (showLoading) setLoading(true);
         const { code, data, msg } = await getCurrentOrderList({
           contractId: overrideContractId ?? contractId,
@@ -80,8 +83,8 @@ export const useOrdinaryCommission = (
         const res = await cancelOrder(params);
         if (res.code === "0") {
           toast.success(res.msg);
-          // 刷新数据 
-          getOrdinaryCommission({showLoading: true});
+          // 刷新数据
+          getOrdinaryCommission({ showLoading: true });
         } else {
           toast.error(res.msg);
         }
@@ -92,22 +95,12 @@ export const useOrdinaryCommission = (
     [getOrdinaryCommission]
   );
 
-  // 根据symbol过滤数据
-  const getFilteredOrdinaryCommission = useCallback(
-    (currentSymbol?: string, onlyCurrentSymbol?: boolean) => {
-      if (!onlyCurrentSymbol || !currentSymbol) return ordinaryCommission;
-      return ordinaryCommission.filter((item) => item.symbol === currentSymbol);
-    },
-    [ordinaryCommission]
-  );
-
   return {
     ordinaryCommission,
     ordinaryCommissionNumber,
     loading,
     getOrdinaryCommission,
     handleCancelOrdinaryOrder,
-    getFilteredOrdinaryCommission,
   };
 };
 
