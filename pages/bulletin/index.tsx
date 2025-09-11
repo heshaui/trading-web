@@ -37,6 +37,7 @@ const Notice = () => {
     ids: [],
   });
   const [loading, setLoading] = useState(false);
+  const [readAllLoading, setReadAllLoading] = useState(false);
 
   //分页 pageNo, pageSize
   const [pagination, setPagination] = useState({
@@ -119,6 +120,7 @@ const Notice = () => {
       if (code === "0") {
         // setUnreadCount(res.data);
         setUnreadInfo(data);
+        console.log('获取未读信息(ids,count)', data);
       }
     } catch (error) {
       // Error handling
@@ -160,13 +162,20 @@ const Notice = () => {
 
   // 全部已读
   const readAll = async () => {
+    if (readAllLoading) return; // 如果正在请求中，直接返回
+    
     try {
+      setReadAllLoading(true);
       const { code, message: msg } = await readBulletinMessageLogined({
         ids: unreadInfo.ids,
       });
       if (code === "0") {
         getUnreadCount();
-        getNoticeList();
+        if(activeKey !== "all") {
+          getOtherType(activeKey);
+        }else{
+          getNoticeList();
+        }
       } else {
         message.error(msg);
       }
@@ -174,7 +183,7 @@ const Notice = () => {
       // Error handling
       message.error(error?.message || "Failed to read all messages");
     } finally {
-      setLoading(false);
+      setReadAllLoading(false);
     }
   };
 
@@ -329,7 +338,7 @@ const Notice = () => {
             {t("notice.top.unread")}
           </Checkbox>
           <div
-            className="cursor-pointer text-[var(--theme-color)] font-[500] "
+            className={`${readAllLoading ? "cursor-not-allowed" : "cursor-pointer"} text-[var(--theme-color)] font-[500] `}
             onClick={readAll}
           >
             {t("notice.top.markAllRead")}
