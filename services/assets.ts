@@ -71,9 +71,16 @@ export function getCoinById(coinId: number): Promise<any> {
     method: 'POST',
   });
 }
-// 币种协议(网络)
+// 币种协议(网络)-非充值
 export function getcoinExtList(tenantId: number): Promise<any> {
   return request(`${fixUrl}/user-web/v1/withdraw-deposit/coinExtList?coinId=${tenantId}`, {
+    method: 'POST',
+    //   body: JSON.stringify({coinId:tenantId})
+  });
+}
+// 币种协议(网络)-充值
+export function getcoinExtList2(tenantId: number): Promise<any> {
+  return request(`${fixUrl}/user-web/v2/withdraw-deposit/coinExtList?coinId=${tenantId}`, {
     method: 'POST',
     //   body: JSON.stringify({coinId:tenantId})
   });
