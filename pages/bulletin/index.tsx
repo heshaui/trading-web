@@ -226,6 +226,9 @@ const Notice = () => {
 
   // 切换类型
   const handleChangeType = (item: MenuData) => {
+    // 如果类型相同，则不进行切换
+    if(item.key === activeKey) return;
+
     setActiveKey(item.key);
     // 切换类型时重置到第一页
     setPagination((prev) => ({ ...prev, pageNo: 1 }));

@@ -15,6 +15,7 @@ const List = ({
   loading: boolean;
   setPagination: (pagination: { pageNo: number; pageSize: number }) => void;
 }) => {
+
   return (
     <ConfigProvider
       theme={{
@@ -69,7 +70,7 @@ const List = ({
                 description={
                   <div className="text-[12px] text-[#A4A5AC] truncate">
                     {item?.content
-                      ? item.content
+                      ? <div dangerouslySetInnerHTML={{ __html: item.content }} />
                       : dayjs(item.releaseTime).format("YYYY-MM-DD HH:mm:ss")}
                   </div>
                 }
