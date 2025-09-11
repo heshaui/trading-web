@@ -24,7 +24,8 @@ import {
   getProtocolTypeAll,//所有网络列表
   getWalletAddress, //查询钱包地址
   createWalletAddress,//创建钱包地址
-  getcoinExtList
+  getcoinExtList,
+  getcoinExtList2
 } from "@/services/assets";
 import { toast } from 'sonner'
 import {
@@ -235,7 +236,7 @@ const TopUpPage = () => {
     setCoinExtLoading(true);
 
     try {
-      const res = await getcoinExtList(coinId);
+      const res = await getcoinExtList2(coinId);
       if (res.code === "0") {
         const coinExtList = res.data.map((item: any) => {
           const protocol = coinExtAll.find(

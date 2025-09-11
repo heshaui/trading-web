@@ -348,3 +348,63 @@ export const getCoinRound = (coinName: string, num: string | number) => {
     return 0;
   }
 };
+
+// 币种余额-汇率换算
+// balance:币种余额
+// rateValue:币种汇率
+// 返回值:rate:换算后余额,rateSymbol:汇率符号,shortName:汇率名称
+export const nulCoinRate=(balance:number,rateValue:number)=>{
+  const rateData = appStore.getRateData() || [];
+  const rateName = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
+
+    // 获取汇率
+  const getExchangeRate = () => {
+    const rate = rateData.find(
+      (item: any) => item.shortName === rateName.trim()
+    );
+
+    return {
+      ...rate,
+      exchangeRate: Number(rate?.exchangeRate),
+      rateSymbol: rate?.symbol || "",
+      shortName: rate?.shortName || "",
+    };
+  };
+
+  const { exchangeRate, rateSymbol, shortName } = getExchangeRate();
+  const result =nul(nul(balance,rateValue),exchangeRate);
+  return {
+    rate:result,
+    rateSymbol: rateSymbol,
+    shortName: shortName,
+  }
+}
+// balance:总资产
+// 返回值:rate:换算后余额,rateSymbol:汇率符号,shortName:汇率名称
+export const nulRate=(coinBalance:number)=>{
+  const rateData = appStore.getRateData() || [];
+  const rateName = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
+
+    // 获取汇率
+  const getExchangeRate = () => {
+    const rate = rateData.find(
+      (item: any) => item.shortName === rateName.trim()
+    );
+
+    return {
+      ...rate,
+      exchangeRate: Number(rate?.exchangeRate),
+      rateSymbol: rate?.symbol || "",
+      shortName: rate?.shortName || "",
+    };
+  };
+
+  const { exchangeRate, rateSymbol, shortName } = getExchangeRate();
+  const result =nul(coinBalance,exchangeRate);
+  return {
+    rate:result,
+    rateSymbol: rateSymbol,
+    shortName: shortName,
+  }
+}
+
