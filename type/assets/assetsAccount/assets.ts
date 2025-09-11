@@ -10,6 +10,7 @@ export interface DataType {
     isFinancialCoin: 0 | 1 // 是否开启理财 1是，0否
     recharge: string, 
     withdraw: string, 
+    rateValue:number,
 }
 export interface BalanceAllType {
     usdBalance?: number | string,
