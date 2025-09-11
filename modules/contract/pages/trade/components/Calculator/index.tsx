@@ -311,63 +311,146 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
 
         let liquidationPriceValue = 0;
 
-        const maintenanceMarginRate = contractInfo.marginRate;
+        // 确保维持保证金率有合理的值，通常在0.5%-5%之间
+        let maintenanceMarginRate = contractInfo.marginRate;
+        if (typeof maintenanceMarginRate !== 'number' || maintenanceMarginRate <= 0 || maintenanceMarginRate >= 1) {
+          maintenanceMarginRate = 0.01; // 默认1%维持保证金率
+        }
+
+        // 调试信息
+        console.log('强平价格计算调试信息:', {
+          openPrice,
+          position,
+          leverage,
+          maintenanceMarginRate,
+          marginMode,
+          sideType,
+          contractSide: contractInfo.contractSide,
+          originalMarginRate: contractInfo.marginRate,
+          contractInfo: contractInfo
+        });
 
         if (contractInfo.contractSide === 1) {
           // 正向合约 (如BTCUSDT)
           if (marginMode === 2) {
             // 逐仓模式
-            if (sideType === 1) {
-              // 做多逐仓：强平价格 = 开仓价格 × (1 - (1 - 维持保证金率) / 杠杆)
-              liquidationPriceValue = openPrice * (1 - (1 - maintenanceMarginRate) / leverage);
+            // 检查杠杆是否足够大以支持强平价格计算
+            // 当杠杆小于等于1时，理论上不会强平（1倍杠杆相当于现货）
+            if (leverage <= 1) {
+              // 当杠杆小于等于1时，理论上不会强平
+              liquidationPriceValue = 0;
+              console.log('逐仓模式警告:', {
+                message: '杠杆倍数过低，理论上不会触发强平',
+                leverage,
+                maintenanceMarginRate,
+                condition: `leverage (${leverage}) <= 1`
+              });
             } else {
-              // 做空逐仓：强平价格 = 开仓价格 × (1 + (1 - 维持保证金率) / 杠杆)
-              liquidationPriceValue = openPrice * (1 + (1 - maintenanceMarginRate) / leverage);
+              if (sideType === 1) {
+                // 做多逐仓：强平价格 = 开仓价格 × (1 - (1 - 维持保证金率) / 杠杆)
+                const factor = (1 - maintenanceMarginRate) / leverage;
+                liquidationPriceValue = openPrice * (1 - factor);
+                console.log('做多逐仓计算:', { 
+                  factor, 
+                  result: liquidationPriceValue,
+                  calculation: `${openPrice} * (1 - ${factor}) = ${liquidationPriceValue}`,
+                  step1: `(1 - ${maintenanceMarginRate}) / ${leverage} = ${factor}`,
+                  step2: `1 - ${factor} = ${1 - factor}`,
+                  step3: `${openPrice} * ${1 - factor} = ${liquidationPriceValue}`
+                });
+              } else {
+                // 做空逐仓：强平价格 = 开仓价格 × (1 + (1 - 维持保证金率) / 杠杆)
+                const factor = (1 - maintenanceMarginRate) / leverage;
+                liquidationPriceValue = openPrice * (1 + factor);
+                console.log('做空逐仓计算:', { 
+                  factor, 
+                  result: liquidationPriceValue,
+                  calculation: `${openPrice} * (1 + ${factor}) = ${liquidationPriceValue}`,
+                  step1: `(1 - ${maintenanceMarginRate}) / ${leverage} = ${factor}`,
+                  step2: `1 + ${factor} = ${1 + factor}`,
+                  step3: `${openPrice} * ${1 + factor} = ${liquidationPriceValue}`
+                });
+              }
             }
           } else {
-            // 全仓模式 - 简化计算
+            // 全仓模式
             const positionMargin = (position * multiplier * openPrice) / leverage;
             const totalMargin = positionMargin + balance;
             
             if (sideType === 1) {
               // 做多全仓：当账户权益不足以维持仓位时强平
-              const minEquity = position * multiplier * maintenanceMarginRate;
-              const maxLoss = totalMargin - minEquity;
-              liquidationPriceValue = openPrice - (maxLoss / (position * multiplier));
+              // 强平条件：总权益 = 维持保证金
+              // 总权益 = 总保证金 + 未实现盈亏
+              // 维持保证金 = 强平价格 × 数量 × 面值 × 维持保证金率
+              // 设强平价格为 P，则：totalMargin + (P - openPrice) × position × multiplier = P × position × multiplier × maintenanceMarginRate
+              // 解得：P = (totalMargin + openPrice × position × multiplier) / (position × multiplier × (1 + maintenanceMarginRate))
+              liquidationPriceValue = (totalMargin + openPrice * position * multiplier) / (position * multiplier * (1 + maintenanceMarginRate));
             } else {
               // 做空全仓
-              const minEquity = position * multiplier * maintenanceMarginRate;
-              const maxLoss = totalMargin - minEquity;
-              liquidationPriceValue = openPrice + (maxLoss / (position * multiplier));
+              // 强平条件：总权益 = 维持保证金
+              // 总权益 = 总保证金 + 未实现盈亏
+              // 维持保证金 = 强平价格 × 数量 × 面值 × 维持保证金率
+              // 设强平价格为 P，则：totalMargin + (openPrice - P) × position × multiplier = P × position × multiplier × maintenanceMarginRate
+              // 解得：P = (totalMargin + openPrice × position × multiplier) / (position × multiplier × (1 - maintenanceMarginRate))
+              liquidationPriceValue = (totalMargin + openPrice * position * multiplier) / (position * multiplier * (1 - maintenanceMarginRate));
             }
           }
         } else {
           // 反向合约 (如BTCUSD)
           if (marginMode === 2) {
             // 逐仓模式
-            if (sideType === 1) {
-              // 做多逐仓
-              liquidationPriceValue = 1 / ((1 / openPrice) + (1 - maintenanceMarginRate) / (leverage * openPrice));
+            // 检查杠杆是否足够大以支持强平价格计算
+            // 当杠杆小于等于1时，理论上不会强平（1倍杠杆相当于现货）
+            if (leverage <= 1) {
+              // 当杠杆小于等于1时，理论上不会强平
+              liquidationPriceValue = 0;
+              console.log('反向合约逐仓模式警告:', {
+                message: '杠杆倍数过低，理论上不会触发强平',
+                leverage,
+                maintenanceMarginRate,
+                condition: `leverage (${leverage}) <= 1`
+              });
             } else {
-              // 做空逐仓
-              liquidationPriceValue = 1 / ((1 / openPrice) - (1 - maintenanceMarginRate) / (leverage * openPrice));
+              if (sideType === 1) {
+                // 做多逐仓
+                liquidationPriceValue = 1 / ((1 / openPrice) + (1 - maintenanceMarginRate) / (leverage * openPrice));
+                console.log('反向合约做多逐仓计算:', {
+                  result: liquidationPriceValue,
+                  calculation: `1 / ((1 / ${openPrice}) + (1 - ${maintenanceMarginRate}) / (${leverage} * ${openPrice})) = ${liquidationPriceValue}`
+                });
+              } else {
+                // 做空逐仓
+                liquidationPriceValue = 1 / ((1 / openPrice) - (1 - maintenanceMarginRate) / (leverage * openPrice));
+                console.log('反向合约做空逐仓计算:', {
+                  result: liquidationPriceValue,
+                  calculation: `1 / ((1 / ${openPrice}) - (1 - ${maintenanceMarginRate}) / (${leverage} * ${openPrice})) = ${liquidationPriceValue}`
+                });
+              }
             }
           } else {
-            // 全仓模式 - 简化计算
+            // 全仓模式
             const positionValue = position * multiplier; // 面值数量
             const positionMargin = positionValue / (openPrice * leverage);
             const totalMargin = positionMargin + balance;
             
             if (sideType === 1) {
               // 做多全仓
-              const minEquity = positionValue * maintenanceMarginRate / openPrice;
-              const maxLoss = totalMargin - minEquity;
-              liquidationPriceValue = 1 / ((1 / openPrice) + (maxLoss / positionValue));
+              // 强平条件：总权益 = 维持保证金
+              // 总权益 = 总保证金 + 未实现盈亏
+              // 维持保证金 = 面值数量 × 维持保证金率 / 强平价格
+              // 设强平价格为 P，则：totalMargin + positionValue × (1/openPrice - 1/P) = positionValue × maintenanceMarginRate / P
+              // 解得：1/P = (1/openPrice) + (totalMargin - positionValue × maintenanceMarginRate) / positionValue
+              // 即：P = 1 / ((1/openPrice) + (totalMargin - positionValue × maintenanceMarginRate) / positionValue)
+              liquidationPriceValue = 1 / ((1 / openPrice) + (totalMargin - positionValue * maintenanceMarginRate) / positionValue);
             } else {
               // 做空全仓
-              const minEquity = positionValue * maintenanceMarginRate / openPrice;
-              const maxLoss = totalMargin - minEquity;
-              liquidationPriceValue = 1 / ((1 / openPrice) - (maxLoss / positionValue));
+              // 强平条件：总权益 = 维持保证金
+              // 总权益 = 总保证金 + 未实现盈亏
+              // 维持保证金 = 面值数量 × 维持保证金率 / 强平价格
+              // 设强平价格为 P，则：totalMargin + positionValue × (1/P - 1/openPrice) = positionValue × maintenanceMarginRate / P
+              // 解得：1/P = (1/openPrice) - (totalMargin - positionValue × maintenanceMarginRate) / positionValue
+              // 即：P = 1 / ((1/openPrice) - (totalMargin - positionValue × maintenanceMarginRate) / positionValue)
+              liquidationPriceValue = 1 / ((1 / openPrice) - (totalMargin - positionValue * maintenanceMarginRate) / positionValue);
             }
           }
         }
@@ -375,12 +458,14 @@ const CalculatorMode = observer(({ isShow, close, dataInfo }: CalculatorModeProp
         // 确保强平价格为正数且合理
         if (liquidationPriceValue > 0 && isFinite(liquidationPriceValue)) {
           setLiquidationPrice(`${liquidationPriceValue.toFixed(pricefix)} ${priceUnit}`);
+        } else if (liquidationPriceValue === 0) {
+          setLiquidationPrice(t('calculator.noLiquidationRisk') || '无强平风险');
         } else {
           setLiquidationPrice(t('calculator.noLiquidation'));
         }
       }
     }
-  }, [form, categoryType, sideType, leverage, coUnitType, multiplier, contractInfo, pricefix, priceUnit, t, targetReturnRate, positionSize, availableBalance, marginMode, validatePositionSize]);
+  }, [form, categoryType, sideType, leverage, coUnitType, multiplier, contractInfo, pricefix, priceUnit, t, targetReturnRate, positionSize, availableBalance, marginMode]);
 
   // 计算按钮禁用状态，避免循环依赖
   const isButtonDisabled = React.useMemo(() => {

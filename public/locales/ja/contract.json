@@ -176,6 +176,7 @@
     "availableBalance": "利用可能残高",
     "liquidationPrice": "強制決済価格",
     "selectMarginMode": "証拠金モードを選択",
+    "noLiquidationRisk": "強制決済されません",
     "positionTooLarge": "ポジションサイズが最大許容値を超えています",
     "insufficientBalance": "ポジションを開くのに十分な残高がありません"
   },

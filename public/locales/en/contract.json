@@ -123,6 +123,7 @@
     "liquidationPrice": "Liquidation Price",
     "selectMarginMode": "Select Margin Mode",
     "noLiquidation": "No Liquidation Risk",
+    "noLiquidationRisk": "Will not be liquidated",
     "positionTooLarge": "Position size exceeds maximum allowed",
     "insufficientBalance": "Insufficient balance to open position"
   },
