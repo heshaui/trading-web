@@ -381,6 +381,15 @@ const TopUpPage = () => {
 
     goSteps(3);
   }
+  // 标准下拉选择网络
+  const networkChange = async (value: any, option: any) => {
+    const optData = option?.data || option;
+    form.setFieldValue('protocolId', value);
+    chainChange(value, optData);
+    if (Number(optData?.memoTag) !== 1) {
+      await getWalletAddressDataFn();
+    }
+  }
   const getWalletAddressDataFn = async () => {
     form.validateFields().then((values) => {
       getWalletAddressData(values)
@@ -403,9 +412,9 @@ const TopUpPage = () => {
         setSelectedProtocolCoinId(currentCoinId);
         setProtoOpen(false);
         chainChange(value, optData);
-        // if (Number(optData?.memoTag) !== 1) {
-        getWalletAddressDataFn();
-        // }
+        if (Number(optData?.memoTag) !== 1) {
+          getWalletAddressDataFn();
+        }
         return;
       }
       setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: nextRemain }));
@@ -442,9 +451,9 @@ const TopUpPage = () => {
       setSelectedProtocolCoinId(currentCoinId);
       setProtoOpen(false);
       chainChange(value, optData);
-      // if (Number(optData?.memoTag) !== 1) {
-      getWalletAddressDataFn();
-      // }
+      if (Number(optData?.memoTag) !== 1) {
+        getWalletAddressDataFn();
+      }
       return;
     }
 
@@ -459,6 +468,7 @@ const TopUpPage = () => {
   // 6.查询钱包地址
   const getWalletAddressData = async (value: any) => {
     setAddAddressLoading(true);
+    setWalletAddress({})
     try {
       const chainType = selectedProtocolId ?? value.protocolId ?? form.getFieldValue('protocolId')
       const res = await getWalletAddress(chainType)
@@ -468,10 +478,12 @@ const TopUpPage = () => {
       } else if (res.code === '10161') {
         fetchWalletAddress(value)
       } else {
+
         toast.error(res.message)
       }
     } catch (error) {
       toast.error(String(error))
+
       setModalOpen(true)
     } finally {
       setAddAddressLoading(false);
@@ -526,6 +538,17 @@ const TopUpPage = () => {
     if (routeAppliedRef.current) return;
     if (coinList.length === 0) return;
     if (!coinExtAll || coinExtAll.length === 0) return;
+    // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
+    const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
+    // const unverifie10 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
+    const unverifie11 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedRechargeStatus
+
+    const needsKyc = verified10 && userInfo?.unverifiedRechargeStatus !== 1
+    // const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
+    const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
+      (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
+    if (needsMerchantRecharge || needsKyc) return
+
     let target: any | undefined;
     if (coinId !== undefined && coinId !== null && coinId !== "") {
       target = coinList.find((c: any) => String(c.coinId) === String(coinId) || String(c.value) === String(coinId));
@@ -573,7 +596,7 @@ const TopUpPage = () => {
                   optionRender={(option) => {
                     if (!option?.data) return null; // 添加空值检查
                     return (
-                      <div className="flex-x align-center justify-between">
+                      <div className="flex-x align-center justify-between ">
                         {/* <div className="flex items-center py-1">
                                           {option.data.label}
                                     </div> */}
@@ -587,7 +610,7 @@ const TopUpPage = () => {
                             className={styles.coninIcon}
                           />
                           &nbsp;
-                          <span>{option.data.coinName}</span>
+                          <span >{option.data.coinName}</span>
                           &nbsp;
                           <span className={styles.tip_color}>
                             {option.data.nameDefault}
@@ -692,51 +715,51 @@ const TopUpPage = () => {
       </p>,
       description: (
         <div className={`${styles.steps_item_content2} mt-2`}>
-          {current >= 1 && (
+          {current >= 1 && (<Form.Item name="protocolId" >
+            <Select
+              allowClear={false}
+              placeholder={t("toUpSteps.placeholder")}
+              options={coinExtSelect || []} // 添加默认空数组
+              showSearch
+              filterOption={(input, option) => {
+                // console.log(input,option,999);
+                const data = (option && (option as any).data) || {};
+                const query = (input || '')
+                  .toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '');
+                if (!query) return true;
 
-            <Dropdown
-              open={protoOpen}
-              onOpenChange={setProtoOpen}
-              trigger={['click']}
-              placement="bottomLeft"
-              getPopupContainer={() => document.body}
-              dropdownRender={() => (
-                <div className="max-h-[260px] min-w-[180px] overflow-auto p-2 bg-[var(--background3)] rounded-[10px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-                  {/* 自定义列表，onMouseDown 阻止默认并计数，不关闭 */}
-                  {coinExtSelect && coinExtSelect.length > 0 ? coinExtSelect.map((opt: any) => (
-                    <div
-                      key={opt.value}
-                      className="flex justify-between px-3 py-2 cursor-pointer"
-                      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
-                    >
-                      <div className="min-w-0">
-                        <p>{opt.symbol || '--'}</p>
-                        <p className="text-[var(--text-color6)]">{opt.protocolName || '--'}（{opt.protocol || '--'}）</p>
-                      </div>
-                      <div className="shrink-0">{(confirmRemainingMap[`${opt?.coinId}|${String(opt.value)}`] ?? (opt.confirmCount ?? 1))}次确认</div>
-                    </div>
-                  )) : <NoData />}
+                return (
+                  data.symbol?.toLowerCase().includes(query) ||
+                  data.protocolName?.toLowerCase().includes(query) ||
+                  data.protocol?.toLowerCase().includes(query)
+                )
+              }}
+              // onSearch={onCoinSearch}
+              className={`${styles.select_box} custom-select`}
+              optionRender={(option) => {
+                return <div
+                  key={option.data.value}
+                  className="flex justify-between px-3 py-2 cursor-pointer"
+                // onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(option.data.value, option.data); }}
+                >
+                  <div className="min-w-0">
+                    <p>{option.data.symbol || '--'}</p>
+                    <p className="text-[var(--text-color6)]">{option.data.protocolName || '--'}（{option.data.protocol || '--'}）</p>
+                  </div>
+                  <div className="shrink-0">{option.data.confirmCount ?? 1}
+                    {t("toUpSteps.confirmCountTip")}</div>
                 </div>
-              )}
-            >
-              <div ref={triggerRef} className="relative">
-                {/* <Form.Item name="protocolId" noStyle> */}
-                <Input readOnly
-                  value={selectedProtocolLabel}
-                  placeholder={t("toUpSteps.placeholder")}
-                  onClick={() => setProtoOpen(true)}
-                  className={`${styles.input_box5} modal-input`}
-                // suffix={<DownOutlined width={12} height={12} />}
-                />
-                {/* </Form.Item> */}
-                <DownOutlined
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--text-color6)]"
-                  style={{ color: "var(--text-color6)" }}
-                />
-              </div>
+              }}
+              notFoundContent={
+                <NoData title={t("withdrawMoney.noRecord")} />
+              }
+              onChange={networkChange}
+              loading={coinExtLoading}
+            />
 
-            </Dropdown>
-          )}
+          </Form.Item>)}
         </div>
       ),
     },
@@ -746,7 +769,7 @@ const TopUpPage = () => {
         {t("toUpSteps.rechargeAddress")}
       </p>,
       description: (
-        <div className={`${styles.steps_item_content3} mt-2 relative min-w-[400px]`} >
+        <div className={`${styles.steps_item_content3} mt-2 relative `} >
           {current >= 2 && (<>
             {/* 提示信息1 */}
             {/* <p
@@ -768,14 +791,14 @@ const TopUpPage = () => {
                 <Skeleton.Node active={addAddressLoading} style={{ width: 86, height: 86 }} />
                 <Skeleton active className="ml-3" title={false} paragraph={{ rows: 3 }} loading={true} />
               </div> : <>
-              <div className={`${styles.qr_code}`}>
-                <QRCode value={walletAddress?.address || '--'}
-                  color={isDayMode ? "#000" : "#fff"}
-                  bgColor={isDayMode ? "#fff" : "#000"}
-                  bordered={false}
-                  size={86}
-                />
-              </div>
+                <div className={`${styles.qr_code}`}>
+                  <QRCode value={walletAddress?.address || '--'}
+                    color={isDayMode ? "#000" : "#fff"}
+                    bgColor={isDayMode ? "#fff" : "#000"}
+                    bordered={false}
+                    size={86}
+                  />
+                </div>
                 <div className="ml-3 font-14 flex-1 min-w-0">
                   <p className={`${styles.tip_color2} font-w-400`}>
                     {/* 充值地址 */}
@@ -864,30 +887,30 @@ const TopUpPage = () => {
               </li>
             </ul>
           </>)}
-          {/* {coinInfo.memoTag===1 &&modalOpen && current >= 2 && <div className={`${styles.modal_box} flex-y-cc `} >
+          {coinInfo.memoTag === 1 && modalOpen && current >= 2 && <div className={`${styles.modal_box} flex-y-cc text-center pb-5 px-4`} >
             <Image src="/images/pubic_icon/icon_address.svg" alt="modal" width={160} height={160} />
             <div className="text-[#fff] text-[20px] font-w-500">
               {t("toUpSteps.memoTip1")}
             </div>
-            <div className="text-[#D9D9D9] text-[14px] font-w-400 w-[350px] text-center mt-4">
+            <div className="text-[#D9D9D9] text-[14px] font-w-400 w-[350px]  mt-[3%] ">
               {t("toUpSteps.memoTip2")}
             </div>
-            <Button className="default_btn mt-[30px] !rounded-[36px] !h-[36px] px-[24px]"
+            <Button className="default_btn !rounded-[36px] !h-[36px] px-[24px] mt-[4%]"
               htmlType="submit"
               onClick={getWalletAddressDataFn}
             // loading={true}
             >
               {t("toUpSteps.memoTip3")}
             </Button>
-          </div>} */}
+          </div>}
         </div>
       ),
     },
   ];
 
   return (
-    <div className={` page-h w-full page-box flex-y align-center`}>
-      <div className={`${styles.spot_auth_box}`}>
+    <div className={` page-h w-full page-box flex-y align-center `}>
+      <div className={`${styles.spot_auth_box} max-w-[1200px]`}>
         <div className="flex justify-between align-center">
           <Breadcrumb
             items={[
@@ -931,7 +954,7 @@ const TopUpPage = () => {
           <div
             className={` w-full flex-x justify-between ${styles.card_content2}`}
           >
-            <div className={`${styles.step_box}`}>
+            <div className={`${styles.step_box} flex-1 max-w-[500px]`} style={{ width: '50%' }}>
               <ConfigProvider
                 theme={{
                   components: {
@@ -978,7 +1001,7 @@ const TopUpPage = () => {
                 </Form>
               </ConfigProvider>
             </div>
-            <TopUpSteps type="topUp" />
+            <TopUpSteps type="topUp" className="flex-1 ml-5 max-w-[500px]" style={{ width: '50%' }} />
           </div>
           <div className={`${styles.table_box} w-full `}>
             <RechargeTable coinId={coinInfo?.coinId || form.getFieldValue('coinName') || ''} />

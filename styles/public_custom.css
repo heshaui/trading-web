@@ -117,6 +117,14 @@
 .custom-select .ant-select-selector {
     border-color: var(--border-color4) !important;
 }
+.custom-select .ant-select-item:hover,
+.ant-select-item-option-active{
+    background-color: var(--background6) !important;
+    color: var(--text-color5) !important;
+}
+/* .ant-select-dropdown semantic-mark-popup-root{
+
+} */
 
 .select-text-right .ant-select-selector {
     border-color: var(--border-color4) !important;
