@@ -320,7 +320,9 @@
       "rechargeTo2": "Spot Account",
       "memoTip1": "Correctly fill in the address and MEMO to deposit to the account",
       "memoTip2": "When depositing, you must fill in the deposit address and tag, which is your account's unique identifier, and not filling or filling it incorrectly will result in asset loss.",
-      "memoTip3": "OK, please display the address"
+      "memoTip3": "OK, please display the address",
+    "networkWarning2": "Do not deposit any non-native currency assets to the above address. Otherwise, the assets cannot be recovered."
+
     }
   }
   

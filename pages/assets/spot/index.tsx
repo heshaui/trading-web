@@ -75,6 +75,7 @@ const AssetsMainPage = observer(() => {
   const rateKey = appStore.getRateKey()?.replace(/\s+/g, ""); // 汇率key
   const userInfo = appStore.getUserInfo();
   const balanceDataRef = useRef<WebSocketService | null>(null);
+  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const financialConfig = appStore.financialConfig;
 // 获取法币精度
   const accuracy=useMemo(()=>{
@@ -571,7 +572,7 @@ const AssetsMainPage = observer(() => {
   // 设置WebSocket连接
   const setupBalanceWebSocket = useCallback(() => {
     // 如果已经有连接，不要重复创建
-    if (balanceDataRef.current && balanceDataRef.current.connectionState === ConnectionState.OPEN) return;
+    if (balanceDataRef.current && balanceDataRef.current.connectionState !== ConnectionState.CLOSED) return;
     if (banlanceLoading) return;
 
     // 创建新的WebSocket连接
@@ -587,6 +588,29 @@ const AssetsMainPage = observer(() => {
       );
       balanceDataRef.current = websocket;
 
+      // // 设置连接成功回调，启动ping
+      // websocket.setOnConnectedCallback(() => {
+      //   console.log("资产页WebSocket连接成功");
+      //   // 启动ping心跳
+      //   if (pingIntervalRef.current) {
+      //     clearInterval(pingIntervalRef.current);
+      //   }
+      //   pingIntervalRef.current = setInterval(() => {
+      //     const ws = balanceDataRef.current;
+      //     if (ws && ws.connectionState === ConnectionState.OPEN) {
+      //       const success = ws.send('ping');
+      //       console.log('资产页发送ping心跳:', success ? '成功' : '失败');
+      //     } else {
+      //       console.log('资产页WebSocket未连接，停止ping');
+      //       if (pingIntervalRef.current) {
+      //         clearInterval(pingIntervalRef.current);
+      //         pingIntervalRef.current = null;
+      //       }
+      //     }
+      //   }, 30000);
+      //   console.log('资产页ping定时器已启动，10秒间隔');
+      // });
+
       websocket.connect((message: string) => {
         // console.log('收到WebSocket消息:', message);
 
@@ -594,6 +618,7 @@ const AssetsMainPage = observer(() => {
           // 处理纯文本心跳
           if (typeof message === 'string' && (message.startsWith('ping') || message === '__ping__')) {
             websocket.send(JSON.stringify({ type: '__pong__' }));
+            // console.log('资产页收到ping，回复pong');
             return;
           }
           const data = JSON.parse(message);
@@ -601,6 +626,7 @@ const AssetsMainPage = observer(() => {
 
           if (data.type === "__ping__") {
             websocket.send(JSON.stringify({ type: "__pong__" }));
+            // console.log('资产页收到JSON ping，回复pong');
             return;
           }
           // 更新余额数据
@@ -699,6 +725,11 @@ const AssetsMainPage = observer(() => {
         }
       }, (err) => {
         console.error('资产WebSocket连接错误:', err);
+        // 清理ping定时器
+        if (pingIntervalRef.current) {
+          clearInterval(pingIntervalRef.current);
+          pingIntervalRef.current = null;
+        }
         // 允许后续重建
         balanceDataRef.current = null;
         // 延迟重试，避免热循环
@@ -749,6 +780,11 @@ const AssetsMainPage = observer(() => {
 
     // 组件卸载时清理WebSocket连接
     return () => {
+      // 清理ping定时器
+      if (pingIntervalRef.current) {
+        clearInterval(pingIntervalRef.current);
+        pingIntervalRef.current = null;
+      }
       if (balanceDataRef.current) {
         balanceDataRef.current.close();
         balanceDataRef.current = null;
