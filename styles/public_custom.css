@@ -118,7 +118,8 @@
     border-color: var(--border-color4) !important;
 }
 .custom-select .ant-select-item:hover,
-.ant-select-item-option-active{
+.ant-select-item-option-active,
+.ant-select-item-option-selected{
     background-color: var(--background6) !important;
     color: var(--text-color5) !important;
 }

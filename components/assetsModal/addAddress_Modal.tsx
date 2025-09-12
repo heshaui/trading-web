@@ -161,9 +161,9 @@ function AddAddressModal({ open, onCancel, onOk, }: Props) {
                         ...item,
                         ...protocol,
                         label: protocol?.symbol,
-                        value: item.protocolId,
+                        value: protocol?.id,
                     }
-                })
+                }).filter((item: any) => item.value !== null)
                 setCoinExtSelect(coinExtList)
             } else {
                 toast.error(res.message)

@@ -1551,7 +1551,17 @@ const WithdrawMoneyPage = observer(() => {
       }
     }
   }, [coinSelect, userInfo, isNotAllowWithdraw]);
+  useEffect(() => {
+    // 只在客户端执
+    if (typeof window === "undefined") return;
 
+    try {
+      // appStore.loadCurrencyPairs(); //加载币对数据
+      appStore.loadGetUserInfo(); //加载币种数据
+    } catch (error) {
+      console.error("初始化货币对数据错误:", error);
+    }
+  }, []);
   return (
     <ResetStateProvider>
       <div
@@ -1644,7 +1654,7 @@ const WithdrawMoneyPage = observer(() => {
                       current={current}
                       labelPlacement="vertical"
                       items={steps}
-                      className="custom-steps"
+                      className="custom-steps w-full"
                     />
                   </Form>
                 </ConfigProvider>
