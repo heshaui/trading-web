@@ -1555,10 +1555,10 @@ const WithdrawMoneyPage = observer(() => {
   return (
     <ResetStateProvider>
       <div
-        className={` page-h w-full page-box flex-y align-center`}
+        className={` page-h w-full page-box flex-y align-center justify-center`}
         style={{ paddingBottom: "10vh" }}
       >
-        <div className={`${styles.spot_auth_box}`}>
+        <div className={`${styles.spot_auth_box} max-w-[1200px]`}>
           <div className="flex justify-between align-center">
             <Breadcrumb
               items={[
@@ -1604,7 +1604,7 @@ const WithdrawMoneyPage = observer(() => {
             <div
               className={` w-full flex-x justify-between ${styles.card_content2}`}
             >
-              <div className={`${styles.step_box}`}>
+              <div className={`${styles.step_box} flex-1 max-w-[500px]`} style={{ width: '50%' }}>
                 <ConfigProvider
                   theme={{
                     components: {
@@ -1649,7 +1649,7 @@ const WithdrawMoneyPage = observer(() => {
                   </Form>
                 </ConfigProvider>
               </div>
-              <WithdrawSteps />
+              <WithdrawSteps className="flex-1 ml-5 max-w-[500px]" style={{ width: '50%' }}/>
             </div>
             <TableBox
               coinId={form.getFieldValue("tenantId")}

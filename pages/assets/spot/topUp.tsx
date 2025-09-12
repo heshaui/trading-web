@@ -1,13 +1,14 @@
 import React from "react";
 // import { withAssetsLayout } from '@/components/sidebarLayout/AssetsLayout/assetsLayout';
 import styles from "../styles/spotAccount.module.css";
-import { Input, Steps, Breadcrumb, ConfigProvider, Dropdown, Select, Form, QRCode, Button } from "antd";
+import { Input, Steps, Breadcrumb, ConfigProvider, Dropdown, Select, Form, QRCode, Button, Skeleton } from "antd";
 import { Iconify } from "@/components/icon";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useState, useEffect, useRef, useMemo, } from "react";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticProps } from "next";
@@ -39,6 +40,9 @@ import { DownOutlined } from "@ant-design/icons";
 
 const TopUpPage = () => {
   const { t } = useTranslation("assets");
+  const router = useRouter();
+  const { coinId, coinName } = router.query as { coinId: string, coinName: string };
+
   const userInfo = appStore.getUserInfo()
   const { isDayMode } = useThemeMode(); // 使用 hook
   const [form] = Form.useForm();
@@ -61,9 +65,12 @@ const TopUpPage = () => {
 
   // 下拉允许自由开关，倒计时与选中状态保持在内存，不依赖下拉是否开启
   const [selectedProtocolId, setSelectedProtocolId] = useState<any>(undefined);
+  const [selectedProtocolCoinId, setSelectedProtocolCoinId] = useState<any>(undefined);
   const [confirmRemainingMap, setConfirmRemainingMap] = useState<Record<string, number>>({});
   const [protoOpen, setProtoOpen] = useState(false);
+  const [addAddressLoading, setAddAddressLoading] = useState(false);
   const protoWrapRef = useRef<HTMLDivElement | null>(null);
+  const routeAppliedRef = useRef(false);
 
   const triggerRef = useRef<HTMLDivElement>(null);
   const allConfig = appStore.getKvConfigAll()
@@ -73,7 +80,7 @@ const TopUpPage = () => {
     const opt = coinExtSelect.find((o: any) => o.value === currentValue);
     if (!opt) return '';
     if (typeof opt.label === 'string') return opt.label as string;
-    return `${opt?.protocolName || "--"}(${opt?.protocol|| "--"})`;
+    return `${opt?.protocolName || "--"}(${opt?.protocol || "--"})`;
   }, [selectedProtocolId, coinExtSelect, form]);
 
 
@@ -169,7 +176,7 @@ const TopUpPage = () => {
       const res = await getProtocolTypeAll();
       if (res.code === '0') {
         const chainList = res.data.map((item: any) => {
-        return {
+          return {
             ...item,
             label: item.protocol,
             value: item.chainId,
@@ -236,7 +243,7 @@ const TopUpPage = () => {
     setCoinExtLoading(true);
 
     try {
-      const res = await getcoinExtList2(coinId);
+      const res = await getcoinExtList(coinId);
       if (res.code === "0") {
         const coinExtList = res.data.map((item: any) => {
           const protocol = coinExtAll.find(
@@ -246,14 +253,15 @@ const TopUpPage = () => {
             ...item,
             ...protocol,
             label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"})`,
-            value: protocol?.symbol||null,
+            value: protocol?.symbol || null,
             confirmCount: item.confirms && item.confirms > 0 ? item.confirms : 1,
+            coinId: coinId,
           };
         }).filter((item: any) => item.value !== null)
-          // .filter((item: any) => {
-          //   const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
-          //   return chainType
-          // })
+        // .filter((item: any) => {
+        //   const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
+        //   return chainType
+        // })
         // console.log('币种对应网络(链)', coinExtList, chainTypeList);
         setCoinExtSelect(coinExtList);
       } else {
@@ -318,6 +326,9 @@ const TopUpPage = () => {
     setIsMemo(memoTag)
     // 3. 设置表单值
     form.setFieldValue("coinName", coinId);
+    // 重置网络选中状态，避免跨币种复用
+    setSelectedProtocolId(undefined);
+    setSelectedProtocolCoinId(undefined);
     // 4.   // 获取币种对应网络
     await getCoinExt(Number(coinId))
 
@@ -325,6 +336,8 @@ const TopUpPage = () => {
   };
   // 4.1币种选择
   const coinChange = async (value: number, option: any) => {
+    // 同步表单值，确保下拉显示选中
+    form.setFieldValue("coinName", value)
     setCoinIdHistory(value)
     setCoinInfo(option)
 
@@ -333,6 +346,9 @@ const TopUpPage = () => {
     const memoTag = option.memoTag === 1
     setIsMemo(memoTag)
     // 获取币种对应网络
+    if (!coinExtAll || coinExtAll.length === 0) {
+      await getCoinExtAllList();
+    }
     await getCoinExt(option.coinId)
 
 
@@ -365,20 +381,40 @@ const TopUpPage = () => {
 
     goSteps(3);
   }
+  // 标准下拉选择网络
+  const networkChange = async (value: any, option: any) => {
+    const optData = option?.data || option;
+    form.setFieldValue('protocolId', value);
+    chainChange(value, optData);
+    if (Number(optData?.memoTag) !== 1) {
+      await getWalletAddressDataFn();
+    }
+  }
+  const getWalletAddressDataFn = async () => {
+    form.validateFields().then((values) => {
+      getWalletAddressData(values)
+    })
+  }
   const handleProtocolSelect = (value: any, option: any) => {
-    const baseNew = option?.confirmCount ?? option?.data?.confirmCount ?? 1;
-    const newKey = String(value);
+    const optData = option?.data || option;
+    const baseNew = optData?.confirmCount ?? 1;
+    const currentCoinId = optData?.coinId ?? coinInfo?.coinId ?? form.getFieldValue('coinName');
+    const newKey = `${currentCoinId}|${String(value)}`;
 
     // 切换到相同选项：继续递减
-    if (selectedProtocolId === value) {
+    if (selectedProtocolId === value && selectedProtocolCoinId === currentCoinId) {
       const currentRemain = (confirmRemainingMap[newKey] ?? baseNew);
       const nextRemain = currentRemain - 1;
       if (nextRemain <= 0) {
         setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: 0 }));
         form.setFieldValue('protocolId', value);
         setSelectedProtocolId(value);
+        setSelectedProtocolCoinId(currentCoinId);
         setProtoOpen(false);
-        chainChange(value, option?.data || option);
+        chainChange(value, optData);
+        if (Number(optData?.memoTag) !== 1) {
+          getWalletAddressDataFn();
+        }
         return;
       }
       setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: nextRemain }));
@@ -390,10 +426,19 @@ const TopUpPage = () => {
     // 切换到不同选项：
     // 1) 先把上一个选项的剩余次数恢复为其基础次数
     if (selectedProtocolId !== undefined && selectedProtocolId !== null) {
-      const prevKey = String(selectedProtocolId);
-      const prevOpt = coinExtSelect.find((o: any) => String(o.value) === prevKey);
-      const prevBase = prevOpt?.confirmCount ?? 1;
-      setConfirmRemainingMap((prev) => ({ ...prev, [prevKey]: prevBase }));
+      const prevKey = `${selectedProtocolCoinId}|${String(selectedProtocolId)}`;
+      if (selectedProtocolCoinId === currentCoinId) {
+        const prevOpt = coinExtSelect.find((o: any) => String(o.value) === String(selectedProtocolId));
+        const prevBase = prevOpt?.confirmCount || 1;
+        setConfirmRemainingMap((prev) => ({ ...prev, [prevKey]: prevBase }));
+      } else {
+        // 不同币种时，清理旧键，避免跨币种残留
+        setConfirmRemainingMap((prev) => {
+          const next = { ...prev };
+          delete next[prevKey];
+          return next;
+        });
+      }
     }
 
     // 2) 新选项立刻减 1（本次点击算一次确认）
@@ -403,20 +448,27 @@ const TopUpPage = () => {
       setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: 0 }));
       form.setFieldValue('protocolId', value);
       setSelectedProtocolId(value);
+      setSelectedProtocolCoinId(currentCoinId);
       setProtoOpen(false);
-      chainChange(value, option?.data || option);
+      chainChange(value, optData);
+      if (Number(optData?.memoTag) !== 1) {
+        getWalletAddressDataFn();
+      }
       return;
     }
 
     // 未完成：记录剩余次数并停留步骤 2
     setConfirmRemainingMap((prev) => ({ ...prev, [newKey]: nextRemainNew }));
     setSelectedProtocolId(value);
+    setSelectedProtocolCoinId(currentCoinId);
     form.setFieldValue('protocolId', value);
     goSteps(2);
   };
 
   // 6.查询钱包地址
   const getWalletAddressData = async (value: any) => {
+    setAddAddressLoading(true);
+    setWalletAddress({})
     try {
       const chainType = selectedProtocolId ?? value.protocolId ?? form.getFieldValue('protocolId')
       const res = await getWalletAddress(chainType)
@@ -426,11 +478,15 @@ const TopUpPage = () => {
       } else if (res.code === '10161') {
         fetchWalletAddress(value)
       } else {
+
         toast.error(res.message)
       }
     } catch (error) {
       toast.error(String(error))
+
       setModalOpen(true)
+    } finally {
+      setAddAddressLoading(false);
     }
   }
   // 7.没有钱包地址时创建钱包地址
@@ -454,8 +510,9 @@ const TopUpPage = () => {
 
   }
   const onCoinSearch = (value: string) => {
-    console.log(value,999);
+    console.log(value, 999);
   }
+
 
   useEffect(() => {
     getTopUpCoinAllList();
@@ -475,6 +532,37 @@ const TopUpPage = () => {
       }
     }
   }, [coinList, userInfo, isNotAllowToUp]);
+
+  useEffect(() => {
+    if (!router?.isReady) return;
+    if (routeAppliedRef.current) return;
+    if (coinList.length === 0) return;
+    if (!coinExtAll || coinExtAll.length === 0) return;
+    // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
+    const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
+    // const unverifie10 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
+    const unverifie11 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedRechargeStatus
+
+    const needsKyc = verified10 && userInfo?.unverifiedRechargeStatus !== 1
+    // const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
+    const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
+      (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
+    if (needsMerchantRecharge || needsKyc) return
+
+    let target: any | undefined;
+    if (coinId !== undefined && coinId !== null && coinId !== "") {
+      target = coinList.find((c: any) => String(c.coinId) === String(coinId) || String(c.value) === String(coinId));
+    }
+    if (!target && coinName) {
+      target = coinList.find((c: any) => String(c.coinName).toLowerCase() === String(coinName).toLowerCase());
+    }
+    if (target) {
+      routeAppliedRef.current = true;
+      // 触发与用户选择相同的流程：更新历史、获取网络并进入步骤2
+      coinChange(target.value ?? target.coinId, target);
+    }
+  }, [router?.isReady, coinId, coinName, coinList, coinExtAll]);
+
   const steps = [
     {
       title: <p className={`${styles.tip_title} `}>
@@ -500,33 +588,33 @@ const TopUpPage = () => {
                       .replace(/\s+/g, '');
                     if (!query) return true;
 
-                    return data.coinName?.toLowerCase().includes(query)||
-                    data.nameDefault?.toLowerCase().includes(query) 
+                    return data.coinName?.toLowerCase().includes(query) ||
+                      data.nameDefault?.toLowerCase().includes(query)
                   }}
-                  onSearch={onCoinSearch}
+                  // onSearch={onCoinSearch}
                   className={`${styles.select_box} custom-select`}
                   optionRender={(option) => {
                     if (!option?.data) return null; // 添加空值检查
                     return (
-                      <div className="flex-x align-center justify-between">
+                      <div className="flex-x align-center justify-between ">
                         {/* <div className="flex items-center py-1">
                                           {option.data.label}
                                     </div> */}
 
                         <div className="flex-x align-center font-14 font-w-400">
-                        <Image
+                          <Image
                             src={option.data.iconUrl}
                             alt={option.data.coinName}
-                          width={20}
-                          height={20}
+                            width={20}
+                            height={20}
                             className={styles.coninIcon}
                           />
                           &nbsp;
-                          <span>{option.data.coinName}</span>
+                          <span >{option.data.coinName}</span>
                           &nbsp;
                           <span className={styles.tip_color}>
                             {option.data.nameDefault}
-                        </span>
+                          </span>
                         </div>
                         {/* <div className="flex-y align-end font-14 font-w-500">
                           <span>{option.data.balance}</span>
@@ -581,8 +669,8 @@ const TopUpPage = () => {
                                     }}
                                   />
                                   {item.coinName}
-                            </button>
-                          ))}
+                                </button>
+                              ))}
                             </div>
                           ) : (
                             <p className="mt-2 mb-2_5">
@@ -612,7 +700,7 @@ const TopUpPage = () => {
                     className={`${styles.btn_style} cancel_btn5 mr-2`}
                     onClick={() => setFormCoin(item.value)}>
                     {item.coinName}
-                </button>
+                  </button>
                 ))}
               </div>
             </>
@@ -627,51 +715,51 @@ const TopUpPage = () => {
       </p>,
       description: (
         <div className={`${styles.steps_item_content2} mt-2`}>
-          {current >= 1 && (
+          {current >= 1 && (<Form.Item name="protocolId" >
+            <Select
+              allowClear={false}
+              placeholder={t("toUpSteps.placeholder")}
+              options={coinExtSelect || []} // 添加默认空数组
+              showSearch
+              filterOption={(input, option) => {
+                // console.log(input,option,999);
+                const data = (option && (option as any).data) || {};
+                const query = (input || '')
+                  .toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '');
+                if (!query) return true;
 
-            <Dropdown
-              open={protoOpen}
-              onOpenChange={setProtoOpen}
-              trigger={['click']}
-              placement="bottomLeft"
-              getPopupContainer={() => document.body}
-              dropdownRender={() => (
-                <div className="max-h-[260px] min-w-[180px] overflow-auto p-2 bg-[var(--background3)] rounded-[10px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
-                  {/* 自定义列表，onMouseDown 阻止默认并计数，不关闭 */}
-                  {coinExtSelect && coinExtSelect.length > 0 ? coinExtSelect.map((opt: any) => (
-                    <div
-                      key={opt.value}
-                      className="flex justify-between px-3 py-2 cursor-pointer"
-                      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(opt.value, opt); }}
-                    >
-                      <div className="min-w-0">
-                        <p>{opt.symbol||'--'}</p>
-                        <p className="text-[var(--text-color6)]">{opt.protocolName||'--'}（{opt.protocol||'--'}）</p>
-                      </div>
-                      <div className="shrink-0">{(confirmRemainingMap[String(opt.value)] ?? (opt.confirmCount ?? 1))}次确认</div>
-                    </div>
-                  )) : <NoData />}
+                return (
+                  data.symbol?.toLowerCase().includes(query) ||
+                  data.protocolName?.toLowerCase().includes(query) ||
+                  data.protocol?.toLowerCase().includes(query)
+                )
+              }}
+              // onSearch={onCoinSearch}
+              className={`${styles.select_box} custom-select`}
+              optionRender={(option) => {
+                return <div
+                  key={option.data.value}
+                  className="flex justify-between px-3 py-2 cursor-pointer"
+                // onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleProtocolSelect(option.data.value, option.data); }}
+                >
+                  <div className="min-w-0">
+                    <p>{option.data.symbol || '--'}</p>
+                    <p className="text-[var(--text-color6)]">{option.data.protocolName || '--'}（{option.data.protocol || '--'}）</p>
                   </div>
-              )}
-            >
-              <div ref={triggerRef} className="relative">
-                {/* <Form.Item name="protocolId" noStyle> */}
-                <Input readOnly
-                  value={selectedProtocolLabel}
-                  placeholder={t("toUpSteps.placeholder")}
-                  onClick={() => setProtoOpen(true)}
-                  className={`${styles.input_box5} modal-input`}
-                // suffix={<DownOutlined width={12} height={12} />}
-                />
-                {/* </Form.Item> */}
-                <DownOutlined
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--text-color6)]"
-                  style={{ color: "var(--text-color6)" }}
-                />
-              </div>
+                  <div className="shrink-0">{option.data.confirmCount ?? 1}
+                    {t("toUpSteps.confirmCountTip")}</div>
+                </div>
+              }}
+              notFoundContent={
+                <NoData title={t("withdrawMoney.noRecord")} />
+              }
+              onChange={networkChange}
+              loading={coinExtLoading}
+            />
 
-            </Dropdown>
-          )}
+          </Form.Item>)}
         </div>
       ),
     },
@@ -681,7 +769,7 @@ const TopUpPage = () => {
         {t("toUpSteps.rechargeAddress")}
       </p>,
       description: (
-        <div className={`${styles.steps_item_content3} mt-2 relative min-w-[400px]`} >
+        <div className={`${styles.steps_item_content3} mt-2 relative `} >
           {current >= 2 && (<>
             {/* 提示信息1 */}
             {/* <p
@@ -699,31 +787,37 @@ const TopUpPage = () => {
             </p> */}
             {/* 充值地址 */}
             <div className={`${styles.qrCode_box} px-5 py-5 flex-x align-center`}  >
-              <div className={`${styles.qr_code}`}>
-                <QRCode value={walletAddress?.address || '--'}
-                  color={isDayMode ? "#000" : "#fff"}
-                  bgColor={isDayMode ? "#fff" : "#000"}
-                  bordered={false}
-                  size={86}
-                />
-              </div>
-              <div className="ml-3 font-14 flex-1 min-w-0">
-                <p className={`${styles.tip_color2} font-w-400`}>
-                  {/* 充值地址 */}
-                  {t("toUpSteps.rechargeAddress")}
-                </p>
-                <div className="flex items-center mt-2">
-                  <span className="mr-3 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {walletAddress?.address || '--'}
-                  </span>
-                  <Iconify
-                    icon="mingcute:copy-2-line"
-                    size={20}
-                    className="shrink-0 ml-2 w-5 h-5"
-                    onClick={() => copyFn(walletAddress?.address || '')}
+              {addAddressLoading ? <div className="flex-x align-center w-full">
+                <Skeleton.Node active={addAddressLoading} style={{ width: 86, height: 86 }} />
+                <Skeleton active className="ml-3" title={false} paragraph={{ rows: 3 }} loading={true} />
+              </div> : <>
+                <div className={`${styles.qr_code}`}>
+                  <QRCode value={walletAddress?.address || '--'}
+                    color={isDayMode ? "#000" : "#fff"}
+                    bgColor={isDayMode ? "#fff" : "#000"}
+                    bordered={false}
+                    size={86}
                   />
                 </div>
-              </div>
+                <div className="ml-3 font-14 flex-1 min-w-0">
+                  <p className={`${styles.tip_color2} font-w-400`}>
+                    {/* 充值地址 */}
+                    {t("toUpSteps.rechargeAddress")}
+                  </p>
+                  <div className="flex items-center mt-2">
+                    <span className="mr-3 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {walletAddress?.address || '--'}
+                    </span>
+                    <Iconify
+                      icon="mingcute:copy-2-line"
+                      size={20}
+                      className="shrink-0 ml-2 w-5 h-5"
+                      onClick={() => copyFn(walletAddress?.address || '')}
+                    />
+                  </div>
+                </div>
+              </>}
+              {/* </Skeleton> */}
             </div>
             {/* 提示信息2 */}
             <p
@@ -793,27 +887,19 @@ const TopUpPage = () => {
               </li>
             </ul>
           </>)}
-          {modalOpen && current >= 2 && <div className={`${styles.modal_box} flex-y-cc `} >
+          {coinInfo.memoTag === 1 && modalOpen && current >= 2 && <div className={`${styles.modal_box} flex-y-cc text-center pb-5 px-4`} >
             <Image src="/images/pubic_icon/icon_address.svg" alt="modal" width={160} height={160} />
             <div className="text-[#fff] text-[20px] font-w-500">
-              {/* 正确填写地址和MEMO才可以充值到账 */}
               {t("toUpSteps.memoTip1")}
             </div>
-            <div className="text-[#D9D9D9] text-[14px] font-w-400 w-[350px] text-center mt-4">
-              {/* 充值时必须要填写充值地址和标签，这是您账户的唯一标
-              识，不填或填错将导致您的资产丢失。 */}
+            <div className="text-[#D9D9D9] text-[14px] font-w-400 w-[350px]  mt-[3%] ">
               {t("toUpSteps.memoTip2")}
             </div>
-            <Button className="default_btn mt-[30px] !rounded-[36px] !h-[36px] px-[24px]"
+            <Button className="default_btn !rounded-[36px] !h-[36px] px-[24px] mt-[4%]"
               htmlType="submit"
-              onClick={() => {
-                form.validateFields().then((values) => {
-                  getWalletAddressData(values)
-                })
-              }}
+              onClick={getWalletAddressDataFn}
             // loading={true}
             >
-              {/* 好的，请显示地址 */}
               {t("toUpSteps.memoTip3")}
             </Button>
           </div>}
@@ -823,8 +909,8 @@ const TopUpPage = () => {
   ];
 
   return (
-    <div className={` page-h w-full page-box flex-y align-center`}>
-      <div className={`${styles.spot_auth_box}`}>
+    <div className={` page-h w-full page-box flex-y align-center `}>
+      <div className={`${styles.spot_auth_box} max-w-[1200px]`}>
         <div className="flex justify-between align-center">
           <Breadcrumb
             items={[
@@ -851,7 +937,7 @@ const TopUpPage = () => {
           />
         </div>
 
-          <div className={`${styles.card_box}  mt-6  `}>
+        <div className={`${styles.card_box}  mt-6  `}>
           {(() => {
             // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
             const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
@@ -865,24 +951,24 @@ const TopUpPage = () => {
 
             return needsMerchantRecharge ? <NoUseCom type="5" /> : needsKyc ? <NoUseCom type="1" /> : <></>
           })()}
-            <div
-              className={` w-full flex-x justify-between ${styles.card_content2}`}
-            >
-              <div className={`${styles.step_box}`}>
-                <ConfigProvider
-                  theme={{
-                    components: {
-                      Select: {
-                        clearBg: "#ffffff",
+          <div
+            className={` w-full flex-x justify-between ${styles.card_content2}`}
+          >
+            <div className={`${styles.step_box} flex-1 max-w-[500px]`} style={{ width: '50%' }}>
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Select: {
+                      clearBg: "#ffffff",
                       selectorBg: "var(--background7)", // select框背景色 //transparent
-                        singleItemHeightLG: 50,
-                        paddingXXS: 10, // 下拉框选项最小内边距
-                        optionHeight: 40, //选项高度
-                        optionLineHeight: 2, //选项行高
-                      },
-                      Steps: {
-                        navArrowColor: "var(--text-color6)",
-                      },
+                      singleItemHeightLG: 50,
+                      paddingXXS: 10, // 下拉框选项最小内边距
+                      optionHeight: 40, //选项高度
+                      optionLineHeight: 2, //选项行高
+                    },
+                    Steps: {
+                      navArrowColor: "var(--text-color6)",
+                    },
                     Button: {
                       controlHeightLG: 50,
                       defaultBg: "var(--theme-color)",
@@ -901,9 +987,9 @@ const TopUpPage = () => {
                       defaultHoverBorderColor: "var(--theme-color)",
                       defaultHoverColor: "#fff",
                     },
-                    },
-                  }}
-                >
+                  },
+                }}
+              >
                 <Form form={form} disabled={isNotAllowToUp}>
                   <Steps
                     direction="vertical"
@@ -913,12 +999,12 @@ const TopUpPage = () => {
                     className="custom-steps"
                   />
                 </Form>
-                </ConfigProvider>
-              </div>
-              <TopUpSteps type="topUp" />
+              </ConfigProvider>
             </div>
-            <div className={`${styles.table_box} w-full `}>
-            <RechargeTable coinId={coinInfo?.coinId ||form.getFieldValue('coinName')||''} />
+            <TopUpSteps type="topUp" className="flex-1 ml-5 max-w-[500px]" style={{ width: '50%' }} />
+          </div>
+          <div className={`${styles.table_box} w-full `}>
+            <RechargeTable coinId={coinInfo?.coinId || form.getFieldValue('coinName') || ''} />
           </div>
         </div>
 

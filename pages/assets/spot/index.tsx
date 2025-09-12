@@ -355,7 +355,7 @@ const AssetsMainPage = observer(() => {
             // }
           } else if (type === "2") {
             if (data?.canRecharge === 1) {
-              router.push(ROUTER_KEY_ASSETS.TOP_UP);
+              router.push(`${ROUTER_KEY_ASSETS.TOP_UP}?coinId=${coinId}`);
             } else {
               toast.error(t("assetsAccount.button.depositError2"));
             }

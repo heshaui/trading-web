@@ -6,7 +6,7 @@ const defaultTheme: ThemeConfig = {
   token: {
     fontSize: 14,
     colorPrimary: getThemeColorFromStorage(),
-    colorBgElevated: "var(--background3)", //浮层容器背景色
+    colorBgElevated: "var(--background5)", //浮层容器背景色 var(--background3)
     colorText: "var(--text-color5)", // 最深的文本色-默认的文本颜色
     colorTextQuaternary: "var(--text-color6)", // 最浅的文本色-表单的输入提示文本、禁用色文本
     // colorSplit: 'var(--background14)', // 分割线颜色
@@ -14,13 +14,14 @@ const defaultTheme: ThemeConfig = {
     colorIcon: "var(--text-color6)",
     colorBorder: "var(--border-color6)",
     colorBgContainer: "transparent", //组件的容器背景色-默认按钮、输入框、单选框、复选框
+    
   },
   components: {
     Button: {
       defaultShadow: "none",
       primaryShadow: "none",
     },
-    Collapse: {},
+    // Collapse: {},
     Modal: {
       headerBg: "var(--help-center-card-bg)",
       contentBg: "var(--help-center-card-bg)",
@@ -34,6 +35,7 @@ const defaultTheme: ThemeConfig = {
     },
     Select: {
       optionSelectedColor: "rgba(0,0,0,0.88)", //选中选项字体颜色
+      // optionActiveBg: "var(--background5)", //选中选项背景色
     },
     Input: {
       activeShadow: "none", //激活态阴影

@@ -162,7 +162,7 @@
     border-color: var(--text-color3);
 }
 .select_box,.steps_item_content3 {
-    width: 38vw;
+    width: 100%;
 }
 .mt_20{
     margin-top: 20px !important;
@@ -185,7 +185,7 @@
     margin-bottom: 9vh;
  }
  .selsect_btn{
-    padding: 8px;
+    padding: 4px 8px;
     border-radius: 23px;
     min-width: 65px;
  }

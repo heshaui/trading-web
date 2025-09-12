@@ -6,16 +6,20 @@ import WithdrawStepsModal from './modal/withdrawAndToUpSteps_Modal'
 import { useState } from 'react';
 
 type WithdrawStepsProps = {
-    type?: 'withdraw' | 'topUp'
+    type?: 'withdraw' | 'topUp',
+    className?: string,
+    style?: React.CSSProperties
 }
 const WithdrawAndTopUpSteps = observer(({
-    type = 'withdraw'
+    type = 'withdraw',
+    className = '',
+    style = {}
 }: WithdrawStepsProps) => {
     const { t } = useTranslation('assets');
     const [open, setOpen] = useState(false);
 
     return (<>
-        {type === 'withdraw' && <div className={`${styles.notice_box}`}>
+        {type === 'withdraw' && <div className={`${styles.notice_box} ${className}`} style={style}>
             <div>
                 <h5 className={`font-w-500 font-16 mb-4`}>
                     {/* 常见问题 */}
@@ -46,7 +50,7 @@ const WithdrawAndTopUpSteps = observer(({
                 </ul>
             </div>
         </div>}
-        {type === 'topUp' && <div className={`${styles.notice_box}`}>
+        {type === 'topUp' && <div className={`${styles.notice_box} ${className}`}>
             <div>
                 <h5 className={`font-w-500 font-16 mb-4`}>
                     {/* 常见问题 */}
@@ -61,7 +65,7 @@ const WithdrawAndTopUpSteps = observer(({
                     <li className={`mb-2_5`}>
                         <button
                             onClick={() => { setOpen(true) }}
-                        >{t('withdrawMoney.faqList.item6')}</button>
+                        >{t('withdrawMoney.faqList.item2')}</button>
                     </li>
                 </ul>
             </div>
