@@ -5,7 +5,7 @@ import SymbolSelector from "../SymbolSelector";
 import appStore from "@/store";
 import { useMarketInfo } from "@/hooks/useMarketInfo";
 import { useUserConfig } from "@/hooks/useUserConfig";
-const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CSSProperties }) => {
+const ContractHeader = ({ priceData, style, marketInfoData }: { priceData: any, style?: React.CSSProperties, marketInfoData: any }) => {
   const { t } = useTranslation(["contract"]);
   const symbolList = appStore.getPublicInfo();
   const currentContractInfo = appStore.getCurrentContractInfo();
@@ -68,6 +68,7 @@ const ContractHeader = ({ priceData, style }: { priceData: any, style?: React.CS
     <div style={style} className="flex items-center px-[16px] h-[100%] bg-[var(--background9)]">
       <SymbolSelector
         currentSymbol={currentSymbol}
+        marketInfoData={marketInfoData}
         onSymbolSelect={handleSymbolSelect}
         symbolList={symbolList.contractList}
         onToggleFavorite={handleToggleFavorite}

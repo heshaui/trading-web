@@ -47,6 +47,7 @@ interface SymbolSelectorProps {
   onSymbolSelect: (symbol: SymbolData) => void;
   symbolList: SymbolData[];
   onToggleFavorite: (symbol: string) => void;
+  marketInfoData: any;
 }
 
 // 判断是否为U本位合约
@@ -94,14 +95,14 @@ const SymbolItem: React.FC<{
       <div className={`${styles.symbol_change} ${item.changePercent?.startsWith('+') ? 'positive' :
         item.changePercent?.startsWith('-') ? 'negative' : 'neutral'
         }`}>
-        {item.changePercent || '0.00%'}
+        {item.changePercent|| '--'}
       </div>
     </div>
   </div>
 );
 
 // 根据合约类型分类的工具函数
-const getContractCategory = (item: SymbolData) => {
+const getContractCategory = (item: SymbolData)  => {
   if (item.contractType === 'E') {
     switch (item.contractSide) {
       case 1:
@@ -123,13 +124,46 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   currentSymbol = "",
   onSymbolSelect,
   symbolList,
-  onToggleFavorite
+  onToggleFavorite,
+  marketInfoData
 }) => {
   const { t } = useTranslation(["spot", "contract"]);
   const [searchValue, setSearchValue] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const [activeTab, setActiveTab] = useState('usd-contract');
+
+  // 将 marketInfoData 的数据合并到 symbolList 中
+  const enrichedSymbolList = React.useMemo(() => {
+    if (!marketInfoData || !symbolList) return symbolList;
+
+    return symbolList.map(symbol => {
+      // 构建匹配的键，格式如 "e_btcusdt" 或 "s_btcusdt"
+      const contractPrefix = symbol.contractType === 'E' ? 'e_' : 's_';
+      // 移除合约名称中的连字符和前缀，转换为小写
+      // E-BTC-USDT -> btcusdt, S-BTC-USDT -> btcusdt
+      const cleanContractName = symbol.contractName.toLowerCase().replace(/^[es]-/, '').replace(/-/g, '');
+      const marketKey = `${contractPrefix}${cleanContractName}`;
+      
+      const marketData = marketInfoData[marketKey];
+      
+
+      
+      if (marketData) {
+        return {
+          ...symbol,
+          price: marketData.close || '--',
+          changePercent: marketData.rose !== undefined && marketData.rose !== null ? `${marketData.rose}%` : '0.00%',
+          high: marketData.high,
+          low: marketData.low,
+          volume: marketData.vol,
+          amount: marketData.amount
+        };
+      }
+      
+      return symbol;
+    });
+  }, [symbolList, marketInfoData]);
 
   const handleTabClick = (key: string) => {
     setActiveTab(key);
@@ -154,7 +188,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     const getAvailableTypes = () => {
       const types = ['coin', 'usdt', 'mix', 'sim'];
       return types.filter(type => {
-        const symbols = symbolList.filter(item => getContractCategory(item) === type);
+        const symbols = enrichedSymbolList.filter(item => getContractCategory(item) === type);
         return symbols.length > 0;
       });
     };
@@ -198,11 +232,11 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     };
 
     setActiveTab(getDefaultTab());
-  }, [currentSymbol, symbolList]);
+  }, [currentSymbol, enrichedSymbolList]);
 
   // 根据类别过滤合约
   const filteredSymbols = (category: string) => {
-    let filtered = symbolList.filter(item => {
+    let filtered = enrichedSymbolList.filter(item => {
       const itemCategory = getContractCategory(item);
       return itemCategory === category;
     });
@@ -223,7 +257,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   const getAvailableContractTypes = () => {
     const types = ['coin', 'usdt', 'mix', 'sim'];
     return types.filter(type => {
-      const symbols = symbolList.filter(item => getContractCategory(item) === type);
+      const symbols = enrichedSymbolList.filter(item => getContractCategory(item) === type);
       return symbols.length > 0;
     });
   };

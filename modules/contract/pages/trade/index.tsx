@@ -135,6 +135,7 @@ const TradePage = () => {
 
   const [spotBalance, setSpotBalance] = useState<any[]>([]); // 现货账户余额数组
   const [realtimeTradeData, setRealtimeTradeData] = useState<any[]>([]); // 实时交易数据
+  const [marketInfoData, setMarketInfoData] = useState<any>(null); // 市场信息
 
 
   // 获取现货账户余额
@@ -330,8 +331,8 @@ const TradePage = () => {
   const sendNewSubscriptions = useCallback((ws: WebSocketService, contractInfo: any, timeInterval: string, precision: number = 0) => {
     const wsTimeInterval = convertTimeInterval(timeInterval);
     
-
-
+    // 市场信息
+    const marketInfo = { event: "req", params: { channel: "review" } }
     // 订单簿数据
     const depthEvent = {
       event: "sub",
@@ -424,6 +425,7 @@ const TradePage = () => {
     ws.send(JSON.stringify(klineReqEvent));
     ws.send(JSON.stringify(klineSubEvent));
     ws.send(JSON.stringify(realtimeTradeRepEvent));
+    ws.send(JSON.stringify(marketInfo));
   }, []);
 
   // 发送WebSocket订阅消息
@@ -758,6 +760,8 @@ const TradePage = () => {
               appStore.setActiveNewPrice(newPriceData);
             }
           }
+        }else if(data.channel && data.channel.includes("review")){
+          setMarketInfoData(data.data);
         }
       } catch (error) {
 
@@ -842,7 +846,7 @@ useEffect(()=>{
       >
         {/* 当前合约信息 */}
         <div style={{ gridArea: "currentSymbol" }}>
-          <ContractHeader priceData={priceData} />
+          <ContractHeader priceData={priceData} marketInfoData={marketInfoData}/>
         </div>
 
         {/* 交易图表 */}
