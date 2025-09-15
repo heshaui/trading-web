@@ -283,7 +283,8 @@
       "ctime": "Create Time",
       "contractName": "Contract Name",
       "id": "Order ID",
-      "open": "Open Status"
+      "open": "Open Status",
+      "piece": "Cont"
     },
     "common": {
       "crossMargin": "Cross Margin",

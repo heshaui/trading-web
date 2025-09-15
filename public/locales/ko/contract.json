@@ -278,7 +278,8 @@
       "ctime": "생성 시간",
       "contractName": "계약명",
       "id": "주문 ID",
-      "open": "진입 상태"
+      "open": "진입 상태",
+      "piece": "계약"
     },
     "common": {
       "crossMargin": "교차 증거금",

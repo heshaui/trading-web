@@ -277,14 +277,15 @@
       "role": "角色",
       "fee": "手续费",
       "feeCoinPrecision": "手续费币种精度",
-      "volume": "数量",
+      "volume": "成交数量",
       "feeCoin": "手续费币种",
-      "price": "价格",
+      "price": "成交均价",
       "contractId": "合约ID",
       "ctime": "创建时间",
       "contractName": "合约名称",
       "id": "订单ID",
-      "open": "开仓状态"
+      "open": "开仓状态",
+      "piece": "张"
     },
     "common": {
       "crossMargin": "全仓",

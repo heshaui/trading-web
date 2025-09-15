@@ -65,7 +65,7 @@ export const createTradeHistoryColumns = ({
     key: "volume",
     align: "right" as const,
     render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.volume}</div>
+      <div className="text-[12px] font-[500]">{record.volume} {t("order.tradeHistoryColumn.piece")}</div>
     ),
   },
   // 角色
