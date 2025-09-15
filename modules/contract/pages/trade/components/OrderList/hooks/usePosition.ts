@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { createOrder, getAssetsList } from "@/services/contract";
-import { Side, PositionType } from "../configs/columns";
+import { Side, PositionType } from "../configs/constants";
 
 // 仓位接口
 interface Position {

@@ -200,7 +200,14 @@
       "marketTab": "Market",
       "limitTab": "Limit",
       "quickClose": "Quick Close",
-      "orderSide": "Side"
+      "orderSide": "Side",
+      "tips": {
+        "openAvgPrice": "The average buy/sell price when opening long/short positions.",
+        "indexPrice": "Mark price is used to calculate P&L and trigger liquidation. Mark price may deviate from the latest market price to prevent losses caused by market manipulation.",
+        "reducePrice": "When the mark price approaches this value, the position will be liquidated.",
+        "holdAmount": "Position margin equity. For isolated margin, it's the sum of position margin and unrealized P&L. For cross margin, it's the difference between total equity and other cross margin maintenance margin. Unrealized P&L is calculated based on mark price.",
+        "marginRate": "The lower the margin ratio, the lower the liquidation risk. When the margin ratio reaches 100%, the position will be liquidated."
+      }
     },
     "ordinaryColumn": {
       "symbol": "Contract",

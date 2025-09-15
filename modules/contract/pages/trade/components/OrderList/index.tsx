@@ -25,7 +25,7 @@ import {
   createHistoryColumns,
   createTradeRecordColumns,
   createTradeHistoryColumns,
-} from "./configs/columns";
+} from "./configs";
 import styles from "@/styles/components/Table.module.css";
 import {
   SliderTheme,
