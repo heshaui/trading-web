@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import ErrModal from "./totastModal";
 import { creatWithdraw } from '@/services/assets'
 import { encryptData } from "@/hooks/user-encrypt";
-import WithdrawMoneySafe from "@/components/assetsModal/withdrawMoneySafe_Modal";
+import WithdrawMoneySafe from "./withdrawMoneySafe_Modal";
 import TotastModal from "./totastModal";
 import { getUserInfo } from '@/hooks/userInfo';
 import { useTranslation } from "next-i18next";
@@ -69,7 +69,8 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
     const handOk = async () => {
         // setErrOpen(true)
         const userInfo = getUserInfo()
-        setUserInfo(userInfo)
+        const coinInfo = Object.assign(userInfo, withdrawInfo)
+        setUserInfo(coinInfo)
         setSafeModalOpen(true)
         // onCancel()
     };

@@ -5,9 +5,9 @@ import type { ModalProps } from "antd/es/modal/interface";
 // import store from "@/store"
 // import { useRouter } from 'next/router';
 import styles from "./styles/delect.module.css";
-import Image from 'next/image'
-import { Iconify } from "@/components/icon/index";
-import { updateUserCenter } from '@/services/userCenter'
+// import Image from 'next/image'
+// import { Iconify } from "@/components/icon/index";
+// import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 import { deleteByIds } from '@/services/assets'
 import { useTranslation } from 'next-i18next';

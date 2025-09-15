@@ -111,7 +111,7 @@
       "networkNotFound": "Network not found for this address, please select manually",
       "addressNetworkMismatch": "Current address does not match selected network, please reselect or enter address",
       "networkWarning": "Please note that only deposit networks supported by Metawave platform are shown here. Using unsupported networks may result in asset loss.",
-      "networkWarning2": "Please note that only withdrawal networks supported by {{platformName}} platform are shown here. Using unsupported networks may result in asset loss.",
+      "networkWarning2": "Please ensure that the receiving platform for your current withdrawal supports both the currency you intend to withdraw and the network you will use for the withdrawal. If you are not yet certain, it is recommended that you confirm with the receiving platform first before proceeding with the withdrawal.",
     "networkWarning3": "Please note that only deposit networks supported by {{platformName}} platform are shown here. Using unsupported networks may result in asset loss.",
       "memoWarning": "When withdrawing to other exchanges, a tag must be filled in, otherwise the withdrawal will fail",
       "memoConfirm": "Please confirm whether the receiving address requires MEMO",
