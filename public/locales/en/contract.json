@@ -248,7 +248,8 @@
       "contractName": "Contract Name",
       "id": "Order ID",
       "open": "Open Status",
-      "status": "Status"
+      "status": "Status",
+      "piece": "Cont"
     },
     "tradeRecordColumn": {
       "symbol": "Contract",

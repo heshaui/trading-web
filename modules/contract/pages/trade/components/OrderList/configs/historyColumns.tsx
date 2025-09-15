@@ -61,7 +61,7 @@ export const createHistoryColumns = ({
     dataIndex: "volume",
     key: "volume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.volume}</div>
+      <div className="text-[12px] font-[500]">{record.volume} {t("order.historyColumn.piece")}</div>
     ),
   },
   //成交数量
@@ -70,7 +70,7 @@ export const createHistoryColumns = ({
     dataIndex: "dealVolume",
     key: "dealVolume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.dealVolume}</div>
+      <div className="text-[12px] font-[500]">{record.dealVolume} {t("order.historyColumn.piece")}</div>
     ),
   },
   // 成交均价

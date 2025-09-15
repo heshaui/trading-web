@@ -244,7 +244,8 @@
       "contractName": "계약명",
       "id": "주문 ID",
       "open": "진입 상태",
-      "status": "상태"
+      "status": "상태",
+      "piece": "계약"
     },
     "tradeRecordColumn": {
       "openAvgPrice": "평균 진입 가격",
