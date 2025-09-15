@@ -167,7 +167,7 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.price}
+            {record.price === 0 ? t("order.common.market") : record.price}
           </div>
         );
       },
