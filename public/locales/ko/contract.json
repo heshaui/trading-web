@@ -224,7 +224,8 @@
       "open": "진입 상태",
       "status": "상태",
       "cancelAll": "전체 취소",
-      "cancel": "취소"
+      "cancel": "취소",
+      "piece": "계약"
     },
     "historyColumn": {
       "symbol": "계약",

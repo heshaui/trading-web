@@ -12,6 +12,7 @@ interface OrdinaryColumnConfig {
   symbolPricePrecision?: number;
 }
 
+
 /**
  * 普通委托列表配置
  */
@@ -49,7 +50,7 @@ export const createOrdinaryColumns = ({
     dataIndex: "volume",
     key: "volume",
     render: (_: any, record: OrdinaryCommission) => (
-      <div className="text-[12px] font-[500]">{record.volume}</div>
+      <div className="text-[12px] font-[500]">{record.volume} {t("order.ordinaryColumn.piece")}</div>
     ),
   },
   // 委托价格

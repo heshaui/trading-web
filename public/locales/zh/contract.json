@@ -216,13 +216,13 @@
       "pricePrecision": "价格精度",
       "side": "方向",
       "positionType": "仓位类型",
-      "avgPrice": "平均价格",
+      "avgPrice": "成交均价",
       "tradeFee": "交易手续费",
       "type": "类型",
-      "mtime": "修改时间",
+      "mtime": "时间",
       "volume": "数量",
       "dealVolume": "成交数量",
-      "price": "价格",
+      "price": "委托价格",
       "contractId": "合约ID",
       "ctime": "创建时间",
       "contractName": "合约名称",
@@ -230,7 +230,8 @@
       "open": "开仓状态",
       "status": "状态",
       "cancelAll": "全撤",
-      "cancel": "取消"
+      "cancel": "取消",
+      "piece": "张"
     },
     "historyColumn": {
       "symbol": "合约",

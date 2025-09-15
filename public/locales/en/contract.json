@@ -228,7 +228,8 @@
       "open": "Open Status",
       "status": "Status",
       "cancelAll": "Cancel All",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "piece": "Cont"
     },
     "historyColumn": {
       "symbol": "Contract",
