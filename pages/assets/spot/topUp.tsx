@@ -243,7 +243,7 @@ const TopUpPage = () => {
     setCoinExtLoading(true);
 
     try {
-      const res = await getcoinExtList(coinId);
+      const res = await getcoinExtList2(coinId);
       if (res.code === "0") {
         const coinExtList = res.data.map((item: any) => {
           const protocol = coinExtAll.find(
@@ -828,6 +828,7 @@ const TopUpPage = () => {
                     bgColor={isDayMode ? "#fff" : "#000"}
                     bordered={false}
                     size={86}
+                    status={walletAddress?.address ?  undefined:'loading' }
                   />
                 </div>
                 <div className="ml-3 font-14 flex-1 min-w-0">
@@ -937,7 +938,7 @@ const TopUpPage = () => {
   ];
 
   return (
-    <div className={` page-h w-full page-box flex-y align-center `}>
+    <div className={` page-h w-full bg-[var(--page-background)] flex-y align-center `}>
       <div className={`${styles.spot_auth_box} max-w-[1200px]`}>
         <div className="flex justify-between align-center">
           <Breadcrumb
@@ -988,7 +989,7 @@ const TopUpPage = () => {
                   components: {
                     Select: {
                       clearBg: "#ffffff",
-                      selectorBg: "var(--background7)", // select框背景色 //transparent
+                      selectorBg: "transparent", // select框背景色 //var(--background7)
                       singleItemHeightLG: 50,
                       paddingXXS: 10, // 下拉框选项最小内边距
                       optionHeight: 40, //选项高度
