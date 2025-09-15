@@ -96,6 +96,7 @@
   "submitTime": "Order Time",
   "triggerTime": "Trigger Time",
   "expirationTime": "Expiration Time",
+  "piece": "Cont",
   "calculator": {
     "title": "Calculator",
     "profitTab": "Profit",

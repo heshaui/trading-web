@@ -96,6 +96,7 @@
   "submitTime": "提交委托时间",
   "triggerTime": "触发时间",
   "expirationTime": "过期时间",
+  "piece": "张",
   "calculator": {
     "title": "计算器",
     "profitTab": "收益",
