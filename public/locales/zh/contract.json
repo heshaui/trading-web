@@ -265,9 +265,10 @@
       "orderSide": "订单方向",
       "profitRealizedAmount": "盈亏",
       "contractId": "合约ID",
-      "historyRealizedAmount": "历史已实现盈亏",
+      "historyRealizedAmount": "已实现盈亏",
       "ctime": "创建时间",
-      "id": "仓位ID"
+      "id": "仓位ID",
+      "piece": "张"
     },
     "tradeHistoryColumn": {
       "symbol": "合约",

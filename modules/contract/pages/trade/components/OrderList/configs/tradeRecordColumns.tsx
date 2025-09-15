@@ -16,14 +16,14 @@ export const createTradeRecordColumns = ({
   symbolPricePrecision?: number;
 }) => [
   // 订单ID
-  {
-    title: t("order.tradeRecordColumn.id"),
-    dataIndex: "id",
-    key: "id",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.id}</div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.id"),
+  //   dataIndex: "id",
+  //   key: "id",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div className="text-[12px] font-[500]">{record.id}</div>
+  //   ),
+  // },
   // 开仓均价
   {
     title: t("order.tradeRecordColumn.openAvgPrice"),
@@ -47,33 +47,33 @@ export const createTradeRecordColumns = ({
     ),
   },
   // 已实现盈亏
-  {
-    title: t("order.tradeRecordColumn.realizedAmount"),
-    dataIndex: "realizedAmount",
-    key: "realizedAmount",
-    render: (_: any, record: TradeRecord) => (
-      <div
-        className="text-[12px] font-[500]"
-        style={{
-          color:
-            record.realizedAmount > 0
-              ? "#4CAF50"
-              : record.realizedAmount < 0
-              ? "#F44336"
-              : "",
-        }}
-      >
-        {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}
-      </div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.realizedAmount"),
+  //   dataIndex: "realizedAmount",
+  //   key: "realizedAmount",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div
+  //       className="text-[12px] font-[500]"
+  //       style={{
+  //         color:
+  //           record.realizedAmount > 0
+  //             ? "#4CAF50"
+  //             : record.realizedAmount < 0
+  //             ? "#F44336"
+  //             : "",
+  //       }}
+  //     >
+  //       {new BigNumber(record.realizedAmount).toFormat(symbolPricePrecision)}
+  //     </div>
+  //   ),
+  // },
   // 持仓数量
   {
     title: t("order.tradeRecordColumn.positionVolume"),
     dataIndex: "positionVolume",
     key: "positionVolume",
     render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.positionVolume}</div>
+      <div className="text-[12px] font-[500]">{record.positionVolume} {t("order.tradeRecordColumn.piece")}</div>
     ),
   },
   // 杠杆倍数
@@ -86,38 +86,38 @@ export const createTradeRecordColumns = ({
     ),
   },
   // 开仓价格
-  {
-    title: t("order.tradeRecordColumn.openPrice"),
-    dataIndex: "openPrice",
-    key: "openPrice",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">
-        {new BigNumber(record.openPrice).toFormat(symbolPricePrecision)}
-      </div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.openPrice"),
+  //   dataIndex: "openPrice",
+  //   key: "openPrice",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div className="text-[12px] font-[500]">
+  //       {new BigNumber(record.openPrice).toFormat(symbolPricePrecision)}
+  //     </div>
+  //   ),
+  // },
   // 结算盈亏
-  {
-    title: t("order.tradeRecordColumn.settleProfit"),
-    dataIndex: "settleProfit",
-    key: "settleProfit",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">
-        {new BigNumber(record.settleProfit).toFormat(symbolPricePrecision)}
-      </div>
-    ),
-  },
-  // 创建时间
-  {
-    title: t("order.tradeRecordColumn.mtime"),
-    dataIndex: "mtime",
-    key: "mtime",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">
-        {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
-      </div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.settleProfit"),
+  //   dataIndex: "settleProfit",
+  //   key: "settleProfit",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div className="text-[12px] font-[500]">
+  //       {new BigNumber(record.settleProfit).toFormat(symbolPricePrecision)}
+  //     </div>
+  //   ),
+  // },
+  // 修改时间
+  // {
+  //   title: t("order.tradeRecordColumn.mtime"),
+  //   dataIndex: "mtime",
+  //   key: "mtime",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div className="text-[12px] font-[500]">
+  //       {dayjs(record.mtime).format("YYYY-MM-DD HH:mm:ss")}
+  //     </div>
+  //   ),
+  // },
   // 方向
   {
     title: t("order.tradeRecordColumn.orderSide"),
@@ -133,37 +133,37 @@ export const createTradeRecordColumns = ({
     ),
   },
   // 已实现盈亏
-  {
-    title: t("order.tradeRecordColumn.profitRealizedAmount"),
-    dataIndex: "profitRealizedAmount",
-    key: "profitRealizedAmount",
-    render: (_: any, record: TradeRecord) => (
-      <div
-        className="text-[12px] font-[500]"
-        style={{
-          color:
-            record.profitRealizedAmount > 0
-              ? "#4CAF50"
-              : record.profitRealizedAmount < 0
-              ? "#F44336"
-              : "",
-        }}
-      >
-        {new BigNumber(record.profitRealizedAmount).toFormat(
-          symbolPricePrecision
-        )}
-      </div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.profitRealizedAmount"),
+  //   dataIndex: "profitRealizedAmount",
+  //   key: "profitRealizedAmount",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div
+  //       className="text-[12px] font-[500]"
+  //       style={{
+  //         color:
+  //           record.profitRealizedAmount > 0
+  //             ? "#4CAF50"
+  //             : record.profitRealizedAmount < 0
+  //             ? "#F44336"
+  //             : "",
+  //       }}
+  //     >
+  //       {new BigNumber(record.profitRealizedAmount).toFormat(
+  //         symbolPricePrecision
+  //       )}
+  //     </div>
+  //   ),
+  // },
   // 合约ID
-  {
-    title: t("order.tradeRecordColumn.contractId"),
-    dataIndex: "contractId",
-    key: "contractId",
-    render: (_: any, record: TradeRecord) => (
-      <div className="text-[12px] font-[500]">{record.contractId}</div>
-    ),
-  },
+  // {
+  //   title: t("order.tradeRecordColumn.contractId"),
+  //   dataIndex: "contractId",
+  //   key: "contractId",
+  //   render: (_: any, record: TradeRecord) => (
+  //     <div className="text-[12px] font-[500]">{record.contractId}</div>
+  //   ),
+  // },
   // 历史已实现盈亏
   {
     title: t("order.tradeRecordColumn.historyRealizedAmount"),
@@ -187,7 +187,7 @@ export const createTradeRecordColumns = ({
       </div>
     ),
   },
-  // 创建时间
+  // 创建时间  平仓时间
   {
     title: t("order.tradeRecordColumn.ctime"),
     dataIndex: "ctime",

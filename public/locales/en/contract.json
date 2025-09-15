@@ -266,7 +266,8 @@
       "contractId": "Contract ID",
       "historyRealizedAmount": "History Realized Amount",
       "ctime": "Create Time",
-      "id": "Position ID"
+      "id": "Position ID",
+      "piece": "Cont"
     },
     "tradeHistoryColumn": {
       "symbol": "Contract",

@@ -261,7 +261,8 @@
       "contractId": "계약 ID",
       "historyRealizedAmount": "미실현 손익",
       "ctime": "생성 시간",
-      "id": "포지션 ID"
+      "id": "포지션 ID",
+      "piece": "계약"
     },
     "tradeHistoryColumn": {
       "symbol": "계약",
