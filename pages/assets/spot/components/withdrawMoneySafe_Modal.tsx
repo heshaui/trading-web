@@ -67,6 +67,8 @@ interface SafeDataType {
   famousAphorisms?: string;
   securityIntensity?: number;
   googleCode?: string;
+  protocolId?: number;
+  coinId?: number;
 }
 type Props = {
   open: boolean;
@@ -92,7 +94,7 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
   const [emailCodeInputValue, setEmailCodeInputValue] = useState("");
   const [phoneCodeInputValue, setPhoneCodeInputValue] = useState("");
   const [googleCodeInputValue, setGoogleCodeInputValue] = useState("");
-  const [errOpen, setErrOpen] = useState(false);
+  // const [errOpen, setErrOpen] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -109,6 +111,8 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
         emailCode: values.emailCode || "",
         smsCode: values.phoneCode || "",
         googleCode: values.googleCode || "",
+        protocolId: acountInfo.protocolId,
+        coinId: acountInfo.coinId,
       };
 
       // onOk(dataInfo)

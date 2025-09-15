@@ -10,11 +10,10 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 import Image from 'next/image'
 import Link from 'next/link'
 import { NoData, NoAddress } from '@/components/noData';
-import WithdrawMoneyCheck from '@/components/assetsModal/withdrawMoneyCheck'
 import { useRouter } from 'next/router'
 import NoUseCom from '../components/noSM'
-import DelectModal from "@/components/assetsModal/delectAddress_Modal"
-import AddAddressModal from "@/components/assetsModal/addAddress_Modal"
+import DelectModal from "../components/delectAddress_Modal"
+import AddAddressModal from "../components/addAddress_Modal"
 import { getuserAddressList, getCoinAll } from '@/services/assets'
 import { toast } from "sonner";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

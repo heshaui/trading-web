@@ -311,8 +311,8 @@ export const getRound = (
         item.symbol === symbolPairs
       );
     });
-    const scaleResult = roundDown(num, coin?.coinScale || 0);
-    const baseScaleResult = roundDown(num, coin?.baseCoinScale || 0);
+    const scaleResult = roundDown(num, coin?.coinScale || 8);
+    const baseScaleResult = roundDown(num, coin?.baseCoinScale || 8);
     return {
       scaleResult: scaleResult,
       baseScaleResult: baseScaleResult,
