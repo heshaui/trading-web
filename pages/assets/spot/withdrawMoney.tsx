@@ -1565,7 +1565,7 @@ const WithdrawMoneyPage = observer(() => {
   return (
     <ResetStateProvider>
       <div
-        className={` page-h w-full page-box flex-y align-center justify-center`}
+        className={` page-h w-full bg-[var(--page-background)] flex-y align-center justify-center`}
         style={{ paddingBottom: "10vh" }}
       >
         <div className={`${styles.spot_auth_box} max-w-[1200px]`}>
