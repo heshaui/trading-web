@@ -46,7 +46,7 @@ import {
 } from "@/hooks/useStateProvider";
 import appStore from "@/store";
 import { observer } from "mobx-react-lite";
-import { getRate, getCoinRate } from "@/utils/getUseRate";
+import { getRate, getCoinRate,getCoinRound } from "@/utils/getUseRate";
 import {
   coinSelectType,
   coinExtAllListType,
@@ -1434,7 +1434,7 @@ const WithdrawMoneyPage = observer(() => {
                     <p>{t("withdrawMoney.spotAvailable")}</p>
                     <p className={`${styles.title_color}`}>
                       {/* 50.13USDT */}
-                      {coninInfo.balance || "0"}&nbsp;
+                      {getCoinRound(coninInfo.coinName,coninInfo.balance || 0)}&nbsp;
                       {coninInfo.coinName || "--"}
                     </p>
                   </li>
@@ -1443,8 +1443,8 @@ const WithdrawMoneyPage = observer(() => {
                     <p className={`${styles.title_color}`}>
                       {/* 10-10,000USDT */}
                       {/* {coninInfo.minWithdraw||'0'}-{coninInfo.maxWithdraw||'0'}{coninInfo.coinName||'--'} */}
-                      {coninInfo?.minWithdraw || 0}-
-                      {coninInfo.maxWithdraw || "0"}&nbsp;
+                      {getCoinRound(coninInfo.coinName,coninInfo?.minWithdraw || 0)}-
+                      {getCoinRound(coninInfo.coinName,coninInfo.maxWithdraw || 0)}&nbsp;
                       {coninInfo.coinName || "--"}
                     </p>
                   </li>
@@ -1454,15 +1454,15 @@ const WithdrawMoneyPage = observer(() => {
                     <p>
                       <span className={`${styles.title_color}`}>
                         {userAllLimit.mix
-                          ? getCoinRateData(
+                          ? getCoinRound(coninInfo.coinName,getCoinRateData(
                             coninInfo.coinName,
                             cut(Number(userAllLimit?.max|| 0),Number(userAllLimit.mix||0))
-                          )
+                          ))
                           : "0"}
                       </span>
                       /{" "}
                       {userAllLimit.max
-                        ? getCoinRateData(coninInfo.coinName, userAllLimit.max)
+                        ? getCoinRound(coninInfo.coinName,getCoinRateData(coninInfo.coinName, userAllLimit.max))
                         : "0"}
                       &nbsp;{coninInfo.coinName || "--"}
                     </p>
@@ -1479,11 +1479,11 @@ const WithdrawMoneyPage = observer(() => {
                       {/* 1 USDT */}
                       {/* {cut(amountNum, coninInfo.withdrawFee ?
                                         nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee) || 0} */}
-                      {countNum(
+                      {getCoinRound(coninInfo.coinName,countNum(
                         amountNum || 0,
                         coninInfo?.withdrawFee || 0,
                         coninInfo?.minWithdrawFee || 0
-                      ) || 0}
+                      ) || 0)}
                       {coninInfo.coinName || "--"}
                     </p>
                     <p className={`${styles.tip_color} mb-3`}>
@@ -1492,11 +1492,11 @@ const WithdrawMoneyPage = observer(() => {
                         {/* 1 USDT */}
 
                         {/* {nul(amountNum, division(coninInfo.withdrawFee,100)) > coninInfo.minWithdrawFee ? nul(amountNum, division(coninInfo.withdrawFee,100)) : coninInfo.minWithdrawFee} */}
-                        {withdrawFee(
+                        {getCoinRound(coninInfo.coinName,withdrawFee(
                           amountNum || 0,
                           coninInfo?.withdrawFee || 0,
                           coninInfo?.minWithdrawFee || 0
-                        ) || 0}
+                        ) || 0)}
                         {coninInfo.coinName || "--"}
                       </span>
                     </p>

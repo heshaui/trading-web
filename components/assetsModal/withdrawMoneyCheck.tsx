@@ -210,13 +210,13 @@ function WithdrawMoneyCheck({ open, onCancel, withdrawInfo, onOk }: Props) {
                                 {t('withdrawMoneyCheck.amountAfter')}
                             </p>
                             <p className="flex-y">
-                                <span>
+                                <span className="text-right">
                                     {/* 到账： */}
                                     {t('withdrawMoneyCheck.toAccount')}
                                     {withdrawInfo?.amountAfter}
                                     {withdrawInfo?.coinName}
                                 </span>
-                                <span>
+                                <span className="text-right">
                                     {/* 手续费： */}
                                     {t('withdrawMoneyCheck.withdrawFee')}
                                     {withdrawInfo?.countWithdrawFee}
