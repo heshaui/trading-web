@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getTradeInfo } from "@/services/contract";
-import { Open, Side, Role } from "../configs/columns";
+import { Open, Side, Role } from "../configs/constants";
 
 // 成交记录接口
 interface TradeHistory {
