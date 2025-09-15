@@ -44,12 +44,21 @@ import PhaseModal from "./components/PhaseModal";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
 
+const TAB_KEYS = {
+  POSITION: "Position",
+  ORDINARY_COMMISSION: "OrdinaryCommission", // 当前委托(普通委托)
+  CONDITIONAL_COMMISSION: "ConditionalCommission", // 条件委托
+  HISTORY_COMMISSION: "HistoryCommission", // 历史委托
+  PROFIT_LOSS: "ProfitLoss", // 盈亏记录
+  TRADE_HISTORY: "TradeHistory", // 成交记录
+};
+
 // 订单列表组件
 const OrderListComponent = (props: any, ref: any) => {
   const { t } = useTranslation(["contract"]);
   const [isClient, setIsClient] = useState(false);
   const { isLoggedIn } = useAuth();
-  const [activeTab, setActiveTab] = useState("position");
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.POSITION);
   const [stopModalOpen, setStopModalOpen] = useState(false);
   const [reverModalOpen, setReverModalOpen] = useState(false);
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
@@ -181,7 +190,7 @@ const OrderListComponent = (props: any, ref: any) => {
   // ============ 各种表格的tab配置 ============
   const tabItems = [
     {
-      key: "position",
+      key: TAB_KEYS.POSITION,
       label: `${t("order.position")}(${positionNumber})`,
       children: (
         <Table<Position>
@@ -199,7 +208,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: "openOrders",
+      key: TAB_KEYS.ORDINARY_COMMISSION,
       label: `${t("order.currentCommission")}(${ordinaryCommissionNumber})`,
       children: (
         <Table<OrdinaryCommission>
@@ -217,7 +226,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     // {
-    //   key: "conditionalOrders",
+    //   key: TAB_KEYS.CONDITIONAL_COMMISSION,
     //   label: `条件委托(${filterDataBySymbol(conditionalCommission).length})`,
     //   children: (
     //     <Table<any>
@@ -235,7 +244,7 @@ const OrderListComponent = (props: any, ref: any) => {
     //   ),
     // },
     {
-      key: "orderHistory",
+      key: TAB_KEYS.HISTORY_COMMISSION,
       label: `${t("order.historyCommission")}(${historyCommissionNumber})`,
       children: (
         <Table<any>
@@ -257,7 +266,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: "profitLoss",
+      key: TAB_KEYS.PROFIT_LOSS,
       label: `${t("order.profitLoss")}`,
       children: (
         <Table<TradeRecord>
@@ -275,7 +284,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: "tradeHistory",
+      key: TAB_KEYS.TRADE_HISTORY,
       label: `${t("order.tradeHistory")}`,
       children: (
         <Table<TradeHistory>
@@ -313,7 +322,7 @@ const OrderListComponent = (props: any, ref: any) => {
   useEffect(() => {
     if (currentContractInfo?.id && isLoggedIn) {
       const map = {
-        position: ({
+        Position: ({
           showLoading,
           showMessage,
         }: {
@@ -321,7 +330,7 @@ const OrderListComponent = (props: any, ref: any) => {
           showMessage: boolean;
         }) => getPosition({ showLoading, showMessage }),
 
-        openOrders: ({
+        OrdinaryCommission: ({ // 当前委托(普通委托)
           showLoading,
           showMessage,
         }: {
@@ -330,11 +339,11 @@ const OrderListComponent = (props: any, ref: any) => {
         }) => getOrdinaryCommission({ showLoading, showMessage }),
 
         // 条件委托
-        // conditionalOrders: ({ showLoading }: { showLoading: boolean }) =>
+        // ConditionalCommission: ({ showLoading }: { showLoading: boolean }) =>
         //   getConditionalCommission({ showLoading }),
 
         // 历史委托
-        orderHistory: ({
+        HistoryCommission: ({ // 历史委托
           showLoading,
           showMessage,
         }: {
@@ -343,32 +352,50 @@ const OrderListComponent = (props: any, ref: any) => {
         }) => getHistoryCommission({ showLoading, showMessage }),
 
         // 盈亏记录
-        profitLoss: ({ showLoading }: { showLoading: boolean }) =>
+        ProfitLoss: ({ showLoading }: { showLoading: boolean }) =>
           getProfitLoss({ showLoading }),
 
         // 成交记录
-        tradeHistory: ({ showLoading }: { showLoading: boolean }) =>
+        TradeHistory: ({ showLoading }: { showLoading: boolean }) =>
           getTradeHistory({ showLoading }),
       };
+      
       const fn = map[activeTab as keyof typeof map];
-      // 只有仓位和当前委托需要轮询
       let intervalId: NodeJS.Timeout | null = null;
-      if (activeTab === "position" || activeTab === "openOrders") {
+      let isCurrentEffect = true; // 用于标识当前effect是否还有效
+      
+      // 首次获取数据
+      fn?.({ showLoading: true, showMessage: true });
+      
+      // 只有仓位和当前委托需要轮询
+      if (activeTab === TAB_KEYS.POSITION || activeTab === TAB_KEYS.ORDINARY_COMMISSION) {
         const poll = () => {
+          // 检查当前effect是否还有效，避免已经切换tab后还在执行
+          if (!isCurrentEffect) {
+            return;
+          }
+          
           fn?.({ showLoading: false, showMessage: false }).finally(() => {
-            if (activeTab === "position" || activeTab === "openOrders") {
-              // 检查当前是否仍是激活的 tab
-              intervalId = setTimeout(poll, 800); // 请求完成后再设置下一个定时器
+            // 再次检查effect有效性和tab状态
+            if (isCurrentEffect && 
+                (activeTab === TAB_KEYS.POSITION || activeTab === TAB_KEYS.ORDINARY_COMMISSION)) {
+              console.log("轮询", activeTab);
+              intervalId = setTimeout(poll, 800);
             }
           });
         };
-        intervalId = setTimeout(poll, 800); // 启动第一次轮询
+        
+        // 延迟启动轮询
+        intervalId = setTimeout(poll, 800);
       }
 
-      // 清理定时器
+      // 清理函数：activeTab切换或组件卸载时执行
       return () => {
+        isCurrentEffect = false; // 标记当前effect无效
         if (intervalId) {
-          clearInterval(intervalId);
+          clearTimeout(intervalId);
+          console.log("清除定时器", activeTab);
+          intervalId = null;
         }
       };
     }
