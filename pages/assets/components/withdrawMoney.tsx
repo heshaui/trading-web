@@ -14,8 +14,8 @@ import dayjs from "dayjs";
 // import ErrModal from "./TotastModal";
 import { creatWithdraw } from '@/services/assets'
 import { encryptData } from "@/hooks/user-encrypt";
-import WithdrawMoneySafe from "./withdrawMoneySafeModal";
-import TotastModal from "./totastModal";
+import WithdrawMoneySafe from "@/components/assets/withdrawMoneySafe";
+import TotastModal from "./totastsModal";
 import { getUserInfo } from '@/hooks/userInfo';
 import { useTranslation } from "next-i18next";
 import { useResetStateContext } from '@/hooks/useStateProvider';
