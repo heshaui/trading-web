@@ -40,6 +40,7 @@ interface SymbolData {
   changePercent?: string;
   isFavorite?: boolean;
   type?: 'USD' | 'COIN';
+  volume?: string;
 }
 
 interface SymbolSelectorProps {
@@ -74,7 +75,7 @@ const SymbolItem: React.FC<{
     onClick={() => onSymbolClick(item)}
   >
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <button
+      {/* <button
         className={`${styles.favorite_btn} ${item.isFavorite ? styles.favorited : ''}`}
         onClick={(e) => {
           e.stopPropagation();
@@ -82,10 +83,11 @@ const SymbolItem: React.FC<{
         }}
       >
         <Iconify icon={item.isFavorite ? "mdi:star" : "mdi:star-outline"} />
-      </button>
+      </button> */}
       <div className={styles.symbol_info}>
         <div className={styles.symbol_name}>{item.base}/{item.quote}</div>
         <div className={styles.symbol_type}>{item.contractShowType}</div>
+        <div className={styles.symbol_type}>{item.volume || '--'}</div>
       </div>
     </div>
     <div className={styles.symbol_price_info}>
@@ -133,6 +135,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
   const [activeTab, setActiveTab] = useState('usd-contract');
 
+  console.log("marketInfoData", marketInfoData);
   // 将 marketInfoData 的数据合并到 symbolList 中
   const enrichedSymbolList = React.useMemo(() => {
     if (!marketInfoData || !symbolList) return symbolList;
@@ -289,6 +292,15 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
       .filter(config => availableTypes.includes(config.type))
       .map(config => (
         <Tabs.TabPane tab={config.label} key={config.key}>
+          <div className={styles.symbol_header}>
+            <div className={styles.symbol_header_left}>
+              <span>合约/市值</span>
+            </div>
+            <div className={styles.symbol_header_right}>
+              <span>最新价</span>
+              <span>涨跌幅</span>
+            </div>
+          </div>
           <div className={styles.symbol_list}>
             {filteredSymbols(config.type).map(item => (
               <SymbolItem
